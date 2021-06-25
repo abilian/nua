@@ -1,2 +1,4 @@
-# nua
-Open source PaaS and application marketplace
+# Nua
+
+Open source PaaS and application marketplace.
+
