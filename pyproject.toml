@@ -1,0 +1,97 @@
+[tool.poetry]
+name = "NUA"
+version = "0.0.0"
+description = ""
+authors = ["Abilian SAS"]
+license = "Proprietary"
+
+packages = [{ include = "nua", from = "src" }]
+include = ["src/**/*"]
+
+
+[tool.poetry.scripts]
+nuad = 'nua.cli.nuad:main'
+
+
+[tool.poetry.dependencies]
+python = "^3.7"
+
+
+#blinker = "^1.4"
+#click = "^7.1.2"
+#
+#psycopg2-binary = "*"
+#
+#BeautifulSoup4 = "^4.9.1"
+#bcrypt = "^3.2.0"
+#bleach = "*"
+#email-validator = "^1.1.1"
+#feedgen = "^0.9.0"
+#loguru = "^0.5"
+#lxml = "^4.5.1"
+#markdown = "*"
+#python-dotenv = "*"
+#python-magic = "*"
+#pytz = "^2020.1"
+#toolz = "*"
+#wtforms = "*"
+
+# Debug
+devtools = "^0"
+
+# Production and devops
+gunicorn = "*"
+
+#newrelic = "^5.20.1"
+#sentry-sdk = {extras = ["flask"], version = "*"}
+#sqreen = "*"
+SQLAlchemy = "^1.4.15"
+starlette = "^0.14.2"
+
+aiofiles = "^0.7.0"
+fire = "^0.4.0"
+pyinfra = "^1.4.4"
+shortuuid = "^1.0.1"
+rich = "^10.3.0"
+#bundlewrap = "^4.2.0"
+#pyinfra = "^1.1.2"
+#pytest-testinfra = "^6.1.0"
+#xlrd = "^2.0.1"
+#pypugjs = "^5.9.9"
+
+
+[tool.poetry.dev-dependencies]
+# Lint / checks
+flake8 = "*"
+flake8-bugbear = "*"
+flake8-comprehensions = "*"
+flake8-mutable = "*"
+flake8-pytest = "*"
+flake8-super-call = "*"
+flake8-tidy-imports = "*"
+mastool = "*"
+mypy = "*"
+black = { version = "*", allow-prereleases = true }
+
+# Testing
+pytest = "*"
+coverage = "*"
+pytest-cov = "^2.9.0"
+pip-check-reqs = "^2.1.1"
+typeguard = "^2.9.1"
+
+# Run in dev mode
+honcho = "*"
+
+# Devops
+invoke = "^1.4.1"
+
+
+[tool.isort]
+profile = "black"
+
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
