@@ -72,8 +72,8 @@ clean:
 format: format-py
 
 format-py:
-	black -t py37 src tests *.py
-	isort src tests *.py
+	black -t py38 src tests scripts *.py
+	isort src tests *.py scripts
 
 update-deps:
 	poetry update
