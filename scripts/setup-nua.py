@@ -20,6 +20,7 @@ PACKAGES = [
 def main():
     configure_apt()
     install_packages()
+    install_nodejs()
 
 
 def configure_apt():
@@ -43,12 +44,12 @@ def install_packages():
     system(cmd)
 
 
-def install_node():
-    cmd = "curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -"
+def install_nodejs():
+    cmd = "curl -sL https://deb.nodesource.com/setup_14.x | bash -"
     system(cmd)
 
     system("apt-get install -y nodejs")
-    system("npm install -g yarn")
+    system("/usr/bin/npm install -g yarn")
 
 
 def echo(text: str, filename: str) -> None:
