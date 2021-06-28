@@ -1,0 +1,19 @@
+[metadata]
+id = "hedgedoc"
+version = "1.13.2"
+title = "HedgeDoc"
+author = "HedgeDoc authors"
+tagline = "Collaborative markdown editor"
+website = "https://hedgedoc.org/"
+tags = ["markdown", "collaboration", "notes", "documents"]
+licence = "GNU Affero General Public License v3.0"
+profile = ["generic"]
+
+
+[sources]
+url = "https://github.com/hedgedoc/server/archive/{version}.tar.gz"
+checksum = ""
+
+
+[addons]
+postgresql = true

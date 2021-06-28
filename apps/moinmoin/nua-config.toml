@@ -1,0 +1,15 @@
+[metadata]
+id = "moinmoin"
+version = "1.9.11"
+title = "Moinmoin"
+author = "Moinmoin authors"
+tagline = "An advanced, easy to use and extensible Wiki engine with a large community of users"
+website = "https://moinmo.in/"
+tags = ["wiki", "collaboration", "notes", "documents"]
+licence = "GNU General Public License"
+profile = ["generic"]
+
+
+[sources]
+url = "https://static.moinmo.in/files/moin-{version}.tar.gz"
+checksum = "02be31d55f39d4fe0c6253df8b49e01b76d095634cbd1b56d185f66e1e0c3"
