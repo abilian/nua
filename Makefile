@@ -40,7 +40,7 @@ lint: lint-py lint-mypy
 lint-py:
 	@echo "--> Style and basic linting w/ flake8"
 	@make flake8
-	black --check src tests *.py
+	black --check src tests
 	@echo ""
 
 lint-mypy:
@@ -68,12 +68,13 @@ clean:
 	rm -rf htmlcov junit-*.xml
 	rm -f ./src/app/static/dist/js/* ./src/app/static/dist/css/*
 	rm -f ./front/dist/static/js/* ./front/dist/static/css/*
+	rm -rf apps/*/_build
 
 format: format-py
 
 format-py:
-	black -t py38 src tests scripts *.py
-	isort src tests *.py scripts
+	black -t py38 src scripts
+	isort src scripts
 
 update-deps:
 	poetry update
