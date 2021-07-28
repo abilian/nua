@@ -1,14 +1,14 @@
 #!/bin/env python3
 
 import errno
+import grp
 import json
 import os
 import pwd
-import grp
 import shutil
 from pathlib import Path
-
 from pprint import pprint
+
 
 #
 # Main
