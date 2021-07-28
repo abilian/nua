@@ -10,9 +10,9 @@ licence = "GNU Affero General Public License v3.0"
 profile = ["generic"]
 
 
-[sources]
-url = "https://github.com/hedgedoc/server/archive/{version}.tar.gz"
-checksum = ""
+[build]
+src_url = "https://github.com/hedgedoc/server/archive/{version}.tar.gz"
+src_checksum = ""
 
 
 [addons]
