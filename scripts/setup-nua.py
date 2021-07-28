@@ -14,6 +14,10 @@ PACKAGES = [
     "make",
     "gcc",
     "g++",
+    # Base services
+    "postgresql-all",
+    "nginx-light"
+    # "nginx-full",
 ]
 
 
@@ -21,6 +25,7 @@ def main():
     configure_apt()
     install_packages()
     install_nodejs()
+    open_firewall()
 
 
 def configure_apt():
@@ -52,6 +57,13 @@ def install_nodejs():
     system("/usr/bin/npm install -g yarn")
 
 
+def open_firewall():
+    system("ufw allow 'Nginx Full'")
+
+
+#
+# Library
+#
 def echo(text: str, filename: str) -> None:
     with open(filename, "w") as fd:
         fd.write(text)
