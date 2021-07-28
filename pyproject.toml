@@ -1,25 +1,43 @@
 [tool.poetry]
 name = "NUA"
-version = "0.0.0"
-description = ""
+version = "0.1.0"
+description = "Simple cloud platform (PaaS) for developers and sysadmins."
 authors = ["Abilian SAS"]
-license = "Proprietary"
+license = "GPL"
 
 packages = [{ include = "nua", from = "src" }]
 include = ["src/**/*"]
 
 
 [tool.poetry.scripts]
-nuad = 'nua.cli.nuad:main'
-nua-build = 'nua.cli.build.main:main'
-nua = 'nua.cli.main:main'
+nua = "nua.cli.main:main"
+nua-agent = "nua.agent.main:main"
+#nuad = 'nua.cli.nuad:main'
+#nua-build = 'nua.cli.build.main:main'
 
 
 [tool.poetry.dependencies]
 python = "^3.8"
 
+# CLI
+fire = "^0.4.0"
+rich = "^10.3.0"
+
+# Debug
+devtools = "^0"
+
+SQLAlchemy = "^1.4.15"
+
+# Web (not used yet)
+# starlette = "^0.14.2"
+# gunicorn = "*"
+# aiofiles = "^0.7.0"
+#pypugjs = "^5.9.9"
 #blinker = "^1.4"
-#click = "^7.1.2"
+
+# Not used yet
+#pyinfra = "^1.4.4"
+#shortuuid = "^1.0.1"
 #
 #psycopg2-binary = "*"
 #
@@ -36,29 +54,6 @@ python = "^3.8"
 #pytz = "^2020.1"
 #toolz = "*"
 #wtforms = "*"
-
-# Debug
-devtools = "^0"
-
-# Production and devops
-gunicorn = "*"
-
-#newrelic = "^5.20.1"
-#sentry-sdk = {extras = ["flask"], version = "*"}
-#sqreen = "*"
-SQLAlchemy = "^1.4.15"
-starlette = "^0.14.2"
-
-aiofiles = "^0.7.0"
-fire = "^0.4.0"
-pyinfra = "^1.4.4"
-shortuuid = "^1.0.1"
-rich = "^10.3.0"
-#bundlewrap = "^4.2.0"
-#pyinfra = "^1.1.2"
-#pytest-testinfra = "^6.1.0"
-#xlrd = "^2.0.1"
-#pypugjs = "^5.9.9"
 
 
 [tool.poetry.dev-dependencies]
@@ -82,10 +77,10 @@ pip-check-reqs = "^2.1.1"
 typeguard = "^2.9.1"
 
 # Run in dev mode
-honcho = "*"
+# honcho = "*"
 
 # Devops
-invoke = "^1.4.1"
+# invoke = "^1.4.1"
 
 
 [tool.isort]
@@ -95,4 +90,3 @@ profile = "black"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
-
