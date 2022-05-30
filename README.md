@@ -12,12 +12,12 @@ Its watchwords are: simplicity, resilience and equity.
 
 ## Concept Map
 
-<img src="./docs/mindmaps/Nua Concept Map.png">
+<img src="./doc/src/diagrams/mindmaps/Nua Concept Map.png">
 
 ## Use cases
 
-<img src="./docs/other-diagrams/Nua use cases.png">
+<img src="./doc/src/diagrams/others/Nua use cases.png">
 
 ## Technical Architecture
 
-<img src="./docs/c4-diagrams/level1.png">
+<img src="./doc/src/diagrams/c4/level1.png">

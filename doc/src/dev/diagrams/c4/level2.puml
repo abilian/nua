@@ -24,7 +24,7 @@ title Container diagram for Nua
 
 Person(user, "User", "Users the platform (according to their profile and permissions)", $sprite="users")
 
-Boundary(aipress24, "Nua Server") {
+Boundary(nua_server, "Nua Server") {
     Container(gateway, "Gateway", "Nginx or similar", "Proxy / Firewall", $sprite="nginx")
 
     Container(nua_web, "Web UI", "HTML5", "The main interface that the users interact with", $sprite="flask_original_wordmark")

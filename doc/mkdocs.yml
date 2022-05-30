@@ -1,0 +1,109 @@
+site_name: Nua doc
+
+docs_dir: src
+
+theme:
+  name: material
+  # custom_dir: theme
+  icon:
+    logo: material/book-open-page-variant
+  language: en
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: pink
+      accent: pink
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: pink
+      accent: pink
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  font:
+    text: Roboto
+    code: Roboto Mono
+  features:
+    - navigation.tabs
+    - navigation.top
+    - navigation.instant
+
+# Extensions
+markdown_extensions:
+  - meta
+  - footnotes
+  - toc:
+      permalink: true
+  - smarty
+  - sane_lists
+  - nl2br
+  - fenced_code
+  - pymdownx.magiclink
+  - pymdownx.tasklist
+  # - pymdownx.superfences
+
+plugins:
+  - search
+  - roamlinks
+  - with-pdf:
+      author: Stefane Fermigier / Jérôme Dumonteil
+      copyright: © 2022 Abilian
+      cover: true
+      back_cover: false
+      cover_title: Nua
+      cover_subtitle: La platforme du journalisme 3.0
+      enabled_if_env: ENABLE_PDF_EXPORT
+
+      #    custom_template_path: TEMPLATES PATH
+      #
+      #toc_title: TOC TITLE TEXT
+      #heading_shift: false
+      #toc_level: 3
+      #ordered_chapter_level: 2
+      #excludes_children:
+      #    - 'release-notes/:upgrading'
+      #    - 'release-notes/:changelog'
+      #
+      #exclude_pages:
+      #    - 'bugs/'
+      #    - 'appendix/contribute/'
+      #convert_iframe:
+      #    - src: IFRAME SRC
+      #      img: POSTER IMAGE URL
+      #      text: ALTERNATE TEXT
+      #    - src: ...
+      #two_columns_level: 3
+      #
+      #render_js: true
+      #headless_chrome_path: headless-chromium
+      #
+      #output_path: any-place/document.pdf
+      #
+      #debug_html: true
+      #show_anchors: true
+      #verbose: true
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          rendering:
+            show_source: false
+      custom_templates: templates
+      watch:
+        - ../src/app
+
+nav:
+  - Home: index.md
+  - Utilisateurs:
+    - Intro: user/index.md
+  - Développeurs:
+    - Intro: dev/index.md
+    - Architecture: dev/architecture.md
+    - Database: dev/database.md
+    - Open Source Librairies (back-end): dev/libraries.md
+    - API (back-end): dev/api.md
+    - Front-End: dev/front-end.md
+    
