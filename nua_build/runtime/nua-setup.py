@@ -47,11 +47,11 @@ def is_python_project():
 
 # Copied from from boltons.fileutils
 def mkdir_p(path):
-    """Creates a directory and any parent directories that may need to
-    be created along the way, without raising errors for any existing
-    directories. This function mimics the behavior of the ``mkdir -p``
-    command available in Linux/BSD environments, but also works on
-    Windows.
+    """Creates a directory and any parent directories that may need to be
+    created along the way, without raising errors for any existing directories.
+
+    This function mimics the behavior of the ``mkdir -p`` command
+    available in Linux/BSD environments, but also works on Windows.
     """
     try:
         os.makedirs(path)

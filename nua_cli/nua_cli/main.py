@@ -46,9 +46,7 @@ def main(
         help="Write verbose output.",
     ),
 ):
-    """
-    Nua CLI inferface
-    """
+    """Nua CLI inferface."""
     if verbose:
         typer.echo("(Will write verbose output)")
         state["verbose"] = True

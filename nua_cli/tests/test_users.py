@@ -1,10 +1,12 @@
-from typer.testing import CliRunner
-from nua_cli.main import app
-from .utils import force_start
-import re
 import json
-import yaml
+import re
 from time import time
+
+import yaml
+from nua_cli.main import app
+from typer.testing import CliRunner
+
+from .utils import force_start
 
 RE_SPLIT = re.compile(r"[^\w-]+")
 

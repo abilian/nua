@@ -1,7 +1,6 @@
-from typer.testing import CliRunner
-
 from nua_cli import __version__
 from nua_cli.main import app
+from typer.testing import CliRunner
 
 runner = CliRunner()
 

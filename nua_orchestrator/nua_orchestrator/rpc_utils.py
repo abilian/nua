@@ -1,9 +1,10 @@
-from functools import wraps
-import traceback
 import sys
+import traceback
+from copy import deepcopy
+from functools import wraps
 from importlib import import_module
 from pathlib import Path
-from copy import deepcopy
+
 from tinyrpc.protocols.jsonrpc import JSONRPCServerError
 
 # list of classes containing rpc methods.

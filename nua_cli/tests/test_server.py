@@ -1,6 +1,5 @@
-from typer.testing import CliRunner
-
 from nua_cli.main import app
+from typer.testing import CliRunner
 
 from .utils import force_start, force_stop
 

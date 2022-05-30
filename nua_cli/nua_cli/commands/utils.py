@@ -1,10 +1,10 @@
 import json
-import yaml
-from hashlib import pbkdf2_hmac, sha256
-
 import re
+from hashlib import pbkdf2_hmac, sha256
 from random import choice
 from string import ascii_letters
+
+import yaml
 
 RE_BASIC_MAIL = re.compile(r"\S+@\S+\.\S+")
 

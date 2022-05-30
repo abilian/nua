@@ -1,9 +1,9 @@
 #!/bin/env python3
 """Script to build a nua package (experimental)
 
-    - informations come from a mandatory local file: "nua-config.toml"
-    - origin may be a source tar.gz or a git repository
-    - build locally if source is python package
+- informations come from a mandatory local file: "nua-config.toml"
+- origin may be a source tar.gz or a git repository
+- build locally if source is python package
 """
 import errno
 import logging
@@ -31,9 +31,8 @@ class Config:
             self._data = toml.load(config_file)
 
     def __getitem__(self, key: str) -> Any:
-        """will return {} is key not found, assuming some parts are
-        not mandatory and first level element are usually dict
-        """
+        """will return {} is key not found, assuming some parts are not
+        mandatory and first level element are usually dict."""
         return self._data.get(key) or {}
 
     @property
@@ -42,7 +41,7 @@ class Config:
 
     @property
     def version(self) -> str:
-        "version of package source"
+        """version of package source."""
         return self.metadata.get("version", "")
 
     @property
@@ -79,11 +78,11 @@ def is_python_project():
 
 # Copied from from boltons.fileutils
 def mkdir_p(path):
-    """Creates a directory and any parent directories that may need to
-    be created along the way, without raising errors for any existing
-    directories. This function mimics the behavior of the ``mkdir -p``
-    command available in Linux/BSD environments, but also works on
-    Windows.
+    """Creates a directory and any parent directories that may need to be
+    created along the way, without raising errors for any existing directories.
+
+    This function mimics the behavior of the ``mkdir -p`` command
+    available in Linux/BSD environments, but also works on Windows.
     """
     try:
         os.makedirs(path)

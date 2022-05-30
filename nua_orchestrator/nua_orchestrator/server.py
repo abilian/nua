@@ -30,7 +30,7 @@ os.environ["NUA_LOG_FILE"] = CONFIG["server"].get("log_file", "")
 
 
 def unlink_pid_file():
-    "Unlink the server pid file, no fail on error."
+    """Unlink the server pid file, no fail on error."""
     if PID_FILE.exists():
         try:
             PID_FILE.unlink(missing_ok=True)
@@ -39,7 +39,7 @@ def unlink_pid_file():
 
 
 def touch_exit_flag():
-    "Create a temporary flag file, to secure server stop/start ordering."
+    """Create a temporary flag file, to secure server stop/start ordering."""
     if EXIT_FLAG.exists():
         return
     EXIT_FLAG.parent.mkdir(exist_ok=True)
@@ -52,7 +52,7 @@ def touch_exit_flag():
 
 
 def unlink_exit_flag():
-    "Unlink the EXIT_FLAG, no fail on error."
+    """Unlink the EXIT_FLAG, no fail on error."""
     try:
         EXIT_FLAG.unlink(missing_ok=True)
     except OSError:
@@ -60,8 +60,9 @@ def unlink_exit_flag():
 
 
 def sentinel_daemon(main_pid):
-    """Process in charge of shuting down all processes of the server when service
-    stops when the pid file is removed or has a bad content (such as a wrong pid)."""
+    """Process in charge of shuting down all processes of the server when
+    service stops when the pid file is removed or has a bad content (such as a
+    wrong pid)."""
     log_sentinel("Starting sentinel daemon")
     last_changed = 0.0
     while True:
@@ -113,7 +114,8 @@ def sentinel_daemon(main_pid):
 
 
 def start_sentinel(pid):
-    "Start the sentinel pseudo daemon as multiprocess child from main server."
+    """Start the sentinel pseudo daemon as multiprocess child from main
+    server."""
     process = mp.Process(target=sentinel_daemon, args=(pid,))
     process.daemon = True
     process.start()

@@ -2,9 +2,8 @@ from pathlib import Path
 from time import sleep
 
 import pytest
-from typer.testing import CliRunner
-
 from nua_cli.main import app
+from typer.testing import CliRunner
 
 
 def force_start(runner):

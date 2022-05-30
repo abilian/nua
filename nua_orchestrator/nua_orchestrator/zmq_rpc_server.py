@@ -1,4 +1,5 @@
 import multiprocessing as mp
+
 import zmq
 from tinyrpc.dispatch import RPCDispatcher
 from tinyrpc.protocols.jsonrpc import JSONRPCProtocol
@@ -6,10 +7,10 @@ from tinyrpc.server import RPCServer
 from tinyrpc.transports.zmq import ZmqServerTransport
 
 from .rpc_utils import (
-    registered_classes,
-    register_rpc_modules,
-    list_public_rpc_methods,
     available_methods,
+    list_public_rpc_methods,
+    register_rpc_modules,
+    registered_classes,
 )
 from .server_utils.mini_log import log
 

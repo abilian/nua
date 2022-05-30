@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 
-from .model.base import Base
 from .model import auth
+from .model.base import Base
 
 
 def create_base(config):

@@ -1,15 +1,16 @@
-from typing import Optional, List
+from typing import List, Optional
+
 import typer
 
-from .proxy import get_proxy, abort_rpc_error
+from .proxy import abort_rpc_error, get_proxy
 from .utils import (
     as_json,
     as_yaml,
-    name_callback,
     email_callback,
+    name_callback,
     passwd_callback,
-    salt_passwd,
     random_salt,
+    salt_passwd,
 )
 
 app = typer.Typer()
@@ -18,9 +19,7 @@ app = typer.Typer()
 @abort_rpc_error
 @app.command()
 def count() -> None:
-    """
-    Number or users in the table.
-    """
+    """Number or users in the table."""
     proxy = get_proxy()
     cnt = proxy.user_count()
     typer.echo(cnt)
@@ -39,9 +38,7 @@ def add(
         callback=passwd_callback,
     ),
 ) -> None:
-    """
-    Add user account.
-    """
+    """Add user account."""
     salt = random_salt()
     salted_passwd = salt_passwd(password, salt)
     user_data = {
@@ -72,8 +69,9 @@ def list(
     all: bool = typer.Option(False, "--all", help="Request all users."),
     format_json: bool = typer.Option(False, "--json", help="Format output as json."),
 ) -> None:
-    """
-    List users accounts. Request by id, name and mail.
+    """List users accounts.
+
+    Request by id, name and mail.
     """
     request = {
         "all": all,
@@ -101,8 +99,8 @@ def update(
         prompt=True,
     ),
 ) -> None:
-    """
-    Update some user account for one key/value pair.
+    """Update some user account for one key/value pair.
+
     (value is of type 'str')
     """
     if not (with_id and key):
@@ -127,8 +125,9 @@ def delete(
     all: bool = typer.Option(False, "--all", help="Request all users."),
     force: bool = typer.Option(False, "--force", help="No confirmation."),
 ) -> None:
-    """
-    Delete users accounts. Request by id, name and mail.
+    """Delete users accounts.
+
+    Request by id, name and mail.
     """
     if all or not (with_id or with_name or with_mail):
         if force:

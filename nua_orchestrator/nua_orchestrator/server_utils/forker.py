@@ -1,6 +1,4 @@
-"""
-Function to fork a function as an independant daemon.
-"""
+"""Function to fork a function as an independant daemon."""
 
 import os
 from time import asctime
@@ -8,7 +6,7 @@ from traceback import format_exc
 
 
 def close_file_descriptors():
-    "Close file descriptors to allow clean POSIX deamon fork."
+    """Close file descriptors to allow clean POSIX deamon fork."""
     try:
         maxfd = os.sysconf("SC_OPEN_MAX")
     except (AttributeError, ValueError):
@@ -25,7 +23,7 @@ def close_file_descriptors():
 
 
 def forker(function, *args):
-    "Function to fork a function, does not wait on exit"
+    """Function to fork a function, does not wait on exit."""
     # first, let's fork
     pid1 = os.fork()
     if pid1 == 0:

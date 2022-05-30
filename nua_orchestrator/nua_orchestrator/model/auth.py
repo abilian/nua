@@ -1,8 +1,20 @@
-from sqlalchemy import (TIMESTAMP, BigInteger, Column, ForeignKey, Index,
-                        Table, text)
-from sqlalchemy.dialects.sqlite import (BLOB, BOOLEAN, CHAR, DATE, DATETIME,
-                                        DECIMAL, FLOAT, INTEGER, JSON, NUMERIC,
-                                        SMALLINT, TEXT, TIME, VARCHAR)
+from sqlalchemy import TIMESTAMP, BigInteger, Column, ForeignKey, Index, Table, text
+from sqlalchemy.dialects.sqlite import (
+    BLOB,
+    BOOLEAN,
+    CHAR,
+    DATE,
+    DATETIME,
+    DECIMAL,
+    FLOAT,
+    INTEGER,
+    JSON,
+    NUMERIC,
+    SMALLINT,
+    TEXT,
+    TIME,
+    VARCHAR,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy_serializer import SerializerMixin
 

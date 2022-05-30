@@ -1,6 +1,4 @@
-"""
-Pseudo log system
-"""
+"""Pseudo log system."""
 import os
 from datetime import datetime
 from pathlib import Path
@@ -9,7 +7,7 @@ log_file = None
 
 
 def log(*args):  # see later log module implementation
-    "Basic logger replacement."
+    """Basic logger replacement."""
     global log_file
     if log_file is None:
         path = os.environ.get("NUA_LOG_FILE", "")
@@ -25,10 +23,10 @@ def log(*args):  # see later log module implementation
 
 
 def log_me(*args):
-    "Log with main server identity"
+    """Log with main server identity."""
     log(f"Nua Orc.({os.getpid()}) -", *args)
 
 
 def log_sentinel(*args):
-    "Log with sentinel server identity."
+    """Log with sentinel server identity."""
     log(f"Nua Orc. Sent.({os.getpid()}) -", *args)
