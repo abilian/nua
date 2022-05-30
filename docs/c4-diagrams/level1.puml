@@ -1,0 +1,71 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+'LAYOUT_TOP_DOWN()
+'LAYOUT_AS_SKETCH()
+LAYOUT_WITH_LEGEND()
+
+scale 3508*2480
+
+title System Landscape diagram for nua_web
+
+Enterprise_Boundary(c0, "Nua System") {
+    System(nua_web, "Nua Web UI", "")
+    System(nua_rpc, "Nua RPC Server", "")
+    System(nua_orc, "Nua Orchestrator", "")
+
+    System_Boundary(docker, "Docker") {
+        System(app1, "App 1", "")
+        System(app2, "App 2", "")
+    }
+    System(service1, "Service 1", "")
+    System(service2, "Service 2", "")
+}
+
+Rel_D(nua_web, nua_orc, "", "")
+Rel_D(nua_rpc, nua_orc, "", "")
+
+Rel_D(nua_orc, docker, "Manages", "")
+
+Rel_D(app1, service1, "Uses", "")
+Rel_D(app1, service2, "Uses", "")
+Rel_D(app2, service1, "Uses", "")
+Rel_D(app2, service2, "Uses", "")
+
+Rel_D(nua_orc, app1, "Manages", "")
+Rel_D(nua_orc, app2, "Manages", "")
+Rel_D(nua_orc, service1, "Manages", "")
+Rel_D(nua_orc, service2, "Manages", "")
+
+System(nua_mkt, "Nua Marketplace")
+Rel_R(nua_orc, nua_mkt, "Uses")
+Rel_L(nua_mkt, nua_orc, "Provides usage data")
+
+'Users
+System_Boundary(users, "Users") {
+    Person_Ext(anon_user, "Anyonymous", "External user (unauthenticated)")
+    Person_Ext(user, "Regular user", "Internal user (authenticated)")
+    Person_Ext(admin, "Platform administrator", "Administrator of a Nua instance")
+    Person_Ext(developer, "App developer / packager", "")
+}
+
+Rel_D(user, nua_web, "Uses", "https")
+Rel_D(admin, nua_web, "Uses", "https")
+Rel_D(admin, nua_rpc, "Uses", "CLI")
+Rel_D(developer, nua_rpc, "Uses", "CLI")
+
+Rel_D(anon_user, app1, "Uses", "https")
+Rel_D(user, app1, "Uses", "https")
+Rel_D(user, app2, "Uses", "https")
+
+' External systems
+System_Boundary(ext_services, "External Services") {
+    System_Ext(mail, "Mail server", "Optional (recommended)")
+    System_Ext(s3, "Storage server", "Optional (highly recommended)")
+    System_Ext(db, "DB server", "Optional")
+    System_Ext(auth_providers, "IAM providers", "OAuth, SAML, SSO...")
+}
+
+Rel_D(c0, ext_services, "May use")
+
+@enduml

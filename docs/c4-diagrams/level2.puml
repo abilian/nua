@@ -1,0 +1,65 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+
+'Sprites. See: https://github.com/tupadr3/plantuml-icon-font-sprites
+!define ICONURL https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/v2.4.0
+
+!includeurl ICONURL/common.puml
+!includeurl ICONURL/devicons/python.puml
+!includeurl ICONURL/devicons/docker.puml
+!includeurl ICONURL/devicons/nginx.puml
+!includeurl ICONURL/font-awesome-5/users.puml
+
+' Doesn't work
+!includeurl ICONURL/devicons2/flask_original_wordmark.puml
+
+scale 3508*2480
+
+'LAYOUT_TOP_DOWN()
+'LAYOUT_AS_SKETCH()
+'LAYOUT_WITH_LEGEND()
+
+title Container diagram for Nua
+
+Person(user, "User", "Users the platform (according to their profile and permissions)", $sprite="users")
+
+Boundary(aipress24, "Nua Server") {
+    Container(gateway, "Gateway", "Nginx or similar", "Proxy / Firewall", $sprite="nginx")
+
+    Container(nua_web, "Web UI", "HTML5", "The main interface that the users interact with", $sprite="flask_original_wordmark")
+    Container(nua_rpc, "RPC Endpoint", "Some RPC protocol", "Endpoint for nua-cli")
+    Container(nua_orc, "Orchestrator", "Python", "", $sprite="python")
+
+    Container(docker, "Docker", "Docker", "", $sprite="docker")
+
+    Boundary(apps, "Apps") {
+        Container(app1, "App 1")
+        Container(app2, "App 2")
+        Container(app3, "App 3")
+    }
+
+    Boundary(services, "Services") {
+        Container(service1, "Service 1")
+        Container(service2, "Service 2")
+        Container(service3, "Service 3")
+    }
+}
+
+Rel_R(user, gateway, "Uses", "https")
+Rel_R(gateway, nua_web, "Proxy", "https")
+Rel_R(gateway, nua_rpc, "Proxy", "https")
+Rel(nua_web, nua_orc, "Uses", "")
+Rel(nua_rpc, nua_orc, "Uses", "")
+
+Rel_L(nua_orc, docker, "Manages")
+Rel(nua_orc, apps, "Monitors")
+Rel(nua_orc, services, "Manages & uses")
+Rel(nua_orc, gateway, "Manages certificates")
+
+Rel(docker, apps, "Manages")
+
+Rel_L(apps, services, "Use")
+Rel(gateway, apps, "Proxy", "http")
+
+@enduml

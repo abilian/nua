@@ -1,0 +1,101 @@
+@startminmap
++Nua
+
+--Run
+---UI
+----Command-line
+----Web interface
+---Monitor
+----Logs
+----Graphs
+----Alerts
+----Autoscaling (V2)
+---Backing services
+----Storage
+-----Blob (S3)
+-----Filesystem
+----SQL
+-----Postgres
+-----MySQL
+----NoSQL
+-----Redis
+-----MongoDB
+----Pluggable services (V2)
+---Upgrades
+----Server upgrades
+----Application upgrades (migrations)
+---Server provisioning (V2)
+---User management
+----Internal
+----External (V2)
+---DNS
+----Wildcards
+----Others (V2)
+
+++Secure
++++“Minimum Viable Secure Product”
++++SSL
+++++Let’s Encrypt
+++++Custom certificates
++++++Single Host
++++++Wildcards
++++Firewall
+++++Basic firewall
+++++Active firewall (WAF) (V2)
++++Per app user access control
+++++Coarse grained
+++++Fine grained (V2)
++++Backups and DR
+++++Local backups
+++++Remote backups (S3)
+++++Restore procedure
+++++Resilience testing
++++Auditing
++++Software supply chain security (V2)
++++Integrated VPN (V2)
++++Intrusion detection (V2)
++++Zero trust (V2)
+
+--Educate &amp; Market
+---Marketplace
+----Tags
+----Search
+----“Alternative to”
+----Extend (third-party packages)
+----Rating / suggestions / analytics
+----Membership
+---Documentation
+----Administrators
+----Packagers
+----Developers
+---Blog / Newsletter
+---Dev Rel
+----Conferences
+----Community tools
+---Revenue Generation (V2)
+----Invoicing
+----Tiered memberships
+----Crowdfunding
+----Sponsoring
+
+++Build
++++12-factor apps
++++Config and conventions
++++Build-time CLI tools
++++Build profiles (aka “build packs”)
+++++Python
+++++Node
+++++PHP
+++++Java
+++++Go
+++++Ruby
++++Migration (methodology &amp; tools) from existing platforms
+++++Dockerfiles
+++++Docker compose
+++++Heroku
++++Testing
++++Developer experience
+++++Git integration
+++++Dev / Prod parity
++++Upgrades (migrations)
+@endmindmap

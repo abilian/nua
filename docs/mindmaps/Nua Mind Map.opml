@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<opml version="1.0">
+<head>
+<title>Nua Mind Map</title>
+</head>
+<body>
+<outline text="Nua"><outline text="Run"><outline text="UI"><outline text="Command-line"></outline>
+<outline text="Web interface"></outline>
+</outline>
+<outline text="Monitor"><outline text="Logs"></outline>
+<outline text="Graphs"></outline>
+<outline text="Alerts"></outline>
+<outline text="Autoscaling (V2)"></outline>
+</outline>
+<outline text="Backing services"><outline text="Storage"><outline text="Blob (S3)"></outline>
+<outline text="Filesystem"></outline>
+</outline>
+<outline text="SQL"><outline text="Postgres"></outline>
+<outline text="MySQL"></outline>
+</outline>
+<outline text="NoSQL"><outline text="Redis"></outline>
+<outline text="MongoDB"></outline>
+</outline>
+<outline text="Pluggable services (V2)"></outline>
+</outline>
+<outline text="Upgrades"><outline text="Server upgrades"></outline>
+<outline text="Application upgrades (migrations)"></outline>
+</outline>
+<outline text="Server provisioning (V2) &amp; Autoscaling"></outline>
+<outline text="User management"><outline text="Internal"></outline>
+<outline text="External (V2)"></outline>
+</outline>
+<outline text="DNS"><outline text="Wildcards"></outline>
+<outline text="Others (V2)"></outline>
+</outline>
+<outline text="Applications “hibernation” (V2)"></outline>
+</outline>
+<outline text="Secure"><outline text="“Minimum Viable Secure Product”"></outline>
+<outline text="SSL"><outline text="Let’s Encrypt"></outline>
+<outline text="Custom certificates"><outline text="Single Host"></outline>
+<outline text="Wildcards"></outline>
+</outline>
+</outline>
+<outline text="Firewall"><outline text="Basic firewall"></outline>
+<outline text="Active firewall (WAF) (V2)"></outline>
+</outline>
+<outline text="Per app user access control"><outline text="Coarse grained"></outline>
+<outline text="Fine grained (V2)"></outline>
+</outline>
+<outline text="Backups and DR"><outline text="Local backups"></outline>
+<outline text="Remote backups (S3)"></outline>
+<outline text="Restore procedure"></outline>
+<outline text="Resilience testing"></outline>
+</outline>
+<outline text="Auditing"></outline>
+<outline text="V2"><outline text="Software supply chain security"></outline>
+<outline text="Integrated VPN"></outline>
+<outline text="Intrusion detection"></outline>
+<outline text="Zero trust"></outline>
+<outline text="Automated upgrades"></outline>
+</outline>
+</outline>
+<outline text="Educate &amp; Market"><outline text="Marketplace"><outline text="Tags"></outline>
+<outline text="Search"></outline>
+<outline text="“Alternative to”"></outline>
+<outline text="Extend (third-party packages)"></outline>
+<outline text="Rating / suggestions / analytics"></outline>
+<outline text="Membership"></outline>
+</outline>
+<outline text="Documentation"><outline text="Administrators"></outline>
+<outline text="Packagers"></outline>
+<outline text="Developers"></outline>
+</outline>
+<outline text="Blog / Newsletter"></outline>
+<outline text="Dev Rel"><outline text="Conferences"></outline>
+<outline text="Community tools"></outline>
+</outline>
+<outline text="Revenue Generation (V2)"><outline text="Invoicing"></outline>
+<outline text="Tiered memberships"></outline>
+<outline text="Crowdfunding"></outline>
+<outline text="Sponsoring"></outline>
+</outline>
+</outline>
+<outline text="Build"><outline text="12-factor apps"></outline>
+<outline text="Config and conventions"></outline>
+<outline text="Build-time CLI tools"></outline>
+<outline text="Build profiles (aka “build packs”)"><outline text="Python"></outline>
+<outline text="Node"></outline>
+<outline text="PHP"></outline>
+<outline text="Java"></outline>
+<outline text="Go"></outline>
+<outline text="Ruby"></outline>
+</outline>
+<outline text="Migration (methodology &amp; tools) from existing platforms"><outline text="Dockerfiles"></outline>
+<outline text="Docker compose"></outline>
+<outline text="Heroku"></outline>
+</outline>
+<outline text="Testing"></outline>
+<outline text="Developer experience"><outline text="Git integration"></outline>
+<outline text="Dev / Prod parity"></outline>
+</outline>
+<outline text="Upgrades (migrations)"></outline>
+</outline>
+</outline>
+</body>
+</opml>

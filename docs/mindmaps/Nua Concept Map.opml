@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<opml version="1.0">
+<head>
+<title>Nua Concept Map</title>
+</head>
+<body>
+<outline text="Nua"><outline text="Build"><outline text="12-factor / cloud native apps"></outline>
+<outline text="Developer experience"></outline>
+<outline text="Convention over configuration"></outline>
+<outline text="GitOps"></outline>
+</outline>
+<outline text="Run"><outline text="“One-click” installs"></outline>
+<outline text="Availability"></outline>
+<outline text="Platform as a Service"></outline>
+<outline text="Infrastructure as Code"></outline>
+<outline text="Site Reliability Engineering (SRE)"></outline>
+<outline text="Promise Theory"></outline>
+<outline text="Chaos Engineering"></outline>
+</outline>
+<outline text="Secure"><outline text="DevSecOps"></outline>
+<outline text="“Minimum Viable Secure Product”"></outline>
+<outline text="“Trust Service Principles” (SOC)"></outline>
+<outline text="Disaster Recovery &amp; Business Continuity"></outline>
+<outline text="Software Supply Chain Security"></outline>
+<outline text="Compliance (GDPR, SOC2…) &amp; Governance"></outline>
+<outline text="Identity &amp; Access Management (IAM)"></outline>
+</outline>
+<outline text="Awareness &amp; Marketing"><outline text="Community / Ecosystem"></outline>
+<outline text="Marketplace / “App Store”"></outline>
+<outline text="Accelerate the adoption of open source"></outline>
+<outline text="Revenue Generation (V1+)"></outline>
+</outline>
+<outline text="Applications"><outline text="Curation Process"></outline>
+<outline text="Maintenance"></outline>
+<outline text="Integration between applications (V1+)"></outline>
+</outline>
+<outline text="Social Responsibility"><outline text="Data &amp; Technology Sovereignty"></outline>
+<outline text="Sustainability"></outline>
+<outline text="User Empowerment"></outline>
+<outline text="Transparency"></outline>
+<outline text="Eco Design"></outline>
+</outline>
+</outline>
+</body>
+</opml>
