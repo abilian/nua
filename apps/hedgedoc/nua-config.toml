@@ -1,6 +1,7 @@
 [metadata]
 id = "hedgedoc"
-version = "1.13.2"
+# version = "1.13.2"
+version = "1.9.2"
 title = "HedgeDoc"
 author = "HedgeDoc authors"
 tagline = "Collaborative markdown editor"

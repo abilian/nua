@@ -1,0 +1,11 @@
+[server]
+    pid_file = "/tmp/nua/orchestrator.pid"
+    exit_flag = "/tmp/nua/orchestrator_exiting.pid"
+    log_file = "/tmp/nua_orchestrator.log"
+    start_zmq_server = true
+[zmq]
+    address = "127.0.0.1"
+    port = 5001
+[db]
+    backend = "sqlite"
+    url = "sqlite:////tmp/nua.db"
