@@ -49,8 +49,6 @@ Community members asked to stop any inappropriate behavior are expected to compl
 
 We take Code of Conduct violations seriously, and will act to ensure our spaces are welcoming, inclusive, and professional environments to communicate in.
 
-If you need to raise a Code of Conduct report, you may do so privately by email to tom@tomchristie.com.
+If you need to raise a Code of Conduct report, you may do so privately by email to sf@abilian.com.
 
 Reports will be treated confidentially.
-
-Alternately you may [make a report to the Python Software Foundation](https://www.python.org/psf/conduct/reporting/).
