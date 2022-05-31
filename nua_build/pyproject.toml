@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "nua_build"
+version = "0.1.0"
+description = "Some nua_build implementation with Typer"
+authors = ["Stefane Fermigier <sf@abilian.com>", "Jerome Dumonteil <jd@abilian.com>"]
+license = "AGPL"
+readme = "README.md"
+
+[tool.poetry.scripts]
+nuad = "nua_build.main:app"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+typer = {extras = ["all"], version = "^0.4.1"}
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.1.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
