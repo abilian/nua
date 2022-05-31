@@ -1,6 +1,6 @@
 # Nua
 
-<img src="./docs/assets/logo.png" alt="logo nua">
+<img src="./doc/assets/logo.png" alt="logo nua">
 
 ## Vision
 
