@@ -4,6 +4,8 @@ from typing import Any
 
 import toml
 
+from .scripting import panic
+
 NUA_CONFIG = "nua-config.toml"
 
 
@@ -11,11 +13,10 @@ class NuaConfig:
     """Wrapper for the "nua-config.toml" file."""
 
     def __init__(self, path=NUA_CONFIG):
-        config_file = Path(path)
-        if not config_file.exists():
-            print(f"Error: File not found '{config_file}'")
-            raise SystemExit(1)
-        with open(path, encoding="utf8") as config_file:
+        self.path = Path(path).resolve()
+        if not self.path.is_file():
+            panic(f"Error: File not found '{self.path}'")
+        with open(self.path, encoding="utf8") as config_file:
             self._data = toml.load(config_file)
 
     def __getitem__(self, key: str) -> Any:
@@ -31,6 +32,10 @@ class NuaConfig:
     def version(self) -> str:
         """version of package source."""
         return self.metadata.get("version", "")
+
+    @property
+    def app_id(self) -> str:
+        return self.metadata.get("id", "")
 
     @property
     def build(self) -> dict:

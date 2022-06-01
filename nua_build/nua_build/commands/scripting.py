@@ -56,7 +56,7 @@ def mkdir_p(path):
 
 def panic(msg: str, status: int = 1):
     console.print(msg, style="bold red")
-    sys.exit(status)
+    raise SystemExit(status)
 
 
 def pysu(args, user=None, group=None, env=None):
