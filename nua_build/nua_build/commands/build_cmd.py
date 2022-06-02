@@ -12,16 +12,18 @@ to "nua ...".
 import logging
 from os import chdir
 from pathlib import Path
-from shutil import copy2
+from shutil import copy2, copytree, ignore_patterns
 
 import typer
 
 from .nua_config import NuaConfig
-from .scripting import is_python_project, mkdir_p, rm_fr, sh
+from .scripting import is_python_project, mkdir_p, panic, rm_fr, sh
 
 BUILD = "_build"
 DEFAULTS_DIR = Path(__file__).parent.parent / "defaults"
+MYSELF_DIR = Path(__file__).parent.parent.parent
 assert DEFAULTS_DIR.is_dir()
+assert MYSELF_DIR.is_dir()
 
 logging.basicConfig(level=logging.INFO)
 
@@ -52,26 +54,59 @@ class Builder:
     def setup_build_directory(self):
         rm_fr(self.build_dir)
         mkdir_p(self.build_dir)
-        self.copy_scripts()
+        self.copy_build_files()
+        self.copy_myself()
         copy2(self.config.path, self.build_dir)
         # chown_r(self.build_dir, user, group)  # todo
 
-    def copy_scripts(self):
+    def copy_build_files(self):
         """Each file of the defaults folder can be replaced by a version
-        provided locally by the packager."""
-        for default_file in DEFAULTS_DIR.glob("*"):
-            print(default_file.name)
-            user_file = self.root_dir / default_file.name
-            if user_file.is_file():
+        provided locally by the packager.
+
+        - if some manifest entry, copy files from manifest (of fail)
+        - if no manifest entry, copy local files
+        - finally, complete by copying files from default if needed
+        """
+        copied_files = set()
+        if self.config.manifest:
+            for name in self.config.manifest:
+                print("Copying manifest file:", name)
+                user_file = self.root_dir / name
+                if not user_file.is_file():  # fixme: see later for directories
+                    panic(f"File from manifest not found: {repr(name)}")
                 copy2(user_file, self.build_dir)
-            else:
-                copy2(default_file, self.build_dir)
+                copied_files.add(name)
+        else:  # copy local files
+            for user_file in self.root_dir.glob("*"):
+                if (user_file.name).startswith(".") or not user_file.is_file():
+                    continue
+                print("Copying local file:", user_file.name)
+                copy2(user_file, self.build_dir)
+                copied_files.add(user_file.name)
+        # complete with default files:
+        for default_file in DEFAULTS_DIR.glob("*"):
+            if (default_file.name).startswith(".") or not default_file.is_file():
+                continue
+            if default_file.name in copied_files:
+                continue
+            print("Copying Nua default file:", default_file.name)
+            copy2(default_file, self.build_dir)
+
+    def copy_myself(self):
+        print("Copying Nua_build python app.")
+        copytree(
+            MYSELF_DIR,
+            self.build_dir / "nua_build",
+            ignore=ignore_patterns("*.pyc", "__pycache__"),
+        )
 
     def build_with_docker(self):
         chdir(self.root_dir)  # security
-        sh(
-            f"cd {BUILD} && docker build -t {self.config.app_id}:{self.config.version} ."
+        cmd = (
+            f"cd {BUILD} && "
+            f"docker build -t {self.config.app_id}:{self.config.version} ."
         )
+        sh(cmd)
 
 
 @app.command("build")
@@ -79,7 +114,7 @@ def build_cmd() -> None:
     """Build package, using local 'nua-config.toml' file."""
 
     builder = Builder()
-    builder.pip_list()  # for check during devel
+    # builder.pip_list()  # for check during devel
     builder.setup_build_directory()
     builder.build_with_docker()
     #

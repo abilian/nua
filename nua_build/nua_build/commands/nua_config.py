@@ -42,6 +42,10 @@ class NuaConfig:
         return self["build"]
 
     @property
+    def manifest(self) -> list:
+        return self.build.get("manifest", [])
+
+    @property
     def src_url(self) -> str:
         src_url = self.build.get("src_url") or ""
         if "{" in src_url and self.version:

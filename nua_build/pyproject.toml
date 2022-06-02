@@ -12,6 +12,8 @@ nuad = "nua_build.main:app"
 [tool.poetry.dependencies]
 python = "^3.10"
 typer = {extras = ["all"], version = "^0.4.1"}
+toml = "^0.10.2"
+rich = "^12.4.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.2"
