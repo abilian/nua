@@ -108,9 +108,17 @@ def pysu(args, user=None, group=None, env=None):
     os.execvpe(args[0], args, env)
 
 
-def rm_rf(path: str):
+def rm_fr(path: str) -> bool:
+    "Alias for rm_rf"
+    return rm_rf(path)
+
+
+def rm_rf(path: str) -> bool:
+    """Wrapper for shutil.rmtree()"""
     if Path(path).exists():
         shutil.rmtree(path)
+        return True
+    return False
 
 
 def sh(cmd: str):
