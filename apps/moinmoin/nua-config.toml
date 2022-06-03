@@ -16,7 +16,6 @@ profile = ["generic"]
 [build]
 # optional manifest.
 # if no manifest, use files in the repository (except dot files)
-# - Manifest do not ccept directory (currently)
 # - if manifest is not empty, *only* files from manifest are copied
 # - "nua-config.toml" is always copied, wether local or not
 manifest = [

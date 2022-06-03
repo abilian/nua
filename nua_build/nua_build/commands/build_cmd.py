@@ -72,16 +72,24 @@ class Builder:
             for name in self.config.manifest:
                 print("Copying manifest file:", name)
                 user_file = self.root_dir / name
-                if not user_file.is_file():  # fixme: see later for directories
+                if user_file.is_file():
+                    copy2(user_file, self.build_dir)
+                elif user_file.is_dir():
+                    copytree(user_file, self.build_dir)
+                else:
                     panic(f"File from manifest not found: {repr(name)}")
-                copy2(user_file, self.build_dir)
                 copied_files.add(name)
         else:  # copy local files
             for user_file in self.root_dir.glob("*"):
-                if (user_file.name).startswith(".") or not user_file.is_file():
+                if (user_file.name).startswith("."):
                     continue
                 print("Copying local file:", user_file.name)
-                copy2(user_file, self.build_dir)
+                if user_file.is_file():
+                    copy2(user_file, self.build_dir)
+                elif user_file.is_dir():
+                    copytree(user_file, self.build_dir)
+                else:
+                    panic(f"File from manifest not found: {repr(name)}")
                 copied_files.add(user_file.name)
         # complete with default files:
         for default_file in DEFAULTS_DIR.glob("*"):
