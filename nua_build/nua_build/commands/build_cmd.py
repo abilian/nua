@@ -16,8 +16,8 @@ from shutil import copy2, copytree, ignore_patterns
 
 import typer
 
-from .nua_config import NuaConfig
-from .scripting import is_python_project, mkdir_p, panic, rm_fr, sh
+from ..nua_config import NuaConfig
+from ..scripting import *
 
 BUILD = "_build"
 DEFAULTS_DIR = Path(__file__).parent.parent / "defaults"
@@ -30,14 +30,6 @@ logging.basicConfig(level=logging.INFO)
 app = typer.Typer()
 
 
-def build_python():
-    sh("python3 -m venv /nua/env")
-    if Path("requirements.txt").exists():
-        sh("/nua/env/bin/pip install -r src/requirements.txt")
-    elif Path("setup.py").exists():
-        sh("/nua/env/bin/pip install src")
-
-
 class Builder:
     """Class to hold config and other state information during build."""
 
@@ -47,9 +39,6 @@ class Builder:
         self.build_dir = Path.cwd() / BUILD
         # if the nua-config.toml file is not found locally, it aborts build process
         self.config = NuaConfig()
-
-    def pip_list(self):
-        sh("pip list")
 
     def setup_build_directory(self):
         rm_fr(self.build_dir)
@@ -119,10 +108,9 @@ class Builder:
 
 @app.command("build")
 def build_cmd() -> None:
-    """Build package, using local 'nua-config.toml' file."""
+    """Build Nua package, using local 'nua-config.toml' file."""
 
     builder = Builder()
-    # builder.pip_list()  # for check during devel
     builder.setup_build_directory()
     builder.build_with_docker()
     #

@@ -12,8 +12,11 @@ NUA_CONFIG = "nua-config.toml"
 class NuaConfig:
     """Wrapper for the "nua-config.toml" file."""
 
-    def __init__(self, path=NUA_CONFIG):
-        self.path = Path(path).resolve()
+    def __init__(self, filename=NUA_CONFIG, folder=""):
+        if folder:
+            self.path = Path(folder).resolve() / Path(filename)
+        else:
+            self.path = Path(filename).resolve()
         if not self.path.is_file():
             panic(f"Error: File not found '{self.path}'")
         with open(self.path, encoding="utf8") as config_file:

@@ -4,11 +4,35 @@ import grp
 import os
 import pwd
 import shutil
-import sys
 from pathlib import Path
 from subprocess import call
 
 from .rich_console import console
+
+__all__ = """
+    apt_get_install build_python cat chown_r echo is_python_project mkdir_p
+    npm_install panic pip_install pip_list print_green pysu rm_fr rm_rf sh
+""".split()
+
+
+def apt_get_install(packages: list | str) -> None:
+    if isinstance(packages, str):
+        packages = packages.strip().split()
+    cmd = f"apt-get install -y {' '.join(packages)}"
+    sh(cmd)
+
+
+def build_python(path=None):
+    # fixme: improve this
+    if not path:
+        path = Path()
+    requirements = path / "requirements.txt"
+    setup_py = path / "setup.py"
+    if requirements.exists():
+        sh("python -m pip install -r {str(requirements)}")
+    elif setup_py.exists():
+        # assuming code is in src:
+        pip_install("src")
 
 
 def cat(filename):
@@ -25,7 +49,7 @@ def chown_r(path, user=None, group=None):
 
 def echo(text: str, filename: str) -> None:
     with open(filename, "w", encoding="utf8") as fd:
-        fd.write(text)
+        fd.write(text + "\n")
 
 
 def is_python_project():
@@ -54,9 +78,29 @@ def mkdir_p(path):
     return
 
 
+def npm_install(package: str) -> None:
+    cmd = f"/usr/bin/npm install -g {package}"
+    sh(cmd)
+
+
 def panic(msg: str, status: int = 1):
     console.print(msg, style="bold red")
     raise SystemExit(status)
+
+
+def print_green(msg: str):
+    console.print(msg, style="green")
+
+
+def pip_install(packages: list | str) -> None:
+    if isinstance(packages, str):
+        packages = packages.strip().split()
+    cmd = f"python -m pip install {' '.join(packages)}"
+    sh(cmd)
+
+
+def pip_list():
+    sh("pip list")
 
 
 def pysu(args, user=None, group=None, env=None):
