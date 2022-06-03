@@ -18,6 +18,7 @@ import typer
 
 from ..nua_config import NuaConfig
 from ..scripting import *
+from ..version import __version__
 
 BUILD = "_build"
 DEFAULTS_DIR = Path(__file__).parent.parent / "defaults"
@@ -101,16 +102,28 @@ class Builder:
         chdir(self.root_dir)  # security
         cmd = (
             f"cd {BUILD} && "
-            f"docker build -t {self.config.app_id}:{self.config.version} ."
+            f"docker build --build-arg nua_version={__version__} "
+            f"-t {self.config.app_id}:{self.config.version} ."
         )
         sh(cmd)
+
+
+def build_nua_base_if_needed():
+    name = f"nua_base:{__version__}"
+    cmd = (
+        f"docker image inspect {name} >/dev/null 2>&1 || "
+        "nuad build_nua_docker; exit 0"
+    )
+    sh(cmd)
 
 
 @app.command("build")
 def build_cmd() -> None:
     """Build Nua package, using local 'nua-config.toml' file."""
-
+    # first build the nua_base image if needed
+    build_nua_base_if_needed()
     builder = Builder()
+    print_green(f"*** Generation of the docker image for {builder.config.app_id} ***")
     builder.setup_build_directory()
     builder.build_with_docker()
     #
