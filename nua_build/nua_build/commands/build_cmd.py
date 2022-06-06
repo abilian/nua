@@ -8,22 +8,19 @@
 Note: **currently use "nuad ..." for command line**. See later if move this
 to "nua ...".
 """
-
 import logging
 from os import chdir
 from pathlib import Path
 from shutil import copy2, copytree, ignore_patterns
 
+import docker
 import typer
 
+from ..constants import BUILD, DEFAULTS_DIR, MYSELF_DIR, NUA_TAG
+from ..docker_utils import display_docker_img, docker_build_log_error
 from ..nua_config import NuaConfig
 from ..scripting import *
-from ..version import __version__
 
-BUILD = "_build"
-DEFAULTS_DIR = Path(__file__).parent.parent / "defaults"
-MYSELF_DIR = Path(__file__).parent.parent.parent
-assert DEFAULTS_DIR.is_dir()
 assert MYSELF_DIR.is_dir()
 
 logging.basicConfig(level=logging.INFO)
@@ -37,7 +34,7 @@ class Builder:
     def __init__(self):
         # we are supposed to launch "nua buld" from cwd, but we'll see later
         self.root_dir = Path.cwd()
-        self.build_dir = Path.cwd() / BUILD
+        self.build_dir = self.root_dir / BUILD
         # if the nua-config.toml file is not found locally, it aborts build process
         self.config = NuaConfig()
 
@@ -46,6 +43,7 @@ class Builder:
         mkdir_p(self.build_dir)
         self.copy_build_files()
         self.copy_myself()
+        print("Copying config file:", self.config.path.name)
         copy2(self.config.path, self.build_dir)
         # chown_r(self.build_dir, user, group)  # todo
 
@@ -91,30 +89,35 @@ class Builder:
             copy2(default_file, self.build_dir)
 
     def copy_myself(self):
-        print("Copying Nua_build python app.")
+        print("Copying Nua_build python package")
         copytree(
             MYSELF_DIR,
             self.build_dir / "nua_build",
             ignore=ignore_patterns("*.pyc", "__pycache__"),
         )
 
+    @docker_build_log_error
     def build_with_docker(self):
-        chdir(self.root_dir)  # security
-        cmd = (
-            f"cd {BUILD} && "
-            f"docker build --build-arg nua_version={__version__} "
-            f"-t {self.config.app_id}:{self.config.version} ."
+        chdir(self.build_dir)
+        iname = f"nua_{self.config.app_id}:{self.config.version}"
+        print_green(f"Building image {iname}")
+        client = docker.from_env()
+        client.images.build(
+            path=".",
+            tag=iname,
+            rm=True,
+            forcerm=True,
+            buildargs={"nua_base_version": NUA_TAG},
         )
-        sh(cmd)
+        display_docker_img(iname)
 
 
 def build_nua_base_if_needed():
-    name = f"nua_base:{__version__}"
-    cmd = (
-        f"docker image inspect {name} >/dev/null 2>&1 || "
-        "nuad build_nua_docker; exit 0"
-    )
-    sh(cmd)
+    client = docker.from_env()
+    result = client.images.list(filters={"reference": NUA_TAG})
+    if not result:
+        print(f"Image '{NUA_TAG}' not found: build required.")
+        sh("nuad build_nua_docker")
 
 
 @app.command("build")

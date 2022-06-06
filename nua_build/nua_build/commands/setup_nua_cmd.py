@@ -16,28 +16,25 @@ from ..scripting import *
 # some packages may be alreay installed at Docker initial setup
 PACKAGES = [
     # Python stuff needed for nua
-    "python3-pip",
-    "python3-venv",
-    "python3-toml",
-    "python3-dev",
-    "python3-wheel",
-    # Stuff
     "apt-utils",
+    "python3-venv",
+    "python3-pip",
+    "python3-dev",
+    "python3-toml",
+    # Stuff
     # Web stuff
-    "ca-certificates",
     "curl",
     # Build stuff
-    "software-properties-common",
     "build-essential",
-    "make",
-    "gcc",
-    "g++",
     "git",
+    "docker.io",
+    "software-properties-common",
     # DB stuff
     "libmysqlclient-dev",
 ]
 
 PY_PACKAGES = [
+    "docker",
     "typer",
     "rich",
 ]
@@ -74,8 +71,12 @@ def install_nodejs():
 @app.command("setup_nua")
 def setup_nua_cmd() -> None:
     """Setup Nua base dependancies."""
+    print("Setup Nua base dependancies")
     os.environ["DEBIAN_FRONTEND"] = "noninteractive"
+    print("configure_apt")
     configure_apt()
+    print("install_native_packages")
     install_native_packages()
+    print("pip_install")
     pip_install(PY_PACKAGES)
     print_green("Nua: base components are installed.")

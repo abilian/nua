@@ -19,12 +19,6 @@ import typer
 from ..nua_config import NuaConfig
 from ..scripting import *
 
-BUILD = "_build"
-DEFAULTS_DIR = Path(__file__).parent.parent / "defaults"
-MYSELF_DIR = Path(__file__).parent.parent.parent
-assert DEFAULTS_DIR.is_dir()
-assert MYSELF_DIR.is_dir()
-
 logging.basicConfig(level=logging.INFO)
 
 app = typer.Typer()

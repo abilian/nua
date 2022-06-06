@@ -11,7 +11,8 @@ from .rich_console import console
 
 __all__ = """
     apt_get_install build_python cat chown_r echo is_python_project mkdir_p
-    npm_install panic pip_install pip_list print_green pysu rm_fr rm_rf sh
+    npm_install panic pip_install pip_list print_green print_magenta print_red pysu
+    rm_fr rm_rf sh
 """.split()
 
 
@@ -84,12 +85,20 @@ def npm_install(package: str) -> None:
 
 
 def panic(msg: str, status: int = 1):
-    console.print(msg, style="bold red")
+    print_red(msg)
     raise SystemExit(status)
 
 
 def print_green(msg: str):
     console.print(msg, style="green")
+
+
+def print_magenta(msg: str):
+    console.print(msg, style="magenta")
+
+
+def print_red(msg: str):
+    console.print(msg, style="bold red")
 
 
 def pip_install(packages: list | str) -> None:

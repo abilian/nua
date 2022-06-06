@@ -4,9 +4,8 @@ from typing import Any
 
 import toml
 
+from .constants import NUA_CONFIG
 from .scripting import panic
-
-NUA_CONFIG = "nua-config.toml"
 
 
 class NuaConfig:

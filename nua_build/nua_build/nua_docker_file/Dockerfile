@@ -5,7 +5,7 @@ FROM ubuntu:22.04
 # Setup base image for Nua builds
 #
 RUN useradd nua
-RUN apt-get -y update && apt-get -y install curl python3.10 python3-venv python3-pip python3-setuptools python3-wheel
+RUN apt-get -y update && apt-get -y install python3.10 python3-venv python3-pip
 ADD nua_build /nua/nua_build
 RUN python3.10 -m venv /nua/venv
 ENV VIRTUAL_ENV="/nua/venv"

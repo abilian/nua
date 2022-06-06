@@ -1,5 +1,5 @@
-ARG nua_version
-FROM nua_base:${nua_version}
+ARG nua_base_version
+FROM ${nua_base_version}
 
 # app build:
 ADD nua-config.toml /nua/build/
