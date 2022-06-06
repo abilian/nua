@@ -10,8 +10,11 @@ website = "https://moinmo.in/"
 tags = ["wiki", "collaboration", "notes", "documents"]
 licence = "GNU General Public License"
 profile = ["generic"]
-
-
+release = 2
+changelog ="""
+* Jun 06 2022 Jerome Dumonteil <jd@abilian.com>
+- trying some toml fields
+"""
 
 [build]
 # optional manifest.

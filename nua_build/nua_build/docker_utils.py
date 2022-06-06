@@ -7,6 +7,12 @@ import docker
 from .scripting import *
 
 
+def print_log_stream(docker_log):
+    for line in docker_log:
+        if "stream" in line:
+            print("    ", line["stream"].strip())
+
+
 def docker_build_log_error(func):
     @wraps(func)
     def build_log_wrapper(*args, **kwargs):
@@ -15,10 +21,9 @@ def docker_build_log_error(func):
         except docker.errors.BuildError as e:
             print("=" * 60)
             print_red("Something went wrong with image build!")
+            print_red(str(e))
             print("=" * 60)
-            for line in e.build_log:
-                if "stream" in line:
-                    print(line["stream"].strip())
+            print_log_stream(e.build_log)
             panic("Exiting.")
 
     return build_log_wrapper

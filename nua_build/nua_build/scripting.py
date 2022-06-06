@@ -1,18 +1,17 @@
 """Scripting utils for Nua scripts."""
-import errno
 import grp
 import os
 import pwd
 import shutil
+import subprocess as sp
 from pathlib import Path
-from subprocess import call
 
 from .rich_console import console
 
 __all__ = """
-    apt_get_install build_python cat chown_r echo is_python_project mkdir_p
-    npm_install panic pip_install pip_list print_green print_magenta print_red pysu
-    rm_fr rm_rf sh
+    apt_get_install build_python cat chown_r echo error install_package_list
+    is_python_project mkdir_p npm_install panic pip_install pip_list print_green
+    print_magenta print_red pysu rm_fr rm_rf sh
 """.split()
 
 
@@ -53,6 +52,15 @@ def echo(text: str, filename: str) -> None:
         fd.write(text + "\n")
 
 
+def install_package_list(packages):
+    environ = os.environ.copy()
+    environ["DEBIAN_FRONTEND"] = "noninteractive"
+    cmd = f"apt-get update; apt-get install -y {' '.join(packages)}"
+    sh("apt-get update", env=environ, timeout=300)
+    sh(cmd, env=environ, timeout=300)
+    sh("apt-get clean", env=environ, timeout=300)
+
+
 def is_python_project():
     if Path("src/requirements.txt").exists():
         return True
@@ -62,26 +70,22 @@ def is_python_project():
     return False
 
 
-# Copied from from boltons.fileutils
 def mkdir_p(path):
-    """Creates a directory and any parent directories that may need to be
-    created along the way, without raising errors for any existing directories.
-
-    This function mimics the behavior of the ``mkdir -p`` command
-    available in Linux/BSD environments, but also works on Windows.
-    """
-    try:
-        os.makedirs(path)
-    except OSError as exc:
-        if exc.errno == errno.EEXIST and os.path.isdir(path):
-            return
-        raise
-    return
+    Path(path).mkdir(parents=True, exist_ok=True)
 
 
 def npm_install(package: str) -> None:
     cmd = f"/usr/bin/npm install -g {package}"
     sh(cmd)
+
+
+def error(msg: str, status: int = 1):
+    if not msg:
+        msg = "unknown"
+    if msg[-1] == ".":
+        panic(f"Error: {msg.capitalize()}")
+    else:
+        panic(f"Error: {msg.capitalize()}.")
 
 
 def panic(msg: str, status: int = 1):
@@ -174,13 +178,17 @@ def rm_rf(path: str) -> bool:
     return False
 
 
-def sh(cmd: str):
-    console.print(cmd, style="green")
+def sh(cmd: str, timeout=600, env=None):
+    console.print(
+        cmd,
+        style="green",
+    )
     try:
-        status = call(cmd, shell=True)
+        completed = sp.run(cmd, shell=True, timeout=timeout, env=env)
+        status = completed.returncode
         if status < 0:
-            panic(f"Child was terminated by signal {-status}", status)
+            error(f"Child was terminated by signal {-status}", status)
         elif status > 0:
-            panic("Something went wrong", status)
+            error(f"Something went wrong (exit code: {status})", status)
     except OSError as e:
         panic(f"Execution failed: {e}")

@@ -11,13 +11,14 @@ to "nua ...".
 import logging
 from os import chdir
 from pathlib import Path
-from shutil import copy2, copytree, ignore_patterns
+from shutil import copy2, copytree
+from typing import Optional
 
 import docker
 import typer
 
-from ..constants import BUILD, DEFAULTS_DIR, MYSELF_DIR, NUA_TAG
-from ..docker_utils import display_docker_img, docker_build_log_error
+from ..constants import BUILD, DEFAULTS_DIR, MYSELF_DIR, NUA_CONFIG, NUA_TAG
+from ..docker_utils import display_docker_img, docker_build_log_error, print_log_stream
 from ..nua_config import NuaConfig
 from ..scripting import *
 
@@ -31,18 +32,18 @@ app = typer.Typer()
 class Builder:
     """Class to hold config and other state information during build."""
 
-    def __init__(self):
-        # we are supposed to launch "nua buld" from cwd, but we'll see later
-        self.root_dir = Path.cwd()
-        self.build_dir = self.root_dir / BUILD
-        # if the nua-config.toml file is not found locally, it aborts build process
-        self.config = NuaConfig()
+    def __init__(self, config_file, verbose=False):
+        # wether the config file is local or not, use local dir fior build:
+        self.work_dir = Path.cwd()
+        self.build_dir = self.work_dir / BUILD
+        self.config = NuaConfig(config_file)
+        self.verbose = verbose
 
     def setup_build_directory(self):
         rm_fr(self.build_dir)
         mkdir_p(self.build_dir)
         self.copy_build_files()
-        self.copy_myself()
+        # self.copy_myself()
         print("Copying config file:", self.config.path.name)
         copy2(self.config.path, self.build_dir)
         # chown_r(self.build_dir, user, group)  # todo
@@ -58,26 +59,30 @@ class Builder:
         copied_files = set()
         if self.config.manifest:
             for name in self.config.manifest:
-                print("Copying manifest file:", name)
-                user_file = self.root_dir / name
+                user_file = self.config.root_dir / name
                 if user_file.is_file():
+                    print("Copying manifest file:", user_file.name)
                     copy2(user_file, self.build_dir)
                 elif user_file.is_dir():
-                    copytree(user_file, self.build_dir)
+                    print("Copying manifest directory:", user_file.name)
+                    copytree(user_file, self.build_dir / name)
                 else:
-                    panic(f"File from manifest not found: {repr(name)}")
+                    error(f"File from manifest not found: {repr(name)}")
                 copied_files.add(name)
         else:  # copy local files
-            for user_file in self.root_dir.glob("*"):
+            for user_file in self.config.root_dir.glob("*"):
                 if (user_file.name).startswith("."):
                     continue
-                print("Copying local file:", user_file.name)
+                if user_file.name in {BUILD, NUA_CONFIG}:
+                    continue
                 if user_file.is_file():
+                    print("Copying local file:", user_file.name)
                     copy2(user_file, self.build_dir)
                 elif user_file.is_dir():
-                    copytree(user_file, self.build_dir)
+                    print("Copying local directory:", user_file.name)
+                    copytree(user_file, self.build_dir / user_file.name)
                 else:
-                    panic(f"File from manifest not found: {repr(name)}")
+                    continue
                 copied_files.add(user_file.name)
         # complete with default files:
         for default_file in DEFAULTS_DIR.glob("*"):
@@ -88,44 +93,47 @@ class Builder:
             print("Copying Nua default file:", default_file.name)
             copy2(default_file, self.build_dir)
 
-    def copy_myself(self):
-        print("Copying Nua_build python package")
-        copytree(
-            MYSELF_DIR,
-            self.build_dir / "nua_build",
-            ignore=ignore_patterns("*.pyc", "__pycache__"),
-        )
-
     @docker_build_log_error
     def build_with_docker(self):
         chdir(self.build_dir)
-        iname = f"nua_{self.config.app_id}:{self.config.version}"
+        release = self.config.metadata.get("release", "")
+        tag = f"-{release}" if release else ""
+        iname = f"nua-{self.config.app_id}:{self.config.version}{tag}"
         print_green(f"Building image {iname}")
         client = docker.from_env()
-        client.images.build(
+        result = client.images.build(
             path=".",
             tag=iname,
             rm=True,
             forcerm=True,
             buildargs={"nua_base_version": NUA_TAG},
+            nocache=True,
         )
+        if self.verbose:
+            print_log_stream(result[1])
         display_docker_img(iname)
 
 
-def build_nua_base_if_needed():
+def build_nua_base_if_needed(verbose):
     client = docker.from_env()
     result = client.images.list(filters={"reference": NUA_TAG})
     if not result:
         print(f"Image '{NUA_TAG}' not found: build required.")
-        sh("nuad build_nua_docker")
+        arg = "--verbose" if verbose else ""
+        sh(f"nuad build_nua_docker {arg}", timeout=1800)
 
 
 @app.command("build")
-def build_cmd() -> None:
-    """Build Nua package, using local 'nua-config.toml' file."""
+def build_cmd(
+    config: Optional[str] = typer.Argument(
+        None, help="Path to the 'nua-config.toml' file."
+    ),
+    verbose: bool = typer.Option(False, help="Print build log."),
+) -> None:
+    """Build Nua package from some 'nua-config.toml' file."""
     # first build the nua_base image if needed
-    build_nua_base_if_needed()
-    builder = Builder()
+    build_nua_base_if_needed(verbose)
+    builder = Builder(config, verbose)
     print_green(f"*** Generation of the docker image for {builder.config.app_id} ***")
     builder.setup_build_directory()
     builder.build_with_docker()

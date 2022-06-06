@@ -15,7 +15,7 @@ import docker
 import typer
 
 from ..constants import BUILD, DOCKER_FILE, MYSELF_DIR, NUA_TAG
-from ..docker_utils import display_docker_img, docker_build_log_error
+from ..docker_utils import display_docker_img, docker_build_log_error, print_log_stream
 from ..scripting import *
 
 assert MYSELF_DIR.is_dir()
@@ -25,13 +25,15 @@ app = typer.Typer()
 
 
 @docker_build_log_error
-def build_with_docker(build_dir, iname):
+def build_with_docker(build_dir, iname, verbose=False):
     chdir(build_dir)
     print(f"Building image {iname} (it may take a while...)")
-    client = docker.from_env()
-    client.images.build(path=".", tag=iname, rm=True, forcerm=True)
     # cmd = f"docker build -t {name} ."
     # sh(cmd)
+    client = docker.from_env()
+    result = client.images.build(path=".", tag=iname, rm=True, forcerm=True)
+    if verbose:
+        print_log_stream(result[1])
 
 
 def copy_myself(build_dir):
@@ -44,15 +46,18 @@ def copy_myself(build_dir):
 
 
 @app.command("build_nua_docker")
-def generate_nua_docker_cmd() -> None:
+def generate_nua_docker_cmd(
+    verbose: bool = typer.Option(False, help="Print build log.")
+) -> None:
     """build the base Nua docker image."""
 
     print_green(f"*** Generation of the docker image {NUA_TAG} ***")
-    build_dir = Path.cwd() / BUILD
+    orig_wd = Path.cwd()
+    build_dir = orig_wd / BUILD
     rm_fr(build_dir)
     mkdir_p(build_dir)
     copy2(DOCKER_FILE, build_dir)
     copy_myself(build_dir)
-    build_with_docker(build_dir, NUA_TAG)
+    build_with_docker(build_dir, NUA_TAG, verbose)
     display_docker_img(NUA_TAG)
-    # sh("docker image ls nua_base")
+    chdir(orig_wd)

@@ -31,6 +31,7 @@ PACKAGES = [
     "software-properties-common",
     # DB stuff
     "libmysqlclient-dev",
+    "tree",
 ]
 
 PY_PACKAGES = [
