@@ -1,4 +1,3 @@
-#!/bin/env python3
 """Command to generate the base Nua docker image.
 
 command: "nuad generate_nua_docker"
@@ -31,7 +30,12 @@ def build_with_docker(build_dir, iname, verbose=False):
     # cmd = f"docker build -t {name} ."
     # sh(cmd)
     client = docker.from_env()
-    result = client.images.build(path=".", tag=iname, rm=True, forcerm=True)
+    result = client.images.build(
+        path=".",
+        tag=iname,
+        rm=True,
+        forcerm=True,
+    )
     if verbose:
         print_log_stream(result[1])
 

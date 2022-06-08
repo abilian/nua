@@ -4,14 +4,16 @@ import os
 import pwd
 import shutil
 import subprocess as sp
+from glob import glob
 from pathlib import Path
 
 from .rich_console import console
 
 __all__ = """
     apt_get_install build_python cat chown_r echo error install_package_list
-    is_python_project mkdir_p npm_install panic pip_install pip_list print_green
-    print_magenta print_red pysu rm_fr rm_rf sh
+    is_python_project mkdir_p npm_install panic pip_install pip_list
+    print_green print_magenta print_red pysu exec_as_nua exec_as_root
+    replace_in rm_fr rm_rf sh
 """.split()
 
 
@@ -56,9 +58,9 @@ def install_package_list(packages):
     environ = os.environ.copy()
     environ["DEBIAN_FRONTEND"] = "noninteractive"
     cmd = f"apt-get update; apt-get install -y {' '.join(packages)}"
-    sh("apt-get update", env=environ, timeout=300)
-    sh(cmd, env=environ, timeout=300)
-    sh("apt-get clean", env=environ, timeout=300)
+    sh("apt-get update", env=environ, timeout=600)
+    sh(cmd, env=environ, timeout=600)
+    sh("apt-get clean", env=environ, timeout=600)
 
 
 def is_python_project():
@@ -116,6 +118,24 @@ def pip_list():
     sh("pip list")
 
 
+def exec_as_nua(cmd, env=None):
+    if isinstance(cmd, str):
+        cmd = cmd.split()
+    full_env = os.environ.copy()
+    if env:
+        full_env.update(env)
+    pysu(cmd, "nua", "nua", full_env)
+
+
+def exec_as_root(cmd, env=None):
+    if isinstance(cmd, str):
+        cmd = cmd.split()
+    full_env = os.environ.copy()
+    if env:
+        full_env.update(env)
+    pysu(cmd, "root", "root", full_env)
+
+
 def pysu(args, user=None, group=None, env=None):
     if not env:
         env = {}
@@ -124,11 +144,12 @@ def pysu(args, user=None, group=None, env=None):
     except KeyError:
         if group is None:
             raise f"Unknown user name {repr(user)}."
-    uid = os.getuid()
-    try:
-        pw = pwd.getpwuid(uid)
-    except KeyError:
-        pw = None
+        else:
+            uid = os.getuid()
+            try:
+                pw = pwd.getpwuid(uid)
+            except KeyError:
+                pw = None
     else:
         uid = pw.pw_uid
 
@@ -159,10 +180,22 @@ def pysu(args, user=None, group=None, env=None):
 
     os.setgid(gid)
     os.setuid(uid)
-    os.environ["USER"] = name
-    os.environ["HOME"] = home
-    os.environ["UID"] = str(uid)
+    env["USER"] = name
+    env["HOME"] = home
+    env["UID"] = str(uid)
     os.execvpe(args[0], args, env)
+
+
+def replace_in(file_pattern, searching, replace_by):
+    for file_name in glob(file_pattern, recursive=True):
+        path = Path(file_name)
+        if not path.is_file():
+            continue
+        # assuming it's an utf-8 world
+        with open(path, encoding="utf-8") as r:
+            content = r.read()
+            with open(path, mode="w", encoding="utf-8") as w:
+                w.write(content.replace(searching, replace_by))
 
 
 def rm_fr(path: str) -> bool:

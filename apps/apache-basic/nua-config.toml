@@ -1,17 +1,19 @@
 [metadata]
 id = "apache-basic"
-version = "2.4"
-title = "Apache basic"
-author = "Apache foundation"
+version = "2.4.52"
+title = "Apache basic config"
+author = "The Apache Software Foundation"
 tagline = "Apache basic config with static content"
-website = "https://apache.org/"
+website = "https://httpd.apache.org/"
 tags = ["html", "web", "static"]
-licence = "Apache license"
+licence = "Apache-2.0"
 profile = ["generic"]
-release = 1
+release = 2
 changelog ="""
+* Jun 08 2022 Jerome Dumonteil <jd@abilian.com>
+    - more tests
 * Jun 06 2022 Jerome Dumonteil <jd@abilian.com>
-- trying some test with apache
+    - trying some test with apache
 """
 
 [build]
@@ -25,9 +27,13 @@ changelog ="""
 # "www",
 # "build.py"
 # ]
-#src_url = "https://github.com/moinwiki/moin/archive/refs/heads/master.tar.gz"
+
+# src_url = "https://github.com/moinwiki/moin/archive/refs/heads/master.tar.gz"
 # src_git = "https://github.com/moinwiki/moin.git"
+
 # optional build script, default is "build.py" if found
 # build_script = ""
 # optional start script, default is "start.py" if found
 # start_script = ""
+document_root = "/var/www/nua/html"
+expose = 80

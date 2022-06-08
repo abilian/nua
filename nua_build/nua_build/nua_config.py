@@ -14,13 +14,12 @@ OPTIONAL = "tagline website tags profile release changelog".split()
 class NuaConfig:
     """Wrapper for the "nua-config.toml" file."""
 
-    def __init__(self, filename=None, folder=""):
+    def __init__(self, filename=None):
         if not filename:
             filename = NUA_CONFIG
-        if folder:
-            self.path = Path(folder).resolve() / Path(filename)
-        else:
-            self.path = Path(filename).resolve()
+        self.path = Path(filename).resolve()
+        if self.path.is_dir():
+            self.path = self.path / NUA_CONFIG
         if not self.path.is_file():
             error(f"File not found '{self.path}'")
         with open(self.path, encoding="utf8") as config_file:

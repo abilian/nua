@@ -1,5 +1,6 @@
 import os
 
-print("This start.py file only show environment variables.")
-print()
-print(os.environ)
+from nua_build.scripting import *
+
+print("This start.py file only show time and exit.")
+exec_as_nua("date")

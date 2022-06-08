@@ -1,4 +1,3 @@
-#!/bin/env python3
 """Script to install Nua dependancies on Nua app environment (inside docker).
 
 command: "nuad setup"
@@ -56,12 +55,6 @@ def configure_apt():
     )
 
 
-def install_native_packages():
-    cmd = "apt-get -y update"
-    sh(cmd)
-    apt_get_install(PACKAGES)
-
-
 def install_nodejs():
     cmd = "curl -sL https://deb.nodesource.com/setup_14.x | bash -"
     sh(cmd)
@@ -77,7 +70,7 @@ def setup_nua_cmd() -> None:
     print("configure_apt")
     configure_apt()
     print("install_native_packages")
-    install_native_packages()
+    install_package_list(PACKAGES)
     print("pip_install")
     pip_install(PY_PACKAGES)
     print_green("Nua: base components are installed.")

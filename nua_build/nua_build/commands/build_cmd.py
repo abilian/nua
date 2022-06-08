@@ -1,4 +1,3 @@
-#!/bin/env python3
 """Script to build a nua package (experimental)
 
 - informations come from a mandatory local file: "nua-config.toml"
@@ -99,6 +98,7 @@ class Builder:
         release = self.config.metadata.get("release", "")
         tag = f"-{release}" if release else ""
         iname = f"nua-{self.config.app_id}:{self.config.version}{tag}"
+        expose = str(self.config.build.get("expose") or "80")
         print_green(f"Building image {iname}")
         client = docker.from_env()
         result = client.images.build(
@@ -106,7 +106,8 @@ class Builder:
             tag=iname,
             rm=True,
             forcerm=True,
-            buildargs={"nua_base_version": NUA_TAG},
+            buildargs={"nua_base_version": NUA_TAG, "nua_expose": expose},
+            labels={"SOME_LABEL": "test"},
             nocache=True,
         )
         if self.verbose:

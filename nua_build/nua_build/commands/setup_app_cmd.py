@@ -35,7 +35,7 @@ class BuilderApp:
         if not self.build_dir.is_dir():
             error(f"Build directory does not exist: '{self.build_dir}'")
         chdir(self.build_dir)
-        self.config = NuaConfig(folder=str(self.build_dir))
+        self.config = NuaConfig(self.build_dir)
         self.build_script_path = None
 
     def fetch(self):
