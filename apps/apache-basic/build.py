@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from shutil import copy2, copytree
 
+from nua_build import __version__ as nua_version
 from nua_build.nua_config import NuaConfig
 from nua_build.scripting import *
 
@@ -12,11 +13,12 @@ def main():
 
     packages = ["apache2"]
     install_package_list(packages)
-    sh("systemctl disable apache2")
+    # sh("systemctl disable apache2")
 
     doc_root = Path(config.build["document_root"] or "/var/www/html")
     rm_fr(doc_root)
     mkdir_p(doc_root.parent)
+    replace_in("html/*.html", "___nua_version___", nua_version)
     copytree("html", doc_root)
     chown_r(doc_root, "www-data", "www-data")
     sh(f"chmod -R u=rwX,go=rX {str(doc_root)}")

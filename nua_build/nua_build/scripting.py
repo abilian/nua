@@ -20,6 +20,8 @@ __all__ = """
 def apt_get_install(packages: list | str) -> None:
     if isinstance(packages, str):
         packages = packages.strip().split()
+    if not packages:
+        return
     cmd = f"apt-get install -y {' '.join(packages)}"
     sh(cmd)
 
@@ -110,6 +112,8 @@ def print_red(msg: str):
 def pip_install(packages: list | str) -> None:
     if isinstance(packages, str):
         packages = packages.strip().split()
+    if not packages:
+        return
     cmd = f"python -m pip install {' '.join(packages)}"
     sh(cmd)
 

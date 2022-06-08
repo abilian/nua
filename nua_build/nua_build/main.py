@@ -12,7 +12,7 @@ from typing import Optional
 import typer
 
 from . import __version__
-from .commands import build_cmd, generate_nua_docker_cmd, setup_app_cmd, setup_nua_cmd
+from .commands import build_cmd, setup_app_cmd, setup_nua_cmd
 
 state = {"verbose": False}
 
@@ -22,7 +22,6 @@ app = typer.Typer()
 app.registered_commands += build_cmd.app.registered_commands
 app.registered_commands += setup_nua_cmd.app.registered_commands
 app.registered_commands += setup_app_cmd.app.registered_commands
-app.registered_commands += generate_nua_docker_cmd.app.registered_commands
 
 
 def _version_string():

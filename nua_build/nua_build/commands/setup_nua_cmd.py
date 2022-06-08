@@ -16,28 +16,21 @@ from ..scripting import *
 PACKAGES = [
     # Python stuff needed for nua
     "apt-utils",
-    "python3-venv",
-    "python3-pip",
     "python3-dev",
-    "python3-toml",
     # Stuff
     # Web stuff
-    "curl",
+    # "curl",
     # Build stuff
-    "build-essential",
-    "git",
-    "docker.io",
-    "software-properties-common",
+    # "build-essential",
+    # "git",
+    # "docker.io",
+    # "software-properties-common",
     # DB stuff
-    "libmysqlclient-dev",
-    "tree",
+    # "libmysqlclient-dev",
+    # "tree",
 ]
 
-PY_PACKAGES = [
-    "docker",
-    "typer",
-    "rich",
-]
+PY_PACKAGES = []
 
 app = typer.Typer()
 
@@ -55,22 +48,11 @@ def configure_apt():
     )
 
 
-def install_nodejs():
-    cmd = "curl -sL https://deb.nodesource.com/setup_14.x | bash -"
-    sh(cmd)
-    apt_get_install("nodejs")
-    npm_install("yarn")
-
-
 @app.command("setup_nua")
 def setup_nua_cmd() -> None:
     """Setup Nua base dependancies."""
-    print("Setup Nua base dependancies")
     os.environ["DEBIAN_FRONTEND"] = "noninteractive"
-    print("configure_apt")
     configure_apt()
-    print("install_native_packages")
     install_package_list(PACKAGES)
-    print("pip_install")
     pip_install(PY_PACKAGES)
     print_green("Nua: base components are installed.")

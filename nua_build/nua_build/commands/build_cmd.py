@@ -16,10 +16,11 @@ from typing import Optional
 import docker
 import typer
 
-from ..constants import BUILD, DEFAULTS_DIR, MYSELF_DIR, NUA_CONFIG, NUA_TAG
+from ..constants import BUILD, DEFAULTS_DIR, MYSELF_DIR, NUA_BASE_TAG, NUA_CONFIG
 from ..docker_utils import display_docker_img, docker_build_log_error, print_log_stream
 from ..nua_config import NuaConfig
 from ..scripting import *
+from .build_nua_base import build_nua_base
 
 assert MYSELF_DIR.is_dir()
 
@@ -106,7 +107,7 @@ class Builder:
             tag=iname,
             rm=True,
             forcerm=True,
-            buildargs={"nua_base_version": NUA_TAG, "nua_expose": expose},
+            buildargs={"nua_base_version": NUA_BASE_TAG, "nua_expose": expose},
             labels={"SOME_LABEL": "test"},
             nocache=True,
         )
@@ -117,11 +118,10 @@ class Builder:
 
 def build_nua_base_if_needed(verbose):
     client = docker.from_env()
-    result = client.images.list(filters={"reference": NUA_TAG})
+    result = client.images.list(filters={"reference": NUA_BASE_TAG})
     if not result:
-        print(f"Image '{NUA_TAG}' not found: build required.")
-        arg = "--verbose" if verbose else ""
-        sh(f"nuad build_nua_docker {arg}", timeout=1800)
+        print(f"Image '{NUA_BASE_TAG}' not found: build required.")
+        build_nua_base(verbose)
 
 
 @app.command("build")
