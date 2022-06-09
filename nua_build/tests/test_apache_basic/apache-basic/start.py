@@ -1,4 +1,4 @@
-from nua_build.scripting import *
+from nua_build.exec import exec_as_root
 
 env = {
     "APACHE_RUN_USER": "www-data",

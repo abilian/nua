@@ -24,6 +24,29 @@ app.registered_commands += setup_nua_cmd.app.registered_commands
 app.registered_commands += setup_app_cmd.app.registered_commands
 
 
+def version_callback(value: bool) -> None:
+    if value:
+        _version_string()
+        raise typer.Exit(0)
+
+
+option_version = typer.Option(
+    None,
+    "--version",
+    "-V",
+    help="Show Nua version and exit.",
+    callback=version_callback,
+    is_eager=True,
+)
+
+option_verbose = typer.Option(
+    False,
+    "--verbose",
+    "-v",
+    help="Write verbose output.",
+)
+
+
 def _version_string():
     typer.echo(f"Nua build CLI version: {__version__}")
 
@@ -34,29 +57,11 @@ def usage():
     raise typer.Exit(0)
 
 
-def version_callback(value: bool) -> None:
-    if value:
-        _version_string()
-        raise typer.Exit(0)
-
-
 @app.callback(invoke_without_command=True)
 def main(
     ctx: typer.Context,
-    version: Optional[bool] = typer.Option(
-        None,
-        "--version",
-        "-V",
-        help="Show Nua version and exit.",
-        callback=version_callback,
-        is_eager=True,
-    ),
-    verbose: bool = typer.Option(
-        False,
-        "--verbose",
-        "-v",
-        help="Write verbose output.",
-    ),
+    version: Optional[bool] = option_version,
+    verbose: bool = option_verbose,
 ):
     """Nua build CLI inferface."""
     if verbose:

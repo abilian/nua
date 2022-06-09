@@ -17,9 +17,12 @@ from ..constants import (
     NUA_MIN_TAG,
 )
 from ..docker_utils import display_docker_img, docker_build_log_error, print_log_stream
-from ..scripting import *
+from ..rich_console import print_green
+from ..shell import mkdir_p, rm_fr
 
 app = typer.Typer()
+
+option_verbose = typer.Option(False, help="Print build log.")
 
 
 def build_nua_base(verbose):
@@ -92,8 +95,6 @@ def copy_myself(build_dir):
 
 
 @app.command("build_nua_docker")
-def generate_nua_docker_cmd(
-    verbose: bool = typer.Option(False, help="Print build log.")
-) -> None:
+def generate_nua_docker_cmd(verbose: bool = option_verbose) -> None:
     """build the base Nua docker image."""
     build_nua_base(verbose)

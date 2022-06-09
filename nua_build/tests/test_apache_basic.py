@@ -1,5 +1,5 @@
-import subprocess as sp
-from datetime import datetime
+import subprocess as sp  # noqa, required.
+from datetime import datetime, timezone
 from os import chdir, getcwd
 from pathlib import Path
 from shutil import copytree, rmtree
@@ -20,7 +20,8 @@ def test_complete_build_without_cache():
     ubuntu = "ubuntu:22.04"
     # Warn: using /tmp for tests:
     orig_dir = getcwd()
-    tmp = Path("/tmp") / "tmp_test_apache_basic"
+    # Probable insecure usage of temp file/directory :
+    tmp = Path("/tmp") / "tmp_test_apache_basic"  # noqa
     if tmp.exists():
         rmtree(tmp)
     tmp.mkdir()
@@ -30,34 +31,34 @@ def test_complete_build_without_cache():
     )
     chdir(tmp)
     print("Testing in:", getcwd())
-
     dock = docker.from_env()
     for im in (ubuntu, NUA_MIN_TAG, NUA_BASE_TAG, image_target):
         print(f"Show '{im}' in cache:", dock.images.list(im))
     print("Clean cache.")
     dock.images.prune()
     for im in reversed((ubuntu, NUA_MIN_TAG, NUA_BASE_TAG, image_target)):
-        try:
+        try:  # noqa : no pb, we do it on our images
+            # Use 'contextlib.suppress(docker.errors.ImageNotFound)' :
             dock.images.remove(im, force=True, noprune=False)
         except docker.errors.ImageNotFound:
             pass
         assert not dock.images.list(im)
-
-    print("Time now:", datetime.now().isoformat(" "))
+    # DTZ005 The use of `datetime.datetime.now()` without `tz` argument is
+    # not allowed : well, by default it uses localtime.
+    print("Time now:", datetime.now(timezone.utc).isoformat(" "))
     print(f"Build {image_target} (no images in cache) with command:")
     cmd = "nuad build ./apache-basic"
     print(f"'{cmd}'")
-
     t0 = perf_counter()
-    result = sp.run(cmd, shell=True, capture_output=True)
-    print("Time now:", datetime.now().isoformat(" "))
+    result = sp.run(cmd, shell=True, capture_output=True)  # noqa, we want shell
+
+    print("Time now:", datetime.now(timezone.utc).isoformat(" "))
     print("elapsed (s):", perf_counter() - t0)
     print(" ========= result.stdout ===========")
     print(result.stdout.decode("utf8"))
     print(" ===================================")
     assert result.returncode == 0
     assert dock.images.list(im)
-
     print("Testing the container:")
     # clean previous run if any
     for previous in dock.containers.list(filters={"ancestor": image_target}):
@@ -69,7 +70,8 @@ def test_complete_build_without_cache():
     )
     sleep(2)
     cmd = f"curl http://127.0.0.1:{host_port}"
-    curl_result = sp.run(cmd, shell=True, capture_output=True)
+    # S603 subprocess call - check for execution of untrusted input.: wrong
+    curl_result = sp.run(cmd, shell=True, capture_output=True)  # noqa
     assert curl_result.returncode == 0
     test_string = f"<h1>Nua test {nua_version}</h1>"
     assert test_string in curl_result.stdout.decode("utf8")
@@ -88,7 +90,8 @@ def test_complete_build_with_cache():
     ubuntu = "ubuntu:22.04"
     # Warn: using /tmp for tests:
     orig_dir = getcwd()
-    tmp = Path("/tmp") / "tmp_test_apache_basic"
+    # Probable insecure usage of temp file/directory :
+    tmp = Path("/tmp") / "tmp_test_apache_basic"  # noqa
     if tmp.exists():
         rmtree(tmp)
     tmp.mkdir()
@@ -98,26 +101,23 @@ def test_complete_build_with_cache():
     )
     chdir(tmp)
     print("Testing in:", getcwd())
-
     dock = docker.from_env()
     for im in (ubuntu, NUA_MIN_TAG, NUA_BASE_TAG, image_target):
         print(f"Show '{im}' in cache:", dock.images.list(im))
-
-    print("Time now:", datetime.now().isoformat(" "))
+    print("Time now:", datetime.now(timezone.utc).isoformat(" "))
     print(f"Build {image_target} (expecting cache) with nua command line:")
     cmd = "nuad build ./apache-basic"
     print(f"'{cmd}'")
-
     t0 = perf_counter()
-    result = sp.run(cmd, shell=True, capture_output=True)
-    print("Time now:", datetime.now().isoformat(" "))
+    result = sp.run(cmd, shell=True, capture_output=True)  # noqa,we want shell here
+
+    print("Time now:", datetime.now(timezone.utc).isoformat(" "))
     print("elapsed (s):", perf_counter() - t0)
     print(" ========= result.stdout ===========")
     print(result.stdout.decode("utf8"))
     print(" ===================================")
     assert result.returncode == 0
     assert dock.images.list(im)
-
     print("Testing the container:")
     # clean previous run if any
     for previous in dock.containers.list(filters={"ancestor": image_target}):
@@ -129,7 +129,8 @@ def test_complete_build_with_cache():
     )
     sleep(2)
     cmd = f"curl http://127.0.0.1:{host_port}"
-    curl_result = sp.run(cmd, shell=True, capture_output=True)
+    # S603 subprocess call - check for execution of untrusted input.: wrong
+    curl_result = sp.run(cmd, shell=True, capture_output=True)  # noqa
     assert curl_result.returncode == 0
     test_string = f"<h1>Nua test {nua_version}</h1>"
     assert test_string in curl_result.stdout.decode("utf8")

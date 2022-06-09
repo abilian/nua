@@ -16,7 +16,8 @@ import typer
 
 from ..constants import DEFAULTS_DIR, NUA_BUILD_PATH, NUA_SCRIPTS_PATH
 from ..nua_config import NuaConfig
-from ..scripting import *
+from ..panic import error
+from ..shell import sh
 
 logging.basicConfig(level=logging.INFO)
 

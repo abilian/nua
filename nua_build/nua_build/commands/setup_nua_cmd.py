@@ -10,7 +10,9 @@ import os
 
 import typer
 
-from ..scripting import *
+from ..actions import install_package_list, pip_install
+from ..rich_console import print_green
+from ..shell import echo
 
 # some packages may be alreay installed at Docker initial setup
 PACKAGES = [

@@ -1,6 +1,4 @@
-import os
-
-from nua_build.scripting import *
+from nua_build.actions import exec_as_nua
 
 print("This start.py file only show time and exit.")
 exec_as_nua("date")

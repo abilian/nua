@@ -5,10 +5,10 @@ from typing import Any
 import toml
 
 from .constants import NUA_CONFIG
-from .scripting import error
+from .panic import error
 
-REQUIRED = "id version title author licence".split()
-OPTIONAL = "tagline website tags profile release changelog".split()
+REQUIRED = ["id", "version", "title", "author", "licence"]
+OPTIONAL = ["tagline", "website", "tags", "profile", "release", "changelog"]
 
 
 class NuaConfig:

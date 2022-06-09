@@ -4,7 +4,8 @@ from functools import wraps
 
 import docker
 
-from .scripting import *
+from .panic import panic
+from .rich_console import print_magenta, print_red
 
 
 def print_log_stream(docker_log):
@@ -40,7 +41,8 @@ def display_docker_img(iname):
         sid = img.short_id.split(":")[-1]
         tags = "|".join(img.tags)
         crea = datetime.fromisoformat(img.attrs["Created"][:19]).isoformat(" ")
-        size = round(img.attrs["Size"] / 2**20)  # Note: Docker uses 10**6 for MB
+        # Note on size of image: Docker uses 10**6 for MB, here I use 2**20
+        size = round(img.attrs["Size"] / 2**20)
         print(f"    tags: {tags}")
         print(f"    id: {sid}")
         print(f"    size: {size}MB")
