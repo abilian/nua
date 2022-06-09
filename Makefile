@@ -51,7 +51,13 @@ lint/flake8: ## check style with flake8
 lint/black: ## check style with black
 	black --check nua*
 
-lint: lint/flake8 lint/black ## check style
+lint/mypy: ## typecheck with mypy
+	mypy nua_build
+	mypy nua_orchestrator
+	mypy nua_cli
+	mypy nua
+
+lint: lint/flake8 lint/mypy lint/black ## check style
 
 test: ## run tests quickly with the default Python
 	pytest
