@@ -57,7 +57,10 @@ lint/mypy: ## typecheck with mypy
 	mypy nua_cli
 	mypy nua
 
-lint: lint/flake8 lint/mypy lint/black ## check style
+lint/isort:  ## check imports are properly sorted
+	isort nua*/**/*.py
+
+lint: lint/flake8 lint/mypy lint/black lint/isort ## check style
 
 test: ## run tests quickly with the default Python
 	pytest
