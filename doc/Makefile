@@ -1,6 +1,6 @@
 .PHONY: run build clean deploy pdf
 
-TARGET:=TODO
+TARGET:=root@bulma:/var/www/html/nua.rocks/
 
 run:
 	mkdocs serve

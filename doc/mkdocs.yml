@@ -1,7 +1,20 @@
+# Project info
 site_name: Nua doc
+site_description: The official website and documentation site for the Nua self-sovereign cloud platform project
+site_author: Abilian SAS
+site_url: https://nua.rocks/
 
 docs_dir: src
 
+# Copyright
+copyright: Copyright &copy; 2021-2022 Abilian SAS
+
+# Repository
+repo_name: 'abilian/nua'
+repo_url: 'https://github.com/abilian/nua'
+edit_uri: 'https://github.com/abilian/nua/blob/master/docs/'
+
+# Configuration
 theme:
   name: material
   # custom_dir: theme
@@ -11,17 +24,17 @@ theme:
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: pink
-      accent: pink
+      # primary: dark-blue
+      # accent: purple
       toggle:
-        icon: material/weather-night
+        icon: material/toggle-switch-off-outline
         name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: pink
-      accent: pink
+      primary: cyan
+      accent: purple
       toggle:
-        icon: material/weather-sunny
+        icon: material/toggle-switch
         name: Switch to light mode
   font:
     text: Roboto
@@ -30,6 +43,15 @@ theme:
     - navigation.tabs
     - navigation.top
     - navigation.instant
+
+extra:
+  homepage: https://nua.rocks
+  generator: false
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/abilian/nua
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/abilianhq
 
 # Extensions
 markdown_extensions:
@@ -54,7 +76,7 @@ plugins:
       cover: true
       back_cover: false
       cover_title: Nua
-      cover_subtitle: La platforme du journalisme 3.0
+      cover_subtitle: Self-sovereign cloud platform
       enabled_if_env: ENABLE_PDF_EXPORT
 
       #    custom_template_path: TEMPLATES PATH
@@ -85,21 +107,22 @@ plugins:
       #debug_html: true
       #show_anchors: true
       #verbose: true
-  - mkdocstrings:
-      default_handler: python
-      handlers:
-        python:
-          rendering:
-            show_source: false
-      custom_templates: templates
-      watch:
-        - ../src/app
+
+  # - mkdocstrings:
+  #     default_handler: python
+  #     handlers:
+  #       python:
+  #         rendering:
+  #           show_source: false
+  #     custom_templates: templates
+  #     watch:
+  #       - ../src/app
 
 nav:
   - Home: index.md
-  - Utilisateurs:
+  - Users:
     - Intro: user/index.md
-  - Développeurs:
+  - Developers:
     - Intro: dev/index.md
     - Architecture: dev/architecture.md
     - Database: dev/database.md
