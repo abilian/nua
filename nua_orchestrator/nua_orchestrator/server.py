@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Nua main server.
 
 Main server only duty is to launch and manage sub servers:
@@ -10,6 +9,7 @@ import atexit
 import multiprocessing as mp
 import os
 import sys
+from contextlib import suppress
 from pathlib import Path
 from time import sleep
 
@@ -32,10 +32,8 @@ os.environ["NUA_LOG_FILE"] = CONFIG["server"].get("log_file", "")
 def unlink_pid_file():
     """Unlink the server pid file, no fail on error."""
     if PID_FILE.exists():
-        try:
+        with suppress(OSError):
             PID_FILE.unlink(missing_ok=True)
-        except OSError:
-            pass
 
 
 def touch_exit_flag():
@@ -44,19 +42,14 @@ def touch_exit_flag():
         return
     EXIT_FLAG.parent.mkdir(exist_ok=True)
 
-    with open(EXIT_FLAG, "w", encoding="utf8") as f:
-        try:
-            f.write("\n")
-        except OSError:
-            pass
+    with open(EXIT_FLAG, "w", encoding="utf8") as f, suppress(OSError):
+        f.write("\n")
 
 
 def unlink_exit_flag():
     """Unlink the EXIT_FLAG, no fail on error."""
-    try:
+    with suppress(OSError):
         EXIT_FLAG.unlink(missing_ok=True)
-    except OSError:
-        pass
 
 
 def sentinel_daemon(main_pid):
@@ -74,7 +67,8 @@ def sentinel_daemon(main_pid):
             # file not modified
             # chek the process is stille running
             try:
-                _check_proc_is_running = psutil.Process(pid=main_pid)
+                # check proc is running
+                psutil.Process(pid=main_pid)
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                 log_sentinel("Error: main Nua server is down")
                 break
@@ -101,10 +95,8 @@ def sentinel_daemon(main_pid):
     procs.append(parent)
     procs = [p for p in procs if p.pid != my_pid]
     for p in procs:
-        try:
+        with suppress(Exception):
             p.terminate()
-        except:
-            pass
     _gone, still_alive = psutil.wait_procs(procs, timeout=2)
     for p in still_alive:
         p.kill()
@@ -146,7 +138,7 @@ def server_start():
         sleep(1)
 
 
-def start():
+def start(_cmd: str = ""):
     """Entry point for server "start" command."""
     print("Starting Nua server", file=sys.stderr)
     if PID_FILE.exists():
@@ -158,7 +150,7 @@ def start():
     return 0
 
 
-def stop():
+def stop(_cmd: str = ""):
     """Entry point for server "stop" command."""
     if not PID_FILE.exists():
         msg = "PID file not found, orchestrator is (probably) not running"
@@ -180,14 +172,10 @@ def stop():
             procs = server_proc.children(recursive=True)
             procs.append(server_proc)
             for p in procs:
-                try:
-                    p.terminate()
-                except (
-                    psutil.NoSuchProcess,
-                    psutil.AccessDenied,
-                    psutil.ZombieProcess,
+                with suppress(
+                    psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess
                 ):
-                    pass
+                    p.terminate()
             _gone, still_alive = psutil.wait_procs(procs, timeout=2)
             for p in still_alive:
                 p.kill()
@@ -201,10 +189,10 @@ def stop():
     return 0
 
 
-def restart():
+def restart(cmd: str = ""):
     """Entry point for server "restart" command."""
     touch_exit_flag()
-    stop()
+    stop(cmd)
     count = 100  # 10 sec
     while EXIT_FLAG.exists():
         sleep(0.1)
@@ -215,50 +203,57 @@ def restart():
             log(msg)
             # note: we could also store the pid of the sentinel to check it is not down
             unlink_exit_flag()
-    return start()
+    return start(cmd)
 
 
-def status():
-    """Entry point for server "status" command."""
-    # fixme: go further on status details (sub servzrs...)
-    if not PID_FILE.exists():
-        msg = "PID file not found, orchestrator is (probably) not running."
-        print(msg, file=sys.stderr)
-        return 1
+def _check_status_1():
+    if PID_FILE.exists():
+        return 0, ""
+    return 1, "PID file not found, orchestrator is (probably) not running."
+
+
+def _check_status_2():
+    stat = 0
+    msg = ""
     try:
         with open(PID_FILE, "r", encoding="utf8") as f:
             read_pid = int(f.read())
     except OSError:
-        msg = "Error reading PID file"
-        print(msg, file=sys.stderr)
-        return 2
-    try:
-        _check_proc_is_running = psutil.Process(pid=read_pid)
-    except psutil.NoSuchProcess:
-        msg = f"PID should be {read_pid}, but no process. This is a bug."
-        print(msg, file=sys.stderr)
-        return 3
-    except psutil.AccessDenied:
-        msg = f"PID should be {read_pid}, but 'AccessDenied'."
-        print(msg, file=sys.stderr)
-        return 4
-    msg = f"Nua orchestrator is running with PID {read_pid}"
+        stat, msg = 2, "Error reading PID file."
+    if not stat:
+        try:
+            psutil.Process(pid=read_pid)
+        except psutil.NoSuchProcess:
+            stat, msg = 3, f"PID should be {read_pid}, but no process. This is a bug."
+        except psutil.AccessDenied:
+            stat, msg = 4, f"PID should be {read_pid}, but 'AccessDenied'."
+        else:
+            stat, msg = 0, f"Nua orchestrator is running with PID {read_pid}"
+    return stat, msg
+
+
+def status(_cmd: str = "") -> int:
+    """Entry point for server "status" command."""
+    # fixme: go further on status details (sub servers...)
+    stat, msg = _check_status_1()
+    if not stat:
+        stat, msg = _check_status_2()
     print(msg, file=sys.stderr)
-    return 0
+    return stat
+
+
+def unknown(cmd):
+    print(f"Unknown command: {cmd}", file=sys.stderr)
+    return 255
+
+
+main_dispatch = {"start": start, "stop": stop, "restart": restart, "status": status}
 
 
 def main(cmd: str) -> int:
     """Entry point if the module is used alone or with main("command")."""
-    if cmd == "start":
-        return start()
-    if cmd == "stop":
-        return stop()
-    if cmd == "restart":
-        return restart()
-    if cmd == "status":
-        return status()
-    print(f"Unknown command: {cmd}", file=sys.stderr)
-    return 255  # unknown argument
+    server_function = main_dispatch.get(cmd, unknown)
+    return server_function(cmd)
 
 
 if __name__ == "__main__":

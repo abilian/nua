@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 
-from .model import auth
+# from .model import auth
 from .model.base import Base
 
 

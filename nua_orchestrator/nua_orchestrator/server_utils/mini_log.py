@@ -1,6 +1,6 @@
 """Pseudo log system."""
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 log_file = None
@@ -16,8 +16,8 @@ def log(*args):  # see later log module implementation
         log_file = Path(path)
     if not log_file.exists():
         log_file.parent.mkdir(exist_ok=True)
-    with open(log_file, "a+", encoding="utf8") as f:
-        f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S - "))
+    with open(log_file, "a", encoding="utf8") as f:
+        f.write(datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S - "))
         f.write(" ".join(str(x) for x in args))
         f.write("\n")
 

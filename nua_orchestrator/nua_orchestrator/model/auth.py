@@ -1,5 +1,13 @@
-from sqlalchemy import TIMESTAMP, BigInteger, Column, ForeignKey, Index, Table, text
-from sqlalchemy.dialects.sqlite import (
+from sqlalchemy import (  # noqa: F401
+    TIMESTAMP,
+    BigInteger,
+    Column,
+    ForeignKey,
+    Index,
+    Table,
+    text,
+)
+from sqlalchemy.dialects.sqlite import (  # noqa: F401
     BLOB,
     BOOLEAN,
     CHAR,
@@ -29,13 +37,13 @@ class User(Base, SerializerMixin):
     email = Column(VARCHAR(254), nullable=False, unique=True)
     password = Column(VARCHAR(1024), nullable=False)
     salt = Column(VARCHAR(512), nullable=False)
-    resetToken = Column(VARCHAR(128), server_default=text("''"))
-    displayName = Column(VARCHAR(512), server_default=text("''"))
-    fallbackEmail = Column(VARCHAR(512), server_default=text("''"))
+    reset_token = Column(VARCHAR(128), server_default=text("''"))
+    display_name = Column(VARCHAR(512), server_default=text("''"))
+    fallback_mail = Column(VARCHAR(512), server_default=text("''"))
     source = Column(VARCHAR(128), server_default=text("''"))
     role = Column(VARCHAR(32), nullable=False)
     ts = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP"))
-    creationTime = Column(
+    creation_time = Column(
         TIMESTAMP, nullable=False, index=True, server_default=text("CURRENT_TIMESTAMP")
     )
 
@@ -50,7 +58,7 @@ class UserGroup(Base, SerializerMixin):
     users = relationship(User, secondary="groupMembers")
 
 
-t_groupMembers = Table(
+t_group_members = Table(
     "groupMembers",
     metadata,
     #

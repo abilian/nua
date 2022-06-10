@@ -74,7 +74,6 @@ def test_list_help():
         "-m",
         "--mail",
         "--all",
-        "--json",
         "--help",
     ]:
         assert cmd in set(RE_SPLIT.split(end_txt))
