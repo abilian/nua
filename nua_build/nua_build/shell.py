@@ -5,7 +5,7 @@ from pathlib import Path
 
 # Considering possible security implications associated with the
 # subprocess module.
-from subprocess import run  # noqa
+from subprocess import run  # noqa: S404
 
 from .panic import error, panic
 from .rich_console import console
@@ -53,7 +53,7 @@ def sh(cmd: str, timeout=600, env=None):
     try:
         # subprocess call with shell=True identified, security issue:
         # We do want to mimic current shell action, including all environment
-        completed = run(cmd, shell=True, timeout=timeout, env=env)  # noqa
+        completed = run(cmd, shell=True, timeout=timeout, env=env)  # noqa: S602
         status = completed.returncode
         if status < 0:
             error(f"Child was terminated by signal {-status}", status)

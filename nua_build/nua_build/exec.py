@@ -84,4 +84,4 @@ def pysu(args, user=None, group=None, env=None):
     env["HOME"] = home
     env["UID"] = str(uid)
     # Starting a process without a shell (actually replacing myself):
-    os.execvpe(args[0], args, env)  # noqa
+    os.execvpe(args[0], args, env)  # noqa: S606

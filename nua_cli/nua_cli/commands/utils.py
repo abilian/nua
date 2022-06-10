@@ -1,9 +1,9 @@
 import json
 import re
-from hashlib import pbkdf2_hmac, sha256
-from random import choice
-from string import ascii_letters
+import secrets
+from hashlib import pbkdf2_hmac, sha256  # noqa: F401
 
+import typer
 import yaml
 
 RE_BASIC_MAIL = re.compile(r"\S+@\S+\.\S+")
@@ -44,8 +44,8 @@ def passwd_callback(value: str) -> str:
 
 
 def random_salt() -> str:
-    salt_length = 32
-    return "".join(choice(ascii_letters) for i in range(salt_length))
+    # salt_length = 16bytes, len()=22 because base64 encoding
+    return secrets.token_urlsafe(16)
 
 
 def salt_passwd(passwd: str, salt: str) -> str:

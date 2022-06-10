@@ -12,6 +12,28 @@ app.add_typer(users.app, name="users")
 state = {"verbose": False}
 
 
+def version_callback(value: bool) -> None:
+    if value:
+        _version_string()
+        raise typer.Exit(0)
+
+
+option_version = typer.Option(
+    None,
+    "--version",
+    "-V",
+    help="Show Nua version and exit.",
+    callback=version_callback,
+    is_eager=True,
+)
+option_verbose = typer.Option(
+    False,
+    "--verbose",
+    "-v",
+    help="Write verbose output.",
+)
+
+
 def _version_string():
     typer.echo(f"Nua CLI version: {__version__}")
 
@@ -22,29 +44,11 @@ def usage():
     raise typer.Exit(0)
 
 
-def version_callback(value: bool) -> None:
-    if value:
-        _version_string()
-        raise typer.Exit(0)
-
-
 @app.callback(invoke_without_command=True)
 def main(
     ctx: typer.Context,
-    version: Optional[bool] = typer.Option(
-        None,
-        "--version",
-        "-V",
-        help="Show Nua version and exit.",
-        callback=version_callback,
-        is_eager=True,
-    ),
-    verbose: bool = typer.Option(
-        False,
-        "--verbose",
-        "-v",
-        help="Write verbose output.",
-    ),
+    version: Optional[bool] = option_version,
+    verbose: bool = option_verbose,
 ):
     """Nua CLI inferface."""
     if verbose:

@@ -1,9 +1,7 @@
-from typing import Optional
-
 import typer
 
 # NOTE: it's probably the only situation where
-# "import nua_orchestrator" is requried.
+# "import nua_orchestrator" is required.
 try:
     import nua_orchestrator as orc
 
