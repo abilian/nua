@@ -7,12 +7,14 @@
 Note: **currently use "nuad ..." for command line**.
 See later if move this to "nua ...".
 """
+from pathlib import Path
 from typing import Optional
 
 import typer
 
-from . import __version__
-from .commands import build_cmd, setup_app_cmd, setup_nua_cmd
+from . import __version__, config
+from .commands import build_cmd, list_cmd, setup_app_cmd, setup_nua_cmd
+from .db.create import create_base
 
 state = {"verbose": False}
 
@@ -20,6 +22,7 @@ app = typer.Typer()
 # app.add_typer(build_cmd.app, name="build")
 
 app.registered_commands += build_cmd.app.registered_commands
+app.registered_commands += list_cmd.app.registered_commands
 app.registered_commands += setup_nua_cmd.app.registered_commands
 app.registered_commands += setup_app_cmd.app.registered_commands
 
@@ -57,6 +60,11 @@ def usage():
     raise typer.Exit(0)
 
 
+def initialization():
+    Path(config.local.local_db_path).mkdir(mode=0o755, parents=True, exist_ok=True)
+    create_base()
+
+
 @app.callback(invoke_without_command=True)
 def main(
     ctx: typer.Context,
@@ -64,6 +72,7 @@ def main(
     verbose: bool = option_verbose,
 ):
     """Nua build CLI inferface."""
+    initialization()
     if verbose:
         typer.echo("(Will write verbose output)")
         state["verbose"] = True

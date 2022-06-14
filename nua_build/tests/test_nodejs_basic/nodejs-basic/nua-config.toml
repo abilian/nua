@@ -1,0 +1,13 @@
+[metadata]
+id = "nodejs-basic"
+version = "1.6"
+title = "Node.js JavaScript runtime"
+author = "Nodejs authors"
+tagline = "Node.js JavaScript runtime"
+website = "https://nodejs.org/"
+tags = ["javascript", "nodejs"]
+licence = "MIT"
+profile = ["generic"]
+release = 1
+
+[build]

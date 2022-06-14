@@ -46,6 +46,14 @@ def is_python_project():
     return False
 
 
+def install_nodejs():
+    apt_get_install("curl")
+    cmd = "curl -sL https://deb.nodesource.com/setup_16.x | bash -"
+    sh(cmd)
+    apt_get_install("nodejs")
+    sh("/usr/bin/npm install -g yarn")
+
+
 def npm_install(package: str) -> None:
     cmd = f"/usr/bin/npm install -g {package}"
     sh(cmd)

@@ -13,6 +13,7 @@ from nua_build.constants import NUA_BASE_TAG, NUA_MIN_TAG
 
 def test_complete_build_without_cache():
     """To be preferably launched with :
+
     pytest -rP test_apache_basic.py
     """
     host_port = 8081
@@ -83,6 +84,7 @@ def test_complete_build_without_cache():
 
 def test_complete_build_with_cache():
     """To be preferably launched with :
+
     pytest -rP test_apache_basic.py
     """
     host_port = 8081

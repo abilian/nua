@@ -16,8 +16,16 @@ from typing import Optional
 import docker
 import typer
 
+from .. import __version__ as nua_version
 from ..constants import BUILD, DEFAULTS_DIR, MYSELF_DIR, NUA_BASE_TAG, NUA_CONFIG
-from ..docker_utils import display_docker_img, docker_build_log_error, print_log_stream
+from ..db import requests
+from ..docker_utils import (
+    display_docker_img,
+    docker_build_log_error,
+    image_created_as_iso,
+    image_size_mib,
+    print_log_stream,
+)
 from ..nua_config import NuaConfig
 from ..panic import error
 from ..rich_console import print_green
@@ -121,7 +129,7 @@ class Builder:
         expose = str(self.config.build.get("expose") or "80")
         print_green(f"Building image {iname}")
         client = docker.from_env()
-        result = client.images.build(
+        image, tee = client.images.build(
             path=".",
             tag=iname,
             rm=True,
@@ -130,16 +138,37 @@ class Builder:
             labels={"SOME_LABEL": "test"},
             nocache=True,
         )
+        requests.store_image(
+            id_sha=image.id,
+            nua_id=self.config.app_id,
+            nua_tag=iname,
+            created=image_created_as_iso(image),
+            size=image_size_mib(image),
+            nua_version=nua_version,
+        )
         if self.verbose:
-            print_log_stream(result[1])
+            print_log_stream(tee)
         display_docker_img(iname)
+        requests.print_images()
 
 
 def build_nua_base_if_needed(verbose):
-    client = docker.from_env()
-    result = client.images.list(filters={"reference": NUA_BASE_TAG})
-    if not result:
-        print(f"Image '{NUA_BASE_TAG}' not found: build required.")
+    found = False
+    db_result = requests.find_image_nua_tag(NUA_BASE_TAG)
+    if db_result:
+        client = docker.from_env()
+        result = client.images.list(filters={"reference": NUA_BASE_TAG})
+        if result:
+            found = True
+        else:
+            message = (
+                f"Image '{NUA_BASE_TAG}' not found in docker local db: "
+                "build required."
+            )
+    else:
+        message = f"Image '{NUA_BASE_TAG}' not found locally: build required."
+    if not found:
+        print(message)
         build_nua_base(verbose)
 
 

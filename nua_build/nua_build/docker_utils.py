@@ -30,6 +30,14 @@ def docker_build_log_error(func):
     return build_log_wrapper
 
 
+def image_created_as_iso(image):
+    return image.attrs["Created"][:19]
+
+
+def image_size_mib(image):
+    return round(image.attrs["Size"] / 2**20)
+
+
 def display_docker_img(iname):
     print_magenta(f"Docker image for '{iname}':")
     client = docker.from_env()
@@ -40,10 +48,10 @@ def display_docker_img(iname):
     for img in result:
         sid = img.short_id.split(":")[-1]
         tags = "|".join(img.tags)
-        crea = datetime.fromisoformat(img.attrs["Created"][:19]).isoformat(" ")
+        crea = datetime.fromisoformat(image_created_as_iso(img)).isoformat(" ")
         # Note on size of image: Docker uses 10**6 for MB, here I use 2**20
-        size = round(img.attrs["Size"] / 2**20)
+        size = image_size_mib(img)
         print(f"    tags: {tags}")
         print(f"    id: {sid}")
-        print(f"    size: {size}MB")
+        print(f"    size: {size}MiB")
         print(f"    created: {crea}")

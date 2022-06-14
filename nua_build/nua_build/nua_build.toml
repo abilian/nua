@@ -1,0 +1,6 @@
+[local]
+    local_db_path = "/var/tmp/nua"
+[db]
+    backend = "sqlite"
+    url = "sqlite:////var/tmp/nua/nua_build.db"
+    echo = true

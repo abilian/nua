@@ -33,7 +33,7 @@ def mkdir_p(path):
 
 
 def rm_fr(path: str) -> bool:
-    "Alias for rm_rf"
+    """Alias for rm_rf."""
     return rm_rf(path)
 
 

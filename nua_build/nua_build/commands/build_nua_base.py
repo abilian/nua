@@ -1,5 +1,4 @@
-"""script to build the Nua base image.
-"""
+"""script to build the Nua base image."""
 from os import chdir
 from pathlib import Path
 from shutil import copy2, copytree, ignore_patterns
@@ -16,7 +15,14 @@ from ..constants import (
     NUA_BASE_TAG,
     NUA_MIN_TAG,
 )
-from ..docker_utils import display_docker_img, docker_build_log_error, print_log_stream
+from ..db import requests
+from ..docker_utils import (
+    display_docker_img,
+    docker_build_log_error,
+    image_created_as_iso,
+    image_size_mib,
+    print_log_stream,
+)
 from ..rich_console import print_green
 from ..shell import mkdir_p, rm_fr
 
@@ -47,14 +53,22 @@ def docker_build_minimal(build_dir, verbose=False):
     chdir(build_dir)
     print(f"1/2: Building image {NUA_MIN_TAG}")
     client = docker.from_env()
-    result = client.images.build(
+    image, tee = client.images.build(
         path=".",
         dockerfile=Path(DOCKERFILE_MIN).name,
         tag=NUA_MIN_TAG,
         rm=False,
     )
+    requests.store_image(
+        id_sha=image.id,
+        nua_id="nua-min",
+        nua_tag=NUA_MIN_TAG,
+        created=image_created_as_iso(image),
+        size=image_size_mib(image),
+        nua_version=nua_version,
+    )
     if verbose:
-        print_log_stream(result[1])
+        print_log_stream(tee)
 
 
 def build_base_layer(verbose):
@@ -74,15 +88,23 @@ def docker_build_base(build_dir, verbose=False):
     chdir(build_dir)
     print(f"2/2: Building image {NUA_BASE_TAG} (it may take a while...)")
     client = docker.from_env()
-    result = client.images.build(
+    image, tee = client.images.build(
         path=".",
         dockerfile=Path(DOCKERFILE_NUA_BASE).name,
         buildargs={"nua_min_tag": NUA_MIN_TAG, "nua_version": nua_version},
         tag=NUA_BASE_TAG,
         rm=False,
     )
+    requests.store_image(
+        id_sha=image.id,
+        nua_id="nua-base",
+        nua_tag=NUA_BASE_TAG,
+        created=image_created_as_iso(image),
+        size=image_size_mib(image),
+        nua_version=nua_version,
+    )
     if verbose:
-        print_log_stream(result[1])
+        print_log_stream(tee)
 
 
 def copy_myself(build_dir):
