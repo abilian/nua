@@ -15,6 +15,7 @@ import typer
 from . import __version__, config
 from .commands import build_cmd, list_cmd, setup_app_cmd, setup_nua_cmd
 from .db.create import create_base
+from .db_setup import setup_db
 
 state = {"verbose": False}
 
@@ -61,8 +62,7 @@ def usage():
 
 
 def initialization():
-    Path(config.local.local_db_path).mkdir(mode=0o755, parents=True, exist_ok=True)
-    create_base()
+    setup_db()
 
 
 @app.callback(invoke_without_command=True)

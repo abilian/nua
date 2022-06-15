@@ -22,8 +22,9 @@ class Setting(Base, SerializerMixin):
     id = Column(Integer, primary_key=True)
     app_id = Column(String(80))
     nua_tag = Column(String(80))
+    instance = Column(String(80), default="")
     data = Column(JSON)
-    instance = index_property("data", "instance", default="")
+    #  broken for sqlite: instance = index_property("data", "instance", default="")
 
     def __repr__(self):
         return f"Setting(app_id={self.app_id}, instance='{self.instance}', tag={self.nua_tag})"

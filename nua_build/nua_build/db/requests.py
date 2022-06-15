@@ -1,6 +1,9 @@
-from .connect import Session
+import json
+
+from ..constants import NUA_BASE_TAG
 from .model.image import Image
 from .model.setting import Setting
+from .session import Session
 
 
 def find_image_nua_tag(tag):
@@ -47,3 +50,50 @@ def available_images():
     with Session() as session:
         images = session.query(Image).all()
         return [i for i in images if i.app_id not in internals]
+
+
+def installed_nua_settings():
+    with Session() as session:
+        setting = (
+            session.query(Setting).filter_by(app_id="nua-base", instance="").first()
+        )
+        if not setting:
+            return None
+        return setting.data
+
+
+def installed_nua_version():
+    with Session() as session:
+        setting = (
+            session.query(Setting).filter_by(app_id="nua-base", instance="").first()
+        )
+        if not setting:
+            return None
+        return setting.data.get("nua_version", "")
+
+
+def dump_settings() -> str:
+    with Session() as session:
+        settings = session.query(Setting).all()
+        return json.dumps(
+            [s.to_dict() for s in settings],
+            sort_keys=True,
+            indent=4,
+            ensure_ascii=False,
+        )
+
+
+def set_nua_settings(setting_dict):
+    with Session() as session:
+        # we cant be sure of situation or backend, let's be rough
+        session.query(Setting).filter(
+            Setting.app_id == "nua-base", Setting.instance == ""
+        ).delete()
+        new_setting = Setting(
+            app_id="nua-base",
+            nua_tag=NUA_BASE_TAG,
+            instance=setting_dict.get("instance", ""),
+            data=setting_dict,
+        )
+        session.add(new_setting)
+        session.commit()

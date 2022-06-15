@@ -7,4 +7,6 @@ from pathlib import Path
 import toml
 from addict import Dict
 
-config = Dict(toml.load(Path(__file__).parent.resolve() / "nua_build.toml"))
+# at startup, config is empty, it will be completed from Nua DB
+config = Dict()
+# config = Dict(toml.load(Path(__file__).parent.resolve() / "nua_build.toml"))
