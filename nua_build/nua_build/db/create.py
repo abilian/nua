@@ -10,6 +10,6 @@ def create_base():
 
     engine = create_engine(
         config.db.url,
-        echo=True,
+        echo=config.db.echo,
     )
     Base.metadata.create_all(engine)

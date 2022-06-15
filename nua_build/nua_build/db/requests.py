@@ -1,5 +1,6 @@
 from .connect import Session
 from .model.image import Image
+from .model.setting import Setting
 
 
 def find_image_nua_tag(tag):

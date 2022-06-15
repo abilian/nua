@@ -1,6 +1,7 @@
+comment = "FIXME: To be used only at install time of the application, then loaded into the DB"
 [local]
     local_db_path = "/var/tmp/nua"
 [db]
     backend = "sqlite"
     url = "sqlite:////var/tmp/nua/nua_build.db"
-    echo = true
+    echo = false
