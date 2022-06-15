@@ -140,8 +140,8 @@ class Builder:
         )
         requests.store_image(
             id_sha=image.id,
-            nua_id=self.config.app_id,
             nua_tag=iname,
+            app_id=self.config.app_id,
             created=image_created_as_iso(image),
             size=image_size_mib(image),
             nua_version=nua_version,

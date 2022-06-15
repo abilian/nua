@@ -61,7 +61,7 @@ def docker_build_minimal(build_dir, verbose=False):
     )
     requests.store_image(
         id_sha=image.id,
-        nua_id="nua-min",
+        app_id="nua-min",
         nua_tag=NUA_MIN_TAG,
         created=image_created_as_iso(image),
         size=image_size_mib(image),
@@ -97,7 +97,7 @@ def docker_build_base(build_dir, verbose=False):
     )
     requests.store_image(
         id_sha=image.id,
-        nua_id="nua-base",
+        app_id="nua-base",
         nua_tag=NUA_BASE_TAG,
         created=image_created_as_iso(image),
         size=image_size_mib(image),
