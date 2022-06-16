@@ -1,6 +1,0 @@
-debug = true
-
-[db]
-    echo = false
-	
-

@@ -7,6 +7,7 @@ import docker
 import typer
 
 from .. import __version__ as nua_version
+from .. import config
 from ..constants import (
     BUILD,
     DOCKERFILE_MIN,
@@ -20,7 +21,6 @@ from ..docker_utils import (
     display_docker_img,
     docker_build_log_error,
     image_created_as_iso,
-    image_size_mib,
     print_log_stream,
 )
 from ..rich_console import print_green
@@ -37,11 +37,17 @@ def build_nua_base(verbose):
     build_base_layer(verbose)
 
 
-def build_minimal_layer(verbose):
-    orig_wd = Path.cwd()
-    build_dir = orig_wd / BUILD
+def set_build_dir(orig_wd):
+    build_dir_parent = config.nua.build.build_dir or orig_wd
+    build_dir = Path(build_dir_parent) / BUILD
     rm_fr(build_dir)
     mkdir_p(build_dir)
+    return build_dir
+
+
+def build_minimal_layer(verbose):
+    orig_wd = Path.cwd()
+    build_dir = set_build_dir(orig_wd)
     copy2(DOCKERFILE_MIN, build_dir)
     docker_build_minimal(build_dir, verbose)
     display_docker_img(NUA_MIN_TAG)
@@ -64,7 +70,7 @@ def docker_build_minimal(build_dir, verbose=False):
         app_id="nua-min",
         nua_tag=NUA_MIN_TAG,
         created=image_created_as_iso(image),
-        size=image_size_mib(image),
+        size=image.attrs["Size"],
         nua_version=nua_version,
     )
     if verbose:
@@ -73,9 +79,7 @@ def docker_build_minimal(build_dir, verbose=False):
 
 def build_base_layer(verbose):
     orig_wd = Path.cwd()
-    build_dir = orig_wd / BUILD
-    rm_fr(build_dir)
-    mkdir_p(build_dir)
+    build_dir = set_build_dir(orig_wd)
     copy2(DOCKERFILE_NUA_BASE, build_dir)
     copy_myself(build_dir)
     docker_build_base(build_dir, verbose)
@@ -100,7 +104,7 @@ def docker_build_base(build_dir, verbose=False):
         app_id="nua-base",
         nua_tag=NUA_BASE_TAG,
         created=image_created_as_iso(image),
-        size=image_size_mib(image),
+        size=image.attrs["Size"],
         nua_version=nua_version,
     )
     if verbose:
@@ -112,7 +116,7 @@ def copy_myself(build_dir):
     copytree(
         MYSELF_DIR,
         build_dir / f"nua_build_{nua_version}",  # fix cache issues
-        ignore=ignore_patterns("*.pyc", "__pycache__"),
+        ignore=ignore_patterns("*.pyc", "__pycache__", "_build"),
     )
 
 

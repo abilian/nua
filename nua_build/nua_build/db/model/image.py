@@ -2,7 +2,7 @@ from sqlalchemy import TIMESTAMP, Column, Index, Integer, String, text
 from sqlalchemy.orm import relationship
 from sqlalchemy_serializer import SerializerMixin
 
-from .base import Base, metadata
+from .base import Base
 
 
 class Image(Base, SerializerMixin):
@@ -14,7 +14,7 @@ class Image(Base, SerializerMixin):
         app_id: id of the Nua app: "apache-basic"
         nua_version: version of Nua that created the image: "0.1.38"
         created: date creation, iso format, local: "2022-06-14T15:22:11"
-        size: size in MiB:   598
+        size: size in bytes
 
         FIXME: created to be improved with tz info)
     """

@@ -4,6 +4,7 @@ from functools import wraps
 
 import docker
 
+from . import config
 from .panic import panic
 from .rich_console import print_magenta, print_red
 
@@ -34,8 +35,19 @@ def image_created_as_iso(image):
     return image.attrs["Created"][:19]
 
 
-def image_size_mib(image):
-    return round(image.attrs["Size"] / 2**20)
+def docker_image_size(image):
+    return image_size_repr(round(image.attrs["Size"]))
+
+
+def image_size_repr(image_bytes):
+    if config.nua.ui.size_unit_MiB:
+        return round(image_bytes / 2**20)
+    else:
+        return round(image_bytes / 10**6)
+
+
+def size_unit():
+    return "MiB" if config.nua.ui.size_unit_MiB else "MB"
 
 
 def display_docker_img(iname):
@@ -46,12 +58,12 @@ def display_docker_img(iname):
         print("No image found")
         return
     for img in result:
-        sid = img.short_id.split(":")[-1]
+        sid = img.id.split(":")[-1][:10]
         tags = "|".join(img.tags)
         crea = datetime.fromisoformat(image_created_as_iso(img)).isoformat(" ")
         # Note on size of image: Docker uses 10**6 for MB, here I use 2**20
-        size = image_size_mib(img)
+        size = docker_image_size(img)
         print(f"    tags: {tags}")
         print(f"    id: {sid}")
-        print(f"    size: {size}MiB")
+        print(f"    size: {size}{size_unit()}")
         print(f"    created: {crea}")

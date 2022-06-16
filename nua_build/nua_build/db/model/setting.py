@@ -3,18 +3,16 @@ from sqlalchemy.ext.indexable import index_property
 from sqlalchemy.orm import relationship
 from sqlalchemy_serializer import SerializerMixin
 
-from .base import Base, metadata
+from .base import Base
 
 
 class Setting(Base, SerializerMixin):
     """The settings of an instance of an app.
 
-    Instance "" for the base settings of the app.
-    Contains a JSON data representation of actual values.
-    index key: app_instance.
-    app_instance is "something", default to "" for
-    base settings (and/or build settings).
-    nua_tag permits to find the related docker image.
+    Instance "" for the base settings of the app. Contains a JSON data
+    representation of actual values. index key: app_instance.
+    app_instance is "something", default to "" for base settings (and/or
+    build settings). nua_tag permits to find the related docker image.
     """
 
     __tablename__ = "setting"

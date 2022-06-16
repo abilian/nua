@@ -17,13 +17,13 @@ import docker
 import typer
 
 from .. import __version__ as nua_version
+from .. import config
 from ..constants import BUILD, DEFAULTS_DIR, MYSELF_DIR, NUA_BASE_TAG, NUA_CONFIG
 from ..db import requests
 from ..docker_utils import (
     display_docker_img,
     docker_build_log_error,
     image_created_as_iso,
-    image_size_mib,
     print_log_stream,
 )
 from ..nua_config import NuaConfig
@@ -38,7 +38,9 @@ logging.basicConfig(level=logging.INFO)
 
 app = typer.Typer()
 
-argument_help = typer.Argument(None, help="Path to the 'nua-config.toml' file.")
+argument_config = typer.Argument(
+    None, metavar="config", help="Path to the package dir or 'nua-config.toml' file."
+)
 option_verbose = typer.Option(False, help="Print build log.")
 
 
@@ -48,7 +50,8 @@ class Builder:
     def __init__(self, config_file, verbose=False):
         # wether the config file is local or not, use local dir fior build:
         self.work_dir = Path.cwd()
-        self.build_dir = self.work_dir / BUILD
+        build_dir_parent = config.nua.build.build_dir or self.work_dir
+        self.build_dir = Path(build_dir_parent) / BUILD
         self.config = NuaConfig(config_file)
         self.copied_files = set()
         self.verbose = verbose
@@ -143,13 +146,12 @@ class Builder:
             nua_tag=iname,
             app_id=self.config.app_id,
             created=image_created_as_iso(image),
-            size=image_size_mib(image),
+            size=image.attrs["Size"],
             nua_version=nua_version,
         )
         if self.verbose:
             print_log_stream(tee)
         display_docker_img(iname)
-        requests.print_images()
 
 
 def build_nua_base_if_needed(verbose):
@@ -174,13 +176,13 @@ def build_nua_base_if_needed(verbose):
 
 @app.command("build")
 def build_cmd(
-    config: Optional[str] = argument_help,
+    config_file: Optional[str] = argument_config,
     verbose: bool = option_verbose,
 ) -> None:
     """Build Nua package from some 'nua-config.toml' file."""
     # first build the nua_base image if needed
     build_nua_base_if_needed(verbose)
-    builder = Builder(config, verbose)
+    builder = Builder(config_file, verbose)
     print_green(f"*** Generation of the docker image for {builder.config.app_id} ***")
     builder.setup_build_directory()
     builder.build_with_docker()

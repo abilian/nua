@@ -1,3 +1,4 @@
+import os
 import subprocess as sp  # noqa, required.
 from datetime import datetime, timezone
 from os import chdir, getcwd
@@ -6,8 +7,43 @@ from shutil import copytree, rmtree
 from time import perf_counter, sleep
 
 import docker
+import pytest
 
+from nua_build import __version__ as nua_version
 from nua_build.constants import NUA_BASE_TAG, NUA_MIN_TAG
+
+test_db_path = "/var/tmp/pytest_nua_test_node"
+test_db_name = "test.db"
+test_db_url = f"sqlite:///{test_db_path}/{test_db_name}"
+
+
+@pytest.fixture()
+def environment():
+    prior_db_url = os.environ.get("NUA_DB_URL")
+    os.environ["NUA_DB_URL"] = test_db_url
+    prior_db_path = os.environ.get("NUA_DB_LOCAL_DIR")
+    os.environ["NUA_DB_LOCAL_DIR"] = test_db_path
+    db_file = Path(test_db_path) / test_db_name
+    if db_file.is_file():
+        db_file.unlink()
+    if Path(test_db_path).is_dir():
+        Path(test_db_path).rmdir()
+
+    yield True
+
+    if prior_db_url is None:
+        del os.environ["NUA_DB_URL"]
+    else:
+        os.environ["NUA_DB_URL"] = prior_db_url
+    if prior_db_path is None:
+        del os.environ["NUA_DB_LOCAL_DIR"]
+    else:
+        os.environ["NUA_DB_LOCAL_DIR"] = prior_db_path
+
+    if db_file.is_file():
+        db_file.unlink()
+    if Path(test_db_path).is_dir():
+        Path(test_db_path).rmdir()
 
 
 def test_complete_build_with_cache():
@@ -25,7 +61,7 @@ def test_complete_build_with_cache():
         rmtree(tmp)
     tmp.mkdir()
     copytree(
-        Path(__file__).parent / "test_nodejs_basic" / "nodejs-basic",
+        Path(__file__).parent / "nodejs-basic",
         tmp / "nodejs-basic",
     )
     chdir(tmp)

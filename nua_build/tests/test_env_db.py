@@ -1,17 +1,15 @@
 import os
 from pathlib import Path
 
+import pytest
 from typer.testing import CliRunner
 
 from nua_build.main import app
 
-runner = CliRunner()
-
-import pytest
-
 test_db_path = "/var/tmp/pytest_nua_test"
 test_db_name = "test.db"
 test_db_url = f"sqlite:///{test_db_path}/{test_db_name}"
+runner = CliRunner()
 
 
 @pytest.fixture()
@@ -25,9 +23,8 @@ def environment():
         db_file.unlink()
     if Path(test_db_path).is_dir():
         Path(test_db_path).rmdir()
-    runner = CliRunner()
 
-    yield runner
+    yield True
 
     if prior_db_url is None:
         del os.environ["NUA_DB_URL"]
