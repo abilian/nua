@@ -63,7 +63,7 @@ def setup_first_launch():
         requests.set_nua_settings(config.nua.to_dict())
     else:
         print_green("Nua first launch")
-        print_green(f"    - loading defaults in '{config.db.url}'")
+        print_green(f"    - loading defaults in '{config.nua.db.url}'")
         config = Dict(default_config())
         config.nua.db.url = current_db_url
         config.nua.db.local_dir = current_db_local_dir
