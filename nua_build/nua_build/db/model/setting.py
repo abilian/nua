@@ -17,9 +17,9 @@ class Setting(Base, SerializerMixin):
       runnning/installed nua-build software. User choice for others.
     - activation: "docker" or "system" for the moment. How this app service
       is installed
-    - active: bool, wether this settings are applied on a currently running
+    # bad idea - active: bool, wether this settings are applied on a currently running
       instance (either local or dockerised or other)
-    - container: for "docker" installation app, "" or the id of the active
+    # - container: for "docker" installation app, "" or the id of the active
       container.
     - data: ontains a JSON data representation of actual config values. For
       raw "" instance, it is the original nua-config.toml content.
@@ -32,8 +32,8 @@ class Setting(Base, SerializerMixin):
     nua_tag = Column(String(80))
     instance = Column(String(80), default="")
     activation = Column(String(80), default="")
-    active = Column(Boolean, nullable=True, default=False)
-    container = Column(String(80), default="")
+    # active = Column(Boolean, nullable=True, default=False)
+    # container = Column(String(80), default="")
     data = Column(JSON)
     #  broken for sqlite: instance = index_property("data", "instance", default="")
 

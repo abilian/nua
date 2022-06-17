@@ -1,40 +1,22 @@
 """Script to install Nua dependancies on Nua app environment (inside docker).
 
-command: "nuad setup"
-
-Note: **currently use "nuad ..." for command line**. See later if move this
-to "nua ...".
+command: "nuad_self_setup"
 """
 
 import os
-
-import typer
 
 from ..actions import install_package_list, pip_install
 from ..rich_console import print_green
 from ..shell import echo
 
 # some packages may be alreay installed at Docker initial setup
+# Python stuff needed for nua:
 PACKAGES = [
-    # Python stuff needed for nua
     "apt-utils",
     "python3-dev",
-    # Stuff
-    # Web stuff
-    # "curl",
-    # Build stuff
-    # "build-essential",
-    # "git",
-    # "docker.io",
-    # "software-properties-common",
-    # DB stuff
-    # "libmysqlclient-dev",
-    # "tree",
 ]
 
 PY_PACKAGES = []
-
-app = typer.Typer()
 
 
 def configure_apt():
@@ -50,8 +32,7 @@ def configure_apt():
     )
 
 
-@app.command("setup_nua")
-def setup_nua_cmd() -> None:
+def main() -> None:
     """Setup Nua base dependancies."""
     os.environ["DEBIAN_FRONTEND"] = "noninteractive"
     configure_apt()

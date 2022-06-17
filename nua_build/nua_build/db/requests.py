@@ -2,12 +2,12 @@
 
 Requests are full transactions, and mask the actual DB implementation to the
 application."""
+from .. import __version__ as nua_version
 from ..constants import NUA_BASE_TAG
 from ..docker_utils import image_size_repr, size_unit
 from .model.image import Image
 from .model.setting import Setting
 from .session import Session
-from .. import __version__ as nua_version
 
 
 def find_image_nua_tag(tag):
@@ -54,8 +54,8 @@ def store_image(
             nua_tag,
             instance,
             activation="docker",
-            active=False,
-            container="",
+            # active=False,
+            # container="",
             setting_dict=data,
         )
         session.commit()
@@ -74,8 +74,8 @@ def list_images():
     images_list = []
     for img in list_images_raw():
         images_list.append(
-            f"{img.id_sha[7:19]}  {img.nua_tag:<40}  {img.created} "
-            f" {image_size_repr(img.size)}{size_unit()}"
+            f"{img.id_sha[7:19]}  {img.nua_tag:<36}  {img.created}  "
+            f"{image_size_repr(img.size)}{size_unit()}"
         )
     return images_list
 
@@ -132,8 +132,8 @@ def _set_app_settings(
     nua_tag,
     instance,
     activation,
-    active=False,
-    container="",
+    # active=False,
+    # container="",
     setting_dict=None,
 ):
     # fixme: not sure if storing instance in conf data, but seems more natural
@@ -149,8 +149,8 @@ def _set_app_settings(
         nua_tag=nua_tag,
         instance=instance,
         activation=activation,
-        active=active,
-        container=container,
+        # active=active,
+        # container=container,
         data=setting_dict,
     )
     session.add(new_setting)

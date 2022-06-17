@@ -3,16 +3,12 @@
 - informations come from a mandatory local file: "nua-config.toml"
 - origin may be a source tar.gz or a git repository
 - build locally if source is python package
-
-Note: **currently use "nuad ..." for command line**. See later if move this
-to "nua ...".
 """
 import logging
+import sys
 from os import chdir
 from pathlib import Path
 from shutil import copy2
-
-import typer
 
 from ..constants import DEFAULTS_DIR, NUA_BUILD_PATH, NUA_SCRIPTS_PATH
 from ..nua_config import NuaConfig
@@ -20,8 +16,6 @@ from ..panic import error
 from ..shell import sh
 
 logging.basicConfig(level=logging.INFO)
-
-app = typer.Typer()
 
 
 class BuilderApp:
@@ -80,10 +74,13 @@ class BuilderApp:
         sh(cmd, timeout=1800)
 
 
-@app.command("setup_app")
-def setup_app_cmd(build_path: str) -> None:
+def nuad_setup_app(build_path: str) -> None:
     """Setup app in Nua container."""
-
     builder = BuilderApp(build_path)
     builder.fetch()
     builder.build()
+
+
+def main():
+    build_path = sys.argv[1]
+    nuad_setup_app(build_path)

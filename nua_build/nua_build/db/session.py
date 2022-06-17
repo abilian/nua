@@ -12,6 +12,7 @@ Session = scoped_session(sessionmaker())
 
 def configure_session():
     # print("DB url in Session:", config.nua.db.url)
+    Session.remove()
     engine = create_engine(
         config.nua.db.url,
         # echo=config.nua.db.echo or False,

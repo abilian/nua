@@ -12,14 +12,7 @@ from typing import Optional
 import typer
 
 from . import __version__
-from .commands import (
-    build_cmd,
-    delete_cmd,
-    dump_load_settings_cmd,
-    list_cmd,
-    setup_app_cmd,
-    setup_nua_cmd,
-)
+from .commands import build_cmd, delete_cmd, dump_load_settings_cmd, list_cmd
 from .db_setup import setup_db
 
 state = {"verbose": False}
@@ -31,8 +24,6 @@ app.registered_commands += build_cmd.app.registered_commands
 app.registered_commands += list_cmd.app.registered_commands
 app.registered_commands += delete_cmd.app.registered_commands
 app.registered_commands += dump_load_settings_cmd.app.registered_commands
-app.registered_commands += setup_nua_cmd.app.registered_commands
-app.registered_commands += setup_app_cmd.app.registered_commands
 
 
 def version_callback(value: bool) -> None:
