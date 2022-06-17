@@ -69,8 +69,8 @@ def pysu(args, user=None, group=None, env=None):
     if group:
         try:
             gr_record = grp.getgrnam(group)
-        except KeyError:
-            raise f"Unknown group name {repr(group)}."
+        except KeyError as exc:
+            raise f"Unknown group name {repr(group)}." from exc
         else:
             gid = gr_record.gr_gid
     elif pw_record:

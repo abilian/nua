@@ -26,11 +26,10 @@ def load_nua_settings(app_id: Optional[str] = argument_app_id) -> None:
         return
     app_id = app_id.split(":")[0]
     id_list = requests.images_id_per_app_id(app_id)
-    if not id_list:
+    if not id_list and app_id.startswith("nua-"):
         # try by removing "nua-"
-        if app_id.startswith("nua-"):
-            app_id_short = app_id[4:]
-            id_list = requests.images_id_per_app_id(app_id_short)
+        app_id_short = app_id[4:]
+        id_list = requests.images_id_per_app_id(app_id_short)
     if not id_list:
         print(f"No image found for '{app_id}'")
     client = docker.from_env()

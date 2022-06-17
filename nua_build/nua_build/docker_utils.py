@@ -17,7 +17,7 @@ def print_log_stream(docker_log):
 
 def docker_build_log_error(func):
     @wraps(func)
-    def build_log_wrapper(*args, **kwargs):
+    def build_log_error_wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
         except docker.errors.BuildError as e:
@@ -28,7 +28,7 @@ def docker_build_log_error(func):
             print_log_stream(e.build_log)
             panic("Exiting.")
 
-    return build_log_wrapper
+    return build_log_error_wrapper
 
 
 def image_created_as_iso(image):
@@ -42,8 +42,7 @@ def docker_image_size(image):
 def image_size_repr(image_bytes):
     if config.nua.ui.size_unit_MiB:
         return round(image_bytes / 2**20)
-    else:
-        return round(image_bytes / 10**6)
+    return round(image_bytes / 10**6)
 
 
 def size_unit():

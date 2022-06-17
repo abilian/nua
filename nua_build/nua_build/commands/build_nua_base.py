@@ -65,6 +65,7 @@ def docker_build_minimal(build_dir, verbose=False):
         tag=NUA_MIN_TAG,
         rm=False,
     )
+    # no data, actually not activable, it's on only a requisite.
     requests.store_image(
         id_sha=image.id,
         app_id="nua-min",
@@ -72,6 +73,8 @@ def docker_build_minimal(build_dir, verbose=False):
         created=image_created_as_iso(image),
         size=image.attrs["Size"],
         nua_version=nua_version,
+        instance="",
+        data=None,
     )
     if verbose:
         print_log_stream(tee)
@@ -106,6 +109,8 @@ def docker_build_base(build_dir, verbose=False):
         created=image_created_as_iso(image),
         size=image.attrs["Size"],
         nua_version=nua_version,
+        instance="",
+        data=None,
     )
     if verbose:
         print_log_stream(tee)

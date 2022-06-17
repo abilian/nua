@@ -16,7 +16,6 @@ from typing import Optional
 import docker
 import typer
 
-from .. import __version__ as nua_version
 from .. import config
 from ..constants import BUILD, DEFAULTS_DIR, MYSELF_DIR, NUA_BASE_TAG, NUA_CONFIG
 from ..db import requests
@@ -127,14 +126,14 @@ class Builder:
     def build_with_docker(self):
         chdir(self.build_dir)
         release = self.config.metadata.get("release", "")
-        tag = f"-{release}" if release else ""
-        iname = f"nua-{self.config.app_id}:{self.config.version}{tag}"
+        rel_tag = f"-{release}" if release else ""
+        nua_tag = f"nua-{self.config.app_id}:{self.config.version}{rel_tag}"
         expose = str(self.config.build.get("expose") or "80")
-        print_green(f"Building image {iname}")
+        print_green(f"Building image {nua_tag}")
         client = docker.from_env()
         image, tee = client.images.build(
             path=".",
-            tag=iname,
+            tag=nua_tag,
             rm=True,
             forcerm=True,
             buildargs={"nua_base_version": NUA_BASE_TAG, "nua_expose": expose},
@@ -143,15 +142,15 @@ class Builder:
         )
         requests.store_image(
             id_sha=image.id,
-            nua_tag=iname,
             app_id=self.config.app_id,
+            nua_tag=nua_tag,
             created=image_created_as_iso(image),
             size=image.attrs["Size"],
-            nua_version=nua_version,
+            data=self.config.as_dict(),
         )
         if self.verbose:
             print_log_stream(tee)
-        display_docker_img(iname)
+        display_docker_img(nua_tag)
 
 
 def build_nua_base_if_needed(verbose):

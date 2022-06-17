@@ -27,6 +27,9 @@ class NuaConfig:
         self.root_dir = self.path.parent
         self.assert_format()
 
+    def as_dict(self):
+        return self._data
+
     def assert_format(self):
         if "metadata" not in self._data:
             error(f"missing mandatory 'metadata' block in {NUA_CONFIG}")
