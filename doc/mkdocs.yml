@@ -120,8 +120,6 @@ plugins:
 
 nav:
   - Home: index.md
-  - Users:
-    - Intro: user/index.md
   - Developers:
     - Intro: dev/index.md
     - Architecture: dev/architecture.md
@@ -129,4 +127,6 @@ nav:
     - Open Source Librairies (back-end): dev/libraries.md
     - API (back-end): dev/api.md
     - Front-End: dev/front-end.md
+  - Users:
+    - Intro: user/index.md
     

@@ -82,45 +82,6 @@ vagrant-tests:
 
 
 #
-# Various Checkers
-#
-lint: lint-py lint-js lint-rst lint-doc
-
-lint-ci: lint
-
-lint-all: lint lint-mypy lint-bandit
-
-lint-py:
-	@echo "--> Linting Python files /w flake8"
-	flake8 src tests
-	@echo ""
-
-lint-mypy:
-	@echo "--> Typechecking Python files w/ mypy"
-	mypy src tests
-	@echo ""
-
-lint-travis:
-	@echo "--> Linting .travis.yml files"
-	travis lint --no-interactive
-	@echo ""
-
-lint-rst:
-	@echo "--> Linting .rst files"
-	-rst-lint *.rst
-	@echo ""
-
-lint-doc:
-	@echo "--> Linting doc"
-	@echo "TODO"
-	#sphinx-build -W -b dummy docs/ docs/_build/
-	#sphinx-build -b dummy docs/ docs/_build/
-	@echo ""
-
-lint-js:
-	echo "TODO"
-
-#
 # Formatting
 #
 format: format-py format-js
