@@ -12,7 +12,7 @@ def clean_list():
     """Clean list images known in Nua DB by comparing to images actually
     present in docker.
 
-    Reason: it may append that docker images were deleted outside of Nua.
+    Reason: it may happen that docker images were deleted outside of Nua.
     """
     nuad_ids = requests.list_images_ids()
     client = docker.from_env()
