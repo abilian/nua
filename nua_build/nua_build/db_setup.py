@@ -11,12 +11,12 @@ import os
 from pathlib import Path
 
 import toml
-from addict import Dict
 
 from . import __version__, config
 from .db import requests
 from .db.create import create_base
 from .db.session import configure_session
+from .deep_access_dict import DeepAccessDict
 from .rich_console import print_green, print_red
 
 
@@ -36,35 +36,37 @@ def default_config() -> dict:
 def set_default_settings():
     global config  # required if changing config content
 
-    current_db_url = config.nua.db.url
-    current_db_local_dir = config.nua.db.local_dir
-    config.nua = Dict(default_config())
-    config.nua.db.url = current_db_url
-    config.nua.db.local_dir = current_db_local_dir
-    config.nua.instance = ""
-    config.nua.version = __version__
+    current_db_url = config.get("nua", "db", "url")
+    current_db_local_dir = config.get("nua", "db", "local_dir")
+    config.set("nua", default_config())
+    config.set("nua", "db", "url", current_db_url)
+    config.set("nua", "db", "local_dir", current_db_local_dir)
+    config.set("nua", "instance", "")
+    config.set("nua", "version", __version__)
     # store to DB
-    requests.set_nua_settings(config.nua.to_dict())
+    requests.set_nua_settings(config.get("nua"))
 
 
 def set_db_url_in_settings(settings):
     global config  # required if changing config content
 
-    current_db_url = config.nua.db.url
-    current_db_local_dir = config.nua.db.local_dir
-    existing_nua_config = Dict(settings)
-    existing_nua_config.db.url = current_db_url
-    existing_nua_config.db.local_dir = current_db_local_dir
+    current_db_url = config.get("nua", "db", "url")
+    current_db_local_dir = config.get("nua", "db", "local_dir")
+    existing_nua_config = DeepAccessDict(settings)
+    existing_nua_config.set("db", "url", current_db_url)
+    existing_nua_config.set("db", "local_dir", current_db_local_dir)
     # update live config
-    config.nua = existing_nua_config
+    config.set("nua", existing_nua_config)
     # store to DB checked/updated/completed config
-    requests.set_nua_settings(config.nua.to_dict())
+    requests.set_nua_settings(config.get("nua"))
 
 
 def setup_first_launch():
     settings = requests.installed_nua_settings()
     if not settings:
-        print_green(f"First launch: set Nua defaults in '{config.nua.db.url}'")
+        print_green(
+            f"First launch: set Nua defaults in '{config.get('nua','db','url')}'"
+        )
         return set_default_settings()
     installed_version = settings.get("version", "")
     if installed_version == __version__:
@@ -83,21 +85,21 @@ def _url_from_local_config():
     path = Path.home() / "nua_config.toml"
     if path.is_file():
         try:
-            home_config = Dict(toml.load(path))
+            home_config = DeepAccessDict(toml.load(path))
         except Exception:
             home_config = None
         if home_config:
-            url = home_config.db.url
-            local_dir = home_config.db.local_dir
+            url = home_config.get("db", "url")
+            local_dir = home_config.get("db", "local_dir")
     return url, local_dir
 
 
 def _url_from_defaults():
     url, local_dir = (None, None)
     # default config in sources:
-    source_config = Dict(default_config())
-    url = source_config.db.url
-    local_dir = source_config.db.local_dir
+    source_config = DeepAccessDict(default_config())
+    url = source_config.get("db", "url")
+    local_dir = source_config.get("db", "local_dir")
     return url, local_dir
 
 
@@ -111,8 +113,8 @@ def find_db_url() -> None:
     if not url:
         url, local_dir = _url_from_defaults()
     # store url in global config local_dir and url
-    config.nua.db.local_dir = local_dir or ""
+    config.set("nua", "db", "local_dir", local_dir or "")
     if local_dir:
         Path(local_dir).mkdir(mode=0o755, parents=True, exist_ok=True)
-    config.nua.db.url = url
+    config.set("nua", "db", "url", url)
     # print(f"find_db_url(): {config.nua.db.url=}")

@@ -40,13 +40,13 @@ def docker_image_size(image):
 
 
 def image_size_repr(image_bytes):
-    if config.nua.ui.size_unit_MiB:
+    if config.get("nua", "ui", "size_unit_MiB"):
         return round(image_bytes / 2**20)
     return round(image_bytes / 10**6)
 
 
 def size_unit():
-    return "MiB" if config.nua.ui.size_unit_MiB else "MB"
+    return "MiB" if config.get("nua", "ui", "size_unit_MiB") else "MB"
 
 
 def display_docker_img(iname):
