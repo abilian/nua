@@ -26,7 +26,7 @@ Its watchwords are: simplicity, resilience and equity.
 
 The roadmap for the projet is kept up to date on [this kanban board](https://github.com/abilian/nua/projects/1).
 
-As of 2022/06/17, we have a "builder" CLI that can build and manage container images:
+As of 2022/06/20, we have a "builder" CLI that can build and manage container images:
 
 ```
 fermigier@c17 ~/nua (main)> nuad --help
@@ -43,12 +43,9 @@ Options:
   --help                Show this message and exit.
 
 Commands:
-  build              Build Nua package from some 'nua-config.toml' file.
-  delete             Delete the docker build of an app.
-  dump_all_settings  Dump all settings from DB (.json).
-  dump_nua_settings  Dump Nua settings from DB (.toml).
-  list               List local docker images of Nua packages.
-  load_nua_settings  Load Nua settings from .toml file.
+  build     Build Nua package from some 'nua-config.toml' file.
+  delete    Delete the docker build of an app.
+  list      List local docker images of Nua packages.
+  settings  Settings management (show or load settings).
 
 ```
-

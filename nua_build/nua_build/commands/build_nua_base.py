@@ -38,7 +38,7 @@ def build_nua_base(verbose):
 
 
 def set_build_dir(orig_wd):
-    build_dir_parent = config.nua.build.build_dir or orig_wd
+    build_dir_parent = config.get("nua", "build", "build_dir") or orig_wd
     build_dir = Path(build_dir_parent) / BUILD
     rm_fr(build_dir)
     mkdir_p(build_dir)
