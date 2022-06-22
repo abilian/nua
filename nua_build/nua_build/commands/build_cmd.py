@@ -18,7 +18,7 @@ import typer
 
 from .. import config
 from ..constants import BUILD, DEFAULTS_DIR, MYSELF_DIR, NUA_BASE_TAG, NUA_CONFIG
-from ..db import requests
+from ..db import store
 from ..docker_utils import (
     display_docker_img,
     docker_build_log_error,
@@ -140,7 +140,7 @@ class Builder:
             labels={"SOME_LABEL": "test"},
             nocache=True,
         )
-        requests.store_image(
+        store.store_image(
             id_sha=image.id,
             app_id=self.config.app_id,
             nua_tag=nua_tag,
@@ -155,7 +155,7 @@ class Builder:
 
 def build_nua_base_if_needed(verbose):
     found = False
-    db_result = requests.find_image_nua_tag(NUA_BASE_TAG)
+    db_result = store.get_image_by_nua_tag(NUA_BASE_TAG)
     if db_result:
         client = docker.from_env()
         result = client.images.list(filters={"reference": NUA_BASE_TAG})

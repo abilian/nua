@@ -13,7 +13,7 @@ from pathlib import Path
 import toml
 
 from . import __version__, config
-from .db import requests
+from .db import store
 from .db.create import create_base
 from .db.session import configure_session
 from .deep_access_dict import DeepAccessDict
@@ -44,7 +44,7 @@ def set_default_settings():
     config.set("nua", "instance", "")
     config.set("nua", "version", __version__)
     # store to DB
-    requests.set_nua_settings(config.get("nua"))
+    store.set_nua_settings(config.get("nua"))
 
 
 def set_db_url_in_settings(settings):
@@ -58,11 +58,11 @@ def set_db_url_in_settings(settings):
     # update live config
     config.set("nua", existing_nua_config)
     # store to DB checked/updated/completed config
-    requests.set_nua_settings(config.get("nua"))
+    store.set_nua_settings(config.get("nua"))
 
 
 def setup_first_launch():
-    settings = requests.installed_nua_settings()
+    settings = store.installed_nua_settings()
     if not settings:
         print_green(
             f"First launch: set Nua defaults in '{config.get('nua','db','url')}'"

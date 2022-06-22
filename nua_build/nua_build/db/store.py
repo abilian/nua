@@ -10,7 +10,7 @@ from .model.setting import Setting
 from .session import Session
 
 
-def find_image_nua_tag(tag):
+def get_image_by_nua_tag(tag):
     """Find a Nua image in the local DB by Nua id."""
     with Session() as session:
         return session.query(Image).filter_by(nua_tag=tag).first()
@@ -80,7 +80,7 @@ def list_images():
     return images_list
 
 
-def available_images():
+def list_available_images():
     """Docker images ready to be mounted by Nua."""
     internals = {"nua-min", "nua-base"}
     with Session() as session:
@@ -120,7 +120,7 @@ def installed_nua_version():
         return setting.data.get("nua_version", "")
 
 
-def dump_all_settings() -> str:
+def list_all_settings() -> str:
     with Session() as session:
         settings = session.query(Setting).all()
         return [s.to_dict() for s in settings]

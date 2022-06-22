@@ -16,7 +16,7 @@ from ..constants import (
     NUA_BASE_TAG,
     NUA_MIN_TAG,
 )
-from ..db import requests
+from ..db import store
 from ..docker_utils import (
     display_docker_img,
     docker_build_log_error,
@@ -66,7 +66,7 @@ def docker_build_minimal(build_dir, verbose=False):
         rm=False,
     )
     # no data, actually not activable, it's on only a requisite.
-    requests.store_image(
+    store.store_image(
         id_sha=image.id,
         app_id="nua-min",
         nua_tag=NUA_MIN_TAG,
@@ -102,7 +102,7 @@ def docker_build_base(build_dir, verbose=False):
         tag=NUA_BASE_TAG,
         rm=False,
     )
-    requests.store_image(
+    store.store_image(
         id_sha=image.id,
         app_id="nua-base",
         nua_tag=NUA_BASE_TAG,

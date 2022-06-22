@@ -7,7 +7,7 @@ from typer.testing import CliRunner
 from nua_build.main import app
 
 
-def test_dump_all_settings_0():
+def test_list_all_settings_0():
     runner = CliRunner()
     result = runner.invoke(app, "settings show --all")
 

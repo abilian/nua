@@ -6,7 +6,7 @@ from typing import Optional
 import toml
 import typer
 
-from ..db import requests
+from ..db import store
 
 app = typer.Typer()
 
@@ -54,15 +54,15 @@ def print_formatted(content, format):
         print(toml.dumps(content))
 
 
-def dump_all_settings() -> None:
+def list_all_settings() -> None:
     """Dump all settings from DB (.json)."""
-    settings = requests.dump_all_settings()
+    settings = store.list_all_settings()
     print_formatted(settings, "json")
 
 
 def dump_nua_settings(format) -> None:
     """Dump Nua settings from DB (.toml or .json)."""
-    settings = requests.installed_nua_settings()
+    settings = store.installed_nua_settings()
     print_formatted(settings, "toml")
 
 
@@ -89,7 +89,7 @@ def show(
 ) -> None:
     """Display settings of an app or of Nua by default."""
     if all_flag:
-        return dump_all_settings()
+        return list_all_settings()
     output_format = _select_output_format(json_flag, toml_flag)
     if not app_id or app_id in {"nua", "nuad", "nua-build"}:
         return dump_nua_settings(output_format)
@@ -113,6 +113,6 @@ def load(
         with open(config_file, encoding="utf8") as file:
             content = json.load(file)
     if app_id in {"nua", "nuad", "nua-build"}:
-        requests.set_nua_settings(content)
+        store.set_nua_settings(content)
     else:
         print("Not implemented.")
