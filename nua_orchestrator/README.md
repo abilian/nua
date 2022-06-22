@@ -2,22 +2,45 @@
 
 ## Development notes:
 
-In `nua_orchestrator/`, there is a `jsonrpc` server, see `server.py`.
+`nua_orchestrator/`, is build on top of a `jsonrpc` server, see `server.py`.
 
-main dependencies:
+Main dependencies:
 
-    pip install zmq
-    pip install tinyrpc
-    pip install psutil
-    pip install sqlalchemy_serializer
-    pip install toml
-    pip install sqlalchemy
+    zmq
+    tinyrpc
+    psutil
+    sqlalchemy_serializer
+    toml
+    sqlalchemy
+    typer
 
-To start (and restart...) the server without the Typer CLI thing (for tests), it is possible to directly use is as a module:
+To install:
 
-    python -c 'import nua_orchestrator as o; o.restart()'
+    poetry install
 
-server commands are `start`, `stop`, `retard`, `status`
+
+Server commands are `start`, `stop`, `restart`, `status`:
+
+```
+$ nua-orchestrator --help
+Usage: nua-orchestrator [OPTIONS] COMMAND [ARGS]...
+
+  Nua orchestrator server.
+
+Options:
+  -V, --version         Show Nua version and exit.
+  --install-completion  Install completion for the current shell.
+  --show-completion     Show completion for the current shell, to copy it or
+                        customize the installation.
+  --help                Show this message and exit.
+
+Commands:
+  restart  Restart orchestrator server.
+  start    Start orchestrator server.
+  status   Status of orchestrator server.
+  stop     Stop orchestrator server.
+```
+
 
 The `demo_orchestrator_zmq.py` in `demos/` script does a quick test on a SQLite database with just a `User` table.
 
@@ -36,11 +59,13 @@ The interest of JSONRPC is that it the protocol is both simple and very manageab
 
 ## Data model
 
-`orchestrator/model`: this is a mini schema with just the User table. Using SQLite for a beginning.
+`orchestrator/db/model`: this is a mini schema with the User table. Using SQLite for a beginning, and including the `nua_build` model
 
 ## Settings
 
-`orchestrator/params.toml`: parameters file, to see what will remain there, where will be moved elsewhere (same as management in env variables, DB, ...)
+`orchestrator/nua_defaults_settings.toml`: parameters file, to see what will remain there, where will be moved elsewhere (same as management in env variables, DB, ...)
+
+Like `nua_build`, the configuration is stored in the DB, the .toml file is a bootstrap at first launch.
 
 In dev, I put everything in `/tmp`
 
