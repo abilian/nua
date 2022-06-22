@@ -14,55 +14,55 @@ from pathlib import Path
 from time import sleep
 
 import psutil
-import toml
 
-from .nua_db import create_base
+from . import config
 from .server_utils.forker import forker
 from .server_utils.mini_log import log, log_me, log_sentinel
 from .zmq_rpc_server import start_zmq_rpc_server
 
-CONFIG = toml.load(Path(__file__).parent.resolve() / "params.toml")
-PID_FILE = Path(CONFIG["server"]["pid_file"])
-EXIT_FLAG = Path(CONFIG["server"]["exit_flag"])
 # NOTE: /tmp is not ideal, but /run would require some privileges: see later.
 # see later for log module implementation
-os.environ["NUA_LOG_FILE"] = CONFIG["server"].get("log_file", "")
+os.environ["NUA_LOG_FILE"] = config.get("server", "log_file")
 
 
 def unlink_pid_file():
     """Unlink the server pid file, no fail on error."""
-    if PID_FILE.exists():
+    pid_file = Path(config.get("server", "pid_file"))
+    if pid_file.exists():
         with suppress(OSError):
-            PID_FILE.unlink(missing_ok=True)
+            pid_file.unlink(missing_ok=True)
 
 
 def touch_exit_flag():
     """Create a temporary flag file, to secure server stop/start ordering."""
-    if EXIT_FLAG.exists():
+    exit_flag = Path(config.get("server", "exit_flag"))
+    if exit_flag.exists():
         return
-    EXIT_FLAG.parent.mkdir(exist_ok=True)
+    exit_flag.parent.mkdir(exist_ok=True)
 
-    with open(EXIT_FLAG, "w", encoding="utf8") as f, suppress(OSError):
+    with open(exit_flag, "w", encoding="utf8") as f, suppress(OSError):
         f.write("\n")
 
 
 def unlink_exit_flag():
     """Unlink the EXIT_FLAG, no fail on error."""
+    exit_flag = Path(config.get("server", "exit_flag"))
     with suppress(OSError):
-        EXIT_FLAG.unlink(missing_ok=True)
+        exit_flag.unlink(missing_ok=True)
 
 
 def sentinel_daemon(main_pid):
     """Process in charge of shuting down all processes of the server when
     service stops when the pid file is removed or has a bad content (such as a
     wrong pid)."""
+    pid_file = Path(config.get("server", "pid_file"))
     log_sentinel("Starting sentinel daemon")
     last_changed = 0.0
     while True:
         # check status_file, quit all if not ok
-        if not PID_FILE.exists():
+        if not pid_file.exists():
             break
-        mtime = PID_FILE.stat().st_mtime
+        mtime = pid_file.stat().st_mtime
         if mtime == last_changed:
             # file not modified
             # chek the process is stille running
@@ -77,7 +77,7 @@ def sentinel_daemon(main_pid):
         # file changed (or first cycle)
         last_changed = mtime
         try:
-            with open(PID_FILE, "r", encoding="utf8") as f:
+            with open(pid_file, "r", encoding="utf8") as f:
                 read_pid = int(f.read())
         except OSError:
             break
@@ -121,19 +121,20 @@ def server_start():
       - zmq RPC server, in charge of CLI requests
       - in the future: other services
     """
+    pid_file = Path(config.get("server", "pid_file"))
     mp.set_start_method("spawn")
     atexit.register(unlink_pid_file)
     pid = os.getpid()
-    PID_FILE.parent.mkdir(exist_ok=True)
-    with open(PID_FILE, "w", encoding="utf8") as f:
+    pid_file.parent.mkdir(exist_ok=True)
+    with open(pid_file, "w", encoding="utf8") as f:
         f.write(f"{pid}\n")
     start_sentinel(pid)
     # server_init() if needed
-    create_base(CONFIG)
+
     # here launch sub servers
     log_me("Nua server running")
-    if CONFIG["server"]["start_zmq_server"]:
-        start_zmq_rpc_server(CONFIG)
+    if config.get("server", "start_zmq_server"):
+        start_zmq_rpc_server()
     while True:
         sleep(1)
 
@@ -141,8 +142,9 @@ def server_start():
 def start(_cmd: str = ""):
     """Entry point for server "start" command."""
     print("Starting Nua server", file=sys.stderr)
-    if PID_FILE.exists():
-        msg = f"PID file {PID_FILE} exists, another orchestrator is (probably) running"
+    pid_file = Path(config.get("server", "pid_file"))
+    if pid_file.exists():
+        msg = f"PID file '{pid_file.name}' exists, another orchestrator is (probably) running"
         print(msg, file=sys.stderr)
         log(msg)
         return 1
@@ -152,14 +154,15 @@ def start(_cmd: str = ""):
 
 def stop(_cmd: str = ""):
     """Entry point for server "stop" command."""
-    if not PID_FILE.exists():
+    pid_file = Path(config.get("server", "pid_file"))
+    if not pid_file.exists():
         msg = "PID file not found, orchestrator is (probably) not running"
         print(msg, file=sys.stderr)
         log(msg)
         unlink_exit_flag()
         return 1
     try:
-        with open(PID_FILE, "r", encoding="utf8") as f:
+        with open(pid_file, "r", encoding="utf8") as f:
             read_pid = int(f.read())
     except OSError:
         read_pid = 0
@@ -191,10 +194,11 @@ def stop(_cmd: str = ""):
 
 def restart(cmd: str = ""):
     """Entry point for server "restart" command."""
+    exit_flag = Path(config.get("server", "exit_flag"))
     touch_exit_flag()
     stop(cmd)
     count = 100  # 10 sec
-    while EXIT_FLAG.exists():
+    while exit_flag.exists():
         sleep(0.1)
         count -= 1
         if count < 0:
@@ -207,16 +211,18 @@ def restart(cmd: str = ""):
 
 
 def _check_status_1():
-    if PID_FILE.exists():
+    pid_file = Path(config.get("server", "pid_file"))
+    if pid_file.exists():
         return 0, ""
     return 1, "PID file not found, orchestrator is (probably) not running."
 
 
 def _check_status_2():
+    pid_file = Path(config.get("server", "pid_file"))
     stat = 0
     msg = ""
     try:
-        with open(PID_FILE, "r", encoding="utf8") as f:
+        with open(pid_file, "r", encoding="utf8") as f:
             read_pid = int(f.read())
     except OSError:
         stat, msg = 2, "Error reading PID file."
@@ -240,21 +246,3 @@ def status(_cmd: str = "") -> int:
         stat, msg = _check_status_2()
     print(msg, file=sys.stderr)
     return stat
-
-
-def unknown(cmd):
-    print(f"Unknown command: {cmd}", file=sys.stderr)
-    return 255
-
-
-main_dispatch = {"start": start, "stop": stop, "restart": restart, "status": status}
-
-
-def main(cmd: str) -> int:
-    """Entry point if the module is used alone or with main("command")."""
-    server_function = main_dispatch.get(cmd, unknown)
-    return server_function(cmd)
-
-
-if __name__ == "__main__":
-    sys.exit(main(sys.argv[1]))

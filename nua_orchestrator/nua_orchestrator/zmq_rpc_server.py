@@ -6,6 +6,7 @@ from tinyrpc.protocols.jsonrpc import JSONRPCProtocol
 from tinyrpc.server import RPCServer
 from tinyrpc.transports.zmq import ZmqServerTransport
 
+from . import config
 from .rpc_utils import (
     available_methods,
     list_public_rpc_methods,
@@ -15,15 +16,16 @@ from .rpc_utils import (
 from .server_utils.mini_log import log
 
 
-def start_zmq_rpc_server(config):
+def start_zmq_rpc_server():
     proc = mp.Process(target=zmq_rpc_server, args=(config,))
     proc.daemon = True
     proc.start()
 
 
-def zmq_rpc_server(config):
-    address = config["zmq"]["address"]
-    port = config["zmq"]["port"]
+def zmq_rpc_server(config_arg):
+
+    address = config_arg.get("zmq", "address")
+    port = config.get("zmq", "port")
     ctx = zmq.Context()
 
     register_rpc_modules()

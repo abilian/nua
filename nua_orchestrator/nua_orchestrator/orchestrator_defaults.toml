@@ -1,3 +1,8 @@
+[db]
+    backend = "sqlite"
+    local_dir = "/var/tmp/nua"
+    url = "sqlite:////var/tmp/nua/nua_build.db"
+    echo = false
 [server]
     pid_file = "/tmp/nua/orchestrator.pid"
     exit_flag = "/tmp/nua/orchestrator_exiting.pid"
@@ -6,6 +11,3 @@
 [zmq]
     address = "127.0.0.1"
     port = 5001
-[db]
-    backend = "sqlite"
-    url = "sqlite:////tmp/nua.db"
