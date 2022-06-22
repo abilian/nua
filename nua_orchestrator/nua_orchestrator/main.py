@@ -38,13 +38,13 @@ option_version = typer.Option(
 
 
 def _version_string():
-    typer.echo(f"Nua build CLI version: {__version__}")
+    typer.echo(f"Nua orchestrator server version: {__version__}")
 
 
 def usage():
     _version_string()
     typer.echo(
-        "Usage: nua_orchestrator [start|status|stop]\nTry 'nuad --help' for help."
+        "Usage: nua_orchestrator [start|status|restart|stop]\nTry 'nua-orchestrator --help' for help."
     )
     raise typer.Exit(0)
 
@@ -73,7 +73,7 @@ def status_server():
 
 @app.command("stop")
 def stop_server():
-    """Stop of orchestrator server."""
+    """Stop orchestrator server."""
     stop()
 
 

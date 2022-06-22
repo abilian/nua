@@ -1,3 +1,3 @@
 import importlib.metadata
 
-__version__ = importlib.metadata.version("nua_build")
+__version__ = importlib.metadata.version("nua_orchestrator")

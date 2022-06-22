@@ -5,7 +5,8 @@ the application.
 """
 from .. import __version__ as nua_version
 from ..constants import NUA_BASE_TAG
-from ..docker_utils import image_size_repr, size_unit
+
+# from ..docker_utils import image_size_repr, size_unit
 from .model.auth import User
 from .model.image import Image
 from .model.setting import Setting
@@ -102,72 +103,74 @@ from .session import Session
 #         return [img.id_sha for img in images]
 #
 #
-# def installed_nua_settings():
-#     with Session() as session:
-#         setting = (
-#             session.query(Setting).filter_by(app_id="nua-base", instance="").first()
-#         )
-#         if not setting:
-#             return None
-#         return setting.data
-#
-#
-# def installed_nua_version():
-#     with Session() as session:
-#         setting = (
-#             session.query(Setting).filter_by(app_id="nua-base", instance="").first()
-#         )
-#         if not setting:
-#             return None
-#         return setting.data.get("nua_version", "")
-#
-#
-# def list_all_settings() -> str:
-#     with Session() as session:
-#         settings = session.query(Setting).all()
-#         return [s.to_dict() for s in settings]
-#
-#
-# def _set_app_settings(
-#     session,
-#     app_id,
-#     nua_tag,
-#     instance,
-#     activation,
-#     # active=False,
-#     # container="",
-#     setting_dict=None,
-# ):
-#     # fixme: not sure if storing instance in conf data, but seems more natural
-#     # we cant be sure of situation or backend, let's be rough
-#     setting_dict = setting_dict or {}
-#     instance = instance or setting_dict.get("instance", "")
-#     session.query(Setting).filter(
-#         Setting.app_id == app_id, Setting.instance == instance
-#     ).delete()
-#     session.flush()
-#     new_setting = Setting(
-#         app_id=app_id,
-#         nua_tag=nua_tag,
-#         instance=instance,
-#         activation=activation,
-#         # active=active,
-#         # container=container,
-#         data=setting_dict,
-#     )
-#     session.add(new_setting)
-#
-#
-# def set_app_settings(app_id, nua_tag, instance, setting_dict):
-#     with Session() as session:
-#         _set_app_settings(
-#             session, app_id, nua_tag, instance, "docker", setting_dict=setting_dict
-#         )
-#         session.commit()
-#
-#
-# def set_nua_settings(setting_dict):
-#     set_app_settings("nua-base", NUA_BASE_TAG, "", setting_dict)
+
+
+def installed_nua_settings():
+    with Session() as session:
+        setting = (
+            session.query(Setting).filter_by(app_id="nua-base", instance="").first()
+        )
+        if not setting:
+            return None
+        return setting.data
+
+
+def installed_nua_version():
+    with Session() as session:
+        setting = (
+            session.query(Setting).filter_by(app_id="nua-base", instance="").first()
+        )
+        if not setting:
+            return None
+        return setting.data.get("nua_version", "")
+
+
+def list_all_settings() -> str:
+    with Session() as session:
+        settings = session.query(Setting).all()
+        return [s.to_dict() for s in settings]
+
+
+def _set_app_settings(
+    session,
+    app_id,
+    nua_tag,
+    instance,
+    activation,
+    # active=False,
+    # container="",
+    setting_dict=None,
+):
+    # fixme: not sure if storing instance in conf data, but seems more natural
+    # we cant be sure of situation or backend, let's be rough
+    setting_dict = setting_dict or {}
+    instance = instance or setting_dict.get("instance", "")
+    session.query(Setting).filter(
+        Setting.app_id == app_id, Setting.instance == instance
+    ).delete()
+    session.flush()
+    new_setting = Setting(
+        app_id=app_id,
+        nua_tag=nua_tag,
+        instance=instance,
+        activation=activation,
+        # active=active,
+        # container=container,
+        data=setting_dict,
+    )
+    session.add(new_setting)
+
+
+def set_app_settings(app_id, nua_tag, instance, setting_dict):
+    with Session() as session:
+        _set_app_settings(
+            session, app_id, nua_tag, instance, "docker", setting_dict=setting_dict
+        )
+        session.commit()
+
+
+def set_nua_settings(setting_dict):
+    set_app_settings("nua-base", NUA_BASE_TAG, "", setting_dict)
 
 
 #
@@ -194,5 +197,3 @@ from .session import Session
 #         session.commit()
 #
 #
-# def set_nua_settings(setting_dict):
-#     set_app_settings("nua-base", setting_dict)

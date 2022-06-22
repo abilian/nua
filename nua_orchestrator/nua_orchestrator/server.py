@@ -22,12 +22,11 @@ from .zmq_rpc_server import start_zmq_rpc_server
 
 # NOTE: /tmp is not ideal, but /run would require some privileges: see later.
 # see later for log module implementation
-os.environ["NUA_LOG_FILE"] = config.get("server", "log_file")
 
 
 def unlink_pid_file():
     """Unlink the server pid file, no fail on error."""
-    pid_file = Path(config.get("server", "pid_file"))
+    pid_file = Path(config.get("nua", "server", "pid_file"))
     if pid_file.exists():
         with suppress(OSError):
             pid_file.unlink(missing_ok=True)
@@ -35,7 +34,7 @@ def unlink_pid_file():
 
 def touch_exit_flag():
     """Create a temporary flag file, to secure server stop/start ordering."""
-    exit_flag = Path(config.get("server", "exit_flag"))
+    exit_flag = Path(config.get("nua", "server", "exit_flag"))
     if exit_flag.exists():
         return
     exit_flag.parent.mkdir(exist_ok=True)
@@ -46,7 +45,7 @@ def touch_exit_flag():
 
 def unlink_exit_flag():
     """Unlink the EXIT_FLAG, no fail on error."""
-    exit_flag = Path(config.get("server", "exit_flag"))
+    exit_flag = Path(config.get("nua", "server", "exit_flag"))
     with suppress(OSError):
         exit_flag.unlink(missing_ok=True)
 
@@ -55,7 +54,9 @@ def sentinel_daemon(main_pid):
     """Process in charge of shuting down all processes of the server when
     service stops when the pid file is removed or has a bad content (such as a
     wrong pid)."""
-    pid_file = Path(config.get("server", "pid_file"))
+    pid_file = Path(config.get("nua", "server", "pid_file"))
+    os.environ["NUA_LOG_FILE"] = config.get("nua", "server", "log_file")
+
     log_sentinel("Starting sentinel daemon")
     last_changed = 0.0
     while True:
@@ -121,7 +122,9 @@ def server_start():
       - zmq RPC server, in charge of CLI requests
       - in the future: other services
     """
-    pid_file = Path(config.get("server", "pid_file"))
+    pid_file = Path(config.get("nua", "server", "pid_file"))
+    os.environ["NUA_LOG_FILE"] = config.get("nua", "server", "log_file")
+
     mp.set_start_method("spawn")
     atexit.register(unlink_pid_file)
     pid = os.getpid()
@@ -133,7 +136,7 @@ def server_start():
 
     # here launch sub servers
     log_me("Nua server running")
-    if config.get("server", "start_zmq_server"):
+    if config.get("nua", "server", "start_zmq_server"):
         start_zmq_rpc_server()
     while True:
         sleep(1)
@@ -142,7 +145,9 @@ def server_start():
 def start(_cmd: str = ""):
     """Entry point for server "start" command."""
     print("Starting Nua server", file=sys.stderr)
-    pid_file = Path(config.get("server", "pid_file"))
+    pid_file = Path(config.get("nua", "server", "pid_file"))
+    os.environ["NUA_LOG_FILE"] = config.get("nua", "server", "log_file")
+
     if pid_file.exists():
         msg = f"PID file '{pid_file.name}' exists, another orchestrator is (probably) running"
         print(msg, file=sys.stderr)
@@ -154,7 +159,9 @@ def start(_cmd: str = ""):
 
 def stop(_cmd: str = ""):
     """Entry point for server "stop" command."""
-    pid_file = Path(config.get("server", "pid_file"))
+    pid_file = Path(config.get("nua", "server", "pid_file"))
+    os.environ["NUA_LOG_FILE"] = config.get("nua", "server", "log_file")
+
     if not pid_file.exists():
         msg = "PID file not found, orchestrator is (probably) not running"
         print(msg, file=sys.stderr)
@@ -194,7 +201,9 @@ def stop(_cmd: str = ""):
 
 def restart(cmd: str = ""):
     """Entry point for server "restart" command."""
-    exit_flag = Path(config.get("server", "exit_flag"))
+    exit_flag = Path(config.get("nua", "server", "exit_flag"))
+    os.environ["NUA_LOG_FILE"] = config.get("nua", "server", "log_file")
+
     touch_exit_flag()
     stop(cmd)
     count = 100  # 10 sec
@@ -211,14 +220,18 @@ def restart(cmd: str = ""):
 
 
 def _check_status_1():
-    pid_file = Path(config.get("server", "pid_file"))
+    pid_file = Path(config.get("nua", "server", "pid_file"))
+    os.environ["NUA_LOG_FILE"] = config.get("nua", "server", "log_file")
+
     if pid_file.exists():
         return 0, ""
     return 1, "PID file not found, orchestrator is (probably) not running."
 
 
 def _check_status_2():
-    pid_file = Path(config.get("server", "pid_file"))
+    pid_file = Path(config.get("nua", "server", "pid_file"))
+    os.environ["NUA_LOG_FILE"] = config.get("nua", "server", "log_file")
+
     stat = 0
     msg = ""
     try:
@@ -241,6 +254,8 @@ def _check_status_2():
 def status(_cmd: str = "") -> int:
     """Entry point for server "status" command."""
     # fixme: go further on status details (sub servers...)
+    os.environ["NUA_LOG_FILE"] = config.get("nua", "server", "log_file")
+
     stat, msg = _check_status_1()
     if not stat:
         stat, msg = _check_status_2()
