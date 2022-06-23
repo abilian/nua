@@ -1,4 +1,6 @@
 import multiprocessing as mp
+import sys
+import traceback
 
 import zmq
 from tinyrpc.dispatch import RPCDispatcher
@@ -10,10 +12,11 @@ from . import config
 from .rpc_utils import (
     available_methods,
     list_public_rpc_methods,
-    register_rpc_modules,
+    register_rpc_local_methods,
+    register_rpc_plugins,
     registered_classes,
 )
-from .server_utils.mini_log import log
+from .server_utils.mini_log import log, log_me
 
 
 def start_zmq_rpc_server():
@@ -22,17 +25,32 @@ def start_zmq_rpc_server():
     proc.start()
 
 
+def log_rpc_request(direction, context, message):
+    message = message.decode("utf8", errors="replace")
+    if len(message) > 1021:
+        message = message[:1021] + "..."
+    log(f"{direction} {message}")
+
+
 def zmq_rpc_server(config_arg):
     address = config_arg.get("nua", "zmq", "address")
     port = config_arg.get("nua", "zmq", "port")
+    log_me(f"RPC server start at {address}:{port}")
     ctx = zmq.Context()
-
-    register_rpc_modules()
+    register_rpc_local_methods()
+    register_rpc_plugins(config_arg.get("nua", "rpc", "plugin"))
     dispatcher = RPCDispatcher()
-    for klass, prefix in registered_classes:
-        obj = klass(config)
-        log("loading class", klass.__name__, "with prefix'", prefix, "'")
-        dispatcher.register_instance(obj, prefix)
+    for klass in registered_classes:
+        try:
+            obj = klass(config_arg.get("nua"))
+            log("loading class", klass.__name__, "with prefix'", klass.prefix, "'")
+            dispatcher.register_instance(obj, obj.prefix)
+        except Exception as e:
+            log_me(f"Error while register class {klass.__name__}")
+            log_me(e)
+            tb_info = traceback.format_tb(sys.exc_info()[2], limit=2)
+            data = tb_info[1].strip()
+            log_me(data)
 
     list_public_rpc_methods(dispatcher)
     log("registered methods:")
@@ -41,4 +59,5 @@ def zmq_rpc_server(config_arg):
 
     transport = ZmqServerTransport.create(ctx, f"tcp://{address}:{port}")
     rpc_server = RPCServer(transport, JSONRPCProtocol(), dispatcher)
+    rpc_server.trace = log_rpc_request
     rpc_server.serve_forever()

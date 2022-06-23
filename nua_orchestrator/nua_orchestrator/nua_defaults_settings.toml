@@ -13,3 +13,6 @@
     port = 5001
 [rpc]
     status_show_all = true
+[[rpc.plugin]]
+    module = "nua_plugin_test.methods.test_plugin"
+    class = "RPCPluginTest"

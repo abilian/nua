@@ -4,7 +4,9 @@ from ..rpc_utils import available_methods, register_methods, rpc_trace
 
 
 class RPCInspect:
-    def __init__(self, config):
+    prefix = "rpc_"
+
+    def __init__(self, config: dict):
         self.config = config
 
     @public
@@ -13,4 +15,4 @@ class RPCInspect:
         return "\n".join(available_methods()) + "\n"
 
 
-register_methods(RPCInspect, "rpc_")
+register_methods(RPCInspect)

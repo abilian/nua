@@ -4,7 +4,9 @@ from ..rpc_utils import register_methods, rpc_trace
 
 
 class RPCTestMethods:
-    def __init__(self, config):
+    prefix = "test_"
+
+    def __init__(self, config: dict):
         self.config = config
 
     @public
@@ -18,4 +20,4 @@ class RPCTestMethods:
         return a / b
 
 
-register_methods(RPCTestMethods, "test_")
+register_methods(RPCTestMethods)

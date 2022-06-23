@@ -1,13 +1,11 @@
 [tool.poetry]
-name = "nua_orchestrator"
-version = "0.1.3-1655987029"
-description = "Nua orchestrator is a daemon managing Nua commands and services."
+name = "nua_plugin_test"
+version = "0.1.3-1655979245"
+description = "Nua RPC methods as plugin - test"
 authors = ["Jerome Dumonteil <jd@abilian.com>"]
 license = "AGPL"
 readme = "README.md"
 
-[tool.poetry.scripts]
-nua-orchestrator = "nua_orchestrator.main:app"
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -15,9 +13,6 @@ toml = "^0.10.2"
 wheel = "^0.37.1"
 setuptools = "^62.3.2"
 tinyrpc = "^1.1.5"
-psutil = "^5.9.0"
-SQLAlchemy-serializer = "^1.4.1"
-SQLAlchemy = "^1.4.36"
 py = "^1.11.0"
 pyzmq = "^23.1.0"
 

@@ -2,12 +2,14 @@ from sqlalchemy import create_engine, exc, func, or_
 from sqlalchemy.orm import Session
 from tinyrpc.dispatch import public
 
-from ..model.auth import User
+from ..db.model.auth import User
 from ..rpc_utils import register_methods, rpc_trace
 
 
 class AdminUser:
-    def __init__(self, config):
+    prefix = "user_"
+
+    def __init__(self, config: dict):
         self.config = config
         self.url = config["db"]["url"]
         # self.session = None
@@ -126,4 +128,4 @@ class AdminUser:
         return session.query(func.max(User.id)).scalar() or 0
 
 
-register_methods(AdminUser, "user_")
+register_methods(AdminUser)

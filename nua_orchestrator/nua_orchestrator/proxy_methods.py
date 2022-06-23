@@ -1,5 +1,3 @@
-import os
-
 import zmq
 from tinyrpc import RPCClient
 from tinyrpc.protocols.jsonrpc import JSONRPCProtocol

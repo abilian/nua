@@ -7,6 +7,8 @@ from pathlib import Path
 
 from tinyrpc.protocols.jsonrpc import JSONRPCServerError
 
+from .server_utils.mini_log import log_me
+
 # list of classes containing rpc methods.
 registered_classes = []
 public_methods = []
@@ -24,7 +26,7 @@ def rpc_trace(function):
     return wrapper
 
 
-def register_rpc_modules():
+def register_rpc_local_methods():
     folder = Path(__file__).parent / "methods"
     base = __name__.split(".")[:-1]
     base.append("methods")
@@ -33,12 +35,37 @@ def register_rpc_modules():
         if module_file.name.startswith("_"):
             continue
         mod_name = module_file.stem
-        import_module(f"{base_name}.{mod_name}")
+        try:
+            import_module(f"{base_name}.{mod_name}")
+        except Exception as e:
+            log_me(f"Error loading local {module_file}")
+            log_me(e)
+            tb_info = traceback.format_tb(sys.exc_info()[2], limit=2)
+            data = tb_info[1].strip()
+            log_me(data)
 
 
-def register_methods(klass, prefix):
+def register_rpc_plugins(plugin_list):
+    if not plugin_list:
+        return
+    for plugin in plugin_list:
+        try:
+            tmp = import_module(plugin["module"])
+            klass = getattr(tmp, plugin["class"])
+            del tmp
+            if klass not in registered_classes:
+                registered_classes.append(klass)
+        except Exception as e:
+            log_me(f"Error loading plugin {plugin}")
+            log_me(e)
+            tb_info = traceback.format_tb(sys.exc_info()[2], limit=2)
+            data = tb_info[1].strip()
+            log_me(data)
+
+
+def register_methods(klass):
     if klass not in registered_classes:
-        registered_classes.append((klass, prefix))
+        registered_classes.append(klass)
 
 
 def dispatcher_methods(dispatcher, prefix=""):
