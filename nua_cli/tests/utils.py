@@ -1,13 +1,14 @@
 from pathlib import Path
 from time import sleep
 
+from typer.testing import CliRunner
+
 from nua_cli.main import app
 
-# from typer.testing import CliRunner
 
-
-def force_start(runner):
+def force_start():
     sleep(0.05)
+    runner = CliRunner()
     runner.invoke(app, "server start")
     pid_file = Path("/tmp/nua/orchestrator.pid")  # noqa: S108
     cnt = 500
@@ -18,7 +19,8 @@ def force_start(runner):
         raise ValueError("Problem starting server")
 
 
-def force_stop(runner):
+def force_stop():
+    runner = CliRunner()
     runner.invoke(app, "server stop")
     sleep(0.05)
     pid_file = Path("/tmp/nua/orchestrator.pid")  # noqa: S108

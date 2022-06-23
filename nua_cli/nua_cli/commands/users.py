@@ -33,8 +33,11 @@ option_with_name = typer.Option(
 option_with_mail = typer.Option(
     None, "--mail", "-m", help="Request user with mail (multiple use allowed)."
 )
-option_all = (typer.Option(False, "--all", help="Request all users."),)
-format_json: bool = typer.Option(False, "--json", help="Format output as json.")
+option_all = typer.Option(False, "--all", help="Request all users.")
+
+option_format_json = typer.Option(False, "--json", help="Format output as json.")
+
+
 option_update_with_id = typer.Option(
     0, "--id", "-i", prompt=True, help="Request user with ID."
 )
@@ -95,6 +98,7 @@ def list(
     with_name: Optional[List[str]] = option_with_name,
     with_mail: Optional[List[str]] = option_with_mail,
     all: bool = option_all,
+    format_json: bool = option_format_json,
 ) -> None:
     """List users accounts.
 

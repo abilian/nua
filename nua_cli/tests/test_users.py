@@ -12,11 +12,9 @@ from .utils import force_start
 RE_SPLIT = re.compile(r"[^\w-]+")
 
 
-runner = CliRunner()
-
-
 # FIXME: for now, tests modify data in the default DB in /tmp
 def test_help():
+    runner = CliRunner()
     result = runner.invoke(app, "users --help")
 
     assert result.exit_code == 0
@@ -25,6 +23,7 @@ def test_help():
 
 
 def test_add_help():
+    runner = CliRunner()
     result = runner.invoke(app, "users add --help")
 
     assert result.exit_code == 0
@@ -34,6 +33,7 @@ def test_add_help():
 
 
 def test_count_help():
+    runner = CliRunner()
     result = runner.invoke(app, "users count --help")
 
     assert result.exit_code == 0
@@ -43,6 +43,7 @@ def test_count_help():
 
 
 def test_delete_help():
+    runner = CliRunner()
     result = runner.invoke(app, "users delete --help")
 
     assert result.exit_code == 0
@@ -62,6 +63,7 @@ def test_delete_help():
 
 
 def test_list_help():
+    runner = CliRunner()
     result = runner.invoke(app, "users list --help")
 
     assert result.exit_code == 0
@@ -80,6 +82,7 @@ def test_list_help():
 
 
 def test_update_help():
+    runner = CliRunner()
     result = runner.invoke(app, "users update --help")
 
     assert result.exit_code == 0
@@ -89,7 +92,8 @@ def test_update_help():
 
 
 def test_count():
-    force_start(runner)
+    force_start()
+    runner = CliRunner()
     cmd = "users count"
 
     result = runner.invoke(app, cmd)
@@ -99,7 +103,8 @@ def test_count():
 
 
 def test_add_one_1():
-    force_start(runner)
+    force_start()
+    runner = CliRunner()
     name = f"x{int(time())}"
     mail = f"{name}@a.com"
     passwd = "12345678"  # noqa: S105
@@ -111,13 +116,14 @@ def test_add_one_1():
 
 
 def test_add_one_2():
-    force_start(runner)
+    force_start()
+    runner = CliRunner()
     name = f"xy{int(time())}"
     mail = f"{name}@a.com"
     passwd = "12345678"  # noqa: S105
     cmd = f"users add --name {name} --mail {mail} --password {passwd}"
-    runner.invoke(app, cmd)
     before = runner.invoke(app, "users count")
+    runner.invoke(app, cmd)
     after = runner.invoke(app, "users count")
 
     result = int(after.stdout.strip()) - int(before.stdout.strip())
@@ -126,7 +132,8 @@ def test_add_one_2():
 
 
 def test_list_yaml():
-    force_start(runner)
+    force_start()
+    runner = CliRunner()
     cnt = int(runner.invoke(app, "users count").stdout.strip())
     cmd = "users list"
 
@@ -138,7 +145,8 @@ def test_list_yaml():
 
 
 def test_list_json():
-    force_start(runner)
+    force_start()
+    runner = CliRunner()
     cnt = int(runner.invoke(app, "users count").stdout.strip())
     cmd = "users list --json"
 
@@ -150,7 +158,8 @@ def test_list_json():
 
 
 def test_update():
-    force_start(runner)
+    force_start()
+    runner = CliRunner()
     list_as_json = runner.invoke(app, "users list --json").stdout.strip()
     user_list = json.loads(list_as_json)
     uid = user_list[-1]["id"]
@@ -168,7 +177,8 @@ def test_update():
 
 
 def test_delete():
-    force_start(runner)
+    force_start()
+    runner = CliRunner()
     list_as_json = runner.invoke(app, "users list --json").stdout.strip()
     user_list = json.loads(list_as_json)
     initial_count = len(user_list)

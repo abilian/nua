@@ -10,12 +10,13 @@ from typer import Abort, secho
 NUA_ADDRESS = os.environ.get("NUA_ADDRESS") or "127.0.0.1"
 NUA_PORT = os.environ.get("NUA_PORT") or "5001"
 
+zmq_ctx = zmq.Context()
+
 
 def get_rpc_client():
-    ctx = zmq.Context()
     rpc_client = RPCClient(
         JSONRPCProtocol(),
-        ZmqClientTransport.create(ctx, f"tcp://{NUA_ADDRESS}:{NUA_PORT}"),
+        ZmqClientTransport.create(zmq_ctx, f"tcp://{NUA_ADDRESS}:{NUA_PORT}"),
     )
     return rpc_client
 

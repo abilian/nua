@@ -16,6 +16,7 @@ def test_help():
 
 
 def test_stop_1():
+    runner = CliRunner()
     rep1 = "Stopping Nua server"
     rep2 = "PID file not found"
 
@@ -26,6 +27,7 @@ def test_stop_1():
 
 
 def test_stop_2():
+    runner = CliRunner()
     rep2 = "PID file not found"
     runner.invoke(app, "server stop")
 
@@ -35,6 +37,7 @@ def test_stop_2():
 
 
 def test_start():
+    runner = CliRunner()
     rep1 = "Starting Nua server"
 
     result = runner.invoke(app, "server start")
@@ -44,7 +47,8 @@ def test_start():
 
 
 def test_restart():
-    force_start(runner)
+    force_start()
+    runner = CliRunner()
     rep1 = "Stopping Nua server"
     rep2 = "PID file not found"
     rep3 = "Starting Nua server"
@@ -54,11 +58,12 @@ def test_restart():
     assert result.exit_code == 0
     assert rep1 in result.stdout or rep2 in result.stdout
     assert rep3 in result.stdout
-    force_start(runner)
+    force_start()
 
 
 def test_status_1():
-    force_stop(runner)
+    force_stop()
+    runner = CliRunner()
 
     result = runner.invoke(app, "server stop")
 
@@ -66,7 +71,8 @@ def test_status_1():
 
 
 def test_status_2():
-    force_stop(runner)
+    force_stop()
+    runner = CliRunner()
     rep1 = "PID file not found"
     rep2 = "not running"
     runner.invoke(app, "server stop")
@@ -78,8 +84,8 @@ def test_status_2():
 
 
 def test_status_ok():
-    force_stop(runner)
-    force_start(runner)
+    force_start()
+    runner = CliRunner()
     rep1 = "Nua orchestrator is running with PID"
 
     result = runner.invoke(app, "server status")

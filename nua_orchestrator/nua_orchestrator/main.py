@@ -10,15 +10,8 @@ from . import __version__
 from .db_setup import setup_db  # and also populate config
 from .server import restart, start, status, stop
 
-# state = {"verbose": False}
-
 app = typer.Typer()
-
-# app.add_typer(
-#     settings_cmd.app,
-#     name="settings",
-#     help="Settings management (show or load settings).",
-# )
+is_initialized = False
 
 
 def version_callback(value: bool) -> None:
@@ -50,30 +43,40 @@ def usage():
 
 
 def initialization():
+    global is_initialized
+
+    if is_initialized:
+        return
+
     setup_db()
+    is_initialized = True
 
 
 @app.command("start")
 def start_server():
     """Start orchestrator server."""
+    initialization()
     start()
 
 
 @app.command("restart")
 def restart_server():
     """Restart orchestrator server."""
+    initialization()
     restart()
 
 
 @app.command("status")
 def status_server():
     """Status of orchestrator server."""
+    initialization()
     status()
 
 
 @app.command("stop")
 def stop_server():
     """Stop orchestrator server."""
+    initialization()
     stop()
 
 
