@@ -16,6 +16,7 @@ from time import sleep
 import psutil
 
 from . import config
+from .proxy_methods import rpc_methods
 from .server_utils.forker import forker
 from .server_utils.mini_log import log, log_me, log_sentinel
 from .zmq_rpc_server import start_zmq_rpc_server
@@ -232,23 +233,33 @@ def _check_status_2():
     pid_file = Path(config.get("nua", "server", "pid_file"))
     os.environ["NUA_LOG_FILE"] = config.get("nua", "server", "log_file")
 
-    stat = 0
+    status = 0
     msg = ""
     try:
         with open(pid_file, "r", encoding="utf8") as f:
             read_pid = int(f.read())
     except OSError:
-        stat, msg = 2, "Error reading PID file."
-    if not stat:
+        status, msg = 2, "Error reading PID file."
+    if not status:
         try:
             psutil.Process(pid=read_pid)
         except psutil.NoSuchProcess:
-            stat, msg = 3, f"PID should be {read_pid}, but no process. This is a bug."
+            status, msg = 3, f"PID should be {read_pid}, but no process. This is a bug."
         except psutil.AccessDenied:
-            stat, msg = 4, f"PID should be {read_pid}, but 'AccessDenied'."
+            status, msg = 4, f"PID should be {read_pid}, but 'AccessDenied'."
         else:
-            stat, msg = 0, f"Nua orchestrator is running with PID {read_pid}"
-    return stat, msg
+            status, msg = 0, f"Nua orchestrator is running with PID {read_pid}"
+    return status, msg
+
+
+def _status_display_all():
+    address = config.get("nua", "zmq", "address")
+    port = config.get("nua", "zmq", "port")
+    print("RPC address:", address, "port:", port, file=sys.stderr)
+    methods = rpc_methods().split()
+    print("Available methods:", file=sys.stderr)
+    for method in methods:
+        print(f"    {method}", file=sys.stderr)
 
 
 def status(_cmd: str = "") -> int:
@@ -256,8 +267,10 @@ def status(_cmd: str = "") -> int:
     # fixme: go further on status details (sub servers...)
     os.environ["NUA_LOG_FILE"] = config.get("nua", "server", "log_file")
 
-    stat, msg = _check_status_1()
-    if not stat:
-        stat, msg = _check_status_2()
+    status, msg = _check_status_1()
+    if not status:
+        status, msg = _check_status_2()
     print(msg, file=sys.stderr)
-    return stat
+    if not status and config.get("nua", "rpc", "status_show_all"):
+        _status_display_all()
+    return status

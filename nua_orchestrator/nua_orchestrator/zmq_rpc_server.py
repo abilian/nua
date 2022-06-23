@@ -23,7 +23,6 @@ def start_zmq_rpc_server():
 
 
 def zmq_rpc_server(config_arg):
-
     address = config_arg.get("nua", "zmq", "address")
     port = config_arg.get("nua", "zmq", "port")
     ctx = zmq.Context()

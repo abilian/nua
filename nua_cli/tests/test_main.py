@@ -29,7 +29,7 @@ def test_version():
     assert __version__ in result.stdout
 
 
-def test_version_shord():
+def test_version_short():
     result = runner.invoke(app, "-V")
 
     assert result.exit_code == 0
@@ -50,7 +50,7 @@ def test_verbose():
     assert result.exit_code == 0
 
 
-def test_verbose_shord():
+def test_verbose_short():
     "verbose currently not used"
     result = runner.invoke(app, "-v")
 

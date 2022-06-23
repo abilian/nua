@@ -11,3 +11,5 @@
 [zmq]
     address = "127.0.0.1"
     port = 5001
+[rpc]
+    status_show_all = true
