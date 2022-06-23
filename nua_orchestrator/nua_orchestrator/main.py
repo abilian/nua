@@ -44,7 +44,7 @@ def _version_string():
 def usage():
     _version_string()
     typer.echo(
-        "Usage: nua_orchestrator [start|status|restart|stop]\nTry 'nua-orchestrator --help' for help."
+        "Usage: nua-orchestrator [start|status|restart|stop]\nTry 'nua-orchestrator --help' for help."
     )
     raise typer.Exit(0)
 
