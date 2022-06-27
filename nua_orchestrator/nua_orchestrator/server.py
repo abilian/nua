@@ -17,8 +17,10 @@ import psutil
 
 from . import config
 from .proxy_methods import rpc_methods
+from .registry import start_registry_container
 from .server_utils.forker import forker
 from .server_utils.mini_log import log, log_me, log_sentinel
+from .server_utils.net_utils import verify_ports_availability
 from .zmq_rpc_server import start_zmq_rpc_server
 
 # NOTE: /tmp is not ideal, but /run would require some privileges: see later.
@@ -148,6 +150,7 @@ def server_start():
 def start(_cmd: str = ""):
     """Entry point for server "start" command."""
     print("Starting Nua server", file=sys.stderr)
+    verify_ports_availability()
     pid_file = Path(config.read("nua", "server", "pid_file"))
     started_file = pid_file.with_suffix(".started")
     os.environ["NUA_LOG_FILE"] = config.read("nua", "server", "log_file")
@@ -156,6 +159,8 @@ def start(_cmd: str = ""):
         print(msg, file=sys.stderr)
         log(msg)
         return 1
+    # before daemon start, try to run local registry:
+    start_registry_container()
     forker(server_start)
     count = 500
     while not started_file.exists():

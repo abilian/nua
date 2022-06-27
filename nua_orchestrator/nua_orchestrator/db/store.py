@@ -5,104 +5,101 @@ the application.
 """
 from .. import __version__ as nua_version
 from ..constants import NUA_BASE_TAG
-
-# from ..docker_utils import image_size_repr, size_unit
+from ..docker_utils import image_size_repr, size_unit
 from .model.auth import User
 from .model.image import Image
 from .model.setting import Setting
 from .session import Session
 
-#
-# def get_image_by_nua_tag(tag):
-#     """Find a Nua image in the local DB by Nua id."""
-#     with Session() as session:
-#         return session.query(Image).filter_by(nua_tag=tag).first()
-#
-#
-# def store_image(
-#     id_sha="",
-#     app_id="",
-#     nua_tag="",
-#     created="",
-#     size=0,
-#     nua_version=nua_version,
-#     instance="",
-#     data=None,
-# ):
-#     """Store a Nua image in the local DB (table 'image'). Also set the initial
-#     settings of the image in the 'setting' table."""
-#     new_image = Image(
-#         id_sha=id_sha,
-#         app_id=app_id,
-#         nua_tag=nua_tag,
-#         created=created,
-#         size=size,
-#         nua_version=nua_version,
-#     )
-#     with Session() as session:
-#         # Image:
-#         # enforce unicity
-#         existing = session.query(Image).filter_by(nua_tag=nua_tag).first()
-#         if existing:
-#             session.delete(existing)
-#         existing = session.query(Image).filter_by(id_sha=id_sha).first()
-#         if existing:
-#             session.delete(existing)
-#         session.flush()
-#         session.add(new_image)
-#         # Setting:
-#         _set_app_settings(
-#             session,
-#             app_id,
-#             nua_tag,
-#             instance,
-#             activation="docker",
-#             # active=False,
-#             # container="",
-#             setting_dict=data,
-#         )
-#         session.commit()
-#
-#
-# def list_images_raw():
-#     with Session() as session:
-#         return session.query(Image).all()
-#
-#
-# def list_images_ids():
-#     return [img.id_sha for img in list_images_raw()]
-#
-#
-# def list_images():
-#     images_list = []
-#     for img in list_images_raw():
-#         images_list.append(
-#             f"{img.id_sha[7:19]}  {img.nua_tag:<36}  {img.created}  "
-#             f"{image_size_repr(img.size)}{size_unit()}"
-#         )
-#     return images_list
-#
-#
-# def list_available_images():
-#     """Docker images ready to be mounted by Nua."""
-#     internals = {"nua-min", "nua-base"}
-#     with Session() as session:
-#         images = session.query(Image).all()
-#         return [i for i in images if i.app_id not in internals]
-#
-#
-# def remove_ids(ids_list):
-#     with Session() as session:
-#         session.query(Image).filter(Image.id_sha.in_(ids_list)).delete()
-#         session.commit()
-#
-#
-# def images_id_per_app_id(app_id):
-#     with Session() as session:
-#         images = session.query(Image).filter_by(app_id=app_id).all()
-#         return [img.id_sha for img in images]
-#
-#
+
+def get_image_by_nua_tag(tag):
+    """Find a Nua image in the local DB by Nua id."""
+    with Session() as session:
+        return session.query(Image).filter_by(nua_tag=tag).first()
+
+
+def store_image(
+    id_sha="",
+    app_id="",
+    nua_tag="",
+    created="",
+    size=0,
+    nua_version=nua_version,
+    instance="",
+    data=None,
+):
+    """Store a Nua image in the local DB (table 'image'). Also set the initial
+    settings of the image in the 'setting' table."""
+    new_image = Image(
+        id_sha=id_sha,
+        app_id=app_id,
+        nua_tag=nua_tag,
+        created=created,
+        size=size,
+        nua_version=nua_version,
+    )
+    with Session() as session:
+        # Image:
+        # enforce unicity
+        existing = session.query(Image).filter_by(nua_tag=nua_tag).first()
+        if existing:
+            session.delete(existing)
+        existing = session.query(Image).filter_by(id_sha=id_sha).first()
+        if existing:
+            session.delete(existing)
+        session.flush()
+        session.add(new_image)
+        # Setting:
+        _set_app_settings(
+            session,
+            app_id,
+            nua_tag,
+            instance,
+            activation="docker",
+            # active=False,
+            # container="",
+            setting_dict=data,
+        )
+        session.commit()
+
+
+def list_images_raw():
+    with Session() as session:
+        return session.query(Image).all()
+
+
+def list_images_ids():
+    return [img.id_sha for img in list_images_raw()]
+
+
+def list_images():
+    images_list = []
+    for img in list_images_raw():
+        images_list.append(
+            f"{img.id_sha[7:19]}  {img.nua_tag:<36}  {img.created}  "
+            f"{image_size_repr(img.size)}{size_unit()}"
+        )
+    return images_list
+
+
+def list_available_images():
+    """Docker images ready to be mounted by Nua."""
+    internals = {"nua-min", "nua-base"}
+    with Session() as session:
+        images = session.query(Image).all()
+        return [i for i in images if i.app_id not in internals]
+
+
+def remove_ids(ids_list):
+    with Session() as session:
+        session.query(Image).filter(Image.id_sha.in_(ids_list)).delete()
+        session.commit()
+
+
+def images_id_per_app_id(app_id):
+    with Session() as session:
+        images = session.query(Image).filter_by(app_id=app_id).all()
+        return [img.id_sha for img in images]
 
 
 def installed_nua_settings():

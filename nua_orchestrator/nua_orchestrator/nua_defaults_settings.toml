@@ -8,6 +8,14 @@
     exit_flag = "/tmp/nua/orchestrator_exiting.pid"
     log_file = "/tmp/nua_orchestrator.log"
     start_zmq_server = true
+[registry.local]
+    container.tag = "registry:2.8"
+    container.name = "nua-registry"
+    address = "127.0.0.1"
+    cont_port = "5010"
+    host_port = "5010"
+    volume.path = "/var/tmp/nua/registry/data"
+    volume.env = "REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY"
 [zmq]
     address = "127.0.0.1"
     port = 5001
