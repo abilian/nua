@@ -36,36 +36,36 @@ def default_config() -> dict:
 def set_default_settings():
     global config  # required if changing config content
 
-    current_db_url = config.get("nua", "db", "url")
-    current_db_local_dir = config.get("nua", "db", "local_dir")
+    current_db_url = config.read("nua", "db", "url")
+    current_db_local_dir = config.read("nua", "db", "local_dir")
     config.set("nua", default_config())
     config.set("nua", "db", "url", current_db_url)
     config.set("nua", "db", "local_dir", current_db_local_dir)
     config.set("nua", "instance", "")
     config.set("nua", "version", __version__)
     # store to DB
-    store.set_nua_settings(config.get("nua"))
+    store.set_nua_settings(config.read("nua"))
 
 
 def set_db_url_in_settings(settings):
     global config  # required if changing config content
 
-    current_db_url = config.get("nua", "db", "url")
-    current_db_local_dir = config.get("nua", "db", "local_dir")
+    current_db_url = config.read("nua", "db", "url")
+    current_db_local_dir = config.read("nua", "db", "local_dir")
     existing_nua_config = DeepAccessDict(settings)
     existing_nua_config.set("db", "url", current_db_url)
     existing_nua_config.set("db", "local_dir", current_db_local_dir)
     # update live config
     config.set("nua", existing_nua_config)
     # store to DB checked/updated/completed config
-    store.set_nua_settings(config.get("nua"))
+    store.set_nua_settings(config.read("nua"))
 
 
 def setup_first_launch():
     settings = store.installed_nua_settings()
     if not settings:
         print_green(
-            f"First launch: set Nua defaults in '{config.get('nua','db','url')}'"
+            f"First launch: set Nua defaults in '{config.read('nua','db','url')}'"
         )
         return set_default_settings()
     installed_version = settings.get("version", "")
@@ -89,8 +89,8 @@ def _url_from_local_config():
         except Exception:
             home_config = None
         if home_config:
-            url = home_config.get("db", "url")
-            local_dir = home_config.get("db", "local_dir")
+            url = home_config.read("db", "url")
+            local_dir = home_config.read("db", "local_dir")
     return url, local_dir
 
 
@@ -98,8 +98,8 @@ def _url_from_defaults():
     url, local_dir = (None, None)
     # default config in sources:
     source_config = DeepAccessDict(default_config())
-    url = source_config.get("db", "url")
-    local_dir = source_config.get("db", "local_dir")
+    url = source_config.read("db", "url")
+    local_dir = source_config.read("db", "local_dir")
     return url, local_dir
 
 

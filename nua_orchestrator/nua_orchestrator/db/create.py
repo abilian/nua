@@ -9,7 +9,7 @@ def create_base():
     # assert config.db.backend == "sqlite"
 
     engine = create_engine(
-        config.get("nua", "db", "url"),
+        config.read("nua", "db", "url"),
         # echo=config.nua.db.echo,
     )
     Base.metadata.create_all(engine)

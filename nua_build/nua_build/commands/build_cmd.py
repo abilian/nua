@@ -49,7 +49,7 @@ class Builder:
     def __init__(self, config_file, verbose=False):
         # wether the config file is local or not, use local dir fior build:
         self.work_dir = Path.cwd()
-        build_dir_parent = config.get("nua", "build", "build_dir") or self.work_dir
+        build_dir_parent = config.read("nua", "build", "build_dir") or self.work_dir
         self.build_dir = Path(build_dir_parent) / BUILD
         self.config = NuaConfig(config_file)
         self.copied_files = set()

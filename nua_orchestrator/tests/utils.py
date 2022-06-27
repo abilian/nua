@@ -11,7 +11,7 @@ def force_start():
     runner = CliRunner()
     sleep(0.05)
     runner.invoke(app, "start")
-    pid_file = Path(config.get("nua", "server", "pid_file"))  # noqa: S108
+    pid_file = Path(config.read("nua", "server", "pid_file"))  # noqa: S108
     cnt = 500
     while not pid_file.exists() and cnt > 0:
         cnt -= 1
@@ -24,7 +24,7 @@ def force_stop():
     runner = CliRunner()
     runner.invoke(app, "stop")
     sleep(0.05)
-    pid_file = Path(config.get("nua", "server", "pid_file"))  # noqa: S108
+    pid_file = Path(config.read("nua", "server", "pid_file"))  # noqa: S108
     cnt = 500
     while pid_file.exists() and cnt > 0:
         cnt -= 1

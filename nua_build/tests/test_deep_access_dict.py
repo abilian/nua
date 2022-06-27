@@ -15,16 +15,16 @@ def test_ad_base():
 
     assert result == "DeepAccessDict({'a': 1})"
 
-    assert ad.get() == d
-    assert ad.get("a") == 1
-    assert ad.get("x") == None
+    assert ad.read() == d
+    assert ad.read("a") == 1
+    assert ad.read("x") == None
 
 
 def test_ad_nb():
     d = {5: 1}
     ad = DeepAccessDict(d)
 
-    assert ad.get(5) == 1
+    assert ad.read(5) == 1
 
 
 def test_ad_set():
@@ -32,7 +32,7 @@ def test_ad_set():
     ad = DeepAccessDict(d)
     ad.set("b", "val")
 
-    assert ad.get("b") == "val"
+    assert ad.read("b") == "val"
 
 
 def test_ad_delete():
@@ -41,7 +41,7 @@ def test_ad_delete():
     ad.set("b", "val")
     ad.delete("b")
 
-    assert ad.get("b") == None
+    assert ad.read("b") == None
 
 
 def test_ad_len():
@@ -57,7 +57,7 @@ def test_ad_in_ad():
     ad = DeepAccessDict(d)
     ad2 = DeepAccessDict({"ad2": 42})
     ad.set("b", ad2)
-    result = ad.get("b")
+    result = ad.read("b")
 
     assert isinstance(result, dict)
     assert result == {"ad2": 42}
@@ -68,7 +68,7 @@ def test_ad_multi_set():
     ad = DeepAccessDict(d)
     ad.set("b", "c", "d", 4, "e", "val")
 
-    assert ad.get("b", "c", "d", 4, "e") == "val"
+    assert ad.read("b", "c", "d", 4, "e") == "val"
 
 
 def test_ad_multi_set_2():
@@ -77,8 +77,8 @@ def test_ad_multi_set_2():
     ad.set("b", "c", "d", 4, "e", "val")
     ad.set("b", "c", "x", "y", 0)
 
-    assert ad.get() == {"a": 1, "b": {"c": {"d": {4: {"e": "val"}}, "x": {"y": 0}}}}
-    assert ad.get("b", "c", "d") == {4: {"e": "val"}}
+    assert ad.read() == {"a": 1, "b": {"c": {"d": {4: {"e": "val"}}, "x": {"y": 0}}}}
+    assert ad.read("b", "c", "d") == {4: {"e": "val"}}
 
 
 def test_ad_multi_set_3():
@@ -88,8 +88,8 @@ def test_ad_multi_set_3():
     ad.set("b", "c", "x", "y", 0)
     ad.set("b", "c", "other")
 
-    assert ad.get() == {"a": 1, "b": {"c": "other"}}
-    assert ad.get("b", "c") == "other"
+    assert ad.read() == {"a": 1, "b": {"c": "other"}}
+    assert ad.read("b", "c") == "other"
 
 
 def test_ad_multi_set_4():
@@ -99,11 +99,11 @@ def test_ad_multi_set_4():
     d2 = {"xx": 5, "yy": 6}
     ad.set("b", "t", d2)
 
-    assert ad.get() == {
+    assert ad.read() == {
         "a": 1,
         "b": {"c": {"d": {4: {"e": "val"}}}, "t": {"xx": 5, "yy": 6}},
     }
-    assert ad.get("b", "t", "xx") == 5
+    assert ad.read("b", "t", "xx") == 5
 
 
 def test_ad_multi_set_5():
@@ -113,11 +113,11 @@ def test_ad_multi_set_5():
     ad.set("b", (4, 5), [3, 42])
 
     assert (
-        ad.get()
+        ad.read()
         == {"a": 1, "b": {"c": {"d": {4: {"e": "val"}}}, (4, 5): [3, 42]}}
         != {"b": {"c": "other"}}
     )
-    assert ad.get("b", (4, 5))[1] == 42
+    assert ad.read("b", (4, 5))[1] == 42
 
 
 def test_ad_multi_delete_2():
@@ -128,4 +128,4 @@ def test_ad_multi_delete_2():
     ad.delete("b", "nokey")
     ad.delete("b", "c")
 
-    assert ad.get() == {"a": 1, "b": {}}
+    assert ad.read() == {"a": 1, "b": {}}

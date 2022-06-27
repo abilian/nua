@@ -7,8 +7,8 @@ from . import config
 
 
 def get_rpc_client():
-    address = config.get("nua", "zmq", "address")
-    port = config.get("nua", "zmq", "port")
+    address = config.read("nua", "zmq", "address")
+    port = config.read("nua", "zmq", "port")
     ctx = zmq.Context()
     rpc_client = RPCClient(
         JSONRPCProtocol(),

@@ -33,16 +33,16 @@ def log_rpc_request(direction, context, message):
 
 
 def zmq_rpc_server(config_arg):
-    address = config_arg.get("nua", "zmq", "address")
-    port = config_arg.get("nua", "zmq", "port")
+    address = config_arg.read("nua", "zmq", "address")
+    port = config_arg.read("nua", "zmq", "port")
     log_me(f"RPC server start at {address}:{port}")
     ctx = zmq.Context()
     register_rpc_local_methods()
-    register_rpc_plugins(config_arg.get("nua", "rpc", "plugin"))
+    register_rpc_plugins(config_arg.read("nua", "rpc", "plugin"))
     dispatcher = RPCDispatcher()
     for klass in registered_classes:
         try:
-            obj = klass(config_arg.get("nua"))
+            obj = klass(config_arg.read("nua"))
             log("loading class", klass.__name__, "with prefix'", klass.prefix, "'")
             dispatcher.register_instance(obj, obj.prefix)
         except Exception as e:

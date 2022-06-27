@@ -32,8 +32,8 @@ zmq_ctx = zmq.Context()
 
 
 def get_proxy():
-    address = config.get("nua", "zmq", "address")
-    port = config.get("nua", "zmq", "port")
+    address = config.read("nua", "zmq", "address")
+    port = config.read("nua", "zmq", "port")
     rpc_client = RPCClient(
         JSONRPCProtocol(),
         ZmqClientTransport.create(zmq_ctx, f"tcp://{address}:{port}", timeout=2.0),

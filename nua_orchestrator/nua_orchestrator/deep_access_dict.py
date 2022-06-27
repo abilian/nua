@@ -15,7 +15,7 @@ class DeepAccessDict:
     def __str__(self):
         return pformat(self._dic)
 
-    def get(self, *args):
+    def read(self, *args):
         current = self._dic
         for arg in args:
             if not isinstance(current, dict):
@@ -37,7 +37,7 @@ class DeepAccessDict:
             current[arg] = {}
             current = current[arg]
         if isinstance(value, DeepAccessDict):
-            current[key] = value.get()
+            current[key] = value.read()
         else:
             current[key] = value
 

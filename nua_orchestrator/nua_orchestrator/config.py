@@ -1,6 +1,6 @@
 """configuration of the nua_orchestrator server.
 
-'config' is an DeepAccessDict(), if a dict is needed, use config.get()
+'config' is an DeepAccessDict(), if a dict is needed, use config.read()
 """
 from .deep_access_dict import DeepAccessDict
 
