@@ -103,7 +103,7 @@ def load(
 ) -> None:
     """Load settings from .toml or .json file for Nua or some app."""
     if not config_file:
-        raise ValueError(f"Config path argument is required.")
+        raise ValueError("Config path argument is required.")
     path = Path(config_file)
     if not path.is_file():
         raise FileNotFoundError(f"File not found: '{config_file}'")

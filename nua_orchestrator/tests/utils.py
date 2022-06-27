@@ -22,10 +22,18 @@ def force_start():
 
 def force_stop():
     runner = CliRunner()
-    runner.invoke(app, "stop")
-    sleep(0.05)
     pid_file = Path(config.read("nua", "server", "pid_file"))  # noqa: S108
-    cnt = 500
+    runner.invoke(app, "stop")
+    # following is required because another process may try at same time to 
+    # start the server...
+    sleep(0.05)
+    cnt = 20
+    while pid_file.exists() and cnt > 0:
+        cnt -= 1
+        sleep(0.01)
+    if pid_file.exists():    
+        runner.invoke(app, "stop")
+    cnt = 500    
     while pid_file.exists() and cnt > 0:
         cnt -= 1
         sleep(0.01)

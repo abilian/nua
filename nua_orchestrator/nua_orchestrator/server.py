@@ -125,7 +125,7 @@ def server_start():
     """
     pid_file = Path(config.read("nua", "server", "pid_file"))
     os.environ["NUA_LOG_FILE"] = config.read("nua", "server", "log_file")
-
+    started_file = pid_file.with_suffix(".started")
     mp.set_start_method("spawn")
     atexit.register(unlink_pid_file)
     pid = os.getpid()
@@ -139,6 +139,8 @@ def server_start():
     log_me("Nua server running")
     if config.read("nua", "server", "start_zmq_server"):
         start_zmq_rpc_server()
+    with open(started_file, "w", encoding="utf8") as f:
+        f.write(f"{pid}\n")
     while True:
         sleep(1)
 
@@ -147,14 +149,25 @@ def start(_cmd: str = ""):
     """Entry point for server "start" command."""
     print("Starting Nua server", file=sys.stderr)
     pid_file = Path(config.read("nua", "server", "pid_file"))
+    started_file = pid_file.with_suffix(".started")
     os.environ["NUA_LOG_FILE"] = config.read("nua", "server", "log_file")
-
     if pid_file.exists():
         msg = f"PID file '{pid_file.name}' exists, another orchestrator is (probably) running"
         print(msg, file=sys.stderr)
         log(msg)
         return 1
     forker(server_start)
+    count = 500
+    while not started_file.exists():
+        sleep(0.01)
+        count -= 1
+        if count < 0:
+            msg = "Timeout when stating server daemon"
+            print(msg, file=sys.stderr)
+            log(msg)
+            return 1
+    with suppress(OSError):
+        started_file.unlink(missing_ok=True)
     return 0
 
 
