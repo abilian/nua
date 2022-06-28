@@ -20,7 +20,7 @@ from .proxy_methods import rpc_methods
 from .registry import start_registry_container
 from .server_utils.forker import forker
 from .server_utils.mini_log import log, log_me, log_sentinel
-from .server_utils.net_utils import verify_ports_availability
+from .server_utils.net_utils import check_port_available, verify_ports_availability
 from .zmq_rpc_server import start_zmq_rpc_server
 
 # NOTE: /tmp is not ideal, but /run would require some privileges: see later.
@@ -53,14 +53,13 @@ def unlink_exit_flag():
         exit_flag.unlink(missing_ok=True)
 
 
-def sentinel_daemon(main_pid):
+def sentinel_daemon(main_pid, pid_file_str, log_file_str):
     """Process in charge of shuting down all processes of the server when
     service stops when the pid file is removed or has a bad content (such as a
     wrong pid)."""
-    pid_file = Path(config.read("nua", "server", "pid_file"))
-    os.environ["NUA_LOG_FILE"] = config.read("nua", "server", "log_file")
-
     log_sentinel("Starting sentinel daemon")
+    pid_file = Path(pid_file_str)
+    os.environ["NUA_LOG_FILE"] = log_file_str
     last_changed = 0.0
     while True:
         # check status_file, quit all if not ok
@@ -112,7 +111,14 @@ def sentinel_daemon(main_pid):
 def start_sentinel(pid):
     """Start the sentinel pseudo daemon as multiprocess child from main
     server."""
-    process = mp.Process(target=sentinel_daemon, args=(pid,))
+    process = mp.Process(
+        target=sentinel_daemon,
+        args=(
+            pid,
+            config.read("nua", "server", "pid_file"),
+            config.read("nua", "server", "log_file"),
+        ),
+    )
     process.daemon = True
     process.start()
 
@@ -150,7 +156,6 @@ def server_start():
 def start(_cmd: str = ""):
     """Entry point for server "start" command."""
     print("Starting Nua server", file=sys.stderr)
-    verify_ports_availability()
     pid_file = Path(config.read("nua", "server", "pid_file"))
     started_file = pid_file.with_suffix(".started")
     os.environ["NUA_LOG_FILE"] = config.read("nua", "server", "log_file")
@@ -159,6 +164,7 @@ def start(_cmd: str = ""):
         print(msg, file=sys.stderr)
         log(msg)
         return 1
+    verify_ports_availability()
     # before daemon start, try to run local registry:
     start_registry_container()
     forker(server_start)
@@ -167,7 +173,7 @@ def start(_cmd: str = ""):
         sleep(0.01)
         count -= 1
         if count < 0:
-            msg = "Timeout when stating server daemon"
+            msg = "Timeout when starting server daemon"
             print(msg, file=sys.stderr)
             log(msg)
             return 1
@@ -211,10 +217,15 @@ def stop(_cmd: str = ""):
         except psutil.NoSuchProcess:
             msg = "Main Nua server maybe already down"
             print(msg, file=sys.stderr)
-        unlink_exit_flag()
+    unlink_exit_flag()
     unlink_pid_file()
+    port = config.read("nua", "zmq", "port")
+    count = 5
+    while count > 0 and not check_port_available("127.0.0.1", port):
+        print("waiting port", port)
+        count -= 1
+        sleep(2)
     log_me("Exiting")
-
     return 0
 
 
@@ -222,26 +233,14 @@ def restart(cmd: str = ""):
     """Entry point for server "restart" command."""
     exit_flag = Path(config.read("nua", "server", "exit_flag"))
     os.environ["NUA_LOG_FILE"] = config.read("nua", "server", "log_file")
-
     touch_exit_flag()
     stop(cmd)
-    count = 100  # 10 sec
-    while exit_flag.exists():
-        sleep(0.1)
-        count -= 1
-        if count < 0:
-            msg = "Timeout when stopping server daemon: the sentinel server may be down"
-            print(msg, file=sys.stderr)
-            log(msg)
-            # note: we could also store the pid of the sentinel to check it is not down
-            unlink_exit_flag()
     return start(cmd)
 
 
 def _check_status_1():
     pid_file = Path(config.read("nua", "server", "pid_file"))
     os.environ["NUA_LOG_FILE"] = config.read("nua", "server", "log_file")
-
     if pid_file.exists():
         return 0, ""
     return 1, "PID file not found, orchestrator is (probably) not running."
@@ -250,7 +249,6 @@ def _check_status_1():
 def _check_status_2():
     pid_file = Path(config.read("nua", "server", "pid_file"))
     os.environ["NUA_LOG_FILE"] = config.read("nua", "server", "log_file")
-
     status = 0
     msg = ""
     try:
@@ -284,7 +282,6 @@ def status(_cmd: str = "") -> int:
     """Entry point for server "status" command."""
     # fixme: go further on status details (sub servers...)
     os.environ["NUA_LOG_FILE"] = config.read("nua", "server", "log_file")
-
     status, msg = _check_status_1()
     if not status:
         status, msg = _check_status_2()

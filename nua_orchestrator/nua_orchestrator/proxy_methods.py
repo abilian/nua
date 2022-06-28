@@ -5,14 +5,15 @@ from tinyrpc.transports.zmq import ZmqClientTransport
 
 from . import config
 
+zmq_ctx = zmq.Context()
+
 
 def get_rpc_client():
     address = config.read("nua", "zmq", "address")
     port = config.read("nua", "zmq", "port")
-    ctx = zmq.Context()
     rpc_client = RPCClient(
         JSONRPCProtocol(),
-        ZmqClientTransport.create(ctx, f"tcp://{address}:{port}"),
+        ZmqClientTransport.create(zmq_ctx, f"tcp://{address}:{port}"),
     )
     return rpc_client
 

@@ -2,7 +2,7 @@ from typing import List, Optional
 
 import typer
 
-from .proxy import abort_rpc_error, get_proxy
+from .proxy import exit_on_rpc_error, get_proxy
 from .utils import (
     as_json,
     as_yaml,
@@ -59,7 +59,7 @@ option_delete_all = typer.Option(False, "--all", help="Request all users.")
 option_delete_force = typer.Option(False, "--force", help="No confirmation.")
 
 
-@abort_rpc_error
+@exit_on_rpc_error
 @app.command()
 def count() -> None:
     """Number or users in the table."""
@@ -69,7 +69,7 @@ def count() -> None:
 
 
 @app.command()
-@abort_rpc_error
+@exit_on_rpc_error
 def add(
     name: str = option_name,
     mail: str = option_mail,
@@ -91,7 +91,7 @@ def add(
     typer.echo(f"Number of users in table is now: {cnt}")
 
 
-@abort_rpc_error
+@exit_on_rpc_error
 @app.command()
 def list(
     with_id: Optional[List[int]] = option_with_id,
@@ -118,7 +118,7 @@ def list(
         typer.echo(as_yaml(lst))
 
 
-@abort_rpc_error
+@exit_on_rpc_error
 @app.command()
 def update(
     with_id: int = option_update_with_id,
@@ -172,7 +172,7 @@ def _delete_user_list(force: bool, request: dict) -> None:
         proxy.user_delete(ids)
 
 
-@abort_rpc_error
+@exit_on_rpc_error
 @app.command()
 def delete(
     with_id: Optional[List[int]] = option_delete_with_id,

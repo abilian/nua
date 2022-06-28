@@ -25,7 +25,7 @@ def get_proxy():
     return get_rpc_client().get_proxy()
 
 
-def abort_rpc_error(function):
+def exit_on_rpc_error(function):
     @wraps(function)
     def wrapper(*args, **kwargs):
         try:

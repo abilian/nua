@@ -18,6 +18,8 @@ from .rpc_utils import (
 )
 from .server_utils.mini_log import log, log_me
 
+zmq_ctx = zmq.Context()
+
 
 def start_zmq_rpc_server():
     proc = mp.Process(target=zmq_rpc_server, args=(config,))
@@ -36,7 +38,6 @@ def zmq_rpc_server(config_arg):
     address = config_arg.read("nua", "zmq", "address")
     port = config_arg.read("nua", "zmq", "port")
     log_me(f"RPC server start at {address}:{port}")
-    ctx = zmq.Context()
     register_rpc_local_methods()
     register_rpc_plugins(config_arg.read("nua", "rpc", "plugin"))
     dispatcher = RPCDispatcher()
@@ -57,7 +58,7 @@ def zmq_rpc_server(config_arg):
     for name in available_methods():
         log("    ", name)
 
-    transport = ZmqServerTransport.create(ctx, f"tcp://{address}:{port}")
+    transport = ZmqServerTransport.create(zmq_ctx, f"tcp://{address}:{port}")
     rpc_server = RPCServer(transport, JSONRPCProtocol(), dispatcher)
     rpc_server.trace = log_rpc_request
     rpc_server.serve_forever()
