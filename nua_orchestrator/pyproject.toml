@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua_orchestrator"
-version = "0.1.4-1656429746"
+version = "0.1.4-1656432253"
 description = "Nua orchestrator is a daemon managing Nua commands and services."
 authors = ["Jerome Dumonteil <jd@abilian.com>"]
 license = "AGPL"
