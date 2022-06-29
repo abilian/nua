@@ -1,4 +1,19 @@
+"""Nua orchestrator docker commands.
+
+Principle for fetching a new built package:
+ - the Nua orchestrator host is considered as secure
+ - the remote development host (running nua_build) is less secure
+ - the connection is established from the Nua orch. host (assumin its public
+   key is set on the development host)
+ - the 'rload' commands:
+    - connects to development host
+    - "docker save" the image
+    - fetch the image .tar file
+    - install it loclly an load the image in the local registry of the Nua
+    orchestrator.
+"""
 import docker
+from fabric import Connection
 from tinyrpc.dispatch import public
 
 from ..rpc_utils import register_methods, rpc_trace
@@ -72,6 +87,25 @@ class DockerCommand:
         repos, tag = repos_tag(nua_tag)
         result = client.api.push(repository=repos, tag=tag)
         return result
+
+    @public
+    @rpc_trace
+    def rload(self, remote: str, nua_tag: str, image_id: str) -> str:
+        """Tag and push in local registry from remote docker instance.
+
+        name is also accepted for image_id.
+        remote is "user@host"
+        """
+        with Connection("jd@localhost") as cnx:
+            try:
+                cnx.run(f"docker save {image_id} > /var/tmp/image.tar")
+                cnx.get(
+                    remote_path="/var/tmp/image.tar", local_path="/var/tmp/image.tar"
+                )
+            except Exception:
+                raise
+        image = client.images.load("/var/tmp/image.tar")
+        return self.push(nua_tag, image.id)
 
 
 register_methods(DockerCommand)

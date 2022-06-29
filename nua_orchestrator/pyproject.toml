@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua_orchestrator"
-version = "0.1.4-1656432253"
+version = "0.1.4-1656441503"
 description = "Nua orchestrator is a daemon managing Nua commands and services."
 authors = ["Jerome Dumonteil <jd@abilian.com>"]
 license = "AGPL"
@@ -21,6 +21,7 @@ SQLAlchemy = "^1.4.36"
 py = "^1.11.0"
 pyzmq = "^23.1.0"
 docker = "^5.0.3"
+Fabric = "^2.7.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.2"
