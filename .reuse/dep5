@@ -1,0 +1,21 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Nua
+Upstream-Contact: Stefane Fermigier <sf@abilian.com>
+Source: https://nua.rocks/
+
+Files: nua*/*
+Copyright: 2022 Abilian SAS <contact@abilian.com>
+License: AGPL-3.0-only
+
+Files: doc/*
+Copyright: 2022 Abilian SAS <contact@abilian.com>
+License: CC-BY-4.0
+
+Files: apps/*
+Copyright: 2022 Abilian SAS <contact@abilian.com>
+License: MIT
+
+Files: demos/*
+Copyright: 2022 Abilian SAS <contact@abilian.com>
+License: MIT
+
