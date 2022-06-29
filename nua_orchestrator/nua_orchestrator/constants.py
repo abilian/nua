@@ -1,4 +1,4 @@
 from .version import __version__
 
-NUA_BASE_TAG = f"nua-base:{__version__}"
-NUA_MIN_TAG = f"nua-min:{__version__}"
+NUA_BUILDER_TAG = f"nua-builder:{__version__}"
+NUA_PYTHON_TAG = f"nua-python:{__version__}"

@@ -1,10 +1,10 @@
-ARG nua_base_version
-FROM ${nua_base_version} AS compile-image
+ARG nua_builder_tag
+FROM ${nua_builder_tag} AS compile-image
 
 RUN apt-get install -y build-essential git
 RUN python -m pip install poetry && cd /nua/nua_build && poetry install --no-dev && nuad_self_setup
 
-FROM ${nua_base_version} AS runtime-image
+FROM ${nua_builder_tag} AS runtime-image
 COPY --from=compile-image /nua /nua
 
 # app build:

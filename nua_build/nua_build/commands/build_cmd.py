@@ -17,7 +17,7 @@ import docker
 import typer
 
 from .. import config
-from ..constants import BUILD, DEFAULTS_DIR, MYSELF_DIR, NUA_BASE_TAG, NUA_CONFIG
+from ..constants import BUILD, DEFAULTS_DIR, MYSELF_DIR, NUA_BUILDER_TAG, NUA_CONFIG
 from ..db import store
 from ..docker_utils import (
     display_docker_img,
@@ -29,7 +29,7 @@ from ..nua_config import NuaConfig
 from ..panic import error
 from ..rich_console import print_green
 from ..shell import mkdir_p, rm_fr
-from .build_nua_base import build_nua_base
+from .build_nua_builder import build_nua_builder
 
 assert MYSELF_DIR.is_dir()
 
@@ -136,8 +136,8 @@ class Builder:
             tag=nua_tag,
             rm=True,
             forcerm=True,
-            buildargs={"nua_base_version": NUA_BASE_TAG, "nua_expose": expose},
-            labels={"SOME_LABEL": "test"},
+            buildargs={"nua_builder_tag": NUA_BUILDER_TAG, "nua_expose": expose},
+            labels={"APP_ID": self.config.app_id, "NUA_TAG": nua_tag},
             nocache=True,
         )
         store.store_image(
@@ -153,24 +153,24 @@ class Builder:
         display_docker_img(nua_tag)
 
 
-def build_nua_base_if_needed(verbose):
+def build_nua_builder_if_needed(verbose):
     found = False
-    db_result = store.get_image_by_nua_tag(NUA_BASE_TAG)
+    db_result = store.get_image_by_nua_tag(NUA_BUILDER_TAG)
     if db_result:
         client = docker.from_env()
-        result = client.images.list(filters={"reference": NUA_BASE_TAG})
+        result = client.images.list(filters={"reference": NUA_BUILDER_TAG})
         if result:
             found = True
         else:
             message = (
-                f"Image '{NUA_BASE_TAG}' not found in docker local db: "
+                f"Image '{NUA_BUILDER_TAG}' not found in docker local db: "
                 "build required."
             )
     else:
-        message = f"Image '{NUA_BASE_TAG}' not found locally: build required."
+        message = f"Image '{NUA_BUILDER_TAG}' not found locally: build required."
     if not found:
         print(message)
-        build_nua_base(verbose)
+        build_nua_builder(verbose)
 
 
 @app.command("build")
@@ -180,18 +180,8 @@ def build_cmd(
 ) -> None:
     """Build Nua package from some 'nua-config.toml' file."""
     # first build the nua_base image if needed
-    build_nua_base_if_needed(verbose)
+    build_nua_builder_if_needed(verbose)
     builder = Builder(config_file, verbose)
     print_green(f"*** Generation of the docker image for {builder.config.app_id} ***")
     builder.setup_build_directory()
     builder.build_with_docker()
-    #
-    # if config.src_url:
-    #     sh(f"curl -sL {config.src_url} | tar -xz -c src --strip-components 1 -f -")
-    # elif config.src_git:
-    #     sh(f"git clone {config.src_git} src")
-    # else:
-    #     raise Exception("Missing src_url or src_git")
-    #
-    # if is_python_project():
-    #     build_python()

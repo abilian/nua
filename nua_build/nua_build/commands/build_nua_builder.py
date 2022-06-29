@@ -10,11 +10,11 @@ from .. import __version__ as nua_version
 from .. import config
 from ..constants import (
     BUILD,
-    DOCKERFILE_MIN,
-    DOCKERFILE_NUA_BASE,
+    DOCKERFILE_BUILDER,
+    DOCKERFILE_PYTHON,
     MYSELF_DIR,
-    NUA_BASE_TAG,
-    NUA_MIN_TAG,
+    NUA_BUILDER_TAG,
+    NUA_PYTHON_TAG,
 )
 from ..db import store
 from ..docker_utils import (
@@ -31,10 +31,10 @@ app = typer.Typer()
 option_verbose = typer.Option(False, help="Print build log.")
 
 
-def build_nua_base(verbose):
-    print_green(f"*** Generation of the docker image {NUA_BASE_TAG} ***")
-    build_minimal_layer(verbose)
-    build_base_layer(verbose)
+def build_nua_builder(verbose):
+    print_green(f"*** Generation of the docker image {NUA_BUILDER_TAG} ***")
+    build_python_layer(verbose)
+    build_builder_layer(verbose)
 
 
 def set_build_dir(orig_wd):
@@ -45,31 +45,33 @@ def set_build_dir(orig_wd):
     return build_dir
 
 
-def build_minimal_layer(verbose):
+def build_python_layer(verbose):
     orig_wd = Path.cwd()
     build_dir = set_build_dir(orig_wd)
-    copy2(DOCKERFILE_MIN, build_dir)
-    docker_build_minimal(build_dir, verbose)
-    display_docker_img(NUA_MIN_TAG)
+    copy2(DOCKERFILE_PYTHON, build_dir)
+    docker_build_python(build_dir, verbose)
+    display_docker_img(NUA_PYTHON_TAG)
     chdir(orig_wd)
 
 
 @docker_build_log_error
-def docker_build_minimal(build_dir, verbose=False):
+def docker_build_python(build_dir, verbose=False):
     chdir(build_dir)
-    print(f"1/2: Building image {NUA_MIN_TAG}")
+    print(f"1/2: Building image {NUA_PYTHON_TAG}")
+    app_id = "nua-python"
     client = docker.from_env()
     image, tee = client.images.build(
         path=".",
-        dockerfile=Path(DOCKERFILE_MIN).name,
-        tag=NUA_MIN_TAG,
+        dockerfile=Path(DOCKERFILE_PYTHON).name,
+        tag=NUA_PYTHON_TAG,
+        labels={"APP_ID": app_id, "NUA_TAG": NUA_PYTHON_TAG},
         rm=False,
     )
     # no data, actually not activable, it's on only a requisite.
     store.store_image(
         id_sha=image.id,
-        app_id="nua-min",
-        nua_tag=NUA_MIN_TAG,
+        app_id=app_id,
+        nua_tag=NUA_PYTHON_TAG,
         created=image_created_as_iso(image),
         size=image.attrs["Size"],
         nua_version=nua_version,
@@ -80,32 +82,34 @@ def docker_build_minimal(build_dir, verbose=False):
         print_log_stream(tee)
 
 
-def build_base_layer(verbose):
+def build_builder_layer(verbose):
     orig_wd = Path.cwd()
     build_dir = set_build_dir(orig_wd)
-    copy2(DOCKERFILE_NUA_BASE, build_dir)
+    copy2(DOCKERFILE_BUILDER, build_dir)
     copy_myself(build_dir)
-    docker_build_base(build_dir, verbose)
-    display_docker_img(NUA_BASE_TAG)
+    docker_build_builder(build_dir, verbose)
+    display_docker_img(NUA_BUILDER_TAG)
     chdir(orig_wd)
 
 
 @docker_build_log_error
-def docker_build_base(build_dir, verbose=False):
+def docker_build_builder(build_dir, verbose=False):
     chdir(build_dir)
-    print(f"2/2: Building image {NUA_BASE_TAG} (it may take a while...)")
+    app_id = "nua-builder"
+    print(f"2/2: Building image {NUA_BUILDER_TAG} (it may take a while...)")
     client = docker.from_env()
     image, tee = client.images.build(
         path=".",
-        dockerfile=Path(DOCKERFILE_NUA_BASE).name,
-        buildargs={"nua_min_tag": NUA_MIN_TAG, "nua_version": nua_version},
-        tag=NUA_BASE_TAG,
+        dockerfile=Path(DOCKERFILE_BUILDER).name,
+        buildargs={"nua_python_tag": NUA_PYTHON_TAG, "nua_version": nua_version},
+        tag=NUA_BUILDER_TAG,
+        labels={"APP_ID": app_id, "NUA_TAG": NUA_BUILDER_TAG},
         rm=False,
     )
     store.store_image(
         id_sha=image.id,
-        app_id="nua-base",
-        nua_tag=NUA_BASE_TAG,
+        app_id=app_id,
+        nua_tag=NUA_BUILDER_TAG,
         created=image_created_as_iso(image),
         size=image.attrs["Size"],
         nua_version=nua_version,
@@ -128,4 +132,4 @@ def copy_myself(build_dir):
 @app.command("build_nua_docker")
 def generate_nua_docker_cmd(verbose: bool = option_verbose) -> None:
     """build the base Nua docker image."""
-    build_nua_base(verbose)
+    build_nua_builder(verbose)

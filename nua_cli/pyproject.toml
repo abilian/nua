@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua_cli"
-version = "0.1.0-1655995893"
+version = "0.1.0-1656519393"
 description = "Some nua_cli implementation with Typer"
 authors = ["Jerome Dumonteil <jd@abilian.com>"]
 license = "AGPL"
@@ -19,6 +19,8 @@ py = "^1.11.0"
 pyzmq = "^23.1.0"
 tinyrpc = "^1.1.5"
 PyYAML = "^6.0"
+cffi = "^1.15.0"
+Fabric = "^2.7.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.2"

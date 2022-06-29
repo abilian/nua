@@ -3,11 +3,12 @@ from typing import Optional
 import typer
 
 from . import __version__
-from .commands import server, users
+from .commands import remote_load, server, users
 
 app = typer.Typer()
 app.add_typer(server.app, name="server")
 app.add_typer(users.app, name="users")
+app.add_typer(remote_load.app, name="remote")
 
 state = {"verbose": False}
 

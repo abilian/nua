@@ -3,7 +3,7 @@
 Requests are full transactions, and mask the actual DB implementation to the
 application."""
 from .. import __version__ as nua_version
-from ..constants import NUA_BASE_TAG
+from ..constants import NUA_BUILDER_TAG
 from ..docker_utils import image_size_repr, size_unit
 from .model.image import Image
 from .model.setting import Setting
@@ -82,7 +82,7 @@ def list_images():
 
 def list_available_images():
     """Docker images ready to be mounted by Nua."""
-    internals = {"nua-min", "nua-base"}
+    internals = {"nua-python", "nua-builder"}
     with Session() as session:
         images = session.query(Image).all()
         return [i for i in images if i.app_id not in internals]
@@ -103,7 +103,7 @@ def images_id_per_app_id(app_id):
 def installed_nua_settings():
     with Session() as session:
         setting = (
-            session.query(Setting).filter_by(app_id="nua-base", instance="").first()
+            session.query(Setting).filter_by(app_id="nua-builder", instance="").first()
         )
         if not setting:
             return None
@@ -113,7 +113,7 @@ def installed_nua_settings():
 def installed_nua_version():
     with Session() as session:
         setting = (
-            session.query(Setting).filter_by(app_id="nua-base", instance="").first()
+            session.query(Setting).filter_by(app_id="nua-builder", instance="").first()
         )
         if not setting:
             return None
@@ -165,7 +165,7 @@ def set_app_settings(app_id, nua_tag, instance, setting_dict):
 
 
 def set_nua_settings(setting_dict):
-    set_app_settings("nua-base", NUA_BASE_TAG, "", setting_dict)
+    set_app_settings("nua-builder", NUA_BUILDER_TAG, "", setting_dict)
 
 
 #
@@ -184,7 +184,7 @@ def set_nua_settings(setting_dict):
 #         current
 #         new_setting = Setting(
 #             app_id=app_id,
-#             nua_tag=NUA_BASE_TAG,
+#             nua_tag=NUA_BUILDER_TAG,
 #             instance=setting_dict.get("instance", ""),
 #             data=setting_dict,
 #         )
@@ -193,4 +193,4 @@ def set_nua_settings(setting_dict):
 #
 #
 # def set_nua_settings(setting_dict):
-#     set_app_settings("nua-base", setting_dict)
+#     set_app_settings("nua-builder", setting_dict)

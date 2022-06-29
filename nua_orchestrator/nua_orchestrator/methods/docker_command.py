@@ -49,7 +49,7 @@ class DockerCommand:
         self.config = config
 
     @rpc_trace
-    def tag(self, nua_tag: str, image: docker.Image) -> bool:
+    def tag(self, nua_tag: str, image) -> bool:
         """Tag image.
 
         name is also accepted for image_id.
@@ -90,21 +90,25 @@ class DockerCommand:
 
     @public
     @rpc_trace
-    def rload(self, remote: str, nua_tag: str, image_id: str) -> str:
+    def imload(self, destination: str, image_id: str) -> str:
         """Tag and push in local registry from remote docker instance.
 
         name is also accepted for image_id.
         remote is "user@host"
         """
-        with Connection("jd@localhost") as cnx:
+        with Connection(destination) as cnx:
             try:
-                cnx.run(f"docker save {image_id} > /var/tmp/image.tar")
-                cnx.get(
-                    remote_path="/var/tmp/image.tar", local_path="/var/tmp/image.tar"
-                )
+                cnx.run(f"docker save {image_id} > /var/tmp/src_img.tar")
+                cnx.get(remote="/var/tmp/src_img.tar", local="/var/tmp/rcv_img.tar")
             except Exception:
                 raise
-        image = client.images.load("/var/tmp/image.tar")
+        client = docker.from_env()
+        with open("/var/tmp/rcv_img.tar", "rb") as input:
+            image = client.images.load(input)
+        labels = image.attrs["Config"]["Labels"]
+        nua_tag = labels.get("NUA_TAG")
+        if not nua_tag:
+            raise ValueError(f"No NUA_TAG found in image {image_id}")
         return self.push(nua_tag, image.id)
 
 

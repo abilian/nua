@@ -22,7 +22,9 @@ def verify_ports_availability() -> None:
     port = config.read("nua", "registry", "local", "host_port")
     if port and not check_port_available("127.0.0.1", port):
         # raise ValueError("nua.registry.local: Registry port " f" {port} already in use")
-        print(f"nua.registry.local: Registry port {port} already in use)")
+        print(
+            f"nua.registry.local: Registry port {port} already in use, will use this registry)"
+        )
         # here check that maybe the registry container is still running, so
         # no actual problem
     seen.add(port)
