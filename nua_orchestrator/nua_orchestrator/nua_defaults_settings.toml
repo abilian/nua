@@ -10,7 +10,8 @@
     start_zmq_server = true
 [connection]
     connect_timeout = 10
-    connect_kwargs.key_filename = "~/.ssh/id_rsa"
+[connection.connect_kwargs]
+    key_filename = "~/.ssh/id_rsa"
 [registry.local]
     container.tag = "registry:2.8"
     container.name = "nua-registry"

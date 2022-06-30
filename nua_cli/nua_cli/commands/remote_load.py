@@ -18,7 +18,7 @@ def load(
 ) -> None:
     """Load a remote docker image into Nua registry."""
     proxy = get_proxy()
-    proxy.docker_imload(destination, image_id)
+    proxy.docker_load(destination, image_id)
 
 
 if __name__ == "__main":

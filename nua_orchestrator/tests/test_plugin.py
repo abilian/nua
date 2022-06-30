@@ -9,6 +9,14 @@
       class = "RPCPluginTest"
 """
 import sys
+
+import pytest
+
+try:
+    import nua_plugin_test
+except ImportError:
+    print("For this test, install required module: nua_plugin_test")
+
 from time import sleep
 
 import zmq
@@ -21,12 +29,6 @@ from nua_orchestrator import config
 from nua_orchestrator.main import app
 
 from .utils import force_start, force_stop
-
-try:
-    import nua_plugin_test
-except ModuleNotFoundError:
-    print("Install required module: nua_plugin_test")
-    sys.exit(1)
 
 zmq_ctx = zmq.Context()
 
@@ -42,6 +44,9 @@ def get_proxy():
     return proxy
 
 
+@pytest.mark.skipif(
+    "nua_plugin_test" not in sys.modules, reason="requires the nua_plugin_test"
+)
 def test_plugins_loaded():
     plugin1 = "plugin_multiply"
     plugin2 = "plugin_substract"
@@ -54,6 +59,9 @@ def test_plugins_loaded():
     assert plugin2 in result.stdout
 
 
+@pytest.mark.skipif(
+    "nua_plugin_test" not in sys.modules, reason="requires the nua_plugin_test"
+)
 def test_plugin_multiply():
     runner = CliRunner()
     runner.invoke(app, "start")
@@ -64,6 +72,9 @@ def test_plugin_multiply():
     assert result == 55
 
 
+@pytest.mark.skipif(
+    "nua_plugin_test" not in sys.modules, reason="requires the nua_plugin_test"
+)
 def test_plugin_substract():
     runner = CliRunner()
     runner.invoke(app, "start")
