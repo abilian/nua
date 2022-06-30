@@ -12,10 +12,12 @@ Principle for fetching a new built package:
     - install it loclly an load the image in the local registry of the Nua
     orchestrator.
 """
+import json
 from contextlib import suppress
 from pathlib import Path
 
 import docker
+import requests
 from fabric import Connection
 from tinyrpc.dispatch import public
 
@@ -36,9 +38,9 @@ def remove_exising_image(image_id: str):
     client = docker.from_env()
     try:
         image = client.images.get(image_id)
-        log_me("existing:", image.id)
+        log_me(f"removing pre-existing: {image.id}")
     except docker.errors.ImageNotFound:
-        log_me(f"no existing image {image_id}")
+        # log_me(f"no existing image {image_id}")
         pass
     else:
         with suppress(docker.errors.APIError):
@@ -62,6 +64,38 @@ class DockerCommand:
         self.reg_port = self.config.read("registry", "local", "host_port")
         self.connect = self.config.read("connection")
 
+    @public
+    @rpc_trace
+    def list(self) -> str:
+        result = []
+        for repos in self.registry_repositories():
+            tags = self.registry_repo_tags(repos)
+            for tag in tags:
+                result.append(f"{repos}:{tag}")
+        return result
+
+    @rpc_trace
+    def registry_repositories(self) -> list:
+        url = f"http://{self.reg_address}:{self.reg_port}"
+        try:
+            response = requests.get(f"{url}/v2/_catalog?n=5000")
+        except requests.ConnectionError:
+            return []
+        if response.status_code != 200:
+            return []
+        return sorted(json.loads(response.content).get("repositories")) or []
+
+    @rpc_trace
+    def registry_repo_tags(self, repository: str) -> list:
+        url = f"http://{self.reg_address}:{self.reg_port}"
+        try:
+            response = requests.get(f"{url}/v2/{repository}/tags/list")
+        except requests.ConnectionError:
+            return []
+        if response.status_code != 200:
+            return []
+        return sorted(json.loads(response.content).get("tags")) or []
+
     @rpc_trace
     def repos_tag(self, tagged_name: str) -> tuple:
         name, tag = name_tag(tagged_name)
@@ -75,7 +109,7 @@ class DockerCommand:
 
         name is also accepted for image_id.
         """
-        log_me("push")
+        # log_me("push")
         client = docker.from_env()
         try:
             image = client.images.get(image_id)
@@ -103,7 +137,7 @@ class DockerCommand:
         if "key_filename" in kwargs:
             path = Path(kwargs["key_filename"]).expanduser()
             kwargs["key_filename"] = str(path)
-        log_me(f"{kwargs=}")
+        # log_me(f"{kwargs=}")
         # S108 Probable insecure usage of temp file/directory.
         Path("/var/tmp/nua_rcv").mkdir(  # noqa: S108
             mode=0o755, parents=True, exist_ok=True
@@ -112,32 +146,32 @@ class DockerCommand:
         with Connection(
             destination, connect_timeout=timeout, connect_kwargs=kwargs
         ) as cnx:
-            log_me(f"run docker save for '{image_id}':")
+            # log_me(f"run docker save for '{image_id}':")
             cnx.run(
                 f"mkdir -p /var/tmp/nua_src && docker save {image_id} > /var/tmp/nua_src/image.tar"
             )
-            log_me(f"run get for '{image_id}':")
+            # log_me(f"run get for '{image_id}':")
             cnx.get(
                 remote="/var/tmp/nua_src/image.tar",  # noqa: S108
                 local="/var/tmp/nua_rcv/image.tar",  # noqa: S108
             )
-            log_me("clean")
+            # log_me("clean nua_src")
             cnx.run("rm -fr /var/tmp/nua_src")
-            log_me("end cnx")
+            # log_me("end cnx")
         remove_exising_image(image_id)
         client = docker.from_env()
-        images_before = set(img.id for img in client.images.list())
-        log_me(f"{images_before=}")
+        images_before = {img.id for img in client.images.list()}
+        # log_me(f"{images_before=}")
         with open("/var/tmp/nua_rcv/image.tar", "rb") as input:  # noqa: S108
             client.images.load(input)
-        images_after = set(img.id for img in client.images.list())
+        images_after = {img.id for img in client.images.list()}
         new = images_after - images_before
-        log_me(new)
-        log_me(f"rm")
-        Path("/var/tmp/nua_rcv/image.tar").unlink()  # noqa: S121
+        if not new:
+            log_me("Warning: apparently, no new image was added")
+        Path("/var/tmp/nua_rcv/image.tar").unlink()  # noqa: S121, S108
         image = client.images.get(image_id)
         labels = image.attrs["Config"]["Labels"] or {}
-        log_me(image.attrs["Config"])
+        # log_me(image.attrs["Config"])
         nua_tag = labels.get("NUA_TAG")
         if not nua_tag:
             log_me(f"docker_load: No NUA_TAG found in image {image_id} labels")
