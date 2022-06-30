@@ -12,6 +12,8 @@ Principle for fetching a new built package:
     - install it loclly an load the image in the local registry of the Nua
     orchestrator.
 """
+from pathlib import Path
+
 import docker
 from fabric import Connection
 from tinyrpc.dispatch import public
@@ -95,20 +97,28 @@ class DockerCommand:
         """Tag and push in local registry from remote docker instance.
 
         name is also accepted for image_id.
-        remote is "user@host"
+        destination is "user@host:port"
         """
-        with Connection(destination) as cnx:
-            try:
-                cnx.run(f"docker save {image_id} > /var/tmp/src_{image_id}.tar")
-                cnx.get(
-                    remote="/var/tmp/src_{image_id}.tar",
-                    local="/var/tmp/rcv_{image_id}.tar",
-                )
-            except Exception:
-                raise
+        connect_timeout = config("nua", "connection", "connect_timeout") or 10
+        connect_kwargs = config("nua", "connection", "connect_kwargs") or {}
+        # S108 Probable insecure usage of temp file/directory.
+        Path("/var/tmp/nua").mkdir(  # noqa: S108
+            mode=0o755, parents=True, exist_ok=True
+        )
+        with Connection(
+            destination, connect_timeout=connect_timeout, connect_kwargs=connect_kwargs
+        ) as cnx:
+            cnx.run(
+                f"mkdir -p /var/tmp/nua && docker save {image_id} > /var/tmp/nua/src_{image_id}.tar"
+            )
+            cnx.get(
+                remote="/var/tmp/nua/src_{image_id}.tar",  # noqa: S108
+                local="/var/tmp/nua/rcv_{image_id}.tar",  # noqa: S108
+            )
         client = docker.from_env()
-        with open("/var/tmp/rcv_{image_id}.tar", "rb") as input:
+        with open("/var/tmp/nua/rcv_{image_id}.tar", "rb") as input:  # noqa: S108
             image = client.images.load(input)
+        Path("/var/tmp/nua/rcv_{image_id}.tar").unlink()  # noqa: S121
         labels = image.attrs["Config"]["Labels"]
         nua_tag = labels.get("NUA_TAG")
         if not nua_tag:

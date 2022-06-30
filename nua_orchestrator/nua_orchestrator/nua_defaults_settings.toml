@@ -8,6 +8,9 @@
     exit_flag = "/tmp/nua/orchestrator_exiting.pid"
     log_file = "/tmp/nua_orchestrator.log"
     start_zmq_server = true
+[connection]
+    connect_timeout = 10
+    connect_kwargs.key_filename = "~/.ssh/id_rsa"
 [registry.local]
     container.tag = "registry:2.8"
     container.name = "nua-registry"
