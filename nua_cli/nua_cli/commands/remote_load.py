@@ -1,5 +1,3 @@
-from typing import List, Optional
-
 import typer
 
 from .proxy import exit_on_rpc_error, get_proxy
@@ -20,7 +18,7 @@ def load(
 ) -> None:
     """Load a remote docker image into Nua registry."""
     proxy = get_proxy()
-    result = proxy.docker_imload(destination, image_id)
+    proxy.docker_imload(destination, image_id)
 
 
 if __name__ == "__main":

@@ -16,6 +16,7 @@ import docker
 from fabric import Connection
 from tinyrpc.dispatch import public
 
+from .. import config
 from ..rpc_utils import register_methods, rpc_trace
 
 
@@ -28,8 +29,8 @@ def name_tag(tagged_name: str) -> tuple:
 
 def repos_tag(tagged_name: str) -> tuple:
     name, tag = name_tag(tagged_name)
-    address = config.read("nua", "registry", "local", address)
-    port = config.read("nua", "registry", "local", host_port)
+    address = config.read("nua", "registry", "local", "address")
+    port = config.read("nua", "registry", "local", "host_port")
     repos = f"{address}:{port}/{name}"
     return repos, tag
 
@@ -49,7 +50,7 @@ class DockerCommand:
         self.config = config
 
     @rpc_trace
-    def tag(self, nua_tag: str, image) -> bool:
+    def tag(self, image, nua_tag: str) -> bool:
         """Tag image.
 
         name is also accepted for image_id.
@@ -60,13 +61,13 @@ class DockerCommand:
                 base_tag = tag
                 break
         if not base_tag:
-            print(f"Image {image_id} is not a Nua build.")
+            print(f"Image {image.id} is not a Nua build.")
             return False
         name, tag = name_tag(nua_tag)
-        address = config.read("nua", "registry", "local", address)
-        port = config.read("nua", "registry", "local", host_port)
+        address = config.read("nua", "registry", "local", "address")
+        port = config.read("nua", "registry", "local", "host_port")
         repos = f"{address}:{port}/{name}"
-        return image.tag(rpos, tag=tag)
+        return image.tag(repos, tag=tag)
 
     @public
     @rpc_trace
@@ -98,12 +99,15 @@ class DockerCommand:
         """
         with Connection(destination) as cnx:
             try:
-                cnx.run(f"docker save {image_id} > /var/tmp/src_img.tar")
-                cnx.get(remote="/var/tmp/src_img.tar", local="/var/tmp/rcv_img.tar")
+                cnx.run(f"docker save {image_id} > /var/tmp/src_{image_id}.tar")
+                cnx.get(
+                    remote="/var/tmp/src_{image_id}.tar",
+                    local="/var/tmp/rcv_{image_id}.tar",
+                )
             except Exception:
                 raise
         client = docker.from_env()
-        with open("/var/tmp/rcv_img.tar", "rb") as input:
+        with open("/var/tmp/rcv_{image_id}.tar", "rb") as input:
             image = client.images.load(input)
         labels = image.attrs["Config"]["Labels"]
         nua_tag = labels.get("NUA_TAG")

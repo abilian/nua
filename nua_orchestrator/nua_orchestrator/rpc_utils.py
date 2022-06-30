@@ -45,22 +45,26 @@ def register_rpc_local_methods():
             log_me(data)
 
 
+def _register_one_rpc_plugin(plugin):
+    try:
+        tmp = import_module(plugin["module"])
+        klass = getattr(tmp, plugin["class"])
+        del tmp
+        if klass not in registered_classes:
+            registered_classes.append(klass)
+    except Exception as e:
+        log_me(f"Error loading plugin {plugin}")
+        log_me(e)
+        tb_info = traceback.format_tb(sys.exc_info()[2], limit=2)
+        data = tb_info[1].strip()
+        log_me(data)
+
+
 def register_rpc_plugins(plugin_list):
     if not plugin_list:
         return
     for plugin in plugin_list:
-        try:
-            tmp = import_module(plugin["module"])
-            klass = getattr(tmp, plugin["class"])
-            del tmp
-            if klass not in registered_classes:
-                registered_classes.append(klass)
-        except Exception as e:
-            log_me(f"Error loading plugin {plugin}")
-            log_me(e)
-            tb_info = traceback.format_tb(sys.exc_info()[2], limit=2)
-            data = tb_info[1].strip()
-            log_me(data)
+        _register_one_rpc_plugin(plugin)
 
 
 def register_methods(klass):

@@ -182,41 +182,51 @@ def start(_cmd: str = ""):
     return 0
 
 
+def parse_pid(pid_file: Path) -> int:
+    if not pid_file.exists():
+        return -1
+    try:
+        with open(pid_file, "r", encoding="utf8") as f:
+            read_pid = int(f.read())
+    except (OSError, ValueError):
+        read_pid = -2
+    return read_pid
+
+
+def _kill_servers(read_pid):
+    # first try to kill directly the main server tree
+    try:
+        server_proc = psutil.Process(pid=read_pid)  # check server exists
+        procs = server_proc.children(recursive=True)
+        procs.append(server_proc)
+        for p in procs:
+            with suppress(
+                psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess
+            ):
+                p.terminate()
+        _gone, still_alive = psutil.wait_procs(procs, timeout=2)
+        for p in still_alive:
+            p.kill()
+    except psutil.NoSuchProcess:
+        msg = "Main Nua server maybe already down"
+        print(msg, file=sys.stderr)
+
+
 def stop(_cmd: str = ""):
     """Entry point for server "stop" command."""
     pid_file = Path(config.read("nua", "server", "pid_file"))
     os.environ["NUA_LOG_FILE"] = config.read("nua", "server", "log_file")
-
-    if not pid_file.exists():
+    read_pid = parse_pid(pid_file)
+    if read_pid < 0:
         msg = "PID file not found, orchestrator is (probably) not running"
         print(msg, file=sys.stderr)
         log(msg)
         unlink_exit_flag()
         return 1
-    try:
-        with open(pid_file, "r", encoding="utf8") as f:
-            read_pid = int(f.read())
-    except OSError:
-        read_pid = 0
-    if read_pid:
-        log_me("Stopping daemon")
-        print("Stopping Nua server", file=sys.stderr)
-        # first try to kill directly the main server tree
-        try:
-            server_proc = psutil.Process(pid=read_pid)  # check server exists
-            procs = server_proc.children(recursive=True)
-            procs.append(server_proc)
-            for p in procs:
-                with suppress(
-                    psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess
-                ):
-                    p.terminate()
-            _gone, still_alive = psutil.wait_procs(procs, timeout=2)
-            for p in still_alive:
-                p.kill()
-        except psutil.NoSuchProcess:
-            msg = "Main Nua server maybe already down"
-            print(msg, file=sys.stderr)
+    log_me("Stopping daemon")
+    print("Stopping Nua server", file=sys.stderr)
+    if read_pid > 0:
+        _kill_servers(read_pid)
     unlink_exit_flag()
     unlink_pid_file()
     port = config.read("nua", "zmq", "port")
@@ -231,40 +241,36 @@ def stop(_cmd: str = ""):
 
 def restart(cmd: str = ""):
     """Entry point for server "restart" command."""
-    exit_flag = Path(config.read("nua", "server", "exit_flag"))
     os.environ["NUA_LOG_FILE"] = config.read("nua", "server", "log_file")
     touch_exit_flag()
     stop(cmd)
     return start(cmd)
 
 
-def _check_status_1():
+def _check_pid_status():
     pid_file = Path(config.read("nua", "server", "pid_file"))
-    os.environ["NUA_LOG_FILE"] = config.read("nua", "server", "log_file")
-    if pid_file.exists():
-        return 0, ""
-    return 1, "PID file not found, orchestrator is (probably) not running."
+    read_pid = parse_pid(pid_file)
+    if read_pid == -1:
+        status = 1
+        msg = "PID file not found, orchestrator is (probably) not running."
+    elif read_pid == -2:
+        status, msg = 2, "Error reading PID file."
+    else:
+        status, msg = _check_status_2(read_pid)
+    return status, msg
 
 
-def _check_status_2():
-    pid_file = Path(config.read("nua", "server", "pid_file"))
-    os.environ["NUA_LOG_FILE"] = config.read("nua", "server", "log_file")
+def _check_status_2(read_pid):
     status = 0
     msg = ""
     try:
-        with open(pid_file, "r", encoding="utf8") as f:
-            read_pid = int(f.read())
-    except OSError:
-        status, msg = 2, "Error reading PID file."
-    if not status:
-        try:
-            psutil.Process(pid=read_pid)
-        except psutil.NoSuchProcess:
-            status, msg = 3, f"PID should be {read_pid}, but no process. This is a bug."
-        except psutil.AccessDenied:
-            status, msg = 4, f"PID should be {read_pid}, but 'AccessDenied'."
-        else:
-            status, msg = 0, f"Nua orchestrator is running with PID {read_pid}"
+        psutil.Process(pid=read_pid)
+    except psutil.NoSuchProcess:
+        status, msg = 3, f"PID should be {read_pid}, but no process. This is a bug."
+    except psutil.AccessDenied:
+        status, msg = 4, f"PID should be {read_pid}, but 'AccessDenied'."
+    else:
+        status, msg = 0, f"Nua orchestrator is running with PID {read_pid}"
     return status, msg
 
 
@@ -282,9 +288,7 @@ def status(_cmd: str = "") -> int:
     """Entry point for server "status" command."""
     # fixme: go further on status details (sub servers...)
     os.environ["NUA_LOG_FILE"] = config.read("nua", "server", "log_file")
-    status, msg = _check_status_1()
-    if not status:
-        status, msg = _check_status_2()
+    status, msg = _check_pid_status()
     print(msg, file=sys.stderr)
     if not status and config.read("nua", "rpc", "status_show_all"):
         _status_display_all()
