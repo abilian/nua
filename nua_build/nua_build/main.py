@@ -12,22 +12,13 @@ from typing import Optional
 import typer
 
 from . import __version__
-from .commands import build_cmd, delete_cmd, list_cmd, settings_cmd
-from .db_setup import setup_db
+from .commands import build_cmd
 
 state = {"verbose": False}
 
 app = typer.Typer()
-# app.add_typer(build_cmd.app, name="build")
 
 app.registered_commands += build_cmd.app.registered_commands
-app.registered_commands += list_cmd.app.registered_commands
-app.registered_commands += delete_cmd.app.registered_commands
-app.add_typer(
-    settings_cmd.app,
-    name="settings",
-    help="Settings management (show or load settings).",
-)
 
 
 def version_callback(value: bool) -> None:
@@ -64,7 +55,7 @@ def usage():
 
 
 def initialization():
-    setup_db()
+    pass
 
 
 @app.callback(invoke_without_command=True)

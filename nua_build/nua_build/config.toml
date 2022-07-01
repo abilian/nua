@@ -1,0 +1,4 @@
+[build]
+    build_dir = "/tmp"
+[ui]
+    size_unit_MiB = true

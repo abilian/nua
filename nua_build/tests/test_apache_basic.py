@@ -12,42 +12,9 @@ import pytest
 from nua_build import __version__ as nua_version
 from nua_build.constants import NUA_BUILDER_TAG, NUA_PYTHON_TAG
 
-test_db_path = "/var/tmp/pytest_nua_test_apache"
-test_db_name = "test.db"
-test_db_url = f"sqlite:///{test_db_path}/{test_db_name}"
-
-
-@pytest.fixture()
-def environment():
-    prior_db_url = os.environ.get("NUA_DB_URL")
-    os.environ["NUA_DB_URL"] = test_db_url
-    prior_db_path = os.environ.get("NUA_DB_LOCAL_DIR")
-    os.environ["NUA_DB_LOCAL_DIR"] = test_db_path
-    db_file = Path(test_db_path) / test_db_name
-    if db_file.is_file():
-        db_file.unlink()
-    if Path(test_db_path).is_dir():
-        Path(test_db_path).rmdir()
-
-    yield True
-
-    if prior_db_url is None:
-        del os.environ["NUA_DB_URL"]
-    else:
-        os.environ["NUA_DB_URL"] = prior_db_url
-    if prior_db_path is None:
-        del os.environ["NUA_DB_LOCAL_DIR"]
-    else:
-        os.environ["NUA_DB_LOCAL_DIR"] = prior_db_path
-
-    if db_file.is_file():
-        db_file.unlink()
-    if Path(test_db_path).is_dir():
-        Path(test_db_path).rmdir()
-
 
 class TestApacheBasic:
-    def test_complete_build_without_cache(self, environment):
+    def test_complete_build_without_cache(self):
         """To be preferably launched with :
 
         pytest -rP test_apache_basic.py
@@ -117,7 +84,7 @@ class TestApacheBasic:
         chdir(orig_dir)
         rmtree(tmp)
 
-    def test_complete_build_with_cache(self, environment):
+    def test_complete_build_with_cache(self):
         """To be preferably launched with :
 
         pytest -rP test_apache_basic.py

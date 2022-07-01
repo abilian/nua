@@ -16,7 +16,6 @@ from ..constants import (
     NUA_BUILDER_TAG,
     NUA_PYTHON_TAG,
 )
-from ..db import store
 from ..docker_utils import (
     display_docker_img,
     docker_build_log_error,
@@ -38,7 +37,7 @@ def build_nua_builder(verbose):
 
 
 def set_build_dir(orig_wd):
-    build_dir_parent = config.read("nua", "build", "build_dir") or orig_wd
+    build_dir_parent = config.get("build", {}).get("build_dir", orig_wd)
     build_dir = Path(build_dir_parent) / BUILD
     rm_fr(build_dir)
     mkdir_p(build_dir)
@@ -64,22 +63,13 @@ def docker_build_python(build_dir, verbose=False):
         path=".",
         dockerfile=Path(DOCKERFILE_PYTHON).name,
         tag=NUA_PYTHON_TAG,
-        labels={"APP_ID": app_id, "NUA_TAG": NUA_PYTHON_TAG},
+        labels={
+            "APP_ID": app_id,
+            "NUA_TAG": NUA_PYTHON_TAG,
+            "NUA_BUILD_VERSION": nua_version,
+        },
         rm=False,
     )
-    # no data, actually not activable, it's on only a requisite.
-    store.store_image(
-        id_sha=image.id,
-        app_id=app_id,
-        nua_tag=NUA_PYTHON_TAG,
-        created=image_created_as_iso(image),
-        size=image.attrs["Size"],
-        nua_version=nua_version,
-        instance="",
-        data=None,
-    )
-    if verbose:
-        print_log_stream(tee)
 
 
 def build_builder_layer(verbose):
@@ -103,21 +93,13 @@ def docker_build_builder(build_dir, verbose=False):
         dockerfile=Path(DOCKERFILE_BUILDER).name,
         buildargs={"nua_python_tag": NUA_PYTHON_TAG, "nua_version": nua_version},
         tag=NUA_BUILDER_TAG,
-        labels={"APP_ID": app_id, "NUA_TAG": NUA_BUILDER_TAG},
+        labels={
+            "APP_ID": app_id,
+            "NUA_TAG": NUA_BUILDER_TAG,
+            "NUA_BUILD_VERSION": nua_version,
+        },
         rm=False,
     )
-    store.store_image(
-        id_sha=image.id,
-        app_id=app_id,
-        nua_tag=NUA_BUILDER_TAG,
-        created=image_created_as_iso(image),
-        size=image.attrs["Size"],
-        nua_version=nua_version,
-        instance="",
-        data=None,
-    )
-    if verbose:
-        print_log_stream(tee)
 
 
 def copy_myself(build_dir):

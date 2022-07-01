@@ -16,9 +16,8 @@ from typing import Optional
 import docker
 import typer
 
-from .. import config
+from .. import __version__, config
 from ..constants import BUILD, DEFAULTS_DIR, MYSELF_DIR, NUA_BUILDER_TAG, NUA_CONFIG
-from ..db import store
 from ..docker_utils import (
     display_docker_img,
     docker_build_log_error,
@@ -49,7 +48,7 @@ class Builder:
     def __init__(self, config_file, verbose=False):
         # wether the config file is local or not, use local dir fior build:
         self.work_dir = Path.cwd()
-        build_dir_parent = config.read("nua", "build", "build_dir") or self.work_dir
+        build_dir_parent = config.get("build", {}).get("build_dir", self.work_dir)
         self.build_dir = Path(build_dir_parent) / BUILD
         self.config = NuaConfig(config_file)
         self.copied_files = set()
@@ -137,35 +136,22 @@ class Builder:
             rm=True,
             forcerm=True,
             buildargs={"nua_builder_tag": NUA_BUILDER_TAG, "nua_expose": expose},
-            labels={"APP_ID": self.config.app_id, "NUA_TAG": nua_tag},
+            labels={
+                "APP_ID": self.config.app_id,
+                "NUA_TAG": nua_tag,
+                "NUA_BUILD_VERSION": __version__,
+            },
             nocache=True,
         )
-        store.store_image(
-            id_sha=image.id,
-            app_id=self.config.app_id,
-            nua_tag=nua_tag,
-            created=image_created_as_iso(image),
-            size=image.attrs["Size"],
-            data=self.config.as_dict(),
-        )
-        if self.verbose:
-            print_log_stream(tee)
         display_docker_img(nua_tag)
 
 
 def build_nua_builder_if_needed(verbose):
     found = False
-    db_result = store.get_image_by_nua_tag(NUA_BUILDER_TAG)
-    if db_result:
-        client = docker.from_env()
-        result = client.images.list(filters={"reference": NUA_BUILDER_TAG})
-        if result:
-            found = True
-        else:
-            message = (
-                f"Image '{NUA_BUILDER_TAG}' not found in docker local db: "
-                "build required."
-            )
+    client = docker.from_env()
+    result = client.images.list(filters={"reference": NUA_BUILDER_TAG})
+    if result:
+        found = True
     else:
         message = f"Image '{NUA_BUILDER_TAG}' not found locally: build required."
     if not found:
