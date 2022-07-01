@@ -9,10 +9,11 @@ Principle for fetching a new built package:
     - connects to development host
     - "docker save" the image
     - fetch the image .tar file
-    - install it loclly an load the image in the local registry of the Nua
+    - install it locally an load the image in the local registry of the Nua
     orchestrator.
 """
 import json
+import tempfile
 from contextlib import suppress
 from pathlib import Path
 
@@ -47,6 +48,21 @@ def remove_exising_image(image_id: str):
             client.images.remove(image_id, force=True, noprune=False)
 
 
+def log_me_result(cmd: str, result) -> None:
+    if not result:
+        return
+    if cmd and (result.stdout or result.stderr):
+        log_me(f"{cmd}:")
+    if result.stdout:
+        for line in result.stdout.split("\n"):
+            if line.strip():
+                log_me(f"stdout: {line.strip()}")
+    if result.stderr:
+        for line in result.stderr.split("\n"):
+            if line.strip():
+                log_me(f"stderr: {line.strip()}")
+
+
 # [registry.local]
 #     container.tag = "registry:2.8"
 #     container.name = "nua-registry"
@@ -63,16 +79,158 @@ class DockerCommand:
         self.reg_address = self.config.read("registry", "local", "address")
         self.reg_port = self.config.read("registry", "local", "host_port")
         self.connect = self.config.read("connection")
+        self.allow_transport = set()
+        self.allow_repository = set()
+        container_types = self.config.read("container") or []
+        for container in container_types:
+            if container.get("format") != "docker":
+                continue
+            self.allow_transport.add(container.get("transport"))
+            self.allow_repository.add(container.get("repository"))
+        self.groups = set()  # not implemented
+
+    def check_allowed_command(self, transport: str = "", repository: str = "") -> bool:
+        if (transport and transport not in self.allow_transport) or (
+            repository and repository not in self.allow_repository
+        ):
+            raise NotImplementedError(
+                "Command not available for this Nua orchestrator configuration."
+            )
+        return True
 
     @public
     @rpc_trace
     def list(self) -> str:
+        "List Nua packages in local repository."
+        self.check_allowed_command(repository="registry")
         result = []
         for repos in self.registry_repositories():
             tags = self.registry_repo_tags(repos)
             for tag in tags:
                 result.append(f"{repos}:{tag}")
         return result
+
+    @public
+    @rpc_trace
+    def run(self, destination: str, image_id: str) -> None:
+        """Start installed package on remote host or group of hosts.
+        name is also accepted for image_id.
+        destination is "user@host:port"
+        """
+        self.check_allowed_command(transport="ssh")
+        if destination in self.groups:
+            log_me("docker_install: installation groups not implemented")
+        log_me(f"docker_run: {destination} {image_id}")
+        timeout = self.connect.get("connect_timeout") or 10
+        kwargs = self.connect.get("connect_kwargs") or {}
+        if "key_filename" in kwargs:
+            path = Path(kwargs["key_filename"]).expanduser()
+            kwargs["key_filename"] = str(path)
+        with Connection(
+            destination, connect_timeout=timeout, connect_kwargs=kwargs
+        ) as cnx:
+            cmd = f"docker run -d {image_id}"
+            result = cnx.run(
+                cmd,
+                warn=True,
+                hide=True,
+            )
+            log_me_result(cmd, result)
+
+        return True
+
+    @public
+    @rpc_trace
+    def stop(self) -> str:
+        "Stop running package on remote host or group of hosts."
+        raise NotImplementedError
+
+    @public
+    @rpc_trace
+    def deploy(self) -> str:
+        """Install and run package from local repository to remote host
+        or group of hosts."""
+        raise NotImplementedError
+
+    @public
+    @rpc_trace
+    def install(self, destination: str, image_id: str) -> bool:
+        """Install package from local repository to remote host
+        or group of hosts.
+
+        name is also accepted for image_id.
+        destination is "user@host:port"
+        """
+        self.check_allowed_command(transport="ssh", repository="registry")
+        if destination in self.groups:
+            log_me("docker_install: installation groups not implemented")
+        log_me(f"docker_install: {destination} {image_id}")
+        timeout = self.connect.get("connect_timeout") or 10
+        kwargs = self.connect.get("connect_kwargs") or {}
+        if "key_filename" in kwargs:
+            path = Path(kwargs["key_filename"]).expanduser()
+            kwargs["key_filename"] = str(path)
+        with tempfile.TemporaryDirectory(
+            prefix="nua_inst_", dir="/var/tmp", ignore_cleanup_errors=True
+        ) as tmpdirname:
+            tmpdir = Path(tmpdirname)
+            # log_me(f"docker_install: {tmpdir=}")
+            client = docker.from_env()
+            try:
+                image = client.images.get(image_id)
+            except docker.errors.APIError:
+                image = None
+            # log_me(f"docker_install: {image=}")
+            if not image:
+                log_me(f"docker_install: Image {image_id} not found")
+                print(f"Image {image_id} not found.")
+                return False
+            # fixme: specify local registry or automatic ?
+            # repos, tag = self.repos_tag(nua_tag) ?
+            # seems to be automatic
+            labels = image.attrs["Config"]["Labels"] or {}
+            nua_tag = labels.get("NUA_TAG")
+            # log_me(f"docker_install: {nua_tag=}")
+            if not nua_tag:
+                log_me(f"docker_install: No NUA_TAG found in image {image_id} labels")
+                return False
+            tarfile = tmpdir / f"{nua_tag}.tar"
+            # log_me(f"docker_install: {tarfile=}")
+            with open(tarfile, "wb") as output:
+                for chunk in image.save():
+                    output.write(chunk)
+            with Connection(
+                destination, connect_timeout=timeout, connect_kwargs=kwargs
+            ) as cnx:
+                cmd = "mkdir -p tmp/nua_inst"
+                result = cnx.run(
+                    cmd,
+                    warn=True,
+                    hide=True,
+                )
+                log_me_result(cmd, result)
+                try:
+                    result = cnx.put(tarfile, "tmp/nua_inst/")
+                except Exception as e:
+                    log_me(f"'put {tarfile} tmp/nua_inst/' did raise:")
+                    log_me(e)
+                    return False
+                cmd = f"docker load -i tmp/nua_inst/{nua_tag}.tar"
+                result = cnx.run(
+                    cmd,
+                    warn=True,
+                    hide=True,
+                )
+                log_me_result(cmd, result)
+                cmd = f"rm -f tmp/nua_inst/{nua_tag}.tar"
+                result = cnx.run(
+                    cmd,
+                    warn=True,
+                    hide=True,
+                )
+                log_me_result(cmd, result)
+
+        return True
 
     @rpc_trace
     def registry_repositories(self) -> list:
@@ -109,6 +267,7 @@ class DockerCommand:
 
         name is also accepted for image_id.
         """
+        self.check_allowed_command(repository="registry")
         # log_me("push")
         client = docker.from_env()
         try:
@@ -132,6 +291,7 @@ class DockerCommand:
         name is also accepted for image_id.
         destination is "user@host:port"
         """
+        self.check_allowed_command(transport="ssh", repository="registry")
         timeout = self.connect.get("connect_timeout") or 10
         kwargs = self.connect.get("connect_kwargs") or {}
         if "key_filename" in kwargs:
