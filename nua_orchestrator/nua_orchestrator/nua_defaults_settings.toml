@@ -8,6 +8,7 @@
     exit_flag = "/tmp/nua/orchestrator_exiting.pid"
     log_file = "/tmp/nua_orchestrator.log"
     start_zmq_server = true
+    start_ssh_server = true
 [[container]]
     format = "docker"
     transport = "ssh"
@@ -27,6 +28,10 @@
 [zmq]
     address = "127.0.0.1"
     port = 5001
+[ssh]
+    address = "127.0.0.1"
+    port = 5022
+    work_dir = "/tmp",
 [rpc]
     status_show_all = true
 [[rpc.plugin]]

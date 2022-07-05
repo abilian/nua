@@ -21,6 +21,7 @@ from .registry import start_registry_container
 from .server_utils.forker import forker
 from .server_utils.mini_log import log, log_me, log_sentinel
 from .server_utils.net_utils import check_port_available, verify_ports_availability
+from .ssh_server import start_ssh_server
 from .zmq_rpc_server import start_zmq_rpc_server
 
 # NOTE: /tmp is not ideal, but /run would require some privileges: see later.
@@ -147,6 +148,8 @@ def server_start():
     log_me("Nua server running")
     if config.read("nua", "server", "start_zmq_server"):
         start_zmq_rpc_server()
+    if config.read("nua", "ssh", "start_ssh_server"):
+        start_ssh_server()
     with open(started_file, "w", encoding="utf8") as f:
         f.write(f"{pid}\n")
     while True:

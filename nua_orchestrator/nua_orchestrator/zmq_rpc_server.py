@@ -21,12 +21,6 @@ from .server_utils.mini_log import log, log_me
 zmq_ctx = zmq.Context()
 
 
-def start_zmq_rpc_server():
-    proc = mp.Process(target=zmq_rpc_server, args=(config,))
-    proc.daemon = True
-    proc.start()
-
-
 def log_rpc_request(direction, context, message):
     message = message.decode("utf8", errors="replace")
     if len(message) > 1021:
@@ -70,3 +64,9 @@ def zmq_rpc_server(config_arg):
     rpc_server = RPCServer(transport, JSONRPCProtocol(), dispatcher)
     rpc_server.trace = log_rpc_request
     rpc_server.serve_forever()
+
+
+def start_zmq_rpc_server():
+    proc = mp.Process(target=zmq_rpc_server, args=(config,))
+    proc.daemon = True
+    proc.start()
