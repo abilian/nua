@@ -13,18 +13,19 @@ from time import sleep
 
 import paramiko
 
-config = {
-    "host_key": Path(__file__).parent / "host_key" / "server_rsa",
-    "auth_keys_dir": Path(__file__).parent / "auth_keys",
-    "log_file": "/tmp/nua_ssh.log",
-    "max_threads": 20,
-}
-
 logging.basicConfig()
-paramiko.util.log_to_file(config["log_file"], level="INFO")
+paramiko.util.log_to_file("/tmp/nua_ssh.log", level="INFO")
 logger = paramiko.util.get_logger("paramiko")
 
-host_key = paramiko.RSAKey(filename=str(config["host_key"]))
+
+def load_host_key(host_key_path):
+    path = Path(host_key_path)
+    if not path.exists():
+        path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+        key = paramiko.RSAKey.generate(2048)
+        key.write_private_key_file(path)
+    # assuming it's a rsa key
+    return paramiko.RSAKey(filename=path)
 
 
 def method_from_key_type(key_type: str):
@@ -63,11 +64,12 @@ def parse_pub_key_content(content: str):
         return None
 
 
-def authorized_keys(folder: str = "") -> list:
+def authorized_keys(auth_keys_dir: str) -> list:
     # maybe some cache here ?
     pub_keys = []
-    if not folder:
-        folder = Path(config["auth_keys_dir"])
+    folder = Path(auth_keys_dir)
+    if not folder.exists():
+        folder.mkdir(mode=0o700, parents=True, exist_ok=True)
     for path in folder.glob("*"):
         try:
             with open(path, encoding="utf8") as kfile:
@@ -77,15 +79,15 @@ def authorized_keys(folder: str = "") -> list:
         key = parse_pub_key_content(content)
         if key:
             pub_keys.append(key)
-
     return pub_keys
 
 
 class Server(paramiko.ServerInterface):
     """Class managing a ssh conenxion"""
 
-    def __init__(self):
+    def __init__(self, auth_keys_dir):
         self.event = threading.Event()
+        self.auth_keys_dir = auth_keys_dir
 
     def check_channel_request(self, kind, chanid):
         if kind == "session":
@@ -93,7 +95,7 @@ class Server(paramiko.ServerInterface):
         return paramiko.OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED
 
     def check_auth_publickey(self, username, key):
-        if key in authorized_keys():
+        if key in authorized_keys(self.auth_keys_dir):
             return paramiko.AUTH_SUCCESSFUL
         return paramiko.AUTH_FAILED
 
@@ -110,12 +112,12 @@ class Server(paramiko.ServerInterface):
         return True
 
 
-def handler(client):
+def handler(client, host_key_path, auth_keys_dir):
     try:
         transport = paramiko.Transport(client)
         transport.load_server_moduli()
-        transport.add_server_key(host_key)
-        server = Server()
+        transport.add_server_key(load_host_key(host_key_path))
+        server = Server(auth_keys_dir)
         transport.start_server(server=server)
         server.event.wait()
         transport.close()
@@ -127,11 +129,13 @@ def handler(client):
 
 
 def ssh_listener(config_arg):
-    chdir(config_arg.read("nua", "ssh", "work_dir"))
     address = config_arg.read("nua", "ssh", "address")
     port = config_arg.read("nua", "ssh", "port")
-    max_threads = config["max_threads"]
     logger.info(f"SSH server start at {address}:{port}")
+    chdir(config_arg.read("nua", "ssh", "work_dir"))
+    host_key_path = config_arg.read("nua", "ssh", "host_key")
+    auth_keys_dir = config_arg.read("nua", "ssh", "auth_keys_dir")
+    max_threads = config_arg.read("nua", "ssh", "max_threads") or 20
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -158,11 +162,13 @@ def ssh_listener(config_arg):
             client.close()
             continue
         logging.info(f"Connection of {addr}")
-        cnx = threading.Thread(target=handler, args=(client,), daemon=True)
+        cnx = threading.Thread(
+            target=handler, args=(client, host_key_path, auth_keys_dir), daemon=True
+        )
         cnx.start()
 
 
-def start_ssh_server():
+def start_ssh_server(config):
     proc = mp.Process(target=ssh_listener, args=(config,))
     proc.daemon = True
     proc.start()

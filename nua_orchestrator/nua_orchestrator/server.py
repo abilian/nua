@@ -148,8 +148,8 @@ def server_start():
     log_me("Nua server running")
     if config.read("nua", "server", "start_zmq_server"):
         start_zmq_rpc_server()
-    if config.read("nua", "ssh", "start_ssh_server"):
-        start_ssh_server()
+    if config.read("nua", "server", "start_ssh_server"):
+        start_ssh_server(config)
     with open(started_file, "w", encoding="utf8") as f:
         f.write(f"{pid}\n")
     while True:

@@ -1,0 +1,6 @@
+mode = 'ssh'
+[ssh]
+    remote_address = "127.0.0.1"
+    remote_port = 5022
+    auto_add_policy = true
+    public_key = "~/.ssh/jd_sloop_rsa"

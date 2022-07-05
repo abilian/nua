@@ -31,7 +31,13 @@
 [ssh]
     address = "127.0.0.1"
     port = 5022
-    work_dir = "/tmp",
+    # host_key = "/home/nua/ssh_host_keys/nua_host_rsa"
+    # auth_keys_dir = "/home/nua/ssh_authorized_keys"
+    host_key = "/tmp/nua/ssh_host_keys/nua_host_rsa"
+    auth_keys_dir = "/tmp/nua/ssh_authorized_keys"
+    work_dir = "/tmp"
+    log_file = "/tmp/nua_ssh.log"
+    max_threads = 20
 [rpc]
     status_show_all = true
 [[rpc.plugin]]

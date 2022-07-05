@@ -6,7 +6,7 @@ from . import __version__
 from .commands import registry, remote_load, server, users
 
 app = typer.Typer()
-app.add_typer(server.app, name="server")
+# app.add_typer(server.app, name="server")
 app.add_typer(users.app, name="users")
 app.add_typer(remote_load.app, name="remote")
 app.add_typer(registry.app, name="registry")
