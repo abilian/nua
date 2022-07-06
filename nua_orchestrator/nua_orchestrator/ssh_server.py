@@ -13,9 +13,53 @@ from time import sleep
 
 import paramiko
 
+from . import config
+from .zmq_rpc_server import get_dispatcher
+
+# from .main import app
+
 logging.basicConfig()
 paramiko.util.log_to_file("/tmp/nua_ssh.log", level="INFO")
 logger = paramiko.util.get_logger("paramiko")
+
+CMD_ERR = "Command not found or not authorized"
+CMD_ALLOW = {"registry": {"list"}}
+CMD_ADMIN_ALLOW = CMD_ALLOW.update({})
+
+
+def run_nua_command(args: list, is_admin: bool) -> str:
+    dispatcher = get_dispatcher(config)
+    cmd = " ".join(args)
+    return "test" + cmd
+    # result = runner.invoke(app, cmd)
+    # if result.exit_code == 0:
+    #     return result.stdout
+    # else:
+    #     return result.stdout + result.stderr
+
+
+def is_allowed_command(args: list, is_admin: bool) -> bool:
+    if is_admin:
+        allowed_commands = CMD_ADMIN_ALLOW
+    else:
+        allowed_commands = CMD_ALLOW
+    first_param = args[0]
+    second_param = args[1] if len(args) > 1 else ""
+    if first_param not in allowed_commands:
+        return False
+    second_level = allowed_commands[first_param]
+    if second_level and second_param not in second_level:
+        return False
+    return True
+
+
+def apply_nua_command(cmd: str, is_admin: bool) -> str:
+    args = cmd.split()
+    if not args:
+        return CMD_ERR
+    if not is_allowed_command(args, is_admin):
+        return CMD_ERR
+    return run_nua_command(args, is_admin)
 
 
 def load_host_key(host_key_path):
@@ -85,9 +129,11 @@ def authorized_keys(auth_keys_dir: str) -> list:
 class Server(paramiko.ServerInterface):
     """Class managing a ssh conenxion"""
 
-    def __init__(self, auth_keys_dir):
+    def __init__(self, auth_keys_dir: str, admin_auth_keys_dir: str):
         self.event = threading.Event()
         self.auth_keys_dir = auth_keys_dir
+        self.admin_auth_keys_dir = admin_auth_keys_dir
+        self.is_admin = False
 
     def check_channel_request(self, kind, chanid):
         if kind == "session":
@@ -95,6 +141,9 @@ class Server(paramiko.ServerInterface):
         return paramiko.OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED
 
     def check_auth_publickey(self, username, key):
+        if key in authorized_keys(self.admin_auth_keys_dir):
+            self.is_admin = True
+            return paramiko.AUTH_SUCCESSFUL
         if key in authorized_keys(self.auth_keys_dir):
             return paramiko.AUTH_SUCCESSFUL
         return paramiko.AUTH_FAILED
@@ -104,20 +153,20 @@ class Server(paramiko.ServerInterface):
 
     def check_channel_exec_request(self, channel, command):
         # This is the command we need to parse
-        cmd = command[:1024].decode("utf8", "replace")
+        cmd = command[:2048].decode("utf8", "replace")
         logger.info(f"command: {cmd}")
-        sleep(30)
-        channel.send(f"{cmd} result\n")
+        result = apply_nua_command(cmd, self.is_admin)
+        channel.send(f"{result}\n")
         self.event.set()
         return True
 
 
-def handler(client, host_key_path, auth_keys_dir):
+def handler(client, host_key_path: str, auth_keys_dir: str, admin_auth_keys_dir: str):
     try:
         transport = paramiko.Transport(client)
         transport.load_server_moduli()
         transport.add_server_key(load_host_key(host_key_path))
-        server = Server(auth_keys_dir)
+        server = Server(auth_keys_dir, admin_auth_keys_dir)
         transport.start_server(server=server)
         server.event.wait()
         transport.close()
@@ -134,7 +183,8 @@ def ssh_listener(config_arg):
     logger.info(f"SSH server start at {address}:{port}")
     chdir(config_arg.read("nua", "ssh", "work_dir"))
     host_key_path = config_arg.read("nua", "ssh", "host_key")
-    auth_keys_dir = config_arg.read("nua", "ssh", "auth_keys_dir")
+    auth_keys_dir = config_arg.read("nua", "ssh", "auth_keys_dir") or ""
+    admin_auth_keys_dir = config_arg.read("nua", "ssh", "admin_auth_keys_dir") or ""
     max_threads = config_arg.read("nua", "ssh", "max_threads") or 20
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -163,7 +213,9 @@ def ssh_listener(config_arg):
             continue
         logging.info(f"Connection of {addr}")
         cnx = threading.Thread(
-            target=handler, args=(client, host_key_path, auth_keys_dir), daemon=True
+            target=handler,
+            args=(client, host_key_path, auth_keys_dir, admin_auth_keys_dir),
+            daemon=True,
         )
         cnx.start()
 

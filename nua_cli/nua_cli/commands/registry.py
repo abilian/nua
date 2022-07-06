@@ -1,3 +1,5 @@
+import sys
+
 import typer
 
 from ..client import remote_exec
@@ -12,7 +14,8 @@ app = typer.Typer()
 def list() -> None:
     """List images available on Nua local registry."""
     if config.get("mode") == "ssh":
-        print(remote_exec("list"))
+        nua_args = " ".join(sys.argv[1:])[:2048]
+        print(remote_exec(nua_args))
     else:
         proxy = get_proxy()
         response_list = proxy.docker_list()

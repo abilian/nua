@@ -35,6 +35,7 @@
     # auth_keys_dir = "/home/nua/ssh_authorized_keys"
     host_key = "/tmp/nua/ssh_host_keys/nua_host_rsa"
     auth_keys_dir = "/tmp/nua/ssh_authorized_keys"
+    admin_auth_keys_dir = "/tmp/nua/ssh_admin_authorized_keys"
     work_dir = "/tmp"
     log_file = "/tmp/nua_ssh.log"
     max_threads = 20
