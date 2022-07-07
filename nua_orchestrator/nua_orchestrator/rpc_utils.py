@@ -60,7 +60,8 @@ def _register_one_rpc_plugin(plugin):
         log_me(data)
 
 
-def register_rpc_plugins(plugin_list):
+def register_rpc_plugins(config):
+    plugin_list = config.read("nua", "rpc", "plugin")
     if not plugin_list:
         return
     for plugin in plugin_list:

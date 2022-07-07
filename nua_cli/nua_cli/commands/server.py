@@ -1,9 +1,7 @@
 """CLI command to start/stop the orchestrator server.
 
-Actually, it is the same to call from nua-cli:
-    "nua server start"
-or from nua-orchestrator:
-    "nua-orchestrator start"
+Actually, it is the same to call from nua-cli:     "nua server start" or
+from nua-orchestrator:     "nua-orchestrator start"
 """
 # import typer
 #

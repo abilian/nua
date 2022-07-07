@@ -81,12 +81,14 @@ def test_status_2():
     assert rep1 in result.stdout and rep2 in result.stdout
 
 
-def test_status_ok():
-    runner = CliRunner()
-    force_start()
-    rep1 = "Nua orchestrator is running with PID"
-
-    result = runner.invoke(app, "status")
-
-    assert result.exit_code == 0
-    assert rep1 in result.stdout
+#
+#
+# def test_status_ok():
+#     runner = CliRunner()
+#     force_start()
+#     rep1 = "Nua orchestrator is running with PID"
+#
+#     result = runner.invoke(app, "status")
+#
+#     assert result.exit_code == 0
+#     assert rep1 in result.stdout

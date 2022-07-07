@@ -88,20 +88,23 @@ class DockerCommand:
             self.allow_transport.add(container.get("transport"))
             self.allow_repository.add(container.get("repository"))
         self.groups = set()  # not implemented
+        # log_me(f"DockerCommand allow_repository {self.allow_repository}")
+        # log_me(f"DockerCommand config {self.config}")
 
     def check_allowed_command(self, transport: str = "", repository: str = "") -> bool:
         if (transport and transport not in self.allow_transport) or (
             repository and repository not in self.allow_repository
         ):
             raise NotImplementedError(
-                "Command not available for this Nua orchestrator configuration."
+                f"Command not available for this Nua orchestrator configuration.rep:{repository} allow:{self.allow_repository}"
             )
         return True
 
     @public
     @rpc_trace
     def list(self) -> str:
-        "List Nua packages in local repository."
+        """List Nua packages in local repository."""
+        log_me(f"DockerCommand.list allow_repository {self.allow_repository}")
         self.check_allowed_command(repository="registry")
         result = []
         for repos in self.registry_repositories():
@@ -114,8 +117,9 @@ class DockerCommand:
     @rpc_trace
     def run(self, destination: str, image_id: str) -> None:
         """Start installed package on remote host or group of hosts.
-        name is also accepted for image_id.
-        destination is "user@host:port"
+
+        name is also accepted for image_id. destination is
+        "user@host:port"
         """
         self.check_allowed_command(transport="ssh")
         if destination in self.groups:
@@ -142,24 +146,24 @@ class DockerCommand:
     @public
     @rpc_trace
     def stop(self) -> str:
-        "Stop running package on remote host or group of hosts."
+        """Stop running package on remote host or group of hosts."""
         raise NotImplementedError
 
     @public
     @rpc_trace
     def deploy(self) -> str:
-        """Install and run package from local repository to remote host
-        or group of hosts."""
+        """Install and run package from local repository to remote host or
+        group of hosts."""
         raise NotImplementedError
 
     @public
     @rpc_trace
     def install(self, destination: str, image_id: str) -> bool:
-        """Install package from local repository to remote host
-        or group of hosts.
+        """Install package from local repository to remote host or group of
+        hosts.
 
-        name is also accepted for image_id.
-        destination is "user@host:port"
+        name is also accepted for image_id. destination is
+        "user@host:port"
         """
         self.check_allowed_command(transport="ssh", repository="registry")
         if destination in self.groups:
@@ -288,8 +292,8 @@ class DockerCommand:
     def load(self, destination: str, image_id: str) -> str:
         """Tag and push in local registry from remote docker instance.
 
-        name is also accepted for image_id.
-        destination is "user@host:port"
+        name is also accepted for image_id. destination is
+        "user@host:port"
         """
         self.check_allowed_command(transport="ssh", repository="registry")
         timeout = self.connect.get("connect_timeout") or 10

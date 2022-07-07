@@ -69,7 +69,7 @@ def fetch_registry_if_needed():
 
 
 def pull_remote_image(tag: str):
-    """Pull image from Docker hub
+    """Pull image from Docker hub.
 
     Return: docker.Image()
     """

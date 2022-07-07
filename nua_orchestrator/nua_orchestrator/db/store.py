@@ -28,8 +28,10 @@ def store_image(
     instance="",
     data=None,
 ):
-    """Store a Nua image in the local DB (table 'image'). Also set the initial
-    settings of the image in the 'setting' table."""
+    """Store a Nua image in the local DB (table 'image').
+
+    Also set the initial settings of the image in the 'setting' table.
+    """
     new_image = Image(
         id_sha=id_sha,
         app_id=app_id,

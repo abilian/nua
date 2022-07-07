@@ -21,7 +21,7 @@ from .registry import start_registry_container
 from .server_utils.forker import forker
 from .server_utils.mini_log import log, log_me, log_sentinel
 from .server_utils.net_utils import check_port_available, verify_ports_availability
-from .ssh_server import start_ssh_server
+from .sshd_server import start_sshd_server
 from .zmq_rpc_server import start_zmq_rpc_server
 
 # NOTE: /tmp is not ideal, but /run would require some privileges: see later.
@@ -142,14 +142,16 @@ def server_start():
     with open(pid_file, "w", encoding="utf8") as f:
         f.write(f"{pid}\n")
     start_sentinel(pid)
-    # server_init() if needed
-
+    # server initializations if needed
     # here launch sub servers
     log_me("Nua server running")
     if config.read("nua", "server", "start_zmq_server"):
-        start_zmq_rpc_server()
-    if config.read("nua", "server", "start_ssh_server"):
-        start_ssh_server(config)
+        log_me("start_zmq_rpc_server")
+        start_zmq_rpc_server(config)
+    if config.read("nua", "server", "start_sshd_server"):
+        log_me("start_sshd_server")
+        start_sshd_server(config)
+    log_me("sub server started")
     with open(started_file, "w", encoding="utf8") as f:
         f.write(f"{pid}\n")
     while True:
@@ -173,7 +175,7 @@ def start(_cmd: str = ""):
     forker(server_start)
     count = 500
     while not started_file.exists():
-        sleep(0.01)
+        sleep(0.02)
         count -= 1
         if count < 0:
             msg = "Timeout when starting server daemon"
