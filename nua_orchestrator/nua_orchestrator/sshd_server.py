@@ -3,6 +3,8 @@
 Server uses the global_request feature, so allowing only our specific
 protocol on the SSH channel.
 """
+import io
+
 # for check of username:
 # /^[_.A-Za-z0-9][-\@_.A-Za-z0-9]*\$?$/
 import logging
@@ -32,6 +34,8 @@ logger = paramiko.util.get_logger("paramiko")
 CMD_ALLOW = {"docker_list": {}}
 _CMD_ALLOW_ONLY_ADMIN = {}
 CMD_ALLOW_ADMIN = CMD_ALLOW.update(_CMD_ALLOW_ONLY_ADMIN)
+KEEP_ALIVE = 30
+MAX_CNX_DURATION = 3600
 
 zmq_ctx = zmq.Context()
 
@@ -88,14 +92,14 @@ def rpc_response(cmd, is_admin, rpc_port):
     return rpc_call(request, rpc_port)
 
 
-def load_host_key(host_key_path):
-    path = Path(host_key_path)
-    if not path.exists():
-        path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-        key = paramiko.RSAKey.generate(2048)
-        key.write_private_key_file(path)
-    # assuming it's a rsa key
-    return paramiko.RSAKey(filename=path)
+# def load_host_key(host_key_path):
+#     path = Path(host_key_path)
+#     if not path.exists():
+#         path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+#         key = paramiko.RSAKey.generate(2048)
+#         key.write_private_key_file(path)
+#     # assuming it's a rsa key
+#     return paramiko.RSAKey(filename=path)
 
 
 def method_from_key_type(key_type: str):
@@ -199,19 +203,22 @@ class Server(paramiko.ServerInterface):
 
 
 def handler(client, conf):
-    host_key_path = conf["host_key_path"]
+    server_key = paramiko.RSAKey(file_obj=io.StringIO(conf["host_key"]))
     auth_keys_dir = conf["auth_keys_dir"]
     admin_auth_keys_dir = conf["admin_auth_keys_dir"]
     rpc_port = conf["rpc_port"]
     try:
         transport = paramiko.Transport(client)
-        transport.load_server_moduli()
-        transport.add_server_key(load_host_key(host_key_path))
+        # transport.load_server_moduli()  # useless for paramiko as client
+        transport.add_server_key(server_key)
+        transport.set_keepalive(KEEP_ALIVE)
         server = Server(auth_keys_dir, admin_auth_keys_dir, rpc_port)
         transport.start_server(server=server)
-        while True:
+        count_down = MAX_CNX_DURATION
+        while count_down > 0:
             if not transport.is_active():
                 return
+            count_down -= 1
             sleep(1)
         transport.close()
     except Exception as e:
@@ -232,7 +239,7 @@ def sshd(conf):
         sock.bind((address, int(port)))
         sock.listen(5)
     except Exception as e:
-        logger.error(f"sshd: {e}")
+        logger.error(f"Sshd: {e}")
         tb_info = traceback.format_tb(sys.exc_info()[2], limit=2)
         data = tb_info[1].strip()
         logger.error(data)
@@ -240,7 +247,7 @@ def sshd(conf):
 
     while True:
         client, addr = sock.accept()
-        logger.info(f"Connection of {addr}")
+        logger.info(f"Connection from {addr}")
         cnx = threading.Thread(target=handler, args=(client, conf), daemon=True)
         cnx.start()
 
@@ -248,10 +255,10 @@ def sshd(conf):
 def start_sshd_server(config):
     logger.info("start_ssh_server")
     conf = {
+        "host_key": config.read("nua", "host", "host_priv_key_blob"),
         "address": config.read("nua", "ssh", "address"),
         "port": config.read("nua", "ssh", "port"),
         "work_dir": config.read("nua", "ssh", "work_dir"),
-        "host_key_path": config.read("nua", "ssh", "host_key"),
         "auth_keys_dir": config.read("nua", "ssh", "auth_keys_dir") or "",
         "admin_auth_keys_dir": config.read("nua", "ssh", "admin_auth_keys_dir") or "",
         "rpc_port": config.read("nua", "zmq", "port"),
@@ -262,3 +269,4 @@ def start_sshd_server(config):
         daemon=True,
     )
     proc.start()
+    return True

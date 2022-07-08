@@ -3,6 +3,10 @@
     local_dir = "/var/tmp/nua"
     url = "sqlite:////var/tmp/nua/nua_build.db"
     echo = false
+[host]
+    host_user = "nua"
+    host_home = "/home/nua"
+    host_priv_key_blob = ""
 [server]
     pid_file = "/tmp/nua/orchestrator.pid"
     exit_flag = "/tmp/nua/orchestrator_exiting.pid"
@@ -33,7 +37,7 @@
     port = 5022
     # host_key = "/home/nua/ssh_host_keys/nua_host_rsa"
     # auth_keys_dir = "/home/nua/ssh_authorized_keys"
-    host_key = "/tmp/nua/ssh_host_keys/nua_host_rsa"
+    # host_key = "/tmp/nua/ssh_host_keys/nua_host_rsa"
     auth_keys_dir = "/tmp/nua/ssh_authorized_keys"
     admin_auth_keys_dir = "/tmp/nua/ssh_admin_authorized_keys"
     work_dir = "/tmp"

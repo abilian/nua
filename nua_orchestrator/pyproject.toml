@@ -8,6 +8,8 @@ readme = "README.md"
 
 [tool.poetry.scripts]
 nua-orchestrator = "nua_orchestrator.main:app"
+nua-adm-print-config = "nua_orchestrator.scripts.admin_local:print_local_nua_config"
+nua-adm-gen-host-key = "nua_orchestrator.scripts.admin_local:set_new_host_key"
 
 [tool.poetry.dependencies]
 python = "^3.10"

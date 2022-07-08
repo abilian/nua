@@ -4,12 +4,15 @@ Requests are full transactions, and mask the actual DB implementation to
 the application.
 """
 from .. import __version__ as nua_version
-from ..constants import NUA_BUILDER_TAG
+from ..constants import NUA_ORCHESTRATOR_TAG
 from ..docker_utils import image_size_repr, size_unit
 from .model.auth import User
 from .model.image import Image
 from .model.setting import Setting
 from .session import Session
+
+# app id of the local orchestratot
+NUA_ORCH = "nua-orchestrator"
 
 
 def get_image_by_nua_tag(tag):
@@ -105,20 +108,32 @@ def images_id_per_app_id(app_id):
 
 
 def installed_nua_settings():
+    """Return the dictionnary of settings of the nua-orchestrator.
+
+    nua-orchestrator is not actually an app, but we use the settings facility
+    to store its configuration in the DB with the app_id 'nua-orchestrator'
+    (NUA_ORCH).
+    """
     with Session() as session:
-        setting = (
-            session.query(Setting).filter_by(app_id="nua-builder", instance="").first()
-        )
+        setting = session.query(Setting).filter_by(app_id=NUA_ORCH, instance="").first()
         if not setting:
             return None
         return setting.data
 
 
+def set_nua_settings(setting_dict):
+    """Set the dictionnary of settings of the nua-orchestrator.
+
+    nua-orchestrator is not actually an app, but we use the settings facility
+    to store its configuration in the DB with the app_id 'nua-orchestrator'
+    """
+    set_app_settings(NUA_ORCH, NUA_ORCHESTRATOR_TAG, "", setting_dict)
+
+
 def installed_nua_version():
+    """Return the version of 'nua-orchestrator' stored in the DB settings."""
     with Session() as session:
-        setting = (
-            session.query(Setting).filter_by(app_id="nua-builder", instance="").first()
-        )
+        setting = session.query(Setting).filter_by(app_id=NUA_ORCH, instance="").first()
         if not setting:
             return None
         return setting.data.get("nua_version", "")
@@ -166,10 +181,6 @@ def set_app_settings(app_id, nua_tag, instance, setting_dict):
             session, app_id, nua_tag, instance, "docker", setting_dict=setting_dict
         )
         session.commit()
-
-
-def set_nua_settings(setting_dict):
-    set_app_settings("nua-builder", NUA_BUILDER_TAG, "", setting_dict)
 
 
 #

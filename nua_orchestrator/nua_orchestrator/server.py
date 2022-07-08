@@ -28,6 +28,20 @@ from .zmq_rpc_server import start_zmq_rpc_server
 # see later for log module implementation
 
 
+def verify_private_host_key_defined():
+    host_key = config.read("nua", "host", "host_priv_key_blob")
+    if not host_key:
+        msg = (
+            "No RSA host key found in local configuration "
+            "'nua.host.host_priv_key_blob'.\n"
+            "Use script 'nua-adm-gen-host-key' to generate the host key.\n"
+            "Server startup aborted."
+        )
+        log_me(msg)
+        print(msg)
+        sys.exit(1)
+
+
 def unlink_pid_file():
     """Unlink the server pid file, no fail on error."""
     pid_file = Path(config.read("nua", "server", "pid_file"))
@@ -151,11 +165,11 @@ def server_start():
     if config.read("nua", "server", "start_sshd_server"):
         log_me("start_sshd_server")
         start_sshd_server(config)
-    log_me("sub server started")
+    log_me("Nua sub servers started")
     with open(started_file, "w", encoding="utf8") as f:
         f.write(f"{pid}\n")
     while True:
-        sleep(1)
+        sleep(10)
 
 
 def start(_cmd: str = ""):
@@ -169,8 +183,10 @@ def start(_cmd: str = ""):
         print(msg, file=sys.stderr)
         log(msg)
         return 1
+    verify_private_host_key_defined()
     verify_ports_availability()
-    # before daemon start, try to run local registry:
+    # before daemon start, try to run local docker registry if not already
+    # started:
     start_registry_container()
     forker(server_start)
     count = 500
