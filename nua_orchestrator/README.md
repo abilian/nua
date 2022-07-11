@@ -21,7 +21,7 @@ To install:
 
 Server commands are `start`, `stop`, `restart`, `status`:
 
-```
+```text
 $ nua-orchestrator --help
 Usage: nua-orchestrator [OPTIONS] COMMAND [ARGS]...
 
@@ -40,7 +40,6 @@ Commands:
   status   Status of orchestrator server.
   stop     Stop orchestrator server.
 ```
-
 
 The `demo_orchestrator_zmq.py` in `demos/` script does a quick test on a SQLite database with just a `User` table.
 
@@ -67,19 +66,21 @@ The interest of JSONRPC is that it the protocol is both simple and very manageab
 
 Like `nua_build`, the configuration is stored in the DB, the .toml file is a bootstrap at first launch.
 
-In dev, I put everything in `/tmp`
+In dev, I put everything in `/tmp`.
 
-    [server]
-        pid_file = "/tmp/nua/orchestrator.pid"
-        exit_flag = "/tmp/nua/orchestrator_exiting.pid"
-        log_file = "/tmp/nua_orchestrator.log"
-        start_zmq_server = true
-    [zmq]
-        address="127.0.0.1"
-        port=5001
-    [db]
-        backend="sqlite"
-        url="sqlite:////tmp/nua.db"
+```toml
+[server]
+    pid_file = "/tmp/nua/orchestrator.pid"
+    exit_flag = "/tmp/nua/orchestrator_exiting.pid"
+    log_file = "/tmp/nua_orchestrator.log"
+    start_zmq_server = true
+[zmq]
+    address="127.0.0.1"
+    port=5001
+[db]
+    backend="sqlite"
+    url="sqlite:////tmp/nua.db"
+```
 
 ## zmq_rpc_server.py
 
