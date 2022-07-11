@@ -33,6 +33,26 @@ def default_config() -> dict:
     return settings
 
 
+def update_default_settings(settings):
+    global config  # required if changing config content
+
+    current_db_url = config.read("nua", "db", "url")
+    current_db_local_dir = config.read("nua", "db", "local_dir")
+    existing_nua_config = DeepAccessDict(settings)
+    config.set("nua", default_config())
+    config.set("nua", "db", "url", current_db_url)
+    config.set("nua", "db", "local_dir", current_db_local_dir)
+    config.set("nua", "instance", "")
+    config.set("nua", "version", __version__)
+    # config to keep:
+    config.set("nua", "host", existing_nua_config.read("host"))
+    config.set("nua", "host", existing_nua_config.read("host"))
+    config.set("nua", "ssh", "address", existing_nua_config.read("ssh", "address"))
+    config.set("nua", "ssh", "port", existing_nua_config.read("ssh", "port"))
+    # store to DB
+    store.set_nua_settings(config.read("nua"))
+
+
 def set_default_settings():
     global config  # required if changing config content
 
@@ -73,10 +93,10 @@ def setup_first_launch():
         return set_db_url_in_settings(settings)
     else:
         print_red(
-            f"Replacing Nua settings from version {settings['version']} "
+            f"Updating Nua settings from version {settings['version']} "
             f"by version {__version__} defaults"
         )
-        return set_default_settings()
+        return update_default_settings(settings)
 
 
 def _url_from_local_config():

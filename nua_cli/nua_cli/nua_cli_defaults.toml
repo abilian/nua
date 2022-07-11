@@ -4,3 +4,6 @@ mode = 'ssh'
     remote_port = 5022
     username = "bob"
     private_key = "~/.ssh/jd_sloop_rsa"
+[local]
+    address = "127.0.0.1"
+    port = 5002

@@ -1,9 +1,13 @@
+from copy import deepcopy
+
 from sqlalchemy import create_engine, exc, func, or_
 from sqlalchemy.orm import Session
 from tinyrpc.dispatch import public
 
 from ..db.model.auth import User
 from ..rpc_utils import register_methods, rpc_trace
+
+# from ..server_utils.mini_log import log_me
 
 
 class AdminUser:
@@ -26,6 +30,7 @@ class AdminUser:
             password=str(user_data.get("password", "")),
             salt=str(user_data.get("salt", "")),
             role=str(user_data.get("role", "user")),
+            data={},
         )
         with Session(engine) as session:
             new_user.id = self.validate_new_id(session, int(user_data.get("id", -1)))
@@ -83,6 +88,29 @@ class AdminUser:
         engine = create_engine(self.url)
         with Session(engine) as session:
             session.query(User).filter(User.id == id).update({key: value})
+            try:
+                session.commit()
+            except exc.SQLAlchemyError as e:
+                raise e
+
+    @public
+    @rpc_trace
+    def pubkey(self, username: str, key_name: str, key_string: str) -> None:
+        if not key_name or not username:
+            return
+        engine = create_engine(self.url)
+        with Session(engine) as session:
+            user = session.query(User).filter(User.username == username).first()
+            if not user:
+                print("User not found.")
+            data = deepcopy(user.data)
+            pub_keys = data.get("pub_keys", {})
+            if key_string:
+                pub_keys[key_name] = key_string
+            elif key_name in pub_keys:
+                del pub_keys[key_name]
+            data["pub_keys"] = pub_keys
+            user.data = data
             try:
                 session.commit()
             except exc.SQLAlchemyError as e:

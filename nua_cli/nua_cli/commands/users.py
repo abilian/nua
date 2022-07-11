@@ -1,7 +1,10 @@
+from pathlib import Path
 from typing import List, Optional
 
 import typer
 
+from ..config import config
+from ..ssh import ssh_request
 from .proxy import exit_on_rpc_error, get_proxy
 from .utils import (
     as_json,
@@ -63,9 +66,12 @@ option_delete_force = typer.Option(False, "--force", help="No confirmation.")
 @app.command()
 def count() -> None:
     """Number or users in the table."""
-    proxy = get_proxy()
-    cnt = proxy.user_count()
-    typer.echo(cnt)
+    if config.get("mode") == "ssh":
+        result = ssh_request("user_count")
+    else:
+        proxy = get_proxy()
+        result = proxy.user_count()
+    typer.echo(result)
 
 
 @app.command()
@@ -110,8 +116,11 @@ def list(
         "names": with_name,
         "mails": with_mail,
     }
-    proxy = get_proxy()
-    lst = proxy.user_list(request)
+    if config.get("mode") == "ssh":
+        lst = ssh_request("user_list", request)
+    else:
+        proxy = get_proxy()
+        lst = proxy.user_list(request)
     if format_json:
         typer.echo(as_json(lst))
     else:
@@ -134,6 +143,27 @@ def update(
         return
     proxy = get_proxy()
     proxy.user_update(with_id, key, value)
+
+
+@exit_on_rpc_error
+@app.command()
+def pubkey(
+    username: str,
+    key_name: str,
+    key_file: str,
+) -> None:
+    """Update some user account public key."""
+    if not (username or not key_name or not key_file):
+        typer.echo("No user selected.")
+        return
+    path = Path(key_file).expanduser()
+    if not path.exists():
+        typer.echo("File not found.")
+        return
+    with open(path, encoding="utf8") as rfile:
+        key_string = rfile.read()
+    proxy = get_proxy()
+    proxy.user_pubkey(username, key_name, key_string)
 
 
 def _ask_confirmation(user_list: list) -> bool:

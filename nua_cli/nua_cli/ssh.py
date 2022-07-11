@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 import paramiko
+from tinyrpc.protocols.jsonrpc import JSONRPCProtocol
 
 from .config import config
 
@@ -10,8 +11,8 @@ def remote_exec(json_rpc_cmd: str) -> dict:
     conf = config["ssh"]
     client = paramiko.SSHClient()
     client.load_system_host_keys()
-    # FIXME: using AutoAddPolicy() will under deelopment.
-    client.set_missing_host_key_policy(paramiko.paramiko.AutoAddPolicy())
+    # FIXME: using AutoAddPolicy() while under development.
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     # client.set_missing_host_key_policy(paramiko.WarningPolicy())
     priv_key = Path(conf["private_key"]).expanduser()
     if priv_key.exists():
@@ -44,3 +45,18 @@ def remote_exec(json_rpc_cmd: str) -> dict:
     content = response_msg.get_string()
     result = content.decode("utf8", "replace")
     return json.loads(result)
+
+
+def ssh_request(method: str, request_dict: dict = None):
+    proto = JSONRPCProtocol()
+    if request_dict:
+        request = proto.create_request(method, [request_dict])
+    else:
+        request = proto.create_request(method)
+    json_rpc_cmd = request.serialize().decode("utf8", "replace")
+    response = remote_exec(json_rpc_cmd)
+    if "result" in response:
+        return response["result"]
+    else:
+        print(response["error"])
+        return None

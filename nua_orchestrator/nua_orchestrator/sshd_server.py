@@ -14,6 +14,7 @@ import sys
 import threading
 import traceback
 from base64 import decodebytes
+from copy import deepcopy
 from os import chdir
 from pathlib import Path
 from time import sleep
@@ -31,9 +32,17 @@ logging.basicConfig()
 paramiko.util.log_to_file("/tmp/nua_ssh.log", level="INFO")
 logger = paramiko.util.get_logger("paramiko")
 
-CMD_ALLOW = {"docker_list": {}}
-_CMD_ALLOW_ONLY_ADMIN = {}
-CMD_ALLOW_ADMIN = CMD_ALLOW.update(_CMD_ALLOW_ONLY_ADMIN)
+CMD_ALLOW = {"docker_list"}
+_CMD_ALLOW_ONLY_ADMIN = {
+    "user_count",
+    "user_add",
+    "user_list",
+    "user_update",
+    "user_pubkey",
+    "user_delete",
+}
+CMD_ALLOW_ADMIN = deepcopy(CMD_ALLOW)
+CMD_ALLOW_ADMIN.update(_CMD_ALLOW_ONLY_ADMIN)
 KEEP_ALIVE = 30
 MAX_CNX_DURATION = 3600
 
@@ -47,23 +56,22 @@ class NuaAuthError(FixedErrorMessageMixin, Exception):
 
 def rpc_call(request, rpc_port):
     transport = ZmqClientTransport.create(zmq_ctx, f"tcp://127.0.0.1:{rpc_port}")
+    # logger.info(request.serialize())
     reply = transport.send_message(request.serialize(), expect_reply=True)
     return reply
 
 
 def is_allowed_command(request, is_admin: bool) -> bool:
-    if is_admin:
-        allowed_commands = CMD_ALLOW_ADMIN
-    else:
-        allowed_commands = CMD_ALLOW
+    # if is_admin:
+    #     allowed_commands = CMD_ALLOW_ADMIN
+    # else:
+    #     allowed_commands = CMD_ALLOW
+    # FIXME: while developping:
+    allowed_commands = CMD_ALLOW_ADMIN
     method = request.method
-    # second_param = args[1] if len[args] > 1 else ""
     if method not in allowed_commands:
         logger.info(f"Requested method is not in allowed commands: {method}")
         return False
-    # second_level = allowed_commands[first_param]
-    # if second_level and second_param not in second_level:
-    #     return False
     return True
 
 
@@ -171,10 +179,11 @@ class Server(paramiko.ServerInterface):
         self.username = ""
         self.rpc_port = rpc_port
 
-    def check_channel_request(self, kind, chanid):
-        if kind == "session":
-            return paramiko.OPEN_SUCCEEDED
-        return paramiko.OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED
+    # No session used
+    # def check_channel_request(self, kind, chanid):
+    #     if kind == "session":
+    #         return paramiko.OPEN_SUCCEEDED
+    #     return paramiko.OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED
 
     def check_auth_publickey(self, username, key):
         self.username = username
@@ -198,7 +207,6 @@ class Server(paramiko.ServerInterface):
         bcmd = msg.get_string()
         cmd = bcmd.decode("utf8", "ignore")
         result = exec_nua_command(cmd, self.username, self.is_admin, self.rpc_port)
-        # self.event.set()
         return ("nua", result.encode("utf8", "ignore"))
 
 
@@ -269,4 +277,3 @@ def start_sshd_server(config):
         daemon=True,
     )
     proc.start()
-    return True
