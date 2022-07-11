@@ -2,7 +2,7 @@
 from pathlib import Path
 from typing import Any
 
-import toml
+import tomli
 
 from .constants import NUA_CONFIG
 from .panic import error
@@ -22,8 +22,8 @@ class NuaConfig:
             self.path = self.path / NUA_CONFIG
         if not self.path.is_file():
             error(f"File not found '{self.path}'")
-        with open(self.path, encoding="utf8") as config_file:
-            self._data = toml.load(config_file)
+        with open(self.path, mode="rb") as config_file:
+            self._data = tomli.load(config_file)
         self.root_dir = self.path.parent
         self.assert_format()
 

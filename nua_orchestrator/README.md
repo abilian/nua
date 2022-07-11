@@ -10,7 +10,7 @@ Main dependencies:
     tinyrpc
     psutil
     sqlalchemy_serializer
-    toml
+    tomli
     sqlalchemy
     typer
 

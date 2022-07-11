@@ -11,7 +11,7 @@ nua = "nua_cli.main:app"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-toml = "^0.10.2"
+tomli = "^1.1.0"
 wheel = "^0.37.1"
 setuptools = "^62.3.2"
 typer = {extras = ["all"], version = "^0.4.1"}

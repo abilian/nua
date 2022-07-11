@@ -10,7 +10,7 @@ Environment variables:
 import os
 from pathlib import Path
 
-import toml
+import tomli
 
 from . import __version__, config
 from .db import store
@@ -29,7 +29,8 @@ def setup_db():
 
 def default_config() -> dict:
     path = Path(__file__).parent.resolve() / "nua_defaults_settings.toml"
-    settings = toml.load(path)
+    with open(path, mode="rb") as rfile:
+        settings = tomli.load(rfile)
     return settings
 
 
@@ -101,11 +102,11 @@ def setup_first_launch():
 
 def _url_from_local_config():
     url, local_dir = (None, None)
-    # local config in ~/nua_config.toml
     path = Path.home() / "nua_config.toml"
     if path.is_file():
         try:
-            home_config = DeepAccessDict(toml.load(path))
+            with open(path, mode="rb") as rfile:
+                home_config = DeepAccessDict(tomli.load(rfile))
         except Exception:
             home_config = None
         if home_config:

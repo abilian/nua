@@ -2,6 +2,7 @@
 """
 from pathlib import Path
 
-import toml
+import tomli
 
-config = toml.load(Path(__file__).parent / "config.toml")
+with open(Path(__file__).parent / "config.toml", mode="rb") as rfile:
+    config = tomli.load(rfile)

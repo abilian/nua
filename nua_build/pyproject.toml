@@ -13,7 +13,7 @@ nuad_setup_app = "nua_build.scripts.nuad_setup_app:main"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-toml = "^0.10.2"
+tomli = "^1.1.0"
 wheel = "^0.37.1"
 setuptools = "^62.3.2"
 psutil = "^5.9.1"

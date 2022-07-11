@@ -1,6 +1,6 @@
 from pathlib import Path
 
-import toml
+import tomli
 
 
 def config_path():
@@ -10,4 +10,5 @@ def config_path():
     return Path(__file__).parent / "nua_cli_defaults.toml"
 
 
-config = toml.load(config_path())
+with open(config_path(), mode="rb") as rfile:
+    config = tomli.load(rfile)
