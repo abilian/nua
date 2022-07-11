@@ -133,4 +133,5 @@ nav:
     - Front-End: dev/front-end.md
   - Users:
     - Intro: user/index.md
+    - Command Line Interface: user/cli.md
     

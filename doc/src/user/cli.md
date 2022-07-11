@@ -1,12 +1,14 @@
 # Using the Command Line Interface
 
-## Bulding packages
+## Interacting with Nua
 
-
+TODO
 
 ## Managing the orchestrator
 
-Currently, the orchestrator is managed using the following commands:
+Currently, the orchestrator is managed using the following commands.
+
+These are normallay not needed for a regular use of Nua.
 
 ```
 $ nua-orchestrator --help
