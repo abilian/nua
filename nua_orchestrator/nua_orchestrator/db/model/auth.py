@@ -1,4 +1,5 @@
 from sqlalchemy import (
+    JSON,
     TIMESTAMP,
     Column,
     ForeignKey,
@@ -27,6 +28,7 @@ class User(Base, SerializerMixin):
     fallback_mail = Column(String(512), server_default=text("''"))
     source = Column(String(128), server_default=text("''"))
     role = Column(String(32), nullable=False)
+    data = Column(JSON)
     ts = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP"))
     creation_time = Column(
         TIMESTAMP, nullable=False, index=True, server_default=text("CURRENT_TIMESTAMP")
