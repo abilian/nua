@@ -66,9 +66,12 @@ markdown_extensions:
   - sane_lists
   - nl2br
   - fenced_code
+  - pymdownx.highlight
   - pymdownx.magiclink
   - pymdownx.tasklist
   # - pymdownx.superfences
+  - codehilite:
+      css_class: highlight
 
 plugins:
   - search

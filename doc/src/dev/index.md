@@ -4,7 +4,7 @@ The main activity of the developer in the Nua system is to create / adapt / main
 
 The  `nua_build` python package is designed to facilitate this task
 
-### Principles:
+### Principles
 
 -   Eventually different container formats will be available to deploy applications. The first format taken into account is a `Docker` image.
 
@@ -31,13 +31,13 @@ The `nua_buil` package provides utilities to help the packager:
 
 `nua_build` contains both the tools allowing the developer to package the application and a bootstrap which will be installed in the container.
 
-### Some basic example:
+### Some basic example
 
 **_Please note  the format will change during the development phase, this is not a tutorial_**
 
 Example of a \`nodejs-basic package, containing no real application but only the installation of Nodejs. The build directory containes only 3 files, whose one is empty.
 
-#### File `nua-config.toml`:
+#### File `nua-config.toml`
 
 ```toml
 [metadata]
@@ -57,10 +57,9 @@ release = 1
 
 The [build] tag is empty:
 
--   by default, the files in the build directory will be used to build the package (
-    a "manifest" tag could have been used).
+- by default, the files in the build directory will be used to build the package (a "manifest" tag could have been used).
 
--   Other options take reasonable values: by default we are looking for a build script named... `build.py`, a startup file named `start.py` and we use the default dockerfile.
+- Other options take reasonable default values: by default we are looking for a build script named... `build.py`, a startup file named `start.py`, and we use the default dockerfile.
 
 #### File `build.py`:
 
@@ -83,49 +82,53 @@ main()
 
 And finally the `start.py`file is empty (there is no application to start).
 
-#### File `Dockerfile`:
+#### File `Dockerfile`
 
 The Docker images are based on a "Nua" image containing the Nua base, this Nua image
 is itself based on an Ubuntu distribution with python 3.10 installed.
 Hence the default dockerfile that will be used:
 
-    ARG nua_builder_tag
-    FROM ${nua_builder_tag} AS compile-image
+```dockerfile
+ARG nua_builder_tag
+FROM ${nua_builder_tag} AS compile-image
 
-    RUN apt-get install -y build-essential git
-    RUN python -m pip install poetry \
-        && cd /nua/nua_build \
-        && poetry install --no-dev \
-        && nuad_self_setup
+RUN apt-get install -y build-essential git
+RUN python -m pip install poetry \
+    && cd /nua/nua_build \
+    && poetry install --no-dev \
+    && nuad_self_setup
 
-    FROM ${nua_builder_tag} AS runtime-image
-    COPY --from=compile-image /nua /nua
+FROM ${nua_builder_tag} AS runtime-image
+COPY --from=compile-image /nua /nua
 
-    # app build:
-    COPY . /nua/build
-    RUN nuad_setup_app /nua/build
+# app build:
+COPY . /nua/build
+RUN nuad_setup_app /nua/build
 
 
-    ARG nua_expose
-    EXPOSE ${nua_expose}
-    CMD ["python", "/nua/scripts/start.py"]
+ARG nua_expose
+EXPOSE ${nua_expose}
+CMD ["python", "/nua/scripts/start.py"]
+```
 
 ### `Nuad` command
 
 Other commands will complete the nuad tool, today it only contains one command: "build".
 
-    nuad --help
-    Usage: nuad [OPTIONS] COMMAND [ARGS]...
+```text
+nuad --help
+Usage: nuad [OPTIONS] COMMAND [ARGS]...
 
-      Nua build CLI inferface.
+  Nua build CLI inferface.
 
-    Options:
-      -V, --version         Show Nua version and exit.
-      -v, --verbose         Write verbose output.
-      --install-completion  Install completion for the current shell.
-      --show-completion     Show completion for the current shell, to copy it or
-                            customize the installation.
-      --help                Show this message and exit.
+Options:
+  -V, --version         Show Nua version and exit.
+  -v, --verbose         Write verbose output.
+  --install-completion  Install completion for the current shell.
+  --show-completion     Show completion for the current shell, to copy it or
+                        customize the installation.
+  --help                Show this message and exit.
 
-    Commands:
-      build  Build Nua package from some 'nua-config.toml' file.
+Commands:
+  build  Build Nua package from some 'nua-config.toml' file.
+```
