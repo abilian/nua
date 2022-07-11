@@ -1,6 +1,10 @@
 # Open Source Libraries Used by the Project
 
-## Web framework: Flask & Flask extension
+(This is currently a placeholder, to be replaced by actual content soon.)
+
+## Back-end
+
+### Web framework: Flask & Flask extension
 flask = "^2.1.2"
 flask-babelex = "^0.9.4"
 flask-httpauth = "^4.6.0"
@@ -15,15 +19,15 @@ flask-wtf = "^1.0.1"
 webargs = "^8.1.0"
 authlib = "^1.0.1"
 
-## Web Client
+### Web Client
 requests = "^2.27.1"
 
-## Security
+### Security
 zxcvbn = "^4.4.28"
 bcrypt = "^3.2.2"
 sqreen = "^1.27.4"
 
-## Various Python Libs
+### Various Python Libs
 arrow = "^1.2.2"
 python-slugify = "^6.1.2"
 tomli = "^2.0.1"
@@ -31,36 +35,36 @@ pipe = "^1.6.0"
 aenum = "^3.1.11"
 attrs = "^21.4.0"
 
-## Config
+### Config
 python-dotenv = "^0.19.2"
 dynaconf = "3.1.7"
 
-## Templating
+### Templating
 domonic = "^0.9.10"
 
-## Fake data generator
+### Fake data generator
 faker = "^11.4.0"
 mimesis = "^5.3.0"
 
-## ORM
+### ORM
 sqlalchemy = "~1.4.36"
 sqlalchemy-utils = "^0.38.2"
 psycopg2 = "^2.9.3"
 
-## Production
+### Production
 circus = "^0.17.1"
 gunicorn = "^20.1.0"
 honcho = "^1.1.0"
 sqreen = "^1.27.4"
 
-## CLI
+### CLI
 rich = "^10.16.2"
 
-## Images
+### Images
 pillow = "^9.1.0"
 opencv-python = "^4.5.5.64"
 
-## NLP & content extraction
+### NLP & content extraction
 spacy = "^3.3.0"
 beautifulsoup4 = "^4.11.1"
 lxml = "^4.8.0"
@@ -68,9 +72,7 @@ pijnu = "20160727"
 mediawiki-parser = "^0.4.1"
 sentry-sdk = "^1.5.11"
 
-## Development Libraries
-
-### Linting / formatting
+### Development Libraries
 
 #### Formatting
 isort = "^5.10.1"
@@ -116,25 +118,25 @@ import-linter = "^1"
 autotyping = "^21.12.0"
 typeguard = "^2.13.3"
 
-### Testing
+#### Testing
 pytest = "^7.1.2"
 pytest-flask = "^1.2.0"
 sqlalchemy-utils = "^0.38.2"
 coverage = "^6.3.2"
 behaving = "^3.0.3"
 
-### Debugging
+#### Debugging
 devtools = "^0.8.0"
 snoop = "^0.4.1"
 flask-debugtoolbar = "^0"
 
-### More Tools
+#### More Tools
 openpyxl = "^3.0.9"
 pip-audit = "^2.2.1"
 poetryup = "^0.7.0"
 vulture = "^2.3"
 
-### Docs
+#### Docs
 mkdocs = "^1.3.0"
 mkdocs-material = "^8.2.14"
 mkdocs-material-extensions = "^1.0.3"

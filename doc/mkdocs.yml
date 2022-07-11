@@ -126,8 +126,9 @@ nav:
   - Developers:
     - Intro: dev/index.md
     - Architecture: dev/architecture.md
+    - The Orchestrator: dev/orchestrator.md
     - Database: dev/database.md
-    - Open Source Librairies (back-end): dev/libraries.md
+    - Open Source Librairies used: dev/libraries.md
     - API (back-end): dev/api.md
     - Front-End: dev/front-end.md
   - Users:
