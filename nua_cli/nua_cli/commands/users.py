@@ -1,8 +1,6 @@
-import io
 from pathlib import Path
 from typing import List, Optional
 
-import paramiko
 import typer
 
 from ..config import config
@@ -93,11 +91,12 @@ def add(
         "password": salted_passwd,
         "salt": salt,
     }
-    proxy = get_proxy()
-    result = proxy.user_add(user_data)
+    if config.get("mode") == "ssh":
+        result = ssh_request("user_add", user_data)
+    else:
+        proxy = get_proxy()
+        result = proxy.user_add(user_data)
     typer.echo(as_yaml(result))
-    cnt = proxy.user_count()
-    typer.echo(f"Number of users in table is now: {cnt}")
 
 
 @exit_on_rpc_error
@@ -113,17 +112,17 @@ def list(
 
     Request by id, name and mail.
     """
-    request = {
+    list_options = {
         "all": all,
         "ids": with_id,
         "names": with_name,
         "mails": with_mail,
     }
     if config.get("mode") == "ssh":
-        lst = ssh_request("user_list", request)
+        lst = ssh_request("user_list", list_options)
     else:
         proxy = get_proxy()
-        lst = proxy.user_list(request)
+        lst = proxy.user_list(list_options)
     if format_json:
         typer.echo(as_json(lst))
     else:
@@ -144,8 +143,16 @@ def update(
     if not (with_id and key):
         typer.echo("No user selected.")
         return
-    proxy = get_proxy()
-    proxy.user_update(with_id, key, value)
+    update_data = {
+        "uid": with_id,
+        "key": key,
+        "value": value,
+    }
+    if config.get("mode") == "ssh":
+        ssh_request("user_update", update_data)
+    else:
+        proxy = get_proxy()
+        proxy.user_update(update_data)
 
 
 def _validated_key_content(key_file: str) -> str:
@@ -180,9 +187,14 @@ def pubkey(
         key_content = "erase"
     else:
         key_content = _validated_key_content(key_file_or_erase)
-    if key_content:
+    if not key_content:
+        return
+    key_data = {"username": username, "key_name": key_name, "key_content": key_content}
+    if config.get("mode") == "ssh":
+        ssh_request("user_pubkey", key_data)
+    else:
         proxy = get_proxy()
-        proxy.user_pubkey(username, key_name, key_content)
+        proxy.user_pubkey(key_data)
 
 
 def _ask_confirmation(user_list: list) -> bool:

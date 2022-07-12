@@ -18,6 +18,12 @@ def parse_private_rsa_key_content(content: str) -> Optional[paramiko.RSAKey]:
         return None
 
 
+def public_key_from_rsa_key(key: paramiko.PKey) -> str:
+    """Return the base64 public key in openssh format."""
+    pub_key = key.get_base64()
+    return f"ssh-rsa {pub_key} nua_pub\n"
+
+
 def method_from_key_type(key_type: str) -> Any:
     """Return the paramiko method relevant for a key type or None."""
     meth = None

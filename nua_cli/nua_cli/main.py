@@ -3,7 +3,7 @@ from typing import Optional
 import typer
 
 from . import __version__
-from .commands import registry, remote_load, server, users
+from .commands import hosts, registry, remote_load, server, users
 
 app = typer.Typer()
 # app.add_typer(server.app, name="server")

@@ -13,7 +13,6 @@ import socket
 import sys
 import threading
 import traceback
-from base64 import decodebytes
 from copy import deepcopy
 from os import chdir
 from pathlib import Path
