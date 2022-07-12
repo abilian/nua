@@ -28,6 +28,8 @@ from tinyrpc.protocols.jsonrpc import (
 )
 from tinyrpc.transports.zmq import ZmqClientTransport
 
+from .keys_utils import parse_pub_key_content
+
 logging.basicConfig()
 paramiko.util.log_to_file("/tmp/nua_ssh.log", level="INFO")
 logger = paramiko.util.get_logger("paramiko")
@@ -98,52 +100,6 @@ def rpc_response(cmd, is_admin, rpc_port):
         err = NuaAuthError()
         return err.error_respond().serialize()
     return rpc_call(request, rpc_port)
-
-
-# def load_host_key(host_key_path):
-#     path = Path(host_key_path)
-#     if not path.exists():
-#         path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-#         key = paramiko.RSAKey.generate(2048)
-#         key.write_private_key_file(path)
-#     # assuming it's a rsa key
-#     return paramiko.RSAKey(filename=path)
-
-
-def method_from_key_type(key_type: str):
-    meth = None
-    if key_type == "ssh-rsa":
-        meth = paramiko.RSAKey
-    elif key_type.startswith("ecdsa-"):
-        meth = paramiko.ECDSAKey
-    elif key_type == "ssh-ed25519":
-        meth = paramiko.Ed25519Key
-    return meth
-
-
-def parse_pub_key(key_type: str, key_data: str):
-    """detect wich Paramiko method to use and return a valid key or None."""
-    key = None
-    meth = method_from_key_type(key_type)
-    if meth:
-        key = meth(data=decodebytes(key_data.encode("ascii")))
-        if key.get_bits() == 0:
-            key = None
-    return key
-
-
-def parse_pub_key_content(content: str):
-    parts = content.split(" ")
-    if len(parts) < 2:
-        # wrong format
-        return None
-    key_type = parts[0]
-    key_data = parts[1]
-    # no use of comment parts[2] of the key
-    try:
-        return parse_pub_key(key_type, key_data)
-    except Exception:
-        return None
 
 
 def authorized_keys(auth_keys_dir: str) -> list:

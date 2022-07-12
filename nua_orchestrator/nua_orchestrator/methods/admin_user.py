@@ -95,7 +95,7 @@ class AdminUser:
 
     @public
     @rpc_trace
-    def pubkey(self, username: str, key_name: str, key_string: str) -> None:
+    def pubkey(self, username: str, key_name: str, key_content: str) -> None:
         if not key_name or not username:
             return
         engine = create_engine(self.url)
@@ -105,10 +105,11 @@ class AdminUser:
                 print("User not found.")
             data = deepcopy(user.data)
             pub_keys = data.get("pub_keys", {})
-            if key_string:
-                pub_keys[key_name] = key_string
-            elif key_name in pub_keys:
-                del pub_keys[key_name]
+            if key_content == "erase":
+                if key_name in pub_keys:
+                    del pub_keys[key_name]
+            else:
+                pub_keys[key_name] = key_content
             data["pub_keys"] = pub_keys
             user.data = data
             try:

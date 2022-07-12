@@ -1,9 +1,12 @@
+import io
 from pathlib import Path
 from typing import List, Optional
 
+import paramiko
 import typer
 
 from ..config import config
+from ..keys_utils import is_private_key, parse_pub_key_content
 from ..ssh import ssh_request
 from .proxy import exit_on_rpc_error, get_proxy
 from .utils import (
@@ -145,25 +148,41 @@ def update(
     proxy.user_update(with_id, key, value)
 
 
+def _validated_key_content(key_file: str) -> str:
+    path = Path(key_file).expanduser()
+    if not path.exists():
+        typer.echo("File not found.")
+        return ""
+    with open(path, encoding="utf8") as rfile:
+        key_content = rfile.read()
+    # security check
+    if is_private_key(key_content):
+        typer.echo("Key not uploaded to server (key looks like a private key)")
+        return ""
+    if parse_pub_key_content(key_content) is None:
+        typer.echo("Key not uploaded to server (key has unknown format)")
+        return ""
+    return key_content
+
+
 @exit_on_rpc_error
 @app.command()
 def pubkey(
     username: str,
     key_name: str,
-    key_file: str,
+    key_file_or_erase: str,
 ) -> None:
     """Update some user account public key."""
-    if not (username or not key_name or not key_file):
+    if not (username or not key_name):
         typer.echo("No user selected.")
         return
-    path = Path(key_file).expanduser()
-    if not path.exists():
-        typer.echo("File not found.")
-        return
-    with open(path, encoding="utf8") as rfile:
-        key_string = rfile.read()
-    proxy = get_proxy()
-    proxy.user_pubkey(username, key_name, key_string)
+    if key_file_or_erase.strip().lower() == "erase":
+        key_content = "erase"
+    else:
+        key_content = _validated_key_content(key_file_or_erase)
+    if key_content:
+        proxy = get_proxy()
+        proxy.user_pubkey(username, key_name, key_content)
 
 
 def _ask_confirmation(user_list: list) -> bool:
