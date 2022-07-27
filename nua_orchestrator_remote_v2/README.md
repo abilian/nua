@@ -1,5 +1,8 @@
 # Nua orchestrator, implemented as a daemon
 
+# WIP: basis for next iteration development
+
+
 ## Development notes:
 
 `nua_orchestrator/`, is build on top of a `jsonrpc` server, see `server.py`.
