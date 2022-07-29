@@ -74,7 +74,7 @@ class BuilderApp:
         sh(cmd, timeout=1800)
 
 
-def nuad_setup_app(build_path: str) -> None:
+def nua_build_setup_app(build_path: str) -> None:
     """Setup app in Nua container."""
     builder = BuilderApp(build_path)
     builder.fetch()
@@ -83,4 +83,4 @@ def nuad_setup_app(build_path: str) -> None:
 
 def main():
     build_path = sys.argv[1]
-    nuad_setup_app(build_path)
+    nua_build_setup_app(build_path)

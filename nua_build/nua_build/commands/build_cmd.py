@@ -34,12 +34,7 @@ assert MYSELF_DIR.is_dir()
 
 logging.basicConfig(level=logging.INFO)
 
-app = typer.Typer()
-
-argument_config = typer.Argument(
-    None, metavar="config", help="Path to the package dir or 'nua-config.toml' file."
-)
-option_verbose = typer.Option(False, help="Print build log.")
+# app = typer.Typer()
 
 
 class Builder:
@@ -159,15 +154,16 @@ def build_nua_builder_if_needed(verbose):
         build_nua_builder(verbose)
 
 
-@app.command("build")
-def build_cmd(
-    config_file: Optional[str] = argument_config,
-    verbose: bool = option_verbose,
-) -> None:
-    """Build Nua package from some 'nua-config.toml' file."""
-    # first build the nua_base image if needed
-    build_nua_builder_if_needed(verbose)
-    builder = Builder(config_file, verbose)
-    print_green(f"*** Generation of the docker image for {builder.config.app_id} ***")
-    builder.setup_build_directory()
-    builder.build_with_docker()
+# @app.command("build")
+# @app.command()
+# def build_cmd(
+#     config_file: Optional[str] = argument_config,
+#     verbose: bool = option_verbose,
+# ) -> None:
+#     """Build Nua package from some 'nua-config.toml' file."""
+#     # first build the nua_base image if needed
+#     build_nua_builder_if_needed(verbose)
+#     builder = Builder(config_file, verbose)
+#     print_green(f"*** Generation of the docker image for {builder.config.app_id} ***")
+#     builder.setup_build_directory()
+#     builder.build_with_docker()

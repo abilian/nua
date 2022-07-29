@@ -3,8 +3,9 @@ FROM ${nua_python_tag} AS compile-image
 
 ARG nua_version
 COPY nua_build_${nua_version} /nua/nua_build
+RUN apt-get update -y --fix-missing
 RUN apt-get install -y build-essential git
-RUN python -m pip install poetry && cd /nua/nua_build && poetry install --no-dev && nuad_self_setup
+RUN python -m pip install poetry && cd /nua/nua_build && poetry install --no-dev && nua_build_self_setup
 
 FROM ${nua_python_tag} AS runtime-image
 COPY --from=compile-image /nua /nua

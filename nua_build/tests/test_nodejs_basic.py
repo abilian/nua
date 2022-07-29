@@ -38,7 +38,7 @@ def test_complete_build_with_cache():
         print(f"Show '{im}' in cache:", dock.images.list(im))
     print("Time now:", datetime.now(timezone.utc).isoformat(" "))
     print(f"Build {image_target} (expecting cache) with nua command line:")
-    cmd = "nuad build ./nodejs-basic"
+    cmd = "nua-build ./nodejs-basic"
     print(f"'{cmd}'")
     t0 = perf_counter()
     result = sp.run(cmd, shell=True, capture_output=True)  # noqa,we want shell here

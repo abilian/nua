@@ -1,6 +1,6 @@
 """Script to install Nua dependancies on Nua app environment (inside docker).
 
-command: "nuad_self_setup"
+command: "nua_build_self_setup"
 """
 
 import os

@@ -1,15 +1,15 @@
 [tool.poetry]
 name = "nua_build"
-version = "0.1.8-1656686993"
+version = "0.1.9-1659084283"
 description = "Some nua_build implementation with Typer"
 authors = ["Stefane Fermigier <sf@abilian.com>", "Jerome Dumonteil <jd@abilian.com>"]
 license = "AGPL"
 readme = "README.md"
 
 [tool.poetry.scripts]
-nuad = "nua_build.main:app"
-nuad_self_setup = "nua_build.scripts.nuad_self_setup:main"
-nuad_setup_app = "nua_build.scripts.nuad_setup_app:main"
+nua-build = "nua_build.main:app"
+nua_build_self_setup = "nua_build.scripts.nuad_self_setup:main"
+nua_build_setup_app = "nua_build.scripts.nuad_setup_app:main"
 
 [tool.poetry.dependencies]
 python = "^3.10"

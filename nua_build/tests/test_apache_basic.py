@@ -51,7 +51,7 @@ class TestApacheBasic:
         # not allowed : well, by default it uses localtime.
         print("Time now:", datetime.now(timezone.utc).isoformat(" "))
         print(f"Build {image_target} (no images in cache) with command:")
-        cmd = "nuad build ./apache-basic"
+        cmd = "nua-build ./apache-basic"
         print(f"'{cmd}'")
         t0 = perf_counter()
         result = sp.run(cmd, shell=True, capture_output=True)  # noqa, we want shell
@@ -110,7 +110,7 @@ class TestApacheBasic:
             print(f"Show '{im}' in cache:", dock.images.list(im))
         print("Time now:", datetime.now(timezone.utc).isoformat(" "))
         print(f"Build {image_target} (expecting cache) with nua command line:")
-        cmd = "nuad build ./apache-basic"
+        cmd = "nua-build ./apache-basic"
         print(f"'{cmd}'")
         t0 = perf_counter()
         result = sp.run(cmd, shell=True, capture_output=True)  # noqa,we want shell here
