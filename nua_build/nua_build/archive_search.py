@@ -5,6 +5,12 @@ import tomli
 
 
 class ArchiveSearch:
+    """Utilities to search files in docker image stored as .tar archive.
+
+    Current usage: retrieve the nua-config.toml config used when building the
+    Nua app.
+    """
+
     def __init__(self, archive: str) -> None:
         arch_path = Path(archive)
         if not arch_path.is_file():
@@ -39,14 +45,7 @@ class ArchiveSearch:
                     yield result
 
     def build_nua_config(self) -> dict:
+        """Return the nua-config.toml of the archive as a dict."""
         result = self.find_one("/nua/build/nua-config.toml")
         content = result[0]["content"].decode("utf8")
         return tomli.loads(content)
-
-
-#
-#
-# if __name__ == "__main__":
-#     arc = ArchiveSearch("/Users/jd/tmp/nn.tar")
-#     conf = arc.build_nua_config()
-#     print(conf)
