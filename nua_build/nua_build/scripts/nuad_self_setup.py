@@ -1,6 +1,13 @@
 """Script to install Nua dependancies on Nua app environment (inside docker).
 
 command: "nua_build_self_setup"
+
+The Nua app environment contains some default base softwares:
+- python (3.10+)
+- apt-utils
+
+Default config of a Nua app will require from the host some base packages:
+- nginx
 """
 
 import os

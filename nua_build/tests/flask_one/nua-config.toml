@@ -1,0 +1,33 @@
+[metadata]
+id = "flask-one"
+version = "1.0"
+title = "Flask test one"
+author = "Nua testers"
+tagline = "Nua test with Flask - one"
+website = "https://nua.rocks/"
+tags = ["test", "html", "web", "static"]
+licence = "MIT"
+profile = ["test"]
+release = 1
+
+[build]
+# optional manifest.
+# if no manifest, use files in the repository (except dot files)
+# - if manifest is not empty, *only* files from manifest are copied
+# - "nua-config.toml" is always copied, wether local or not
+# manifest = [
+# # if no Dockerfile provided => use Nua default Dockerfile:
+# "Dockerfile",
+# "www",
+# "build.py"
+# ]
+
+# src_url = "https://github.com/moinwiki/moin/archive/refs/heads/master.tar.gz"
+# src_git = "https://github.com/moinwiki/moin.git"
+
+# optional build script, default is "build.py" if found
+# build_script = ""
+# optional start script, default is "start.py" if found
+# start_script = ""
+document_root = "/nua/app/html"
+expose = 80
