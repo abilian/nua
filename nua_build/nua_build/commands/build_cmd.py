@@ -117,7 +117,7 @@ class Builder:
         self.complete_with_default_files()
 
     @docker_build_log_error
-    def build_with_docker(self):
+    def build_with_docker(self, save=True):
         chdir(self.build_dir)
         release = self.config.metadata.get("release", "")
         rel_tag = f"-{release}" if release else ""
@@ -139,6 +139,16 @@ class Builder:
             nocache=True,
         )
         display_docker_img(nua_tag)
+        if save:
+            self.save(image, nua_tag)
+
+    def save(self, image, nua_tag):
+        dest = f"/var/tmp/{nua_tag}.tar"
+        with open(dest, "wb") as tarfile:
+            for chunk in image.save(named=True):
+                tarfile.write(chunk)
+        print("Docker image saved:")
+        print(dest)
 
 
 def build_nua_builder_if_needed(verbose):
