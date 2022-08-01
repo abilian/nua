@@ -8,6 +8,7 @@ readme = "README.md"
 
 [tool.poetry.scripts]
 nua-orchestrator-local = "nua_orchestrator_local.main:app"
+nua-bootstrap = "nua_orchestrator_local.scripts.bootstrap:main"
 
 [tool.poetry.dependencies]
 python = "^3.10"
