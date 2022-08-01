@@ -9,7 +9,7 @@ COPY --from=compile-image /nua /nua
 
 # app build:
 COPY . /nua/build
-RUN nua_build_setup_app /nua/build
+RUN nua_build_setup_app
 
 
 ARG nua_expose

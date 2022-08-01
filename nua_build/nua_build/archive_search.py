@@ -28,6 +28,8 @@ class ArchiveSearch:
         for tinfo in self.tar_file.getmembers():
             if tinfo.name.endswith(".tar"):
                 result.extend(r for r in self._sub_search(tinfo, pattern))
+                if result:
+                    break
         return result
 
     def _sub_search(self, tinfo: TarInfo, pattern: str) -> dict:
@@ -44,8 +46,8 @@ class ArchiveSearch:
                         result["member"] = tinfo.name
                     yield result
 
-    def build_nua_config(self) -> dict:
+    def nua_config_dict(self) -> dict:
         """Return the nua-config.toml of the archive as a dict."""
-        result = self.find_one("/nua/build/nua-config.toml")
+        result = self.find_one("/nua/metadata/nua-config.toml")
         content = result[0]["content"].decode("utf8")
         return tomli.loads(content)

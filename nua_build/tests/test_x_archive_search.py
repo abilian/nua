@@ -39,7 +39,7 @@ def test_archive_search():
     cmd = f"docker save {image_target} -o test.tar"
     sp.run(cmd, shell=True, capture_output=False)  # noqa,we want shell here
     arch_search = ArchiveSearch("test.tar")
-    internal_config = arch_search.build_nua_config()
+    internal_config = arch_search.nua_config_dict()
     assert internal_config["metadata"]["id"] == "nodejs-basic"
     chdir(orig_dir)
     rmtree(tmp)
