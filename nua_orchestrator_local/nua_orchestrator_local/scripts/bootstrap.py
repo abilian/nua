@@ -9,8 +9,8 @@ import venv
 
 from .. import nua_env
 from ..actions import check_python_version, install_package_list, string_in
-from ..exec import exec_as_nua
-from ..nginx_utils import install_nginx
+from ..exec import mp_exec_as_nua
+from ..nginx_util import install_nginx
 from ..rich_console import print_green, print_magenta, print_red
 from ..shell import chown_r, sh, user_exists
 
@@ -35,7 +35,8 @@ def main():
     if os.geteuid() != 0:
         print_red(
             "Nua bootstrap script requires root privileges.\n"
-            "Please try again, this time using 'sudo'. Exiting."
+            "Please try again, this time using 'sudo'.\n"
+            "(When sudo, use absolute script path).\n"
         )
         sys.exit(1)
     bootstrap()
@@ -71,7 +72,7 @@ def nua_full_sudoer():
     header = "# Nua: full access for Nua user:\n"
     # check already done:
     if string_in("/etc/sudoers", header):
-        print_magenta("Prior changes found: do nothing")
+        print_magenta("-> Prior changes found: do nothing")
         return
     with open("/etc/sudoers", "a") as sudofile:
         sudofile.write("\n")
@@ -94,7 +95,7 @@ def create_nua_venv():
     home = nua_env.nua_home_path()
     venv_path = home / vname
     if venv_path.is_dir():
-        print_red(f"Prior {venv_path} found: do nothing")
+        print_red(f"-> Prior {venv_path} found: do nothing")
         return
     os.chdir(home)
     venv.create(venv_path, with_pip=True)
@@ -106,9 +107,9 @@ def create_nua_venv():
             bashrc.write(f"source ~/{vname}/bin/activate\n")
     bin_py = venv_path / "bin" / "python"
     cmd = f"{bin_py} -m pip install -U pip"
-    exec_as_nua(cmd)
+    mp_exec_as_nua(cmd)
     cmd = f"{bin_py} -m pip install -U setuptools"
-    exec_as_nua(cmd)
+    mp_exec_as_nua(cmd)
 
 
 if __name__ == "__main__":

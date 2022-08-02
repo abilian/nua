@@ -1,5 +1,6 @@
 """Nua scripting: exec commands."""
 import grp
+import multiprocessing as mp
 import os
 import pwd
 
@@ -11,6 +12,14 @@ def exec_as_nua(cmd, env=None):
     if env:
         full_env.update(env)
     pysu(cmd, "nua", "nua", full_env)
+
+
+def mp_exec_as_nua(cmd, env=None):
+    """Exec exec_as_nua() as a python sub process to allow several use of
+    function without mangling ENV and UID."""
+    proc = mp.Process(target=exec_as_nua, args=(cmd, env))
+    proc.start()
+    proc.join()
 
 
 def exec_as_root(cmd, env=None):

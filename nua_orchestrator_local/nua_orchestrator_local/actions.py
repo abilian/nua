@@ -6,6 +6,8 @@ from glob import glob
 from pathlib import Path
 from typing import Optional
 
+from jinja2 import Template
+
 from .shell import sh
 
 
@@ -124,6 +126,20 @@ def environ_replace_in(str_path: str | Path, env: Optional[dict] = None):
         if env:
             os.environ.clear()
             os.environ.update(orig_env)
+
+
+def jinja2_render_file(src: str | Path, dest: str | Path, data: dict) -> bool:
+    src_path = Path(src)
+    if not src_path.is_file():
+        return False
+    dest_path = Path(dest)
+    with open(src_path, encoding="utf8") as rfile:
+        template = rfile.read()
+    j2_template = Template(template)
+    content = j2_template.render(data)
+    with open(dest_path, mode="w", encoding="utf8") as wfile:
+        wfile.write(content)
+    return True
 
 
 def check_python_version() -> bool:

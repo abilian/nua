@@ -6,6 +6,8 @@ needed.
 from copy import deepcopy
 from pathlib import Path
 
+from .version import __version__
+
 # todo: find NUA_SERVERNAME somewhere
 NUA_ENV = {"NUA_SERVERNAME": "exemple.com"}
 
@@ -29,16 +31,20 @@ def detect_nua_home():
 
 
 def nginx_path() -> Path:
-    return nua_home() / "nginx"
+    return nua_home_path() / "nginx"
 
 
 def as_dict() -> dict:
     return deepcopy(NUA_ENV)
 
 
-def set(key: str, value: str):
+def set_value(key: str, value: str):
     NUA_ENV[key] = value
 
 
-def get(key: str) -> str:
+def get_value(key: str) -> str:
     return NUA_ENV.get("NUA_HOME", "")
+
+
+# initializations
+set_value("NUA_VERSION", __version__)

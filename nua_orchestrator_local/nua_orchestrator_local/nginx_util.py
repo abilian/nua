@@ -1,10 +1,9 @@
 """Nginx utils to install nginx config and adapt with app using nginx."""
 import os
 from pathlib import Path
-from shutil import copy2
 
 from . import nua_env
-from .actions import environ_replace_in
+from .actions import jinja2_render_file
 from .rich_console import print_magenta, print_red
 from .shell import chown_r, mkdir_p, sh
 
@@ -13,7 +12,8 @@ def install_nginx():
     print_magenta("Installation of Nua nginx configuration")
     replace_nginx_conf()
     make_nua_nginx_folders()
-    install_nua_nginx_default()
+    install_nua_nginx_default_site()
+    install_nua_nginx_default_index_html()
     nginx_restart()
 
 
@@ -30,9 +30,8 @@ def replace_nginx_conf():
             host_nginx_conf.rename(back_nginx_conf)
     else:
         print_red("Warning: the default host nginx.conf file was not found")
-    copy2(orch_nginx_conf, host_nginx_conf.parent)
+    jinja2_render_file(orch_nginx_conf, host_nginx_conf, nua_env.as_dict())
     os.chmod(host_nginx_conf, 0o644)
-    environ_replace_in(host_nginx_conf, nua_env.as_dict())
 
 
 def make_nua_nginx_folders():
@@ -42,20 +41,31 @@ def make_nua_nginx_folders():
         nua_nginx / "conf.d",
         nua_nginx / "sites",
         nua_nginx / "www" / "html",
+        nua_nginx / "www" / "html" / "css",
     ):
         mkdir_p(path)
         os.chmod(nua_nginx, 0o755)  # noqa:S103
         # S103=Chmod setting a permissive mask 0o755 on file
     chown_r(nua_nginx, "nua", "nua")
+    chown_r(nua_nginx / "www", "www-data", "www-data")
 
 
-def install_nua_nginx_default():
+def install_nua_nginx_default_site():
     default = nua_env.nginx_path() / "sites" / "default"
     default_src = Path(__file__).parent.resolve() / "config" / "nginx" / "default"
-    copy2(default_src, default.parent)
+    jinja2_render_file(default_src, default, nua_env.as_dict())
     os.chmod(default, 0o644)
     chown_r(default, "nua", "nua")
-    environ_replace_in(default, nua_env.as_dict())
+
+
+def install_nua_nginx_default_index_html():
+    page = nua_env.nginx_path() / "www" / "html" / "index.html"
+    page_src = (
+        Path(__file__).parent.resolve() / "config" / "nginx" / "html" / "index.html"
+    )
+    jinja2_render_file(page_src, page, nua_env.as_dict())
+    os.chmod(page, 0o644)
+    chown_r(page, "www-data", "www-data")
 
 
 def nginx_restart():
