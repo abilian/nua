@@ -7,17 +7,20 @@ Notes:
 
 -   We need to chose the right CLI framework: `Typer` seems promising.
 
--   Some draft for cammands:
-      `nua init`: start new project
+-   Some draft for commands:
 
-      `nua push`: push project (maybe also use git push ?)
+```text
+nua init: start new project
 
-      `nua connect`: connect to nua server
+nua push: push project (maybe also use git push ?)
 
-      `nua log -a <appname>`
+nua connect: connect to nua server
 
-      `nua start / stop / restart - a <appname>`
+nua log -a <appname>
 
-      `nua info -a <appname>`
+nua start / stop / restart - a <appname>`
 
-      `nua server start/stop/restart`
+nua info -a <appname>
+
+nua server start/stop/restart
+```

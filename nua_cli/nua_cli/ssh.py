@@ -54,7 +54,9 @@ def ssh_request(method: str, request_dict: dict = None):
     else:
         request = proto.create_request(method)
     json_rpc_cmd = request.serialize().decode("utf8", "replace")
+
     response = remote_exec(json_rpc_cmd)
+
     if "result" in response:
         return response["result"]
     else:
