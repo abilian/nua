@@ -1,8 +1,10 @@
 """Nua scripting: action commands."""
+import mmap
 import os
 import sys
 from glob import glob
 from pathlib import Path
+from typing import Optional
 
 from .shell import sh
 
@@ -73,7 +75,7 @@ def pip_list():
     sh("pip list")
 
 
-def replace_in(file_pattern, searching, replace_by):
+def replace_in(file_pattern: str, string_pattern: str, replace_by: str):
     for file_name in glob(file_pattern, recursive=True):
         path = Path(file_name)
         if not path.is_file():
@@ -82,7 +84,46 @@ def replace_in(file_pattern, searching, replace_by):
         with open(path, encoding="utf-8") as r:
             content = r.read()
             with open(path, mode="w", encoding="utf-8") as w:
-                w.write(content.replace(searching, replace_by))
+                w.write(content.replace(string_pattern, replace_by))
+
+
+def string_in(file_pattern: str, string_pattern: str) -> list:
+    """Return list of Path of files that contains the pattern str string."""
+    hit_files = []
+    # assuming it's an utf-8 world
+    upattern = string_pattern.encode("utf8")
+    for file_name in glob(file_pattern, recursive=True):
+        path = Path(file_name)
+        if not path.is_file():
+            continue
+        with open(path, "rb", 0) as rfile, mmap.mmap(
+            rfile.fileno(), 0, access=mmap.ACCESS_READ
+        ) as mfile:
+            if mfile.find(upattern) != -1:
+                hit_files.append(path)
+    return hit_files
+
+
+def environ_replace_in(str_path: str | Path, env: Optional[dict] = None):
+    path = Path(str_path)
+    if not path.is_file():
+        return
+    orig_env = {}
+    if env:
+        orig_env = dict(os.environ)
+        os.environ.update(env)
+    try:
+        # assuming it's an utf-8 world
+        with open(path, encoding="utf8") as rfile:
+            content = rfile.read()
+        with open(path, mode="w", encoding="utf8") as wfile:
+            wfile.write(os.path.expandvars(content))
+    except OSError:
+        raise
+    finally:
+        if env:
+            os.environ.clear()
+            os.environ.update(orig_env)
 
 
 def check_python_version() -> bool:

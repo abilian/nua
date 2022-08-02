@@ -1,0 +1,80 @@
+body {
+    font-family: "Bitstream Vera Sans", Verdana, Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    text-align: left;
+    text-indent: 0px;
+    color: #000000;
+    background-color: #EDEBEB;
+    padding: 0px;
+    margin: 0px;
+}
+
+p {
+    text-align: justify;
+    padding: 10px 0px 6px 0px;
+    margin: 0px;
+}
+
+h1, h2 {
+    font-size: 200%;
+    color: #000022;
+    text-align: left;
+    text-indent: 0px;
+    font-weight: bold;
+    padding-left: 0px;
+    padding-right: 0px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    margin: 0px;
+}
+
+h3 {
+    font-size: 110%;
+    text-indent: 0px;
+    color: #000022;
+    text-align: left;
+    font-weight: bold;
+    padding-left: 0px;
+    padding-right: 0px;
+    padding-top: 30px;
+    padding-bottom: 6px;
+    margin: 0px;
+}
+
+a {
+    text-decoration: none;
+    color: #0000aa;
+}
+
+a:hover {
+    color: #0000aa;
+    background-color: #ccccff;
+}
+
+.hrb {
+    border-top: #909090 1px solid;
+    border-bottom: #909090 1px solid;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    margin-bottom: 20px;
+}
+
+.title {
+    text-indent: 0px;
+    padding-left: 20px;
+    padding-right: 24px;
+    padding-top: 20px;
+    padding-bottom: 50px;
+    margin: 0px 0px 0px 0px;
+}
+
+.main {
+    text-indent: 0px;
+    padding-left: 20px;
+    padding-right: 40px;
+    padding-top: 20px;
+    padding-bottom: 400px;
+    margin: 0px;
+}
