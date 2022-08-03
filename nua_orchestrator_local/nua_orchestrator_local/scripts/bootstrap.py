@@ -134,14 +134,15 @@ def install_local_orchestrator():
     from git for nua user.
     """
     print_magenta("Installation of local Nua orchestrator (via git)")
-    name = "nua"
-    url = f"https://github.com/abilian/{name}.git"
+    url = nua_env.get_value("NUA_GIT_URL")
+    if not url:
+        url = f"https://github.com/abilian/nua.git"
     gits = nua_env.nua_home_path() / "gits"
     os.chdir(gits)
-    rm_fr(gits / name)
+    rm_fr(gits / "nua")
     cmd = f"git clone -o github {url}"
     mp_exec_as_nua(cmd)
-    cwd = gits / name / "nua_orchestrator_local"
+    cwd = gits / "nua" / "nua_orchestrator_local"
     cmd = "./build_dev.sh"
     bash_as_nua(cmd, cwd)
     cmd = "nua-orchestrator-local status"

@@ -6,6 +6,8 @@ needed.
 from copy import deepcopy
 from pathlib import Path
 
+from dotenv import dotenv_values
+
 from .version import __version__
 
 # todo: find NUA_SERVERNAME somewhere
@@ -48,3 +50,5 @@ def get_value(key: str) -> str:
 
 # initializations
 set_value("NUA_VERSION", __version__)
+if (Path.home() / "ENV").exists():
+    NUA_ENV.update(dotenv_values(Path.home() / "ENV"))
