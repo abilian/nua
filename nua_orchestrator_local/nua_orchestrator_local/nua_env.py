@@ -43,7 +43,7 @@ def set_value(key: str, value: str):
 
 
 def get_value(key: str) -> str:
-    return NUA_ENV.get("NUA_HOME", "")
+    return NUA_ENV.get(key, "")
 
 
 # initializations

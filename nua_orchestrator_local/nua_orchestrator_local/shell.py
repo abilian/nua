@@ -1,4 +1,5 @@
 """Scripting shell utils for Nua scripts."""
+import grp
 import os
 import pwd
 import shutil
@@ -17,11 +18,18 @@ def cat(filename):
         print(fd.read())
 
 
-def chown_r(path, user=None, group=None):
+def chown_r(path, user: str, group=None):
+    record = pwd.getpwnam(user)
+    uid = record.pw_uid
+    if group:
+        gr_record = grp.getgrnam(group)
+        gid = gr_record.gr_gid
+    else:
+        gid = record.pw_gid
     for dirpath, _dirnames, filenames in os.walk(path):
-        shutil.chown(dirpath, user, group)
+        os.chown(dirpath, uid, gid, follow_symlinks=False)
         for filename in filenames:
-            shutil.chown(os.path.join(dirpath, filename), user, group)
+            os.chown(os.path.join(dirpath, filename), uid, gid, follow_symlinks=False)
 
 
 def echo(text: str, filename: str) -> None:
@@ -33,12 +41,12 @@ def mkdir_p(path):
     Path(path).mkdir(parents=True, exist_ok=True)
 
 
-def rm_fr(path: str) -> bool:
+def rm_fr(path: str | Path) -> bool:
     """Alias for rm_rf."""
     return rm_rf(path)
 
 
-def rm_rf(path: str) -> bool:
+def rm_rf(path: str | Path) -> bool:
     """Wrapper for shutil.rmtree()"""
     if Path(path).exists():
         shutil.rmtree(path)

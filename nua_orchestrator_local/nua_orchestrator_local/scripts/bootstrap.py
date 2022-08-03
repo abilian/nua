@@ -9,16 +9,19 @@ import venv
 
 from .. import nua_env
 from ..actions import check_python_version, install_package_list, string_in
+from ..bash import bash_as_nua
 from ..exec import mp_exec_as_nua
 from ..nginx_util import install_nginx
 from ..rich_console import print_green, print_magenta, print_red
-from ..shell import chown_r, sh, user_exists
+from ..shell import chown_r, mkdir_p, rm_fr, sh, user_exists
 
+NUA = "nua"
 HOST_PACKAGES = [
     "ca-certificates",
     "curl",
     "docker.io",
     "lsb-release",
+    "git",
     "nginx-light",
     "postgresql-all",
     "software-properties-common",
@@ -30,7 +33,7 @@ def main():
     if not check_python_version():
         print_red("Python 3.10+ is required for Nua installation.")
         sys.exit(1)
-    if user_exists("nua"):
+    if user_exists(NUA):
         print_red("Warning: Nua was already installed.")
     if os.geteuid() != 0:
         print_red(
@@ -47,7 +50,9 @@ def bootstrap():
     install_packages()
     create_nua_user()
     create_nua_venv()
+    install_python_packages()
     install_nginx()
+    install_local_orchestrator()
     # create_nua_key()
     # create_ssl_key()
 
@@ -58,12 +63,13 @@ def install_packages():
 
 
 def create_nua_user():
-    if not user_exists("nua"):
+    if not user_exists(NUA):
         print_magenta("Creation of user 'nua'")
         cmd = "useradd --inactive -1 -G docker -m -s /bin/bash -U nua"
         # cmd = "useradd --inactive -1 -G sudo,docker -m -s /bin/bash -U nua"
         sh(cmd)
     record_nua_home()
+    make_nua_dirs()
     nua_full_sudoer()
 
 
@@ -88,28 +94,58 @@ def record_nua_home():
         raise
 
 
+def make_nua_dirs():
+    home = nua_env.nua_home_path()
+    for folder in ("tmp", "log", "db", "config", "apps", "images", "gits", "backups"):
+        mkdir_p(home / folder)
+        chown_r(home / folder, NUA)
+        os.chmod(home / folder, 0o755)  # noqa: S103
+
+
 def create_nua_venv():
     print_magenta("Creation of Python virtual environment for 'nua'")
     # assuming we already did check we have python >= 3.10
     vname = "nua310"
     home = nua_env.nua_home_path()
     venv_path = home / vname
+    nua_env.set_value("NUA_VENV", str(venv_path))
     if venv_path.is_dir():
         print_red(f"-> Prior {venv_path} found: do nothing")
-        return
     os.chdir(home)
     venv.create(venv_path, with_pip=True)
-    chown_r(venv_path, "nua", "nua")
+    chown_r(venv_path, NUA)
     header = "# Nua python virtual env:\n"
     if not string_in(".bashrc", header):
         with open(".bashrc", "a") as bashrc:
+            bashrc.write("\n")
             bashrc.write(header)
             bashrc.write(f"source ~/{vname}/bin/activate\n")
-    bin_py = venv_path / "bin" / "python"
-    cmd = f"{bin_py} -m pip install -U pip"
+
+
+def install_python_packages():
+    for package in ("pip", "setuptools", "poetry"):
+        print_magenta(f"Install {package}")
+        cmd = f"python -m pip install -U {package}"
+        bash_as_nua(cmd, "/home/nua")
+
+
+def install_local_orchestrator():
+    """WIP: maybe not the right thing to do: installation of orchestrator
+    from git for nua user.
+    """
+    print_magenta("Installation of local Nua orchestrator (via git)")
+    name = "nua"
+    url = f"https://github.com/abilian/{name}.git"
+    gits = nua_env.nua_home_path() / "gits"
+    os.chdir(gits)
+    rm_fr(gits / name)
+    cmd = f"git clone -o github {url}"
     mp_exec_as_nua(cmd)
-    cmd = f"{bin_py} -m pip install -U setuptools"
-    mp_exec_as_nua(cmd)
+    cwd = gits / name / "nua_orchestrator_local"
+    cmd = "./build_dev.sh"
+    bash_as_nua(cmd, cwd)
+    cmd = "nua-orchestrator-local status"
+    bash_as_nua(cmd)
 
 
 if __name__ == "__main__":
