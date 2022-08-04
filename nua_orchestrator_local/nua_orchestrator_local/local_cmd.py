@@ -6,8 +6,6 @@ import sys
 
 # from contextlib import suppress
 from operator import itemgetter
-from pathlib import Path
-from urllib.parse import urlparse
 
 from . import __version__, config
 

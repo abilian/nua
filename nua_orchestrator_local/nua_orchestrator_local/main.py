@@ -1,15 +1,18 @@
 """Script main entry point for Nua local."""
 import sys
+from pprint import pformat
 from typing import Optional
 
 import typer
 
 from . import __version__
 from .actions import check_python_version
+from .db.store import list_all_settings
 
 # setup_db() does create the db if needed and also populate the configuration
 # from both db values and default parameters
 from .db_setup import setup_db
+from .deploy_cmd import deploy_nua
 from .exec import set_nua_user
 from .local_cmd import status
 from .rich_console import print_red
@@ -76,6 +79,20 @@ def search_local(app: str = arg_search_app):
     """Search Nua image."""
     initialization()
     search_nua(app)
+
+
+@app.command("deploy")
+def deploy_local(app: str = arg_search_app):
+    """Search, install and launch Nua image."""
+    initialization()
+    deploy_nua(app)
+
+
+@app.command("show_db_settings")
+def show_db_settings():
+    """Debug: show settings in db."""
+    initialization()
+    print(pformat(list_all_settings()))
 
 
 @app.callback(invoke_without_command=True)

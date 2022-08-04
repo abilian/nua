@@ -1,6 +1,7 @@
 """Docker scripting utils."""
 from datetime import datetime
 from functools import wraps
+from subprocess import run  # noqa: S404
 
 import docker
 
@@ -57,12 +58,35 @@ def display_docker_img(iname):
         print("No image found")
         return
     for img in result:
-        sid = img.id.split(":")[-1][:10]
-        tags = "|".join(img.tags)
-        crea = datetime.fromisoformat(image_created_as_iso(img)).isoformat(" ")
-        # Note on size of image: Docker uses 10**6 for MB, here I use 2**20
-        size = docker_image_size(img)
-        print(f"    tags: {tags}")
-        print(f"    id: {sid}")
-        print(f"    size: {size}{size_unit()}")
-        print(f"    created: {crea}")
+        display_one_docker_img(img)
+
+
+def display_one_docker_img(img):
+    sid = img.id.split(":")[-1][:10]
+    tags = "|".join(img.tags)
+    crea = datetime.fromisoformat(image_created_as_iso(img)).isoformat(" ")
+    # Note on size of image: Docker uses 10**6 for MB, here I use 2**20
+    size = docker_image_size(img)
+    print(f"    tags: {tags}")
+    print(f"    id: {sid}")
+    print(f"    size: {size}{size_unit()}")
+    print(f"    created: {crea}")
+
+
+def docker_service_is_active() -> bool:
+    cmd = ["sudo", "service", "docker", "status"]
+    completed = run(cmd, capture_output=True)  # noqa: S607, S603
+    return completed.stdout.find(b"Active: active (running)") >= 0
+
+
+def docker_service_stop():
+    run(["sudo", "service", "docker", "stop"])  # noqa: S607, S603
+
+
+def docker_service_start():
+    run(["sudo", "service", "docker", "start"])  # noqa: S607, S603
+
+
+def docker_service_start_if_needed():
+    if not docker_service_is_active():
+        docker_service_start()

@@ -1,25 +1,24 @@
-"""Nua main scripts.
+"""Nua : search image related funcitons.
 """
-import os
-import sys
 from operator import itemgetter
 from pathlib import Path
 from urllib.parse import urlparse
 
-from . import __version__, config
-from .server_utils.mini_log import log_me
+from . import config
+from .rich_console import print_green, print_magenta, print_red
 
 
 def search_nua(app_name: str):
     """Search Nua image from the registries. (local registry for now)."""
+    print_magenta(f"Search image '{app_name}'")
     app, tag = parse_app_name(app_name)
     results = search_docker_tar_local(app, tag)
     if results:
-        print(f"Search results for '{app_name}':")
+        print_green(f"Search results for '{app_name}':")
         for path in results:
             print(f"    {path}")
     else:
-        print(f"No search result for '{app_name}'.")
+        print_red(f"No image found for '{app_name}'.")
 
 
 def parse_app_name(app_name: str) -> tuple:
