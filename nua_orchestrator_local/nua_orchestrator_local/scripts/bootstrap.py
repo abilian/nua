@@ -136,7 +136,7 @@ def install_local_orchestrator():
     print_magenta("Installation of local Nua orchestrator (via git)")
     url = nua_env.get_value("NUA_GIT_URL")
     if not url:
-        url = f"https://github.com/abilian/nua.git"
+        url = "https://github.com/abilian/nua.git"
     gits = nua_env.nua_home_path() / "gits"
     os.chdir(gits)
     rm_fr(gits / "nua")

@@ -9,7 +9,6 @@ from subprocess import run  # noqa: S404
 
 from . import nua_env
 from .exec import set_nua_user
-from .panic import error
 
 
 def bash_as_nua(cmd: str, cwd: str | Path | None = None, timeout=600):
@@ -28,11 +27,11 @@ def _bash_as_nua(cmd, cwd, timeout, env):
     full_env = os.environ.copy()
     full_env.update(env)
     cmd = f"source {nua_env.get_value('NUA_VENV')}/bin/activate; {cmd}"
-    completed = run(
+    run(
         cmd,
-        shell=True,
+        shell=True,  # noqa: S602
         timeout=timeout,
         cwd=cwd,
         executable="/bin/bash",
         env=full_env,
-    )  # noqa: S602
+    )

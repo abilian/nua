@@ -13,6 +13,18 @@
     format = "docker"
     transport = "ssh"
     repository = "registry"
+# [[registry]]
+#     priority = 10
+#     format = "docker_registry"
+#     url = "https://docker.io/nua"
+[[registry]]
+    priority = 5
+    format = "docker_registry"
+    url = "https://localhost/nua"
+[[registry]]
+    priority = 1
+    format = "docker_tar"
+    url = "file:///var/tmp"
 # [registry.local]
 #     container.tag = "registry:2.8"
 #     container.name = "nua-registry"

@@ -13,9 +13,11 @@ from .db_setup import setup_db
 from .exec import set_nua_user
 from .local_cmd import status
 from .rich_console import print_red
+from .search_cmd import search_nua
 
 app = typer.Typer()
 is_initialized = False
+arg_search_app = typer.Argument(..., help="App id or image name.")
 
 
 def version_callback(value: bool) -> None:
@@ -40,10 +42,7 @@ def _version_string():
 
 def usage():
     _version_string()
-    typer.echo(
-        "Usage(wip): nua-orchestrator-local status\n"
-        "Try 'nua-orchestrator-local --help' for help."
-    )
+    typer.echo("Usage(wip): nua status\n" "Try 'nua --help' for help.")
     raise typer.Exit(0)
 
 
@@ -70,6 +69,13 @@ def status_local():
     """Status of orchestrator."""
     initialization()
     status()
+
+
+@app.command("search")
+def search_local(app: str = arg_search_app):
+    """Search Nua image."""
+    initialization()
+    search_nua(app)
 
 
 @app.callback(invoke_without_command=True)

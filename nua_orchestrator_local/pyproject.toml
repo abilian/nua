@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "nua_orchestrator_local"
-version = "0.1.8"
+version = "0.1.9"
 description = "Nua orchestrator local implementation for Nua v0."
 authors = ["Jerome Dumonteil <jd@abilian.com>"]
 license = "AGPL"
 readme = "README.md"
 
 [tool.poetry.scripts]
-nua-orchestrator-local = "nua_orchestrator_local.main:app"
+nua = "nua_orchestrator_local.main:app"
 nua-bootstrap = "nua_orchestrator_local.scripts.bootstrap:main"
 
 [tool.poetry.dependencies]
