@@ -5,4 +5,4 @@ perl -pi -e '!$done && s/^(version = \"[.0-9]*)(.*)\"/$1."-".time()."\""/e && ($
 
 poetry install
 
-pytest
+# pytest

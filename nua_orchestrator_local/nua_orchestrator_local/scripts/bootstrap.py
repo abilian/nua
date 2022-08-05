@@ -145,7 +145,7 @@ def install_local_orchestrator():
     cwd = gits / "nua" / "nua_orchestrator_local"
     cmd = "./build_dev.sh"
     bash_as_nua(cmd, cwd)
-    cmd = "nua-orchestrator-local status"
+    cmd = "nua status"
     bash_as_nua(cmd)
 
 
