@@ -5,7 +5,7 @@ from pathlib import Path
 from . import nua_env
 from .actions import jinja2_render_file
 from .rich_console import print_magenta, print_red
-from .shell import chown_r, mkdir_p, sh
+from .shell import chown_r, mkdir_p, rm_fr, sh
 
 
 def install_nginx():
@@ -55,7 +55,20 @@ def install_nua_nginx_default_site():
     default_src = Path(__file__).parent.resolve() / "config" / "nginx" / "default"
     jinja2_render_file(default_src, default, nua_env.as_dict())
     os.chmod(default, 0o644)
-    chown_r(default, "nua", "nua")
+    if not os.getuid():
+        chown_r(default, "nua", "nua")
+
+
+def clean_nua_nginx_default_site():
+    """warning: only for user 'nua'"""
+    nua_nginx = nua_env.nginx_path()
+    sites = nua_nginx / "sites"
+    rm_fr(sites)
+    mkdir_p(sites)
+    os.chmod(nua_nginx, 0o755)  # noqa:S103
+    if not os.getuid():
+        chown_r(nua_nginx, "nua", "nua")
+    install_nua_nginx_default_site()
 
 
 def install_nua_nginx_default_index_html():

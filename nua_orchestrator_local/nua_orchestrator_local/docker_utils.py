@@ -90,3 +90,25 @@ def docker_service_start():
 def docker_service_start_if_needed():
     if not docker_service_is_active():
         docker_service_start()
+
+
+def docker_list_container(name: str):
+    client = docker.from_env()
+    return client.containers.list(filters={"name": name})
+
+
+def docker_kill_container(name: str):
+    if not name:
+        return
+    containers = docker_list_container(name)
+    if containers:
+        for cont in containers:
+            cont.kill()
+
+
+def docker_run(image_str, params):
+    print_magenta(f"Docker run image '{image_str}'")
+    docker_kill_container(params.get("name", ""))
+    params["detach"] = True
+    client = docker.from_env()
+    client.containers.run(image_str, **params)

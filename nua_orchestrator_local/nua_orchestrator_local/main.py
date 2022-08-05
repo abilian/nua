@@ -1,5 +1,6 @@
 """Script main entry point for Nua local."""
 import sys
+from pathlib import Path
 from pprint import pformat
 from typing import Optional
 
@@ -12,15 +13,18 @@ from .db.store import list_all_settings
 # setup_db() does create the db if needed and also populate the configuration
 # from both db values and default parameters
 from .db_setup import setup_db
-from .deploy_cmd import deploy_nua
+from .deploy_cmd import deploy_nua, deploy_nua_sites
 from .exec import set_nua_user
-from .local_cmd import status
+from .local_cmd import reload_servers, status
 from .rich_console import print_red
 from .search_cmd import search_nua
 
 app = typer.Typer()
 is_initialized = False
 arg_search_app = typer.Argument(..., help="App id or image name.")
+arg_deploy_app = typer.Argument(
+    ..., metavar="APP", help="App id or image name (or toml file)."
+)
 
 
 def version_callback(value: bool) -> None:
@@ -74,6 +78,13 @@ def status_local():
     status()
 
 
+@app.command("reload")
+def restart_local():
+    """Rebuild config and restart apps."""
+    initialization()
+    reload_servers()
+
+
 @app.command("search")
 def search_local(app: str = arg_search_app):
     """Search Nua image."""
@@ -82,10 +93,14 @@ def search_local(app: str = arg_search_app):
 
 
 @app.command("deploy")
-def deploy_local(app: str = arg_search_app):
+def deploy_local(app_name: str = arg_deploy_app):
     """Search, install and launch Nua image."""
-    initialization()
-    deploy_nua(app)
+    if app_name.endswith(".toml") and Path(app_name).is_file():
+        initialization()
+        deploy_nua_sites(app_name)
+    else:
+        initialization()
+        deploy_nua(app_name)
 
 
 @app.command("show_db_settings")

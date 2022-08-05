@@ -1,0 +1,12 @@
+server {
+    server_name {{domain}};
+
+    {% for site in sites -%}
+	location /{{site.prefix}} {
+		rewrite /{{site.prefix}}(/.*|$) /$1  break;
+        proxy_pass         http://localhost:{{site.port}};
+        proxy_redirect     off;
+        proxy_set_header   Host $host;
+	}
+    {% endfor %}
+}

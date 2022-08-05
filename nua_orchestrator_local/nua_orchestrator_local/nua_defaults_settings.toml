@@ -7,9 +7,14 @@
     host_user = "nua"
     host_home = "/home/nua"
     host_priv_key_blob = ""
+[ports]
+    # todo: use a list of ranges
+    start = 8100
+    end = 8200
 [server]
     log_file = "//home/nua/log/nua_orchestrator.log"
 [[container]]
+    # unused
     format = "docker"
     transport = "ssh"
     repository = "registry"

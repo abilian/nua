@@ -117,4 +117,4 @@ def set_nua_user() -> None:
     ensure_env("HOME", nua_record.pw_dir)
     ensure_env("UID", str(nua_record.pw_uid))
     ensure_env("SHELL", str(nua_record.pw_shell))
-    os.chdir(nua_record.pw_dir)
+    # os.chdir(nua_record.pw_dir)

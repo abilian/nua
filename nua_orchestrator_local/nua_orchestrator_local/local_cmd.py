@@ -57,3 +57,8 @@ def status(_cmd: str = ""):
     print(f"Nua version: {__version__}")
     os.environ["NUA_LOG_FILE"] = config.read("nua", "server", "log_file")
     display_configured_registries()
+
+
+def reload_servers():
+    """Rebuild config and restart apps."""
+    pass

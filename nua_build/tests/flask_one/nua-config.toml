@@ -40,7 +40,7 @@ port = 5100
 [run]
 # parameters passed as a dict to docker run
 auto_remove = true
-detach = true
+# detach = true mandatory
 mem_limit = "1G"
 container_port = 80
 [run_env]
