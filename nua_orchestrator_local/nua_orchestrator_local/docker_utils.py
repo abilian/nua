@@ -106,9 +106,19 @@ def docker_kill_container(name: str):
             cont.kill()
 
 
+def docker_remove_container(name: str):
+    if not name:
+        return
+    containers = docker_list_container(name)
+    if containers:
+        for cont in containers:
+            cont.remove()
+
+
 def docker_run(image_str, params):
     print_magenta(f"Docker run image '{image_str}'")
     docker_kill_container(params.get("name", ""))
+    docker_remove_container(params.get("name", ""))
     params["detach"] = True
     client = docker.from_env()
     client.containers.run(image_str, **params)

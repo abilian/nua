@@ -165,7 +165,7 @@ def _sites_per_domains(sites):
         if domain not in domains:
             domains[domain] = []
         domains[domain].append(site)
-    print(pformat(domains))
+    # print(pformat(domains))
     return domains
 
 
