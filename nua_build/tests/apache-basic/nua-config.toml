@@ -36,4 +36,3 @@ changelog ="""
 # optional start script, default is "start.py" if found
 # start_script = ""
 document_root = "/var/www/nua/html"
-expose = 80

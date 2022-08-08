@@ -122,7 +122,6 @@ class Builder:
         release = self.config.metadata.get("release", "")
         rel_tag = f"-{release}" if release else ""
         nua_tag = f"nua-{self.config.app_id}:{self.config.version}{rel_tag}"
-        expose = str(self.config.build.get("expose") or "80")
         print_green(f"Building image {nua_tag}")
         client = docker.from_env()
         image, tee = client.images.build(
@@ -130,7 +129,7 @@ class Builder:
             tag=nua_tag,
             rm=True,
             forcerm=True,
-            buildargs={"nua_builder_tag": NUA_BUILDER_TAG, "nua_expose": expose},
+            buildargs={"nua_builder_tag": NUA_BUILDER_TAG},
             labels={
                 "APP_ID": self.config.app_id,
                 "NUA_TAG": nua_tag,

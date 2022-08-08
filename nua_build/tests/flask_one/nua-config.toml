@@ -30,7 +30,6 @@ release = 1
 # optional start script, default is "start.py" if found
 # start_script = ""
 document_root = "/nua/app/html"
-expose = 80
 [instance]
 # instance contains values suited to be chaned at deploy time for
 # multi-instance deploument. Values here are used by default, i.e. for a single
