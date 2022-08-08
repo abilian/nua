@@ -128,14 +128,14 @@ def environ_replace_in(str_path: str | Path, env: Optional[dict] = None):
             os.environ.update(orig_env)
 
 
-def jinja2_render_file(src: str | Path, dest: str | Path, data: dict) -> bool:
-    src_path = Path(src)
-    if not src_path.is_file():
-        return False
+def jinja2_render_file(template: str | Path, dest: str | Path, data: dict) -> bool:
+    template_path = Path(template)
+    if not template_path.is_file():
+        raise FileNotFoundError(template_path)
     dest_path = Path(dest)
-    with open(src_path, encoding="utf8") as rfile:
-        template = rfile.read()
-    j2_template = Template(template)
+    with open(template_path, encoding="utf8") as rfile:
+        template_content = rfile.read()
+    j2_template = Template(template_content, keep_trailing_newline=True)
     content = j2_template.render(data)
     with open(dest_path, mode="w", encoding="utf8") as wfile:
         wfile.write(content)

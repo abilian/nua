@@ -1,0 +1,9 @@
+server {
+    server_name {{domain}};
+
+	location / {
+        proxy_pass         http://localhost:{{sites[0].port}};
+        proxy_redirect     off;
+        proxy_set_header   Host $host;
+	}
+}

@@ -7,6 +7,8 @@ from .actions import jinja2_render_file
 from .rich_console import print_magenta, print_red
 from .shell import chown_r, mkdir_p, rm_fr, sh
 
+CONF_NGINX = Path(__file__).parent.resolve() / "config" / "nginx"
+
 
 def install_nginx():
     print_magenta("Installation of Nua nginx configuration")
@@ -14,6 +16,7 @@ def install_nginx():
     make_nua_nginx_folders()
     install_nua_nginx_default_site()
     install_nua_nginx_default_index_html()
+    chown_r_nua_nginx()
     nginx_restart()
 
 
@@ -21,9 +24,7 @@ def replace_nginx_conf():
     # assume standard linux distribution path:
     host_nginx_conf = Path("/etc/nginx/nginx.conf")
     back_nginx_conf = host_nginx_conf.parent / "nginx_conf.orig"
-    orch_nginx_conf = (
-        Path(__file__).parent.resolve() / "config" / "nginx" / "nginx.conf"
-    )
+    orch_nginx_conf = CONF_NGINX / "template" / "nginx.conf"
     if host_nginx_conf.is_file():
         if not back_nginx_conf.is_file():
             # do no overwrite prior backup
@@ -52,30 +53,41 @@ def make_nua_nginx_folders():
 
 def install_nua_nginx_default_site():
     default = nua_env.nginx_path() / "sites" / "default"
-    default_src = Path(__file__).parent.resolve() / "config" / "nginx" / "default"
-    jinja2_render_file(default_src, default, nua_env.as_dict())
+    default_template = CONF_NGINX / "template" / "default_site"
+    jinja2_render_file(default_template, default, nua_env.as_dict())
     os.chmod(default, 0o644)
-    if not os.getuid():
-        chown_r(default, "nua", "nua")
 
 
 def clean_nua_nginx_default_site():
-    """warning: only for user 'nua'"""
+    """warning: only for user 'nua' or 'root'"""
     nua_nginx = nua_env.nginx_path()
     sites = nua_nginx / "sites"
     rm_fr(sites)
     mkdir_p(sites)
     os.chmod(nua_nginx, 0o755)  # noqa:S103
-    if not os.getuid():
-        chown_r(nua_nginx, "nua", "nua")
     install_nua_nginx_default_site()
+
+
+def configure_nginx_domain(domain_dict):
+    """warning: only for user 'nua' or 'root'"""
+    nua_nginx = nua_env.nginx_path()
+    if domain_dict["prefixed"]:
+        template = CONF_NGINX / "template" / "domain_prefixed_template"
+    else:
+        template = CONF_NGINX / "template" / "domain_not_prefixed_template"
+    dest_path = nua_nginx / "sites" / domain_dict["domain"]
+    jinja2_render_file(template, dest_path, domain_dict)
+    os.chmod(dest_path, 0o644)
+
+
+def chown_r_nua_nginx():
+    if not os.getuid():
+        chown_r(nua_env.nginx_path(), "nua", "nua")
 
 
 def install_nua_nginx_default_index_html():
     page = nua_env.nginx_path() / "www" / "html" / "index.html"
-    page_src = (
-        Path(__file__).parent.resolve() / "config" / "nginx" / "html" / "index.html"
-    )
+    page_src = CONF_NGINX / "html" / "index.html"
     jinja2_render_file(page_src, page, nua_env.as_dict())
     os.chmod(page, 0o644)
     chown_r(page, "www-data", "www-data")

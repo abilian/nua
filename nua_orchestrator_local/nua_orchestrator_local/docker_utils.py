@@ -121,4 +121,6 @@ def docker_run(image_str, params):
     docker_remove_container(params.get("name", ""))
     params["detach"] = True
     client = docker.from_env()
-    client.containers.run(image_str, **params)
+    cont = client.containers.run(image_str, **params)
+    name = cont.name
+    print_magenta(f"    -> container '{name}'")

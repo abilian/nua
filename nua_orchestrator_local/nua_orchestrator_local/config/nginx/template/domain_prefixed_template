@@ -8,5 +8,5 @@ server {
         proxy_redirect     off;
         proxy_set_header   Host $host;
 	}
-    {% endfor %}
+    {%- endfor %}
 }

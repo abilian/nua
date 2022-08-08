@@ -1,27 +1,29 @@
 """Nua main scripts.
 """
-import os
 import sys
+from copy import deepcopy
 from pathlib import Path
-from pprint import pformat
 from string import ascii_letters, digits
 
 import docker
 import tomli
 
-from . import config, nua_env
-from .actions import jinja2_render_file
+from . import config
 from .archive_search import ArchiveSearch
 from .docker_utils import (
     display_one_docker_img,
     docker_run,
     docker_service_start_if_needed,
 )
-from .nginx_util import clean_nua_nginx_default_site, nginx_restart
+from .nginx_util import (
+    chown_r_nua_nginx,
+    clean_nua_nginx_default_site,
+    configure_nginx_domain,
+    nginx_restart,
+)
 from .rich_console import print_green, print_magenta, print_red
 from .search_cmd import parse_app_name, search_docker_tar_local
 from .server_utils.net_utils import check_port_available
-from .shell import chown_r
 
 ALLOW_DOCKER_NAME = set(ascii_letters + digits + "-_.")
 # parameters passed as a dict to docker run
@@ -90,9 +92,9 @@ def deploy_image(img_id: str, image_config: dict):
     pass
 
 
-def _configured_ports(sites):
+def _configured_ports(site_list):
     used = set()
-    for site in sites["site"]:
+    for site in site_list:
         port = site.get("port")
         if not port:
             continue
@@ -101,50 +103,61 @@ def _configured_ports(sites):
     return used
 
 
-def _free_port(used):
-    start = config.read("nua", "ports", "start") or 8100
-    end = config.read("nua", "ports", "end") or 9000
-    for port in range(start, end):
-        if port not in used:
-            if check_port_available("127.0.0.1", str(port)):
-                return port
+def _free_port(start_ports: int, end_ports: int, used: set) -> int:
+    for port in range(start_ports, end_ports):
+        if port not in used and check_port_available("127.0.0.1", str(port)):
+            return port
     raise RuntimeError("Not enough available port")
 
 
-def generate_ports(sites: dict):
-    used = _configured_ports(sites)
-    for site in sites["site"]:
+def generate_ports(domain_list: list):
+    start_ports = config.read("nua", "ports", "start") or 8100
+    end_ports = config.read("nua", "ports", "end") or 9000
+    site_list = [site for dom in domain_list for site in dom["sites"]]
+    used = _configured_ports(site_list)
+    for site in site_list:
         port = site.get("port")
         if not port:
             continue
         if port == "auto":
-            new_port = _free_port(used)
+            new_port = _free_port(start_ports, end_ports, used)
             used.add(new_port)
             site["port"] = new_port
 
 
-def install_images(sites: dict):
+def install_images(filtered_sites: list):
     # ensure docker is running
     docker_service_start_if_needed()
-    for site in sites["site"]:
+    installed = {}
+    for site in filtered_sites:
         image_str = site["image"]
         app, tag = parse_app_name(image_str)
         results = search_docker_tar_local(app, tag)
         if not results:
             print_red(f"No image found for '{image_str}'.")
             sys.exit(1)
-        # fixme: take higher version, not fist element:
-        img_id, image_config = install_image(results[0])
+        img_path = results[0]
+        if img_path in installed:
+            img_id = installed[img_path][0]
+            image_config = deepcopy(installed[img_path][1])
+        else:
+            # fixme: take higher version, not fist element:
+            img_id, image_config = install_image(results[0])
+            installed[img_path] = (img_id, image_config)
         site["img_id"] = img_id
         site["image_config"] = image_config
 
 
-def start_containers(sites: dict):
-    for site in sites["site"]:
+def start_containers(filtered_sites: list):
+    for site in filtered_sites:
         image_config = site["image_config"]
         run_params = image_config.get("run", RUN_DEFAULT)
         meta = image_config["metadata"]
-        name_base = f'{meta["id"]}-{meta["version"]}-{site["prefix"]}'
+        domain = site["domain"]
+        prefix = site.get("prefix") or ""
+        if prefix:
+            prefix = f"-{prefix}"
+        name_base = f'{meta["id"]}-{meta["version"]}-{domain}{prefix}'
         name = "".join([x for x in name_base if x in ALLOW_DOCKER_NAME])
         run_params["name"] = name
         if "container_port" in run_params:
@@ -158,7 +171,12 @@ def start_containers(sites: dict):
         docker_run(site["img_id"], run_params)
 
 
-def _sites_per_domains(sites):
+def _sites_per_domains(sites: dict) -> dict:
+    """Return a dict of sites/domain.
+
+    key : domain name (full name)
+    value : list of web sites of domain
+    """
     domains = {}
     for site in sites["site"]:
         domain = site.get("domain", "")
@@ -169,37 +187,99 @@ def _sites_per_domains(sites):
     return domains
 
 
-def _make_template_data(domains):
-    data = []
-    for domain, content in domains.items():
-        dom_dict = {"domain": domain, "sites": []}
-        for site in content:
-            dom_dict["sites"].append(site)
-        data.append(dom_dict)
-    return data
+def _make_template_data_list(domains: dict) -> list:
+    """Convert dict(domain:sites) to list({domain, sites})."""
+    return [
+        {"domain": domain, "sites": sites_list}
+        for domain, sites_list in domains.items()
+    ]
 
 
-def configure_nginx(sites: dict):
-    domains = _sites_per_domains(sites)
-    data = _make_template_data(domains)
-    template = Path(__file__).parent.resolve() / "config" / "nginx" / "domain_template"
-    sites_path = nua_env.nginx_path() / "sites"
+def _classify_prefixd_sites(data: list):
+    """Return sites classified for prefix use, verify it is the only one of the domain."""
+    for domain_dict in data:
+        sites_list = domain_dict["sites"]
+        first = sites_list[0]  # by construction, there is at least 1 element
+        if first.get("prefix"):
+            _verify_prefixed(domain_dict)
+        else:
+            _verify_not_prefixed(domain_dict)
+
+
+def _verify_prefixed(domain_dict: dict):
+    known_prefix = set()
+    valid = []
+    for site in domain_dict["sites"]:
+        prefix = site.get("prefix")
+        if not prefix:
+            domain = domain_dict["domain"]
+            image = site.get("image")
+            port = site.get("port")
+            print_red("Error: required prefix is missing, site discarded:")
+            print_red(f"    for {domain=} / {image=} / {port=}")
+            continue
+        if prefix in known_prefix:
+            domain = domain_dict["domain"]
+            image = site.get("image")
+            port = site.get("port")
+            print_red("Error: prefix is already used for this domain, site discarded:")
+            print_red(f"    {domain=} / {image=} / {port=}")
+            continue
+        known_prefix.add(prefix)
+        valid.append(site)
+    domain_dict["sites"] = valid
+    domain_dict["prefixed"] = True
+
+
+def _verify_not_prefixed(domain_dict: dict):
+    # we know that the first of the list is not prefixed. We expect the list
+    # has only one site.
+    if len(domain_dict["sites"]) == 1:
+        valid = domain_dict["sites"]
+    else:
+        domain = domain_dict["domain"]
+        valid = []
+        valid.append(domain_dict["sites"].pop(0))
+        print_red(f"Error: too many sites for {domain=}, site discarded:")
+        for site in domain_dict["sites"]:
+            prefix = site.get("prefix")
+            image = site.get("image")
+            port = site.get("port")
+            print_red(f"    {image=} / {prefix=} / {port=}")
+    domain_dict["sites"] = valid
+    domain_dict["prefixed"] = False
+
+
+def filter_prefixed_sites(sites: dict) -> list:
+    domain_list = _make_template_data_list(_sites_per_domains(sites))
+    _classify_prefixd_sites(domain_list)
+    return domain_list
+
+
+def domain_list_to_sites(domain_list: list) -> list:
+    filtered_list = []
+    for domain_dict in domain_list:
+        for site in domain_dict["sites"]:
+            filtered_list.append(site)
+    return filtered_list
+
+
+def configure_nginx(domain_list: list):
     clean_nua_nginx_default_site()
-    for dom_dict in data:
-        print_magenta(f"Configure Nginx for domain '{dom_dict['domain']}'")
-        # print(pformat(dom_dict))
-        dest_path = sites_path / dom_dict["domain"]
-        jinja2_render_file(template, dest_path, dom_dict)
-        os.chmod(dest_path, 0o644)
-        chown_r(dest_path, "nua", "nua")
+    for domain_dict in domain_list:
+        print_magenta(f"Configure Nginx for domain '{domain_dict['domain']}'")
+        configure_nginx_domain(domain_dict)
 
 
 def deploy_nua_sites(sites_path: str) -> int:
     print_magenta("Deployment from sites config")
     with open(sites_path, mode="rb") as rfile:
         sites = tomli.load(rfile)
-    generate_ports(sites)
-    install_images(sites)
-    start_containers(sites)
-    configure_nginx(sites)
+    domain_list = filter_prefixed_sites(sites)
+    generate_ports(domain_list)
+    configure_nginx(domain_list)
+    filtered_sites = domain_list_to_sites(domain_list)
+    install_images(filtered_sites)
+    start_containers(filtered_sites)
+    chown_r_nua_nginx()
     nginx_restart()
