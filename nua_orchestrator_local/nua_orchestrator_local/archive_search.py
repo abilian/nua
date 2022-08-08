@@ -24,13 +24,15 @@ class ArchiveSearch:
         pattern = path_pattern.lstrip("/")
         if not pattern:
             raise ValueError("Empty pattern")
-        result = []
+        return self._find_one(pattern)
+
+    def _find_one(self, pattern: str) -> list:
         for tinfo in self.tar_file.getmembers():
             if tinfo.name.endswith(".tar"):
-                result.extend(r for r in self._sub_search(tinfo, pattern))
+                result = list(self._sub_search(tinfo, pattern))
                 if result:
-                    break
-        return result
+                    return [result[0]]
+        return []
 
     def _sub_search(self, tinfo: TarInfo, pattern: str) -> dict:
         with self.tar_file.extractfile(tinfo) as bytes_content:
