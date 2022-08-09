@@ -54,11 +54,12 @@ def rm_rf(path: str | Path) -> bool:
     return False
 
 
-def sh(cmd: str, timeout=600, env=None):
-    console.print(
-        cmd,
-        style="green",
-    )
+def sh(cmd: str, timeout=600, env=None, show_cmd=True):
+    if show_cmd:
+        console.print(
+            cmd,
+            style="green",
+        )
     try:
         # subprocess call with shell=True identified, security issue:
         # We do want to mimic current shell action, including all environment

@@ -7,6 +7,8 @@
     host_user = "nua"
     host_home = "/home/nua"
     host_priv_key_blob = ""
+    host_admin_mail = "jd@abilian.com"
+    certbot_strategy = "auto"
 [ports]
     # todo: use a list of ranges
     start = 8100

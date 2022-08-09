@@ -25,6 +25,7 @@ HOST_PACKAGES = [
     "nginx-light",
     "postgresql-all",
     "software-properties-common",
+    "python3-certbot-nginx",
 ]
 
 

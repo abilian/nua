@@ -10,6 +10,7 @@ import tomli
 
 from . import config
 from .archive_search import ArchiveSearch
+from .certbot import register_certbot_domains
 from .docker_utils import (
     display_one_docker_img,
     docker_run,
@@ -279,6 +280,7 @@ def deploy_nua_sites(sites_path: str) -> int:
     generate_ports(domain_list)
     configure_nginx(domain_list)
     filtered_sites = domain_list_to_sites(domain_list)
+    register_certbot_domains(filtered_sites)
     install_images(filtered_sites)
     start_containers(filtered_sites)
     chown_r_nua_nginx()

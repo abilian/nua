@@ -37,9 +37,8 @@ def install_package_list(packages):
     environ = os.environ.copy()
     environ["DEBIAN_FRONTEND"] = "noninteractive"
     cmd = f"apt-get update; apt-get install -y {' '.join(packages)}"
-    sh("apt-get update", env=environ, timeout=600)
     sh(cmd, env=environ, timeout=600)
-    sh("apt-get clean", env=environ, timeout=600)
+    sh("apt-get autoremove; apt-get clean", env=environ, timeout=600)
 
 
 def is_python_project():
