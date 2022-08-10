@@ -1,4 +1,4 @@
 [build]
-    build_dir = "/tmp"
+    build_dir = "/var/tmp"
 [ui]
     size_unit_MiB = true

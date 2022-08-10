@@ -22,7 +22,7 @@ from ..docker_utils import (
     image_created_as_iso,
     print_log_stream,
 )
-from ..rich_console import print_green
+from ..rich_console import print_green, print_red
 from ..shell import mkdir_p, rm_fr
 
 app = typer.Typer()
@@ -37,11 +37,15 @@ def build_nua_builder(verbose):
 
 
 def set_build_dir(orig_wd):
-    build_dir_parent = config.get("build", {}).get("build_dir", orig_wd)
-    build_dir = Path(build_dir_parent) / BUILD
-    rm_fr(build_dir)
-    mkdir_p(build_dir)
-    return build_dir
+    try:
+        build_dir_parent = config.get("build", {}).get("build_dir", orig_wd)
+        build_dir = Path(build_dir_parent) / BUILD
+        rm_fr(build_dir)
+        mkdir_p(build_dir)
+        return build_dir
+    except OSError:
+        print_red(f"Error making build directory: {build_dir}")
+        raise
 
 
 def build_python_layer(verbose):

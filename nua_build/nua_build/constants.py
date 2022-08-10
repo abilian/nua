@@ -4,7 +4,7 @@ from .version import __version__
 
 NUA_BUILDER_TAG = f"nua-builder:{__version__}"
 NUA_PYTHON_TAG = f"nua-python:{__version__}"
-BUILD = "_build"
+BUILD = "nua_build_dir"
 _folder = Path(__file__).parent
 DOCKERFILE_PYTHON = _folder / "dockerfiles" / "Dockerfile_nua_python"
 DOCKERFILE_BUILDER = _folder / "dockerfiles" / "Dockerfile_nua_builder"
