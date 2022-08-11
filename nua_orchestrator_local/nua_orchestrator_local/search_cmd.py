@@ -63,11 +63,12 @@ def search_docker_tar_local(app, tag) -> list:
     else:
         for registry in list_registry_docker_tar_local():
             results.extend(path for path in find_local_tar_untagged(registry, app))
-    return results.sort(key=LegacyVersion)
+    results.sort(key=LegacyVersion)
+    return results
 
 
 def find_local_tar_tagged(registry, app, tag) -> Path:
-    # we expect a local dirctory with files like 'nua-app:1.2-3.tar'
+    # we expect a local directory with files like 'nua-app:1.2-3.tar'
     folder = Path(urlparse(registry["url"]).path)
     if folder.is_dir():
         yield from folder.rglob(f"nua-{app}:{tag}.tar")

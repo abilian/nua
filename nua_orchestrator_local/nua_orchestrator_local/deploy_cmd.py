@@ -15,6 +15,7 @@ from .docker_utils import (
     display_one_docker_img,
     docker_run,
     docker_service_start_if_needed,
+    docker_volume_create_or_use,
 )
 from .nginx_util import (
     chown_r_nua_nginx,
@@ -149,26 +150,63 @@ def install_images(filtered_sites: list):
         site["image_config"] = image_config
 
 
+def create_docker_volumes(volumes_config):
+    docker_volumes = []
+    for volume_params in volumes_config:
+        docker_volumes.append(docker_volume_create_or_use(volume_params))
+
+
+def mount_volumes(image_config):
+    volumes_config = image_config.get("volume") or []
+    create_docker_volumes(volumes_config)
+    mounted_volumes = []
+    for volume_params in volumes_config:
+        mounted_volumes.append(
+            docker.types.Mount(
+                volume_params["dst"], volume_params["name"], type=volume_params["type"]
+            )
+        )
+    return mounted_volumes
+
+
+def nua_long_name(meta: dict) -> str:
+    release = meta.get("release", "")
+    rel_tag = f"-{release}" if release else ""
+    name = {meta["id"]}
+    nua_prefix = "" if meta["id"].startswith("nua-") else "nua-"
+    return f"{nua_prefix}{meta['id']}-{meta['version']}{rel_tag}"
+
+
+def container_params(site):
+    image_config = site["image_config"]
+    run_params = image_config.get("run", RUN_DEFAULT)
+    meta = image_config["metadata"]
+    domain = site["domain"]
+    prefix = site.get("prefix") or ""
+    if prefix:
+        prefix = f"-{prefix}"
+    app_name = nua_long_name(meta)
+    name_base = f"{app_name}-{domain}{prefix}"
+    name = "".join([x for x in name_base if x in ALLOW_DOCKER_NAME])
+    run_params["name"] = name
+    if "container_port" in run_params:
+        container_port = run_params["container_port"]
+        del run_params["container_port"]
+    else:
+        container_port = 80
+    host_port = site["port"]
+    ports = {f"{container_port}/tcp": host_port}
+    run_params["ports"] = ports
+    return run_params
+
+
 def start_containers(filtered_sites: list):
     for site in filtered_sites:
         image_config = site["image_config"]
-        run_params = image_config.get("run", RUN_DEFAULT)
-        meta = image_config["metadata"]
-        domain = site["domain"]
-        prefix = site.get("prefix") or ""
-        if prefix:
-            prefix = f"-{prefix}"
-        name_base = f'{meta["id"]}-{meta["version"]}-{domain}{prefix}'
-        name = "".join([x for x in name_base if x in ALLOW_DOCKER_NAME])
-        run_params["name"] = name
-        if "container_port" in run_params:
-            container_port = run_params["container_port"]
-            del run_params["container_port"]
-        else:
-            container_port = 80
-        host_port = site["port"]
-        ports = {f"{container_port}/tcp": host_port}
-        run_params["ports"] = ports
+        run_params = container_params(site)
+        mounted_volumes = mount_volumes(image_config)
+        if mounted_volumes:
+            run_params["mounts"] = mounted_volumes
         docker_run(site["img_id"], run_params)
 
 

@@ -124,3 +124,24 @@ def docker_run(image_str, params):
     cont = client.containers.run(image_str, **params)
     name = cont.name
     print_magenta(f"    -> container '{name}'")
+
+
+def docker_list_volume(name: str) -> list:
+    client = docker.from_env()
+    lst = client.volumes.list(filters={"name": name})
+    # filter match is not equality
+    return [vol for vol in lst if vol.name == name]
+
+
+def docker_create_volume(volume_opt: dict):
+    client = docker.from_env()
+    volume = client.volumes.create(name=volume_opt["name"], driver=volume_opt["driver"])
+    return volume
+
+
+def docker_volume_create_or_use(volume_opt: dict):
+    """Return a usable docker volume"""
+    found = docker_list_volume(volume_opt["name"])
+    if found:
+        return found[0]
+    return docker_create_volume(volume_opt)

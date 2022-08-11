@@ -44,3 +44,15 @@ mem_limit = "1G"
 container_port = 80
 [run_env]
 # parameters passed as a dict to docker run: environment dict
+
+[[volume]]
+name = "flask_uploads"
+driver = "local"
+type = "volume"
+dst = "/var/tmp/uploads"
+#[[mount.opt]]
+# list of volume-op tags
+# docker.types.Mount
+# volume = client.volumes.create(name='foobar', driver='local',
+#   driver_opts={'foo': 'bar', 'baz': 'false'},
+#   labels={"key": "value"})
