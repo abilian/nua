@@ -11,6 +11,7 @@ import tomli
 from . import config
 from .archive_search import ArchiveSearch
 from .certbot import register_certbot_domains
+from .db import store
 from .docker_utils import (
     display_one_docker_img,
     docker_run,
@@ -117,14 +118,22 @@ def generate_ports(domain_list: list):
     end_ports = config.read("nua", "ports", "end") or 9000
     site_list = [site for dom in domain_list for site in dom["sites"]]
     used = _configured_ports(site_list)
+    # list of ports used for domains / sites, trying to keep them inchanged
+    #  used_domain_ports = store.ports_instances_domains()
     for site in site_list:
         port = site.get("port")
         if not port:
             continue
         if port == "auto":
+            # current_instance_port = store.instance_port(site["domain"], site["prefix"])
+            # if current_instance_port:
+            #     new_port = current_instance_port
+            # else:
             new_port = _free_port(start_ports, end_ports, used)
             used.add(new_port)
-            site["port"] = new_port
+            site["actual_port"] = new_port
+        else:
+            site["actual_port"] = port
 
 
 def install_images(filtered_sites: list):
@@ -172,7 +181,6 @@ def mount_volumes(image_config):
 def nua_long_name(meta: dict) -> str:
     release = meta.get("release", "")
     rel_tag = f"-{release}" if release else ""
-    name = {meta["id"]}
     nua_prefix = "" if meta["id"].startswith("nua-") else "nua-"
     return f"{nua_prefix}{meta['id']}-{meta['version']}{rel_tag}"
 
@@ -183,18 +191,18 @@ def container_params(site):
     meta = image_config["metadata"]
     domain = site["domain"]
     prefix = site.get("prefix") or ""
-    if prefix:
-        prefix = f"-{prefix}"
+    str_prefix = f"-{prefix}" if prefix else ""
     app_name = nua_long_name(meta)
-    name_base = f"{app_name}-{domain}{prefix}"
+    name_base = f"{app_name}-{domain}{str_prefix}"
     name = "".join([x for x in name_base if x in ALLOW_DOCKER_NAME])
     run_params["name"] = name
+    # fixme: first version: force a port
     if "container_port" in run_params:
         container_port = run_params["container_port"]
         del run_params["container_port"]
     else:
         container_port = 80
-    host_port = site["port"]
+    host_port = site["actual_port"]
     ports = {f"{container_port}/tcp": host_port}
     run_params["ports"] = ports
     return run_params
@@ -208,6 +216,10 @@ def start_containers(filtered_sites: list):
         if mounted_volumes:
             run_params["mounts"] = mounted_volumes
         docker_run(site["img_id"], run_params)
+
+
+def stop_previous_containers(filtered_sites: list):
+    pass
 
 
 def _sites_per_domains(sites: dict) -> dict:

@@ -4,14 +4,20 @@ Requests are full transactions, and mask the actual DB implementation to
 the application.
 """
 from copy import deepcopy
+from datetime import datetime, timezone
 
 from .. import __version__ as nua_version
 from ..constants import NUA_ORCH_ID, NUA_ORCHESTRATOR_TAG
 from ..docker_utils import image_size_repr, size_unit
 from .model.auth import User
 from .model.image import Image
+from .model.instance import RUNNING, STOPPED, Instance
 from .model.setting import Setting
 from .session import Session
+
+
+def now_iso() -> str:
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
 
 def get_image_by_nua_tag(tag):
@@ -195,27 +201,89 @@ def stored_user_data(username: str):
         return deepcopy(user.data)
 
 
-#
-# def set_app_one_setting(app_id, instance, key, value):
-#     with Session() as session:
-#         # we cant be sure of situation or backend, let's be rough
-#         current = (
-#             session.query(Setting)
-#             .filter(Setting.app_id == app_id, Setting.instance == instance)
-#             .first()
-#         )
-#         if not current:
-#             raise ValueError(
-#                 f"set_app_one_setting(): '{app_id}'/'{instance}' not found in Setting table."
-#             )
-#         current
-#         new_setting = Setting(
-#             app_id=app_id,
-#             nua_tag=NUA_BUILDER_TAG,
-#             instance=setting_dict.get("instance", ""),
-#             data=setting_dict,
-#         )
-#         session.add(new_setting)
-#         session.commit()
-#
-#
+def store_instance(
+    app_id="",
+    nua_tag="",
+    domain="",
+    prefix="",
+    container="",
+    image="",
+    state=STOPPED,
+    deploy_config=None,
+    # docker_config=None,
+    nua_config=None,
+):
+    """Store a Nua instance in the local DB (table 'instance')."""
+
+    new_instance = Instance(
+        app_id=app_id,
+        nua_tag=nua_tag,
+        domain=domain,
+        prefix=prefix,
+        container=container,
+        image=image,
+        state=state,
+        created=now_iso(),
+        deploy_config=deploy_config or {},
+        # docker_config=docker_config or {},
+        nua_config=nua_config or {},
+    )
+    with Session() as session:
+        # Image:
+        # enforce unicity
+        existing = session.query(Image).filter_by(domain=domain, prefix=prefix).first()
+        if existing:
+            session.delete(existing)
+        session.flush()
+        session.add(new_instance)
+        session.commit()
+
+
+def list_instances_all() -> list:
+    with Session() as session:
+        return session.query(Instance).all()
+
+
+def list_instances_container_running():
+    return [inst.container for inst in list_instances_all() if inst.state == RUNNING]
+
+
+def ports_instances_domains() -> dict:
+    """Return list of domain/prefix/ports tuples configured in instance,
+    wether the instance is running or not."""
+    used_domain_ports = {}
+    for inst in list_instances_all():
+        deploy_config = inst.deploy_config
+        port = deploy_config.get("actual_port")
+        if port:
+            used_domain_ports[port] = (deploy_config["domain"], deploy_config["prefix"])
+    return used_domain_ports
+
+
+def instance_container(domain: str, prefix: str) -> str:
+    with Session() as session:
+        existing = session.query(Image).filter_by(domain=domain, prefix=prefix).first()
+        if existing:
+            container = existing.container
+        else:
+            container = ""
+        return container
+
+
+def instance_port(domain: str, prefix: str) -> int | None:
+    with Session() as session:
+        existing = session.query(Image).filter_by(domain=domain, prefix=prefix).first()
+        if existing:
+            deploy_config = inst.deploy_config
+            port = deploy_config.get("actual_port")
+        else:
+            port = None
+        return port
+
+
+def set_instance_container_state(domain: str, prefix: str, state: str):
+    with Session() as session:
+        existing = session.query(Image).filter_by(domain=domain, prefix=prefix).first()
+        if existing:
+            existing.state = state
+            session.commit()
