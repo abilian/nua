@@ -49,8 +49,8 @@ def deploy_nua(app_name: str) -> int:
         sys.exit(1)
     # ensure docker is running
     docker_service_start_if_needed()
-    # fixme: take higher version, not fist element:
-    img_id, image_config = install_image(results[0])
+    # images are sorted by version, take the last one:
+    img_id, image_config = install_image(results[-1])
     deploy_image(img_id, image_config)
     return 0
 

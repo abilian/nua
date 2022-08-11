@@ -4,6 +4,8 @@ from operator import itemgetter
 from pathlib import Path
 from urllib.parse import urlparse
 
+from packaging.version import LegacyVersion
+
 from . import config
 from .rich_console import print_green, print_magenta, print_red
 
@@ -53,6 +55,7 @@ def _is_local_tar(reg) -> bool:
 
 
 def search_docker_tar_local(app, tag) -> list:
+    """Return list of path of local Nua archives sorted by version"""
     results = []
     if tag:
         for registry in list_registry_docker_tar_local():
@@ -60,7 +63,7 @@ def search_docker_tar_local(app, tag) -> list:
     else:
         for registry in list_registry_docker_tar_local():
             results.extend(path for path in find_local_tar_untagged(registry, app))
-    return results
+    return results.sort(key=LegacyVersion)
 
 
 def find_local_tar_tagged(registry, app, tag) -> Path:
