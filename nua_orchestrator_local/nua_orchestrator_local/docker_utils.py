@@ -6,8 +6,12 @@ from subprocess import run  # noqa: S404
 import docker
 
 from . import config
+from .db import store
+from .db.model.instance import RUNNING
 from .panic import panic
 from .rich_console import print_magenta, print_red
+
+# from pprint import pprint
 
 
 def print_log_stream(docker_log):
@@ -115,15 +119,60 @@ def docker_remove_container(name: str):
             cont.remove()
 
 
-def docker_run(image_str, params):
-    print_magenta(f"Docker run image '{image_str}'")
-    docker_kill_container(params.get("name", ""))
-    docker_remove_container(params.get("name", ""))
-    params["detach"] = True
+def docker_remove_prior_container_db(site: dict):
+    """Search & remove containers already configured for this same site
+    (running or stopped), from DB."""
+    container_name = store.instance_container(site["domain"], site["prefix"])
+    if container_name:
+        print_magenta(f"    -> remove previous container '{container_name}'")
+        docker_kill_container(container_name)
+        docker_remove_container(container_name)
+        store.instance_delete_by_domain_prefix(site["domain"], site["prefix"])
+
+
+def docker_remove_prior_container_live(site: dict):
+    """Search & remove containers already configured for this same site
+    (running or stopped), from Docker.
+
+    Security feature: try to remove containers of exactly same name that
+    could be found in docker daemon:
+    """
+    container_name = site["run_params"]["name"]
+    if container_name:
+        containers = docker_list_container(container_name)
+        if containers:
+            for cont in containers:
+                cont.kill()
+                cont.remove()
+                print_magenta(f"    -> remove previous container '{container_name}'")
+
+
+def store_container_instance(site):
+    meta = site["image_nua_config"]["metadata"]
+    store.store_instance(
+        app_id=meta["id"],
+        nua_tag=store.nua_tag_string(meta),
+        domain=site["domain"],
+        prefix=site["prefix"],
+        container=site["container"],
+        image=site["image"],
+        state=RUNNING,
+        site_config=site,
+    )
+
+
+def docker_run(site: dict):
+    image_id = site["image_id"]
+    params = site["run_params"]
+    print_magenta(f"Docker run image '{image_id}'")
+    docker_remove_prior_container_db(site)
+    docker_remove_prior_container_live(site)
+    params["detach"] = True  # force detach option
     client = docker.from_env()
-    cont = client.containers.run(image_str, **params)
-    name = cont.name
-    print_magenta(f"    -> container '{name}'")
+    cont = client.containers.run(image_id, **params)
+    site["container"] = cont.name
+    store_container_instance(site)
+    print_magenta(f"    -> run new container         '{site['container']}'")
 
 
 def docker_list_volume(name: str) -> list:

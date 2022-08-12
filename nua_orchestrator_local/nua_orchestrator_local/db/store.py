@@ -26,6 +26,14 @@ def get_image_by_nua_tag(tag):
         return session.query(Image).filter_by(nua_tag=tag).first()
 
 
+def nua_tag_string(metadata):
+    app_id = metadata["id"]
+    version = metadata["version"]
+    release = metadata.get("release", "")
+    rel_tag = f"-{release}" if release else ""
+    return f"nua-{app_id}:{version}{rel_tag}"
+
+
 def store_image(
     id_sha="",
     app_id="",
@@ -209,9 +217,7 @@ def store_instance(
     container="",
     image="",
     state=STOPPED,
-    deploy_config=None,
-    # docker_config=None,
-    nua_config=None,
+    site_config=None,
 ):
     """Store a Nua instance in the local DB (table 'instance')."""
 
@@ -224,14 +230,14 @@ def store_instance(
         image=image,
         state=state,
         created=now_iso(),
-        deploy_config=deploy_config or {},
-        # docker_config=docker_config or {},
-        nua_config=nua_config or {},
+        site_config=site_config or {},
     )
     with Session() as session:
         # Image:
         # enforce unicity
-        existing = session.query(Image).filter_by(domain=domain, prefix=prefix).first()
+        existing = (
+            session.query(Instance).filter_by(domain=domain, prefix=prefix).first()
+        )
         if existing:
             session.delete(existing)
         session.flush()
@@ -253,16 +259,18 @@ def ports_instances_domains() -> dict:
     wether the instance is running or not."""
     used_domain_ports = {}
     for inst in list_instances_all():
-        deploy_config = inst.deploy_config
-        port = deploy_config.get("actual_port")
+        site_config = inst.site_config
+        port = site_config.get("actual_port")
         if port:
-            used_domain_ports[port] = (deploy_config["domain"], deploy_config["prefix"])
+            used_domain_ports[port] = (site_config["domain"], site_config["prefix"])
     return used_domain_ports
 
 
 def instance_container(domain: str, prefix: str) -> str:
     with Session() as session:
-        existing = session.query(Image).filter_by(domain=domain, prefix=prefix).first()
+        existing = (
+            session.query(Instance).filter_by(domain=domain, prefix=prefix).first()
+        )
         if existing:
             container = existing.container
         else:
@@ -270,12 +278,20 @@ def instance_container(domain: str, prefix: str) -> str:
         return container
 
 
+def instance_delete_by_domain_prefix(domain: str, prefix: str):
+    with Session() as session:
+        session.query(Instance).filter_by(domain=domain, prefix=prefix).delete()
+        session.commit()
+
+
 def instance_port(domain: str, prefix: str) -> int | None:
     with Session() as session:
-        existing = session.query(Image).filter_by(domain=domain, prefix=prefix).first()
+        existing = (
+            session.query(Instance).filter_by(domain=domain, prefix=prefix).first()
+        )
         if existing:
-            deploy_config = inst.deploy_config
-            port = deploy_config.get("actual_port")
+            site_config = existing.site_config
+            port = site_config.get("actual_port")
         else:
             port = None
         return port
@@ -283,7 +299,9 @@ def instance_port(domain: str, prefix: str) -> int | None:
 
 def set_instance_container_state(domain: str, prefix: str, state: str):
     with Session() as session:
-        existing = session.query(Image).filter_by(domain=domain, prefix=prefix).first()
+        existing = (
+            session.query(Instance).filter_by(domain=domain, prefix=prefix).first()
+        )
         if existing:
             existing.state = state
             session.commit()

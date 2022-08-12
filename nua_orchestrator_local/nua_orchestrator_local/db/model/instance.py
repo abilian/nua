@@ -3,6 +3,9 @@ from sqlalchemy_serializer import SerializerMixin
 
 from .base import Base
 
+RUNNING = "running"
+STOPPED = "stopped"
+
 
 class Instance(Base, SerializerMixin):
     """The deployed instance of an app.
@@ -16,18 +19,59 @@ class Instance(Base, SerializerMixin):
     - container: name of the deployed contaner if image started (or "")
     - image: name of the docker image (if docker deployed)
     - state: one of "running" "stopped"
-    - deploy_config: JSON data representation of actual deployment config
+    - site_config: JSON data representation of actual deployment config
       values, including the instance prefix and/or nginx domain.
-      (deploy_config is ~ web site instance config)
-    # - docker_config: JSON data representation of deploy config as passed to
-    #   docker (so with actual port)
-    - nua_config: JSON data representation of original package configuration
+
+     {'actual_port': 8109,
+      'container': 'nua-flask-upload-one-1.0-1-sloop.example.com',
+      'domain': 'sloop.example.com',
+      'image': 'nua-flask-upload-one:1.0-1',
+      'image_id': 'sha256:232d921796c7f62f9240d8727d39829d31772a395d5c060ece5c74a6315b2f0e',
+      'image_nua_config': {'build': {'document_root': '/nua/app/html'},
+                           'instance': {'port': 5100, 'prefix': 'prefix'},
+                           'metadata': {'author': 'Nua testers',
+                                        'id': 'flask-upload-one',
+                                        'licence': 'MIT',
+                                        'profile': ['test'],
+                                        'release': 1,
+                                        'tagline': 'Nua test with Flask and mount '
+                                                   '- one',
+                                        'tags': ['test',
+                                                 'html',
+                                                 'web',
+                                                 'static',
+                                                 'mount'],
+                                        'title': 'Flask test upload one',
+                                        'version': '1.0',
+                                        'website': 'https://nua.rocks/'},
+                           'run': {'auto_remove': True,
+                                   'detach': True,
+                                   'mem_limit': '1G',
+                                   'mounts': [{'ReadOnly': False,
+                                               'Source': 'flask_uploads',
+                                               'Target': '/var/tmp/uploads',
+                                               'Type': 'volume'}],
+                                   'name': 'nua-flask-upload-one-1.0-1-sloop.example.com',
+                                   'ports': {'80/tcp': 8109}},
+                           'run_env': {},
+                           'volume': [{'driver': 'local',
+                                       'dst': '/var/tmp/uploads',
+                                       'name': 'flask_uploads',
+                                       'type': 'volume'}]},
+      'port': 'auto',
+      'prefix': '',
+      'run_params': {'auto_remove': True,
+                     'detach': True,
+                     'mem_limit': '1G',
+                     'mounts': [{'ReadOnly': False,
+                                 'Source': 'flask_uploads',
+                                 'Target': '/var/tmp/uploads',
+                                 'Type': 'volume'}],
+                     'name': 'nua-flask-upload-one-1.0-1-sloop.example.com',
+                     'ports': {'80/tcp': 8109}}}
 
     There can be only one app per domain/prefix.
     """
-
-    RUNNING = "running"
-    STOPPED = "stopped"
 
     __tablename__ = "instance"
 
@@ -40,9 +84,7 @@ class Instance(Base, SerializerMixin):
     image = Column(String(160), default="")
     state = Column(String(16), default=STOPPED)
     created = Column(String(40))
-    deploy_config = Column(JSON)
-    # docker_config = Column(JSON)
-    nua_config = Column(JSON)
+    site_config = Column(JSON)
     #  broken for sqlite: instance = index_property("data", "instance", default="")
 
     def __repr__(self):
