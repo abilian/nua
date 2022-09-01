@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua_orchestrator_local"
-version = "0.1.9"
+version = "0.1.11"
 description = "Nua orchestrator local implementation for Nua v0."
 authors = ["Jerome Dumonteil <jd@abilian.com>"]
 license = "AGPL"
@@ -12,16 +12,16 @@ nua-bootstrap = "nua_orchestrator_local.scripts.bootstrap:main"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-tomli = "^1.1.0"
+tomli = "^2.0"
 wheel = "^0.37.1"
-setuptools = "^62.3.2"
-psutil = "^5.9.0"
+setuptools = "^65.3.0"
+psutil = "^5.9.1"
 SQLAlchemy-serializer = "^1.4.1"
 SQLAlchemy = "^1.4.36"
 py = "^1.11.0"
-docker = "^5.0.3"
+docker = "^6.0"
 Fabric = "^2.7.0"
-typer = "^0.4.1"
+typer = {extras = ["all"], version = "^0.6"}
 rich = "^12.4.4"
 Jinja2 = "^3.1.2"
 python-dotenv = "^0.20.0"
