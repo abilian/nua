@@ -12,6 +12,8 @@ import pytest
 from nua_build import __version__ as nua_version
 from nua_build.constants import NUA_BUILDER_TAG, NUA_PYTHON_TAG
 
+UBUNTU = "ubuntu:jammy-20220801"
+
 
 def test_complete_build_with_cache():
     """To be preferably launched with :
@@ -19,7 +21,6 @@ def test_complete_build_with_cache():
     pytest -rP test_nodejs_basic.py
     """
     image_target = "nua-nodejs-basic:1.6-1"
-    ubuntu = "ubuntu:22.04"
     # Warn: using /tmp for tests:
     orig_dir = getcwd()
     # Probable insecure usage of temp file/directory :
@@ -34,7 +35,7 @@ def test_complete_build_with_cache():
     chdir(tmp)
     print("Testing in:", getcwd())
     dock = docker.from_env()
-    for im in (ubuntu, NUA_PYTHON_TAG, NUA_BUILDER_TAG, image_target):
+    for im in (UBUNTU, NUA_PYTHON_TAG, NUA_BUILDER_TAG, image_target):
         print(f"Show '{im}' in cache:", dock.images.list(im))
     print("Time now:", datetime.now(timezone.utc).isoformat(" "))
     print(f"Build {image_target} (expecting cache) with nua command line:")

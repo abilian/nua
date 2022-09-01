@@ -6,6 +6,7 @@
 import os
 import sys
 import venv
+from pathlib import Path
 
 from .. import nua_env
 from ..actions import check_python_version, install_package_list, string_in
@@ -40,11 +41,23 @@ def main():
         print_red(
             "Nua bootstrap script requires root privileges.\n"
             "Please try again, this time using 'sudo'.\n"
-            "(When sudo, use absolute script path).\n"
+            "- When sudo, use absolute script path.\n"
+            f"{detect_myself()}\n"
         )
         sys.exit(1)
     bootstrap()
-    print_green("Nua installation done.")
+    print_green("\nNua installation done for user 'nua' on this host.")
+    cmd = "nua --help"
+    print(f"Command '{cmd}':")
+    bash_as_nua("nua --help")
+
+
+def detect_myself():
+    venv = os.environ.get("VIRTUAL_ENV")
+    if venv:
+        return f"- Possible command:\n    sudo {Path(venv)/'bin'/'nua-bootstrap'}"
+    else:
+        return "- Current Python virtual env not detected."
 
 
 def bootstrap():

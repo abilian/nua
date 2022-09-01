@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua_build"
-version = "0.1.11-1662020508"
+version = "0.1.11-1662038996"
 description = "Some nua_build implementation with Typer"
 authors = ["Stefane Fermigier <sf@abilian.com>", "Jerome Dumonteil <jd@abilian.com>"]
 license = "AGPL"
@@ -14,8 +14,6 @@ nua_build_setup_app = "nua_build.scripts.nua_build_setup_app:main"
 [tool.poetry.dependencies]
 python = "^3.10"
 tomli = "^2.0"
-wheel = "^0.37.1"
-setuptools = "^65.3.0"
 psutil = "^5.9.1"
 typer = {extras = ["all"], version = "^0.6"}
 rich = "^12.4.4"

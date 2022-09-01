@@ -16,7 +16,6 @@ from nua_build.constants import NUA_BUILDER_TAG, NUA_PYTHON_TAG
 
 def test_archive_search():
     image_target = "nua-nodejs-basic:1.6-1"
-    ubuntu = "ubuntu:22.04"
     # Warn: using /tmp for tests:
     orig_dir = getcwd()
     # Probable insecure usage of temp file/directory :
