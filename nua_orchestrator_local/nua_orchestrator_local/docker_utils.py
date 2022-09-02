@@ -183,8 +183,20 @@ def docker_list_volume(name: str) -> list:
 
 
 def docker_create_volume(volume_opt: dict):
+    driver = volume_opt["driver"]
+    if driver != "local":
+        # assuming it is the name of a plugin
+        if not install_plugin(driver):
+            print_red(f"Install of Docker's plugin '{driver}' failed.")
+            panic("Exiting.")
+
     client = docker.from_env()
-    volume = client.volumes.create(name=volume_opt["name"], driver=volume_opt["driver"])
+    # driver's options, using format of python-docker:
+    volume = client.volumes.create(
+        name=volume_opt["name"],
+        driver=driver,
+        driver_opts=volume_opt.get("options", {}),
+    )
     return volume
 
 
@@ -194,3 +206,20 @@ def docker_volume_create_or_use(volume_opt: dict):
     if found:
         return found[0]
     return docker_create_volume(volume_opt)
+
+
+def install_plugin(plugin_name: str) -> str:
+    client = docker.from_env()
+    try:
+        plugin = client.plugins.get(plugin_name)
+    except docker.errors.NotFound:
+        plugin = None
+    if not plugin:
+        try:
+            plugin = client.plugins.install(plugin_name)
+        except docker.errors.APIError:
+            plugin = None
+    if plugin:
+        return plugin.name
+    else:
+        return ""
