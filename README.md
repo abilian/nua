@@ -2,6 +2,10 @@
 
 <img src="./doc/assets/logo.png" alt="logo nua">
 
+> **Warning**
+> This code is currently highly experimental, and not meant for public consumption. We hope to have a usable, alpha or beta quality, release, by the end of Q4 2022 (this depends on the funding we can get for the development).
+
+
 ## Vision
 
 Nua streamlines the development, selection, installation and resilient operation of web applications in a self-hosted cloud environment.
