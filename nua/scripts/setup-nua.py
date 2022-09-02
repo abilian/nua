@@ -42,7 +42,7 @@ def configure_apt():
 
 
 def install_packages():
-    cmd = f"apt-get update"
+    cmd = "apt-get update"
     system(cmd)
 
     cmd = f"apt-get install -y {' '.join(PACKAGES)}"

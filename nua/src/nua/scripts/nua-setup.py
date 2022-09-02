@@ -55,7 +55,7 @@ def configure_apt():
 
 
 def install_native_packages():
-    cmd = f"apt-get update"
+    cmd = "apt-get update"
     sh(cmd)
 
     cmd = f"apt-get install -y {' '.join(PACKAGES)}"

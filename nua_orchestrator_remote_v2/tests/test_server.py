@@ -7,6 +7,7 @@ from .utils import force_start, force_stop
 
 def test_help():
     runner = CliRunner()
+
     result = runner.invoke(app, "--help")
 
     assert result.exit_code == 0
@@ -28,8 +29,8 @@ def test_stop_1():
 def test_stop_2():
     runner = CliRunner()
     rep2 = "PID file not found"
-    runner.invoke(app, "stop")
 
+    runner.invoke(app, "stop")
     result = runner.invoke(app, "stop")
 
     assert rep2 in result.stdout

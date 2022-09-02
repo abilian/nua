@@ -25,6 +25,7 @@ def test_version_string():  # noqa
 
 def test_version():
     runner = CliRunner()
+
     result = runner.invoke(app, "--version")
 
     assert result.exit_code == 0
@@ -34,6 +35,7 @@ def test_version():
 
 def test_version_short():
     runner = CliRunner()
+
     result = runner.invoke(app, "-V")
 
     assert result.exit_code == 0
@@ -43,6 +45,7 @@ def test_version_short():
 
 def test_bad_arg():
     runner = CliRunner()
+
     result = runner.invoke(app, "bad_arg")
 
     assert result.exit_code == 1
@@ -50,6 +53,7 @@ def test_bad_arg():
 
 def test_verbose():
     runner = CliRunner()
+
     result = runner.invoke(app, "--verbose")
 
     assert result.exit_code == 1
@@ -57,6 +61,7 @@ def test_verbose():
 
 def test_verbose_short():
     runner = CliRunner()
+
     result = runner.invoke(app, "-v")
 
     assert result.exit_code == 1

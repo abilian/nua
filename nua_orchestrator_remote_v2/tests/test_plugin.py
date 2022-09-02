@@ -51,6 +51,7 @@ def test_plugins_loaded():
     plugin1 = "plugin_multiply"
     plugin2 = "plugin_substract"
     runner = CliRunner()
+
     runner.invoke(app, "restart")
     result = runner.invoke(app, "status")
 
