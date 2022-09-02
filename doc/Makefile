@@ -1,11 +1,19 @@
-.PHONY: run build clean deploy pdf
+.PHONY: all run build clean deploy pdf
 
 TARGET:=root@bulma:/var/www/html/nua.rocks/
 
-run:
+SRC:=$(wildcard src/**/*.md)
+
+
+all: build
+
+src/dev/orchestrator.md: ../nua_orchestrator_local/README.md
+	cp ../nua_orchestrator_local/README.md src/dev/orchestrator.md
+
+run: $(src)
 	mkdocs serve
 
-build:
+build: $(src)
 	mkdocs build
 
 deploy: build
@@ -14,5 +22,5 @@ deploy: build
 clean:
 	rm -rf site
 
-pdf:
+pdf: $(src)
 	ENABLE_PDF_EXPORT=1 mkdocs build

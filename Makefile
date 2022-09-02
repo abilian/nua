@@ -1,5 +1,5 @@
 .PHONY: all develop test lint clean doc format
-.PHONY: clean clean-build clean-pyc clean-test coverage dist docs install lint lint/flake8
+.PHONY: clean clean-build clean-pyc clean-test coverage dist doc install lint lint/flake8
 
 # The package name
 PKG=nua
@@ -96,22 +96,27 @@ format-js:
 
 
 #
+# Doc
+#
+.PHONY: doc doc-html doc-pdf
+
+doc: doc-html doc-pdf
+
+doc-html:
+	cd doc && make build
+
+doc-pdf:
+	echo TODO
+
+
+#
 # Everything else
 #
 install:
 	poetry install
 
-doc: doc-html doc-pdf
-
-doc-html:
-	sphinx-build -W -b html docs/ docs/_build/html
-
-doc-pdf:
-	sphinx-build -W -b latex docs/ docs/_build/latex
-	make -C docs/_build/latex all-pdf
-
 clean:
-	rm -f **/*.pyc
+	find . -name __pycache__ -print0 | xargs -0 rm -rf
 	find . -type d -empty -delete
 	rm -rf *.egg-info *.egg .coverage .eggs .cache .mypy_cache .pyre \
 		.pytest_cache .pytest .DS_Store  docs/_build docs/cache docs/tmp \
@@ -121,10 +126,6 @@ tidy: clean
 	rm -rf .tox .nox .dox .travis-solo
 	rm -rf node_modules
 	rm -rf instance
-
-update-pot:
-	# _n => ngettext, _l => lazy_gettext
-	python setup.py extract_messages update_catalog compile_catalog
 
 update-deps:
 	pip install -U pip setuptools wheel
