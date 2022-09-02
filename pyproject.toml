@@ -45,7 +45,7 @@ isort = "^5.10.1"
 black = "^22.3.0"
 
 # Typechecking
-mypy = "^0.961"
+mypy = "^0.971"
 types-toml = "^0.10.7"
 
 reuse = "^1.0.0"
