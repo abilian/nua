@@ -53,3 +53,20 @@ Commands:
   settings  Settings management (show or load settings).
 
 ```
+
+## REUSE (licensing compliance)
+
+Result of the `reuse lint` command invocation:
+
+> * Bad licenses:
+> * Deprecated licenses:
+> * Licenses without file extension:
+> * Missing licenses:
+> * Unused licenses:
+> * Used licenses: AGPL-3.0-only, CC-BY-4.0, MIT
+> * Read errors: 0
+> * Files with copyright information: 284 / 284
+> * Files with license information: 284 / 284
+
+> Congratulations! Your project is compliant with version 3.0 of the REUSE Specification :-)
+
