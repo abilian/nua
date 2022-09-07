@@ -184,11 +184,10 @@ def docker_list_volume(name: str) -> list:
 
 def docker_create_volume(volume_opt: dict):
     driver = volume_opt["driver"]
-    if driver != "local":
+    if driver != "local" and not install_plugin(driver):
         # assuming it is the name of a plugin
-        if not install_plugin(driver):
-            print_red(f"Install of Docker's plugin '{driver}' failed.")
-            panic("Exiting.")
+        print_red(f"Install of Docker's plugin '{driver}' failed.")
+        panic("Exiting.")
 
     client = docker.from_env()
     # driver's options, using format of python-docker:

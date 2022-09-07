@@ -36,9 +36,15 @@ def build_python(path=None):
 def install_package_list(packages):
     environ = os.environ.copy()
     environ["DEBIAN_FRONTEND"] = "noninteractive"
-    cmd = f"apt-get update; apt-get install -y {' '.join(packages)}"
+    cmd = f"apt-get update --fix-missing; apt-get install -y {' '.join(packages)}"
     sh(cmd, env=environ, timeout=600)
     sh("apt-get autoremove; apt-get clean", env=environ, timeout=600)
+
+
+def installed_packages() -> list:
+    cmd = "apt list --installed"
+    result = sh(cmd, timeout=600, capture_output=True, show_cmd=False)
+    return result.splitlines()
 
 
 def is_python_project():

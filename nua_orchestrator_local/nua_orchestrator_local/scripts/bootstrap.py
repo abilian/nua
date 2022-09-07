@@ -13,6 +13,7 @@ from ..actions import check_python_version, install_package_list, string_in
 from ..bash import bash_as_nua
 from ..exec import mp_exec_as_nua
 from ..nginx_util import install_nginx
+from ..postgres import bootstrap_install_postgres, set_postgres_pwd
 from ..rich_console import print_green, print_magenta, print_red
 from ..shell import chown_r, mkdir_p, rm_fr, sh, user_exists
 
@@ -24,7 +25,6 @@ HOST_PACKAGES = [
     "lsb-release",
     "git",
     "nginx-light",
-    "postgresql-all",
     "software-properties-common",
     "python3-certbot-nginx",
 ]
@@ -65,10 +65,17 @@ def bootstrap():
     create_nua_user()
     create_nua_venv()
     install_python_packages()
+    bootstrap_install_postgres_or_fail()
     install_nginx()
     install_local_orchestrator()
     # create_nua_key()
     # create_ssl_key()
+
+
+def bootstrap_install_postgres_or_fail():
+    if not bootstrap_install_postgres() or not set_postgres_pwd():
+        print_red("Nua bootstrap exiting.")
+        raise SystemExit()
 
 
 def install_packages():
@@ -157,7 +164,7 @@ def install_local_orchestrator():
     cmd = f"git clone -o github {url}"
     mp_exec_as_nua(cmd)
     cwd = gits / "nua" / "nua_orchestrator_local"
-    cmd = "./build_dev.sh"
+    cmd = "./build.sh"
     bash_as_nua(cmd, cwd)
     cmd = "nua status"
     bash_as_nua(cmd)

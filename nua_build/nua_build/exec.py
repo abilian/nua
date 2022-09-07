@@ -1,7 +1,27 @@
 """Nua scripting: exec commands."""
 import grp
+import multiprocessing as mp
 import os
 import pwd
+
+NUA = "nua"
+
+
+def exec_as_postgres(cmd, env=None):
+    if isinstance(cmd, str):
+        cmd = cmd.split()
+    full_env = os.environ.copy()
+    if env:
+        full_env.update(env)
+    pysu(cmd, "postgres", "postgres", full_env)
+
+
+def mp_exec_as_postgres(cmd, env=None):
+    """Exec exec_as_postgres() as a python sub process to allow several use of
+    function without mangling ENV and UID."""
+    proc = mp.Process(target=exec_as_postgres, args=(cmd, env))
+    proc.start()
+    proc.join()
 
 
 def exec_as_nua(cmd, env=None):
@@ -10,7 +30,15 @@ def exec_as_nua(cmd, env=None):
     full_env = os.environ.copy()
     if env:
         full_env.update(env)
-    pysu(cmd, "nua", "nua", full_env)
+    pysu(cmd, NUA, NUA, full_env)
+
+
+def mp_exec_as_nua(cmd, env=None):
+    """Exec exec_as_nua() as a python sub process to allow several use of
+    function without mangling ENV and UID."""
+    proc = mp.Process(target=exec_as_nua, args=(cmd, env))
+    proc.start()
+    proc.join()
 
 
 def exec_as_root(cmd, env=None):
@@ -85,3 +113,25 @@ def pysu(args, user=None, group=None, env=None):
     env["UID"] = str(uid)
     # Starting a process without a shell (actually replacing myself):
     os.execvpe(args[0], args, env)  # noqa: S606
+
+
+def ensure_env(key: str, value: str) -> None:
+    """Set ENV variable is needed."""
+    if os.environ.get(key) != value:
+        os.environ[key] = value
+
+
+def set_nua_user() -> None:
+    """Ensure user is Nua and related environment.
+
+    Will raise OSError if fails.
+    """
+    nua_record = pwd.getpwnam(NUA)
+    if os.getuid() != nua_record.pw_uid:
+        os.setgid(nua_record.pw_gid)
+        os.setuid(nua_record.pw_uid)
+    ensure_env("USER", NUA)
+    ensure_env("HOME", nua_record.pw_dir)
+    ensure_env("UID", str(nua_record.pw_uid))
+    ensure_env("SHELL", str(nua_record.pw_shell))
+    # os.chdir(nua_record.pw_dir)

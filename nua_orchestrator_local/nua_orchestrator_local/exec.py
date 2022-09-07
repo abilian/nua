@@ -7,6 +7,23 @@ import pwd
 NUA = "nua"
 
 
+def exec_as_postgres(cmd, env=None):
+    if isinstance(cmd, str):
+        cmd = cmd.split()
+    full_env = os.environ.copy()
+    if env:
+        full_env.update(env)
+    pysu(cmd, "postgres", "postgres", full_env)
+
+
+def mp_exec_as_postgres(cmd, env=None):
+    """Exec exec_as_postgres() as a python sub process to allow several use of
+    function without mangling ENV and UID."""
+    proc = mp.Process(target=exec_as_postgres, args=(cmd, env))
+    proc.start()
+    proc.join()
+
+
 def exec_as_nua(cmd, env=None):
     if isinstance(cmd, str):
         cmd = cmd.split()

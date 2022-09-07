@@ -11,24 +11,23 @@ import logging
 from os import chdir
 from pathlib import Path
 from shutil import copy2, copytree
-from typing import Optional
 
 import docker
-import typer
 
 from .. import __version__, config
 from ..constants import BUILD, DEFAULTS_DIR, MYSELF_DIR, NUA_BUILDER_TAG, NUA_CONFIG
-from ..docker_utils import (
-    display_docker_img,
-    docker_build_log_error,
-    image_created_as_iso,
-    print_log_stream,
-)
+from ..docker_utils_build import display_docker_img, docker_build_log_error
 from ..nua_config import NuaConfig
 from ..panic import error
 from ..rich_console import print_green
 from ..shell import mkdir_p, rm_fr
 from .build_nua_builder import build_nua_builder
+
+# import typer
+
+
+# from typing import Optional
+
 
 assert MYSELF_DIR.is_dir()
 
