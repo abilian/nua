@@ -86,7 +86,7 @@ class Builder:
         for user_file in self.config.root_dir.glob("*"):
             if (user_file.name).startswith("."):
                 continue
-            if user_file.name in {BUILD, NUA_CONFIG}:
+            if user_file.name in {BUILD, NUA_CONFIG, "__pycache__"}:
                 continue
             self.copy_file_or_dir(user_file)
 

@@ -16,6 +16,7 @@ from .certbot import register_certbot_domains
 from .db import store
 from .docker_utils import (
     display_one_docker_img,
+    docker_host_gateway_ip,
     docker_run,
     docker_service_start_if_needed,
     docker_volume_create_or_use,
@@ -26,14 +27,18 @@ from .nginx_util import (
     configure_nginx_domain,
     nginx_restart,
 )
+from .postgres import pg_check_listening, pg_restart_service
 from .rich_console import print_green, print_magenta, print_red
 from .search_cmd import parse_app_name, search_docker_tar_local
 from .server_utils.net_utils import check_port_available
 
 ALLOW_DOCKER_NAME = set(ascii_letters + digits + "-_.")
 # parameters passed as a dict to docker run
-RUN_DEFAULT = {
+RUN_BASE = {
     "auto_remove": True,
+    "extra_hosts": {"host.docker.internal": "host-gateway"},
+}
+RUN_DEFAULT = {
     "mem_limit": "1G",
     "container_port": 80,
 }
@@ -199,10 +204,18 @@ def nua_long_name(meta: dict) -> str:
     return f"{nua_prefix}{meta['id']}-{meta['version']}{rel_tag}"
 
 
+def add_host_gateway(run_params: dict):
+    extra_hosts = run_params.get("extra_hosts", {})
+    extra_hosts["host.docker.internal"] = docker_host_gateway_ip()
+    run_params["extra_hosts"] = extra_hosts
+
+
 def generate_container_run_parameters(site):
     """Return suitable parameters for the docker.run() command."""
     image_nua_config = site["image_nua_config"]
-    run_params = image_nua_config.get("run", RUN_DEFAULT)
+    run_params = deepcopy(RUN_BASE)
+    run_params.update(image_nua_config.get("run", RUN_DEFAULT))
+    add_host_gateway(run_params)
     meta = image_nua_config["metadata"]
     domain = site["domain"]
     prefix = site.get("prefix") or ""
@@ -391,6 +404,52 @@ def domain_list_to_sites(domain_list: list) -> list:
     return filtered_list
 
 
+def display_deployed(filtered_sites: list):
+    for site in filtered_sites:
+        prefix = f"/{site['prefix']}" if site.get("prefix") else ""
+        url = f"https://{site['domain']}{prefix}"
+        msg = f"image '{site['image']}' deployed as {url}"
+        print_green(msg)
+
+
+def configure_service_postgres(site):
+    """Configure local postgres on the host.
+
+    Currently:
+        - ensure listening on docker gateway
+        - restart service
+    """
+    if not pg_check_listening(docker_host_gateway_ip()):
+        print_red(f"Postgresql problem for '{site['image']}'")
+
+
+def restart_requirements(reboots: set):
+    for service in reboots:
+        if service == "postgresql":
+            pg_restart_service()
+
+
+def configure_service(service: str, site: dict) -> str:
+    if service in {"postgres", "postgresql"}:
+        configure_service_postgres(site)
+        return "postgresql"
+    return ""
+
+
+def configure_requirements(filtered_sites: dict):
+    reboots = set()
+    for site in filtered_sites:
+        image_nua_config = site["image_nua_config"]
+        services = image_nua_config.get("instance", {}).get("services")
+        if not services:
+            continue
+        if isinstance(services, str):
+            services = [services]
+        for service in services:
+            reboots.add(configure_service(service, site))
+    restart_requirements(reboots)
+
+
 def configure_nginx(domain_list: list):
     clean_nua_nginx_default_site()
     for domain_dict in domain_list:
@@ -408,7 +467,8 @@ def deploy_nua_sites(sites_path: str) -> int:
     filtered_sites = domain_list_to_sites(domain_list)
     register_certbot_domains(filtered_sites)
     install_images(filtered_sites)
+    configure_requirements(filtered_sites)
     start_containers(filtered_sites)
-    # pprint(filtered_sites)
     chown_r_nua_nginx()
     nginx_restart()
+    display_deployed(filtered_sites)

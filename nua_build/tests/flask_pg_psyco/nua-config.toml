@@ -1,0 +1,54 @@
+[metadata]
+id = "flask-pg-psyco"
+version = "5.0"
+title = "Flask/PostgreSQL/psycopg2 test"
+author = "Nua testers"
+tagline = "Nua test with Flask/PostgreSQL/psycopg2"
+website = "https://nua.rocks/"
+tags = ["test", "html", "web", "static", "plugin", "PostgreSQL", "psycopg2"]
+licence = "MIT"
+profile = ["test"]
+release = 1
+
+[build]
+# optional manifest.
+# if no manifest, use files in the repository (except dot files)
+# - if manifest is not empty, *only* files from manifest are copied
+# - "nua-config.toml" is always copied, wether local or not
+# manifest = [
+# # if no Dockerfile provided => use Nua default Dockerfile:
+# "Dockerfile",
+# "www",
+# "build.py"
+# ]
+
+# src_url = "https://github.com/moinwiki/moin/archive/refs/heads/master.tar.gz"
+# src_git = "https://github.com/moinwiki/moin.git"
+
+# optional build script, default is "build.py" if found
+# build_script = ""
+# optional start script, default is "start.py" if found
+# start_script = ""
+document_root = "/nua/app/html"
+
+[instance]
+# instance contains values suited to be chaned at deploy time for
+# multi-instance deploument. Values here are used by default, i.e. for a single
+# deployment of the app
+prefix = "prefix"
+port = 5155
+services = "postgres"
+
+[run]
+# parameters passed as a dict to docker run
+auto_remove = true
+# detach = true mandatory
+mem_limit = "1G"
+container_port = 80
+
+# this configuration is for use of a local DB (localhost)
+# thus requiring --add-host=host.docker.internal:host-gateway
+#
+# [run_env]
+# # parameters passed as a dict to docker run: environment dict
+#

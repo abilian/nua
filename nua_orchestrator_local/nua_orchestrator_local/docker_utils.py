@@ -1,6 +1,7 @@
 """Docker scripting utils."""
+import json
 from datetime import datetime
-from functools import wraps
+from functools import cache, wraps
 from subprocess import run  # noqa: S404
 
 import docker
@@ -63,6 +64,16 @@ def display_docker_img(iname):
         return
     for img in result:
         display_one_docker_img(img)
+
+
+@cache
+def docker_host_gateway_ip() -> str:
+    cmd = ["ip", "-j", "route"]
+    completed = run(cmd, capture_output=True)  # noqa: S607, S603
+    for route in json.loads(completed.stdout):
+        if route.get("dev") == "docker0":
+            return route.get("prefsrc", "")
+    return ""
 
 
 def display_one_docker_img(img):
