@@ -4,7 +4,7 @@ import re
 from pathlib import Path
 
 import psycopg2
-from psycopg2.sql import SQL, Identifier, Literal
+from psycopg2.sql import SQL, Identifier
 
 from .actions import install_package_list, installed_packages
 from .exec import mp_exec_as_postgres
@@ -116,6 +116,10 @@ def pg_check_listening(gateway: str) -> bool:
     if not path.is_file():
         print_red(f"Postgres config file not found: {path}")
         return False
+    return _actual_check_listening(gateway, path)
+
+
+def _actual_check_listening(gateway: str, path: Path) -> bool:
     with open(path, "r", encoding="utf8") as rfile:
         for line in rfile:
             if RE_COMMENT.match(line):
@@ -315,7 +319,6 @@ def pg_db_table_exist(
 ) -> bool:
     """Check if the named database exists (for host, connecting as user), assuming
     DB exists."""
-    table_found = False
     connection = psycopg2.connect(
         host=host, dbname=dbname, user=user, password=password
     )

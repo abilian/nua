@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua_build"
-version = "0.2-1663055190"
+version = "0.3"
 description = "Some nua_build implementation with Typer"
 authors = ["Stefane Fermigier <sf@abilian.com>", "Jerome Dumonteil <jd@abilian.com>"]
 license = "AGPL"

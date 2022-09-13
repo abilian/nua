@@ -54,7 +54,28 @@ def rm_rf(path: str | Path) -> bool:
     return False
 
 
-def sh(cmd: str, timeout=600, env=None, show_cmd=True, capture_output=False) -> str:
+def _base_sh(cmd: str, timeout: int, env: dict | None, capture_output: bool):
+    if capture_output:
+        return run(
+            cmd,
+            shell=True,  # noqa: S602
+            timeout=timeout,
+            env=env,
+            capture_output=True,
+            encoding="utf8",
+            text=True,
+        )
+    else:
+        return run(cmd, shell=True, timeout=timeout, env=env)  # noqa: S602
+
+
+def sh(
+    cmd: str,
+    timeout: int = 600,
+    env: dict | None = None,
+    show_cmd: bool = True,
+    capture_output: bool = False,
+) -> str:
     if show_cmd:
         console.print(
             cmd,
@@ -63,18 +84,7 @@ def sh(cmd: str, timeout=600, env=None, show_cmd=True, capture_output=False) -> 
     try:
         # subprocess call with shell=True identified, security issue:
         # We do want to mimic current shell action, including all environment
-        if capture_output:
-            completed = run(
-                cmd,
-                shell=True,  # noqa: S602
-                timeout=timeout,
-                env=env,
-                capture_output=True,
-                encoding="utf8",
-                text=True,
-            )
-        else:
-            completed = run(cmd, shell=True, timeout=timeout, env=env)  # noqa: S602
+        completed = _base_sh(cmd, timeout, env, capture_output)
         status = completed.returncode
         if status < 0:
             error(f"Child was terminated by signal {-status}", status)

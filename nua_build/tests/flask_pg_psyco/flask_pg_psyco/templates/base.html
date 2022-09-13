@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %} {% endblock %}- FlaskApp</title>
+    <title>{% block title %} {% endblock %} - FlaskApp</title>
     <style>
         nav a {
             color: #d64161;
@@ -26,8 +26,8 @@
 </head>
 <body>
     <nav>
-        <a href="{{ url_for('index') }}">FlaskApp</a>
-        <a href="#">About</a>
+        <a href="{{ url_for('index') }}">List</a>
+        <a href="{{ url_for('create') }}">Create</a>
     </nav>
     <hr>
     <div class="content">

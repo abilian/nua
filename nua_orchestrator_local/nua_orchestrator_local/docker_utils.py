@@ -153,8 +153,13 @@ def docker_remove_prior_container_live(site: dict):
         containers = docker_list_container(container_name)
         if containers:
             for cont in containers:
-                cont.kill()
-                cont.remove()
+                try:
+                    cont.kill()
+                    cont.remove()
+                except docker.errors.NotFound:
+                    pass
+                except docker.errors.APIError as e:
+                    print_red(str(e))
                 print_magenta(f"    -> remove previous container '{container_name}'")
 
 
