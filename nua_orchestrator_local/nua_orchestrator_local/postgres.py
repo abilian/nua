@@ -1,5 +1,6 @@
 """Nua postgresql related commands."""
 import functools
+import os
 import re
 from pathlib import Path
 
@@ -8,8 +9,9 @@ from psycopg2.sql import SQL, Identifier
 
 from .actions import install_package_list, installed_packages
 from .exec import mp_exec_as_postgres
+from .gen_password import gen_password
 from .rich_console import print_magenta, print_red
-from .shell import sh
+from .shell import chown_r, sh
 
 PG_VERSION = "14"
 POSTGRES_CONF_PATH = Path(f"/etc/postgresql/{PG_VERSION}/main")
@@ -17,27 +19,75 @@ RE_ANY_PG = re.compile(r"^postgresql-[0-9\.]+/")
 RE_5432 = re.compile(r"\s*port\s*=\s*5432\D")
 RE_COMMENT = re.compile(r"\s*#")
 RE_LISTEN = re.compile(r"\s*listen_addresses\s*=(.*)$")
+# S105 Possible hardcoded password
+NUA_PG_PWD_FILE = ".postgres_pwd"  # noqa S105
 
 
 def postgres_pwd() -> str:
-    """See later how to get the postgres password of postgres user."""
-    return "the_pass"
+    """Return the 'postgres' user DB password.
+      - When used in container context, the env variable NUA_POSTGRES_PASSWORD should
+        contain the password.
+      - When used in nua-orchestrator context, read the password from local file.
+
+    For orchestrator context, assuming this function can only be used *after* password
+    was generated (or its another bug).
+
+    Rem.: No cache. Rarely used function and pwd can be changed."""
+    pwd = os.environ.get("NUA_POSTGRES_PASSWORD")
+    if pwd:
+        return pwd
+    file_path = Path(os.path.expanduser("~nua")) / NUA_PG_PWD_FILE
+    with open(file_path, "r", encoding="utf8") as rfile:
+        pwd = rfile.read().strip()
+    return pwd
 
 
-def set_postgres_pwd():
-    """Set *hardcoded* postgres password for local instance of postgres.
-
-    See later how to get the postgres password of postgres user.
-    """
+def set_random_postgres_pwd() -> bool:
     print_magenta("Setting Postgres password")
-    orig_passwd = "the_pass"  # FIXME, of course.
-    # i_pwd = Identifier(orig_passwd)
-    r_pwd = repr(orig_passwd)
+    return set_postgres_pwd(gen_password())
+
+
+def _store_pg_password(password: str):
+    """Store the password in "~nua/.postgres_pwd".
+
+    Expect to be run either by root or nua.
+    """
+    file_path = Path(os.path.expanduser("~nua")) / NUA_PG_PWD_FILE
+    with open(file_path, "w", encoding="utf8") as wfile:
+        wfile.write(f"{password}\n")
+    chown_r(file_path, "nua")
+    os.chmod(file_path, 0o600)  # noqa: S103
+
+
+def set_postgres_pwd(password: str) -> bool:
+    """Set postgres password for local instance of postgres.
+
+    The password is stored in clear in Nua home. In future version, it could be
+    replaced by SSL key, thus gaining the ability to have encyption of streams and
+    expiration date.
+    Basically we need clear password somewhere. Since this password is only used
+    by Nua scripts (if Nua is the only user of local postgres DB), it could also be
+    generated / erased at each invocation. Passord could be stored in some file in the
+    postgres user home (a postgres feature).
+    No test of min password length in this function.
+    """
+    r_pwd = repr(password)
     # query = SQL("ALTER USER postgres PASSWORD {}".format(i_pwd))
     query = f"ALTER USER postgres PASSWORD {r_pwd}"
-    cmd = ["psql", "-c", query]
+    cmd = f'/usr/bin/psql -c "{query}"'
     mp_exec_as_postgres(cmd)
+    _store_pg_password(password)
     return True
+
+
+def pg_run_environment(_unused: dict) -> dict:
+    """Return a dict of environ variable for docker.run().
+
+    Actually, returns the DB postges password.
+    This function to be used in orchestrator environment, thus the password will
+    be read from host file.
+    """
+    return {"NUA_POSTGRES_PASSWORD": postgres_pwd()}
 
 
 def bootstrap_install_postgres() -> bool:
@@ -322,7 +372,7 @@ def pg_db_table_exist(
     connection = psycopg2.connect(
         host=host, dbname=dbname, user=user, password=password
     )
-    with connection:
+    with connection:  # noqa SIM117
         with connection.cursor() as cur:
             query = "SELECT COUNT(*) FROM information_schema.tables WHERE table_name=%s"
             cur.execute(SQL(query), (table,))

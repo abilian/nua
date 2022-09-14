@@ -1,6 +1,4 @@
 """Scripting shell utils for Nua scripts."""
-import grp
-import os
 import pwd
 import shutil
 from pathlib import Path
@@ -18,18 +16,27 @@ def cat(filename):
         print(fd.read())
 
 
-def chown_r(path, user: str, group=None):
-    record = pwd.getpwnam(user)
-    uid = record.pw_uid
-    if group:
-        gr_record = grp.getgrnam(group)
-        gid = gr_record.gr_gid
+# def chown_r(path, user: str, group=None):
+#     record = pwd.getpwnam(user)
+#     uid = record.pw_uid
+#     if group:
+#         gr_record = grp.getgrnam(group)
+#         gid = gr_record.gr_gid
+#     else:
+#         gid = record.pw_gid
+#     for dirpath, _dirnames, filenames in os.walk(path):
+#         os.chown(dirpath, uid, gid, follow_symlinks=False)
+#         for filename in filenames:
+#             os.chown(os.path.join(dirpath, filename), uid, gid, follow_symlinks=False)
+
+
+def chown_r(path: str | Path, user: str, group: str | None = None):
+    root = Path(path)
+    if root.is_dir():
+        for subpath in root.rglob(""):
+            shutil.chown(subpath, user, group or user)
     else:
-        gid = record.pw_gid
-    for dirpath, _dirnames, filenames in os.walk(path):
-        os.chown(dirpath, uid, gid, follow_symlinks=False)
-        for filename in filenames:
-            os.chown(os.path.join(dirpath, filename), uid, gid, follow_symlinks=False)
+        shutil.chown(root, user, group or user)
 
 
 def echo(text: str, filename: str) -> None:

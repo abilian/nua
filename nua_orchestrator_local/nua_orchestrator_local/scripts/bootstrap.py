@@ -13,7 +13,7 @@ from ..actions import check_python_version, install_package_list, string_in
 from ..bash import bash_as_nua
 from ..exec import mp_exec_as_nua
 from ..nginx_util import install_nginx
-from ..postgres import bootstrap_install_postgres, set_postgres_pwd
+from ..postgres import bootstrap_install_postgres, set_random_postgres_pwd
 from ..rich_console import print_green, print_magenta, print_red
 from ..shell import chown_r, mkdir_p, rm_fr, sh, user_exists
 
@@ -73,7 +73,7 @@ def bootstrap():
 
 
 def bootstrap_install_postgres_or_fail():
-    if not bootstrap_install_postgres() or not set_postgres_pwd():
+    if not bootstrap_install_postgres() or not set_random_postgres_pwd():
         print_red("Nua bootstrap exiting.")
         raise SystemExit()
 

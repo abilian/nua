@@ -1,4 +1,6 @@
 """Nua main scripts.
+
+Rem: maybe need to refactor the "site" thing into a class and refactor a lot
 """
 import sys
 from copy import deepcopy
@@ -27,7 +29,7 @@ from .nginx_util import (
     configure_nginx_domain,
     nginx_restart,
 )
-from .postgres import pg_check_listening, pg_restart_service
+from .postgres import pg_check_listening, pg_restart_service, pg_run_environment
 from .rich_console import print_green, print_magenta, print_red
 from .search_cmd import parse_app_name, search_docker_tar_local
 from .server_utils.net_utils import check_port_available
@@ -42,6 +44,10 @@ RUN_DEFAULT = {
     "mem_limit": "1G",
     "container_port": 80,
 }
+# someservices in nua_config may nbe spelled in different ways:
+SERVICES_ALIASES = {"postgresql": "postgres"}
+SERVICE_RESTART = {"postgres": pg_restart_service}
+SERVICE_ENVIRONMENT = {"postgres": pg_run_environment}
 
 
 def deploy_nua(app_name: str) -> int:
@@ -210,20 +216,18 @@ def add_host_gateway(run_params: dict):
     run_params["extra_hosts"] = extra_hosts
 
 
-def generate_container_run_parameters(site):
-    """Return suitable parameters for the docker.run() command."""
+def _run_parameters_container_name(site: dict) -> str:
     image_nua_config = site["image_nua_config"]
-    run_params = deepcopy(RUN_BASE)
-    run_params.update(image_nua_config.get("run", RUN_DEFAULT))
-    add_host_gateway(run_params)
     meta = image_nua_config["metadata"]
     domain = site["domain"]
     prefix = site.get("prefix") or ""
     str_prefix = f"-{prefix}" if prefix else ""
     app_name = nua_long_name(meta)
     name_base = f"{app_name}-{domain}{str_prefix}"
-    container_name = "".join([x for x in name_base if x in ALLOW_DOCKER_NAME])
-    run_params["name"] = container_name
+    return "".join([x for x in name_base if x in ALLOW_DOCKER_NAME])
+
+
+def _run_parameters_container_ports(site: dict, run_params: dict) -> dict:
     # fixme: first version does force at least a port
     if "container_port" in run_params:
         container_port = run_params["container_port"]
@@ -232,7 +236,35 @@ def generate_container_run_parameters(site):
         container_port = 80
     host_port = site["actual_port"]
     ports = {f"{container_port}/tcp": host_port}
-    run_params["ports"] = ports
+    return ports
+
+
+def _services_environment(site: dict) -> dict:
+    run_env = {}
+    for service in _required_services(site):
+        if service in SERVICE_ENVIRONMENT:
+            gen_environ_function = SERVICE_ENVIRONMENT[service]
+            # function may need or not site param:
+            run_env.update(gen_environ_function(site))
+    return run_env
+
+
+def _run_parameters_container_environment(site: dict) -> dict:
+    image_nua_config = site["image_nua_config"]
+    run_env = image_nua_config.get("run_env", {})
+    run_env.update(_services_environment(site))
+    return run_env
+
+
+def generate_container_run_parameters(site):
+    """Return suitable parameters for the docker.run() command."""
+    image_nua_config = site["image_nua_config"]
+    run_params = deepcopy(RUN_BASE)
+    run_params.update(image_nua_config.get("run", RUN_DEFAULT))
+    add_host_gateway(run_params)
+    run_params["name"] = _run_parameters_container_name(site)
+    run_params["ports"] = _run_parameters_container_ports(site, run_params)
+    run_params["environment"] = _run_parameters_container_environment(site)
     return run_params
 
 
@@ -425,28 +457,39 @@ def configure_service_postgres(site):
 
 def restart_requirements(reboots: set):
     for service in reboots:
-        if service == "postgresql":
-            pg_restart_service()
+        if service in SERVICE_RESTART:
+            restart_function = SERVICE_RESTART[service]
+            restart_function()
 
 
-def configure_service(service: str, site: dict) -> str:
-    if service in {"postgres", "postgresql"}:
+def configure_service(service: str, site: dict):
+    if service == "postgres":
         configure_service_postgres(site)
-        return "postgresql"
-    return ""
+
+
+def _required_services(site: dict) -> set:
+    image_nua_config = site["image_nua_config"]
+    services = image_nua_config.get("instance", {}).get("services")
+    if not services:
+        return set()
+    if isinstance(services, str):
+        services = [services]
+    set_services = set(services)
+    # filter alias if needed:
+    for alias, name in SERVICES_ALIASES.items():
+        if alias in set_services:
+            set_services.discard(alias)
+            set_services.add(name)
+    return set_services
 
 
 def configure_requirements(filtered_sites: dict):
     reboots = set()
     for site in filtered_sites:
-        image_nua_config = site["image_nua_config"]
-        services = image_nua_config.get("instance", {}).get("services")
-        if not services:
-            continue
-        if isinstance(services, str):
-            services = [services]
+        services = _required_services(site)
+        reboots.update(services)
         for service in services:
-            reboots.add(configure_service(service, site))
+            configure_service(service, site)
     restart_requirements(reboots)
 
 

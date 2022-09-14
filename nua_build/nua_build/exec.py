@@ -3,51 +3,96 @@ import grp
 import multiprocessing as mp
 import os
 import pwd
+from subprocess import run  # noqa S404
 
 NUA = "nua"
 
 
-def exec_as_postgres(cmd, env=None):
-    if isinstance(cmd, str):
-        cmd = cmd.split()
+def sudo_cmd_as_user(
+    cmd: str | list,
+    user: str,
+    cwd: str | None = None,
+    timeout=600,
+    env: dict | None = None,
+):
+    sudo_cmd = f"sudo -nu {user} {cmd}"
+    _mp_process_cmd(sudo_cmd, cwd, timeout, env)
+
+
+def _mp_process_cmd(
+    cmd: str | list,
+    cwd: str | None = None,
+    timeout: int = 600,
+    env: dict | None = None,
+):
+    if isinstance(cmd, list):
+        cmd = " ".join(cmd)
     full_env = os.environ.copy()
     if env:
         full_env.update(env)
-    pysu(cmd, "postgres", "postgres", full_env)
-
-
-def mp_exec_as_postgres(cmd, env=None):
-    """Exec exec_as_postgres() as a python sub process to allow several use of
-    function without mangling ENV and UID."""
-    proc = mp.Process(target=exec_as_postgres, args=(cmd, env))
+    proc = mp.Process(target=_run_shell_cmd, args=(cmd, cwd, timeout, env))
     proc.start()
     proc.join()
 
 
-def exec_as_nua(cmd, env=None):
-    if isinstance(cmd, str):
-        cmd = cmd.split()
-    full_env = os.environ.copy()
-    if env:
-        full_env.update(env)
-    pysu(cmd, NUA, NUA, full_env)
+def _run_shell_cmd(
+    cmd: str,
+    cwd: str | None = None,
+    timeout: int = 600,
+    env: dict | None = None,
+):
+    if not env:
+        env = os.environ
+    run(
+        cmd,
+        shell=True,  # noqa: S602
+        timeout=timeout,
+        cwd=cwd,
+        executable="/bin/bash",
+        env=env,
+    )
 
 
-def mp_exec_as_nua(cmd, env=None):
-    """Exec exec_as_nua() as a python sub process to allow several use of
+def is_user(user: str) -> bool:
+    return pwd.getpwuid(os.getuid()).pw_name == user
+
+
+def _exec_as_user(cmd: str | list, user: str, env=None):
+    if is_user(user):
+        if isinstance(cmd, list):
+            cmd = " ".join(cmd)
+        _run_shell_cmd(cmd, env=env)
+    elif os.getuid() == 0 or is_user(NUA):
+        sudo_cmd_as_user(cmd, "postgres", env=env)
+    else:
+        raise ValueError(f"Not allowed : _exec_as_user {user} as uid {os.getuid()}")
+
+
+def mp_exec_as_user(cmd: str | list, user: str, env=None):
+    if is_user(user):
+        _mp_process_cmd(cmd, env)
+    elif os.getuid() == 0 or is_user(NUA):
+        sudo_cmd_as_user(cmd, "postgres", env=env)
+    else:
+        raise ValueError(f"Not allowed : _mp_exec_as_user {user} as uid {os.getuid()}")
+
+
+def exec_as_nua(cmd: str | list, env=None):
+    _exec_as_user(cmd, NUA, env)
+
+
+def mp_exec_as_nua(cmd: str | list, env=None):
+    """Exec exec_as_nua() as a python external process to allow several use of
     function without mangling ENV and UID."""
-    proc = mp.Process(target=exec_as_nua, args=(cmd, env))
-    proc.start()
-    proc.join()
+    mp_exec_as_user(cmd, NUA, env)
+
+
+def mp_exec_as_postgres(cmd: str | list, env=None):
+    mp_exec_as_user(cmd, "postgres", env)
 
 
 def exec_as_root(cmd, env=None):
-    if isinstance(cmd, str):
-        cmd = cmd.split()
-    full_env = os.environ.copy()
-    if env:
-        full_env.update(env)
-    pysu(cmd, "root", "root", full_env)
+    _exec_as_user(cmd, "root", env)
 
 
 def _pysu_pw_uid(user, group):

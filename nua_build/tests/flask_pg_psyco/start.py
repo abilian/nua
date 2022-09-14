@@ -1,6 +1,8 @@
 """Example adapted from:
 https://www.digitalocean.com/community/tutorials/how-to-use-a-postgresql-database-in-a-flask-application"""
 
+import os
+
 import psycopg2
 
 from nua_build import postgres  # Nua shortcuts to manage postgres operations
@@ -18,6 +20,7 @@ def setup_db():
 
     In this example The DB is local to the Host (outside Docker).
     When orchestrator was installed, it must have setup postgreSQL v14 on the host."""
+    print("setup_db, env:", os.environ)
     postgres.pg_setup_db_user(
         host=DB_HOST, dbname=DB_NAME, user=DB_USER, password=DB_USER_PWD
     )
@@ -76,10 +79,8 @@ def add_content():
 setup_db()
 init_db_content()
 
-env = {}
-
+env = os.environ
 cmd = "gunicorn --workers 2 -b :80 flask_pg_psyco.wsgi:app"
-
 # exec_as_nua(cmd, env)
 # We need to exec as root to be able to write files in the docker volume.
 exec_as_root(cmd, env)
