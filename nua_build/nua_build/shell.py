@@ -39,6 +39,24 @@ def chown_r(path: str | Path, user: str, group: str | None = None):
         shutil.chown(root, user, group or user)
 
 
+def _dir_chmod_r(root: Path, file_mode: int, dir_mode: int):
+    for subpath in root.rglob(""):
+        if subpath.is_dir():
+            subpath.chmod(dir_mode)
+        else:
+            subpath.chmod(file_mode)
+
+
+def chmod_r(path: str | Path, file_mode: int, dir_mode: int | None = None):
+    root = Path(path)
+    if dir_mode is None:
+        dir_mode = file_mode
+    if root.is_dir():
+        _dir_chmod_r(root, file_mode, dir_mode)
+    else:
+        root.chmod(file_mode)
+
+
 def echo(text: str, filename: str) -> None:
     with open(filename, "w", encoding="utf8") as fd:
         fd.write(text + "\n")

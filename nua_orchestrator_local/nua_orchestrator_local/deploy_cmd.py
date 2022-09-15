@@ -253,6 +253,7 @@ def _run_parameters_container_environment(site: dict) -> dict:
     image_nua_config = site["image_nua_config"]
     run_env = image_nua_config.get("run_env", {})
     run_env.update(_services_environment(site))
+    run_env.update(site.get("run_env", {}))
     return run_env
 
 

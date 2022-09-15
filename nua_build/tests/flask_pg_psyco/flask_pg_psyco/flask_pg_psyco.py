@@ -2,11 +2,7 @@ import psycopg2
 from flask import Flask, redirect, render_template, request, url_for
 from psycopg2.sql import SQL
 
-DB_NAME = "flask_db"
-DB_USER = "sammy"
-DB_USER_PWD = "sammy_pwd"
-DB_HOST = "host.docker.internal"
-
+from .constants import DB_HOST, DB_NAME, DB_USER, DB_USER_PWD
 
 app = Flask(__name__)
 
@@ -35,21 +31,22 @@ def index():
 def create():
     if request.method == "POST":
         title = request.form["title"]
-        author = request.form["author"]
-        pages_num = int(request.form["pages_num"])
-        review = request.form["review"]
-        connection = db_connection()
-        cur = connection.cursor()
-        cur.execute(
-            SQL(
-                "INSERT INTO books (title, author, pages_num, review)"
-                "VALUES (%s, %s, %s, %s)"
-            ),
-            (title, author, pages_num, review),
-        )
-        connection.commit()
-        cur.close()
-        connection.close()
+        if title:
+            author = request.form["author"]
+            pages_num = int(request.form["pages_num"] or 0)
+            review = request.form["review"]
+            connection = db_connection()
+            cur = connection.cursor()
+            cur.execute(
+                SQL(
+                    "INSERT INTO books (title, author, pages_num, review)"
+                    "VALUES (%s, %s, %s, %s)"
+                ),
+                (title, author, pages_num, review),
+            )
+            connection.commit()
+            cur.close()
+            connection.close()
         return redirect(url_for("index"))
     return render_template("create.html")
 

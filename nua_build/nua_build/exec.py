@@ -63,7 +63,7 @@ def _exec_as_user(cmd: str | list, user: str, env=None):
             cmd = " ".join(cmd)
         _run_shell_cmd(cmd, env=env)
     elif os.getuid() == 0 or is_user(NUA):
-        sudo_cmd_as_user(cmd, "postgres", env=env)
+        sudo_cmd_as_user(cmd, user, env=env)
     else:
         raise ValueError(f"Not allowed : _exec_as_user {user} as uid {os.getuid()}")
 
@@ -72,7 +72,7 @@ def mp_exec_as_user(cmd: str | list, user: str, env=None):
     if is_user(user):
         _mp_process_cmd(cmd, env)
     elif os.getuid() == 0 or is_user(NUA):
-        sudo_cmd_as_user(cmd, "postgres", env=env)
+        sudo_cmd_as_user(cmd, user, env=env)
     else:
         raise ValueError(f"Not allowed : _mp_exec_as_user {user} as uid {os.getuid()}")
 

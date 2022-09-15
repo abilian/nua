@@ -37,6 +37,8 @@ document_root = "/nua/app/html"
 # deployment of the app
 prefix = "prefix"
 port = 5155
+# this configuration is for use of a local DB (localhost)
+# thus requiring --add-host=host.docker.internal:host-gateway
 services = "postgres"
 
 [run]
@@ -45,10 +47,9 @@ auto_remove = true
 # detach = true mandatory
 mem_limit = "1G"
 container_port = 80
-# [run_env]
-# # parameters passed as a dict to docker run: environment dict
 
-
-# this configuration is for use of a local DB (localhost)
-# thus requiring --add-host=host.docker.internal:host-gateway
-#
+[run_env]
+# parameters passed as a dict to docker run: environment dict
+DB_NAME = "flask_db"
+DB_USER = "bob"
+DB_USER_PWD = "bob_pwd"

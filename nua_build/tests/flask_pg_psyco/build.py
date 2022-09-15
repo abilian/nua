@@ -3,7 +3,7 @@ from pathlib import Path
 
 from nua_build.actions import install_package_list
 from nua_build.nua_config import NuaConfig
-from nua_build.shell import mkdir_p, rm_fr, sh
+from nua_build.shell import chmod_r, mkdir_p, rm_fr, sh
 
 
 def main():
@@ -20,10 +20,11 @@ def main():
     # start up if needed
 
     # create the base folder for html stuff
-    doc_root = Path(config.build["document_root"] or "/var/www/html")
-    rm_fr(doc_root)
-    mkdir_p(doc_root)
-    sh(f"chmod -R u=rwX,go=rX {doc_root}")
+    document_root = Path(config.build["document_root"] or "/var/www/html")
+    rm_fr(document_root)
+    mkdir_p(document_root)
+    # sh(f"chmod -R u=rwX,go=rX {doc_root}")
+    chmod_r(document_root, 0o644, 0o755)
 
 
 if __name__ == "__main__":
