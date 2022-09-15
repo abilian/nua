@@ -5,6 +5,7 @@ Rem: maybe need to refactor the "site" thing into a class and refactor a lot
 import sys
 from copy import deepcopy
 from pathlib import Path
+from pprint import pformat
 
 # from pprint import pprint
 from string import ascii_letters, digits
@@ -12,27 +13,28 @@ from string import ascii_letters, digits
 import docker
 import tomli
 
-from . import config
-from .archive_search import ArchiveSearch
-from .certbot import register_certbot_domains
-from .db import store
-from .docker_utils import (
+from .. import config
+from ..archive_search import ArchiveSearch
+from ..certbot import register_certbot_domains
+from ..db import store
+from ..docker_utils import (
     display_one_docker_img,
     docker_host_gateway_ip,
     docker_run,
     docker_service_start_if_needed,
     docker_volume_create_or_use,
 )
-from .nginx_util import (
+from ..nginx_util import (
     chown_r_nua_nginx,
     clean_nua_nginx_default_site,
     configure_nginx_domain,
     nginx_restart,
 )
-from .postgres import pg_check_listening, pg_restart_service, pg_run_environment
-from .rich_console import print_green, print_magenta, print_red
-from .search_cmd import parse_app_name, search_docker_tar_local
-from .server_utils.net_utils import check_port_available
+from ..postgres import pg_check_listening, pg_restart_service, pg_run_environment
+from ..rich_console import print_green, print_magenta, print_red
+from ..search_cmd import parse_app_name, search_docker_tar_local
+from ..server_utils.net_utils import check_port_available
+from ..state import verbosity
 
 ALLOW_DOCKER_NAME = set(ascii_letters + digits + "-_.")
 # parameters passed as a dict to docker run
@@ -56,7 +58,7 @@ def deploy_nua(app_name: str) -> int:
     (from local registry for now.)"""
     # if app_name.endswith(".toml") and Path(app_name).is_file():
     #     return deploy_nua_sites(app_name)
-    print_magenta(f"Deploy image '{app_name}'")
+    print_magenta(f"verbosityy image '{app_name}'")
     app, tag = parse_app_name(app_name)
     results = search_docker_tar_local(app, tag)
     if not results:
@@ -85,7 +87,7 @@ def install_image(image_path: str | Path) -> tuple:
         print_red(f"Error: image non compatible Nua: {path}.")
         raise ValueError("No Nua config found")
     metadata = image_nua_config["metadata"]
-    msg = "Installing: '{title}', ({id} {version})".format(**metadata)
+    msg = "Installing App: {id} {version}, {title}".format(**metadata)
     print_magenta(msg)
     client = docker.from_env()
     # images_before = {img.id for img in client.images.list()}
@@ -97,8 +99,9 @@ def install_image(image_path: str | Path) -> tuple:
     loaded_img = loaded[0]
     # images_after = {img.id for img in client.images.list()}
     # new = images_after - images_before
-    print_green("Intalled image:")
-    display_one_docker_img(loaded_img)
+    if verbosity(1):
+        print_green("Intalled image:")
+        display_one_docker_img(loaded_img)
     return loaded_img.id, image_nua_config
 
 
@@ -109,6 +112,7 @@ def deploy_image(image_id: str, image_nua_config: dict):
     # - build specifc config for nginx and others
     # - build docker run command
     # - finally execute docker command
+    print("No implemented")
     pass
 
 
@@ -133,6 +137,8 @@ def _free_port(start_ports: int, end_ports: int, used: set) -> int:
 def generate_ports(domain_list: list):
     start_ports = config.read("nua", "ports", "start") or 8100
     end_ports = config.read("nua", "ports", "end") or 9000
+    if verbosity(3):
+        print(f"generate_ports from {start_ports} to {end_ports}")
     site_list = [site for dom in domain_list for site in dom["sites"]]
     used = _configured_ports(site_list)
     # list of ports used for domains / sites, trying to keep them inchanged
@@ -140,6 +146,8 @@ def generate_ports(domain_list: list):
     # print(f"{used_domain_ports=}")
     for port in used_domain_ports:
         used.add(port)
+    if verbosity(3):
+        print(f"used ports:\n {used}")
     for site in site_list:
         _generate_port(site, start_ports, end_ports, used)
 
@@ -160,24 +168,23 @@ def _generate_port(site, start_ports, end_ports, used):
         site["actual_port"] = port
 
 
-def install_images(filtered_sites: list):
+def install_images(sites: list):
     # ensure docker is running
     docker_service_start_if_needed()
     installed = {}
-    for site in filtered_sites:
+    for site in sites:
         image_str = site["image"]
         app, tag = parse_app_name(image_str)
         results = search_docker_tar_local(app, tag)
         if not results:
-            print_red(f"No image found for '{image_str}'.")
+            print_red(f"No image found for '{image_str}'. Exiting.")
             sys.exit(1)
-        img_path = results[0]
+        img_path = results[-1]  # results are sorted by version, take higher
         if img_path in installed:
             image_id = installed[img_path][0]
             image_nua_config = deepcopy(installed[img_path][1])
         else:
-            # fixme: take higher version, not fist element:
-            image_id, image_nua_config = install_image(results[0])
+            image_id, image_nua_config = install_image(img_path)
             installed[img_path] = (image_id, image_nua_config)
         site["image_id"] = image_id
         site["image_nua_config"] = image_nua_config
@@ -269,8 +276,8 @@ def generate_container_run_parameters(site):
     return run_params
 
 
-def start_containers(filtered_sites: list):
-    for site in filtered_sites:
+def start_containers(sites: list):
+    for site in sites:
         run_params = generate_container_run_parameters(site)
         # volumes need to be mounted before beeing passed as arguments to
         # docker.run()
@@ -281,11 +288,11 @@ def start_containers(filtered_sites: list):
         docker_run(site)
 
 
-def stop_previous_containers(filtered_sites: list):
+def stop_previous_containers(sites: list):
     pass
 
 
-def _sites_per_domains(sites: dict) -> dict:
+def _sites_per_domains(deploy_sites: dict) -> dict:
     """Return a dict of sites/domain.
 
     key : domain name (full name)
@@ -314,7 +321,7 @@ def _sites_per_domains(sites: dict) -> dict:
                          ...
     """
     domains = {}
-    for site in sites["site"]:
+    for site in deploy_sites["site"]:
         site["prefix"] = site.get("prefix", "").strip()
         domain = site.get("domain", "").strip()
         site["domain"] = domain.strip()
@@ -404,8 +411,8 @@ def _verify_not_prefixed(domain_dict: dict):
     domain_dict["prefixed"] = False
 
 
-def filter_prefixed_sites(sites: dict) -> list:
-    domain_list = _make_template_data_list(_sites_per_domains(sites))
+def sort_per_domain(deploy_sites: dict) -> list:
+    domain_list = _make_template_data_list(_sites_per_domains(deploy_sites))
     _classify_prefixd_sites(domain_list)
     return domain_list
 
@@ -437,8 +444,8 @@ def domain_list_to_sites(domain_list: list) -> list:
     return filtered_list
 
 
-def display_deployed(filtered_sites: list):
-    for site in filtered_sites:
+def display_deployed(sites: list):
+    for site in sites:
         prefix = f"/{site['prefix']}" if site.get("prefix") else ""
         url = f"https://{site['domain']}{prefix}"
         msg = f"image '{site['image']}' deployed as {url}"
@@ -453,10 +460,12 @@ def configure_service_postgres(site):
         - restart service
     """
     if not pg_check_listening(docker_host_gateway_ip()):
-        print_red(f"Postgresql problem for '{site['image']}'")
+        print_red(f"Postgresql configuration problem for '{site['image']}'")
 
 
 def restart_requirements(reboots: set):
+    if verbosity(2):
+        print("Services to restart:", pformat(reboots))
     for service in reboots:
         if service in SERVICE_RESTART:
             restart_function = SERVICE_RESTART[service]
@@ -484,9 +493,9 @@ def _required_services(site: dict) -> set:
     return set_services
 
 
-def configure_requirements(filtered_sites: dict):
+def service_requirements(sites: list):
     reboots = set()
-    for site in filtered_sites:
+    for site in sites:
         services = _required_services(site)
         reboots.update(services)
         for service in services:
@@ -497,22 +506,29 @@ def configure_requirements(filtered_sites: dict):
 def configure_nginx(domain_list: list):
     clean_nua_nginx_default_site()
     for domain_dict in domain_list:
-        print_magenta(f"Configure Nginx for domain '{domain_dict['domain']}'")
+        if verbosity(1):
+            print_magenta(f"Configure Nginx for domain '{domain_dict['domain']}'")
         configure_nginx_domain(domain_dict)
 
 
-def deploy_nua_sites(sites_path: str) -> int:
-    print_magenta("Deployment from sites config")
-    with open(sites_path, mode="rb") as rfile:
-        sites = tomli.load(rfile)
-    domain_list = filter_prefixed_sites(sites)
+def deploy_nua_sites(deploy_config: str) -> int:
+    config_path = Path(deploy_config).expanduser().resolve()
+    if verbosity(1):
+        print_magenta(f"Deploy sites from: {config_path}")
+    with open(config_path, mode="rb") as rfile:
+        deploy_sites = tomli.load(rfile)
+    domain_list = sort_per_domain(deploy_sites)
+    if verbosity(2):
+        print("'domain_list':\n", pformat(domain_list))
     generate_ports(domain_list)
     configure_nginx(domain_list)
-    filtered_sites = domain_list_to_sites(domain_list)
-    register_certbot_domains(filtered_sites)
-    install_images(filtered_sites)
-    configure_requirements(filtered_sites)
-    start_containers(filtered_sites)
+    sites = domain_list_to_sites(domain_list)
+    if verbosity(2):
+        print("'sites':\n", pformat(sites))
+    register_certbot_domains(sites)
+    install_images(sites)
+    service_requirements(sites)
+    start_containers(sites)
     chown_r_nua_nginx()
     nginx_restart()
-    display_deployed(filtered_sites)
+    display_deployed(sites)

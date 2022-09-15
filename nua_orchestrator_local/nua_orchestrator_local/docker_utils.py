@@ -2,6 +2,7 @@
 import json
 from datetime import datetime
 from functools import cache, wraps
+from pprint import pformat
 from subprocess import run  # noqa: S404
 
 import docker
@@ -11,6 +12,7 @@ from .db import store
 from .db.model.instance import RUNNING
 from .panic import panic
 from .rich_console import print_magenta, print_red
+from .state import verbosity
 
 # from pprint import pprint
 
@@ -135,7 +137,8 @@ def docker_remove_prior_container_db(site: dict):
     (running or stopped), from DB."""
     container_name = store.instance_container(site["domain"], site["prefix"])
     if container_name:
-        print_magenta(f"    -> remove previous container '{container_name}'")
+        if verbosity(1):
+            print_magenta(f"    -> remove previous container '{container_name}'")
         docker_kill_container(container_name)
         docker_remove_container(container_name)
         store.instance_delete_by_domain_prefix(site["domain"], site["prefix"])
@@ -180,7 +183,10 @@ def store_container_instance(site):
 def docker_run(site: dict):
     image_id = site["image_id"]
     params = site["run_params"]
-    print_magenta(f"Docker run image '{image_id}'")
+    if verbosity(1):
+        print_magenta(f"Docker run image '{image_id}'")
+        if verbosity(2):
+            print("run parameters:\n", pformat(params))
     docker_remove_prior_container_db(site)
     docker_remove_prior_container_live(site)
     params["detach"] = True  # force detach option
@@ -188,7 +194,8 @@ def docker_run(site: dict):
     cont = client.containers.run(image_id, **params)
     site["container"] = cont.name
     store_container_instance(site)
-    print_magenta(f"    -> run new container         '{site['container']}'")
+    if verbosity(1):
+        print_magenta(f"    -> run new container         '{site['container']}'")
 
 
 def docker_list_volume(name: str) -> list:

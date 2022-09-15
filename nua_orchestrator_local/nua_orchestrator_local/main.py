@@ -8,16 +8,17 @@ import typer
 
 from . import __version__
 from .actions import check_python_version
+from .commands.deploy import deploy_nua, deploy_nua_sites
 from .db.store import list_all_settings
 
 # setup_db() does create the db if needed and also populate the configuration
 # from both db values and default parameters
 from .db_setup import setup_db
-from .deploy_cmd import deploy_nua, deploy_nua_sites
 from .exec import set_nua_user
 from .local_cmd import reload_servers, status
 from .rich_console import print_red
 from .search_cmd import search_nua
+from .state import set_verbose
 
 app = typer.Typer()
 is_initialized = False
@@ -33,13 +34,16 @@ def version_callback(value: bool) -> None:
         raise typer.Exit(0)
 
 
-option_version = typer.Option(
+opt_version = typer.Option(
     None,
     "--version",
     "-V",
     help="Show Nua version and exit.",
     callback=version_callback,
     is_eager=True,
+)
+opt_verbose = typer.Option(
+    0, "--verbose", "-v", help="Show more informations, until -vvv. ", count=True
 )
 
 
@@ -93,8 +97,12 @@ def search_local(app: str = arg_search_app):
 
 
 @app.command("deploy")
-def deploy_local(app_name: str = arg_deploy_app):
+def deploy_local(
+    app_name: str = arg_deploy_app,
+    verbose: int = opt_verbose,
+):
     """Search, install and launch Nua image."""
+    set_verbose(verbose)
     if app_name.endswith(".toml") and Path(app_name).is_file():
         initialization()
         deploy_nua_sites(app_name)
@@ -113,7 +121,7 @@ def show_db_settings():
 @app.callback(invoke_without_command=True)
 def main(
     ctx: typer.Context,
-    version: Optional[bool] = option_version,
+    version: Optional[bool] = opt_version,
 ):
     """Nua orchestrator local."""
     initialization()

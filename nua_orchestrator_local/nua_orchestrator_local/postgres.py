@@ -236,7 +236,8 @@ def _add_gateway_address(listening: str, gateway: str) -> bool:
 
 def pg_restart_service():
     """Restart postgres service."""
-    cmd = "sudo service postgresql restart"
+    # cmd = "sudo service postgresql restart"
+    cmd = "sudo systemctl restart postgresql"
     sh(cmd)
 
 

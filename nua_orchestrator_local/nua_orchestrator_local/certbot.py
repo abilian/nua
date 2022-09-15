@@ -6,6 +6,7 @@ import sys
 from . import config
 from .rich_console import print_magenta, print_red
 from .shell import sh
+from .state import verbosity
 
 
 def assert_certbot_strategy():
@@ -72,7 +73,8 @@ def certbot_run_https(domains: list[str]):
         - apply "auto" rules and parameters
     """
     assert_certbot_strategy()
-    print_magenta(f"Run Certbot for: {' '.join(domains)}")
+    if verbosity(1):
+        print_magenta(f"Run Certbot for: {' '.join(domains)}")
     cmd = "certbot run " + certbot_run_args(domains)
     if os.getuid():  # aka not root
         cmd = "sudo " + cmd
@@ -81,4 +83,8 @@ def certbot_run_https(domains: list[str]):
     # - when "sudo cmd", from nua, we epect to use the host's certbot package
     #   of the host installation (not a venv package)
     # - certbot has been installed on the host from nua-bootstrap
-    sh(cmd, show_cmd=False)
+    if verbosity(3):
+        output = sh(cmd, show_cmd=True, capture_output=True)
+        print(output)
+    else:
+        sh(cmd, show_cmd=verbosity(2))

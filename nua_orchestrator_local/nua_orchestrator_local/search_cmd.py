@@ -55,7 +55,7 @@ def _is_local_tar(reg) -> bool:
 
 
 def search_docker_tar_local(app, tag) -> list:
-    """Return list of path of local Nua archives sorted by version"""
+    """Return list of path of local Nua archives sorted by version."""
     results = []
     if tag:
         for registry in list_registry_docker_tar_local():

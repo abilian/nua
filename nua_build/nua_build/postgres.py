@@ -34,12 +34,8 @@ def postgres_pwd() -> str:
 
     Rem.: No cache. Rarely used function and pwd can be changed."""
     pwd = os.environ.get("NUA_POSTGRES_PASSWORD")
-    print(f"in postgres_pwd as {os.getuid()}")
-    print("env is:", os.environ)
-    print("pwd is:", pwd)
     if pwd:
         return pwd
-
     file_path = Path(os.path.expanduser("~nua")) / NUA_PG_PWD_FILE
     with open(file_path, "r", encoding="utf8") as rfile:
         pwd = rfile.read().strip()
@@ -240,7 +236,8 @@ def _add_gateway_address(listening: str, gateway: str) -> bool:
 
 def pg_restart_service():
     """Restart postgres service."""
-    cmd = "sudo service postgresql restart"
+    # cmd = "sudo service postgresql restart"
+    cmd = "sudo systemctl restart postgresql"
     sh(cmd)
 
 
