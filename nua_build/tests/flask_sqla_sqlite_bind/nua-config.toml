@@ -1,11 +1,11 @@
 [metadata]
-id = "flask-upload-one"
+id = "flask_sqla_sqlite_bind"
 version = "1.0"
-title = "Flask test upload one"
+title = "Nua test with sqlalchemy, sqlite on bind volume"
 author = "Nua testers"
-tagline = "Nua test with Flask and mount - one"
+tagline = "Nua test with sqlalchemy, sqlite on bind volume"
 website = "https://nua.rocks/"
-tags = ["test", "html", "web", "static", "mount"]
+tags = ["test", "html", "web", "flask", "plugin", "sqlite", "sqlalchemy"]
 licence = "MIT"
 profile = ["test"]
 release = 1
@@ -30,33 +30,38 @@ release = 1
 # optional start script, default is "start.py" if found
 # start_script = ""
 document_root = "/nua/app/html"
+
 [instance]
 # instance contains values suited to be chaned at deploy time for
-# multi-instance deploument. Values here are used by default, i.e. for a single
+# multi-instance deployment. Values here are used by default, i.e. for a single
 # deployment of the app
-prefix = "prefix"
-port = 5100
+prefix = ""
+port = "auto"
+# this configuration is for use of a local DB (localhost)
+# thus requiring --add-host=host.docker.internal:host-gateway
+# services = "postgres"
+
 [run]
 # parameters passed as a dict to docker run
 auto_remove = true
 # detach = true mandatory
 mem_limit = "1G"
 container_port = 80
-[run_env]
-# parameters passed as a dict to docker run: environment dict
 
 [[volume]]
 # The mount type (bind / volume / tmpfs / npipe). Default: volume :
-type = "volume"
+type = "bind"
 # Name of the driver used to create the volume: (for type == "volume")
-driver = "local"
+# driver = "local"
 # Mount source (e.g. a volume name or a host path):
-source = "flask_uploads"
+source = "/var/tmp"
 # Container path:
-target = "/var/tmp/uploads"
-#[[mount.opt]]
-# list of volume-op tags
-# docker.types.Mount
-# volume = client.volumes.create(name='foobar', driver='local',
-#   driver_opts={'foo': 'bar', 'baz': 'false'},
-#   labels={"key": "value"})
+target = "/nua/app/dbs"
+#
+mode = "rw"
+# dst = "/var/tmp/uploads"
+
+[run_env]
+# parameters passed as a dict to docker run: environment dict
+DB_FOLDER = "/nua/app/dbs"
+DB_NAME = "student_test.db"

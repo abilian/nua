@@ -191,9 +191,10 @@ def install_images(sites: list):
 
 
 def create_docker_volumes(volumes_config):
-    docker_volumes = []
+    # docker_volumes = []
     for volume_params in volumes_config:
-        docker_volumes.append(docker_volume_create_or_use(volume_params))
+        # docker_volumes.append(docker_volume_create_or_use(volume_params))
+        docker_volume_create_or_use(volume_params)
 
 
 def mount_volumes(site: dict):
@@ -204,7 +205,9 @@ def mount_volumes(site: dict):
     for volume_params in volumes_config:
         mounted_volumes.append(
             docker.types.Mount(
-                volume_params["dst"], volume_params["name"], type=volume_params["type"]
+                volume_params["target"],
+                volume_params["source"],
+                type=volume_params["type"],
             )
         )
     return mounted_volumes

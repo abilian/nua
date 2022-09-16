@@ -205,29 +205,37 @@ def docker_list_volume(name: str) -> list:
     return [vol for vol in lst if vol.name == name]
 
 
+#  "/var/tmp" includes invalid characters for a local volume
+
+
 def docker_create_volume(volume_opt: dict):
-    driver = volume_opt["driver"]
+    driver = volume_opt.get("driver", "local")
     if driver != "local" and not install_plugin(driver):
         # assuming it is the name of a plugin
         print_red(f"Install of Docker's plugin '{driver}' failed.")
         panic("Exiting.")
-
     client = docker.from_env()
-    # driver's options, using format of python-docker:
-    volume = client.volumes.create(
-        name=volume_opt["name"],
+    # volume = client.volumes.create(
+    client.volumes.create(
+        name=volume_opt["source"],
         driver=driver,
+        # driver's options, using format of python-docker:
         driver_opts=volume_opt.get("options", {}),
     )
-    return volume
+    # return volume
 
 
 def docker_volume_create_or_use(volume_opt: dict):
-    """Return a usable docker volume"""
-    found = docker_list_volume(volume_opt["name"])
-    if found:
-        return found[0]
-    return docker_create_volume(volume_opt)
+    """Return a useabla/mountable docker volume."""
+    if volume_opt.get("type") == "bind":
+        # no need to create "bind" volumes
+        return
+    found = docker_list_volume(volume_opt["source"])
+    # if found:
+    #     return found[0]
+    # return docker_create_volume(volume_opt)
+    if not found:
+        docker_create_volume(volume_opt)
 
 
 def install_plugin(plugin_name: str) -> str:
