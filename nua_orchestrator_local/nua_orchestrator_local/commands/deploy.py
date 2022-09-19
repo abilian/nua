@@ -238,14 +238,16 @@ def _run_parameters_container_name(site: dict) -> str:
 
 
 def _run_parameters_container_ports(site: dict, run_params: dict) -> dict:
-    # fixme: first version does force at least a port
     if "container_port" in run_params:
         container_port = run_params["container_port"]
         del run_params["container_port"]
     else:
         container_port = 80
-    host_port = site["actual_port"]
-    ports = {f"{container_port}/tcp": host_port}
+    host_port = site.get("actual_port")
+    if host_port:
+        ports = {f"{container_port}/tcp": host_port}
+    else:
+        ports = {}  # for app not using web interface (ie: computation storage only...)
     return ports
 
 
@@ -295,24 +297,35 @@ def stop_previous_containers(sites: list):
     pass
 
 
+def _parse_domain_prefix(full_domain: str) -> tuple:
+    splitted = full_domain.split("/", 1)
+    domain = splitted[0].strip()
+    if len(splitted) == 1:
+        prefix = ""
+    else:
+        prefix = splitted[1].strip()
+    return domain, prefix
+
+
 def _sites_per_domains(deploy_sites: dict) -> dict:
     """Return a dict of sites/domain.
 
     key : domain name (full name)
     value : list of web sites of domain
 
-    input format:
+    input format: dict contains a list of sites
+
     [[site]]
-    domain = "test.example.com"
+    domain = "test.example.com/instance1"
     image = "flask-one:1.2-1"
-    prefix = "instance1"
-    port = "auto"
     [[site]]
     domain = "sloop.example.com"
     image = "nua-flask-upload-one:1.0-1"
     port = "auto"
 
-    ouput format:
+    ouput format: dict of domains, with explicite prefix cut from domain and explicit
+                  port = "auto".
+
     {'sloop.example.com': [{'domain': 'sloop.example.com',
                           'image': 'nua-flask-upload-one:1.0-1',
                           'port': 'auto',
@@ -325,9 +338,11 @@ def _sites_per_domains(deploy_sites: dict) -> dict:
     """
     domains = {}
     for site in deploy_sites["site"]:
-        site["prefix"] = site.get("prefix", "").strip()
-        domain = site.get("domain", "").strip()
-        site["domain"] = domain.strip()
+        domain, prefix = _parse_domain_prefix(site.get("domain", ""))
+        site["domain"] = domain
+        site["prefix"] = prefix
+        if domain and "port" not in site:
+            site["port"] = "auto"
         if domain not in domains:
             domains[domain] = []
         domains[domain].append(site)

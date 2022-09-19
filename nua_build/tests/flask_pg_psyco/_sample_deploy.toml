@@ -1,16 +1,12 @@
 [[site]]
 domain = "test1.example.xyz"
 image = "flask-pg-psyco:5.0-1"
-prefix = ""
-port = "auto"
 [site.run_env]
 DB_NAME = "flask_db_1"
 
 [[site]]
 domain = "test2.example.xyz"
 image = "flask-pg-psyco:5.0-1"
-prefix = ""
-port = "auto"
 [site.run_env]
 DB_NAME = "flask_db_2"
 DB_USER = "bob2"

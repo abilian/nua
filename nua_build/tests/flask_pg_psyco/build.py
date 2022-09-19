@@ -23,7 +23,6 @@ def main():
     document_root = Path(config.build["document_root"] or "/var/www/html")
     rm_fr(document_root)
     mkdir_p(document_root)
-    # sh(f"chmod -R u=rwX,go=rX {doc_root}")
     chmod_r(document_root, 0o644, 0o755)
 
 

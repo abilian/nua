@@ -31,11 +31,9 @@ release = 1
 # start_script = ""
 document_root = "/nua/app/html"
 [instance]
-# instance contains values suited to be chaned at deploy time for
-# multi-instance deploument. Values here are used by default, i.e. for a single
+# instance contains values suited to be changed at deploy time for
+# multi-instance deployment. Values here are used by default, i.e. for a single
 # deployment of the app
-prefix = "flask_one"
-port = 5100
 [run]
 # parameters passed as a dict to docker run
 auto_remove = true

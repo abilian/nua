@@ -1,15 +1,11 @@
 [[site]]
 domain = "test1.example.xyz"
 image = "flask_sqla_sqlite_bind:1.0-1"
-prefix = ""
-port = "auto"
 [site.run_env]
 DB_NAME = "first_student_test.db"
 
 [[site]]
 domain = "test2.example.xyz"
 image = "flask_sqla_sqlite_bind:1.0-1"
-prefix = ""
-port = "auto"
 [site.run_env]
 DB_NAME = "another_student_test.db"
