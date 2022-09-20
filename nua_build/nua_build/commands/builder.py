@@ -22,6 +22,7 @@ from ..nua_config import NuaConfig
 from ..panic import error
 from ..rich_console import print_green
 from ..shell import mkdir_p, rm_fr
+from ..state import verbosity
 from .build_nua_builder import build_nua_builder
 
 # import typer
@@ -40,13 +41,12 @@ logging.basicConfig(level=logging.INFO)
 class Builder:
     """Class to hold config and other state information during build."""
 
-    def __init__(self, config_file, verbose=False):
+    def __init__(self, config_file):
         # wether the config file is local or not, use local dir for build:
         self.work_dir = Path.cwd()
         build_dir_parent = config.get("build", {}).get("build_dir", self.work_dir)
         self.build_dir = Path(build_dir_parent) / BUILD
         self.config = NuaConfig(config_file)
-        self.verbose = verbose
         self.container_type = ""
         self.nua_dir = None
         self.nua_dir_relative = None
@@ -89,11 +89,14 @@ class Builder:
         error(f"Path not found (nua_dir) : '{nua_dir}'")
 
     def setup_build_directory(self):
+        if verbosity(2):
+            print(f"build dir: {self.build_dir}")
         rm_fr(self.build_dir)
         mkdir_p(self.build_dir)
         self.copy_build_files()
         # self.copy_myself()
-        print("Copying config file:", self.config.path.name)
+        if verbosity(1):
+            print("Copying Nua config file:", self.config.path.name)
         copy2(self.config.path, self.build_dir)
         # chown_r(self.build_dir, user, group)  # todo
 
@@ -101,20 +104,24 @@ class Builder:
         for name in self.config.manifest:
             user_file = self.config.root_dir / name
             if user_file.is_file():
-                print("Copying manifest file:", user_file.name)
+                if verbosity(1):
+                    print("Copying manifest file:", user_file.name)
                 copy2(user_file, self.build_dir)
             elif user_file.is_dir():
-                print("Copying manifest directory:", user_file.name)
+                if verbosity(1):
+                    print("Copying manifest directory:", user_file.name)
                 copytree(user_file, self.build_dir / name)
             else:
                 error(f"File from manifest not found: {repr(name)}")
 
     def copy_file_or_dir(self, user_file):
         if user_file.is_file():
-            print("Copying local file:", user_file.name)
+            if verbosity(1):
+                print("Copying local file:", user_file.name)
             copy2(user_file, self.build_dir)
         elif user_file.is_dir():
-            print("Copying local directory:", user_file.name)
+            if verbosity(1):
+                print("Copying local directory:", user_file.name)
             copytree(user_file, self.build_dir / user_file.name)
         else:
             pass
@@ -140,7 +147,8 @@ class Builder:
         dest = self.nua_dir / default_file.name
         if dest.is_file():
             return
-        print("Copying Nua default file:", default_file.name)
+        if verbosity(1):
+            print("Copying Nua default file:", default_file.name)
         copy2(default_file, self.build_dir / self.nua_dir_relative)
 
     def copy_build_files(self):
@@ -159,6 +167,8 @@ class Builder:
 
     @docker_build_log_error
     def build_with_docker(self, save=True):
+        if verbosity(2):
+            print("Starting build_with_docker()")
         chdir(self.build_dir)
         with suppress(IOError):
             copy2(self.build_dir / self.nua_dir_relative / "Dockerfile", self.build_dir)
@@ -180,7 +190,8 @@ class Builder:
             },
             nocache=True,
         )
-        display_docker_img(nua_tag)
+        if verbosity(1):
+            display_docker_img(nua_tag)
         if save:
             self.save(image, nua_tag)
 
@@ -189,21 +200,19 @@ class Builder:
         with open(dest, "wb") as tarfile:
             for chunk in image.save(named=True):
                 tarfile.write(chunk)
-        print("Docker image saved:")
-        print(dest)
+        if verbosity(1):
+            print("Docker image saved:")
+            print(dest)
 
 
-def build_nua_builder_if_needed(verbose):
-    found = False
+def build_nua_builder_if_needed():
     client = docker.from_env()
     result = client.images.list(filters={"reference": NUA_BUILDER_TAG})
-    if result:
-        found = True
-    else:
-        message = f"Image '{NUA_BUILDER_TAG}' not found locally: build required."
-    if not found:
-        print(message)
-        build_nua_builder(verbose)
+    if not result:
+        if verbosity(1):
+            message = f"Image '{NUA_BUILDER_TAG}' not found locally, build required."
+            print(message)
+        build_nua_builder()
 
 
 # @app.command("build")

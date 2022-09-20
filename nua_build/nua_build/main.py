@@ -14,8 +14,7 @@ import typer
 from . import __version__
 from .commands.builder import Builder, build_nua_builder_if_needed
 from .rich_console import print_green
-
-state = {"verbose": False}
+from .state import set_verbose
 
 app = typer.Typer()
 
@@ -31,8 +30,6 @@ def version_callback(value: bool) -> None:
 argument_config = typer.Argument(
     None, metavar="config", help="Path to the package dir or 'nua-config.toml' file."
 )
-# option_verbose = typer.Option(False, help="Print build log.")
-
 
 option_version = typer.Option(
     None,
@@ -44,10 +41,7 @@ option_version = typer.Option(
 )
 
 option_verbose = typer.Option(
-    False,
-    "--verbose",
-    "-v",
-    help="Write verbose output.",
+    0, "--verbose", "-v", help="Show more informations, until -vvv. ", count=True
 )
 
 
@@ -73,16 +67,12 @@ def main(
     # ctx: typer.Context,
     config_file: Optional[str] = argument_config,
     version: Optional[bool] = option_version,
-    verbose: bool = option_verbose,
+    verbose: int = option_verbose,
 ):
     """Nua-build CLI inferface."""
+    set_verbose(verbose)
     initialization()
-    if verbose:
-        typer.echo("(Will write verbose output)")
-        state["verbose"] = True
-    # if ctx.invoked_subcommand is None:
-    #     usage()
-    build_nua_builder_if_needed(verbose)
-    builder = Builder(config_file, verbose)
+    build_nua_builder_if_needed()
+    builder = Builder(config_file)
     print_green(f"*** Generation of the image for {builder.config.app_id} ***")
     builder.run()

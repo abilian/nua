@@ -19,16 +19,19 @@ from ..constants import (
 from ..docker_utils_build import display_docker_img, docker_build_log_error
 from ..rich_console import print_green, print_red
 from ..shell import mkdir_p, rm_fr
+from ..state import set_verbose, verbosity
 
 app = typer.Typer()
 
-option_verbose = typer.Option(False, help="Print build log.")
+option_verbose = typer.Option(
+    0, "--verbose", "-v", help="Show more informations, until -vvv. ", count=True
+)
 
 
-def build_nua_builder(verbose):
+def build_nua_builder():
     print_green(f"*** Generation of the docker image {NUA_BUILDER_TAG} ***")
-    build_python_layer(verbose)
-    build_builder_layer(verbose)
+    build_python_layer()
+    build_builder_layer()
 
 
 def set_build_dir(orig_wd):
@@ -43,17 +46,18 @@ def set_build_dir(orig_wd):
         raise
 
 
-def build_python_layer(verbose):
+def build_python_layer():
     orig_wd = Path.cwd()
     build_dir = set_build_dir(orig_wd)
     copy2(DOCKERFILE_PYTHON, build_dir)
-    docker_build_python(build_dir, verbose)
-    display_docker_img(NUA_PYTHON_TAG)
+    docker_build_python(build_dir)
+    if verbosity(1):
+        display_docker_img(NUA_PYTHON_TAG)
     chdir(orig_wd)
 
 
 @docker_build_log_error
-def docker_build_python(build_dir, verbose=False):
+def docker_build_python(build_dir):
     chdir(build_dir)
     print(f"1/2: Building image {NUA_PYTHON_TAG}")
     app_id = "nua-python"
@@ -71,18 +75,19 @@ def docker_build_python(build_dir, verbose=False):
     )
 
 
-def build_builder_layer(verbose):
+def build_builder_layer():
     orig_wd = Path.cwd()
     build_dir = set_build_dir(orig_wd)
     copy2(DOCKERFILE_BUILDER, build_dir)
     copy_myself(build_dir)
-    docker_build_builder(build_dir, verbose)
-    display_docker_img(NUA_BUILDER_TAG)
+    docker_build_builder(build_dir)
+    if verbosity(1):
+        display_docker_img(NUA_BUILDER_TAG)
     chdir(orig_wd)
 
 
 @docker_build_log_error
-def docker_build_builder(build_dir, verbose=False):
+def docker_build_builder(build_dir):
     chdir(build_dir)
     app_id = "nua-builder"
     print(f"2/2: Building image {NUA_BUILDER_TAG} (it may take a while...)")
@@ -111,6 +116,7 @@ def copy_myself(build_dir):
 
 
 @app.command("build_nua_docker")
-def generate_nua_docker_cmd(verbose: bool = option_verbose) -> None:
+def generate_nua_docker_cmd(verbose: int = option_verbose) -> None:
     """build the base Nua docker image."""
-    build_nua_builder(verbose)
+    set_verbose(verbose)
+    build_nua_builder()
