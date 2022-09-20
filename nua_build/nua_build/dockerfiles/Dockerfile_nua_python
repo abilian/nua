@@ -4,6 +4,15 @@ FROM ubuntu:jammy-20220801
 #
 # Setup minimal base image for Nua builds
 #
+ENV PYTHONFAULTHANDLER=1 \
+  PYTHONUNBUFFERED=1 \
+  PYTHONHASHSEED=random \
+  PYTHONDONTWRITEBYTECODE=1 \
+  # pip: \
+  PIP_NO_CACHE_DIR=off \
+  PIP_DISABLE_PIP_VERSION_CHECK=on \
+  PIP_DEFAULT_TIMEOUT=100
+
 RUN useradd nua
 RUN apt-get -y --fix-missing update && apt-get -y --no-install-recommends install python3.10 python3-venv python3-pip
 RUN python3.10 -m venv /nua/venv
