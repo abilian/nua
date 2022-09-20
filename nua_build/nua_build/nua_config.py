@@ -7,6 +7,7 @@ import tomli
 from .constants import NUA_CONFIG
 from .panic import error
 
+REQUIRED_BLOCKS = ["metadata", "build"]
 REQUIRED = ["id", "version", "title", "author", "licence"]
 OPTIONAL = ["tagline", "website", "tags", "profile", "release", "changelog"]
 
@@ -31,8 +32,9 @@ class NuaConfig:
         return self._data
 
     def assert_format(self):
-        if "metadata" not in self._data:
-            error(f"missing mandatory 'metadata' block in {NUA_CONFIG}")
+        for block in REQUIRED_BLOCKS:
+            if block not in self._data:
+                error(f"missing mandatory '{block}' block in {NUA_CONFIG}")
         for key in REQUIRED:
             if key not in self._data["metadata"]:
                 error(f"missing mandatory metadata in {NUA_CONFIG}: '{key}'")

@@ -36,6 +36,7 @@ class BuilderApp:
         chdir(self.build_dir)
         self.config = NuaConfig(self.build_dir)
         self.build_script_path = None
+        self.nua_dir = None
 
     def fetch(self):
         chdir(self.build_dir)
@@ -51,10 +52,26 @@ class BuilderApp:
         else:
             print("No src_url or src_git content to fetch.")
 
+    def detect_nua_dir(self):
+        """Detect dir containing nua files (start.py, build.py, Dockerfile, ...)."""
+        nua_dir = self.config.build.get("nua_dir")
+        if not nua_dir:
+            # Check if default 'nua' dir exists
+            path = self.build_dir / "nua"
+            if path.is_dir():
+                self.nua_dir = path
+            else:
+                # Use the root folder (where is the nua-config.toml file)
+                self.nua_dir = self.build_dir
+            return
+        # Provided path must exists (or should have failed earlier)
+        self.nua_dir = self.build_dir / nua_dir
+
     def build(self):
+        self.detect_nua_dir()
         self.make_dirs()
         build_script = self.config.build.get("build_script") or "build.py"
-        self.build_script_path = self.build_dir / build_script
+        self.build_script_path = self.nua_dir / build_script
         if self.build_script_path.is_file():
             self.run_build_script()
         else:
@@ -73,7 +90,7 @@ class BuilderApp:
         script_dir = Path(NUA_SCRIPTS_PATH)
         script_dir.mkdir(mode=0o755, parents=True, exist_ok=True)
         start_script = self.config.build.get("start_script") or "start.py"
-        orig = self.build_dir / start_script
+        orig = self.nua_dir / start_script
         if orig.is_file():
             copy2(orig, script_dir)
         else:

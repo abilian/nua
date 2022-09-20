@@ -12,7 +12,7 @@ from typing import Optional
 import typer
 
 from . import __version__
-from .commands.build_cmd import Builder, build_nua_builder_if_needed
+from .commands.builder import Builder, build_nua_builder_if_needed
 from .rich_console import print_green
 
 state = {"verbose": False}
@@ -84,6 +84,5 @@ def main(
     #     usage()
     build_nua_builder_if_needed(verbose)
     builder = Builder(config_file, verbose)
-    print_green(f"*** Generation of the docker image for {builder.config.app_id} ***")
-    builder.setup_build_directory()
-    builder.build_with_docker()
+    print_green(f"*** Generation of the image for {builder.config.app_id} ***")
+    builder.run()
