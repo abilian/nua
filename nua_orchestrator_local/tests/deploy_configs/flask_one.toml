@@ -1,3 +1,15 @@
 [[site]]
-domain = "test.example.xyz"
-image = "flask-one"
+image = "nua-flask-one:1.2-1"
+domain = "test1.example.xyz"
+[[site.test]]
+url = "https://test1.example.xyz"
+expect_status = 200
+expect_str = "Hello World, this is Flask One"
+
+[[site]]
+image = "flask-one:1.2-1"
+domain = "test2.example.xyz"
+[[site.test]]
+url = "https://test2.example.xyz"
+expect_status = 200
+expect_str = "Hello World, this is Flask One"

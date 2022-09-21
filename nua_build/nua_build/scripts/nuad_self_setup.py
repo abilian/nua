@@ -20,7 +20,6 @@ from ..shell import echo
 # Python stuff needed for nua:
 PACKAGES = [
     "apt-utils",
-    "build-essential",
     "python3-dev",
     "sudo",
     "libpq5",

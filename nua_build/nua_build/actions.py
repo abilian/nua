@@ -27,7 +27,7 @@ def build_python(path=None):
     requirements = path / "requirements.txt"
     setup_py = path / "setup.py"
     if requirements.exists():
-        sh("python -m pip install -r {str(requirements)}")
+        sh(f"python -m pip install -r {requirements}")
     elif setup_py.exists():
         # assuming code is in src:
         pip_install("src")
