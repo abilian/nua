@@ -14,7 +14,8 @@ ENV PYTHONFAULTHANDLER=1 \
   PIP_DEFAULT_TIMEOUT=100
 
 RUN useradd nua
-RUN apt-get -y --fix-missing update && apt-get -y --no-install-recommends install python3.10 python3-venv python3-pip
+RUN apt-get -y --fix-missing update && apt-get -y --no-install-recommends install \
+  python3.10 python3-venv python3-pip
 RUN python3.10 -m venv /nua/venv
 ENV VIRTUAL_ENV="/nua/venv"
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"

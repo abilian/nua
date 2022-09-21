@@ -58,7 +58,8 @@ def deploy_nua(app_name: str) -> int:
     (from local registry for now.)"""
     # if app_name.endswith(".toml") and Path(app_name).is_file():
     #     return deploy_nua_sites(app_name)
-    print_magenta(f"verbosityy image '{app_name}'")
+    if verbosity(2):
+        print_magenta(f"image: '{app_name}'")
     app, tag = parse_app_name(app_name)
     results = search_docker_tar_local(app, tag)
     if not results:
