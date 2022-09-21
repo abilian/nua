@@ -44,7 +44,7 @@ release = 1
 # parameters passed as a dict to docker run
 auto_remove = true
 # detach = true mandatory
-# mem_limit = "1G"
+# mem_limit = "8G"
 container_port = 8080
 
 [[volume]]

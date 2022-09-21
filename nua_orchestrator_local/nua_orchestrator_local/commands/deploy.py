@@ -43,7 +43,7 @@ RUN_BASE = {
     "extra_hosts": {"host.docker.internal": "host-gateway"},
 }
 RUN_DEFAULT = {
-    "mem_limit": "1G",
+    "mem_limit": "8G",
     "container_port": 80,
 }
 # someservices in nua_config may nbe spelled in different ways:
