@@ -45,12 +45,15 @@ def certbot_run_args(domains: list) -> str:
         "--allow-subset-of-names",
         "--expand",
         "--agree-tos",
-        "--quiet",
         "-n",
         "--rsa-key-size 4096",
         # "--key-type rsa", for newer certbot versions
         "--redirect",
     ]
+    if not os.environ.get("CERTBOT_VERBOSE"):
+        run_args.append("--quiet")
+    if os.environ.get("CERTBOT_TEST"):
+        run_args.append("--test-cert")
     admin_mail = config.read("nua", "host", "host_admin_mail")
     if admin_mail:
         email = f"--email {admin_mail}"

@@ -112,11 +112,19 @@ def sh(
         completed = _base_sh(cmd, timeout, env, capture_output)
         status = completed.returncode
         if status < 0:
-            error(f"Child was terminated by signal {-status}", status)
+            msg = (
+                f"Child was terminated by signal {-status},\n"
+                f"shell command was: '{cmd}'\n"
+            )
+            error(msg, status)
         elif status > 0:
-            error(f"Something went wrong (exit code: {status})", status)
+            msg = (
+                f"Something went wrong (exit code: {status}), \n"
+                f"shell command was: '{cmd}'\n"
+            )
+            error(msg, status)
     except OSError as e:
-        panic(f"Execution failed: {e}")
+        panic(f"Execution failed: {e}\nshell command was: '{cmd}'\n")
     if capture_output:
         return completed.stdout
     else:

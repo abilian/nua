@@ -32,7 +32,7 @@ from ..nginx_util import (
 )
 from ..postgres import pg_check_listening, pg_restart_service, pg_run_environment
 from ..rich_console import print_green, print_magenta, print_red
-from ..search_cmd import parse_app_name, search_docker_tar_local
+from ..search_cmd import parse_app_name, search_nua
 from ..server_utils.net_utils import check_port_available
 from ..state import verbosity
 
@@ -60,8 +60,7 @@ def deploy_nua(app_name: str) -> int:
     #     return deploy_nua_sites(app_name)
     if verbosity(2):
         print_magenta(f"image: '{app_name}'")
-    app, tag = parse_app_name(app_name)
-    results = search_docker_tar_local(app, tag)
+    results = search_nua(app_name)
     if not results:
         print_red(f"No image found for '{app_name}'.")
         sys.exit(1)
@@ -175,8 +174,7 @@ def install_images(sites: list):
     installed = {}
     for site in sites:
         image_str = site["image"]
-        app, tag = parse_app_name(image_str)
-        results = search_docker_tar_local(app, tag)
+        results = search_nua(image_str)
         if not results:
             print_red(f"No image found for '{image_str}'. Exiting.")
             sys.exit(1)
@@ -189,6 +187,22 @@ def install_images(sites: list):
             installed[img_path] = (image_id, image_nua_config)
         site["image_id"] = image_id
         site["image_nua_config"] = image_nua_config
+
+
+def find_all_images(deploy_sites: dict) -> bool:
+    images_found = set()
+    for site in deploy_sites["site"]:
+        image_str = site["image"]
+        if image_str in images_found:
+            continue
+        results = search_nua(image_str)
+        if not results:
+            print_red(f"No image found for '{image_str}'.")
+            return False
+        images_found.add(image_str)
+        if verbosity(1):
+            print_red(f"image found: '{image_str}'.")
+    return True
 
 
 def create_docker_volumes(volumes_config):
@@ -536,6 +550,9 @@ def deploy_nua_sites(deploy_config: str) -> int:
         print_magenta(f"Deploy sites from: {config_path}")
     with open(config_path, mode="rb") as rfile:
         deploy_sites = tomli.load(rfile)
+    # first: check that all images are available:
+    if not find_all_images(deploy_sites):
+        sys.exit(1)
     domain_list = sort_per_domain(deploy_sites)
     if verbosity(2):
         print("'domain_list':\n", pformat(domain_list))

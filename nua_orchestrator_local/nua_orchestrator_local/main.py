@@ -17,7 +17,7 @@ from .db_setup import setup_db
 from .exec import set_nua_user
 from .local_cmd import reload_servers, status
 from .rich_console import print_red
-from .search_cmd import search_nua
+from .search_cmd import search_nua_print
 from .state import set_verbose
 
 app = typer.Typer()
@@ -90,10 +90,10 @@ def restart_local():
 
 
 @app.command("search")
-def search_local(app: str = arg_search_app):
+def search_local(app: str = arg_search_app) -> bool:
     """Search Nua image."""
     initialization()
-    search_nua(app)
+    search_nua_print(app)
 
 
 @app.command("deploy")
