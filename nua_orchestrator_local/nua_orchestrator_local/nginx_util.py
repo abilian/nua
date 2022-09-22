@@ -6,6 +6,7 @@ from . import nua_env
 from .actions import jinja2_render_file
 from .rich_console import print_magenta, print_red
 from .shell import chown_r, mkdir_p, rm_fr, sh
+from .state import verbosity
 
 CONF_NGINX = Path(__file__).parent.resolve() / "config" / "nginx"
 
@@ -76,7 +77,16 @@ def configure_nginx_domain(domain_dict):
     else:
         template = CONF_NGINX / "template" / "domain_not_prefixed_template"
     dest_path = nua_nginx / "sites" / domain_dict["domain"]
+    if verbosity(2):
+        print(domain_dict["domain"], "template:", template)
+        print(domain_dict["domain"], "target  :", dest_path)
     jinja2_render_file(template, dest_path, domain_dict)
+    if verbosity(2):
+        if not dest_path.exists():
+            print(domain_dict["domain"], "Warning: target not created")
+        else:
+            print(domain_dict["domain"], "content:")
+            print(open(dest_path, "r", encoding="utf8").read())
     os.chmod(dest_path, 0o644)
 
 

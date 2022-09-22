@@ -498,7 +498,10 @@ def configure_service_postgres(site):
 
 def restart_requirements(reboots: set):
     if verbosity(2):
-        print("Services to restart:", pformat(reboots))
+        if reboots:
+            print("Services to restart:", pformat(reboots))
+        else:
+            print("Services to restart: None")
     for service in reboots:
         if service in SERVICE_RESTART:
             restart_function = SERVICE_RESTART[service]

@@ -4,6 +4,7 @@ from datetime import datetime
 from functools import cache, wraps
 from pprint import pformat
 from subprocess import run  # noqa: S404
+from time import sleep
 
 import docker
 
@@ -114,34 +115,103 @@ def docker_list_container(name: str):
     return client.containers.list(filters={"name": name})
 
 
+def _docker_wait_empty_container_list(name: str, timeout: int) -> bool:
+    if not timeout:
+        timeout = 1
+    count = timeout * 10
+    while docker_list_container(name):
+        if count <= 0:
+            return False
+        count -= 1
+        sleep(0.1)
+    return True
+
+
 def docker_kill_container(name: str):
     if not name:
         return
     containers = docker_list_container(name)
-    if containers:
-        for cont in containers:
-            cont.kill()
+    if verbosity(3):
+        print("docker_kill_container", containers)
+    if not containers:
+        return
+    for cont in containers:
+        cont.kill()
+    if not _docker_wait_empty_container_list(
+        name, config.read("host", "docker_kill_timeout")
+    ):
+        for remain in docker_list_container(name):
+            print_red(f"Warning: container not killed: {remain}")
+    # if verbosity(3):
+    #     containers = docker_list_container(name)
+    #     print("docker_kill_container after", containers)
 
 
-def docker_remove_container(name: str):
+def _docker_remove_container(name: str, force=False):
+    if force and verbosity(1):
+        print_red(f"Warning: removing container with '--force': {name}")
+    for cont in docker_list_container(name):
+        cont.remove(v=True, force=force)
+
+
+def _docker_display_not_removed(name: str):
+    for remain in docker_list_container(name):
+        print_red(f"Warning: container not removed: {remain}")
+
+
+def docker_remove_container(name: str, force=False):
     if not name:
         return
-    containers = docker_list_container(name)
-    if containers:
-        for cont in containers:
-            cont.remove()
+    if verbosity(3):
+        containers = docker_list_container(name)
+        print("docker_remove_container", containers)
+    _docker_remove_container(name, force=force)
+    if _docker_wait_empty_container_list(
+        name, config.read("host", "docker_remove_timeout")
+    ):
+        return
+    _docker_display_not_removed(name)
+    if not force:
+        docker_remove_container(name, force=True)
+
+
+def _docker_wait_container_listed(name: str) -> bool:
+    timeout = config.read("host", "docker_run_timeout") or 5
+    count = timeout * 10
+    while not docker_list_container(name):
+        if count <= 0:
+            return False
+        count -= 1
+        sleep(0.1)
+    return True
+
+
+def docker_check_container_listed(name: str) -> bool:
+    if _docker_wait_container_listed(name):
+        return True
+    else:
+        print_red(f"Warning: container not seen in list: {name}")
+        print_red("         container listed:")
+        for cont in docker_list_container(name):
+            print_red(f"         {cont.name}  {cont.status}")
+        return False
 
 
 def docker_remove_prior_container_db(site: dict):
     """Search & remove containers already configured for this same site
     (running or stopped), from DB."""
-    container_name = store.instance_container(site["domain"], site["prefix"])
-    if container_name:
-        if verbosity(1):
-            print_magenta(f"    -> remove previous container '{container_name}'")
-        docker_kill_container(container_name)
-        docker_remove_container(container_name)
-        store.instance_delete_by_domain_prefix(site["domain"], site["prefix"])
+    previous_name = store.instance_container(site["domain"], site["prefix"])
+    if not previous_name:
+        return
+    if verbosity(1):
+        print_magenta(f"    -> remove previous container: {previous_name}")
+    docker_kill_container(previous_name)
+    docker_remove_container(previous_name)
+    if verbosity(3):
+        containers = docker_list_container(previous_name)
+        print("docker_remove_container after", containers)
+
+    store.instance_delete_by_domain_prefix(site["domain"], site["prefix"])
 
 
 def docker_remove_prior_container_live(site: dict):
@@ -151,19 +221,13 @@ def docker_remove_prior_container_live(site: dict):
     Security feature: try to remove containers of exactly same name that
     could be found in docker daemon:
     """
-    container_name = site["run_params"]["name"]
-    if container_name:
-        containers = docker_list_container(container_name)
-        if containers:
-            for cont in containers:
-                try:
-                    cont.kill()
-                    cont.remove()
-                except docker.errors.NotFound:
-                    pass
-                except docker.errors.APIError as e:
-                    print_red(str(e))
-                print_magenta(f"    -> remove previous container '{container_name}'")
+    previous_name = site["run_params"]["name"]
+    if not previous_name:
+        return
+    for cont in docker_list_container(previous_name):
+        print_red(f"Try removing a container not listed in Nua DB: {cont.name}")
+        docker_kill_container(cont.name)
+        docker_remove_container(cont.name)
 
 
 def store_container_instance(site):
@@ -192,6 +256,11 @@ def docker_run(site: dict):
     params["detach"] = True  # force detach option
     client = docker.from_env()
     cont = client.containers.run(image_id, **params)
+    if verbosity(3):
+        name = params["name"]
+        print("run done:", docker_list_container(name))
+    if not docker_check_container_listed(cont.name):
+        panic(f"Something failed when starting container {cont.name}")
     site["container"] = cont.name
     store_container_instance(site)
     if verbosity(1):

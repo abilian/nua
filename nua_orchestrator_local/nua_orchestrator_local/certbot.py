@@ -50,9 +50,9 @@ def certbot_run_args(domains: list) -> str:
         # "--key-type rsa", for newer certbot versions
         "--redirect",
     ]
-    if not os.environ.get("CERTBOT_VERBOSE"):
+    if not os.environ.get("NUA_CERTBOT_VERBOSE"):
         run_args.append("--quiet")
-    if os.environ.get("CERTBOT_TEST"):
+    if os.environ.get("NUA_CERTBOT_TEST"):
         run_args.append("--test-cert")
     admin_mail = config.read("nua", "host", "host_admin_mail")
     if admin_mail:

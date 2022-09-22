@@ -1,0 +1,8 @@
+[[site]]
+image = "flask-sqla"
+domain = "test1.example.com"
+[[site.test]]
+url = "https://test1.example.com/"
+expect_status = 200
+# broken because no DATABASE_URL provided...
+expect_str = "Something is broken"

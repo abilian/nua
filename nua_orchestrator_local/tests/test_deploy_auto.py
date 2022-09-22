@@ -1,4 +1,5 @@
 import os
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -9,13 +10,15 @@ from typer.testing import CliRunner
 from nua_orchestrator_local import __version__
 from nua_orchestrator_local.main import app
 
+from .replace_domain import replace_file
+
 runner = CliRunner()
 
 DEPLOY_CONFIGS = Path(__file__).parent / "deploy_configs"
-DEPLOY_AUTO_FILES = (Path(__file__).parent / "deploy_auto_check").glob("*.toml")
+DEPLOY_AUTO_FILES = sorted((Path(__file__).parent / "deploy_auto_check").glob("*.toml"))
 
-os.environ["CERTBOT_TEST"] = "1"
-os.environ["CERTBOT_VERBOSE"] = "1"
+os.environ["NUA_CERTBOT_TEST"] = "1"
+os.environ["NUA_CERTBOT_VERBOSE"] = "1"
 
 
 def _make_check_test(test: dict):
@@ -45,11 +48,14 @@ def _check_sites(toml):
 @pytest.mark.parametrize("deploy_file", DEPLOY_AUTO_FILES)
 def test_deploy_sites(deploy_file):
     print("-" * 40)
-    result = runner.invoke(app, f"deploy -v {deploy_file}")
-    print(result.stdout)
+    print(deploy_file)
+    with tempfile.TemporaryDirectory(dir="/tmp") as tmp_dir:
+        new_file = replace_file(deploy_file, tmp_dir)
+        result = runner.invoke(app, f"deploy -vv {new_file}")
+        print(result.stdout)
 
-    assert result.exit_code == 0
-    assert "Installing App" in result.stdout
-    assert "deployed as" in result.stdout
+        assert result.exit_code == 0
+        assert "Installing App" in result.stdout
+        assert "deployed as" in result.stdout
 
-    _check_sites(deploy_file)
+        _check_sites(new_file)

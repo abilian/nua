@@ -9,6 +9,9 @@
     host_priv_key_blob = ""
     host_admin_mail = "jd@abilian.com"
     certbot_strategy = "auto"
+    docker_remove_timeout = 5
+    docker_kill_timeout = 5
+    docker_run_timeout = 10
 [ports]
     # todo: use a list of ranges
     start = 8100
