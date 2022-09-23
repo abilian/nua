@@ -1,0 +1,7 @@
+[[site]]
+image = "flask-upload-one"
+domain = "test1.example.com"
+[[site.test]]
+url = "https://test1.example.com/"
+expect_status = 200
+expect_str = "File Upload"
