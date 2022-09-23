@@ -15,20 +15,19 @@ class Instance(Base, SerializerMixin):
     - nua_tag: nua tag, "nua-{app_id}:{version}-{release}". nua_tag permits
       to find the related docker image.
     - domain: domain serving the app
-    - prefix: if several instances on a domain, instance prefix (or "")
     - container: name of the deployed contaner if image started (or "")
     - image: name of the docker image (if docker deployed)
     - state: one of "running" "stopped"
     - site_config: JSON data representation of actual deployment config
-      values, including the instance prefix and/or nginx domain.
+      values, including the instance nginx domain.
 
      {'actual_port': 8109,
       'container': 'nua-flask-upload-one-1.0-1-sloop.example.com',
-      'domain': 'sloop.example.com',
+      'domain': 'sloop.example.com/xxx',
       'image': 'nua-flask-upload-one:1.0-1',
       'image_id': 'sha256:232d921796c7f62f9240d8727d39829d31772a395d5c060ece5c74a6315b2f0e',
       'image_nua_config': {'build': {'document_root': '/nua/app/html'},
-                           'instance': {'port': 5100, 'prefix': 'prefix'},
+                           'instance': {'port': 5100, domain...},
                            'metadata': {'author': 'Nua testers',
                                         'id': 'flask-upload-one',
                                         'licence': 'MIT',
@@ -59,7 +58,6 @@ class Instance(Base, SerializerMixin):
                                        'name': 'flask_uploads',
                                        'type': 'volume'}]},
       'port': 'auto',
-      'prefix': '',
       'run_params': {'auto_remove': True,
                      'detach': True,
                      'mem_limit': '1G',
@@ -70,7 +68,7 @@ class Instance(Base, SerializerMixin):
                      'name': 'nua-flask-upload-one-1.0-1-sloop.example.com',
                      'ports': {'80/tcp': 8109}}}
 
-    There can be only one app per domain/prefix.
+    There can be only one app per domain.
     """
 
     __tablename__ = "instance"
@@ -79,7 +77,6 @@ class Instance(Base, SerializerMixin):
     app_id = Column(String(80))
     nua_tag = Column(String(160))
     domain = Column(String(160))
-    prefix = Column(String(160))
     container = Column(String(160), default="")
     image = Column(String(160), default="")
     state = Column(String(16), default=STOPPED)

@@ -2,8 +2,6 @@
 
 (Later: replace by flask ui access).
 """
-import sys
-
 import typer
 
 from ..postgres import set_postgres_pwd
@@ -19,11 +17,11 @@ def set_pg_pwd_app(password: str = option_pwd):
     """Set the Postgres password."""
     if len(password) < 8:
         print_red("New password is too short (at leat 8 chars).")
-        sys.exit(1)
+        raise SystemExit(status)
     done = set_postgres_pwd(password)
     if done:
         print_green("Password successfully changed.")
-        sys.exit(0)
+        raise SystemExit(0)
     else:
         print_green("Something went wrong.")
-        sys.exit(1)
+        raise SystemExit(1)

@@ -2,7 +2,6 @@
 
 Rem: maybe need to refactor the "site" thing into a class and refactor a lot
 """
-import sys
 from copy import deepcopy
 from pathlib import Path
 from pprint import pformat
@@ -15,7 +14,7 @@ import tomli
 
 from .. import config
 from ..archive_search import ArchiveSearch
-from ..certbot import register_certbot_domains
+from ..certbot import protocol_prefix, register_certbot_domains
 from ..db import store
 from ..docker_utils import (
     display_one_docker_img,
@@ -24,15 +23,17 @@ from ..docker_utils import (
     docker_service_start_if_needed,
     docker_volume_create_or_use,
 )
+from ..domain_split import DomainSplit
 from ..nginx_util import (
     chown_r_nua_nginx,
     clean_nua_nginx_default_site,
-    configure_nginx_domain,
+    configure_nginx_hostname,
     nginx_restart,
 )
+from ..panic import error
 from ..postgres import pg_check_listening, pg_restart_service, pg_run_environment
 from ..rich_console import print_green, print_magenta, print_red
-from ..search_cmd import parse_app_name, search_nua
+from ..search_cmd import search_nua
 from ..server_utils.net_utils import check_port_available
 from ..state import verbosity
 
@@ -62,8 +63,7 @@ def deploy_nua(app_name: str) -> int:
         print_magenta(f"image: '{app_name}'")
     results = search_nua(app_name)
     if not results:
-        print_red(f"No image found for '{app_name}'.")
-        sys.exit(1)
+        error(f"No image found for '{app_name}'.")
     # ensure docker is running
     docker_service_start_if_needed()
     # images are sorted by version, take the last one:
@@ -134,14 +134,15 @@ def _free_port(start_ports: int, end_ports: int, used: set) -> int:
     raise RuntimeError("Not enough available port")
 
 
-def generate_ports(domain_list: list):
+def generate_ports(host_list: list):
     start_ports = config.read("nua", "ports", "start") or 8100
     end_ports = config.read("nua", "ports", "end") or 9000
     if verbosity(3):
-        print(f"generate_ports from {start_ports} to {end_ports}")
-    site_list = [site for dom in domain_list for site in dom["sites"]]
+        print(f"generate_ports() from {start_ports} to {end_ports}")
+    # all sites from all hosts:
+    site_list = [site for host in host_list for site in host["sites"]]
     used = _configured_ports(site_list)
-    # list of ports used for domains / sites, trying to keep them inchanged
+    # list of ports used for domains / sites, trying to keep them unchanged
     used_domain_ports = store.ports_instances_domains()
     # print(f"{used_domain_ports=}")
     for port in used_domain_ports:
@@ -157,7 +158,7 @@ def _generate_port(site, start_ports, end_ports, used):
     if not port:
         return
     if port == "auto":
-        # current_instance_port = store.instance_port(site["domain"], site["prefix"])
+        # current_instance_port = store.instance_port(site["domain"])
         # if current_instance_port:
         #     new_port = current_instance_port
         # else:
@@ -176,8 +177,7 @@ def install_images(sites: list):
         image_str = site["image"]
         results = search_nua(image_str)
         if not results:
-            print_red(f"No image found for '{image_str}'. Exiting.")
-            sys.exit(1)
+            error(f"No image found for '{image_str}'. Exiting.")
         img_path = results[-1]  # results are sorted by version, take higher
         if img_path in installed:
             image_id = installed[img_path][0]
@@ -244,11 +244,9 @@ def add_host_gateway(run_params: dict):
 def _run_parameters_container_name(site: dict) -> str:
     image_nua_config = site["image_nua_config"]
     meta = image_nua_config["metadata"]
-    domain = site["domain"]
-    prefix = site.get("prefix") or ""
-    str_prefix = f"-{prefix}" if prefix else ""
+    suffix = DomainSplit(site["domain"]).containner_suffix()
     app_name = nua_long_name(meta)
-    name_base = f"{app_name}-{domain}{str_prefix}"
+    name_base = f"{app_name}-{suffix}"
     return "".join([x for x in name_base if x in ALLOW_DOCKER_NAME])
 
 
@@ -312,21 +310,11 @@ def stop_previous_containers(sites: list):
     pass
 
 
-def _parse_domain_prefix(full_domain: str) -> tuple:
-    splitted = full_domain.split("/", 1)
-    domain = splitted[0].strip()
-    if len(splitted) == 1:
-        prefix = ""
-    else:
-        prefix = splitted[1].strip()
-    return domain, prefix
+def _sites_per_host(deploy_sites: dict) -> dict:
+    """Return a dict of sites per host.
 
-
-def _sites_per_domains(deploy_sites: dict) -> dict:
-    """Return a dict of sites/domain.
-
-    key : domain name (full name)
-    value : list of web sites of domain
+    key : hostname (full name)
+    value : list of web sites of hostname
 
     input format: dict contains a list of sites
 
@@ -338,150 +326,185 @@ def _sites_per_domains(deploy_sites: dict) -> dict:
     image = "nua-flask-upload-one:1.0-1"
     port = "auto"
 
-    ouput format: dict of domains, with explicite prefix cut from domain and explicit
-                  port = "auto".
+    ouput format: dict of hostnames, with explicit port = "auto".
 
     {'sloop.example.com': [{'domain': 'sloop.example.com',
                           'image': 'nua-flask-upload-one:1.0-1',
                           'port': 'auto',
-                          'prefix': ''}],
-    'test.example.com': [{'domain': 'test.example.com',
+                          }],
+    'test.example.com': [{'domain': 'test.example.com/instance1',
                          'image': 'flask-one:1.2-1',
                          'port': 'auto',
-                         'prefix': 'instance1'},
+                         },
                          ...
     """
     domains = {}
     for site in deploy_sites["site"]:
-        domain, prefix = _parse_domain_prefix(site.get("domain", ""))
-        site["domain"] = domain
-        site["prefix"] = prefix
-        if domain and "port" not in site:
+        if "port" not in site:
             site["port"] = "auto"
-        if domain not in domains:
-            domains[domain] = []
-        domains[domain].append(site)
+        dom = DomainSplit(site.get("domain", ""))
+        site["domain"] = dom.full_path()
+        if dom.hostname not in domains:
+            domains[dom.hostname] = []
+        domains[dom.hostname].append(site)
     return domains
 
 
-def _make_template_data_list(domains: dict) -> list:
-    """Convert dict(domain:[sites,..]) to list({domain, sites}).
+def _make_host_list(domains: dict) -> list:
+    """Convert dict(hostname:[sites,..]) to list({hostname, sites}).
 
     ouput format:
-    [{'domain': 'test.example.com',
-     'sites': [{'domain': 'test.example.com',
+    [{'hostname': 'test.example.com',
+     'sites': [{'domain': 'test.example.com/instance1',
                  'image': 'flask-one:1.2-1',
                  'port': 'auto',
-                 'prefix': 'instance1',
-                {'domain': 'test.example.com',
+                 },
+                {'domain': 'test.example.com/instance2',
                  'image': 'flask-one:1.2-1',
                  'port': 'auto',
-                 'prefix': 'instance2'},
+                 },
                  ...
-     {'domain': 'sloop.example.com',
+     {'hostname': 'sloop.example.com',
       'sites': [{'domain': 'sloop.example.com',
                  'image': 'nua-flask-upload-one:1.0-1',
                  'port': 'auto'}]}]
     """
     return [
-        {"domain": domain, "sites": sites_list}
-        for domain, sites_list in domains.items()
+        {"hostname": hostname, "sites": sites_list}
+        for hostname, sites_list in domains.items()
     ]
 
 
-def _classify_prefixd_sites(data: list):
-    """Return sites classified for prefix use, verify it is the only one of the domain."""
-    for domain_dict in data:
-        sites_list = domain_dict["sites"]
+def _classify_prefixed_sites(host_list: list):
+    """Return sites classified for prefix use.
+
+    If not prefixed, check it is the only one of the domain."""
+    for host in host_list:
+        sites_list = host["sites"]
         first = sites_list[0]  # by construction, there is at least 1 element
-        if first.get("prefix"):
-            _verify_prefixed(domain_dict)
+        dom = DomainSplit(first["domain"])
+        if dom.prefix:
+            _verify_prefixed(host)
         else:
-            _verify_not_prefixed(domain_dict)
+            _verify_not_prefixed(host)
 
 
-def _verify_prefixed(domain_dict: dict):
+def _verify_prefixed(host: dict):
+    """host format:
+     {'hostname': 'test.example.com',
+      'sites': [{'domain': 'test.example.com/instance1',
+                  'image': 'flask-one:1.2-1',
+                  'port': 'auto',
+                  },
+                 {'domain': 'test.example.com/instance2',
+                  'image': 'flask-one:1.2-1',
+                  ...
+    changed to:
+    {'hostname': 'test.example.com',
+     'prefixed': True,
+     'sites': [{'domain': 'test.example.com/instance1',
+                 'image': 'flask-one:1.2-1',
+                 'port': 'auto',
+                 'prefix': 'instance1'
+                 },
+                {'domain': 'test.example.com/instance2',
+                 'image': 'flask-one:1.2-1',
+                 ...
+    """
     known_prefix = set()
     valid = []
-    for site in domain_dict["sites"]:
-        prefix = site.get("prefix")
-        if not prefix:
-            domain = domain_dict["domain"]
+    hostname = host["hostname"]
+    for site in host["sites"]:
+        dom = DomainSplit(site["domain"])
+        if not dom.prefix:
             image = site.get("image")
             port = site.get("port")
             print_red("Error: required prefix is missing, site discarded:")
-            print_red(f"    for {domain=} / {image=} / {port=}")
+            print_red(f"    for {hostname=} / {image=} / {port=}")
             continue
-        if prefix in known_prefix:
-            domain = domain_dict["domain"]
+        if dom.prefix in known_prefix:
             image = site.get("image")
             port = site.get("port")
-            print_red("Error: prefix is already used for this domain, site discarded:")
-            print_red(f"    {domain=} / {image=} / {port=}")
+            print_red("Error: prefix is already used for a domain, site discarded:")
+            print_red(f"    {hostname=} / {image=} / {port=}")
             continue
-        known_prefix.add(prefix)
+        known_prefix.add(dom.prefix)
+        site["prefix"] = dom.prefix
         valid.append(site)
-    domain_dict["sites"] = valid
-    domain_dict["prefixed"] = True
+    host["sites"] = valid
+    host["prefixed"] = True
 
 
-def _verify_not_prefixed(domain_dict: dict):
+def _verify_not_prefixed(host: dict):
+    """host format:
+        {'hostname': 'sloop.example.com',
+         'sites': [{'domain': 'sloop.example.com',
+                    'image': 'nua-flask-upload-one:1.0-1',
+                    'port': 'auto'}]}]
+    changed to:
+        {'hostname': 'sloop.example.com',
+         'prefixed': False,
+         'sites': [{'domain': 'sloop.example.com',
+                    'image': 'nua-flask-upload-one:1.0-1',
+                    'port': 'auto'}]}]
+    """
     # we know that the first of the list is not prefixed. We expect the list
     # has only one site.
-    if len(domain_dict["sites"]) == 1:
-        valid = domain_dict["sites"]
+    if len(host["sites"]) == 1:
+        valid = host["sites"]
     else:
-        domain = domain_dict["domain"]
+        hostname = host["hostname"]
         valid = []
-        valid.append(domain_dict["sites"].pop(0))
-        print_red(f"Error: too many sites for {domain=}, site discarded:")
-        for site in domain_dict["sites"]:
-            prefix = site.get("prefix")
+        valid.append(host["sites"].pop(0))
+        print_red(f"Error: too many sites for {hostname=}, site discarded:")
+        for site in host["sites"]:
             image = site.get("image")
             port = site.get("port")
-            print_red(f"    {image=} / {prefix=} / {port=}")
-    domain_dict["sites"] = valid
-    domain_dict["prefixed"] = False
+            print_red(f"    {image=} / {port=}")
+    host["sites"] = valid
+    host["prefixed"] = False
 
 
-def sort_per_domain(deploy_sites: dict) -> list:
-    domain_list = _make_template_data_list(_sites_per_domains(deploy_sites))
-    _classify_prefixd_sites(domain_list)
-    return domain_list
+def sort_per_host(deploy_sites: dict) -> list:
+    host_list = _make_host_list(_sites_per_host(deploy_sites))
+    _classify_prefixed_sites(host_list)
+    return host_list
 
 
-def domain_list_to_sites(domain_list: list) -> list:
+def host_list_to_sites(host_list: list) -> list:
     """Convert to list of sites format.
 
     output format:
     [{'actual_port': 8100,
-      'domain': 'test.example.com',
-      'image': 'flask-one:1.2-1',
-      'port': 'auto',
+      'hostname': 'test.example.com',
+      'domain': 'test.example.com/instance1',
       'prefix': 'instance1',
+      'image': 'flask-one:1.2-1',
+      'port': 'auto'},
      {'actual_port': 8101,
-      'domain': 'test.example.com',
+      'hostname': 'test.example.com',
+      'domain': 'test.example.com/instance2',
       'image': 'flask-one:1.2-1',
       'port': 'auto',
-      'prefix': 'instance2'},
+      },
       ...
      {'actual_port': 8108,
       'domain': 'sloop.example.com',
       'image': 'nua-flask-upload-one:1.0-1',
       'port': 'auto'}]
     """
-    filtered_list = []
-    for domain_dict in domain_list:
-        for site in domain_dict["sites"]:
-            filtered_list.append(site)
-    return filtered_list
+    sites_list = []
+    for host in host_list:
+        for site in host["sites"]:
+            site["hostname"] = host["hostname"]
+            sites_list.append(site)
+    return sites_list
 
 
 def display_deployed(sites: list):
+    protocol = protocol_prefix()
     for site in sites:
-        prefix = f"/{site['prefix']}" if site.get("prefix") else ""
-        url = f"https://{site['domain']}{prefix}"
-        msg = f"image '{site['image']}' deployed as {url}"
+        msg = f"image '{site['image']}' deployed as {protocol}{site['domain']}"
         print_green(msg)
 
 
@@ -539,12 +562,12 @@ def service_requirements(sites: list):
     restart_requirements(reboots)
 
 
-def configure_nginx(domain_list: list):
+def configure_nginx(host_list: list):
     clean_nua_nginx_default_site()
-    for domain_dict in domain_list:
+    for host in host_list:
         if verbosity(1):
-            print_magenta(f"Configure Nginx for domain '{domain_dict['domain']}'")
-        configure_nginx_domain(domain_dict)
+            print_magenta(f"Configure Nginx for hostname '{host['hostname']}'")
+        configure_nginx_hostname(host)
 
 
 def deploy_nua_sites(deploy_config: str) -> int:
@@ -555,13 +578,13 @@ def deploy_nua_sites(deploy_config: str) -> int:
         deploy_sites = tomli.load(rfile)
     # first: check that all images are available:
     if not find_all_images(deploy_sites):
-        sys.exit(1)
-    domain_list = sort_per_domain(deploy_sites)
+        error("Missing images")
+    host_list = sort_per_host(deploy_sites)
     if verbosity(2):
-        print("'domain_list':\n", pformat(domain_list))
-    generate_ports(domain_list)
-    configure_nginx(domain_list)
-    sites = domain_list_to_sites(domain_list)
+        print("'host_list':\n", pformat(host_list))
+    generate_ports(host_list)
+    configure_nginx(host_list)
+    sites = host_list_to_sites(host_list)
     if verbosity(2):
         print("'sites':\n", pformat(sites))
     register_certbot_domains(sites)

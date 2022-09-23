@@ -1,5 +1,5 @@
 server {
-    server_name {{domain}};
+    server_name {{hostname}};
 
 	location / {
         proxy_pass         http://localhost:{{sites[0].actual_port}};

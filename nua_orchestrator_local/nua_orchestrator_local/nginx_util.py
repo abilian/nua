@@ -60,7 +60,9 @@ def install_nua_nginx_default_site():
 
 
 def clean_nua_nginx_default_site():
-    """warning: only for user 'nua' or 'root'"""
+    """Remove previous nginx sites.
+
+    Warning: only for user 'nua' or 'root'"""
     nua_nginx = nua_env.nginx_path()
     sites = nua_nginx / "sites"
     rm_fr(sites)
@@ -69,24 +71,37 @@ def clean_nua_nginx_default_site():
     install_nua_nginx_default_site()
 
 
-def configure_nginx_domain(domain_dict):
-    """warning: only for user 'nua' or 'root'"""
+def configure_nginx_hostname(host: dict):
+    """warning: only for user 'nua' or 'root'
+
+    host format:
+      {'hostname': 'test.example.com',
+       'prefixed': True,
+       'sites': [{'domain': 'test.example.com/instance1',
+                   'image': 'flask-one:1.2-1',
+                   'port': 'auto',
+                   'actual_port': 8100,
+                   'prefix': 'instance1'
+                   },
+                   ...
+    """
     nua_nginx = nua_env.nginx_path()
-    if domain_dict["prefixed"]:
+    if host["prefixed"]:
         template = CONF_NGINX / "template" / "domain_prefixed_template"
     else:
         template = CONF_NGINX / "template" / "domain_not_prefixed_template"
-    dest_path = nua_nginx / "sites" / domain_dict["domain"]
+    dest_path = nua_nginx / "sites" / host["hostname"]
     if verbosity(2):
-        print(domain_dict["domain"], "template:", template)
-        print(domain_dict["domain"], "target  :", dest_path)
-    jinja2_render_file(template, dest_path, domain_dict)
+        print(host["hostname"], "template:", template)
+        print(host["hostname"], "target  :", dest_path)
+    jinja2_render_file(template, dest_path, host)
     if verbosity(2):
         if not dest_path.exists():
-            print(domain_dict["domain"], "Warning: target not created")
+            print(host["hostname"], "Warning: target not created")
         else:
-            print(domain_dict["domain"], "content:")
-            print(open(dest_path, "r", encoding="utf8").read())
+            print(host["hostname"], "content:")
+            with open(dest_path, "r", encoding="utf8") as rfile:
+                print(rfile.read())
     os.chmod(dest_path, 0o644)
 
 

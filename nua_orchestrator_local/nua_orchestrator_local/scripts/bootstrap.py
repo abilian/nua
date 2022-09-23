@@ -4,7 +4,6 @@
 - install base packages and configuration
 """
 import os
-import sys
 import venv
 from pathlib import Path
 
@@ -13,6 +12,7 @@ from ..actions import check_python_version, install_package_list, string_in
 from ..bash import bash_as_nua
 from ..exec import mp_exec_as_nua
 from ..nginx_util import install_nginx
+from ..panic import error
 from ..postgres import bootstrap_install_postgres, set_random_postgres_pwd
 from ..rich_console import print_green, print_magenta, print_red
 from ..shell import chown_r, mkdir_p, rm_fr, sh, user_exists
@@ -33,8 +33,7 @@ HOST_PACKAGES = [
 def main():
     print_magenta("Installing Nua bootstrap on local host.")
     if not check_python_version():
-        print_red("Python 3.10+ is required for Nua installation.")
-        sys.exit(1)
+        error("Python 3.10+ is required for Nua installation.")
     if user_exists(NUA):
         print_red("Warning: Nua was already installed.")
     if os.geteuid() != 0:
@@ -44,7 +43,7 @@ def main():
             "- When sudo, use absolute script path.\n"
             f"{detect_myself()}\n"
         )
-        sys.exit(1)
+        raise SystemExit(1)
     bootstrap()
     print_green("\nNua installation done for user 'nua' on this host.")
     cmd = "nua --help"

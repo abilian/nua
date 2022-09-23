@@ -1,11 +1,5 @@
 ARG nua_builder_tag
-FROM ${nua_builder_tag} AS compile-image
-
-RUN apt-get update --fix-missing && apt-get install -y build-essential git
-RUN python -m pip install poetry && cd /nua/nua_build && poetry install && nua_build_self_setup
-
-FROM ${nua_builder_tag} AS runtime-image
-COPY --from=compile-image /nua /nua
+FROM ${nua_builder_tag}
 
 # app build:
 COPY . /nua/build

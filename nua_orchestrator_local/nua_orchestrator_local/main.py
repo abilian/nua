@@ -1,5 +1,4 @@
 """Script main entry point for Nua local."""
-import sys
 from pathlib import Path
 from pprint import pformat
 from typing import Optional
@@ -16,6 +15,7 @@ from .db.store import list_all_settings
 from .db_setup import setup_db
 from .exec import set_nua_user
 from .local_cmd import reload_servers, status
+from .panic import error
 from .rich_console import print_red
 from .search_cmd import search_nua_print
 from .state import set_verbose
@@ -61,8 +61,7 @@ def initialization():
     global is_initialized
 
     if not check_python_version():
-        print_red("Python 3.10+ is required for Nua orchestrator.")
-        sys.exit(1)
+        error("Python 3.10+ is required for Nua orchestrator.")
     try:
         set_nua_user()
     except OSError:

@@ -1,4 +1,4 @@
-"""Docker scripting utils."""
+"""Docker utils."""
 import json
 from datetime import datetime
 from functools import cache, wraps
@@ -11,7 +11,7 @@ import docker
 from . import config
 from .db import store
 from .db.model.instance import RUNNING
-from .panic import panic
+from .panic import error
 from .rich_console import print_magenta, print_red
 from .state import verbosity
 
@@ -35,7 +35,7 @@ def docker_build_log_error(func):
             print_red(str(e))
             print("=" * 60)
             print_log_stream(e.build_log)
-            panic("Exiting.")
+            error("Build error.")
 
     return build_log_error_wrapper
 
@@ -200,7 +200,7 @@ def docker_check_container_listed(name: str) -> bool:
 def docker_remove_prior_container_db(site: dict):
     """Search & remove containers already configured for this same site
     (running or stopped), from DB."""
-    previous_name = store.instance_container(site["domain"], site["prefix"])
+    previous_name = store.instance_container(site["domain"])
     if not previous_name:
         return
     if verbosity(1):
@@ -211,7 +211,7 @@ def docker_remove_prior_container_db(site: dict):
         containers = docker_list_container(previous_name)
         print("docker_remove_container after", containers)
 
-    store.instance_delete_by_domain_prefix(site["domain"], site["prefix"])
+    store.instance_delete_by_domain(site["domain"])
 
 
 def docker_remove_prior_container_live(site: dict):
@@ -236,7 +236,6 @@ def store_container_instance(site):
         app_id=meta["id"],
         nua_tag=store.nua_tag_string(meta),
         domain=site["domain"],
-        prefix=site["prefix"],
         container=site["container"],
         image=site["image"],
         state=RUNNING,
@@ -260,7 +259,7 @@ def docker_run(site: dict):
         name = params["name"]
         print("run done:", docker_list_container(name))
     if not docker_check_container_listed(cont.name):
-        panic(f"Something failed when starting container {cont.name}")
+        error(f"Failed starting container {cont.name}")
     site["container"] = cont.name
     store_container_instance(site)
     if verbosity(1):
@@ -281,8 +280,7 @@ def docker_create_volume(volume_opt: dict):
     driver = volume_opt.get("driver", "local")
     if driver != "local" and not install_plugin(driver):
         # assuming it is the name of a plugin
-        print_red(f"Install of Docker's plugin '{driver}' failed.")
-        panic("Exiting.")
+        error(f"Install of Docker's plugin '{driver}' failed.")
     client = docker.from_env()
     # volume = client.volumes.create(
     client.volumes.create(

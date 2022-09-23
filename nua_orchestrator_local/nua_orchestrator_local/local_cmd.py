@@ -2,12 +2,12 @@
 """
 # import multiprocessing as mp
 import os
-import sys
 
 # from contextlib import suppress
 from operator import itemgetter
 
 from . import __version__, config
+from .panic import error
 
 # from .registry import start_registry_container  # to remove
 # from .server_utils.mini_log import log, log_me, log_sentinel
@@ -35,7 +35,7 @@ def verify_private_host_key_defined():
         )
         log_me(msg)
         print(msg)
-        sys.exit(1)
+        error("No RSA host key found")
 
 
 def display_configured_registries():

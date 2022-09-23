@@ -213,7 +213,6 @@ def store_instance(
     app_id="",
     nua_tag="",
     domain="",
-    prefix="",
     container="",
     image="",
     state=STOPPED,
@@ -225,7 +224,6 @@ def store_instance(
         app_id=app_id,
         nua_tag=nua_tag,
         domain=domain,
-        prefix=prefix,
         container=container,
         image=image,
         state=state,
@@ -235,9 +233,7 @@ def store_instance(
     with Session() as session:
         # Image:
         # enforce unicity
-        existing = (
-            session.query(Instance).filter_by(domain=domain, prefix=prefix).first()
-        )
+        existing = session.query(Instance).filter_by(domain=domain).first()
         if existing:
             session.delete(existing)
         session.flush()
@@ -255,22 +251,20 @@ def list_instances_container_running():
 
 
 def ports_instances_domains() -> dict:
-    """Return list of domain/prefix/ports tuples configured in instance,
+    """Return dict(port:domain) configured in instance,
     wether the instance is running or not."""
     used_domain_ports = {}
     for inst in list_instances_all():
         site_config = inst.site_config
         port = site_config.get("actual_port")
         if port:
-            used_domain_ports[port] = (site_config["domain"], site_config["prefix"])
+            used_domain_ports[port] = site_config["domain"]
     return used_domain_ports
 
 
-def instance_container(domain: str, prefix: str) -> str:
+def instance_container(domain: str) -> str:
     with Session() as session:
-        existing = (
-            session.query(Instance).filter_by(domain=domain, prefix=prefix).first()
-        )
+        existing = session.query(Instance).filter_by(domain=domain).first()
         if existing:
             container = existing.container
         else:
@@ -278,17 +272,15 @@ def instance_container(domain: str, prefix: str) -> str:
         return container
 
 
-def instance_delete_by_domain_prefix(domain: str, prefix: str):
+def instance_delete_by_domain(domain: str):
     with Session() as session:
-        session.query(Instance).filter_by(domain=domain, prefix=prefix).delete()
+        session.query(Instance).filter_by(domain=domain).delete()
         session.commit()
 
 
-def instance_port(domain: str, prefix: str) -> int | None:
+def instance_port(domain: str) -> int | None:
     with Session() as session:
-        existing = (
-            session.query(Instance).filter_by(domain=domain, prefix=prefix).first()
-        )
+        existing = session.query(Instance).filter_by(domain=domain).first()
         if existing:
             site_config = existing.site_config
             port = site_config.get("actual_port")
@@ -297,11 +289,9 @@ def instance_port(domain: str, prefix: str) -> int | None:
         return port
 
 
-def set_instance_container_state(domain: str, prefix: str, state: str):
+def set_instance_container_state(domain: str, state: str):
     with Session() as session:
-        existing = (
-            session.query(Instance).filter_by(domain=domain, prefix=prefix).first()
-        )
+        existing = session.query(Instance).filter_by(domain=domain).first()
         if existing:
             existing.state = state
             session.commit()

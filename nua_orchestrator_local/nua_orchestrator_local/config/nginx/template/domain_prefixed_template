@@ -1,5 +1,5 @@
 server {
-    server_name {{domain}};
+    server_name {{hostname}};
 
     {% for site in sites -%}
 	location /{{site.prefix}} {

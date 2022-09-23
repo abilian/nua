@@ -7,7 +7,6 @@ import requests
 import tomli
 from typer.testing import CliRunner
 
-from nua_orchestrator_local import __version__
 from nua_orchestrator_local.main import app
 
 from .replace_domain import replace_file
@@ -25,6 +24,10 @@ def _make_check_test(test: dict):
     url = test.get("url")
     if not url:
         return
+    if os.environ.get("NUA_CERTBOT_STRATEGY").lower() == "none":
+        url = url.replace("https://", "http://")
+    else:
+        url = url.replace("http://", "https://")
     print("testing: ", url)
     response = requests.get(url)
     expect_status = test.get("expect_status")
@@ -51,6 +54,7 @@ def test_deploy_sites(deploy_file):
     print(deploy_file)
     with tempfile.TemporaryDirectory(dir="/tmp") as tmp_dir:
         new_file = replace_file(deploy_file, tmp_dir)
+
         result = runner.invoke(app, f"deploy -vv {new_file}")
         print(result.stdout)
 
