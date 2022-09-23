@@ -1,8 +1,9 @@
 """Nginx utils to install nginx config and adapt with app using nginx."""
 import os
 from pathlib import Path
+from time import sleep
 
-from . import nua_env
+from . import config, nua_env
 from .actions import jinja2_render_file
 from .rich_console import print_magenta, print_red
 from .shell import chown_r, mkdir_p, rm_fr, sh
@@ -120,8 +121,10 @@ def install_nua_nginx_default_index_html():
 
 def nginx_restart():
     # assuming some recent ubuntu distribution:
+    delay = config.read("host", "nginx_wait_after_restart") or 1
     cmd = "systemctl restart nginx"
     if os.geteuid() == 0:
         sh(cmd)
     else:
         sh(f"sudo {cmd}")
+    sleep(delay)

@@ -50,7 +50,7 @@ def _check_sites(toml):
 
 @pytest.mark.parametrize("deploy_file", DEPLOY_AUTO_FILES)
 def test_deploy_sites(deploy_file):
-    print("-" * 40)
+    print("\n" + "-" * 40)
     print(deploy_file)
     with tempfile.TemporaryDirectory(dir="/tmp") as tmp_dir:
         new_file = replace_file(deploy_file, tmp_dir)
