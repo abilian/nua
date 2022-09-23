@@ -8,6 +8,7 @@
     host_home = "/home/nua"
     host_priv_key_blob = ""
     host_admin_mail = "jd@abilian.com"
+    # choices for certbot_strategy: "auto", "none", ENV: NUA_CERTBOT_STRATEGY
     certbot_strategy = "auto"
     docker_remove_timeout = 5
     docker_kill_timeout = 5
