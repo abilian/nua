@@ -103,9 +103,14 @@ class BuilderApp:
         cmd = f"python {self.build_script_path}"
         sh(cmd, timeout=1800)
 
+    def clean(self):
+        sh("apt-get clean -y")
+        sh("apt-get autoremove -y")
+
 
 def main() -> None:
     """Setup app in Nua container."""
     builder = BuilderApp()
     builder.fetch()
     builder.build()
+    builder.clean()

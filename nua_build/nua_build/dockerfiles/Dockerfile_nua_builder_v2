@@ -1,0 +1,6 @@
+ARG nua_python_tag
+FROM ${nua_python_tag}
+
+ARG nua_version
+COPY nua_build_${nua_version} /nua/nua_build
+RUN cd /nua/nua_build && poetry install

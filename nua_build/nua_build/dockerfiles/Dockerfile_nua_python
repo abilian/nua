@@ -1,28 +1,38 @@
-FROM ubuntu:jammy-20220801
+FROM ubuntu:jammy-20220801 as builder
 # Ubuntu 22.04.1 LTS with python3.10, tag is jammy-20220801
 
-#
-# Setup base image for Nua builds
-#
-ENV PYTHONFAULTHANDLER=1 \
+RUN apt-get -y --fix-missing update \
+    && apt-get install --no-install-recommends -y \
+    python3.10 python3-venv python3-pip python3-dev build-essential \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN python3.10 -m venv /nua/venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+RUN pip install -U wheel
+RUN pip install -U pip
+
+FROM ubuntu:jammy-20220801 as runner
+
+RUN apt-get -y --fix-missing update \
+    && apt-get install --no-install-recommends -y \
+    sudo python3.10 python3-venv curl git gunicorn \
+	&& apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN useradd nua -m -d /nua -G sudo -U -s /bin/bash
+COPY --from=builder /nua/venv /nua/venv
+
+ENV VIRTUAL_ENV="/nua/venv"
+ENV PATH="$VIRTUAL_ENV/bin:$PATH" \
+  PYTHONFAULTHANDLER=1 \
   PYTHONUNBUFFERED=1 \
   PYTHONHASHSEED=random \
   PYTHONDONTWRITEBYTECODE=1 \
   # pip: \
-  PIP_NO_CACHE_DIR=off \
+  PIP_NO_CACHE_DIR=1 \
   PIP_DISABLE_PIP_VERSION_CHECK=on \
-  PIP_DEFAULT_TIMEOUT=100 \
+  PIP_DEFAULT_TIMEOUT=120 \
   DEBIAN_FRONTEND="noninteractive"
 
-RUN useradd nua -m -d /nua -G sudo -U -s /bin/bash
-RUN apt-get -y --fix-missing update && apt-get -y --no-install-recommends install \
-  apt-utils build-essential sudo git libpq5 libpq-dev \
-  python3.10 python3-venv python3-pip python3-dev
-
-RUN python3.10 -m venv /nua/venv
-ENV VIRTUAL_ENV="/nua/venv"
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
-RUN python -m pip install -U pip && python -m pip install -U poetry
 RUN echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache && \
     echo 'APT::Install-Recommends "0"; APT::Install-Suggests "0";' >  /etc/apt/apt.conf.d/01norecommend && \
     echo 'Dir::Cache { srcpkgcache ""; pkgcache ""; }' > /etc/apt/apt.conf.d/02nocache && \

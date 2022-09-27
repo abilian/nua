@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "flask_one"
+name = "flask_one_poetry"
 version = "0.1.0"
-description = "Nua test flask one"
+description = "Nua test flask one poetry"
 authors = ["Jerome Dumonteil <jd@abilian.com>"]
 license = "MIT"
 

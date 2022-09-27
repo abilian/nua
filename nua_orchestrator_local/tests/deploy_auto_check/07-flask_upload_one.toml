@@ -5,3 +5,20 @@ domain = "test1.example.com"
 url = "https://test1.example.com/"
 expect_status = 200
 expect_str = "File Upload"
+expect_host_dir = "/var/lib/docker/volumes/flask_uploads"
+
+[[site]]
+image = "flask-upload-one"
+domain = "test1.example.com"
+[site.run_env]
+UPLOAD_PATH = "/var/tmp/uploads_t2"
+[[volume]]
+type = "volume"
+driver = "local"
+source = "flask_uploads_t2"
+target = "/var/tmp/uploads_t2"
+[[site.test]]
+url = "https://test1.example.com/"
+expect_status = 200
+expect_str = "File Upload"
+expect_host_dir = "/var/lib/docker/volumes/flask_uploads_t2"

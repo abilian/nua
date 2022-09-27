@@ -1,7 +1,7 @@
 [metadata]
-id = "flask-one"
+id = "flask-one-wheel"
 version = "1.2"
-title = "Flask test one"
+title = "Flask test one wheel"
 author = "Nua testers"
 tagline = "Nua test with Flask - one"
 website = "https://nua.rocks/"

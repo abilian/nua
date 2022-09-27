@@ -1,6 +1,8 @@
 ARG nua_python_tag
-FROM ${nua_python_tag}
+FROM ${nua_python_tag} as builder
 
-ARG nua_version
-COPY nua_build_${nua_version} /nua/nua_build
-RUN cd /nua/nua_build && poetry install
+COPY nua_build_whl /nua/
+RUN pip install /nua/*.whl
+
+FROM ${nua_python_tag}
+COPY --from=builder /nua/venv /nua/venv

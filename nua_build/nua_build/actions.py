@@ -78,6 +78,12 @@ def pip_install(packages: list | str) -> None:
     sh(cmd)
 
 
+def pip_install_glob(pattern: str) -> None:
+    files = [str(f) for f in Path.cwd().glob(pattern)]
+    cmd = f"python -m pip install {' '.join(files)}"
+    sh(cmd)
+
+
 def pip_list():
     sh("pip list")
 
