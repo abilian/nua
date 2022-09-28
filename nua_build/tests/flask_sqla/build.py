@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from nua_build.actions import install_package_list
+from nua_build.actions import install_package_list, pip_install
 from nua_build.nua_config import NuaConfig
 from nua_build.shell import chmod_r, mkdir_p, rm_fr, sh
 
@@ -14,6 +14,7 @@ def main():
     install_package_list(["libpq-dev"])
 
     # poetry will grab the needed python packages (flask, gunicorn)
+    pip_install("poetry")
     sh("poetry install")
 
     # create the base folder for html stuff

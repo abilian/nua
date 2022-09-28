@@ -1,4 +1,4 @@
-PACKAGENAME = flask_one_wheel
+PACKAGENAME = flask_pg_psyco
 
 all: nua
 

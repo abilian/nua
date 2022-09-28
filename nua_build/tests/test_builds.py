@@ -7,10 +7,14 @@ from .build_image import build_test_image
 root = Path(__file__).parent
 
 app_folder = [
-    "flask_one",
-    "flask_pg_psyco",
+    "flask_one_poetry",
+    "flask_one_wheel",
+    "flask_one_setup",
+    "flask_pg_psyco_no_wheel",
+    "flask_pg_psyco_wheel",
     "flask_sqla",
     "flask_sqla_sqlite_bind",
+    "flask_sqla_sqlite_bind_wheel",
     "flask_two",
     "flask_upload_one",
     "flask_upload_sshfs",

@@ -1,18 +1,17 @@
-PACKAGENAME = flask_one_wheel
+PACKAGENAME = flask_pg_psyco
 
 all: nua
 
 .PHONY: clean
 clean:
-	@rm -fr  $(PACKAGENAME)/dist
 	@rm -fr  build_dir
 
 .PHONY: build
 build:
 	@rm -fr  build_dir
 	@mkdir build_dir
-	poetry build -f wheel
-	@mv dist/*.whl build_dir
+	@cp -a $(PACKAGENAME) build_dir
+	@cp pyproject.toml poetry.lock build_dir
 	@cp nua-config.toml build.py start.py build_dir
 
 .PHONY: nua

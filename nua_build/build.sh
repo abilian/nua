@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NUA_WHEEL_DIR="nua_build_wheel"
+NUA_WHEEL_DIR="/var/tmp/nua_build_wheel"
 
 for installed in $( pip list --format freeze|grep nua-build )
 do
@@ -9,7 +9,7 @@ done
 
 rm -fr dist
 poetry build -f wheel
-[[ -d ~/${NUA_WHEEL_DIR} ]] && rm -fr ~/${NUA_WHEEL_DIR}
-mv dist nua_build_wheel
-mv nua_build_wheel ~
-pip install ~/${NUA_WHEEL_DIR}/*.whl
+[[ -d ${NUA_WHEEL_DIR} ]] && rm -fr ${NUA_WHEEL_DIR}
+mkdir -p ${NUA_WHEEL_DIR}
+mv dist/* ${NUA_WHEEL_DIR}
+pip install ${NUA_WHEEL_DIR}/*.whl

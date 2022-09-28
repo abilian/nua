@@ -1,4 +1,4 @@
-PACKAGENAME = flask_one_wheel
+PACKAGENAME = flask_sqla_sqlite_bind
 
 all: nua
 

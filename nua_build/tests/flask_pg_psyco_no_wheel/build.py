@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from nua_build.actions import install_package_list
+from nua_build.actions import install_package_list, pip_install
 from nua_build.nua_config import NuaConfig
 from nua_build.shell import chmod_r, mkdir_p, rm_fr, sh
 
@@ -13,7 +13,8 @@ def main():
     # this app requires some packages (for pg_config):
     install_package_list(["libpq-dev"])
 
-    # poetry will grab the needed python packages (flask, gunicorn)
+    # poetry will grab the needed python packages from inside the container
+    pip_install("poetry")
     sh("poetry install")
 
     # This app requires a postges DB. The DB is created by the start.py script at
