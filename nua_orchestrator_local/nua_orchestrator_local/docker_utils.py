@@ -214,6 +214,13 @@ def docker_remove_prior_container_db(site: dict):
     store.instance_delete_by_domain(site["domain"])
 
 
+def docker_remove_container_db(domain: str):
+    """Remove container of full domain name from running container and DB"""
+    docker_kill_container(domain)
+    docker_remove_container(domain)
+    store.instance_delete_by_domain(domain)
+
+
 def docker_remove_prior_container_live(site: dict):
     """Search & remove containers already configured for this same site
     (running or stopped), from Docker.

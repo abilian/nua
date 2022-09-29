@@ -19,6 +19,7 @@ from ..db import store
 from ..docker_utils import (
     display_one_docker_img,
     docker_host_gateway_ip,
+    docker_remove_container_db,
     docker_run,
     docker_service_start_if_needed,
     docker_volume_create_or_use,
@@ -306,6 +307,21 @@ def start_containers(sites: list):
         docker_run(site)
 
 
+def deactivate_all_sites():
+    """Find all instance in DB
+    - remove container if exists
+    - remove site from DB
+    """
+    instances = store.list_instances_all()
+    for instance in instances:
+        if verbosity(2):
+            print(
+                f"Removing from containers and DB: "
+                f"'{instance.app_id}' instance on '{instance.domain}'"
+            )
+        docker_remove_container_db(instance.domain)
+
+
 def stop_previous_containers(sites: list):
     pass
 
@@ -582,6 +598,7 @@ def deploy_nua_sites(deploy_config: str) -> int:
     host_list = sort_per_host(deploy_sites)
     if verbosity(2):
         print("'host_list':\n", pformat(host_list))
+    deactivate_all_sites()
     generate_ports(host_list)
     configure_nginx(host_list)
     sites = host_list_to_sites(host_list)
