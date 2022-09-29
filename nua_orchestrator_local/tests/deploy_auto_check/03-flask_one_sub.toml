@@ -1,5 +1,5 @@
 [[site]]
-image = "nua-flask-one:1.2-1"
+image = "nua-flask-one-wheel"
 domain = "test1.example.com/site1"
 [[site.test]]
 url = "https://test1.example.com/site1"
@@ -10,7 +10,7 @@ url = "https://test1.example.com/bad"
 expect_status = 404
 
 [[site]]
-image = "flask-one:1.2-1"
+image = "flask-one-wheel"
 domain = "test1.example.com/site2"
 [[site.test]]
 url = "https://test1.example.com/site2"

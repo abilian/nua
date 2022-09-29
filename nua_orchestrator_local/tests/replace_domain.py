@@ -3,19 +3,18 @@ from pathlib import Path
 REPLACE = Path("~").expanduser() / "REPLACE_DOMAIN"
 
 
-def read_changes():
+def read_changes() -> list:
     changes = []
     if not REPLACE.exists():
         return changes
-    with open(REPLACE, "r", encoding="utf8") as rfile:
-        lines = rfile.read().split("\n")
-        for line in lines:
-            if not line.strip():
-                continue
-            parts = line.split()
-            if len(parts) != 2:
-                continue
-            changes.append((parts[0], parts[1]))
+    lines = REPLACE.read_text(encoding="utf8").split("\n")
+    for line in lines:
+        if not line.strip():
+            continue
+        parts = line.split()
+        if len(parts) != 2:
+            continue
+        changes.append((parts[0], parts[1]))
     return changes
 
 
@@ -30,8 +29,6 @@ def replace_domain(text: str) -> str:
 
 def replace_file(src_file: Path, tmp_dir: Path | str) -> Path:
     dest_file = Path(tmp_dir) / src_file.name
-    with open(src_file, "r", encoding="utf8") as rfile:
-        replaced = replace_domain(rfile.read())
-        with open(dest_file, "w", encoding="utf8") as wfile:
-            wfile.write(replaced)
+    source = src_file.read_text(encoding="utf8")
+    dest_file.write_text(replace_domain(source), encoding="utf8")
     return dest_file

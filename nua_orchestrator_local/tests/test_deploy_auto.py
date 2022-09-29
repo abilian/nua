@@ -38,9 +38,8 @@ def _make_check_test(test: dict):
         assert expect_str in response.content.decode("utf8")
 
 
-def _check_sites(toml):
-    with open(toml, "rb") as rfile:
-        content = tomli.load(rfile)
+def _check_sites(toml: Path):
+    content = tomli.loads(toml.read_text(encoding="utf8"))
     for site in content["site"]:
         if "test" not in site:
             continue
@@ -49,9 +48,9 @@ def _check_sites(toml):
 
 
 @pytest.mark.parametrize("deploy_file", DEPLOY_AUTO_FILES)
-def test_deploy_sites(deploy_file):
+def test_deploy_sites(deploy_file: Path):
     print("\n" + "-" * 40)
-    print(deploy_file)
+    print(f"test config: {deploy_file.name}")
     with tempfile.TemporaryDirectory(dir="/tmp") as tmp_dir:
         new_file = replace_file(deploy_file, tmp_dir)
 

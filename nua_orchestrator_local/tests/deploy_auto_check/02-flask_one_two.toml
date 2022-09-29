@@ -1,5 +1,5 @@
 [[site]]
-image = "nua-flask-one:1.2-1"
+image = "nua-flask-one-wheel:1.2-1"
 domain = "test1.example.com"
 [[site.test]]
 url = "https://test1.example.com"
@@ -18,4 +18,15 @@ expect_status = 200
 expect_str = "Hello World, this is Flask Two"
 [[site.test]]
 url = "https://test2.example.com/bad"
+expect_status = 404
+
+[[site]]
+image = "nua-flask-one-poetry:1.2-1"
+domain = "test.example.com"
+[[site.test]]
+url = "https://test.example.com"
+expect_status = 200
+expect_str = "Hello World, this is Flask One"
+[[site.test]]
+url = "https://test.example.com/bad"
 expect_status = 404
