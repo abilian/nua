@@ -24,3 +24,4 @@ app_folder = [
 @pytest.mark.parametrize("app", app_folder)
 def test_build_all(app):
     build_test_image(root / app)
+    print(Path.cwd())

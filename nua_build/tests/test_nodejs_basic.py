@@ -4,7 +4,7 @@ import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 from shutil import copytree
-from time import perf_counter, sleep
+from time import perf_counter
 
 import docker
 
@@ -18,30 +18,40 @@ def test_complete_build_with_cache():
 
     pytest -rP test_nodejs_basic.py
     """
+    print("////////")
+    print(Path.cwd())
+    print("////////")
+
+    src_path = Path(__file__).parent / "nodejs_basic"
     image_target = "nua-nodejs-basic:1.6-1"
-    with tempfile.TemporaryDirectory(dir="/tmp") as tmp:
-        dest = Path(tmp) / "nodejs-basic"
-        copytree(Path(__file__).parent / "nodejs-basic", dest)
-        dock = docker.from_env()
-        for im in (UBUNTU, NUA_PYTHON_TAG, NUA_BUILDER_TAG, image_target):
-            print(f"Show '{im}' in cache:", dock.images.list(im))
-        print("Time now:", datetime.now(timezone.utc).isoformat(" "))
-        print(f"Build {image_target} (expecting cache) with nua command line:")
-        cmd = shlex.split(f"nua-build {dest}")
-        print(f"'{cmd}'")
-        t0 = perf_counter()
-        result = sp.run(cmd, capture_output=True)  # noqa,we want shell here
-        print("Time now:", datetime.now(timezone.utc).isoformat(" "))
-        print("elapsed (s):", perf_counter() - t0)
-        print(" ========= result.stdout ===========")
-        print(result.stdout.decode("utf8"))
-        print(result.stderr.decode("utf8"))
-        print(" ===================================")
-        assert result.returncode == 0
-        assert dock.images.list(im)
-        print("Testing the container:")
-        # clean previous run if any
-        for previous in dock.containers.list(filters={"ancestor": image_target}):
-            previous.kill()
-        dock.containers.run(image_target, command="/usr/bin/node --help")
-        sleep(2)
+    with tempfile.TemporaryDirectory(dir="/tmp") as tmpdirname:
+        _build_test_cache(tmpdirname, src_path, image_target)
+
+
+def _build_test_cache(tmpdirname, src_path, image_target):
+    build_dir = Path(tmpdirname) / "build"
+    copytree(src_path, build_dir)
+    dock = docker.from_env()
+
+    for name in (UBUNTU, NUA_PYTHON_TAG, NUA_BUILDER_TAG, image_target):
+        print(f"Show '{name}' in cache:", dock.images.list(name))
+
+    print("Time now:", datetime.now(timezone.utc).isoformat(" "))
+    print(f"Build {image_target} (expecting cache) with nua command line:")
+    cmd = shlex.split(f"nua-build {build_dir}")
+    print(f"'{cmd}'")
+    t0 = perf_counter()
+    result = sp.run(cmd, capture_output=True)
+    print("Time now:", datetime.now(timezone.utc).isoformat(" "))
+    print("elapsed (s):", perf_counter() - t0)
+    print(" ========= result.stdout ===========")
+    print(result.stdout.decode("utf8"))
+    print(result.stderr.decode("utf8"))
+    print(" ===================================")
+    assert result.returncode == 0
+    assert dock.images.list(image_target)
+    print("Testing the container:")
+    # clean previous run if any
+    for previous in dock.containers.list(filters={"ancestor": image_target}):
+        previous.kill()
+    dock.containers.run(image_target, command="/usr/bin/node --help")
