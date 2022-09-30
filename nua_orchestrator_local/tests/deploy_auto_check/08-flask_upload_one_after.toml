@@ -22,19 +22,7 @@ url = "https://test2.example.com/"
 expect_status = 200
 expect_str = "File Upload"
 expect_host_dir = "flask_uploads_t2"
-
-[[site]]
-image = "flask-upload-one"
-domain = "test.example.com"
-[site.run_env]
-UPLOAD_PATH = "/var/tmp/uploads_t2"
-[[site.volume]]
-type = "volume"
-driver = "local"
-source = "flask_uploads_t3"
-target = "/var/tmp/uploads_t2"
 [[site.test]]
 url = "https://test.example.com/"
-expect_status = 200
-expect_str = "File Upload"
-expect_host_dir = "flask_uploads_t3"
+expect_status = 404
+expect_not_host_dir = "flask_uploads_t3"

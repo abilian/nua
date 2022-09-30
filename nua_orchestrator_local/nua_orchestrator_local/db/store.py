@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from .. import __version__ as nua_version
 from ..constants import NUA_ORCH_ID, NUA_ORCHESTRATOR_TAG
 from ..docker_utils import image_size_repr, size_unit
+from ..volume_utils import volumes_merge_config
 from .model.auth import User
 from .model.image import Image
 from .model.instance import RUNNING, STOPPED, Instance
@@ -248,6 +249,35 @@ def list_instances_all() -> list:
 
 def list_instances_container_running():
     return [inst.container for inst in list_instances_all() if inst.state == RUNNING]
+
+
+def _instance_mounted_volumes(instance: Instance) -> list:
+    volumes = volumes_merge_config(instance.site_config)
+    return [
+        volume
+        for volume in volumes
+        if volume.get("driver", "") == "local" and volume.get("type", "") == "volume"
+    ]
+
+
+def list_instances_container_local_active_volumes() -> list:
+    """Return list of local mounted volumes.
+
+    Volumes with properties:
+    - required by active instances,
+    - locally mounted ('local' driver), 'volume' type)
+    - unique per 'source' key.
+
+    A 'source' volume may be mounted on several instances. So, if still required by
+    another instance, should ne not unmounted when unmounting an instance.
+    """
+    volumes_dict = {}
+    for instance in list_instances_all():
+        if instance.state not in {RUNNING, STOPPED}:
+            continue
+        for volume in _instance_mounted_volumes(instance):
+            volumes_dict[volume["source"]] = volume
+    return list(volumes_dict.values())
 
 
 def ports_instances_domains() -> dict:

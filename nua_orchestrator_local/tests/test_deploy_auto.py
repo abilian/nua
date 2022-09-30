@@ -1,4 +1,6 @@
 import os
+import shlex
+import subprocess as sp
 import tempfile
 from pathlib import Path
 
@@ -20,6 +22,71 @@ os.environ["NUA_CERTBOT_TEST"] = "1"
 os.environ["NUA_CERTBOT_VERBOSE"] = "1"
 
 
+def _assert_expect_status(expected: int | str | None, response: requests.Response):
+    if expected is not None:
+        assert response.status_code == int(expected)
+
+
+def _assert_expect_not_status(expected: int | str | None, response: requests.Response):
+    if expected is not None:
+        assert response.status_code != int(expected)
+
+
+def _assert_expect_str(expected: str | None, response: requests.Response):
+    if expected:
+        assert str(expected) in response.content.decode("utf8")
+
+
+def _assert_expect_not_str(expected: str | None, response: requests.Response):
+    if expected:
+        assert str(expected) not in response.content.decode("utf8")
+
+
+def _assert_expect_host_dir(expected: str | None, response: requests.Response):
+    if expected:
+        if os.getuid() == 0:
+            # easy if root:
+            path = Path("/var/lib/docker/volumes") / expected
+            assert path.exists()
+        else:
+            result = sp.run(
+                shlex.split("docker volume ls -f 'driver=local'"), capture_output=True
+            )
+            words = result.stdout.decode("utf8").split()
+            assert expected in words
+
+
+def _assert_expect_not_host_dir(expected: str | None, response: requests.Response):
+    if expected:
+        if os.getuid() == 0:
+            path = Path("/var/lib/docker/volumes") / expected
+            assert not path.exists()
+        else:
+            result = sp.run(
+                shlex.split("docker volume ls -f 'driver=local'"), capture_output=True
+            )
+            words = result.stdout.decode("utf8").split()
+            assert expected not in words
+
+
+EXPECT_FCT = {
+    "expect_status": _assert_expect_status,
+    "expect_not_status": _assert_expect_not_status,
+    "expect_str": _assert_expect_str,
+    "expect_not_str": _assert_expect_not_str,
+    "expect_host_dir": _assert_expect_host_dir,
+    "expect_not_host_dir": _assert_expect_not_host_dir,
+}
+
+
+def _apply_check_suite(test: dict, response: requests.Response):
+    for key, value in test.items():
+        if key not in EXPECT_FCT or value is None:
+            continue
+        expect_fct = EXPECT_FCT[key]
+        expect_fct(value, response)
+
+
 def _make_check_test(test: dict):
     url = test.get("url")
     if not url:
@@ -30,12 +97,7 @@ def _make_check_test(test: dict):
         url = url.replace("http://", "https://")
     print("testing: ", url)
     response = requests.get(url)
-    expect_status = test.get("expect_status")
-    if expect_status is not None:
-        assert response.status_code == expect_status
-    expect_str = test.get("expect_str")
-    if expect_str:
-        assert expect_str in response.content.decode("utf8")
+    _apply_check_suite(test, response)
 
 
 def _check_sites(toml: Path):

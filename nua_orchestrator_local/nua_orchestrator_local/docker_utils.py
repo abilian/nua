@@ -305,11 +305,29 @@ def docker_volume_create_or_use(volume_opt: dict):
         # no need to create "bind" volumes
         return
     found = docker_list_volume(volume_opt["source"])
-    # if found:
-    #     return found[0]
-    # return docker_create_volume(volume_opt)
     if not found:
         docker_create_volume(volume_opt)
+
+
+def docker_volume_prune(volume_opt: dict):
+    """Unmout a (previously mounted) local docker volume."""
+    if volume_opt.get("type") != "volume" or volume_opt.get("driver") != "local":
+        # todo: later, manage bind volumes
+        return
+    name = volume_opt["source"]
+    try:
+        client = docker.from_env()
+        lst = client.volumes.list(filters={"name": name})
+        # filter match is not equality
+        found = [vol for vol in lst if vol.name == name]
+        if found:
+            # shoud be only one.
+            volume = found[0]
+            volume.remove(force=True)
+    except docker.errors.APIError as e:
+        print("Error while unmounting volume:")
+        print("volume_opt")
+        print(e)
 
 
 def install_plugin(plugin_name: str) -> str:

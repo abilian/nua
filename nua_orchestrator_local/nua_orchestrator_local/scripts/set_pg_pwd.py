@@ -17,7 +17,7 @@ def set_pg_pwd_app(password: str = option_pwd):
     """Set the Postgres password."""
     if len(password) < 8:
         print_red("New password is too short (at leat 8 chars).")
-        raise SystemExit(status)
+        raise SystemExit(1)
     done = set_postgres_pwd(password)
     if done:
         print_green("Password successfully changed.")

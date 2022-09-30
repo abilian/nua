@@ -23,6 +23,7 @@ from ..docker_utils import (
     docker_run,
     docker_service_start_if_needed,
     docker_volume_create_or_use,
+    docker_volume_prune,
 )
 from ..domain_split import DomainSplit
 from ..nginx_util import (
@@ -37,6 +38,7 @@ from ..rich_console import print_green, print_magenta, print_red
 from ..search_cmd import search_nua
 from ..server_utils.net_utils import check_port_available
 from ..state import verbosity
+from ..volume_utils import volumes_merge_config
 
 ALLOW_DOCKER_NAME = set(ascii_letters + digits + "-_.")
 # parameters passed as a dict to docker run
@@ -207,18 +209,15 @@ def find_all_images(deploy_sites: dict) -> bool:
 
 
 def create_docker_volumes(volumes_config):
-    # docker_volumes = []
     for volume_params in volumes_config:
-        # docker_volumes.append(docker_volume_create_or_use(volume_params))
         docker_volume_create_or_use(volume_params)
 
 
 def mount_volumes(site: dict):
-    image_nua_config = site["image_nua_config"]
-    volumes_config = image_nua_config.get("volume") or []
-    create_docker_volumes(volumes_config)
+    volumes = volumes_merge_config(site)
+    create_docker_volumes(volumes)
     mounted_volumes = []
-    for volume_params in volumes_config:
+    for volume_params in volumes:
         mounted_volumes.append(
             docker.types.Mount(
                 volume_params["target"],
@@ -305,6 +304,17 @@ def start_containers(sites: list):
             run_params["mounts"] = mounted_volumes
         site["run_params"] = run_params
         docker_run(site)
+
+
+def _unused_volumes(orig_mounted_volumes: list) -> list:
+    current_mounted = store.list_instances_container_local_active_volumes()
+    current_sources = {vol["source"] for vol in current_mounted}
+    return [vol for vol in orig_mounted_volumes if vol["source"] not in current_sources]
+
+
+def unmount_unused_volumes(orig_mounted_volumes: list):
+    for unused in _unused_volumes(orig_mounted_volumes):
+        docker_volume_prune(unused)
 
 
 def deactivate_all_sites():
@@ -598,6 +608,7 @@ def deploy_nua_sites(deploy_config: str) -> int:
     host_list = sort_per_host(deploy_sites)
     if verbosity(2):
         print("'host_list':\n", pformat(host_list))
+    orig_mounted_volumes = store.list_instances_container_local_active_volumes()
     deactivate_all_sites()
     generate_ports(host_list)
     configure_nginx(host_list)
@@ -608,6 +619,7 @@ def deploy_nua_sites(deploy_config: str) -> int:
     install_images(sites)
     service_requirements(sites)
     start_containers(sites)
+    unmount_unused_volumes(orig_mounted_volumes)
     chown_r_nua_nginx()
     nginx_restart()
     display_deployed(sites)

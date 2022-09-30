@@ -1,8 +1,7 @@
 """For debug, print the content of the Instance table.
 """
-from pprint import pformat, pprint
+from pprint import pprint
 
-from .. import config
 from ..db import store
 from ..db_setup import setup_db
 

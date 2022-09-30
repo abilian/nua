@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua_orchestrator_local"
-version = "0.4.5"
+version = "0.4.6"
 description = "Nua orchestrator local implementation for Nua v0."
 authors = ["Jerome Dumonteil <jd@abilian.com>"]
 license = "AGPL"
@@ -11,6 +11,7 @@ nua = "nua_orchestrator_local.main:app"
 nua-bootstrap = "nua_orchestrator_local.scripts.bootstrap:main"
 nua-pg-pwd = "nua_orchestrator_local.scripts.set_pg_pwd:app"
 nua-print-instances = "nua_orchestrator_local.scripts.print_instances:main"
+nua-print-volumes = "nua_orchestrator_local.scripts.print_mounted_volumes:main"
 nua-print-ports = "nua_orchestrator_local.scripts.print_used_ports:main"
 
 [tool.poetry.dependencies]
