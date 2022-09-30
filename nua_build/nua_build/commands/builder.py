@@ -16,7 +16,14 @@ from shutil import copy2, copytree
 import docker
 
 from .. import __version__, config
-from ..constants import BUILD, DEFAULTS_DIR, MYSELF_DIR, NUA_BUILDER_TAG, NUA_CONFIG
+from ..constants import (
+    BUILD,
+    DEFAULTS_DIR,
+    MYSELF_DIR,
+    NUA_BUILDER_TAG,
+    NUA_CONFIG,
+    NUA_WHEEL_DIR,
+)
 from ..docker_utils_build import display_docker_img, docker_build_log_error
 from ..nua_config import NuaConfig
 from ..panic import error
@@ -205,13 +212,31 @@ class Builder:
             print(dest)
 
 
-def build_nua_builder_if_needed():
+def _check_nua_build_wheel() -> bool:
+    if not NUA_WHEEL_DIR.is_dir() or not list(NUA_WHEEL_DIR.glob("nua_build*.whl")):
+        if verbosity(1):
+            message = f"Python wheel for '{NUA_BUILDER_TAG}' not found locally\n"
+            print(message)
+            message = f"[fixme]: Make new installation of the package with ./build.sh"
+            error(message)
+        return False
+    return True
+
+
+def _check_nua_build_docker_image() -> bool:
     client = docker.from_env()
-    result = client.images.list(filters={"reference": NUA_BUILDER_TAG})
+    result = bool(client.images.list(filters={"reference": NUA_BUILDER_TAG}))
     if not result:
         if verbosity(1):
-            message = f"Image '{NUA_BUILDER_TAG}' not found locally, build required."
+            message = (
+                f"Docker image '{NUA_BUILDER_TAG}' not found locally, build required."
+            )
             print(message)
+    return result
+
+
+def build_nua_builder_if_needed():
+    if not _check_nua_build_wheel() or not _check_nua_build_docker_image():
         build_nua_builder()
 
 

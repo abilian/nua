@@ -15,6 +15,7 @@ from ..constants import (
     MYSELF_DIR,
     NUA_BUILDER_TAG,
     NUA_PYTHON_TAG,
+    NUA_WHEEL_DIR,
 )
 from ..docker_utils_build import display_docker_img, docker_build_log_error
 from ..rich_console import print_green, print_red
@@ -79,7 +80,7 @@ def build_builder_layer():
     orig_wd = Path.cwd()
     build_dir = set_build_dir(orig_wd)
     copy2(DOCKERFILE_BUILDER, build_dir)
-    build_myself(build_dir)
+    copy_myself(build_dir)
     docker_build_builder(build_dir)
     if verbosity(1):
         display_docker_img(NUA_BUILDER_TAG)
@@ -115,14 +116,16 @@ def docker_build_builder(build_dir):
 #     )
 
 
-def build_myself(build_dir: Path):
-    # sh(f"cd {MYSELF_DIR} && poetry build -f wheel")
-    # src = Path(MYSELF_DIR) / "dist"
-    nua_build_wheel = Path("~/nua_build_wheel").expanduser()
-    wheel_path = list(nua_build_wheel.glob("nua_build*.whl"))[-1]
+def copy_myself(build_dir: Path):
+    wheel_list = list(NUA_WHEEL_DIR.glob("nua_build*.whl"))
+    if not wheel_list:
+        raise RuntimeError(
+            f"Missing {NUA_WHEEL_DIR} wheel\n"
+            "[fixme]: Make new installation of the package with ./build.sh"
+        )
     dest = build_dir / "nua_build_whl"
     mkdir_p(dest)
-    copy2(wheel_path, dest)
+    copy2(wheel_list[-1], dest)
 
 
 @app.command("build_nua_docker")

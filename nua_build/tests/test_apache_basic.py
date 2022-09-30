@@ -1,7 +1,8 @@
 import shlex
+import socket
 import subprocess as sp  # noqa, required.
 import tempfile
-from contextlib import suppress
+from contextlib import closing, suppress
 from datetime import datetime, timezone
 from pathlib import Path
 from shutil import copytree
@@ -15,6 +16,17 @@ from nua_build.constants import NUA_BUILDER_TAG, NUA_PYTHON_TAG
 UBUNTU = "ubuntu:jammy-20220801"
 
 
+def check_port_available(host: str, port: str | int, timeout: int = 1) -> bool:
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(timeout)
+    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
+        try:
+            sock.bind((host, int(port)))
+        except OSError:
+            return False
+    return True
+
+
 class TestApacheBasic:
     def test_complete_build_without_cache(self):
         """To be preferably launched with :
@@ -22,6 +34,9 @@ class TestApacheBasic:
         pytest -rP test_apache_basic.py
         """
         host_port = 8081
+
+        assert check_port_available("127.0.0.1", host_port)
+
         src_path = Path(__file__).parent / "apache_basic"
         image_target = "nua-apache-basic:2.4.52-2"
         with tempfile.TemporaryDirectory(dir="/tmp") as tmpdirname:
@@ -41,6 +56,10 @@ class TestApacheBasic:
                 with suppress(docker.errors.ImageNotFound):
                     dock.images.remove(image, force=True, noprune=False)
                 assert not dock.images.list(image)
+
+            cmd = shlex.split(f"nua-build --version")
+            result = sp.run(cmd, capture_output=True)
+            print(result.stdout.decode("utf8"))
 
             # DTZ005 The use of `datetime.datetime.now()` without `tz` argument is
             # not allowed : well, by default it uses localtime.
@@ -71,10 +90,17 @@ class TestApacheBasic:
         cmd = shlex.split(f"curl http://127.0.0.1:{host_port}")
         # S603 subprocess call - check for execution of untrusted input.: wrong
         curl_result = sp.run(cmd, capture_output=True)
+        stdout = curl_result.stdout.decode("utf8")
+        stderr = curl_result.stderr.decode("utf8")
+        print("stdout:\n", stdout)
+        print("stderr:\n", stderr)
+
         assert curl_result.returncode == 0
+
         test_string = f"<h1>Nua test {nua_version}</h1>"
-        assert test_string in curl_result.stdout.decode("utf8")
-        print(test_string)
+
+        assert test_string in stdout
+
         container.kill()
 
     def test_complete_build_with_cache(self):
@@ -83,6 +109,9 @@ class TestApacheBasic:
         pytest -rP test_apache_basic.py
         """
         host_port = 8081
+
+        assert check_port_available("127.0.0.1", host_port)
+
         src_path = Path(__file__).parent / "apache_basic"
         image_target = "nua-apache-basic:2.4.52-2"
         with tempfile.TemporaryDirectory(dir="/tmp") as tmpdirname:
@@ -92,6 +121,10 @@ class TestApacheBasic:
 
             for image in (UBUNTU, NUA_PYTHON_TAG, NUA_BUILDER_TAG, image_target):
                 print(f"Show '{image}' in cache:", dock.images.list(image))
+
+            cmd = shlex.split(f"nua-build --version")
+            result = sp.run(cmd, capture_output=True)
+            print(result.stdout.decode("utf8"))
 
             print("Time now:", datetime.now(timezone.utc).isoformat(" "))
             print(f"Build {image_target} (no images in cache) with command:")
@@ -121,8 +154,15 @@ class TestApacheBasic:
         cmd = shlex.split(f"curl http://127.0.0.1:{host_port}")
         # S603 subprocess call - check for execution of untrusted input.: wrong
         curl_result = sp.run(cmd, capture_output=True)
+        stdout = curl_result.stdout.decode("utf8")
+        stderr = curl_result.stderr.decode("utf8")
+        print("stdout:\n", stdout)
+        print("stderr:\n", stderr)
+
         assert curl_result.returncode == 0
+
         test_string = f"<h1>Nua test {nua_version}</h1>"
-        assert test_string in curl_result.stdout.decode("utf8")
-        print(test_string)
+
+        assert test_string in stdout
+
         container.kill()
