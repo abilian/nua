@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "flask_upload_bind_local"
+name = "flask_upload_bind_mount"
 version = "0.3.0"
 description = "Nua test upload with bind local dir"
 authors = ["Jerome Dumonteil <jd@abilian.com>"]

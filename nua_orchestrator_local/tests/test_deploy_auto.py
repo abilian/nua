@@ -42,7 +42,7 @@ def _assert_expect_not_str(expected: str | None, response: requests.Response):
         assert str(expected) not in response.content.decode("utf8")
 
 
-def _assert_expect_host_dir(expected: str | None, response: requests.Response):
+def _assert_expect_host_volume(expected: str | None, response: requests.Response):
     if expected:
         if os.getuid() == 0:
             # easy if root:
@@ -56,7 +56,7 @@ def _assert_expect_host_dir(expected: str | None, response: requests.Response):
             assert expected in words
 
 
-def _assert_expect_not_host_dir(expected: str | None, response: requests.Response):
+def _assert_expect_not_host_volume(expected: str | None, response: requests.Response):
     if expected:
         if os.getuid() == 0:
             path = Path("/var/lib/docker/volumes") / expected
@@ -69,13 +69,21 @@ def _assert_expect_not_host_dir(expected: str | None, response: requests.Respons
             assert expected not in words
 
 
+def _assert_expect_host_dir(expected: str | None, response: requests.Response):
+    """Test local host path."""
+    if expected:
+        path = Path(expected)
+        assert path.exists()
+
+
 EXPECT_FCT = {
     "expect_status": _assert_expect_status,
     "expect_not_status": _assert_expect_not_status,
     "expect_str": _assert_expect_str,
     "expect_not_str": _assert_expect_not_str,
+    "expect_host_volume": _assert_expect_host_volume,
+    "expect_not_host_volume": _assert_expect_not_host_volume,
     "expect_host_dir": _assert_expect_host_dir,
-    "expect_not_host_dir": _assert_expect_not_host_dir,
 }
 
 

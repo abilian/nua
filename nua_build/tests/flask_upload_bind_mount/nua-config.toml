@@ -1,5 +1,5 @@
 [metadata]
-id = "flask-upload-bind-local"
+id = "flask-upload-bind-mount"
 version = "1.0"
 title = "Flask test upload with host local dir (-v)"
 author = "Nua testers"

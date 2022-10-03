@@ -16,6 +16,7 @@ from .. import config
 from ..archive_search import ArchiveSearch
 from ..certbot import protocol_prefix, register_certbot_domains
 from ..db import store
+from ..db.model.instance import RUNNING
 from ..docker_utils import (
     display_one_docker_img,
     docker_host_gateway_ip,
@@ -213,18 +214,43 @@ def create_docker_volumes(volumes_config):
         docker_volume_create_or_use(volume_params)
 
 
+def new_docker_driver_config(volume_params: dict) -> docker.types.DriverConfig | None:
+    """Volume driver configuration. Only valid for the 'volume' type."""
+    driver = volume_params.get("driver")
+    if not driver or driver == "local":
+        return None
+    # to be completed
+    return docker.types.DriverConfig(driver)
+
+
+def new_docker_mount(volume_params: dict) -> docker.types.Mount:
+    # Container path.
+    target = volume_params.get("target") or volume_params.get("destination")
+    # Mount source (e.g. a volume name or a host path).
+    source = volume_params.get("source")
+    tpe = volume_params.get("type", "volume")
+    driver_config = new_docker_driver_config(volume_params) if tpe == "volume" else None
+    read_only = bool(volume_params.get("read_only", False))
+    # to be continued for options, tmpsfs, ...
+    tmpfs_size = volume_params.get("tmpfs_size") if tpe == "tmpfs" else None
+    tmpfs_mode = volume_params.get("tmpfs_mode") if tpe == "tmpfs" else None
+    return docker.types.Mount(
+        target,
+        source,
+        type=tpe,
+        driver_config=driver_config,
+        read_only=read_only,
+        tmpfs_size=tmpfs_size,
+        tmpfs_mode=tmpfs_mode,
+    )
+
+
 def mount_volumes(site: dict):
     volumes = volumes_merge_config(site)
     create_docker_volumes(volumes)
     mounted_volumes = []
     for volume_params in volumes:
-        mounted_volumes.append(
-            docker.types.Mount(
-                volume_params["target"],
-                volume_params["source"],
-                type=volume_params["type"],
-            )
-        )
+        mounted_volumes.append(new_docker_mount(volume_params))
     return mounted_volumes
 
 
@@ -304,17 +330,68 @@ def start_containers(sites: list):
             run_params["mounts"] = mounted_volumes
         site["run_params"] = run_params
         docker_run(site)
+        if mounted_volumes:
+            site["run_params"]["mounts"] = True
+        store_container_instance(site)
+        if verbosity(1):
+            print_magenta(f"    -> run new container         '{site['container']}'")
 
 
-def _unused_volumes(orig_mounted_volumes: list) -> list:
-    current_mounted = store.list_instances_container_local_active_volumes()
+def store_container_instance(site):
+    meta = site["image_nua_config"]["metadata"]
+    store.store_instance(
+        app_id=meta["id"],
+        nua_tag=store.nua_tag_string(meta),
+        domain=site["domain"],
+        container=site["container"],
+        image=site["image"],
+        state=RUNNING,
+        site_config=site,
+    )
+
+
+def unused_volumes(orig_mounted_volumes: list) -> list:
+    current_mounted = store.list_instances_container_active_volumes()
     current_sources = {vol["source"] for vol in current_mounted}
     return [vol for vol in orig_mounted_volumes if vol["source"] not in current_sources]
 
 
 def unmount_unused_volumes(orig_mounted_volumes: list):
-    for unused in _unused_volumes(orig_mounted_volumes):
+    for unused in unused_volumes(orig_mounted_volumes):
         docker_volume_prune(unused)
+
+
+def display_used_volumes():
+    if not verbosity(1):
+        return
+    current_mounted = store.list_instances_container_active_volumes()
+    if not current_mounted:
+        return
+    print_green("Volumes used by current Nua configuration:")
+    for volume in current_mounted:
+        volume_print(volume)
+
+
+def display_unused_volumes(orig_mounted_volumes: list):
+    if not verbosity(1):
+        return
+    unused = unused_volumes(orig_mounted_volumes)
+    if not unused:
+        return
+    print_green("Some volumes are mounted but not used by current Nua configuration:")
+    for volume in unused:
+        volume_print(volume)
+
+
+def volume_print(volume: dict):
+    lst = ["  "]
+    lst.append("type={type}, ".format(**volume))
+    if "driver" in volume:
+        lst.append("driver={driver}, ".format(**volume))
+    lst.append("source={source}, target={target}".format(**volume))
+    if "-> domains" in volume:
+        lst.append("\n  domains: " + ", ".join(volume["domains"]))
+    print("".join(lst))
 
 
 def deactivate_all_sites():
@@ -608,7 +685,7 @@ def deploy_nua_sites(deploy_config: str) -> int:
     host_list = sort_per_host(deploy_sites)
     if verbosity(2):
         print("'host_list':\n", pformat(host_list))
-    orig_mounted_volumes = store.list_instances_container_local_active_volumes()
+    orig_mounted_volumes = store.list_instances_container_active_volumes()
     deactivate_all_sites()
     generate_ports(host_list)
     configure_nginx(host_list)
@@ -619,7 +696,9 @@ def deploy_nua_sites(deploy_config: str) -> int:
     install_images(sites)
     service_requirements(sites)
     start_containers(sites)
-    unmount_unused_volumes(orig_mounted_volumes)
+    # unmount_unused_volumes(orig_mounted_volumes)
     chown_r_nua_nginx()
     nginx_restart()
     display_deployed(sites)
+    display_used_volumes()
+    display_unused_volumes(orig_mounted_volumes)

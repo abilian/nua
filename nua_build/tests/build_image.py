@@ -28,7 +28,7 @@ def build_test_image(src_dir: Path | str):
     name = f"{name}:{meta['version']}"
     if "release" in meta:
         name = f"{name}-{meta['release']}"
-    with tempfile.TemporaryDirectory(dir="/tmp") as tmpdirname:
+    with tempfile.TemporaryDirectory(dir="/tmp") as tmpdirname:  # noqa
         print("created temporary directory", tmpdirname)
         _build_test(tmpdirname, actual_path, name)
 
@@ -40,7 +40,7 @@ def _apply_makefile(src_path: Path) -> Path:
         return src_path
     previous_path = Path.cwd()
     os.chdir(src_path)
-    result = sp.run(["make", "build"], capture_output=True)
+    result = sp.run(["make", "build"], capture_output=True)  # noqa
     print(" ========= make build ===========")
     print(result.stdout.decode("utf8"))
     print(" ================================")
@@ -53,7 +53,7 @@ def _apply_makefile_clean(src_path: Path):
         return
     previous_path = Path.cwd()
     os.chdir(src_path)
-    result = sp.run(["make", "clean"], capture_output=True)
+    result = sp.run(["make", "clean"], capture_output=True)  # noqa
     print(" ========= make clean ===========")
     print(result.stdout.decode("utf8"))
     print(" ================================")
@@ -69,7 +69,7 @@ def _build_test(tmpdirname, src_path, name):
     print("Time now:", datetime.now(timezone.utc).isoformat(" "))
     cmd = shlex.split(f"nua-build {build_dir}")
     t0 = perf_counter()
-    result = sp.run(cmd, capture_output=True)
+    result = sp.run(cmd, capture_output=True)  # noqa
     print("Time now:", datetime.now(timezone.utc).isoformat(" "))
     print("elapsed (s):", perf_counter() - t0)
     print(" ========= result.stdout ===========")

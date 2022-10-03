@@ -15,6 +15,7 @@ def apt_get_install(packages: list | str) -> None:
     if isinstance(packages, str):
         packages = packages.strip().split()
     if not packages:
+        print("apt_get_install(): nothing to install")
         return
     cmd = f"apt-get install -y {' '.join(packages)}"
     sh(cmd)
@@ -27,13 +28,18 @@ def build_python(path=None):
     requirements = path / "requirements.txt"
     setup_py = path / "setup.py"
     if requirements.exists():
-        sh("python -m pip install -r {str(requirements)}")
+        sh(f"python -m pip install -r {requirements}")
     elif setup_py.exists():
         # assuming code is in src:
         pip_install("src")
 
 
-def install_package_list(packages):
+def install_package_list(packages: list | str):
+    if isinstance(packages, str):
+        packages = packages.strip().split()
+    if not packages:
+        print("install_package_list(): nothing to install")
+        return
     environ = os.environ.copy()
     environ["DEBIAN_FRONTEND"] = "noninteractive"
     cmd = f"apt-get update --fix-missing; apt-get install -y {' '.join(packages)}"
@@ -73,6 +79,16 @@ def pip_install(packages: list | str) -> None:
     if isinstance(packages, str):
         packages = packages.strip().split()
     if not packages:
+        print("pip_install(): nothing to install")
+        return
+    cmd = f"python -m pip install {' '.join(packages)}"
+    sh(cmd)
+
+
+def pip_install_glob(pattern: str) -> None:
+    packages = [str(f) for f in Path.cwd().glob(pattern)]
+    if not packages:
+        print("pip_install_glob(): nothing to install")
         return
     cmd = f"python -m pip install {' '.join(packages)}"
     sh(cmd)

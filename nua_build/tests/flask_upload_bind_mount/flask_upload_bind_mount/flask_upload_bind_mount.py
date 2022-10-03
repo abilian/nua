@@ -56,7 +56,7 @@ def upload_files():
 
 @app.route("/uploads/<filename>")
 def upload(filename):
-    return send_from_directory(upload_path() / filename)
+    return send_from_directory(upload_path(), filename)
 
 
 if __name__ == "__main__":

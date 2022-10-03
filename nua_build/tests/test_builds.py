@@ -17,7 +17,7 @@ app_folder = [
     "flask_sqla_sqlite_bind_wheel",
     "flask_two",
     "flask_upload_one",
-    "flask_upload_bind_local",
+    "flask_upload_bind_mount",
     "flask_upload_sshfs",
 ]
 

@@ -10,7 +10,8 @@ import docker
 
 from . import config
 from .db import store
-from .db.model.instance import RUNNING
+
+# from .db.model.instance import RUNNING
 from .panic import error
 from .rich_console import print_magenta, print_red
 from .state import verbosity
@@ -237,19 +238,6 @@ def docker_remove_prior_container_live(site: dict):
         docker_remove_container(cont.name)
 
 
-def store_container_instance(site):
-    meta = site["image_nua_config"]["metadata"]
-    store.store_instance(
-        app_id=meta["id"],
-        nua_tag=store.nua_tag_string(meta),
-        domain=site["domain"],
-        container=site["container"],
-        image=site["image"],
-        state=RUNNING,
-        site_config=site,
-    )
-
-
 def docker_run(site: dict):
     image_id = site["image_id"]
     params = site["run_params"]
@@ -268,12 +256,9 @@ def docker_run(site: dict):
     if not docker_check_container_listed(cont.name):
         error(f"Failed starting container {cont.name}")
     site["container"] = cont.name
-    store_container_instance(site)
-    if verbosity(1):
-        print_magenta(f"    -> run new container         '{site['container']}'")
 
 
-def docker_list_volume(name: str) -> list:
+def docker_volume_list(name: str) -> list:
     client = docker.from_env()
     lst = client.volumes.list(filters={"name": name})
     # filter match is not equality
@@ -283,7 +268,7 @@ def docker_list_volume(name: str) -> list:
 #  "/var/tmp" includes invalid characters for a local volume
 
 
-def docker_create_volume(volume_opt: dict):
+def docker_volume_create(volume_opt: dict):
     driver = volume_opt.get("driver", "local")
     if driver != "local" and not install_plugin(driver):
         # assuming it is the name of a plugin
@@ -304,13 +289,16 @@ def docker_volume_create_or_use(volume_opt: dict):
     if volume_opt.get("type") == "bind":
         # no need to create "bind" volumes
         return
-    found = docker_list_volume(volume_opt["source"])
+    found = docker_volume_list(volume_opt["source"])
     if not found:
-        docker_create_volume(volume_opt)
+        docker_volume_create(volume_opt)
 
 
 def docker_volume_prune(volume_opt: dict):
-    """Unmout a (previously mounted) local docker volume."""
+    """Remove a (previously mounted) local docker volume.
+
+    Beware: deleting data !
+    """
     if volume_opt.get("type") != "volume" or volume_opt.get("driver") != "local":
         # todo: later, manage bind volumes
         return

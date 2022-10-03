@@ -56,7 +56,6 @@ source = "/var/tmp"
 # Container path:
 target = "/nua/app/dbs"
 #
-mode = "rw"
 # dst = "/var/tmp/uploads"
 
 [run_env]

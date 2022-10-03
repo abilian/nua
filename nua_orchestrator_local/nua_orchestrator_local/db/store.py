@@ -251,13 +251,13 @@ def list_instances_container_running():
     return [inst.container for inst in list_instances_all() if inst.state == RUNNING]
 
 
-def _instance_mounted_volumes(instance: Instance) -> list:
-    volumes = volumes_merge_config(instance.site_config)
-    return [
-        volume
-        for volume in volumes
-        if volume.get("driver", "") == "local" and volume.get("type", "") == "volume"
-    ]
+# def _instance_mounted_volumes(instance: Instance) -> list:
+#     volumes = volumes_merge_config(instance.site_config)
+#     return [
+#         volume
+#         for volume in volumes
+#         if volume.get("driver", "") == "local" and volume.get("type", "") == "volume"
+#     ]
 
 
 def list_instances_container_local_active_volumes() -> list:
@@ -272,11 +272,46 @@ def list_instances_container_local_active_volumes() -> list:
     another instance, should ne not unmounted when unmounting an instance.
     """
     volumes_dict = {}
+    containers_dict = {}
     for instance in list_instances_all():
         if instance.state not in {RUNNING, STOPPED}:
             continue
+        # for volume in volumes_merge_config(instance.site_config):
         for volume in _instance_mounted_volumes(instance):
-            volumes_dict[volume["source"]] = volume
+            source = volume["source"]
+            volumes_dict[source] = volume
+            domains = containers_dict.get(source, [])
+            domains.append(instance.domain)
+            containers_dict[source] = domains
+    for source, volume in volumes_dict.items():
+        volume["domains"] = containers_dict[source]
+    return list(volumes_dict.values())
+
+
+def list_instances_container_active_volumes() -> list:
+    """Return list of mounted volumes or binds.
+
+    Volumes with properties:
+    - required by active instances,
+    - unique per 'source' key.
+
+    A 'source' volume may be mounted on several instances. So, if still required by
+    another instance, should ne not unmounted when unmounting an instance.
+    """
+    volumes_dict = {}
+    containers_dict = {}
+    for instance in list_instances_all():
+        if instance.state not in {RUNNING, STOPPED}:
+            continue
+        for volume in volumes_merge_config(instance.site_config):
+            # for volume in _instance_mounted_volumes(instance):
+            source = volume["source"]
+            volumes_dict[source] = volume
+            domains = containers_dict.get(source, [])
+            domains.append(instance.domain)
+            containers_dict[source] = domains
+    for source, volume in volumes_dict.items():
+        volume["domains"] = containers_dict[source]
     return list(volumes_dict.values())
 
 

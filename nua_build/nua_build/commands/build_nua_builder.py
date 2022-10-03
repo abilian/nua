@@ -1,7 +1,8 @@
-"""script to build the Nua base image."""
+"""Script to build the Nua base image (the nua runtime image)."""
+import tempfile
 from os import chdir
 from pathlib import Path
-from shutil import copy2, copytree, ignore_patterns
+from shutil import copy2
 
 import docker
 import typer
@@ -9,18 +10,20 @@ import typer
 from .. import __version__ as nua_version
 from .. import config
 from ..constants import (
-    BUILD,
     DOCKERFILE_BUILDER,
     DOCKERFILE_PYTHON,
-    MYSELF_DIR,
     NUA_BUILDER_TAG,
     NUA_PYTHON_TAG,
     NUA_WHEEL_DIR,
 )
 from ..docker_utils_build import display_docker_img, docker_build_log_error
-from ..rich_console import print_green, print_red
-from ..shell import mkdir_p, rm_fr, sh
+from ..panic import error
+from ..rich_console import print_green
+from ..shell import mkdir_p, rm_fr
 from ..state import set_verbose, verbosity
+
+# from shutil import ignore_patterns
+
 
 app = typer.Typer()
 
@@ -35,32 +38,33 @@ def build_nua_builder():
     build_builder_layer()
 
 
-def set_build_dir(orig_wd) -> Path:
-    try:
-        build_dir_parent = config.get("build", {}).get("build_dir", orig_wd)
-        build_dir = Path(build_dir_parent) / BUILD
-        rm_fr(build_dir)
-        mkdir_p(build_dir)
-        return build_dir
-    except OSError:
-        print_red(f"Error making build directory: {build_dir}")
-        raise
+def set_temp_build_dir() -> Path:
+    build_dir_parent = Path(
+        config.get("build", {}).get("build_dir", "/var/tmp")  # noqa S108
+    )
+    if not build_dir_parent.is_dir():
+        error(f"Build directory parent not found: '{build_dir_parent}'")
+    build_dir = Path(tempfile.mkdtemp(dir=build_dir_parent))
+    return build_dir
 
 
 def build_python_layer():
     orig_wd = Path.cwd()
-    build_dir = set_build_dir(orig_wd)
+    build_dir = set_temp_build_dir()
     copy2(DOCKERFILE_PYTHON, build_dir)
     docker_build_python(build_dir)
     if verbosity(1):
         display_docker_img(NUA_PYTHON_TAG)
     chdir(orig_wd)
+    rm_fr(build_dir)
 
 
 @docker_build_log_error
 def docker_build_python(build_dir):
     chdir(build_dir)
     print(f"1/2: Building image {NUA_PYTHON_TAG}")
+    if verbosity(1):
+        print(f"build directory: {build_dir}")
     app_id = "nua-python"
     client = docker.from_env()
     image, tee = client.images.build(
@@ -78,20 +82,23 @@ def docker_build_python(build_dir):
 
 def build_builder_layer():
     orig_wd = Path.cwd()
-    build_dir = set_build_dir(orig_wd)
+    build_dir = set_temp_build_dir()
     copy2(DOCKERFILE_BUILDER, build_dir)
     copy_myself(build_dir)
     docker_build_builder(build_dir)
     if verbosity(1):
         display_docker_img(NUA_BUILDER_TAG)
     chdir(orig_wd)
+    rm_fr(build_dir)
 
 
 @docker_build_log_error
 def docker_build_builder(build_dir):
     chdir(build_dir)
     app_id = "nua-builder"
-    print(f"2/2: Building image {NUA_BUILDER_TAG} (it may take a while...)")
+    print(f"2/2: Building image {NUA_BUILDER_TAG}")
+    if verbosity(1):
+        print(f"build directory: {build_dir}")
     client = docker.from_env()
     image, tee = client.images.build(
         path=".",
