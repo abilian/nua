@@ -18,6 +18,7 @@ app_folder = [
     "flask_two",
     "flask_upload_one",
     "flask_upload_bind_mount",
+    "flask_upload_tmpfs",
     "flask_upload_sshfs",
 ]
 

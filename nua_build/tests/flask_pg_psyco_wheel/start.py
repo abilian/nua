@@ -73,7 +73,7 @@ def add_content():
 setup_db()
 init_db_content()
 
-cmd = "gunicorn --workers 2 -b :80 flask_pg_psyco.wsgi:app"
+cmd = "gunicorn --worker-tmp-dir /dev/shm --workers 2 -b :80 flask_pg_psyco.wsgi:app"
 # exec_as_nua(cmd, env)
 # We need to exec as root to be able to write files in the docker volume.
 exec_as_root(cmd, os.environ)

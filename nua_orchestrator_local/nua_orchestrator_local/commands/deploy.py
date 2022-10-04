@@ -39,6 +39,7 @@ from ..rich_console import print_green, print_magenta, print_red
 from ..search_cmd import search_nua
 from ..server_utils.net_utils import check_port_available
 from ..state import verbosity
+from ..utils import size_to_bytes
 from ..volume_utils import volumes_merge_config
 
 ALLOW_DOCKER_NAME = set(ascii_letters + digits + "-_.")
@@ -224,16 +225,18 @@ def new_docker_driver_config(volume_params: dict) -> docker.types.DriverConfig |
 
 
 def new_docker_mount(volume_params: dict) -> docker.types.Mount:
+    tpe = volume_params.get("type", "volume")  # either "volume", "bind", "tmpfs""
     # Container path.
     target = volume_params.get("target") or volume_params.get("destination")
     # Mount source (e.g. a volume name or a host path).
-    source = volume_params.get("source")
-    tpe = volume_params.get("type", "volume")
+    source = volume_params.get("source")  # for "volume" or "bind" types
     driver_config = new_docker_driver_config(volume_params) if tpe == "volume" else None
     read_only = bool(volume_params.get("read_only", False))
-    # to be continued for options, tmpsfs, ...
-    tmpfs_size = volume_params.get("tmpfs_size") if tpe == "tmpfs" else None
-    tmpfs_mode = volume_params.get("tmpfs_mode") if tpe == "tmpfs" else None
+    if tpe == "tmpfs":
+        tmpfs_size = size_to_bytes(volume_params.get("tmpfs_size")) or None
+        tmpfs_mode = volume_params.get("tmpfs_mode") or None
+    else:
+        tmpfs_size, tmpfs_mode = None, None
     return docker.types.Mount(
         target,
         source,

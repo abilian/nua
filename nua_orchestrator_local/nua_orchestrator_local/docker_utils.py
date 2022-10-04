@@ -257,33 +257,50 @@ def docker_volume_list(name: str) -> list:
     return [vol for vol in lst if vol.name == name]
 
 
-#  "/var/tmp" includes invalid characters for a local volume
-
-
 def docker_volume_create(volume_opt: dict):
+    found = docker_volume_list(volume_opt["source"])
+    if not found:
+        docker_volume_create_new(volume_opt)
+
+
+def docker_volume_create_new(volume_opt: dict):
+    """Create a new volume of type "volume"."""
     driver = volume_opt.get("driver", "local")
     if driver != "local" and not install_plugin(driver):
         # assuming it is the name of a plugin
         error(f"Install of Docker's plugin '{driver}' failed.")
     client = docker.from_env()
-    # volume = client.volumes.create(
     client.volumes.create(
         name=volume_opt["source"],
         driver=driver,
         # driver's options, using format of python-docker:
         driver_opts=volume_opt.get("options", {}),
     )
-    # return volume
+
+
+# def docker_tmpfs_create(volume_opt: dict):
+#     """Create a new volume of type "tmpfs"."""
+#
+#     client = docker.from_env()
+#     client.volumes.create(
+#         name=volume_opt["source"],
+#         driver=driver,
+#         # driver's options, using format of python-docker:
+#         driver_opts=volume_opt.get("options", {}),
+#     )
 
 
 def docker_volume_create_or_use(volume_opt: dict):
-    """Return a useabla/mountable docker volume."""
-    if volume_opt.get("type") == "bind":
-        # no need to create "bind" volumes
-        return
-    found = docker_volume_list(volume_opt["source"])
-    if not found:
+    """Return a useabla/mountable docker volume.
+
+    Strategy depends of volume type: "bind", "volume", or "tmpfs".
+    """
+    if volume_opt.get("type") == "volume":
         docker_volume_create(volume_opt)
+    else:
+        # for "bind" or "tmpfs", volumes do not need to be created before
+        # container loading
+        pass
 
 
 def docker_volume_prune(volume_opt: dict):
