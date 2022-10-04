@@ -7,8 +7,9 @@ from copy import deepcopy
 from datetime import datetime, timezone
 
 from .. import __version__ as nua_version
+from .. import config
 from ..constants import NUA_ORCH_ID, NUA_ORCHESTRATOR_TAG
-from ..docker_utils import image_size_repr, size_unit
+from ..utils import image_size_repr, size_unit
 from ..volume_utils import volumes_merge_config
 from .model.auth import User
 from .model.image import Image
@@ -92,11 +93,12 @@ def list_images_ids():
 
 
 def list_images():
+    as_mib = config.read("nua", "ui", "size_unit_MiB")
     images_list = []
     for img in list_images_raw():
         images_list.append(
             f"{img.id_sha[7:19]}  {img.nua_tag:<36}  {img.created}  "
-            f"{image_size_repr(img.size)}{size_unit()}"
+            f"{image_size_repr(img.size, as_mib)}{size_unit(as_mib)}"
         )
     return images_list
 

@@ -15,8 +15,7 @@ from .db import store
 from .panic import error
 from .rich_console import print_magenta, print_red
 from .state import verbosity
-
-# from pprint import pprint
+from .utils import image_size_repr, size_unit
 
 
 def print_log_stream(docker_log):
@@ -46,17 +45,9 @@ def image_created_as_iso(image):
 
 
 def docker_image_size(image):
-    return image_size_repr(round(image.attrs["Size"]))
-
-
-def image_size_repr(image_bytes):
-    if config.read("nua", "ui", "size_unit_MiB"):
-        return round(image_bytes / 2**20)
-    return round(image_bytes / 10**6)
-
-
-def size_unit():
-    return "MiB" if config.read("nua", "ui", "size_unit_MiB") else "MB"
+    return image_size_repr(
+        round(image.attrs["Size"]), config.read("nua", "ui", "size_unit_MiB")
+    )
 
 
 def display_docker_img(iname):
@@ -86,9 +77,10 @@ def display_one_docker_img(img):
     crea = datetime.fromisoformat(image_created_as_iso(img)).isoformat(" ")
     # Note on size of image: Docker uses 10**6 for MB, here I use 2**20
     size = docker_image_size(img)
+    as_mib = config.read("nua", "ui", "size_unit_MiB")
     print(f"    tags: {tags}")
     print(f"    id: {sid}")
-    print(f"    size: {size}{size_unit()}")
+    print(f"    size: {size}{size_unit(as_mib)}")
     print(f"    created: {crea}")
 
 
