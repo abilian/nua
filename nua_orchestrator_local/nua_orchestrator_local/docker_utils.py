@@ -230,6 +230,15 @@ def docker_remove_prior_container_live(site: dict):
         docker_remove_container(cont.name)
 
 
+def _erase_previous_container(client: docker.DockerClient, name: str):
+    try:
+        container = client.containers.get(name)
+        print_red(f"    -> Remove existing container '{container.name}'")
+        container.remove(force=True)
+    except docker.errors.APIError:
+        pass
+
+
 def docker_run(site: dict):
     image_id = site["image_id"]
     params = site["run_params"]
@@ -241,6 +250,7 @@ def docker_run(site: dict):
     docker_remove_prior_container_live(site)
     params["detach"] = True  # force detach option
     client = docker.from_env()
+    _erase_previous_container(client, params["name"])
     cont = client.containers.run(image_id, **params)
     if verbosity(3):
         name = params["name"]

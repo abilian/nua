@@ -3,6 +3,7 @@ import grp
 import multiprocessing as mp
 import os
 import pwd
+import shlex
 from subprocess import run  # noqa S404
 
 NUA = "nua"
@@ -53,17 +54,34 @@ def _run_shell_cmd(
     )
 
 
+def _run_cmd(
+    cmd: list,
+    cwd: str | None = None,
+    env: dict | None = None,
+    timeout: int | None = None,
+):
+    if not env:
+        env = os.environ
+    run(
+        cmd,
+        shell=False,
+        timeout=timeout,
+        cwd=cwd,
+        env=env,
+    )
+
+
 def is_user(user: str) -> bool:
     return pwd.getpwuid(os.getuid()).pw_name == user
 
 
-def _exec_as_user(cmd: str | list, user: str, env=None):
+def _exec_as_user(cmd: str | list, user: str, env=None, timeout=None):
     if is_user(user):
-        if isinstance(cmd, list):
-            cmd = " ".join(cmd)
-        _run_shell_cmd(cmd, env=env)
+        if isinstance(cmd, str):
+            cmd = shlex.split(cmd)
+        _run_cmd(cmd, env=env, timeout=timeout)
     elif os.getuid() == 0 or is_user(NUA):
-        sudo_cmd_as_user(cmd, user, env=env)
+        sudo_cmd_as_user(cmd, user, env=env, timeout=timeout)
     else:
         raise ValueError(f"Not allowed : _exec_as_user {user} as uid {os.getuid()}")
 
@@ -77,8 +95,8 @@ def mp_exec_as_user(cmd: str | list, user: str, env=None):
         raise ValueError(f"Not allowed : _mp_exec_as_user {user} as uid {os.getuid()}")
 
 
-def exec_as_nua(cmd: str | list, env=None):
-    _exec_as_user(cmd, NUA, env)
+def exec_as_nua(cmd: str | list, env=None, timeout=None):
+    _exec_as_user(cmd, NUA, env=env, timeout=timeout)
 
 
 def mp_exec_as_nua(cmd: str | list, env=None):
@@ -91,8 +109,8 @@ def mp_exec_as_postgres(cmd: str | list, env=None):
     mp_exec_as_user(cmd, "postgres", env)
 
 
-def exec_as_root(cmd, env=None):
-    _exec_as_user(cmd, "root", env)
+def exec_as_root(cmd, env=None, timeout=None):
+    _exec_as_user(cmd, "root", env=env, timeout=timeout)
 
 
 def _pysu_pw_uid(user, group):

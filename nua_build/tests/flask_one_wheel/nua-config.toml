@@ -36,9 +36,14 @@ document_root = "/nua/app/html"
 # deployment of the app
 [run]
 # parameters passed as a dict to docker run
-auto_remove = true
 # detach = true mandatory
 mem_limit = "8G"
-container_port = 80
+
+[[ports]]
+container = 80
+host = "auto" # default
+protocol = "tcp" # default
+name = "web" # optional
+
 [run_env]
 # parameters passed as a dict to docker run: environment dict

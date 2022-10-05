@@ -45,7 +45,6 @@ from ..volume_utils import volumes_merge_config
 ALLOW_DOCKER_NAME = set(ascii_letters + digits + "-_.")
 # parameters passed as a dict to docker run
 RUN_BASE = {
-    "auto_remove": True,
     "extra_hosts": {"host.docker.internal": "host-gateway"},
 }
 RUN_DEFAULT = {
@@ -315,7 +314,10 @@ def generate_container_run_parameters(site):
     """Return suitable parameters for the docker.run() command."""
     image_nua_config = site["image_nua_config"]
     run_params = deepcopy(RUN_BASE)
-    run_params.update(image_nua_config.get("run", RUN_DEFAULT))
+    a = config.read("nua", "docker_default_run")
+    print(a)
+    run_params.update(config.read("nua", "docker_default_run"))
+    run_params.update(image_nua_config.get("run", {}))
     add_host_gateway(run_params)
     run_params["name"] = _run_parameters_container_name(site)
     run_params["ports"] = _run_parameters_container_ports(site, run_params)

@@ -29,6 +29,11 @@
 #     priority = 10
 #     format = "docker_registry"
 #     url = "https://docker.io/nua"
+[docker_default_run]
+    # docker run default
+    auto_remove = false
+    mem_limit = "16G"
+    container_port = 80
 [[registry]]
     priority = 5
     format = "docker_registry"
