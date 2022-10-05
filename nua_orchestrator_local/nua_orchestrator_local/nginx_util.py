@@ -77,20 +77,20 @@ def configure_nginx_hostname(host: dict):
 
     host format:
       {'hostname': 'test.example.com',
-       'prefixed': True,
+       'located': True,
        'sites': [{'domain': 'test.example.com/instance1',
                    'image': 'flask-one:1.2-1',
                    'port': 'auto',
                    'actual_port': 8100,
-                   'prefix': 'instance1'
+                   'location': 'instance1'
                    },
                    ...
     """
     nua_nginx = nua_env.nginx_path()
-    if host["prefixed"]:
-        template = CONF_NGINX / "template" / "domain_prefixed_template"
+    if host["located"]:
+        template = CONF_NGINX / "template" / "domain_located_template"
     else:
-        template = CONF_NGINX / "template" / "domain_not_prefixed_template"
+        template = CONF_NGINX / "template" / "domain_not_located_template"
     dest_path = nua_nginx / "sites" / host["hostname"]
     if verbosity(2):
         print(host["hostname"], "template:", template)

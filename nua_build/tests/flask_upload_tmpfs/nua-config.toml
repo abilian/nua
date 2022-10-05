@@ -47,7 +47,7 @@ type = "tmpfs"
 # Container path:
 target = "/var/tmp/mount_point"
 tmpfs_size = "10G"
-tmpfs_mode = "666"
+tmpfs_mode = 666
 #[[mount.opt]]
 # list of volume-op tags
 # docker.types.Mount

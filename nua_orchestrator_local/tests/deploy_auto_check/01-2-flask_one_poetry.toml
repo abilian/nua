@@ -4,7 +4,7 @@ domain = "test1.example.com"
 [[site.test]]
 url = "https://test1.example.com"
 expect_status = 200
-expect_str = "Hello World, this is Flask One"
+expect_str = "Hello World, this is Flask One Poetry"
 [[site.test]]
 url = "https://test1.example.com/bad"
 expect_status = 404
@@ -15,7 +15,7 @@ domain = "test2.example.com"
 [[site.test]]
 url = "https://test2.example.com"
 expect_status = 200
-expect_str = "Hello World, this is Flask One"
+expect_str = "Hello World, this is Flask One Poetry"
 [[site.test]]
 url = "https://test2.example.com/bad"
 expect_status = 404

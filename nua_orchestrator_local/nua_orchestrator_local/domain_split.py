@@ -7,27 +7,27 @@ from .panic import error
 
 
 class DomainSplit:
-    """Split a domain string into domain and prefix (path) parts."""
+    """Split a domain string into domain and location (path) parts."""
 
     def __init__(self, url_string: str):
         url_string = url_string.strip("/")
         result = urlparse(url_string)
-        # we expect a domain/prefix without protocol, so just add it:
+        # we expect a domain/location without protocol, so just add it:
         if not result.scheme:
             result = urlparse(f"http://{url_string}")
         self.hostname = result.hostname
         if not self.hostname:
             error(f"Fail to parse hostname from: '{url_string}'")
-        self.prefix = result.path.strip("/")
+        self.location = result.path.strip("/")
 
     def full_path(self):
-        if self.prefix:
-            return f"{self.hostname}/{self.prefix}"
+        if self.location:
+            return f"{self.hostname}/{self.location}"
         else:
             return self.hostname
 
     def containner_suffix(self):
-        if self.prefix:
-            return f"{self.hostname}-{self.prefix}"
+        if self.location:
+            return f"{self.hostname}-{self.location}"
         else:
             return self.hostname

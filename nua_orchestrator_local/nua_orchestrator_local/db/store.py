@@ -249,17 +249,16 @@ def list_instances_all() -> list:
         return session.query(Instance).all()
 
 
+def list_instances_all_active() -> list:
+    return [
+        instance
+        for instance in list_instances_all()
+        if instance.state in {RUNNING, STOPPED}
+    ]
+
+
 def list_instances_container_running():
     return [inst.container for inst in list_instances_all() if inst.state == RUNNING]
-
-
-# def _instance_mounted_volumes(instance: Instance) -> list:
-#     volumes = volumes_merge_config(instance.site_config)
-#     return [
-#         volume
-#         for volume in volumes
-#         if volume.get("driver", "") == "local" and volume.get("type", "") == "volume"
-#     ]
 
 
 def list_instances_container_local_active_volumes() -> list:
@@ -274,20 +273,21 @@ def list_instances_container_local_active_volumes() -> list:
     another instance, should ne not unmounted when unmounting an instance.
     """
     volumes_dict = {}
-    containers_dict = {}
-    for instance in list_instances_all():
-        if instance.state not in {RUNNING, STOPPED}:
-            continue
+    for instance in list_instances_all_active():
         # for volume in volumes_merge_config(instance.site_config):
-        for volume in _instance_mounted_volumes(instance):
-            source = volume["source"]
-            volumes_dict[source] = volume
-            domains = containers_dict.get(source, [])
-            domains.append(instance.domain)
-            containers_dict[source] = domains
-    for source, volume in volumes_dict.items():
-        volume["domains"] = containers_dict[source]
+        for volume in volumes_merge_config(instance):
+            if volume["type"] == "volume" and volume.get("driver", "") == "local":
+                _update_volumes_domains(volumes_dict, volume, instance.domain)
     return list(volumes_dict.values())
+
+
+def _update_volumes_domains(volumes_dict: dict, volume: dict, domain: str):
+    source = volume["source"]
+    known_volume = volumes_dict.get(source, volume)
+    domains = known_volume.get("domains", [])
+    domains.append(domain)
+    known_volume["domains"] = domains
+    volumes_dict[source] = known_volume
 
 
 def list_instances_container_active_volumes() -> list:
@@ -302,11 +302,10 @@ def list_instances_container_active_volumes() -> list:
     """
     volumes_dict = {}
     containers_dict = {}
-    for instance in list_instances_all():
-        if instance.state not in {RUNNING, STOPPED}:
-            continue
+    for instance in list_instances_all_active():
         for volume in volumes_merge_config(instance.site_config):
-            # for volume in _instance_mounted_volumes(instance):
+            if volume["type"] == "tmpfs":
+                continue
             source = volume["source"]
             volumes_dict[source] = volume
             domains = containers_dict.get(source, [])

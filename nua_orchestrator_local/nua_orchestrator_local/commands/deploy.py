@@ -481,21 +481,21 @@ def _make_host_list(domains: dict) -> list:
     ]
 
 
-def _classify_prefixed_sites(host_list: list):
-    """Return sites classified for prefix use.
+def _classify_located_sites(host_list: list):
+    """Return sites classified for location use.
 
-    If not prefixed, check it is the only one of the domain."""
+    If not located, check it is the only one of the domain."""
     for host in host_list:
         sites_list = host["sites"]
         first = sites_list[0]  # by construction, there is at least 1 element
         dom = DomainSplit(first["domain"])
-        if dom.prefix:
-            _verify_prefixed(host)
+        if dom.location:
+            _verify_located(host)
         else:
-            _verify_not_prefixed(host)
+            _verify_not_located(host)
 
 
-def _verify_prefixed(host: dict):
+def _verify_located(host: dict):
     """host format:
      {'hostname': 'test.example.com',
       'sites': [{'domain': 'test.example.com/instance1',
@@ -507,41 +507,41 @@ def _verify_prefixed(host: dict):
                   ...
     changed to:
     {'hostname': 'test.example.com',
-     'prefixed': True,
+     'located': True,
      'sites': [{'domain': 'test.example.com/instance1',
                  'image': 'flask-one:1.2-1',
                  'port': 'auto',
-                 'prefix': 'instance1'
+                 'location': 'instance1'
                  },
                 {'domain': 'test.example.com/instance2',
                  'image': 'flask-one:1.2-1',
                  ...
     """
-    known_prefix = set()
+    known_location = set()
     valid = []
     hostname = host["hostname"]
     for site in host["sites"]:
         dom = DomainSplit(site["domain"])
-        if not dom.prefix:
+        if not dom.location:
             image = site.get("image")
             port = site.get("port")
-            print_red("Error: required prefix is missing, site discarded:")
+            print_red("Error: required location is missing, site discarded:")
             print_red(f"    for {hostname=} / {image=} / {port=}")
             continue
-        if dom.prefix in known_prefix:
+        if dom.location in known_location:
             image = site.get("image")
             port = site.get("port")
-            print_red("Error: prefix is already used for a domain, site discarded:")
+            print_red("Error: location is already used for a domain, site discarded:")
             print_red(f"    {hostname=} / {image=} / {port=}")
             continue
-        known_prefix.add(dom.prefix)
-        site["prefix"] = dom.prefix
+        known_location.add(dom.location)
+        site["location"] = dom.location
         valid.append(site)
     host["sites"] = valid
-    host["prefixed"] = True
+    host["located"] = True
 
 
-def _verify_not_prefixed(host: dict):
+def _verify_not_located(host: dict):
     """host format:
         {'hostname': 'sloop.example.com',
          'sites': [{'domain': 'sloop.example.com',
@@ -549,12 +549,12 @@ def _verify_not_prefixed(host: dict):
                     'port': 'auto'}]}]
     changed to:
         {'hostname': 'sloop.example.com',
-         'prefixed': False,
+         'located': False,
          'sites': [{'domain': 'sloop.example.com',
                     'image': 'nua-flask-upload-one:1.0-1',
                     'port': 'auto'}]}]
     """
-    # we know that the first of the list is not prefixed. We expect the list
+    # we know that the first of the list is not located. We expect the list
     # has only one site.
     if len(host["sites"]) == 1:
         valid = host["sites"]
@@ -568,12 +568,12 @@ def _verify_not_prefixed(host: dict):
             port = site.get("port")
             print_red(f"    {image=} / {port=}")
     host["sites"] = valid
-    host["prefixed"] = False
+    host["located"] = False
 
 
 def sort_per_host(deploy_sites: dict) -> list:
     host_list = _make_host_list(_sites_per_host(deploy_sites))
-    _classify_prefixed_sites(host_list)
+    _classify_located_sites(host_list)
     return host_list
 
 
@@ -584,7 +584,7 @@ def host_list_to_sites(host_list: list) -> list:
     [{'actual_port': 8100,
       'hostname': 'test.example.com',
       'domain': 'test.example.com/instance1',
-      'prefix': 'instance1',
+      'location': 'instance1',
       'image': 'flask-one:1.2-1',
       'port': 'auto'},
      {'actual_port': 8101,
