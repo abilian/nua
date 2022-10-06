@@ -11,7 +11,7 @@ from . import nua_env
 from .exec import set_nua_user
 
 
-def bash_as_nua(cmd: str, cwd: str | Path | None = None, timeout=600):
+def bash_as_nua(cmd: str, cwd: str | Path | None = None, timeout: int | None = 600):
     env = nua_env.as_dict()
     if not cwd:
         cwd = nua_env.nua_home()

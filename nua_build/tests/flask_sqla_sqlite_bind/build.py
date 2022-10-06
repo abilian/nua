@@ -1,18 +1,16 @@
 import os
-from pathlib import Path
 
-from nua_build.actions import pip_install
-from nua_build.nua_config import NuaConfig
-from nua_build.shell import chmod_r, mkdir_p, rm_fr, sh
+from nua_build.actions import poetry_install
+
+# from nua_build.nua_config import NuaConfig
 
 
 def main():
     os.chdir("/nua/build")
-    config = NuaConfig(".")
+    # config = NuaConfig(".")
 
     # poetry will grab the needed python packages (flask, gunicorn)
-    pip_install("poetry")
-    sh("poetry install")
+    poetry_install()
 
 
 if __name__ == "__main__":

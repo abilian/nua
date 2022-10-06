@@ -1,20 +1,21 @@
 import os
-from pathlib import Path
 
-from nua_build.actions import install_package_list, pip_install
-from nua_build.nua_config import NuaConfig
-from nua_build.shell import mkdir_p, rm_fr, sh
+from nua_build.actions import install_package_list, poetry_install
+
+# from nua_build.nua_config import NuaConfig
+
+# from nua_build.shell import mkdir_p, rm_fr, sh
 
 
 def main():
     os.chdir("/nua/build")
-    config = NuaConfig(".")
+    # config = NuaConfig(".")
 
     # this app requires some packages (for pg_config):
     install_package_list(["libpq-dev", "libpq5", "python3-dev", "gcc"])
 
     # poetry will grab the needed python packages (flask, gunicorn)
-    sh("poetry install")
+    poetry_install()
 
     # fix : replace psycopg2 by psycopg2-binary in requirements.txt
     # sh("pip install --no-cache-dir -r nua/requirements.txt")

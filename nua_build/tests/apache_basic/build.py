@@ -5,7 +5,7 @@ from shutil import copy2, copytree
 from nua_build import __version__ as nua_version
 from nua_build.actions import install_package_list, replace_in
 from nua_build.nua_config import NuaConfig
-from nua_build.shell import chown_r, mkdir_p, rm_fr, sh
+from nua_build.shell import chmod_r, chown_r, mkdir_p, rm_fr, sh
 
 
 def main():
@@ -16,16 +16,16 @@ def main():
     install_package_list(packages)
     # sh("systemctl disable apache2")
 
-    doc_root = Path(config.build["document_root"] or "/var/www/html")
-    rm_fr(doc_root)
-    mkdir_p(doc_root.parent)
+    document_root = Path(config.build["document_root"] or "/var/www/html")
+    rm_fr(document_root)
+    mkdir_p(document_root.parent)
     replace_in("html/*.html", "___nua_version___", nua_version)
-    copytree("html", doc_root)
-    chown_r(doc_root, "www-data", "www-data")
-    sh(f"chmod -R u=rwX,go=rX {str(doc_root)}")
+    copytree("html", document_root)
+    chown_r(document_root, "www-data", "www-data")
+    chmod_r(document_root, 0o644, 0o755)
 
     sh("a2dissite 000-default.conf")
-    replace_in("basic.conf", "___doc_root___", str(doc_root))
+    replace_in("basic.conf", "___doc_root___", str(document_root))
     copy2("basic.conf", "/etc/apache2/sites-available")
     sh("a2ensite basic.conf")
 

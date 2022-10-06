@@ -57,7 +57,7 @@ class TestApacheBasic:
                     dock.images.remove(image, force=True, noprune=False)
                 assert not dock.images.list(image)
 
-            cmd = shlex.split(f"nua-build --version")
+            cmd = shlex.split("nua-build --version")
             result = sp.run(cmd, capture_output=True)
             print(result.stdout.decode("utf8"))
 
@@ -122,7 +122,7 @@ class TestApacheBasic:
             for image in (UBUNTU, NUA_PYTHON_TAG, NUA_BUILDER_TAG, image_target):
                 print(f"Show '{image}' in cache:", dock.images.list(image))
 
-            cmd = shlex.split(f"nua-build --version")
+            cmd = shlex.split("nua-build --version")
             result = sp.run(cmd, capture_output=True)
             print(result.stdout.decode("utf8"))
 

@@ -1,3 +1,5 @@
+import os
+
 from nua_build.exec import exec_as_root
 from nua_build.shell import sh
 
@@ -13,4 +15,4 @@ port = os.environ.get("APP_PORT", 8080)
 port = int(port)
 cmd = f"gunicorn --bind 0.0.0.0:{port} -w 2 'app.flask.main:create_app()'"
 
-exec_as_root(cmd, env)
+exec_as_root(cmd)

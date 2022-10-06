@@ -8,4 +8,4 @@ env = {
     "APACHE_LOCK_DIR": "/var/lock/apache2",
 }
 
-exec_as_root("/usr/sbin/apachectl -D FOREGROUND", env)
+exec_as_root("/usr/sbin/apachectl -D FOREGROUND", env=env)

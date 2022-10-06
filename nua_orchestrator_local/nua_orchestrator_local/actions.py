@@ -4,7 +4,6 @@ import os
 import sys
 from glob import glob
 from pathlib import Path
-from typing import Optional
 
 from jinja2 import Template
 
@@ -98,22 +97,25 @@ def pip_list():
     sh("pip list")
 
 
-def replace_in(file_pattern: str, string_pattern: str, replace_by: str):
+def poetry_install() -> None:
+    pip_install("poetry")
+    sh("poetry install")
+
+
+def replace_in(file_pattern: str, string_pattern: str, replacement: str):
     for file_name in glob(file_pattern, recursive=True):
         path = Path(file_name)
         if not path.is_file():
             continue
-        # assuming it's an utf-8 world
-        with open(path, encoding="utf-8") as r:
-            content = r.read()
-            with open(path, mode="w", encoding="utf-8") as w:
-                w.write(content.replace(string_pattern, replace_by))
+        # assuming it's an utf8 world
+        content = path.read_text(encoding="utf8")
+        path.write_text(content.replace(string_pattern, replacement), encoding="utf8")
 
 
 def string_in(file_pattern: str, string_pattern: str) -> list:
     """Return list of Path of files that contains the pattern str string."""
     hit_files = []
-    # assuming it's an utf-8 world
+    # assuming it's an utf8 world
     upattern = string_pattern.encode("utf8")
     for file_name in glob(file_pattern, recursive=True):
         path = Path(file_name)
@@ -127,7 +129,7 @@ def string_in(file_pattern: str, string_pattern: str) -> list:
     return hit_files
 
 
-def environ_replace_in(str_path: str | Path, env: Optional[dict] = None):
+def environ_replace_in(str_path: str | Path, env: dict | None = None):
     path = Path(str_path)
     if not path.is_file():
         return
@@ -136,11 +138,9 @@ def environ_replace_in(str_path: str | Path, env: Optional[dict] = None):
         orig_env = dict(os.environ)
         os.environ.update(env)
     try:
-        # assuming it's an utf-8 world
-        with open(path, encoding="utf8") as rfile:
-            content = rfile.read()
-        with open(path, mode="w", encoding="utf8") as wfile:
-            wfile.write(os.path.expandvars(content))
+        # assuming it's an utf8 world
+        content = path.read_text(encoding="utf8")
+        path.write_text(os.path.expandvars(content), encoding="utf8")
     except OSError:
         raise
     finally:
@@ -154,12 +154,10 @@ def jinja2_render_file(template: str | Path, dest: str | Path, data: dict) -> bo
     if not template_path.is_file():
         raise FileNotFoundError(template_path)
     dest_path = Path(dest)
-    with open(template_path, encoding="utf8") as rfile:
-        template_content = rfile.read()
-    j2_template = Template(template_content, keep_trailing_newline=True)
-    content = j2_template.render(data)
-    with open(dest_path, mode="w", encoding="utf8") as wfile:
-        wfile.write(content)
+    j2_template = Template(
+        template_path.read_text(encoding="utf8"), keep_trailing_newline=True
+    )
+    dest_path.write_text(j2_template.render(data), encoding="utf8")
     return True
 
 

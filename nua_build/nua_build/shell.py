@@ -11,26 +11,17 @@ from .panic import error, panic
 from .rich_console import console
 
 
-def cat(filename):
+def cat(filename: str | Path):
     with open(filename, encoding="utf8") as fd:
         print(fd.read())
 
 
-# def chown_r(path, user: str, group=None):
-#     record = pwd.getpwnam(user)
-#     uid = record.pw_uid
-#     if group:
-#         gr_record = grp.getgrnam(group)
-#         gid = gr_record.gr_gid
-#     else:
-#         gid = record.pw_gid
-#     for dirpath, _dirnames, filenames in os.walk(path):
-#         os.chown(dirpath, uid, gid, follow_symlinks=False)
-#         for filename in filenames:
-#             os.chown(os.path.join(dirpath, filename), uid, gid, follow_symlinks=False)
-
-
 def chown_r(path: str | Path, user: str, group: str | None = None):
+    """Apply recursively chown with str arguments.
+
+    example:
+        chown_r(document_root, "www-data", "www-data")
+    """
     root = Path(path)
     if root.is_dir():
         for subpath in root.rglob(""):
@@ -48,6 +39,11 @@ def _dir_chmod_r(root: Path, file_mode: int, dir_mode: int):
 
 
 def chmod_r(path: str | Path, file_mode: int, dir_mode: int | None = None):
+    """Apply recursively chmod with int arguments.
+
+    example:
+        chmod_r(document_root, 0o644, 0o755)
+    """
     root = Path(path)
     if dir_mode is None:
         dir_mode = file_mode
@@ -57,12 +53,11 @@ def chmod_r(path: str | Path, file_mode: int, dir_mode: int | None = None):
         root.chmod(file_mode)
 
 
-def echo(text: str, filename: str) -> None:
-    with open(filename, "w", encoding="utf8") as fd:
-        fd.write(text + "\n")
+def echo(text: str, filename: str | Path) -> None:
+    Path(filename).write_text(text + "\n", encoding="utf8")
 
 
-def mkdir_p(path):
+def mkdir_p(path: str | Path):
     Path(path).mkdir(parents=True, exist_ok=True)
 
 
@@ -72,7 +67,7 @@ def rm_fr(path: str | Path) -> bool:
 
 
 def rm_rf(path: str | Path) -> bool:
-    """Wrapper for shutil.rmtree()"""
+    """Wrapper for shutil.rmtree()."""
     if Path(path).exists():
         shutil.rmtree(path)
         return True
@@ -84,6 +79,7 @@ def _base_sh(cmd: str, timeout: int, env: dict | None, capture_output: bool):
         return run(
             cmd,
             shell=True,  # noqa: S602
+            executable="/bin/bash",
             timeout=timeout,
             env=env,
             capture_output=True,
@@ -91,12 +87,18 @@ def _base_sh(cmd: str, timeout: int, env: dict | None, capture_output: bool):
             text=True,
         )
     else:
-        return run(cmd, shell=True, timeout=timeout, env=env)  # noqa: S602
+        return run(
+            cmd,
+            shell=True,  # noqa: S602
+            executable="/bin/bash",
+            timeout=timeout,
+            env=env,
+        )
 
 
 def sh(
     cmd: str,
-    timeout: int = 600,
+    timeout: int | None = 600,
     env: dict | None = None,
     show_cmd: bool = True,
     capture_output: bool = False,
@@ -112,11 +114,19 @@ def sh(
         completed = _base_sh(cmd, timeout, env, capture_output)
         status = completed.returncode
         if status < 0:
-            error(f"Child was terminated by signal {-status}", status)
+            msg = (
+                f"Child was terminated by signal {-status},\n"
+                f"shell command was: '{cmd}'\n"
+            )
+            error(msg, status)
         elif status > 0:
-            error(f"Something went wrong (exit code: {status})", status)
+            msg = (
+                f"Something went wrong (exit code: {status}), \n"
+                f"shell command was: '{cmd}'\n"
+            )
+            error(msg, status)
     except OSError as e:
-        panic(f"Execution failed: {e}")
+        panic(f"Execution failed: {e}\nshell command was: '{cmd}'\n")
     if capture_output:
         return completed.stdout
     else:
