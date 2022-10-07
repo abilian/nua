@@ -33,7 +33,11 @@ def build_python(path=None):
         pip_install("src")
 
 
-def install_package_list(packages: list | str):
+def _apt_remove_lists():
+    sh("rm -rf /var/lib/apt/lists/*", env=os.environ, timeout=600)
+
+
+def install_package_list(packages: list | str, rm_lists: bool = True):
     if isinstance(packages, str):
         packages = packages.strip().split()
     if not packages:
@@ -44,6 +48,8 @@ def install_package_list(packages: list | str):
     cmd = f"apt-get update --fix-missing; apt-get install -y {' '.join(packages)}"
     sh(cmd, env=environ, timeout=600)
     sh("apt-get autoremove; apt-get clean", env=environ, timeout=600)
+    if rm_lists:
+        _apt_remove_lists()
 
 
 def installed_packages() -> list:
@@ -61,17 +67,22 @@ def is_python_project():
     return False
 
 
-def install_nodejs():
-    apt_get_install("curl")
-    cmd = "curl -sL https://deb.nodesource.com/setup_16.x | bash -"
-    sh(cmd)
-    apt_get_install("nodejs")
-    sh("/usr/bin/npm install -g yarn")
-
-
 def npm_install(package: str) -> None:
     cmd = f"/usr/bin/npm install -g {package}"
     sh(cmd)
+
+
+def install_nodejs(version: str = "16.x", rm_lists: bool = True):
+    src = f"setup_{version}"
+    install_package_list("curl", rm_lists=False)
+    cmd = (
+        f"curl -sL https://deb.nodesource.com/{src} "
+        "| bash - && apt-get install -y nodejs npm"
+    )
+    sh(cmd)
+    if rm_lists:
+        _apt_remove_lists()
+    npm_install("yarn")
 
 
 def pip_install(packages: list | str) -> None:
@@ -98,11 +109,13 @@ def pip_list():
 
 
 def poetry_install(nodev: bool = True) -> None:
-    pip_install("poetry")
+    pip_install("poetry pip-autoremove")
     if nodev:
         sh("poetry install --no-dev")
     else:
         sh("poetry install")
+    cmd = "pip-autoremove -y poetry"
+    sh(cmd)
 
 
 def replace_in(file_pattern: str, string_pattern: str, replacement: str):

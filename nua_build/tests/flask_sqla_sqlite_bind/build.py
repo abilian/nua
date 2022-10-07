@@ -6,7 +6,7 @@ from nua_build.actions import poetry_install
 
 
 def main():
-    os.chdir("/nua/build")
+    # os.chdir("/nua/build")
     # config = NuaConfig(".")
 
     # poetry will grab the needed python packages (flask, gunicorn)

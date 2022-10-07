@@ -10,8 +10,8 @@ from nua_build.archive_search import ArchiveSearch
 
 
 def test_archive_search():
-    src_path = Path(__file__).parent / "nodejs_basic"
-    image_target = "nua-nodejs-basic:1.6-1"
+    src_path = Path(__file__).parent / "nodejs_install"
+    image_target = "nua-nodejs-test:1.0-1"
     with tempfile.TemporaryDirectory(dir="/tmp") as tmpdirname:
         _build_test_search(tmpdirname, src_path, image_target)
 
@@ -31,4 +31,4 @@ def _build_test_search(tmpdirname, src_path, image_target):
     sp.run(cmd)
     arch_search = ArchiveSearch(archive)
     internal_config = arch_search.nua_config_dict()
-    assert internal_config["metadata"]["id"] == "nodejs-basic"
+    assert internal_config["metadata"]["id"] == "nodejs-test"

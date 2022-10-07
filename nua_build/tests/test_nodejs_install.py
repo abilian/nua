@@ -16,14 +16,10 @@ UBUNTU = "ubuntu:jammy-20220801"
 def test_complete_build_with_cache():
     """To be preferably launched with :
 
-    pytest -rP test_nodejs_basic.py
+    pytest -rP test_nodejs_install.py
     """
-    print("////////")
-    print(Path.cwd())
-    print("////////")
-
-    src_path = Path(__file__).parent / "nodejs_basic"
-    image_target = "nua-nodejs-basic:1.6-1"
+    src_path = Path(__file__).parent / "nodejs_install"
+    image_target = "nua-nodejs-test:1.0-1"
     with tempfile.TemporaryDirectory(dir="/tmp") as tmpdirname:
         _build_test_cache(tmpdirname, src_path, image_target)
 

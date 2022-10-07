@@ -1,9 +1,9 @@
 [metadata]
-id = "nodejs-basic"
-version = "1.6"
+id = "nodejs-test"
+version = "1.0"
 title = "Node.js JavaScript runtime"
 author = "Nodejs authors"
-tagline = "Node.js JavaScript runtime"
+tagline = "Node.js JavaScript runtime, test installation"
 website = "https://nodejs.org/"
 tags = ["javascript", "nodejs"]
 licence = "MIT"
