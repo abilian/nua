@@ -316,15 +316,16 @@ def list_instances_container_active_volumes() -> list:
     return list(volumes_dict.values())
 
 
-def ports_instances_domains() -> dict:
+def ports_instances_domains() -> dict[int, str]:
     """Return dict(port:domain) configured in instance,
     wether the instance is running or not."""
     used_domain_ports = {}
     for inst in list_instances_all():
         site_config = inst.site_config
-        port = site_config.get("actual_port")
-        if port:
-            used_domain_ports[port] = site_config["domain"]
+        port_list = site_config.get("ports")
+        if port_list:
+            for port_item in port_list:
+                used_domain_ports[port_item["actual_port"]] = site_config["domain"]
     return used_domain_ports
 
 
@@ -344,12 +345,27 @@ def instance_delete_by_domain(domain: str):
         session.commit()
 
 
+def _fetch_instance_port_site(site_config: dict) -> int | None:
+    port_list = site_config.get("ports")
+    if not port_list:
+        return None
+    for port_item in port_list:
+        proxy = port_item.get("proxy", "auto")
+        if proxy == "auto":
+            return port_item["actual_port"]
+    # fixme: security to remove when tempalte more advanced, currently
+    # defaulting to 80...
+    return 80
+
+
 def instance_port(domain: str) -> int | None:
     with Session() as session:
         existing = session.query(Instance).filter_by(domain=domain).first()
         if existing:
             site_config = existing.site_config
             port = site_config.get("actual_port")
+            if not port:
+                port = _fetch_instance_port_site(site_config)
         else:
             port = None
         return port

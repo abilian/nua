@@ -47,10 +47,6 @@ ALLOW_DOCKER_NAME = set(ascii_letters + digits + "-_.")
 RUN_BASE = {
     "extra_hosts": {"host.docker.internal": "host-gateway"},
 }
-RUN_DEFAULT = {
-    "mem_limit": "8G",
-    "container_port": 80,
-}
 # someservices in nua_config may nbe spelled in different ways:
 SERVICES_ALIASES = {"postgresql": "postgres"}
 SERVICE_RESTART = {"postgres": pg_restart_service}
@@ -120,14 +116,56 @@ def deploy_image(image_id: str, image_nua_config: dict):
     pass
 
 
-def _configured_ports(site_list):
+def _update_ports_from_nua_config(site_list):
+    """If port not declared in site config, use image definition.
+
+    fixme: change container/host to dict
+    """
+    for site in site_list:
+        if "ports" not in site:
+            image_nua_config = site["image_nua_config"]
+            site["ports"] = image_nua_config.get("ports", [])
+
+
+def _configured_ports(site_list: list) -> set[int]:
+    """
+    Return set of required host ports (aka non auto ports) from site_list.
+
+    Returns: set of integers
+
+    Expected format for port_list:
+    ports = [
+        {"container": 80},
+        {"host": "auto"},
+        {"protocol": "tcp"},
+        {"container": 8080},
+    ]
+    """
     used = set()
     for site in site_list:
-        port = site.get("port")
-        if not port:
+        port_list = site.get("ports")
+        if not port_list:
             continue
-        if port != "auto":
-            used.add(int(port))
+        try:
+            used.update(_configured_ports_from_port_list(port_list))
+        except ValueError:
+            print_red("ValueError for site config:")
+            print(pformat(site))
+            raise
+    return used
+
+
+def _configured_ports_from_port_list(port_list: list) -> set[int]:
+    used = set()
+    for port_item in port_list:
+        if not port_item:  # could be an empty {}
+            continue
+        if "container" not in port_item:
+            raise ValueError("Invalid format for port: missing 'container' key.")
+        host_port = port_item.get("host") or "auto"
+        if host_port != "auto":
+            # assuming an int :
+            used.add(int(host_port))
     return used
 
 
@@ -141,11 +179,16 @@ def _free_port(start_ports: int, end_ports: int, used: set) -> int:
 def generate_ports(host_list: list):
     start_ports = config.read("nua", "ports", "start") or 8100
     end_ports = config.read("nua", "ports", "end") or 9000
-    if verbosity(3):
-        print(f"generate_ports() from {start_ports} to {end_ports}")
+    if verbosity(4):
+        print(
+            f"generate_ports(): auto addresses in interval {start_ports} to {end_ports}"
+        )
     # all sites from all hosts:
     site_list = [site for host in host_list for site in host["sites"]]
+    _update_ports_from_nua_config(site_list)
     used = _configured_ports(site_list)
+    if verbosity(4):
+        print(f"generate_ports(): configured ports: {used}")
     # list of ports used for domains / sites, trying to keep them unchanged
     used_domain_ports = store.ports_instances_domains()
     # print(f"{used_domain_ports=}")
@@ -158,26 +201,27 @@ def generate_ports(host_list: list):
 
 
 def _generate_port(site, start_ports, end_ports, used):
-    port = site.get("port")
-    if not port:
+    """
+    Update site dict with auto generated ports.
+    """
+    port_list = site.get("ports")
+    if not port_list:
         return
-    if port == "auto":
-        # current_instance_port = store.instance_port(site["domain"])
-        # if current_instance_port:
-        #     new_port = current_instance_port
-        # else:
-        new_port = _free_port(start_ports, end_ports, used)
-        used.add(new_port)
-        site["actual_port"] = new_port
-    else:
-        site["actual_port"] = port
+    for port_item in port_list:
+        host_port = port_item.get("host") or "auto"
+        if host_port == "auto":
+            actual_port = _free_port(start_ports, end_ports, used)
+        else:
+            actual_port == int(host_port)
+        used.add(actual_port)
+        port_item["actual_port"] = actual_port
 
 
 def install_images(sites: list):
     # ensure docker is running
     docker_service_start_if_needed()
     installed = {}
-    for site in sites:
+    for site in sites["site"]:
         image_str = site["image"]
         results = search_nua(image_str)
         if not results:
@@ -432,24 +476,21 @@ def _sites_per_host(deploy_sites: dict) -> dict:
     [[site]]
     domain = "sloop.example.com"
     image = "nua-flask-upload-one:1.0-1"
-    port = "auto"
 
     ouput format: dict of hostnames, with explicit port = "auto".
 
     {'sloop.example.com': [{'domain': 'sloop.example.com',
                           'image': 'nua-flask-upload-one:1.0-1',
-                          'port': 'auto',
                           }],
     'test.example.com': [{'domain': 'test.example.com/instance1',
                          'image': 'flask-one:1.2-1',
-                         'port': 'auto',
                          },
                          ...
     """
     domains = {}
     for site in deploy_sites["site"]:
-        if "port" not in site:
-            site["port"] = "auto"
+        # if "port" not in site:
+        #     site["port"] = "auto"
         dom = DomainSplit(site.get("domain", ""))
         site["domain"] = dom.full_path()
         if dom.hostname not in domains:
@@ -465,17 +506,17 @@ def _make_host_list(domains: dict) -> list:
     [{'hostname': 'test.example.com',
      'sites': [{'domain': 'test.example.com/instance1',
                  'image': 'flask-one:1.2-1',
-                 'port': 'auto',
+                 # 'port': 'auto',
                  },
                 {'domain': 'test.example.com/instance2',
                  'image': 'flask-one:1.2-1',
-                 'port': 'auto',
+                 # 'port': 'auto',
                  },
                  ...
      {'hostname': 'sloop.example.com',
       'sites': [{'domain': 'sloop.example.com',
                  'image': 'nua-flask-upload-one:1.0-1',
-                 'port': 'auto'}]}]
+                 # 'port': 'auto'}]}]
     """
     return [
         {"hostname": hostname, "sites": sites_list}
@@ -502,7 +543,7 @@ def _verify_located(host: dict):
      {'hostname': 'test.example.com',
       'sites': [{'domain': 'test.example.com/instance1',
                   'image': 'flask-one:1.2-1',
-                  'port': 'auto',
+                  # 'port': 'auto',
                   },
                  {'domain': 'test.example.com/instance2',
                   'image': 'flask-one:1.2-1',
@@ -512,7 +553,7 @@ def _verify_located(host: dict):
      'located': True,
      'sites': [{'domain': 'test.example.com/instance1',
                  'image': 'flask-one:1.2-1',
-                 'port': 'auto',
+                 # 'port': 'auto',
                  'location': 'instance1'
                  },
                 {'domain': 'test.example.com/instance2',
@@ -526,15 +567,15 @@ def _verify_located(host: dict):
         dom = DomainSplit(site["domain"])
         if not dom.location:
             image = site.get("image")
-            port = site.get("port")
+            # port = site.get("port")
             print_red("Error: required location is missing, site discarded:")
-            print_red(f"    for {hostname=} / {image=} / {port=}")
+            print_red(f"    for {hostname=} / {image=}")
             continue
         if dom.location in known_location:
             image = site.get("image")
-            port = site.get("port")
+            # port = site.get("port")
             print_red("Error: location is already used for a domain, site discarded:")
-            print_red(f"    {hostname=} / {image=} / {port=}")
+            print_red(f"    {hostname=} / {image=} / {site['domain']}")
             continue
         known_location.add(dom.location)
         site["location"] = dom.location
@@ -567,8 +608,8 @@ def _verify_not_located(host: dict):
         print_red(f"Error: too many sites for {hostname=}, site discarded:")
         for site in host["sites"]:
             image = site.get("image")
-            port = site.get("port")
-            print_red(f"    {image=} / {port=}")
+            # port = site.get("port")
+            print_red(f"    {image=} / {site['domain']}")
     host["sites"] = valid
     host["located"] = False
 
@@ -687,6 +728,7 @@ def deploy_nua_sites(deploy_config: str) -> int:
     # first: check that all images are available:
     if not find_all_images(deploy_sites):
         error("Missing images")
+    install_images(deploy_sites)
     host_list = sort_per_host(deploy_sites)
     if verbosity(2):
         print("'host_list':\n", pformat(host_list))
@@ -698,7 +740,6 @@ def deploy_nua_sites(deploy_config: str) -> int:
     if verbosity(2):
         print("'sites':\n", pformat(sites))
     register_certbot_domains(sites)
-    install_images(sites)
     service_requirements(sites)
     start_containers(sites)
     # unmount_unused_volumes(orig_mounted_volumes)

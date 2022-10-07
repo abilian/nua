@@ -72,6 +72,22 @@ def clean_nua_nginx_default_site():
     install_nua_nginx_default_site()
 
 
+def _fetch_instances_port(host: dict):
+    for site in host["sites"]:
+        port_list = site.get("ports")
+        if not port_list:
+            return None
+        for port_item in port_list:
+            proxy = port_item.get("proxy", "auto")
+            if proxy == "auto":
+                site["actual_port"] = port_item["actual_port"]
+                break
+        # fixme: security to remove when tempalte more advanced, currently
+        # defaulting to 80...
+        if "actual_port" not in site:
+            site["actual_port"] = 80
+
+
 def configure_nginx_hostname(host: dict):
     """warning: only for user 'nua' or 'root'
 
@@ -80,12 +96,20 @@ def configure_nginx_hostname(host: dict):
        'located': True,
        'sites': [{'domain': 'test.example.com/instance1',
                    'image': 'flask-one:1.2-1',
-                   'port': 'auto',
-                   'actual_port': 8100,
                    'location': 'instance1'
+                   'ports': [
+                        {
+                        'container': 80,
+                        'host': 'auto',
+                        'actual_port': 8100,},
+                        'proxy': 'auto'
+                        {...},
+                        ]
                    },
                    ...
     """
+    _fetch_instances_port(host)
+    # later: see for port on other :port interfaces
     nua_nginx = nua_env.nginx_path()
     if host["located"]:
         template = CONF_NGINX / "template" / "domain_located_template"
