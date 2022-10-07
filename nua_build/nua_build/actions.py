@@ -97,9 +97,12 @@ def pip_list():
     sh("pip list")
 
 
-def poetry_install() -> None:
+def poetry_install(nodev: bool = True) -> None:
     pip_install("poetry")
-    sh("poetry install")
+    if nodev:
+        sh("poetry install --no-dev")
+    else:
+        sh("poetry install")
 
 
 def replace_in(file_pattern: str, string_pattern: str, replacement: str):

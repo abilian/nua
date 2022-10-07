@@ -1,0 +1,43 @@
+FROM ubuntu:jammy-20220801 as builder
+# Ubuntu 22.04.1 LTS with python3.10, tag is jammy-20220801
+
+RUN apt-get -y --fix-missing update \
+    && apt-get install --no-install-recommends -y \
+    python3.10 python3-venv python3-pip \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN python3.10 -m venv /nua/venv
+ENV VIRTUAL_ENV="/nua/venv" PATH="/nua/venv/bin:$PATH"
+RUN pip install -U wheel
+RUN pip install -U pip
+
+FROM ubuntu:jammy-20220801 as runner
+
+RUN apt-get -y --fix-missing update \
+    && apt-get install --no-install-recommends -y \
+    python3.10 sudo \
+	&& apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache && \
+    echo 'APT::Install-Recommends "0"; APT::Install-Suggests "0";' >  /etc/apt/apt.conf.d/01norecommend && \
+    echo 'Dir::Cache { srcpkgcache ""; pkgcache ""; }' > /etc/apt/apt.conf.d/02nocache && \
+    echo 'Acquire::GzipIndexes "true"; Acquire::CompressionTypes::Order:: "gz";' > /etc/apt/apt.conf.d/02compress-indexes
+RUN echo '\
+Defaults !env_reset\n\
+Defaults !mail_badpass\n\
+Defaults !secure_path\n\
+nua ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/nua
+RUN useradd nua -m -d /nua -G sudo -U -s /bin/bash
+
+COPY --chown=nua:nua --from=builder /nua/venv /nua/venv
+
+ENV VIRTUAL_ENV="/nua/venv" \
+  PATH="/nua/venv/bin:$PATH" \
+  PYTHONFAULTHANDLER=1 \
+  PYTHONUNBUFFERED=1 \
+  PYTHONHASHSEED=random \
+  PYTHONDONTWRITEBYTECODE=1 \
+  # pip: \
+  PIP_NO_CACHE_DIR=1 \
+  PIP_DISABLE_PIP_VERSION_CHECK=on \
+  PIP_DEFAULT_TIMEOUT=120 \
+  DEBIAN_FRONTEND="noninteractive"
