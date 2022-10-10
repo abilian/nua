@@ -322,10 +322,10 @@ def ports_instances_domains() -> dict[int, str]:
     used_domain_ports = {}
     for inst in list_instances_all():
         site_config = inst.site_config
-        port_list = site_config.get("ports")
-        if port_list:
-            for port_item in port_list:
-                used_domain_ports[port_item["actual_port"]] = site_config["domain"]
+        ports = site_config.get("ports")  # a dict
+        if ports:
+            for port in ports.values():
+                used_domain_ports[port["host_port"]] = site_config["domain"]
     return used_domain_ports
 
 
@@ -346,24 +346,25 @@ def instance_delete_by_domain(domain: str):
 
 
 def _fetch_instance_port_site(site_config: dict) -> int | None:
-    port_list = site_config.get("ports")
-    if not port_list:
+    ports = site_config.get("ports")
+    if not ports:
         return None
-    for port_item in port_list:
-        proxy = port_item.get("proxy", "auto")
+    for port in ports.values():
+        proxy = port["proxy"]
         if proxy == "auto":
-            return port_item["actual_port"]
-    # fixme: security to remove when tempalte more advanced, currently
-    # defaulting to 80...
-    return 80
+            return port["host_port"]
+    return None
 
 
 def instance_port(domain: str) -> int | None:
+    """Return the (main?) instance port. Dubious.
+
+    remarq: currently this function is unused"""
     with Session() as session:
         existing = session.query(Instance).filter_by(domain=domain).first()
         if existing:
             site_config = existing.site_config
-            port = site_config.get("actual_port")
+            port = site_config.get("host_port")
             if not port:
                 port = _fetch_instance_port_site(site_config)
         else:

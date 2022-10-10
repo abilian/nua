@@ -43,7 +43,7 @@ mem_limit = "8G"
 container = 80
 host = "auto" # default
 protocol = "tcp" # default
-proxy = "auto" # default: "auto" for first port, "None" for next ones, or a port value.
+proxy = "auto" # default: "auto" for first port, "None" for next ones, or a port value (int).
 
 [run_env]
 # parameters passed as a dict to docker run: environment dict

@@ -33,6 +33,7 @@ from ..nginx_util import (
     configure_nginx_hostname,
     nginx_restart,
 )
+from ..normalize_parameters import normalize_deploy_sites, normalize_ports
 from ..panic import error
 from ..postgres import pg_check_listening, pg_restart_service, pg_run_environment
 from ..rich_console import print_green, print_magenta, print_red
@@ -116,15 +117,28 @@ def deploy_image(image_id: str, image_nua_config: dict):
     pass
 
 
-def _update_ports_from_nua_config(site_list):
+def _update_ports_from_nua_config(site_list: list):
     """If port not declared in site config, use image definition.
 
-    fixme: change container/host to dict
+    Merge ports modifications from site config with image config.
     """
+    if verbosity(5):
+        print(f"_update_ports_from_nua_config(): len(site_list)= {len(site_list)}")
     for site in site_list:
-        if "ports" not in site:
-            image_nua_config = site["image_nua_config"]
-            site["ports"] = image_nua_config.get("ports", [])
+        if verbosity(5):
+            print("..............................")
+            print(f"_update_ports_from_nua_config(): site={pformat(site)}")
+        image_nua_config = deepcopy(site["image_nua_config"])
+        normalize_ports(image_nua_config)
+        if verbosity(5):
+            print(
+                f"_update_ports_from_nua_config(): image_nua_config={pformat(image_nua_config)}"
+            )
+        ports = image_nua_config["ports"]  # a dict
+        ports.update(site["ports"])
+        site["ports"] = ports
+        if verbosity(5):
+            print(f"_update_ports_from_nua_config(): ports={pformat(ports)}")
 
 
 def _configured_ports(site_list: list) -> set[int]:
@@ -133,47 +147,39 @@ def _configured_ports(site_list: list) -> set[int]:
 
     Returns: set of integers
 
-    Expected format for port_list:
-    ports = [
-        {"container": 80},
-        {"host": "auto"},
-        {"protocol": "tcp"},
-        {"container": 8080},
-    ]
+    Expected format for ports:
+    ports = {
+        "80":{
+            "container": 80,
+            "host": "auto",
+            "protocol": "tcp",
+            "proxy": "auto"
+            },
+        ...
+    }
     """
     used = set()
     for site in site_list:
-        port_list = site.get("ports")
-        if not port_list:
-            continue
+        ports = site["ports"]
         try:
-            used.update(_configured_ports_from_port_list(port_list))
-        except ValueError:
-            print_red("ValueError for site config:")
+            used.update(_configured_ports_used_ports(ports))
+        except (ValueError, IndexError) as e:
+            print_red("Error for site config:", e)
             print(pformat(site))
             raise
     return used
 
 
-def _configured_ports_from_port_list(port_list: list) -> set[int]:
+def _configured_ports_used_ports(ports: dict) -> set[int]:
     used = set()
-    for port_item in port_list:
-        if not port_item:  # could be an empty {}
+    for port in ports.values():
+        if not port:  # could be an empty {} ?
             continue
-        if "container" not in port_item:
-            raise ValueError("Invalid format for port: missing 'container' key.")
-        host_port = port_item.get("host") or "auto"
-        if host_port != "auto":
-            # assuming an int :
-            used.add(int(host_port))
+        host = port["host"]
+        # normalization done: host is present and either 'auto' or an int
+        if isinstance(host, int):
+            used.add(host)
     return used
-
-
-def _free_port(start_ports: int, end_ports: int, used: set) -> int:
-    for port in range(start_ports, end_ports):
-        if port not in used and check_port_available("127.0.0.1", str(port)):
-            return port
-    raise RuntimeError("Not enough available port")
 
 
 def generate_ports(host_list: list):
@@ -186,35 +192,45 @@ def generate_ports(host_list: list):
     # all sites from all hosts:
     site_list = [site for host in host_list for site in host["sites"]]
     _update_ports_from_nua_config(site_list)
-    used = _configured_ports(site_list)
+    configured_ports = _configured_ports(site_list)
     if verbosity(4):
-        print(f"generate_ports(): configured ports: {used}")
+        print(f"generate_ports(): {configured_ports=}")
     # list of ports used for domains / sites, trying to keep them unchanged
-    used_domain_ports = store.ports_instances_domains()
-    # print(f"{used_domain_ports=}")
-    for port in used_domain_ports:
-        used.add(port)
+    ports_instances_domains = store.ports_instances_domains()
+    if verbosity(4):
+        print(f"generate_ports(): {ports_instances_domains=}")
+    configured_ports.update(ports_instances_domains)
     if verbosity(3):
-        print(f"used ports:\n {used}")
+        print(f"generate_ports() used ports:\n {configured_ports=}")
     for site in site_list:
-        _generate_port(site, start_ports, end_ports, used)
+        _generate_host_port(site, start_ports, end_ports, configured_ports)
 
 
-def _generate_port(site, start_ports, end_ports, used):
+def _find_free_port(start_ports: int, end_ports: int, used: set) -> int:
+    # O(n2), but very few ports to configure
+    for port in range(start_ports, end_ports):
+        if port not in used and check_port_available("127.0.0.1", str(port)):
+            return port
+    raise RuntimeError("Not enough available port")
+
+
+def _generate_host_port(
+    site: dict, start_ports: int, end_ports: int, configured_ports: set
+):
     """
     Update site dict with auto generated ports.
     """
-    port_list = site.get("ports")
-    if not port_list:
+    ports = site["ports"]  # a dict
+    if not ports:
         return
-    for port_item in port_list:
-        host_port = port_item.get("host") or "auto"
-        if host_port == "auto":
-            actual_port = _free_port(start_ports, end_ports, used)
+    for port in ports.values():
+        host = port["host"]
+        if host == "auto":
+            host_port = _find_free_port(start_ports, end_ports, configured_ports)
         else:
-            actual_port == int(host_port)
-        used.add(actual_port)
-        port_item["actual_port"] = actual_port
+            host_port = host
+        configured_ports.add(host_port)
+        port["host_port"] = host_port
 
 
 def install_images(sites: list):
@@ -322,18 +338,24 @@ def _run_parameters_container_name(site: dict) -> str:
     return "".join([x for x in name_base if x in ALLOW_DOCKER_NAME])
 
 
-def _run_parameters_container_ports(site: dict, run_params: dict) -> dict:
-    if "container_port" in run_params:
-        container_port = run_params["container_port"]
-        del run_params["container_port"]
-    else:
-        container_port = 80
-    host_port = site.get("actual_port")
-    if host_port:
-        ports = {f"{container_port}/tcp": host_port}
-    else:
-        ports = {}  # for app not using web interface (ie: computation storage only...)
-    return ports
+def _run_parameters_container_ports(site: dict) -> dict:
+    # if "container_port" in run_params:
+    #     container_port = run_params["container_port"]
+    #     del run_params["container_port"]
+    # else:
+    #     container_port = 80
+    # host_port = site.get("host_port")
+    # if host_port:
+    #     ports = {f"{container_port}/tcp": host_port}
+    # else:
+    #     ports = {}  # for app not using web interface (ie: computation storage only...)
+    # return ports
+    ports = site["ports"]
+    cont_ports = {}
+    for port in ports.values():
+        cont_ports[f"{port['container']}/{port['protocol']}"] = port["host_port"]
+
+    return cont_ports
 
 
 def _services_environment(site: dict) -> dict:
@@ -354,36 +376,43 @@ def _run_parameters_container_environment(site: dict) -> dict:
     return run_env
 
 
-def generate_container_run_parameters(site):
+def generate_container_run_parameters(site: dict):
     """Return suitable parameters for the docker.run() command."""
     image_nua_config = site["image_nua_config"]
     run_params = deepcopy(RUN_BASE)
-    a = config.read("nua", "docker_default_run")
-    print(a)
-    run_params.update(config.read("nua", "docker_default_run"))
+    docker_default_run = config.read("nua", "docker_default_run")
+    if verbosity(4):
+        print(f"generate_container_run_parameters(): {docker_default_run=}")
+    run_params.update(docker_default_run)
     run_params.update(image_nua_config.get("run", {}))
     add_host_gateway(run_params)
     run_params["name"] = _run_parameters_container_name(site)
-    run_params["ports"] = _run_parameters_container_ports(site, run_params)
+    run_params["ports"] = _run_parameters_container_ports(site)
     run_params["environment"] = _run_parameters_container_environment(site)
     return run_params
 
 
 def start_containers(sites: list):
     for site in sites:
-        run_params = generate_container_run_parameters(site)
-        # volumes need to be mounted before beeing passed as arguments to
-        # docker.run()
-        mounted_volumes = mount_volumes(site)
-        if mounted_volumes:
-            run_params["mounts"] = mounted_volumes
-        site["run_params"] = run_params
-        docker_run(site)
-        if mounted_volumes:
-            site["run_params"]["mounts"] = True
+        start_one_container(site)
         store_container_instance(site)
-        if verbosity(1):
-            print_magenta(f"    -> run new container         '{site['container']}'")
+
+
+def start_one_container(site: dict):
+    run_params = generate_container_run_parameters(site)
+    if verbosity(4):
+        print(f"start_one_container(): {run_params=}")
+    # volumes need to be mounted before beeing passed as arguments to
+    # docker.run()
+    mounted_volumes = mount_volumes(site)
+    if mounted_volumes:
+        run_params["mounts"] = mounted_volumes
+    site["run_params"] = run_params
+    docker_run(site)
+    if mounted_volumes:
+        site["run_params"]["mounts"] = True
+    if verbosity(1):
+        print_magenta(f"    -> run new container         '{site['container']}'")
 
 
 def store_container_instance(site):
@@ -506,17 +535,15 @@ def _make_host_list(domains: dict) -> list:
     [{'hostname': 'test.example.com',
      'sites': [{'domain': 'test.example.com/instance1',
                  'image': 'flask-one:1.2-1',
-                 # 'port': 'auto',
                  },
                 {'domain': 'test.example.com/instance2',
                  'image': 'flask-one:1.2-1',
-                 # 'port': 'auto',
                  },
                  ...
      {'hostname': 'sloop.example.com',
       'sites': [{'domain': 'sloop.example.com',
                  'image': 'nua-flask-upload-one:1.0-1',
-                 # 'port': 'auto'}]}]
+                 }]}]
     """
     return [
         {"hostname": hostname, "sites": sites_list}
@@ -624,23 +651,23 @@ def host_list_to_sites(host_list: list) -> list:
     """Convert to list of sites format.
 
     output format:
-    [{'actual_port': 8100,
+    [{'host_port': 8100,
       'hostname': 'test.example.com',
       'domain': 'test.example.com/instance1',
       'location': 'instance1',
       'image': 'flask-one:1.2-1',
-      'port': 'auto'},
-     {'actual_port': 8101,
+      'ports': {...},
+     {'host_port': 8101,
       'hostname': 'test.example.com',
       'domain': 'test.example.com/instance2',
       'image': 'flask-one:1.2-1',
-      'port': 'auto',
+      'ports': {...},
       },
       ...
-     {'actual_port': 8108,
+     {'host_port': 8108,
       'domain': 'sloop.example.com',
       'image': 'nua-flask-upload-one:1.0-1',
-      'port': 'auto'}]
+      'ports': {...}]
     """
     sites_list = []
     for host in host_list:
@@ -725,12 +752,13 @@ def deploy_nua_sites(deploy_config: str) -> int:
         print_magenta(f"Deploy sites from: {config_path}")
     with open(config_path, mode="rb") as rfile:
         deploy_sites = tomli.load(rfile)
+    normalize_deploy_sites(deploy_sites)
     # first: check that all images are available:
     if not find_all_images(deploy_sites):
         error("Missing images")
     install_images(deploy_sites)
     host_list = sort_per_host(deploy_sites)
-    if verbosity(2):
+    if verbosity(3):
         print("'host_list':\n", pformat(host_list))
     orig_mounted_volumes = store.list_instances_container_active_volumes()
     deactivate_all_sites()
