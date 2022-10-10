@@ -26,17 +26,25 @@ def _normalize_syntax_site(site: dict):
 
 def normalize_ports(site: dict):
     if "ports" not in site:
-        site["ports"] = {}  # convert to dict
+        site["ports"] = []
         return
     if not isinstance(site["ports"], list):
         raise ValueError("'ports' must be a list")
-    for index, port_item in enumerate(site["ports"]):
+    for index, port in enumerate(site["ports"]):
         try:
-            _normalize_port_item(index, port_item)
+            _normalize_port_item(index, port)
         except ValueError:
             print("--- Error in ports config: ---")
-            print(pformat(port_item))
+            print(pformat(port))
             raise
+
+
+def ports_convert_to_dict_sites(deploy_sites: dict):
+    for site in deploy_sites["site"]:
+        ports_convert_to_dict(site)
+
+
+def ports_convert_to_dict(site: dict):
     # replace ports list by a dict with container port as key
     # use str key because later conversion to json
     site["ports"] = {str(port["container"]): port for port in site["ports"]}

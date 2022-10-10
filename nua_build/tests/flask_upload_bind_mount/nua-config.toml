@@ -35,11 +35,13 @@ document_root = "/nua/app/html"
 # multi-instance deploument. Values here are used by default, i.e. for a single
 # deployment of the app
 [run]
-container_port = 80
 
 [run_env]
 # parameters passed as a dict to docker run: environment dict
 UPLOAD_DIRNAME = "uploads_local"
+
+[[ports]]
+container = 80
 
 [[volume]]
 # The mount type (bind / volume / tmpfs / npipe). Default: volume :

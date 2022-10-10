@@ -1,14 +1,14 @@
 [metadata]
-id = "flask-pg-psyco"
-version = "5.0"
-title = "Flask/PostgreSQL/psycopg2 test wheel"
-author = "Nua testers"
-tagline = "Nua test with Flask/PostgreSQL/psycopg2"
+id = "echo-two-ports"
+version = "1.0"
+title = ""
+author = "Nua test server 2 ports"
+tagline = "Nua test server 2 ports"
 website = "https://nua.rocks/"
-tags = ["test", "html", "web", "static", "plugin", "PostgreSQL", "psycopg2"]
+tags = ["test", "html", "web", "static"]
 licence = "MIT"
 profile = ["test"]
-release = 2
+release = 1
 
 [build]
 # optional manifest.
@@ -29,27 +29,25 @@ release = 2
 # build_script = ""
 # optional start script, default is "start.py" if found
 # start_script = ""
-document_root = "/nua/app/html"
-
 [instance]
-# instance contains values suited to be chaned at deploy time for
+# instance contains values suited to be changed at deploy time for
 # multi-instance deployment. Values here are used by default, i.e. for a single
 # deployment of the app
-port = 5155
-# this configuration is for use of a local DB (localhost)
-# thus requiring --add-host=host.docker.internal:host-gateway
-services = "postgres"
-
 [run]
 # parameters passed as a dict to docker run
-auto_remove = true
 # detach = true mandatory
 
 [[ports]]
-container = 80
+container = 8765
+host = "auto" # default
+protocol = "tcp" # default
+proxy = "auto" # default: "auto" for first port, "None" for next ones, or a port value (int).
+
+[[ports]]
+container = 8764
+host = 8764 # default
+protocol = "tcp" # default
+proxy = "none" # default: "auto" for first port, "None" for next ones, or a port value (int).
 
 [run_env]
 # parameters passed as a dict to docker run: environment dict
-DB_NAME = "flask_db"
-DB_USER = "bob"
-DB_USER_PWD = "bob_pwd"

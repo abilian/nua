@@ -44,8 +44,9 @@ services = "postgres"
 # parameters passed as a dict to docker run
 auto_remove = true
 # detach = true mandatory
-mem_limit = "8G"
-container_port = 80
+
+[[ports]]
+container = 80
 
 [run_env]
 # parameters passed as a dict to docker run: environment dict

@@ -35,8 +35,8 @@ document_root = "/nua/app/html"
 # multi-instance deploument. Values here are used by default, i.e. for a single
 # deployment of the app
 [run]
-container_port = 80
-
+[[ports]]
+container = 80
 [[volume]]
 # The mount type (bind / volume / tmpfs / npipe). Default: volume :
 type = "tmpfs"

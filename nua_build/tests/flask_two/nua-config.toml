@@ -39,6 +39,7 @@ document_root = "/nua/app/html"
 auto_remove = true
 # detach = true mandatory
 mem_limit = "8G"
-container_port = 80
 [run_env]
 # parameters passed as a dict to docker run: environment dict
+[[ports]]
+container = 80

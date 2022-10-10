@@ -33,7 +33,12 @@ from ..nginx_util import (
     configure_nginx_hostname,
     nginx_restart,
 )
-from ..normalize_parameters import normalize_deploy_sites, normalize_ports
+from ..normalize_parameters import (
+    normalize_deploy_sites,
+    normalize_ports,
+    ports_convert_to_dict,
+    ports_convert_to_dict_sites,
+)
 from ..panic import error
 from ..postgres import pg_check_listening, pg_restart_service, pg_run_environment
 from ..rich_console import print_green, print_magenta, print_red
@@ -130,6 +135,7 @@ def _update_ports_from_nua_config(site_list: list):
             print(f"_update_ports_from_nua_config(): site={pformat(site)}")
         image_nua_config = deepcopy(site["image_nua_config"])
         normalize_ports(image_nua_config)
+        ports_convert_to_dict(image_nua_config)
         if verbosity(5):
             print(
                 f"_update_ports_from_nua_config(): image_nua_config={pformat(image_nua_config)}"
@@ -753,6 +759,7 @@ def deploy_nua_sites(deploy_config: str) -> int:
     with open(config_path, mode="rb") as rfile:
         deploy_sites = tomli.load(rfile)
     normalize_deploy_sites(deploy_sites)
+    ports_convert_to_dict_sites(deploy_sites)
     # first: check that all images are available:
     if not find_all_images(deploy_sites):
         error("Missing images")
