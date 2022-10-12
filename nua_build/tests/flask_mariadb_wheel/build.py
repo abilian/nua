@@ -15,13 +15,13 @@ def main():
     os.chdir("/nua/build")
     config = NuaConfig(".")
 
-    # this app requires some packages (for pg_config):
-    install_package_list(["libpq-dev"])
+    # this app requires some packages (for mariadb_config):
+    install_package_list(["libmariadb3", "libmariadb-dev", "mariadb-client"])
 
     # install from a wheel
     pip_install_glob("*.whl")
 
-    # This app requires a postges DB. The DB is created by the start.py script at
+    # This app requires a maria DB. The DB is created by the start.py script at
     # start up if needed
 
     # create the base folder for html stuff

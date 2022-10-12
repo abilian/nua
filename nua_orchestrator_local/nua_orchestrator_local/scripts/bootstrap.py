@@ -11,6 +11,7 @@ from .. import nua_env
 from ..actions import check_python_version, install_package_list, string_in
 from ..bash import bash_as_nua
 from ..exec import mp_exec_as_nua
+from ..mariadb_tools import bootstrap_install_mariadb, set_random_mariadb_pwd
 from ..nginx_util import install_nginx
 from ..panic import error
 from ..postgres import bootstrap_install_postgres, set_random_postgres_pwd
@@ -65,6 +66,7 @@ def bootstrap():
     create_nua_venv()
     install_python_packages()
     bootstrap_install_postgres_or_fail()
+    bootstrap_install_mariadb_or_fail()
     install_nginx()
     install_local_orchestrator()
     # create_nua_key()
@@ -73,6 +75,12 @@ def bootstrap():
 
 def bootstrap_install_postgres_or_fail():
     if not bootstrap_install_postgres() or not set_random_postgres_pwd():
+        print_red("Nua bootstrap exiting.")
+        raise SystemExit()
+
+
+def bootstrap_install_mariadb_or_fail():
+    if not bootstrap_install_mariadb() or not set_random_mariadb_pwd():
         print_red("Nua bootstrap exiting.")
         raise SystemExit()
 

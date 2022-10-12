@@ -34,7 +34,7 @@ RE_PORT = re.compile(r"\s*port\s*=\s*(\d+)")
 RE_COMMENT = re.compile(r"\s*#")
 
 RE_LISTEN = re.compile(r"\s*listen_addresses\s*=(.*)$")
-
+RE_BIND_ADD = re.compile(r"^(\s*bind-address\s*=)(.*)$")
 # # S105 Possible hardcoded password
 NUA_MARIADB_PWD_FILE = ".mariadb_pwd"  # noqa S105
 
@@ -58,7 +58,7 @@ def mariadb_pwd() -> str:
 
 def set_random_mariadb_pwd() -> bool:
     print_magenta("Setting Mariadb password")
-    return set_mariadb_pwd(gen_password())
+    return set_mariadb_pwd(gen_password(32))
 
 
 def _store_mariadb_password(password: str):
@@ -89,7 +89,7 @@ def set_mariadb_pwd(password: str) -> bool:
     sleep(1)
     cmd = (
         'mariadb -u root  -e "FLUSH PRIVILEGES; '
-        f"ALTER USER 'root'@'localhost' IDENTIFIED BY {r_pwd};\""
+        f"ALTER USER 'root'@'' IDENTIFIED BY {r_pwd};\""
     )
     exec_as_root(cmd)
     sleep(1)
@@ -129,15 +129,22 @@ def mariadb_run_environment(_unused: dict) -> dict:
 
 
 def bootstrap_install_mariadb() -> bool:
-    """Installing the requied mariadb version locally.
+    """Installing the required mariadb version locally.
 
-    Need to be executed as root at nua install stage
+    Need to be executed as root at nua install stage.
     """
     print_magenta(f"Installation of mariadb version {MARIADB_VERSION}")
     # detect prior installation of other versions:
     if not _mariadb_verify_no_prior_installation():
         return False
-    install_package_list(f"mariadb-server-{MARIADB_VERSION}")
+    install_package_list(
+        [
+            f"mariadb-server-{MARIADB_VERSION}",
+            "libmariadb3",
+            "libmariadb-dev",
+            "mariadb-client",
+        ]
+    )
     allow_docker_connection()
     return mariadb_check_installed()
 
@@ -231,29 +238,23 @@ def _actual_check_listening(gateway: str, path: Path) -> bool:
 
 def allow_docker_connection():
     """
-    TODO
-
     Check at deploy time that the mariadb_hba.conf file permit connexion.
 
     Must be run as root at bootstrap time.
     """
-    return
-
-    auth_line = (
-        "host    all             all             172.16.0.0/12           password"
-    )
-
-    path = POSTGRES_CONF_PATH / "mariadb_hba.conf"
-    if not path.is_file():
-        print_red(f"Postgres config file not found: {path}")
-        return False
-    with open(path, "r", encoding="utf8") as rfile:
-        content = rfile.read()
-    if auth_line in content:
-        return
-    with open(path, "a", encoding="utf8") as afile:
-        afile.write(auth_line)
-        afile.write("\n")
+    # path = Path("/etc/mysql/mariadb.conf.d/50-server.cnf")
+    # if not path.is_file():
+    #     print_red(f"Mariadb config file not found: {path}")
+    #     return False
+    # content = path.read_text(encoding="utf8")
+    # address = "172.16.0.0/12"
+    # content = re.sub(
+    #     r"^(\s*bind-address\s*=)(.*)$", f"\g<1> {address}", content, flags=re.M
+    # )
+    # path.write_text(content, encoding="utf8")
+    path = Path("/etc/mysql/mariadb.conf.d/90-nua.cnf")
+    content = "[mysqld]\nskip-networking=0\nskip-bind-address\n"
+    path.write_text(content, encoding="utf8")
 
 
 def _save_config_gateway_address(content: str):
