@@ -1,21 +1,35 @@
 """Nua mariadb related commands.
 
 WIP
+
+sudo apt-get remove --purge mariadb-server mariadb-client
+sudo apt-get autoremove
+sudo apt-get autoclean
+
+sudo rm /var/lib/mysql/ib_logfile0
+sudo rm /var/lib/mysql/ib_logfile1
+
+sudo apt-get install mariadb-server
+
+sudo apt-get install libmariadb3 libmariadb-dev
 """
 import functools
 import os
 import re
 from pathlib import Path
+from time import sleep
+
+import mariadb
 
 from .actions import install_package_list, installed_packages
-from .exec import exec_as_root
+from .exec import exec_as_root, exec_as_root_daemon
 from .gen_password import gen_password
 from .rich_console import print_magenta, print_red
 from .shell import chown_r, sh
 
 MARIADB_VERSION = "10.6"
-POSTGRES_CONF_PATH = Path("/todo/etc/postgresql/14/main")
-# RE_ANY_PG = re.compile(r"^postgresql-[0-9\.]+/")
+POSTGRES_CONF_PATH = Path("/todo/etc/mariadbql/14/main")
+# RE_ANY_PG = re.compile(r"^mariadbql-[0-9\.]+/")
 RE_PORT = re.compile(r"\s*port\s*=\s*(\d+)")
 RE_COMMENT = re.compile(r"\s*#")
 
@@ -71,13 +85,19 @@ def set_mariadb_pwd(password: str) -> bool:
     """
     r_pwd = repr(password)
     exec_as_root("systemctl stop mariadb")
-    exec_as_root("mariadbd-safe --skip-grant-tables --skip-networking &")
+    proc = exec_as_root_daemon("mariadbd-safe --skip-grant-tables --skip-networking")
+    sleep(1)
     cmd = (
         'mariadb -u root  -e "FLUSH PRIVILEGES; '
         f"ALTER USER 'root'@'localhost' IDENTIFIED BY {r_pwd};\""
     )
     exec_as_root(cmd)
-    exec_as_root("kill $(cat /run/mysqld/mysqld.pid)")
+    sleep(1)
+    pid = sh(
+        "sudo cat /run/mysqld/mysqld.pid", show_cmd=False, capture_output=True
+    ).strip()
+    exec_as_root(f"kill {pid}")
+    sleep(1)
     exec_as_root("systemctl start mariadb")
     _store_mariadb_password(password)
     print(mariadb_status(password))
@@ -144,7 +164,7 @@ def mariadb_check_installed() -> bool:
         test = _mariadb_check_std_port()
     return test
     # ensure db started
-    # sudo systemctl start postgresql
+    # sudo systemctl start mariadbql
 
 
 def _mariadb_check_installed_version() -> bool:
@@ -183,12 +203,11 @@ def _mariadb_check_std_port() -> bool:
 def mariadb_check_listening(gateway: str) -> bool:
     """TODO
 
-    heck at deploy time that the postgres daemon is listening on the gateway port
+    heck at deploy time that the mariadb daemon is listening on the gateway port
     of the docker service (ip passed as parameter).
 
     This is launched for every deployed image (so cached).
     """
-    return True
 
     if not mariadb_check_installed():
         return False
@@ -214,7 +233,7 @@ def allow_docker_connection():
     """
     TODO
 
-    Check at deploy time that the pg_hba.conf file permit connexion.
+    Check at deploy time that the mariadb_hba.conf file permit connexion.
 
     Must be run as root at bootstrap time.
     """
@@ -224,7 +243,7 @@ def allow_docker_connection():
         "host    all             all             172.16.0.0/12           password"
     )
 
-    path = POSTGRES_CONF_PATH / "pg_hba.conf"
+    path = POSTGRES_CONF_PATH / "mariadb_hba.conf"
     if not path.is_file():
         print_red(f"Postgres config file not found: {path}")
         return False
@@ -244,7 +263,7 @@ def _save_config_gateway_address(content: str):
     dest_path = POSTGRES_CONF_PATH / "conf.d" / "nua_listening_docker.conf"
     cmd = f"sudo mv -f {src_path} {dest_path}"
     sh(cmd, show_cmd=False)
-    cmd = f"sudo chown postgres:postgres {dest_path}"
+    cmd = f"sudo chown mariadb:mariadb {dest_path}"
     sh(cmd, show_cmd=False)
     cmd = f"sudo chmod 644 {dest_path}"
     sh(cmd, show_cmd=False)
@@ -279,144 +298,143 @@ def mariadb_restart_service():
     sh(cmd)
 
 
-#
-# def pg_setup_db_user(host: str, dbname: str, user: str, password: str):
-#     """Create a postgres user if needed."""
-#     if not pg_user_exist(host, user):
-#         pg_user_create(host, user, password)
-#     if not pg_db_exist(host, dbname):
-#         pg_db_create(host, dbname, user)
-#
-#
-# def pg_remove_db_user(host: str, dbname: str, user: str):
-#     """Remove a postgres user if needed."""
-#     if pg_db_exist(host, dbname):
-#         pg_db_drop(host, dbname)
-#     if pg_user_exist(host, user):
-#         pg_user_drop(host, user)
-#
-#
-# def pg_db_drop(host: str, dbname: str):
-#     """Basic drop database.
-#
-#     See pg_remove_db_user
-#     """
-#     connection = psycopg2.connect(
-#         dbname="postgres", user="postgres", host=host, password=postgres_pwd()
-#     )
-#     connection.autocommit = True
-#     with connection:
-#         with connection.cursor() as cur:
-#             query = "REVOKE CONNECT ON DATABASE {db} FROM public"
-#             cur.execute(SQL(query).format(db=Identifier(dbname)))
-#         with connection.cursor() as cur:
-#             query = "DROP DATABASE {db}"
-#             cur.execute(SQL(query).format(db=Identifier(dbname)))
-#     connection.close()
-#
-#
-# def pg_db_dump(dbname: str, options_str: str = ""):
-#     """Basic pg_dump call.
-#
-#     FIXME: not ok for remote host
-#     """
-#     cmd = f"pg_dump {dbname} {options_str}"
-#     mp_exec_as_postgres(cmd)
-#
-#
-# def pg_user_drop(host: str, user: str) -> bool:
-#     """Drop user (wip, not enough)."""
-#     connection = psycopg2.connect(host=host, user="postgres", password=postgres_pwd())
-#     connection.autocommit = True
-#     with connection:  # noqa SIM117
-#         with connection.cursor() as cur:
-#             query = "DROP USER IF EXISTS {username}"
-#             cur.execute(SQL(query).format(username=Identifier(user)))
-#     connection.close()
-#
-#
-# def pg_user_exist(host: str, user: str) -> bool:
-#     """Test if a postgres user exists."""
-#     connection = psycopg2.connect(host=host, user="postgres", password=postgres_pwd())
-#     connection.autocommit = True
-#     with connection:  # noqa SIM117
-#         with connection.cursor() as cur:
-#             query = "SELECT COUNT(*) FROM pg_catalog.pg_roles WHERE rolname = %s"
-#             cur.execute(SQL(query), (user,))
-#             (count,) = cur.fetchone()
-#     connection.close()
-#     return count != 0
-#
-#
-# def pg_user_create(host: str, user: str, password: str):
-#     """Create a postgres user.
-#
-#     Assuming standard port == 5432
-#     """
-#     connection = psycopg2.connect(host=host, user="postgres", password=postgres_pwd())
-#     with connection:  # noqa SIM117
-#         with connection.cursor() as cur:
-#             # or:  CREATE USER user WITH ENCRYPTED PASSWORD 'pwd'
-#             query = "CREATE ROLE {username} LOGIN PASSWORD %s"
-#             cur.execute(SQL(query).format(username=Identifier(user)), (password,))
-#             cur.execute("COMMIT")
-#     connection.close()
-#
-#
-# def pg_db_create(host: str, dbname: str, user: str):
-#     """Create a postgres DB.
-#
-#     Assuming standard port == 5432
-#     """
-#     connection = psycopg2.connect(
-#         host=host, dbname="postgres", user="postgres", password=postgres_pwd()
-#     )
-#     connection.autocommit = True
-#     cur = connection.cursor()
-#     query = "CREATE DATABASE {db} OWNER {user}"
-#     cur.execute(SQL(query).format(db=Identifier(dbname), user=Identifier(user)))
-#     connection.close()
-#     connection = psycopg2.connect(
-#         host=host, dbname="postgres", user="postgres", password=postgres_pwd()
-#     )
-#     connection.autocommit = True
-#     with connection:  # noqa SIM117
-#         with connection.cursor() as cur:
-#             # not this: WITH GRANT OPTION;"
-#             query = "GRANT ALL PRIVILEGES ON DATABASE {db} TO {user}"
-#             cur.execute(SQL(query).format(db=Identifier(dbname), user=Identifier(user)))
-#     connection.close()
-#
-#
-# def pg_db_exist(host: str, dbname: str) -> bool:
-#     "Test if the named postgres database exists."
-#     connection = psycopg2.connect(
-#         host=host, dbname="postgres", user="postgres", password=postgres_pwd()
-#     )
-#     connection.autocommit = True
-#     with connection:  # noqa SIM117
-#         with connection.cursor() as cur:
-#             query = "SELECT datname FROM pg_database"
-#             cur.execute(SQL(query))
-#             results = cur.fetchall()
-#     connection.close()
-#     db_set = {x[0] for x in results if x}
-#     return dbname in db_set
-#
-#
-# def pg_db_table_exist(
-#     host: str, dbname: str, user: str, password: str, table: str
-# ) -> bool:
-#     """Check if the named database exists (for host, connecting as user), assuming
-#     DB exists."""
-#     connection = psycopg2.connect(
-#         host=host, dbname=dbname, user=user, password=password
-#     )
-#     with connection:  # noqa SIM117
-#         with connection.cursor() as cur:
-#             query = "SELECT COUNT(*) FROM information_schema.tables WHERE table_name=%s"
-#             cur.execute(SQL(query), (table,))
-#             result = cur.fetchone()
-#             count = result[0] if result else 0
-#     connection.close()
-#     return count > 0
+def mariadb_setup_db_user(host: str, dbname: str, user: str, password: str):
+    """Create a mariadb user if needed."""
+    if not mariadb_user_exist(host, user):
+        mariadb_user_create(host, user, password)
+    if not mariadb_db_exist(host, dbname):
+        mariadb_db_create(host, dbname, user)
+
+
+def mariadb_remove_db_user(host: str, dbname: str, user: str):
+    """Remove a mariadb user if needed."""
+    if mariadb_db_exist(host, dbname):
+        mariadb_db_drop(host, dbname)
+    if mariadb_user_exist(host, user):
+        mariadb_user_drop(host, user)
+
+
+def mariadb_db_drop(host: str, dbname: str):
+    """Basic drop database.
+
+    See mariadb_remove_db_user
+    """
+    connection = mariadb.connect(
+        dbname="mariadb", user="mariadb", host=host, password=mariadb_pwd()
+    )
+    connection.autocommit = True
+    with connection:
+        with connection.cursor() as cur:
+            query = "REVOKE CONNECT ON DATABASE {db} FROM public"
+            cur.execute(query.format(db=dbname))
+        with connection.cursor() as cur:
+            query = "DROP DATABASE {db}"
+            cur.execute(query.format(db=dbname))
+    connection.close()
+
+
+def mariadb_db_dump(dbname: str, options_str: str = ""):
+    """Basic mariadb_dump call.
+
+    FIXME: not ok for remote host
+    """
+    cmd = f"mariadb_dump {dbname} {options_str}"
+    exec_as_root(cmd)
+
+
+def mariadb_user_drop(host: str, user: str) -> bool:
+    """Drop user (wip, not enough)."""
+    connection = mariadb.connect(host=host, user="mariadb", password=mariadb_pwd())
+    connection.autocommit = True
+    with connection:  # noqa SIM117
+        with connection.cursor() as cur:
+            query = "DROP USER IF EXISTS {username}"
+            cur.execute(query.format(username=user))
+    connection.close()
+
+
+def mariadb_user_exist(host: str, user: str) -> bool:
+    """Test if a mariadb user exists."""
+    connection = mariadb.connect(host=host, user="root", password=mariadb_pwd())
+    connection.autocommit = True
+    with connection:  # noqa SIM117
+        with connection.cursor() as cur:
+            query = (
+                "SELECT COUNT(*) FROM mariadb_catalog.mariadb_roles WHERE rolname = %s"
+            )
+            cur.execute(query, (user,))
+            (count,) = cur.fetchone()
+    connection.close()
+    return count != 0
+
+
+def mariadb_user_create(host: str, user: str, password: str):
+    """Create a mariadb user.
+
+    Assuming standard port == 5432
+    """
+    connection = mariadb.connect(host=host, user="mariadb", password=mariadb_pwd())
+    with connection:  # noqa SIM117
+        with connection.cursor() as cur:
+            # or:  CREATE USER user WITH ENCRYPTED PASSWORD 'pwd'
+            query = "CREATE ROLE {username} LOGIN PASSWORD %s"
+            cur.execute(query.format(username=user), (password,))
+            cur.execute("COMMIT")
+    connection.close()
+
+
+def mariadb_db_create(host: str, dbname: str, user: str):
+    """Create a mariadb DB.
+
+    Assuming standard port == 5432
+    """
+    connection = mariadb.connect(
+        host=host, dbname="mariadb", user="mariadb", password=mariadb_pwd()
+    )
+    connection.autocommit = True
+    cur = connection.cursor()
+    query = "CREATE DATABASE {db} OWNER {user}"
+    cur.execute(query.format(db=dbname, user=user))
+    connection.close()
+    connection = mariadb.connect(
+        host=host, dbname="mariadb", user="mariadb", password=mariadb_pwd()
+    )
+    connection.autocommit = True
+    with connection:  # noqa SIM117
+        with connection.cursor() as cur:
+            # not this: WITH GRANT OPTION;"
+            query = "GRANT ALL PRIVILEGES ON DATABASE {db} TO {user}"
+            cur.execute(query.format(db=dbname, user=user))
+    connection.close()
+
+
+def mariadb_db_exist(host: str, dbname: str) -> bool:
+    "Test if the named mariadb database exists."
+    connection = mariadb.connect(
+        host=host, dbname="mariadb", user="mariadb", password=mariadb_pwd()
+    )
+    connection.autocommit = True
+    with connection:  # noqa SIM117
+        with connection.cursor() as cur:
+            query = "SELECT datname FROM mariadb_database"
+            cur.execute(query)
+            results = cur.fetchall()
+    connection.close()
+    db_set = {x[0] for x in results if x}
+    return dbname in db_set
+
+
+def mariadb_db_table_exist(
+    host: str, dbname: str, user: str, password: str, table: str
+) -> bool:
+    """Check if the named database exists (for host, connecting as user), assuming
+    DB exists."""
+    connection = mariadb.connect(host=host, dbname=dbname, user=user, password=password)
+    with connection:  # noqa SIM117
+        with connection.cursor() as cur:
+            query = "SELECT COUNT(*) FROM information_schema.tables WHERE table_name=%s"
+            cur.execute(query, (table,))
+            result = cur.fetchone()
+            count = result[0] if result else 0
+    connection.close()
+    return count > 0

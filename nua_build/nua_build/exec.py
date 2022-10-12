@@ -124,6 +124,24 @@ def mp_exec_as_nua(
     mp_exec_as_user(cmd, NUA, timeout=timeout, env=env)
 
 
+def exec_as_root_daemon(
+    cmd: str,
+    env: dict | None = None,
+) -> mp.Process:
+    """Exec a subprocess daemon as root()."""
+    if os.getuid() != 0:
+        if is_current_user(NUA):
+            cmd = "sudo " + cmd
+        else:
+            raise ValueError(f"Not allowed : exec_as_root_daemon as uid {os.getuid()}")
+    cmd = shlex.split(cmd)
+    if not env:
+        env = os.environ
+    proc = mp.Process(target=_run_cmd, args=(cmd,), kwargs={"env": env}, daemon=True)
+    proc.start()
+    return proc
+
+
 def mp_exec_as_postgres(
     cmd: str | list,
     env: dict | None = None,
