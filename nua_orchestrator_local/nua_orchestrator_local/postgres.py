@@ -44,7 +44,7 @@ def postgres_pwd() -> str:
 
 def set_random_postgres_pwd() -> bool:
     print_magenta("Setting Postgres password")
-    return set_postgres_pwd(gen_password())
+    return set_postgres_pwd(gen_password(24))
 
 
 def _store_pg_password(password: str):

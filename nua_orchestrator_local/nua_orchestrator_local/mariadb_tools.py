@@ -2,14 +2,14 @@
 
 WIP
 
-sudo apt-get remove --purge mariadb-server mariadb-client
+sudo apt-get remove --purge mariadb-server-10.6 mariadb-client
 sudo apt-get autoremove
 sudo apt-get autoclean
 
 sudo rm /var/lib/mysql/ib_logfile0
 sudo rm /var/lib/mysql/ib_logfile1
 
-sudo apt-get install mariadb-server
+sudo apt-get install mariadb-server-10.6
 
 sudo apt-get install libmariadb3 libmariadb-dev
 """
@@ -58,7 +58,7 @@ def mariadb_pwd() -> str:
 
 def set_random_mariadb_pwd() -> bool:
     print_magenta("Setting Mariadb password")
-    return set_mariadb_pwd(gen_password(32))
+    return set_mariadb_pwd(gen_password(24))
 
 
 def _store_mariadb_password(password: str):
@@ -89,7 +89,7 @@ def set_mariadb_pwd(password: str) -> bool:
     sleep(1)
     cmd = (
         'mariadb -u root  -e "FLUSH PRIVILEGES; '
-        f"ALTER USER 'root'@'' IDENTIFIED BY {r_pwd};\""
+        f"ALTER USER 'root'@'localhost' IDENTIFIED BY {r_pwd};\""
     )
     exec_as_root(cmd)
     sleep(1)
@@ -110,10 +110,15 @@ def mariadb_status(password: str) -> str:
 
 
 def mariadb_version() -> str:
-    cmd = "mariadb --version"
-    line = sh(cmd, capture_output=True)
+    maria = Path("/usr/bin/mariadb")
+    if not maria.exists():
+        return ""
+    cmd = f"{maria} --version"
+    line = sh(cmd, show_cmd=False, capture_output=True)
+    if line:
+        print(line)
     parts = line.split()
-    if len(parts) > 3 and parts[0] == "mariadb" and parts[3] == "Distrib":
+    if len(parts) > 3 and parts[3] == "Distrib":
         return parts[4]
     return ""
 
@@ -159,7 +164,7 @@ def _mariadb_verify_no_prior_installation() -> bool:
     print_red(
         "Some Mariadb installation was found and need to be removed by commands like:"
     )
-    print_red("    apt purge -y mariadb-server")
+    print_red("    apt purge -y mariadb-server-10.6")
     print_red("    apt autoremove -y")
     return False
 
