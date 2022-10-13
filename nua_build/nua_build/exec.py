@@ -20,8 +20,6 @@ def sudo_cmd_as_user(
     if isinstance(cmd, list):
         cmd = " ".join(cmd)
     sudo_cmd = f"sudo -nu {user} {cmd}"
-    if not cwd:
-        cwd = "/tmp"
     _mp_process_cmd(sudo_cmd, cwd=cwd, timeout=timeout, env=env, show_cmd=show_cmd)
 
 
@@ -96,6 +94,7 @@ def is_current_user(user: str) -> bool:
 def _exec_as_user(
     cmd: str | list,
     user: str,
+    cwd: str | None = None,
     timeout: int | None = None,
     env: dict | None = None,
     show_cmd: bool = True,
@@ -103,7 +102,9 @@ def _exec_as_user(
     if is_current_user(user):
         _run_cmd(cmd, timeout=timeout, env=env, show_cmd=show_cmd)
     elif os.getuid() == 0 or is_current_user(NUA):
-        sudo_cmd_as_user(cmd, user, timeout=timeout, env=env, show_cmd=show_cmd)
+        sudo_cmd_as_user(
+            cmd, user, cwd=cwd, timeout=timeout, env=env, show_cmd=show_cmd
+        )
     else:
         raise ValueError(f"Not allowed : _exec_as_user {user} as uid {os.getuid()}")
 
@@ -112,6 +113,7 @@ def mp_exec_as_user(
     cmd: str | list,
     user: str,
     *,
+    cwd: str | None = None,
     env: dict | None = None,
     timeout: int | None = None,
     show_cmd: bool = True,
@@ -119,27 +121,31 @@ def mp_exec_as_user(
     if is_current_user(user):
         _mp_process_cmd(cmd, timeout=timeout, env=env, show_cmd=show_cmd)
     elif os.getuid() == 0 or is_current_user(NUA):
-        sudo_cmd_as_user(cmd, user, timeout=timeout, env=env, show_cmd=show_cmd)
+        sudo_cmd_as_user(
+            cmd, user, cwd=cwd, timeout=timeout, env=env, show_cmd=show_cmd
+        )
     else:
         raise ValueError(f"Not allowed : mp_exec_as_user '{user}' as uid {os.getuid()}")
 
 
 def exec_as_nua(
     cmd: str | list,
+    cwd: str | None = None,
     env: dict | None = None,
     timeout: int | None = None,
 ):
-    _exec_as_user(cmd, NUA, timeout=timeout, env=env)
+    _exec_as_user(cmd, NUA, cwd=cwd, timeout=timeout, env=env)
 
 
 def mp_exec_as_nua(
     cmd: str | list,
+    cwd: str | None = None,
     env: dict | None = None,
     timeout: int | None = None,
 ):
     """Exec exec_as_nua() as a python external process to allow several use of
     function without mangling ENV and UID."""
-    mp_exec_as_user(cmd, NUA, timeout=timeout, env=env)
+    mp_exec_as_user(cmd, NUA, cwd=cwd, timeout=timeout, env=env)
 
 
 def exec_as_root_daemon(
@@ -162,19 +168,26 @@ def exec_as_root_daemon(
 
 def mp_exec_as_postgres(
     cmd: str | list,
+    cwd: str | None = None,
     env: dict | None = None,
     timeout: int | None = None,
     show_cmd: bool = True,
 ):
     """Exec as user 'postgres' in a python external process to allow several use of
     function without mangling ENV and UID."""
-    mp_exec_as_user(cmd, "postgres", timeout=timeout, env=env, show_cmd=show_cmd)
+    mp_exec_as_user(
+        cmd, "postgres", cwd=cwd, timeout=timeout, env=env, show_cmd=show_cmd
+    )
 
 
 def exec_as_root(
-    cmd, env: dict | None = None, timeout: int | None = None, show_cmd: bool = True
+    cmd,
+    cwd: str | None = None,
+    env: dict | None = None,
+    timeout: int | None = None,
+    show_cmd: bool = True,
 ):
-    _exec_as_user(cmd, "root", timeout=timeout, env=env, show_cmd=show_cmd)
+    _exec_as_user(cmd, "root", cwd=cwd, timeout=timeout, env=env, show_cmd=show_cmd)
 
 
 def ensure_env(key: str, value: str) -> None:

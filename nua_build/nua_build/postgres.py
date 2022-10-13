@@ -75,7 +75,7 @@ def set_postgres_pwd(password: str) -> bool:
     # query = SQL("ALTER USER postgres PASSWORD {}".format(i_pwd))
     query = f"ALTER USER postgres PASSWORD {r_pwd}"
     cmd = f'/usr/bin/psql -c "{query}"'
-    mp_exec_as_postgres(cmd, show_cmd=False)
+    mp_exec_as_postgres(cmd, cwd="/tmp", show_cmd=False)
     _store_pg_password(password)
     return True
 

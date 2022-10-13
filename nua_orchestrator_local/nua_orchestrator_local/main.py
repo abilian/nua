@@ -13,7 +13,7 @@ from .db.store import list_all_settings
 # setup_db() does create the db if needed and also populate the configuration
 # from both db values and default parameters
 from .db_setup import setup_db
-from .exec import set_nua_user
+from .exec import is_current_user, set_nua_user
 from .local_cmd import reload_servers, status
 from .panic import error
 from .rich_console import print_red
@@ -62,14 +62,13 @@ def initialization():
 
     if not check_python_version():
         error("Python 3.10+ is required for Nua orchestrator.")
-    try:
+    if os.getuid() == 0 or is_current_user(NUA):
         set_nua_user()
-    except OSError:
+    else:
         print_red("Nua orchestrator must be run as 'root' or 'nua'.")
-        raise
+        raise typer.Exit(1)
     if is_initialized:
         return
-
     setup_db()
     is_initialized = True
 

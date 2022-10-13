@@ -188,6 +188,7 @@ def jinja2_render_file(template: str | Path, dest: str | Path, data: dict) -> bo
 
 
 def check_python_version() -> bool:
+    """Check that curent python is >=3.10."""
     if sys.version_info.major < 3:
         return False
     if sys.version_info.minor < 10:
