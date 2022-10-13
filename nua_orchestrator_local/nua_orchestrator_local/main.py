@@ -1,4 +1,5 @@
 """Script main entry point for Nua local."""
+import os
 from pathlib import Path
 from pprint import pformat
 from typing import Optional
