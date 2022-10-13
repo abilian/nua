@@ -85,13 +85,13 @@ def set_mariadb_pwd(password: str) -> bool:
     """
     r_pwd = repr(password)
     exec_as_root("systemctl stop mariadb")
-    proc = exec_as_root_daemon("mariadbd-safe --skip-grant-tables --skip-networking")
+    exec_as_root_daemon("mariadbd-safe --skip-grant-tables --skip-networking")
     sleep(1)
     cmd = (
         'mariadb -u root  -e "FLUSH PRIVILEGES; '
         f"ALTER USER 'root'@'localhost' IDENTIFIED BY {r_pwd};\""
     )
-    exec_as_root(cmd)
+    exec_as_root(cmd, show_cmd=False)
     sleep(1)
     pid = sh(
         "sudo cat /run/mysqld/mysqld.pid", show_cmd=False, capture_output=True
@@ -106,7 +106,7 @@ def set_mariadb_pwd(password: str) -> bool:
 
 def mariadb_status(password: str) -> str:
     cmd = f"mariadb -u root -p{password} -e 'status'"
-    return sh(cmd, capture_output=True)
+    return sh(cmd, capture_output=True, show_cmd=False)
 
 
 def mariadb_version() -> str:

@@ -3,7 +3,7 @@ import multiprocessing as mp
 import os
 import pwd
 import shlex
-from subprocess import run  # noqa S404
+from subprocess import DEVNULL, run  # noqa S404
 
 NUA = "nua"
 
@@ -15,11 +15,14 @@ def sudo_cmd_as_user(
     cwd: str | None = None,
     timeout: int | None = None,
     env: dict | None = None,
+    show_cmd: bool = True,
 ):
     if isinstance(cmd, list):
         cmd = " ".join(cmd)
     sudo_cmd = f"sudo -nu {user} {cmd}"
-    _mp_process_cmd(sudo_cmd, cwd=cwd, timeout=timeout, env=env)
+    if not cwd:
+        cwd = "/tmp"
+    _mp_process_cmd(sudo_cmd, cwd=cwd, timeout=timeout, env=env, show_cmd=show_cmd)
 
 
 def _mp_process_cmd(
@@ -27,11 +30,12 @@ def _mp_process_cmd(
     cwd: str | None = None,
     timeout: int | None = None,
     env: dict | None = None,
+    show_cmd: bool = True,
 ):
     full_env = os.environ.copy()
     if env:
         full_env.update(env)
-    proc = mp.Process(target=_run_shell_cmd, args=(cmd, cwd, timeout, env))
+    proc = mp.Process(target=_run_shell_cmd, args=(cmd, cwd, timeout, env, show_cmd))
     proc.start()
     proc.join()
 
@@ -41,9 +45,14 @@ def _run_shell_cmd(
     cwd: str | None = None,
     timeout: int | None = None,
     env: dict | None = None,
+    show_cmd: bool = True,
 ):
     if not env:
         env = os.environ
+    if show_cmd:
+        stdout = None
+    else:
+        stdout = DEVNULL
     run(
         cmd,
         shell=True,  # noqa: S602
@@ -51,6 +60,7 @@ def _run_shell_cmd(
         cwd=cwd,
         executable="/bin/bash",
         env=env,
+        stdout=stdout,
     )
 
 
@@ -59,17 +69,23 @@ def _run_cmd(
     cwd: str | None = None,
     timeout: int | None = None,
     env: dict | None = None,
+    show_cmd: bool = True,
 ):
     if isinstance(cmd, str):
         cmd = shlex.split(cmd)
     if not env:
         env = os.environ
+    if show_cmd:
+        stdout = None
+    else:
+        stdout = DEVNULL
     run(
         cmd,
         shell=False,  # noqa S603
         timeout=timeout,
         cwd=cwd,
         env=env,
+        stdout=stdout,
     )
 
 
@@ -82,11 +98,12 @@ def _exec_as_user(
     user: str,
     timeout: int | None = None,
     env: dict | None = None,
+    show_cmd: bool = True,
 ):
     if is_current_user(user):
-        _run_cmd(cmd, timeout=timeout, env=env)
+        _run_cmd(cmd, timeout=timeout, env=env, show_cmd=show_cmd)
     elif os.getuid() == 0 or is_current_user(NUA):
-        sudo_cmd_as_user(cmd, user, timeout=timeout, env=env)
+        sudo_cmd_as_user(cmd, user, timeout=timeout, env=env, show_cmd=show_cmd)
     else:
         raise ValueError(f"Not allowed : _exec_as_user {user} as uid {os.getuid()}")
 
@@ -97,11 +114,12 @@ def mp_exec_as_user(
     *,
     env: dict | None = None,
     timeout: int | None = None,
+    show_cmd: bool = True,
 ):
     if is_current_user(user):
-        _mp_process_cmd(cmd, timeout=timeout, env=env)
+        _mp_process_cmd(cmd, timeout=timeout, env=env, show_cmd=show_cmd)
     elif os.getuid() == 0 or is_current_user(NUA):
-        sudo_cmd_as_user(cmd, user, timeout=timeout, env=env)
+        sudo_cmd_as_user(cmd, user, timeout=timeout, env=env, show_cmd=show_cmd)
     else:
         raise ValueError(f"Not allowed : mp_exec_as_user '{user}' as uid {os.getuid()}")
 
@@ -146,83 +164,17 @@ def mp_exec_as_postgres(
     cmd: str | list,
     env: dict | None = None,
     timeout: int | None = None,
+    show_cmd: bool = True,
 ):
     """Exec as user 'postgres' in a python external process to allow several use of
     function without mangling ENV and UID."""
-    mp_exec_as_user(cmd, "postgres", timeout=timeout, env=env)
+    mp_exec_as_user(cmd, "postgres", timeout=timeout, env=env, show_cmd=show_cmd)
 
 
 def exec_as_root(
-    cmd,
-    env: dict | None = None,
-    timeout: int | None = None,
+    cmd, env: dict | None = None, timeout: int | None = None, show_cmd: bool = True
 ):
-    _exec_as_user(cmd, "root", timeout=timeout, env=env)
-
-
-# def _pysu_pw_uid(user, group):
-#     try:
-#         pw_record = pwd.getpwnam(user)
-#     except KeyError:
-#         pw_record = None
-#     if not pw_record and not group:
-#         raise f"Unknown user name {repr(user)}."
-#     if pw_record:
-#         uid = pw_record.pw_uid
-#     else:
-#         uid = os.getuid()
-#         try:
-#             pw_record = pwd.getpwuid(uid)
-#         except KeyError:
-#             pw_record = None
-#
-#     return (pw_record, uid)
-#
-#
-# def _pysu_name_home(user, pw_record):
-#     if pw_record:
-#         home = pw_record.pw_dir
-#         name = pw_record.pw_name
-#     else:
-#         home = "/"
-#         name = user
-#     return name, home
-#
-#
-# def _pysu_apply_rights(name, group, uid, gid):
-#     if group:
-#         os.setgroups([gid])
-#     else:
-#         glist = os.getgrouplist(name, gid)
-#         os.setgroups(glist)
-#     os.setgid(gid)
-#     os.setuid(uid)
-#
-#
-# def pysu(args, user=None, group=None, env=None):
-#     if not env:
-#         env = {}
-#     pw_record, uid = _pysu_pw_uid(user, group)
-#     name, home = _pysu_name_home(user, pw_record)
-#     if group:
-#         try:
-#             gr_record = grp.getgrnam(group)
-#         except KeyError as exc:
-#             raise f"Unknown group name {repr(group)}." from exc
-#         else:
-#             gid = gr_record.gr_gid
-#     elif pw_record:
-#         gid = pw_record.pw_gid
-#     else:
-#         gid = uid
-#
-#     _pysu_apply_rights(name, group, uid, gid)
-#
-#     env["USER"] = name
-#     env["HOME"] = home
-#     env["UID"] = str(uid)
-#     # Starting a process without a shell (actually replacing myself):
-#     os.execvpe(args[0], args, env)  # noqa: S606
+    _exec_as_user(cmd, "root", timeout=timeout, env=env, show_cmd=show_cmd)
 
 
 def ensure_env(key: str, value: str) -> None:
