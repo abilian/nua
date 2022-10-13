@@ -63,7 +63,7 @@ def initialization():
 
     if not check_python_version():
         error("Python 3.10+ is required for Nua orchestrator.")
-    if os.getuid() == 0 or is_current_user(NUA):
+    if os.getuid() == 0 or is_current_user("nua"):
         set_nua_user()
     else:
         print_red("Nua orchestrator must be run as 'root' or 'nua'.")
