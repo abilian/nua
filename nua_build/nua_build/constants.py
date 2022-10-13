@@ -8,7 +8,7 @@ NUA_LINUX_BASE = "ubuntu:jammy-20221003"
 
 NUA_BUILDER_TAG = f"nua-builder:{__version__}"
 NUA_PYTHON_TAG = f"nua-python:{__version__}"
-NUA_WHEEL_DIR = Path(f"/var/tmp/nua_build_wheel_{__version__}")
+NUA_WHEEL_DIR = Path(f"/var/tmp/nua_build_wheel_{__version__}")  # noqa S108
 
 _folder = Path(__file__).parent
 # DOCKERFILE_PYTHON = _folder / "dockerfiles" / "Dockerfile_nua_python"

@@ -2,6 +2,7 @@
 
 WIP
 
+To remove all mariadb packages:
 sudo apt-get remove --purge mariadb-server-10.6 mariadb-client
 sudo apt-get autoremove
 sudo apt-get autoclean
@@ -230,18 +231,21 @@ def mariadb_check_listening(gateway: str) -> bool:
     if not path.is_file():
         print_red(f"Mariadb config file not found: {path}")
         return False
-    return _actual_check_listening(gateway, path)
+    return True
+    # return _actual_check_listening(gateway, path)
 
 
-def _actual_check_listening(gateway: str, path: Path) -> bool:
-    with open(path, "r", encoding="utf8") as rfile:
-        for line in rfile:
-            if RE_COMMENT.match(line):
-                continue
-            if (listen_match := RE_LISTEN.match(line)) is not None:
-                listening = listen_match[1].strip()
-                return _add_gateway_address(listening, gateway)
-    return _add_gateway_address("", gateway)
+#
+# def _actual_check_listening(gateway: str, path: Path) -> bool:
+#     with open(path, "r", encoding="utf8") as rfile:
+#         for line in rfile:
+#             if RE_COMMENT.match(line):
+#                 continue
+#             if (listen_match := RE_LISTEN.match(line)) is not None:
+#                 listening = listen_match[1].strip()
+#                 return _add_gateway_address(listening, gateway)
+#     return _add_gateway_address("", gateway)
+#
 
 
 def allow_docker_connection():
@@ -265,40 +269,41 @@ def allow_docker_connection():
     path.write_text(content, encoding="utf8")
 
 
-def _save_config_gateway_address(content: str):
-    src_path = Path("~/nua_listening_docker.conf.tmp").expanduser()
-    with open(src_path, "w", encoding="utf8") as wfile:
-        wfile.write(content)
-    dest_path = POSTGRES_CONF_PATH / "conf.d" / "nua_listening_docker.conf"
-    cmd = f"sudo mv -f {src_path} {dest_path}"
-    sh(cmd, show_cmd=False)
-    cmd = f"sudo chown mariadb:mariadb {dest_path}"
-    sh(cmd, show_cmd=False)
-    cmd = f"sudo chmod 644 {dest_path}"
-    sh(cmd, show_cmd=False)
+#
+# def _save_config_gateway_address(content: str):
+#     src_path = Path("~/nua_listening_docker.conf.tmp").expanduser()
+#     with open(src_path, "w", encoding="utf8") as wfile:
+#         wfile.write(content)
+#     dest_path = POSTGRES_CONF_PATH / "conf.d" / "nua_listening_docker.conf"
+#     cmd = f"sudo mv -f {src_path} {dest_path}"
+#     sh(cmd, show_cmd=False)
+#     cmd = f"sudo chown mariadb:mariadb {dest_path}"
+#     sh(cmd, show_cmd=False)
+#     cmd = f"sudo chmod 644 {dest_path}"
+#     sh(cmd, show_cmd=False)
 
-
-def _add_gateway_address(listening: str, gateway: str) -> bool:
-    """
-    TODO
-
-    """
-    return
-    if not listening:
-        content = f"listen_addresses = 'localhost, {gateway}'\n"
-        _save_config_gateway_address(content)
-        return True
-    if gateway in listening or "*" in listening:
-        return True
-    if listening.endswith("'"):
-        value = f"{listening[:-1]}, {gateway}'"
-    elif listening.endswith('"'):
-        value = f'{listening[:-1]}, {gateway}"'
-    else:  # dubious
-        value = f"'{listening}, {gateway}'"
-    content = f"listen_addresses = {value}'\n"
-    _save_config_gateway_address(content)
-    return True
+#
+# def _add_gateway_address(listening: str, gateway: str) -> bool:
+#     """
+#     TODO
+#
+#     """
+#     return
+#     if not listening:
+#         content = f"listen_addresses = 'localhost, {gateway}'\n"
+#         _save_config_gateway_address(content)
+#         return True
+#     if gateway in listening or "*" in listening:
+#         return True
+#     if listening.endswith("'"):
+#         value = f"{listening[:-1]}, {gateway}'"
+#     elif listening.endswith('"'):
+#         value = f'{listening[:-1]}, {gateway}"'
+#     else:  # dubious
+#         value = f"'{listening}, {gateway}'"
+#     content = f"listen_addresses = {value}'\n"
+#     _save_config_gateway_address(content)
+#     return True
 
 
 def mariadb_restart_service():
@@ -324,21 +329,11 @@ def mariadb_remove_db_user(host: str, dbname: str, user: str):
 
 
 def mariadb_db_drop(host: str, dbname: str):
-    """Basic drop database.
-
-    See mariadb_remove_db_user
-    """
-    connection = mariadb.connect(
-        dbname="mariadb", user="mariadb", host=host, password=mariadb_pwd()
-    )
-    connection.autocommit = True
-    with connection:
-        with connection.cursor() as cur:
-            query = "REVOKE CONNECT ON DATABASE {db} FROM public"
-            cur.execute(query.format(db=dbname))
-        with connection.cursor() as cur:
-            query = "DROP DATABASE {db}"
-            cur.execute(query.format(db=dbname))
+    """Basic drop database."""
+    connection = mariadb.connect(host=host, user="root", password=mariadb_pwd())
+    cursor = connection.cursor()
+    query = f"drop database [if exists] `{dbname}`"
+    cursor.execute(query)
     connection.close()
 
 
@@ -347,32 +342,26 @@ def mariadb_db_dump(dbname: str, options_str: str = ""):
 
     FIXME: not ok for remote host
     """
-    cmd = f"mariadb_dump {dbname} {options_str}"
+    cmd = f"mariadb-dump {dbname} {options_str}"
     exec_as_root(cmd)
 
 
 def mariadb_user_drop(host: str, user: str) -> bool:
     """Drop user (wip, not enough)."""
-    connection = mariadb.connect(host=host, user="mariadb", password=mariadb_pwd())
-    connection.autocommit = True
-    with connection:  # noqa SIM117
-        with connection.cursor() as cur:
-            query = "DROP USER IF EXISTS {username}"
-            cur.execute(query.format(username=user))
+    connection = mariadb.connect(host=host, user="root", password=mariadb_pwd())
+    cursor = connection.cursor()
+    query = "DROP USER IF EXISTS ?"
+    cursor.execute(query, (user,))
     connection.close()
 
 
 def mariadb_user_exist(host: str, user: str) -> bool:
     """Test if a mariadb user exists."""
     connection = mariadb.connect(host=host, user="root", password=mariadb_pwd())
-    connection.autocommit = True
-    with connection:  # noqa SIM117
-        with connection.cursor() as cur:
-            query = (
-                "SELECT COUNT(*) FROM mariadb_catalog.mariadb_roles WHERE rolname = %s"
-            )
-            cur.execute(query, (user,))
-            (count,) = cur.fetchone()
+    cursor = connection.cursor()
+    query = "SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = ?"  # noqa S608
+    cursor.execute(query, (user,))
+    (count,) = cursor.fetchone()
     connection.close()
     return count != 0
 
@@ -380,57 +369,36 @@ def mariadb_user_exist(host: str, user: str) -> bool:
 def mariadb_user_create(host: str, user: str, password: str):
     """Create a mariadb user.
 
-    Assuming standard port == 5432
+    Assuming standard port 3306
     """
-    connection = mariadb.connect(host=host, user="mariadb", password=mariadb_pwd())
-    with connection:  # noqa SIM117
-        with connection.cursor() as cur:
-            # or:  CREATE USER user WITH ENCRYPTED PASSWORD 'pwd'
-            query = "CREATE ROLE {username} LOGIN PASSWORD %s"
-            cur.execute(query.format(username=user), (password,))
-            cur.execute("COMMIT")
+    connection = mariadb.connect(host=host, user="root", password=mariadb_pwd())
+    cursor = connection.cursor()
+    query = "CREATE USER IF NOT EXISTS ? IDENTIFIED BY ?"
+    cursor.execute(query, (user, password))
+    connection.commit()
     connection.close()
 
 
 def mariadb_db_create(host: str, dbname: str, user: str):
     """Create a mariadb DB.
 
-    Assuming standard port == 5432
+    Assuming standard port 3306
     """
-    connection = mariadb.connect(
-        host=host, dbname="mariadb", user="mariadb", password=mariadb_pwd()
-    )
-    connection.autocommit = True
-    cur = connection.cursor()
-    query = "CREATE DATABASE {db} OWNER {user}"
-    cur.execute(query.format(db=dbname, user=user))
-    connection.close()
-    connection = mariadb.connect(
-        host=host, dbname="mariadb", user="mariadb", password=mariadb_pwd()
-    )
-    connection.autocommit = True
-    with connection:  # noqa SIM117
-        with connection.cursor() as cur:
-            # not this: WITH GRANT OPTION;"
-            query = "GRANT ALL PRIVILEGES ON DATABASE {db} TO {user}"
-            cur.execute(query.format(db=dbname, user=user))
+    connection = mariadb.connect(host=host, user="root", password=mariadb_pwd())
+    cursor = connection.cursor()
+    query = f"CREATE DATABASE `{dbname}`"
+    cursor.execute(query)
     connection.close()
 
 
 def mariadb_db_exist(host: str, dbname: str) -> bool:
     "Test if the named mariadb database exists."
-    connection = mariadb.connect(
-        host=host, dbname="mariadb", user="mariadb", password=mariadb_pwd()
-    )
-    connection.autocommit = True
-    with connection:  # noqa SIM117
-        with connection.cursor() as cur:
-            query = "SELECT datname FROM mariadb_database"
-            cur.execute(query)
-            results = cur.fetchall()
+    connection = mariadb.connect(host=host, user="root", password=mariadb_pwd())
+    cursor = connection.cursor()
+    query = "SHOW DATABASES LIKE `{dbname}`"
+    nb = cursor.execute(query, (dbname,))
     connection.close()
-    db_set = {x[0] for x in results if x}
-    return dbname in db_set
+    return nb > 0
 
 
 def mariadb_db_table_exist(
@@ -439,11 +407,10 @@ def mariadb_db_table_exist(
     """Check if the named database exists (for host, connecting as user), assuming
     DB exists."""
     connection = mariadb.connect(host=host, dbname=dbname, user=user, password=password)
-    with connection:  # noqa SIM117
-        with connection.cursor() as cur:
-            query = "SELECT COUNT(*) FROM information_schema.tables WHERE table_name=%s"
-            cur.execute(query, (table,))
-            result = cur.fetchone()
-            count = result[0] if result else 0
+    cursor = connection.cursor()
+    query = "SELECT COUNT(*) FROM information_schema WHERE TABLE_NAME=?"
+    cursor.execute(query, (table,))
+    result = cursor.fetchone()
+    count = result[0] if result else 0
     connection.close()
     return count > 0
