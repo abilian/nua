@@ -13,6 +13,7 @@ from ..constants import (
     DOCKERFILE_BUILDER,
     DOCKERFILE_PYTHON,
     NUA_BUILDER_TAG,
+    NUA_LINUX_BASE,
     NUA_PYTHON_TAG,
     NUA_WHEEL_DIR,
 )
@@ -70,6 +71,7 @@ def docker_build_python(build_dir):
     image, tee = client.images.build(
         path=".",
         dockerfile=Path(DOCKERFILE_PYTHON).name,
+        buildargs={"nua_linux_base": NUA_LINUX_BASE},
         tag=NUA_PYTHON_TAG,
         labels={
             "APP_ID": app_id,

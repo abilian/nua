@@ -2,6 +2,10 @@ from pathlib import Path
 
 from .version import __version__
 
+# Ubuntu 22.04.1 "jammy" LTS with python3.10
+# NUA_LINUX_BASE = "ubuntu:jammy-20220801"
+NUA_LINUX_BASE = "ubuntu:jammy-20221003"
+
 NUA_BUILDER_TAG = f"nua-builder:{__version__}"
 NUA_PYTHON_TAG = f"nua-python:{__version__}"
 NUA_WHEEL_DIR = Path(f"/var/tmp/nua_build_wheel_{__version__}")

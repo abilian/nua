@@ -11,9 +11,7 @@ from time import perf_counter, sleep
 import docker
 
 from nua_build import __version__ as nua_version
-from nua_build.constants import NUA_BUILDER_TAG, NUA_PYTHON_TAG
-
-UBUNTU = "ubuntu:jammy-20220801"
+from nua_build.constants import NUA_BUILDER_TAG, NUA_LINUX_BASE, NUA_PYTHON_TAG
 
 
 def check_port_available(host: str, port: str | int, timeout: int = 1) -> bool:
@@ -44,14 +42,19 @@ class TestApacheBasic:
             copytree(src_path, build_dir)
             dock = docker.from_env()
 
-            for image in (UBUNTU, NUA_PYTHON_TAG, NUA_BUILDER_TAG, image_target):
+            for image in (
+                NUA_LINUX_BASE,
+                NUA_PYTHON_TAG,
+                NUA_BUILDER_TAG,
+                image_target,
+            ):
                 print(f"Show '{image}' in cache:", dock.images.list(image))
 
             print("Clean cache.")
             dock.images.prune()
 
             for image in reversed(
-                (UBUNTU, NUA_PYTHON_TAG, NUA_BUILDER_TAG, image_target)
+                (NUA_LINUX_BASE, NUA_PYTHON_TAG, NUA_BUILDER_TAG, image_target)
             ):
                 with suppress(docker.errors.ImageNotFound):
                     dock.images.remove(image, force=True, noprune=False)
@@ -119,7 +122,12 @@ class TestApacheBasic:
             copytree(src_path, build_dir)
             dock = docker.from_env()
 
-            for image in (UBUNTU, NUA_PYTHON_TAG, NUA_BUILDER_TAG, image_target):
+            for image in (
+                NUA_LINUX_BASE,
+                NUA_PYTHON_TAG,
+                NUA_BUILDER_TAG,
+                image_target,
+            ):
                 print(f"Show '{image}' in cache:", dock.images.list(image))
 
             cmd = shlex.split("nua-build --version")

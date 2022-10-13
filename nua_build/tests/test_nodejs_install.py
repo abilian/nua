@@ -8,9 +8,7 @@ from time import perf_counter
 
 import docker
 
-from nua_build.constants import NUA_BUILDER_TAG, NUA_PYTHON_TAG
-
-UBUNTU = "ubuntu:jammy-20220801"
+from nua_build.constants import NUA_BUILDER_TAG, NUA_LINUX_BASE, NUA_PYTHON_TAG
 
 
 def test_complete_build_with_cache():
@@ -29,7 +27,7 @@ def _build_test_cache(tmpdirname, src_path, image_target):
     copytree(src_path, build_dir)
     dock = docker.from_env()
 
-    for name in (UBUNTU, NUA_PYTHON_TAG, NUA_BUILDER_TAG, image_target):
+    for name in (NUA_LINUX_BASE, NUA_PYTHON_TAG, NUA_BUILDER_TAG, image_target):
         print(f"Show '{name}' in cache:", dock.images.list(name))
 
     print("Time now:", datetime.now(timezone.utc).isoformat(" "))
