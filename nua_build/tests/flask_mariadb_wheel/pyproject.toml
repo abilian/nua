@@ -7,6 +7,8 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.10"
+setuptools = "^65.4.1"  # for mariadb, but still error, see:
+# (https://github.com/pypa/packaging-problems/issues/573)
 gunicorn = "^20.1.0"
 Flask = "^2.1.3"
 Flask-WTF = "^1.0"

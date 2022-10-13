@@ -5,9 +5,9 @@ https://www.digitalocean.com/community/tutorials/
 import os
 
 import mariadb
-from flask_mariadb_wheel.constants import DB_HOST, DB_USER, DB_USER_PWD
+from flask_mariadb_wheel.constants import DB_HOST, DB_NAME, DB_USER, DB_USER_PWD
 
-from nua_build import mariadb as mdb  # Nua shortcuts to manage mariadb
+from nua_build import mariadb_tools as mdb  # Nua shortcuts to manage mariadb
 from nua_build.exec import exec_as_root
 
 
