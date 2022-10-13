@@ -10,16 +10,6 @@ from jinja2 import Template
 from .shell import sh
 
 
-def apt_get_install(packages: list | str) -> None:
-    if isinstance(packages, str):
-        packages = packages.strip().split()
-    if not packages:
-        print("apt_get_install(): nothing to install")
-        return
-    cmd = f"apt-get install -y {' '.join(packages)}"
-    sh(cmd)
-
-
 def build_python(path=None):
     # fixme: improve this
     if not path:
@@ -37,7 +27,25 @@ def _apt_remove_lists():
     sh("rm -rf /var/lib/apt/lists/*", env=os.environ, timeout=600)
 
 
-def install_package_list(packages: list | str, rm_lists: bool = True):
+def apt_update():
+    environ = os.environ.copy()
+    environ["DEBIAN_FRONTEND"] = "noninteractive"
+    cmd = "apt-get update --fix-missing"
+    sh(cmd, env=environ, timeout=600, show_cmd=False)
+
+
+def apt_final_clean():
+    environ = os.environ.copy()
+    environ["DEBIAN_FRONTEND"] = "noninteractive"
+    sh("apt-get autoremove; apt-get clean", env=environ, timeout=600, show_cmd=False)
+
+
+def install_package_list(
+    packages: list | str,
+    update: bool = True,
+    clean: bool = True,
+    rm_lists: bool = True,
+):
     if isinstance(packages, str):
         packages = packages.strip().split()
     if not packages:
@@ -45,9 +53,11 @@ def install_package_list(packages: list | str, rm_lists: bool = True):
         return
     environ = os.environ.copy()
     environ["DEBIAN_FRONTEND"] = "noninteractive"
-    cmd = f"apt-get update --fix-missing; apt-get install -y {' '.join(packages)}"
+    update_cmd = "apt-get update --fix-missing; " if update else ""
+    cmd = f"{update_cmd}apt-get install -y {' '.join(packages)}"
     sh(cmd, env=environ, timeout=600)
-    sh("apt-get autoremove; apt-get clean", env=environ, timeout=600)
+    if clean:
+        sh("apt-get autoremove; apt-get clean", env=environ, timeout=600)
     if rm_lists:
         _apt_remove_lists()
 

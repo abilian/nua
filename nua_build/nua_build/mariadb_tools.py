@@ -148,7 +148,10 @@ def bootstrap_install_mariadb() -> bool:
             "libmariadb3",
             "libmariadb-dev",
             "mariadb-client",
-        ]
+        ],
+        update=False,
+        clean=False,
+        rm_lists=False,
     )
     allow_docker_connection()
     return mariadb_check_installed()

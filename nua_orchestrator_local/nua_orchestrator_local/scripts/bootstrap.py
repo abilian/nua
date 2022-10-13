@@ -8,7 +8,13 @@ import venv
 from pathlib import Path
 
 from .. import nua_env
-from ..actions import check_python_version, install_package_list, string_in
+from ..actions import (
+    apt_final_clean,
+    apt_update,
+    check_python_version,
+    install_package_list,
+    string_in,
+)
 from ..bash import bash_as_nua
 from ..exec import mp_exec_as_nua
 from ..mariadb_tools import bootstrap_install_mariadb, set_random_mariadb_pwd
@@ -45,7 +51,9 @@ def main():
             f"{detect_myself()}\n"
         )
         raise SystemExit(1)
+    apt_update()
     bootstrap()
+    apt_final_clean()
     print_green("\nNua installation done for user 'nua' on this host.")
     cmd = "nua --help"
     print(f"Command '{cmd}':")

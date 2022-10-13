@@ -99,7 +99,12 @@ def bootstrap_install_postgres() -> bool:
     # detect prior installation of other versions:
     if not _pg_verify_no_prior_installation():
         return False
-    install_package_list([f"postgresql-{PG_VERSION}", "libpq-dev"])
+    install_package_list(
+        [f"postgresql-{PG_VERSION}", "libpq-dev"],
+        update=False,
+        clean=False,
+        rm_lists=False,
+    )
     allow_docker_connection()
     return pg_check_installed()
 
