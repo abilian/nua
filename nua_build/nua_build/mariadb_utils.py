@@ -32,7 +32,7 @@ def mariadb_setup_db_user(host: str, dbname: str, user: str, password: str):
     if not mariadb_user_exist(host, user):
         mariadb_user_create(host, user, password)
     if not mariadb_db_exist(host, dbname):
-        mariadb_db_create(host, dbname, user)
+        mariadb_db_create(host, dbname, user, password)
 
 
 def mariadb_remove_db_user(host: str, dbname: str, user: str):
@@ -94,7 +94,7 @@ def mariadb_user_create(host: str, user: str, password: str):
     connection.close()
 
 
-def mariadb_db_create(host: str, dbname: str, user: str):
+def mariadb_db_create(host: str, dbname: str, user: str, password: str):
     """Create a mariadb DB.
 
     Assuming standard port 3306
@@ -103,6 +103,10 @@ def mariadb_db_create(host: str, dbname: str, user: str):
     cursor = connection.cursor()
     query = f"CREATE DATABASE {dbname}"
     cursor.execute(query)
+    # query = f"GRANT ALL PRIVILEGES ON {dbname}.* TO '{user}'@'%' IDENTIFIED BY ?"
+    query = f"GRANT ALL PRIVILEGES ON {dbname}.* TO ? IDENTIFIED BY ?"
+    cursor.execute(query, (user, password))
+    connection.commit()
     connection.close()
 
 
@@ -111,7 +115,8 @@ def mariadb_db_exist(host: str, dbname: str) -> bool:
     connection = mariadb.connect(host=host, user="root", password=mariadb_pwd())
     cursor = connection.cursor()
     query = f"SHOW DATABASES LIKE '{dbname}'"
-    result = cursor.execute(query, (dbname,))
+    cursor.execute(query, (dbname,))
+    result = cursor.fetchone()
     connection.close()
     return bool(result)
 
@@ -121,10 +126,16 @@ def mariadb_db_table_exist(
 ) -> bool:
     """Check if the named database exists (for host, connecting as user), assuming
     DB exists."""
-    connection = mariadb.connect(host=host, dbname=dbname, user=user, password=password)
+    connection = mariadb.connect(
+        host=host, database=dbname, user=user, password=password
+    )
     cursor = connection.cursor()
-    query = "SELECT COUNT(*) FROM information_schema WHERE TABLE_NAME=?"
-    cursor.execute(query, (table,))
+    query = (
+        "SELECT count(*) FROM information_schema.TABLES WHERE "
+        f"(TABLE_SCHEMA = '{dbname}') AND (TABLE_NAME = '{table}')"
+    )
+    # cursor.execute(query, (dbname, table))
+    cursor.execute(query)
     result = cursor.fetchone()
     count = result[0] if result else 0
     connection.close()

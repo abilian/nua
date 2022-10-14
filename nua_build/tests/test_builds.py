@@ -21,6 +21,7 @@ app_folder = [
     "flask_upload_one",
     "flask_upload_sshfs",
     "flask_upload_tmpfs",
+    "flask_mariadb_wheel",
 ]
 
 

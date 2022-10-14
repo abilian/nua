@@ -35,7 +35,7 @@ def add_content():
         user=DB_USER,
         password=DB_USER_PWD,
     )
-    cursor = connection.dursor()
+    cursor = connection.cursor()
     # Execute a command: this creates a new table
     cursor.execute("DROP TABLE IF EXISTS books;")  # ok, this is an example
     cursor.execute(
@@ -69,7 +69,9 @@ def add_content():
 setup_db()
 init_db_content()
 
-cmd = "gunicorn --worker-tmp-dir /dev/shm --workers 2 -b :80 flask_pg_psyco.wsgi:app"
+cmd = (
+    "gunicorn --worker-tmp-dir /dev/shm --workers 2 -b :80 flask_mariadb_wheel.wsgi:app"
+)
 # exec_as_nua(cmd, env)
 # We need to exec as root to be able to write files in the docker volume.
 exec_as_root(cmd, env=os.environ)
