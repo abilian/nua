@@ -17,7 +17,7 @@ from ..actions import (
 )
 from ..bash import bash_as_nua
 from ..exec import mp_exec_as_nua
-from ..mariadb_tools import bootstrap_install_mariadb, set_random_mariadb_pwd
+from ..mariadb_orc import bootstrap_install_mariadb, set_random_mariadb_pwd
 from ..nginx_util import install_nginx
 from ..panic import error
 from ..postgres import bootstrap_install_postgres, set_random_postgres_pwd
