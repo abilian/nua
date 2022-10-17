@@ -1,5 +1,4 @@
 """Nua postgresql related commands."""
-import functools
 import os
 import re
 from pathlib import Path
@@ -8,19 +7,32 @@ import psycopg2
 from psycopg2.sql import SQL, Identifier
 
 from .actions import install_package_list, installed_packages
+from .docker_utils import docker_host_gateway_ip
 from .exec import mp_exec_as_postgres
 from .gen_password import gen_password
 from .rich_console import print_magenta, print_red
 from .shell import chown_r, sh
 
+docker_host_gateway_ip
 PG_VERSION = "14"
 POSTGRES_CONF_PATH = Path(f"/etc/postgresql/{PG_VERSION}/main")
 RE_ANY_PG = re.compile(r"^postgresql-[0-9\.]+/")
 RE_5432 = re.compile(r"\s*port\s*=\s*5432\D")
 RE_COMMENT = re.compile(r"\s*#")
 RE_LISTEN = re.compile(r"\s*listen_addresses\s*=(.*)$")
-# S105 Possible hardcoded password
 NUA_PG_PWD_FILE = ".postgres_pwd"  # noqa S105
+
+
+def register_functions(book: dict):
+    """Register plugin function of postgres in Nua orchestrator playbook."""
+    # aliases:
+    book["alias"]["postgresql"] = "postgres"
+    # check service
+    book["check"]["postgres"] = pg_check_listening
+    # restart service
+    book["restart"]["postgres"] = pg_restart_service
+    # environment variables provider:
+    book["environ"]["postgres"] = pg_run_environment
 
 
 def postgres_pwd() -> str:
@@ -80,7 +92,7 @@ def set_postgres_pwd(password: str) -> bool:
     return True
 
 
-def pg_run_environment(_unused: dict) -> dict:
+def pg_run_environment(_unused_site: dict) -> dict:
     """Return a dict of environ variable for docker.run().
 
     Actually, returns the DB postges password.
@@ -158,8 +170,7 @@ def _pg_check_std_port() -> bool:
     return False
 
 
-@functools.cache
-def pg_check_listening(gateway: str) -> bool:
+def pg_check_listening(_unused_site: dict) -> bool:
     """Check at deploy time that the postgres daemon is listening on the gateway port
     of the docker service (ip passed as parameter).
 
@@ -171,7 +182,7 @@ def pg_check_listening(gateway: str) -> bool:
     if not path.is_file():
         print_red(f"Postgres config file not found: {path}")
         return False
-    return _actual_check_listening(gateway, path)
+    return _actual_check_listening(docker_host_gateway_ip(), path)
 
 
 def _actual_check_listening(gateway: str, path: Path) -> bool:

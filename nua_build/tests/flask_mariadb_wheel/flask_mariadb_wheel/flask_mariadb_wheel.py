@@ -12,7 +12,7 @@ def db_connection():
         password=DB_USER_PWD,
         host=DB_HOST,  # Your server name
         port=3306,
-        database=DB_HOST,
+        database=DB_NAME,
     )
 
 

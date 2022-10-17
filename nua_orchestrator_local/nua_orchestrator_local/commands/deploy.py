@@ -12,7 +12,8 @@ from string import ascii_letters, digits
 import docker
 import tomli
 
-from .. import config
+# from ..postgres import  pg_run_environment
+from .. import config, mariadb_orc, postgres
 from ..archive_search import ArchiveSearch
 from ..certbot import protocol_prefix, register_certbot_domains
 from ..db import store
@@ -40,7 +41,6 @@ from ..normalize_parameters import (
     ports_convert_to_dict_sites,
 )
 from ..panic import error
-from ..postgres import pg_check_listening, pg_restart_service, pg_run_environment
 from ..rich_console import print_green, print_magenta, print_red
 from ..search_cmd import search_nua
 from ..server_utils.net_utils import check_port_available
@@ -53,10 +53,9 @@ ALLOW_DOCKER_NAME = set(ascii_letters + digits + "-_.")
 RUN_BASE = {
     "extra_hosts": {"host.docker.internal": "host-gateway"},
 }
-# someservices in nua_config may nbe spelled in different ways:
-SERVICES_ALIASES = {"postgresql": "postgres"}
-SERVICE_RESTART = {"postgres": pg_restart_service}
-SERVICE_ENVIRONMENT = {"postgres": pg_run_environment}
+SERVICES_FUNCTIONS = {"alias": {}, "check": {}, "restart": {}, "environ": {}}
+postgres.register_functions(SERVICES_FUNCTIONS)
+mariadb_orc.register_functions(SERVICES_FUNCTIONS)
 
 
 def deploy_nua(app_name: str) -> int:
@@ -364,20 +363,21 @@ def _run_parameters_container_ports(site: dict) -> dict:
     return cont_ports
 
 
-def _services_environment(site: dict) -> dict:
+def services_environment(site: dict) -> dict:
     run_env = {}
     for service in _required_services(site):
-        if service in SERVICE_ENVIRONMENT:
-            gen_environ_function = SERVICE_ENVIRONMENT[service]
-            # function may need or not site param:
-            run_env.update(gen_environ_function(site))
+        environ_function = SERVICES_FUNCTIONS["environ"].get(service)
+        if not environ_function:
+            continue
+        # function may need or not site param:
+        run_env.update(environ_function(site))
     return run_env
 
 
 def _run_parameters_container_environment(site: dict) -> dict:
     image_nua_config = site["image_nua_config"]
     run_env = image_nua_config.get("run_env", {})
-    run_env.update(_services_environment(site))
+    run_env.update(services_environment(site))
     run_env.update(site.get("run_env", {}))
     return run_env
 
@@ -690,34 +690,6 @@ def display_deployed(sites: list):
         print_green(msg)
 
 
-def configure_service_postgres(site):
-    """Configure local postgres on the host.
-
-    Currently:
-        - ensure listening on docker gateway
-        - restart service
-    """
-    if not pg_check_listening(docker_host_gateway_ip()):
-        print_red(f"Postgresql configuration problem for '{site['image']}'")
-
-
-def restart_requirements(reboots: set):
-    if verbosity(2):
-        if reboots:
-            print("Services to restart:", pformat(reboots))
-        else:
-            print("Services to restart: None")
-    for service in reboots:
-        if service in SERVICE_RESTART:
-            restart_function = SERVICE_RESTART[service]
-            restart_function()
-
-
-def configure_service(service: str, site: dict):
-    if service == "postgres":
-        configure_service_postgres(site)
-
-
 def _required_services(site: dict) -> set:
     image_nua_config = site["image_nua_config"]
     services = image_nua_config.get("instance", {}).get("services")
@@ -727,21 +699,43 @@ def _required_services(site: dict) -> set:
         services = [services]
     set_services = set(services)
     # filter alias if needed:
-    for alias, name in SERVICES_ALIASES.items():
+    for alias, name in SERVICES_FUNCTIONS["alias"].items():
         if alias in set_services:
             set_services.discard(alias)
             set_services.add(name)
     return set_services
 
 
-def service_requirements(sites: list):
+def check_services(sites):
+    for site in sites:
+        for service in _required_services(site):
+            check_function = SERVICES_FUNCTIONS["check"].get(service)
+            if not check_function:
+                continue
+            if not check_function(site):
+                print_red(
+                    f"Service '{service}': configuration problem for '{site['image']}'"
+                )
+
+
+def restart_services(sites):
     reboots = set()
     for site in sites:
-        services = _required_services(site)
-        reboots.update(services)
-        for service in services:
-            configure_service(service, site)
-    restart_requirements(reboots)
+        reboots.update(_required_services(site))
+    if verbosity(2):
+        if reboots:
+            print("Services to restart:", pformat(reboots))
+        else:
+            print("Services to restart: None")
+    for service in reboots:
+        restart_function = SERVICES_FUNCTIONS["restart"].get(service)
+        if restart_function:
+            restart_function()
+
+
+def service_requirements(sites: list):
+    check_services(sites)
+    restart_services(sites)
 
 
 def configure_nginx(host_list: list):

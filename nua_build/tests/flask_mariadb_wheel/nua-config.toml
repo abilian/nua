@@ -42,7 +42,7 @@ services = "mariadb"
 
 [run]
 # parameters passed as a dict to docker run
-auto_remove = true
+# auto_remove = true
 # detach = true mandatory
 
 [[ports]]

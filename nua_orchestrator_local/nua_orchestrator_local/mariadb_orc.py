@@ -31,6 +31,18 @@ RE_COMMENT = re.compile(r"\s*#")
 NUA_MARIADB_PWD_FILE = ".mariadb_pwd"  # noqa S105
 
 
+def register_functions(book: dict):
+    """Register plugin function of postgres in Nua orchestrator playbook."""
+    # aliases:
+    # none
+    # check service
+    # none
+    # restart service
+    book["restart"]["mariadb"] = mariadb_restart_service
+    # environment variables provider:
+    book["environ"]["mariadb"] = mariadb_run_environment
+
+
 def mariadb_pwd() -> str:
     """Return the 'root' user DB password of mariadb.
       - When used in container context, the env variable NUA_MARIADB_PASSWORD should
@@ -123,7 +135,7 @@ def mariadb_version() -> str:
     return ""
 
 
-def mariadb_run_environment(_unused: dict) -> dict:
+def mariadb_run_environment(_unused_site: dict) -> dict:
     """Return a dict of environ variable for docker.run().
 
     Actually, returns the DB mariadb password.
