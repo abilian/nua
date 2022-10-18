@@ -20,12 +20,10 @@ def db_connection():
 def index():
     # data = []
     connection = db_connection()
-    cur = connection.cursor()
-    cur.execute("SELECT * FROM books")
-    books = cur.fetchall()
-    # for row in cursor.fetchall():
-    #     data.append({"id": row[0], "name": row[1], "year": row[2], ...})
-    cur.close()
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM books")
+    books = cursor.fetchall()
+    cursor.close()
     connection.close()
     return render_template("index.html", books=books)
 
@@ -39,14 +37,13 @@ def create():
             pages_num = int(request.form["pages_num"] or 0)
             review = request.form["review"]
             connection = db_connection()
-            cur = connection.cursor()
-            cur.execute(
+            cursor = connection.cursor()
+            cursor.execute(
                 "INSERT INTO books (title, author, pages_num, review)"
                 "VALUES (?, ?, ?, ?)",
                 (title, author, pages_num, review),
             )
             connection.commit()
-            # cur.close()
             connection.close()
         return redirect(url_for("index"))
     return render_template("create.html")
