@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "flask_mariadb_wheel"
+version = "0.1.0"
+description = "Flask test with mariadb"
+authors = ["Jerome Dumonteil <jd@abilian.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+setuptools = "^65.4.1"  # for mariadb, but still error, see:
+# (https://github.com/pypa/packaging-problems/issues/573)
+gunicorn = "^20.1.0"
+Flask = "^2.1.3"
+Flask-WTF = "^1.0"
+Jinja2 = "^3.1.2"
+mariadb = "^1.1.4"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
