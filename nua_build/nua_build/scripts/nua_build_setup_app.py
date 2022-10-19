@@ -5,6 +5,7 @@
 - build locally if source is python package
 """
 import logging
+import os
 from os import chdir
 from pathlib import Path
 from shutil import copy2
@@ -100,8 +101,10 @@ class BuilderApp:
         # assuming it is a python script
         print(f"run build script: {self.build_script_path}")
         chdir(self.build_dir)
+        cmd = f"python --version"
+        sh(cmd, env=os.environ)
         cmd = f"python {self.build_script_path}"
-        sh(cmd, timeout=1800)
+        sh(cmd, env=os.environ)
 
 
 def main() -> None:

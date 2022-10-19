@@ -1,22 +1,19 @@
 """
-
-args options
-
-
-os.environ['SUDO_USER']
-Please run this script as a non-root user with sudo privileges, but without using sudo or pass --user=USER')
+Make a docker image for frappe/bench
 """
 import os
-from pathlib import Path
 
-from nua_build.actions import (
-    install_nodejs,
+from nua_build.actions import (  # pip_install_glob,
+    append_bashrc,
+    install_nodejs_via_nvm,
     install_package_list,
     pip_install,
-    pip_install_glob,
 )
-from nua_build.nua_config import NuaConfig
-from nua_build.shell import chmod_r, mkdir_p, rm_fr, sh
+from nua_build.shell import chown_r, sh
+
+# from nua_build.nua_config import NuaConfig
+# from pathlib import Path
+# from nua_build.shell import chmod_r, mkdir_p, rm_fr
 
 BENCH_PKGS = """apt-utils build-essential git mariadb-client postgresql-client
     gettext-base wget libssl-dev fonts-cantarell xfonts-75dpi xfonts-base locales
@@ -25,21 +22,52 @@ BENCH_PKGS = """apt-utils build-essential git mariadb-client postgresql-client
     libldap2-dev libmariadb-dev libsasl2-dev libtiff5-dev libwebp-dev redis-tools
     rlwrap tk8.6-dev ssh-client net-tools make libbz2-dev libsqlite3-dev zlib1g-dev
     libreadline-dev llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev liblzma-dev
-    """
+    xvfb libfontconfig wkhtmltopdf
+"""
 
 
 def main():
     os.chdir("/nua/build")
-    config = NuaConfig(".")
+    print(os.environ)
 
-    # this app requires some packages (for mariadb_config):
     install_package_list(BENCH_PKGS)
-    install_nodejs("14.x")  # erpnext 13 <-> node 14
-    # sh("npm install -g yarn")
-    pip_install(["setuptools", "wheel", "cryptography", "ansible~=2.8.15"])
+
+    install_nodejs_via_nvm("/nua")  # erpnext 13/node14 14/node16
+    chown_r("/nua", "nua", "nua")
+
+    cmd = (
+        "sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen "
+        "&& dpkg-reconfigure --frontend=noninteractive locales"
+    )
+    sh(cmd)
+
+    # broken
+    # WKHTMLTOPDF_VERSION = "0.12.6-1"
+    # ARCH = "amd64"
+    # filename = f"wkhtmltox_{WKHTMLTOPDF_VERSION}.buster_{ARCH}.deb"
+    # path = f"wkhtmltopdf/packaging/releases/download/{WKHTMLTOPDF_VERSION}/{filename}"
+    # cmd = (
+    #     f"wget -q https://github.com/{path} "
+    #     f"&& dpkg -i {filename} "
+    #     f"&& rm {filename}"
+    # )
+    # sh(cmd)
+
+    # now use pypi:
+    # repo = "https://github.com/frappe/bench.git"
+    # branch = "develop"
+    # cmd = f"git clone {repo} --depth 1 -b {develop} .bench && pip install -e .bench"
+    # sh(cmd)
+
+    bash = 'export PATH="/nua/venv/bin:/nua/.local/bin:$PATH"\nexport BENCH_DEVELOPER=1'
+    append_bashrc("/nua", bash)
+
+    pip_install("setuptools wheel", update=True)
+    pip_install("frappe-bench==5.14.4")
+
+    # pip_install(["setuptools", "wheel", "cryptography", "ansible~=2.8.15"])
     # install from a wheel
     # pip_install_glob("*.whl")
-    # pip_install("frappe-bench")
 
     # This app requires a maria DB. The DB is created by the start.py script at
     # start up if needed

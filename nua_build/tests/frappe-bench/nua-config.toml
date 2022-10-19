@@ -1,11 +1,11 @@
 [metadata]
-id = "frappe-bencht"
+id = "frappe-bench"
 version = "1.0"
 title = "Frappe/bench test"
 author = "Nua testers"
-tagline = "Nua test with ERPNext"
+tagline = "Nua test with ERPNext, base image with bench util"
 website = "https://nua.rocks/"
-tags = ["test", "html", "web", "MariaDB"]
+tags = ["test", "html", "web", "ERPNext"]
 licence = "MIT"
 profile = ["test"]
 release = 1
@@ -29,16 +29,16 @@ release = 1
 # build_script = ""
 # optional start script, default is "start.py" if found
 # start_script = ""
-document_root = "/nua/app/html"
+# document_root = "/nua/app/html"
 
 [instance]
 # instance contains values suited to be chaned at deploy time for
 # multi-instance deployment. Values here are used by default, i.e. for a single
 # deployment of the app
-port = 5200
+# port = 5200
 # this configuration is for use of a local DB (localhost)
 # thus requiring --add-host=host.docker.internal:host-gateway
-services = "mariadb"
+# services = "mariadb"
 
 [run]
 # parameters passed as a dict to docker run
@@ -46,10 +46,10 @@ services = "mariadb"
 # detach = true mandatory
 
 [[ports]]
-container = 80
+# container = 80
 
 [run_env]
 # parameters passed as a dict to docker run: environment dict
-DB_NAME = "flask_db"
-DB_USER = "bob"
-DB_USER_PWD = "bob_pwd"
+# DB_NAME = "flask_db"
+# DB_USER = "bob"
+# DB_USER_PWD = "bob_pwd"

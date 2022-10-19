@@ -26,7 +26,7 @@ PACKAGES = [
     "libpq-dev",
 ]
 
-PY_PACKAGES = []
+PY_PACKAGES = ["pip", "setuptools"]
 
 
 def configure_apt():
@@ -47,5 +47,5 @@ def main() -> None:
     os.environ["DEBIAN_FRONTEND"] = "noninteractive"
     configure_apt()
     install_package_list(PACKAGES)
-    pip_install(PY_PACKAGES)
+    pip_install(PY_PACKAGES, update=True)
     print_green("Nua: base components are installed.")
