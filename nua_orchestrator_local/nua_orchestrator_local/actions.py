@@ -95,13 +95,54 @@ def install_nodejs(version: str = "16.x", rm_lists: bool = True):
     npm_install("yarn")
 
 
-def pip_install(packages: list | str) -> None:
+def append_bashrc(home: str | Path, content: str):
+    path = Path(home) / ".bashrc"
+    if not path.is_file():
+        raise FileNotFoundError(path)
+    lines = f"# added by Nua script:\n{content}\n\n"
+    with open(path, mode="a", encoding="utf8") as wfile:
+        wfile.write(lines)
+
+
+def install_nodejs_via_nvm(home: Path | str = "/nua"):
+    """Install nodejs (versions recommaended for Frappe/ERPNext)."""
+    node_version_14 = "14.19.3"
+    node_version = "16.18.0"
+    nvm_version = "v0.39.0"
+    nvm_dir = f"{home}/.nvm"
+    install_package_list("wget", rm_lists=False)
+    bashrc_modif = (
+        f'export PATH="{nvm_dir}/versions/node/v{node_version}/bin/:$PATH"\n'
+        f'export NVM_DIR="{nvm_dir}"\n'
+        f'[ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"\n'
+        f'[ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"'
+    )
+    append_bashrc(home, bashrc_modif)
+    os.environ["NVM_DIR"] = ""
+    os.environ["HOME"] = home
+    cmd = (
+        f"wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh "
+        f"| bash  && . {nvm_dir}/nvm.sh "
+        f"&& nvm install {node_version_14} "
+        f"&& nvm use {node_version_14} "
+        "&& npm install -g yarn "
+        f"&& nvm install {node_version} "
+        f"&& nvm use v{node_version} "
+        "&& npm install -g yarn "
+        f"&& nvm alias default v{node_version} "
+        f"&& rm -rf {nvm_dir}/.cache "
+    )
+    sh(cmd, env=os.environ)
+
+
+def pip_install(packages: list | str, update: bool = False) -> None:
     if isinstance(packages, str):
         packages = packages.strip().split()
     if not packages:
         print("pip_install(): nothing to install")
         return
-    cmd = f"python -m pip install {' '.join(packages)}"
+    option = "-U " if update else " "
+    cmd = f"python -m pip install {option}{' '.join(packages)}"
     sh(cmd)
 
 
