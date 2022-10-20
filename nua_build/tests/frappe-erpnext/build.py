@@ -26,25 +26,41 @@ def main():
     # this app requires some packages (for mariadb_config):
     install_package_list(
         [
-            "git",
-            "redis-server",
             "build-essential",
-            "python3-setuptools",
-            "python3-dev",
-            "libffi-dev",
-            "software-properties-common",
             "curl",
-            "wget",
-            "libmariadb3",
-            "libmariadb-dev",
-            "mariadb-client",
-            "xvfb",
+            "git",
+            "libffi-dev",
             "libfontconfig",
-            "wkhtmltopdf",
+            "libmariadb-dev",
+            "libmariadb3",
+            "libmysqlclient-dev",
+            "mariadb-client",
+            "mariadb-server",
             "nodejs",
             "npm",
+            "python3-dev",
+            "python3-distutils",
+            "python3-pip",
+            "python3-setuptools",
+            "python3.10-dev",
+            "python3.10-venv",
+            "redis-server",
+            "software-properties-common",
+            "wget",
+            "wkhtmltopdf",
+            "xvfb",
         ]
     )
+    #
+    #     sh(myql --user=root <<_EOF_
+    # UPDATE mysql.user SET Password=PASSWORD('${db_root_password}') WHERE User='root';
+    # DELETE FROM mysql.user WHERE User='';
+    # DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
+    # DROP DATABASE IF EXISTS test;
+    # DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
+    # FLUSH PRIVILEGES;
+    # _EOF_)
+
     # install_nodejs("16.x")
     sh("npm install -g yarn")
     pip_install(["setuptools", "wheel", "cryptography", "ansible~=2.8.15"])
