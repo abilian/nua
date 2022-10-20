@@ -1,6 +1,8 @@
+import os
+import sys
 from pathlib import Path
 
-REPLACE = Path("~").expanduser() / "REPLACE_DOMAIN"
+REPLACE = Path(__file__).parent / "REPLACE_DOMAIN"
 
 
 def read_changes() -> list:
@@ -19,6 +21,7 @@ def read_changes() -> list:
 
 
 CHANGES = read_changes()
+print(CHANGES)
 
 
 def replace_domain(text: str) -> str:
@@ -28,7 +31,6 @@ def replace_domain(text: str) -> str:
 
 
 def replace_file(src_file: Path, tmp_dir: Path | str) -> Path:
-    print(src_file, tmp_dir)
     dest_file = Path(tmp_dir) / src_file.name
     source = src_file.read_text(encoding="utf8")
     dest_file.write_text(replace_domain(source), encoding="utf8")
@@ -36,4 +38,4 @@ def replace_file(src_file: Path, tmp_dir: Path | str) -> Path:
 
 
 if __name__ == "__main__":
-    return str(replace_file(sys.argv[1], sys.argv[2]))
+    replace_file(Path(sys.argv[1]), sys.argv[2])
