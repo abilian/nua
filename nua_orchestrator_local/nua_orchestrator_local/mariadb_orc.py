@@ -181,7 +181,8 @@ def _mariadb_verify_no_prior_installation() -> bool:
     )
     print_red("    apt purge -y mariadb-server-10.6")
     print_red("    apt autoremove -y")
-    return False
+    print_red("Installation will continue, but some package using Mariadb may fail.")
+    return True
 
 
 def mariadb_check_installed() -> bool:
