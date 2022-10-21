@@ -4,7 +4,8 @@
 - install base packages and configuration
 """
 import os
-import venv
+
+# import venv -> this induce bugs (venv from venv...), prefer direct /usr/bin/python3
 from pathlib import Path
 
 from .. import nua_env
@@ -16,7 +17,7 @@ from ..actions import (
     string_in,
 )
 from ..bash import bash_as_nua
-from ..exec import mp_exec_as_nua
+from ..exec import exec_as_nua, mp_exec_as_nua
 from ..mariadb_orc import bootstrap_install_mariadb, set_random_mariadb_pwd
 from ..nginx_util import install_nginx
 from ..panic import error
@@ -141,6 +142,7 @@ def make_nua_dirs():
 def create_nua_venv():
     print_magenta("Creation of Python virtual environment for 'nua'")
     # assuming we already did check we have python >= 3.10
+    host_python = "/usr/bin/python3"
     vname = "nua310"
     home = nua_env.nua_home_path()
     venv_path = home / vname
@@ -148,8 +150,10 @@ def create_nua_venv():
     if venv_path.is_dir():
         print_red(f"-> Prior {venv_path} found: do nothing")
     os.chdir(home)
-    venv.create(venv_path, with_pip=True)
-    chown_r(venv_path, NUA)
+    # venv.create(venv_path, with_pip=True)
+    cmd = f"{host_python} -m venv {venv_path}"
+    exec_as_nua(cmd, cwd="/home/nua")
+    # chown_r(venv_path, NUA)
     header = "# Nua python virtual env:\n"
     if not string_in(".bashrc", header):
         with open(".bashrc", "a") as bashrc:
@@ -159,7 +163,7 @@ def create_nua_venv():
 
 
 def install_python_packages():
-    for package in ("pip", "setuptools", "poetry"):
+    for package in ("pip", "setuptools", "wheel", "poetry"):
         print_magenta(f"Install {package}")
         cmd = f"python -m pip install -U {package}"
         bash_as_nua(cmd, "/home/nua")
