@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua_orchestrator_local"
-version = "0.4.14"
+version = "0.4.15"
 description = "Nua orchestrator local implementation for Nua v0."
 authors = ["Jerome Dumonteil <jd@abilian.com>"]
 license = "AGPL"
@@ -14,6 +14,7 @@ nua-mariadb-init = "nua_orchestrator_local.scripts.mariadb_restore:app"
 nua-print-instances = "nua_orchestrator_local.scripts.print_instances:main"
 nua-print-volumes = "nua_orchestrator_local.scripts.print_mounted_volumes:main"
 nua-print-ports = "nua_orchestrator_local.scripts.print_used_ports:main"
+nua_test_replace_domain = "nua_build.scripts.test_replace_domain:main"
 
 [tool.poetry.dependencies]
 python = "^3.10"
