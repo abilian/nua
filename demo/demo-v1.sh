@@ -28,7 +28,18 @@ NUA_REPOSITORY="https://github.com/abilian/nua.git"
 BRANCH="main"
 
 cyellow='\033[1;33m'
+cgreen='\033[1;32m'
+ccyan='\033[1;36m'
 cclear='\033[0m'
+
+function echo_yellow {
+    echo -e "${cyellow}$1${cclear}"
+}
+
+function echo_green {
+    echo -e "${cgreen}$1${cclear}"
+}
+
 function yesno {
     echo
     echo -ne "${cyellow} ----> $1 ? (y/n) ${cclear}"; read
@@ -39,7 +50,8 @@ function yesno {
 }
 
 function exe() {
-    echo "\$ $@" ; "$@" ;
+    echo -e "${ccyan}\$ $@${cclear}"
+    "$@"
 }
 
 
@@ -74,8 +86,7 @@ exe sudo apt-get install --no-install-recommends -y ${packages}
 
 [ "${VIRTUAL_ENV}" != "p3nua" ] && [ ! -f "${HOME}/p3nua/bin/activate" ] && {
     echo
-    echo "Installation of nua-build requires some venv python"
-
+    echo_yellow "Installation of nua-build requires some venv python"
     yesno "make venv 'p3nua'" && {
         exe cd ${HOME}
         exe python3.10 -m venv p3nua
@@ -94,7 +105,7 @@ source ${HOME}/p3nua/bin/activate || {
 yesno "git clone nua repository from '${NUA_REPOSITORY}'" && {
     exe mkdir -p "${GIT_LOCAL}"
     exe cd "${GIT_LOCAL}"
-    [ -d "nua" ] && rm -fr nua
+    [ -d "nua" ] && sudo rm -fr nua
     exe git clone ${NUA_REPOSITORY}
     exe cd nua
     exe git checkout ${BRANCH}
@@ -133,26 +144,29 @@ yesno "build all the docker images for nua test (say no)" && {
 
 
 yesno "Important: creation of the account for the orchestrator" && {
-    yesno "Important: removing mariadb and ALL CONTENT (to fix a bug about root password)" && {
+    yesno "option: remove mariadb and ALL CONTENT (to fix a bug about root password)" && {
         sudo apt-get remove --purge  mariadb-server-10.6
     }
     exe cd "${NUA_ORC}"
-    echo "Just to check the warning, than do it again with sudo"
-
-    exe nua-bootstrap
-    exe sudo "${VIRTUAL_ENV}/bin/nua-bootstrap"
+    if [ "$EUID" == "0" ]; then
+        exe nua-bootstrap
+    else
+        exe sudo "${VIRTUAL_ENV}/bin/nua-bootstrap"
+    fi
 }
 
 
-yesno "Demo1: start 2 instances of an app using the local postges server" && {
+yesno "Demo1: start 2 instances of an app using the local postgres server" && {
     path="${HERE}/sample_flask_pg_psyco.toml"
     echo "The following file will be generated from user requirements (domain, db name)"
     echo "and Nua will complete with defaults values."
     echo
-    exe cat "$path"
-    echo
     nua_test_replace_domain "${HERE}/REPLACE_DOMAIN" "${path}" /tmp
     chmod a+r /tmp/sample_flask_pg_psyco.toml
+    echo -e "${cgreen}"
+    cat /tmp/sample_flask_pg_psyco.toml
+    echo -e "${cclear}"
+    echo
     cat <<EOF > /tmp/test.sh
 #!/bin/bash
 export NUA_CERTBOT_STRATEGY="${NUA_CERTBOT_STRATEGY}"
@@ -163,15 +177,17 @@ EOF
 }
 
 
-yesno "Demo2: start 3 instances of an app using the local postges server" && {
+yesno "Demo2: start 3 instances of an app using the local postgres server" && {
     path="${HERE}/sample3_flask_pg_psyco.toml"
     echo "The following file will be generated from user requirements (domain, db name)"
     echo "and Nua will complete with defaults values."
     echo
-    exe cat "$path"
-    echo
     nua_test_replace_domain "${HERE}/REPLACE_DOMAIN" "${path}" /tmp
     chmod a+r /tmp/sample3_flask_pg_psyco.toml
+    echo -e "${cgreen}"
+    cat /tmp/sample3_flask_pg_psyco.toml
+    echo -e "${cclear}"
+    echo
     cat <<EOF > /tmp/test.sh
 #!/bin/bash
 export NUA_CERTBOT_STRATEGY="${NUA_CERTBOT_STRATEGY}"
@@ -182,15 +198,17 @@ EOF
 }
 
 
-yesno "Demo3: start 3 instances of an app using postges and some tmpfs" && {
+yesno "Demo3: start 3 instances of an app using postgres and some tmpfs" && {
     path="${HERE}/sample_flask_pg_tmpfs.toml"
     echo "The following file will be generated from user requirements (domain, db name)"
     echo "and Nua will complete with defaults values."
     echo
-    exe cat "$path"
-    echo
     nua_test_replace_domain "${HERE}/REPLACE_DOMAIN" "${path}" /tmp
     chmod a+r /tmp/sample_flask_pg_tmpfs.toml
+    echo -e "${cgreen}"
+    cat /tmp/sample_flask_pg_tmpfs.toml
+    echo -e "${cclear}"
+    echo
     cat <<EOF > /tmp/test.sh
 #!/bin/bash
 export NUA_CERTBOT_STRATEGY="${NUA_CERTBOT_STRATEGY}"
