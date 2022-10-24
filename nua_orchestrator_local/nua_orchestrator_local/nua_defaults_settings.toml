@@ -49,3 +49,11 @@
 #     host_port = "5010"
 #     volume.path = "/var/tmp/nua/registry/data"
 #     volume.env = "REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY"
+[[services]]
+    name = "postgres"
+    enable=true
+[[services]]
+    name = "postgres-docker"
+    enable=false
+[[services]]
+    name = "mariadb"

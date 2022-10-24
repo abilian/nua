@@ -12,8 +12,7 @@ from string import ascii_letters, digits
 import docker
 import tomli
 
-# from ..postgres import  pg_run_environment
-from .. import config, mariadb_orc, postgres
+from .. import config
 from ..archive_search import ArchiveSearch
 from ..certbot import protocol_prefix, register_certbot_domains
 from ..db import store
@@ -44,6 +43,7 @@ from ..panic import error
 from ..rich_console import print_green, print_magenta, print_red
 from ..search_cmd import search_nua
 from ..server_utils.net_utils import check_port_available
+from ..service_loader import Services
 from ..state import verbosity
 from ..utils import size_to_bytes
 from ..volume_utils import volumes_merge_config
@@ -53,28 +53,266 @@ ALLOW_DOCKER_NAME = set(ascii_letters + digits + "-_.")
 RUN_BASE = {
     "extra_hosts": {"host.docker.internal": "host-gateway"},
 }
-SERVICES_FUNCTIONS = {"alias": {}, "check": {}, "restart": {}, "environ": {}}
-postgres.register_functions(SERVICES_FUNCTIONS)
-mariadb_orc.register_functions(SERVICES_FUNCTIONS)
 
 
-def deploy_nua(app_name: str) -> int:
-    """Search, install and launch Nua image.
+class SitesDeployment:
+    def __init__(self):
+        self.required_services = []
+        self.deploy_sites = {}
+        self.available_services = {}
+        self.orig_mounted_volumes = []
+        self.sites = []
 
-    (from local registry for now.)"""
-    # if app_name.endswith(".toml") and Path(app_name).is_file():
-    #     return deploy_nua_sites(app_name)
-    if verbosity(2):
-        print_magenta(f"image: '{app_name}'")
-    results = search_nua(app_name)
-    if not results:
-        error(f"No image found for '{app_name}'.")
-    # ensure docker is running
-    docker_service_start_if_needed()
-    # images are sorted by version, take the last one:
-    image_id, image_nua_config = install_image(results[-1])
-    deploy_image(image_id, image_nua_config)
-    return 0
+    def load_available_services(self):
+        # assuming db_setup was run at initialization of the command
+        services = Services()
+        services.load()
+        self.available_services = services.loaded
+        if verbosity(2):
+            print_magenta(
+                f"Available services: {pformat(list(services.loaded.keys()))}"
+            )
+
+    def load_deploy_config(self, deploy_config: str):
+        config_path = Path(deploy_config).expanduser().resolve()
+        if verbosity(1):
+            print_magenta(f"Deploy sites from: {config_path}")
+        deploy_sites = tomli.loads(config_path.read_text())
+        normalize_deploy_sites(deploy_sites)
+        ports_convert_to_dict_sites(deploy_sites)
+        self.deploy_sites = deploy_sites
+        self.host_list = sort_per_host(deploy_sites)
+
+    def install_required_images(self):
+        # first: check that all images are available:
+        if not self.find_all_images():
+            error("Missing images")
+        self.install_images()
+
+    def find_all_images(self) -> bool:
+        images_found = set()
+        for site in self.deploy_sites["site"]:
+            image_str = site["image"]
+            if image_str in images_found:
+                continue
+            results = search_nua(image_str)
+            if not results:
+                print_red(f"No image found for '{image_str}'.")
+                return False
+            images_found.add(image_str)
+            if verbosity(1):
+                print_red(f"image found: '{image_str}'.")
+        return True
+
+    def install_images(self):
+        # ensure docker is running
+        docker_service_start_if_needed()
+        installed = {}
+        for site in self.deploy_sites["site"]:
+            image_str = site["image"]
+            results = search_nua(image_str)
+            if not results:
+                error(f"No image found for '{image_str}'. Exiting.")
+            img_path = results[-1]  # results are sorted by version, take higher
+            if img_path in installed:
+                image_id = installed[img_path][0]
+                image_nua_config = deepcopy(installed[img_path][1])
+            else:
+                image_id, image_nua_config = install_image(img_path)
+                installed[img_path] = (image_id, image_nua_config)
+            site["image_id"] = image_id
+            site["image_nua_config"] = image_nua_config
+
+    def deactivate_all_sites(self):
+        """Find all instance in DB
+        - remove container if exists
+        - remove site from DB
+        """
+        self.orig_mounted_volumes = store.list_instances_container_active_volumes()
+        instances = store.list_instances_all()
+        for instance in instances:
+            if verbosity(2):
+                print(
+                    f"Removing from containers and DB: "
+                    f"'{instance.app_id}' instance on '{instance.domain}'"
+                )
+            docker_remove_container_db(instance.domain)
+
+    def configure_deployment(self):
+        self.generate_ports()
+        self.configure_nginx()
+        self.sites = host_list_to_sites(self.host_list)
+        if verbosity(2):
+            print("'sites':\n", pformat(self.sites))
+        register_certbot_domains(self.sites)
+        self.check_services()
+        self.restart_services()
+
+    def check_services(self):
+        for site in self.sites:
+            for service in self._required_services(site):
+                handler = self.available_services[service]
+                if not handler.check_site_configuration(site):
+                    print_red(
+                        f"Service '{service}': configuration problem for '{site['image']}'"
+                    )
+
+    def restart_services(self):
+        reboots = set()
+        for site in self.sites:
+            reboots.update(self._required_services(site))
+        if verbosity(2):
+            if reboots:
+                print("Services to restart:", pformat(reboots))
+            else:
+                print("Services to restart: None")
+        for service in reboots:
+            handler = self.available_services[service]
+            handler.restart()
+
+    def configure_nginx(self):
+        clean_nua_nginx_default_site()
+        for host in self.host_list:
+            if verbosity(1):
+                print_magenta(f"Configure Nginx for hostname '{host['hostname']}'")
+            configure_nginx_hostname(host)
+
+    def generate_ports(self):
+        start_ports = config.read("nua", "ports", "start") or 8100
+        end_ports = config.read("nua", "ports", "end") or 9000
+        if verbosity(4):
+            print(
+                f"generate_ports(): auto addresses in interval {start_ports} to {end_ports}"
+            )
+        # all sites from all hosts:
+        site_list = [site for host in self.host_list for site in host["sites"]]
+        _update_ports_from_nua_config(site_list)
+        configured_ports = _configured_ports(site_list)
+        if verbosity(4):
+            print(f"generate_ports(): {configured_ports=}")
+        # list of ports used for domains / sites, trying to keep them unchanged
+        ports_instances_domains = store.ports_instances_domains()
+        if verbosity(4):
+            print(f"generate_ports(): {ports_instances_domains=}")
+        configured_ports.update(ports_instances_domains)
+        if verbosity(3):
+            print(f"generate_ports() used ports:\n {configured_ports=}")
+        for site in site_list:
+            _generate_host_port(site, start_ports, end_ports, configured_ports)
+
+    def start_sites(self):
+        for site in self.sites:
+            self.start_one_container(site)
+            self.store_container_instance(site)
+        chown_r_nua_nginx()
+        nginx_restart()
+
+    def start_one_container(self, site: dict):
+        run_params = self.generate_container_run_parameters(site)
+        if verbosity(4):
+            print(f"start_one_container(): {run_params=}")
+        # volumes need to be mounted before beeing passed as arguments to
+        # docker.run()
+        mounted_volumes = mount_volumes(site)
+        if mounted_volumes:
+            run_params["mounts"] = mounted_volumes
+        site["run_params"] = run_params
+        docker_run(site)
+        if mounted_volumes:
+            site["run_params"]["mounts"] = True
+        if verbosity(1):
+            print_magenta(f"    -> run new container         '{site['container']}'")
+
+    def store_container_instance(self, site):
+        meta = site["image_nua_config"]["metadata"]
+        store.store_instance(
+            app_id=meta["id"],
+            nua_tag=store.nua_tag_string(meta),
+            domain=site["domain"],
+            container=site["container"],
+            image=site["image"],
+            state=RUNNING,
+            site_config=site,
+        )
+
+    def generate_container_run_parameters(self, site: dict):
+        """Return suitable parameters for the docker.run() command."""
+        image_nua_config = site["image_nua_config"]
+        run_params = deepcopy(RUN_BASE)
+        docker_default_run = config.read("nua", "docker_default_run")
+        if verbosity(4):
+            print(f"generate_container_run_parameters(): {docker_default_run=}")
+        run_params.update(docker_default_run)
+        run_params.update(image_nua_config.get("run", {}))
+        add_host_gateway(run_params)
+        run_params["name"] = _run_parameters_container_name(site)
+        run_params["ports"] = _run_parameters_container_ports(site)
+        run_params["environment"] = self.run_parameters_container_environment(site)
+        return run_params
+
+    def run_parameters_container_environment(self, site: dict) -> dict:
+        image_nua_config = site["image_nua_config"]
+        run_env = image_nua_config.get("run_env", {})
+        run_env.update(self.services_environment(site))
+        run_env.update(site.get("run_env", {}))
+        return run_env
+
+    def services_environment(self, site: dict) -> dict:
+        run_env = {}
+        for service in self._required_services(site):
+            handler = self.available_services[service]
+            # function may need or not site param:
+            run_env.update(handler.environment(site))
+        return run_env
+
+    def _required_services(self, site: dict) -> set:
+        image_nua_config = site["image_nua_config"]
+        services = image_nua_config.get("instance", {}).get("services")
+        if not services:
+            return set()
+        if isinstance(services, str):
+            services = [services]
+        set_services = set(services)
+        # filter alias if needed:
+        for name, handler in self.available_services.items():
+            for alias in handler.aliases():
+                if alias in set_services:
+                    set_services.discard(alias)
+                    set_services.add(name)
+        return set_services
+
+    def display_final(self):
+        self.display_deployed()
+        self.display_used_volumes()
+        self.display_unused_volumes()
+
+    def display_deployed(self):
+        protocol = protocol_prefix()
+        for site in self.sites:
+            msg = f"image '{site['image']}' deployed as {protocol}{site['domain']}"
+            print_green(msg)
+
+    def display_used_volumes(self):
+        if not verbosity(1):
+            return
+        current_mounted = store.list_instances_container_active_volumes()
+        if not current_mounted:
+            return
+        print_green("Volumes used by current Nua configuration:")
+        for volume in current_mounted:
+            volume_print(volume)
+
+    def display_unused_volumes(self):
+        if not verbosity(1):
+            return
+        unused = unused_volumes(self.orig_mounted_volumes)
+        if not unused:
+            return
+        print_green(
+            "Some volumes are mounted but not used by current Nua configuration:"
+        )
+        for volume in unused:
+            volume_print(volume)
 
 
 def install_image(image_path: str | Path) -> tuple:
@@ -108,17 +346,6 @@ def install_image(image_path: str | Path) -> tuple:
         print_green("Intalled image:")
         display_one_docker_img(loaded_img)
     return loaded_img.id, image_nua_config
-
-
-def deploy_image(image_id: str, image_nua_config: dict):
-    # here will used core functions of the orchestrator
-    # - see if image is already deployed
-    # - see if image got specific deploy configuration
-    # - build specifc config for nginx and others
-    # - build docker run command
-    # - finally execute docker command
-    print("No implemented")
-    pass
 
 
 def _update_ports_from_nua_config(site_list: list):
@@ -187,30 +414,6 @@ def _configured_ports_used_ports(ports: dict) -> set[int]:
     return used
 
 
-def generate_ports(host_list: list):
-    start_ports = config.read("nua", "ports", "start") or 8100
-    end_ports = config.read("nua", "ports", "end") or 9000
-    if verbosity(4):
-        print(
-            f"generate_ports(): auto addresses in interval {start_ports} to {end_ports}"
-        )
-    # all sites from all hosts:
-    site_list = [site for host in host_list for site in host["sites"]]
-    _update_ports_from_nua_config(site_list)
-    configured_ports = _configured_ports(site_list)
-    if verbosity(4):
-        print(f"generate_ports(): {configured_ports=}")
-    # list of ports used for domains / sites, trying to keep them unchanged
-    ports_instances_domains = store.ports_instances_domains()
-    if verbosity(4):
-        print(f"generate_ports(): {ports_instances_domains=}")
-    configured_ports.update(ports_instances_domains)
-    if verbosity(3):
-        print(f"generate_ports() used ports:\n {configured_ports=}")
-    for site in site_list:
-        _generate_host_port(site, start_ports, end_ports, configured_ports)
-
-
 def _find_free_port(start_ports: int, end_ports: int, used: set) -> int:
     # O(n2), but very few ports to configure
     for port in range(start_ports, end_ports):
@@ -236,42 +439,6 @@ def _generate_host_port(
             host_port = host
         configured_ports.add(host_port)
         port["host_port"] = host_port
-
-
-def install_images(sites: list):
-    # ensure docker is running
-    docker_service_start_if_needed()
-    installed = {}
-    for site in sites["site"]:
-        image_str = site["image"]
-        results = search_nua(image_str)
-        if not results:
-            error(f"No image found for '{image_str}'. Exiting.")
-        img_path = results[-1]  # results are sorted by version, take higher
-        if img_path in installed:
-            image_id = installed[img_path][0]
-            image_nua_config = deepcopy(installed[img_path][1])
-        else:
-            image_id, image_nua_config = install_image(img_path)
-            installed[img_path] = (image_id, image_nua_config)
-        site["image_id"] = image_id
-        site["image_nua_config"] = image_nua_config
-
-
-def find_all_images(deploy_sites: dict) -> bool:
-    images_found = set()
-    for site in deploy_sites["site"]:
-        image_str = site["image"]
-        if image_str in images_found:
-            continue
-        results = search_nua(image_str)
-        if not results:
-            print_red(f"No image found for '{image_str}'.")
-            return False
-        images_found.add(image_str)
-        if verbosity(1):
-            print_red(f"image found: '{image_str}'.")
-    return True
 
 
 def create_docker_volumes(volumes_config):
@@ -363,77 +530,6 @@ def _run_parameters_container_ports(site: dict) -> dict:
     return cont_ports
 
 
-def services_environment(site: dict) -> dict:
-    run_env = {}
-    for service in _required_services(site):
-        environ_function = SERVICES_FUNCTIONS["environ"].get(service)
-        if not environ_function:
-            continue
-        # function may need or not site param:
-        run_env.update(environ_function(site))
-    return run_env
-
-
-def _run_parameters_container_environment(site: dict) -> dict:
-    image_nua_config = site["image_nua_config"]
-    run_env = image_nua_config.get("run_env", {})
-    run_env.update(services_environment(site))
-    run_env.update(site.get("run_env", {}))
-    return run_env
-
-
-def generate_container_run_parameters(site: dict):
-    """Return suitable parameters for the docker.run() command."""
-    image_nua_config = site["image_nua_config"]
-    run_params = deepcopy(RUN_BASE)
-    docker_default_run = config.read("nua", "docker_default_run")
-    if verbosity(4):
-        print(f"generate_container_run_parameters(): {docker_default_run=}")
-    run_params.update(docker_default_run)
-    run_params.update(image_nua_config.get("run", {}))
-    add_host_gateway(run_params)
-    run_params["name"] = _run_parameters_container_name(site)
-    run_params["ports"] = _run_parameters_container_ports(site)
-    run_params["environment"] = _run_parameters_container_environment(site)
-    return run_params
-
-
-def start_containers(sites: list):
-    for site in sites:
-        start_one_container(site)
-        store_container_instance(site)
-
-
-def start_one_container(site: dict):
-    run_params = generate_container_run_parameters(site)
-    if verbosity(4):
-        print(f"start_one_container(): {run_params=}")
-    # volumes need to be mounted before beeing passed as arguments to
-    # docker.run()
-    mounted_volumes = mount_volumes(site)
-    if mounted_volumes:
-        run_params["mounts"] = mounted_volumes
-    site["run_params"] = run_params
-    docker_run(site)
-    if mounted_volumes:
-        site["run_params"]["mounts"] = True
-    if verbosity(1):
-        print_magenta(f"    -> run new container         '{site['container']}'")
-
-
-def store_container_instance(site):
-    meta = site["image_nua_config"]["metadata"]
-    store.store_instance(
-        app_id=meta["id"],
-        nua_tag=store.nua_tag_string(meta),
-        domain=site["domain"],
-        container=site["container"],
-        image=site["image"],
-        state=RUNNING,
-        site_config=site,
-    )
-
-
 def unused_volumes(orig_mounted_volumes: list) -> list:
     current_mounted = store.list_instances_container_active_volumes()
     current_sources = {vol["source"] for vol in current_mounted}
@@ -445,28 +541,6 @@ def unmount_unused_volumes(orig_mounted_volumes: list):
         docker_volume_prune(unused)
 
 
-def display_used_volumes():
-    if not verbosity(1):
-        return
-    current_mounted = store.list_instances_container_active_volumes()
-    if not current_mounted:
-        return
-    print_green("Volumes used by current Nua configuration:")
-    for volume in current_mounted:
-        volume_print(volume)
-
-
-def display_unused_volumes(orig_mounted_volumes: list):
-    if not verbosity(1):
-        return
-    unused = unused_volumes(orig_mounted_volumes)
-    if not unused:
-        return
-    print_green("Some volumes are mounted but not used by current Nua configuration:")
-    for volume in unused:
-        volume_print(volume)
-
-
 def volume_print(volume: dict):
     lst = ["  "]
     lst.append("type={type}, ".format(**volume))
@@ -476,21 +550,6 @@ def volume_print(volume: dict):
     if "-> domains" in volume:
         lst.append("\n  domains: " + ", ".join(volume["domains"]))
     print("".join(lst))
-
-
-def deactivate_all_sites():
-    """Find all instance in DB
-    - remove container if exists
-    - remove site from DB
-    """
-    instances = store.list_instances_all()
-    for instance in instances:
-        if verbosity(2):
-            print(
-                f"Removing from containers and DB: "
-                f"'{instance.app_id}' instance on '{instance.domain}'"
-            )
-        docker_remove_container_db(instance.domain)
 
 
 def stop_previous_containers(sites: list):
@@ -683,97 +742,14 @@ def host_list_to_sites(host_list: list) -> list:
     return sites_list
 
 
-def display_deployed(sites: list):
-    protocol = protocol_prefix()
-    for site in sites:
-        msg = f"image '{site['image']}' deployed as {protocol}{site['domain']}"
-        print_green(msg)
-
-
-def _required_services(site: dict) -> set:
-    image_nua_config = site["image_nua_config"]
-    services = image_nua_config.get("instance", {}).get("services")
-    if not services:
-        return set()
-    if isinstance(services, str):
-        services = [services]
-    set_services = set(services)
-    # filter alias if needed:
-    for alias, name in SERVICES_FUNCTIONS["alias"].items():
-        if alias in set_services:
-            set_services.discard(alias)
-            set_services.add(name)
-    return set_services
-
-
-def check_services(sites):
-    for site in sites:
-        for service in _required_services(site):
-            check_function = SERVICES_FUNCTIONS["check"].get(service)
-            if not check_function:
-                continue
-            if not check_function(site):
-                print_red(
-                    f"Service '{service}': configuration problem for '{site['image']}'"
-                )
-
-
-def restart_services(sites):
-    reboots = set()
-    for site in sites:
-        reboots.update(_required_services(site))
-    if verbosity(2):
-        if reboots:
-            print("Services to restart:", pformat(reboots))
-        else:
-            print("Services to restart: None")
-    for service in reboots:
-        restart_function = SERVICES_FUNCTIONS["restart"].get(service)
-        if restart_function:
-            restart_function()
-
-
-def service_requirements(sites: list):
-    check_services(sites)
-    restart_services(sites)
-
-
-def configure_nginx(host_list: list):
-    clean_nua_nginx_default_site()
-    for host in host_list:
-        if verbosity(1):
-            print_magenta(f"Configure Nginx for hostname '{host['hostname']}'")
-        configure_nginx_hostname(host)
-
-
 def deploy_nua_sites(deploy_config: str) -> int:
-    config_path = Path(deploy_config).expanduser().resolve()
-    if verbosity(1):
-        print_magenta(f"Deploy sites from: {config_path}")
-    with open(config_path, mode="rb") as rfile:
-        deploy_sites = tomli.load(rfile)
-    normalize_deploy_sites(deploy_sites)
-    ports_convert_to_dict_sites(deploy_sites)
-    # first: check that all images are available:
-    if not find_all_images(deploy_sites):
-        error("Missing images")
-    install_images(deploy_sites)
-    host_list = sort_per_host(deploy_sites)
+    deployer = SitesDeployment()
+    deployer.load_available_services()
+    deployer.load_deploy_config(deploy_config)
+    deployer.install_required_images()
     if verbosity(3):
-        print("'host_list':\n", pformat(host_list))
-    orig_mounted_volumes = store.list_instances_container_active_volumes()
-    deactivate_all_sites()
-    generate_ports(host_list)
-    configure_nginx(host_list)
-    sites = host_list_to_sites(host_list)
-    if verbosity(2):
-        print("'sites':\n", pformat(sites))
-    register_certbot_domains(sites)
-    service_requirements(sites)
-    start_containers(sites)
-    # unmount_unused_volumes(orig_mounted_volumes)
-    chown_r_nua_nginx()
-    nginx_restart()
-    display_deployed(sites)
-    display_used_volumes()
-    display_unused_volumes(orig_mounted_volumes)
+        print("'host_list':\n", pformat(deployer.host_list))
+    deployer.deactivate_all_sites()
+    deployer.configure_deployment()
+    deployer.start_sites()
+    deployer.display_final()

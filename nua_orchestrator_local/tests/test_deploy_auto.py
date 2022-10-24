@@ -10,13 +10,13 @@ import tomli
 from typer.testing import CliRunner
 
 from nua_orchestrator_local.main import app
-
-from .replace_domain import replace_file
+from nua_orchestrator_local.scripts.test_replace_domain import replace_file
 
 runner = CliRunner()
 
 DEPLOY_CONFIGS = Path(__file__).parent / "deploy_configs"
 DEPLOY_AUTO_FILES = sorted((Path(__file__).parent / "deploy_auto_check").glob("*.toml"))
+REPLACE_DOMAIN = Path(__file__).parent / "REPLACE_DOMAIN"
 
 os.environ["NUA_CERTBOT_TEST"] = "1"
 os.environ["NUA_CERTBOT_VERBOSE"] = "1"
@@ -122,7 +122,7 @@ def test_deploy_sites(deploy_file: Path):
     print("\n" + "-" * 40)
     print(f"test config: {deploy_file.name}")
     with tempfile.TemporaryDirectory(dir="/tmp") as tmp_dir:
-        new_file = replace_file(deploy_file, tmp_dir)
+        new_file = replace_file(REPLACE_DOMAIN, deploy_file, tmp_dir)
 
         result = runner.invoke(app, f"deploy -vv {new_file}")
         print(result.stdout)

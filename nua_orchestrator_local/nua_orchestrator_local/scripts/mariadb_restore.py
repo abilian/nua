@@ -4,7 +4,7 @@
 """
 import typer
 
-from ..mariadb_orc import set_random_mariadb_pwd
+from ..mariadb_utils import set_random_mariadb_pwd
 from ..rich_console import print_green, print_red
 
 # option_pwd = typer.Option(..., prompt=True, confirmation_prompt=True, hide_input=True)

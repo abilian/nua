@@ -8,8 +8,9 @@ import typer
 
 from . import __version__
 from .actions import check_python_version
-from .commands.deploy import deploy_nua, deploy_nua_sites
-from .db.store import list_all_settings
+from .commands.deploy import deploy_nua_sites
+from .commands.deploy_nua import deploy_nua
+from .db.store import installed_nua_settings, list_all_settings
 
 # setup_db() does create the db if needed and also populate the configuration
 # from both db values and default parameters
@@ -115,6 +116,13 @@ def show_db_settings():
     """Debug: show settings in db."""
     initialization()
     print(pformat(list_all_settings()))
+
+
+@app.command("show_nua_settings")
+def show_nua_settings():
+    """Debug: show Nua orchestrator settings in db."""
+    initialization()
+    print(pformat(installed_nua_settings()))
 
 
 @app.callback(invoke_without_command=True)

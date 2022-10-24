@@ -23,18 +23,6 @@ RE_LISTEN = re.compile(r"\s*listen_addresses\s*=(.*)$")
 NUA_PG_PWD_FILE = ".postgres_pwd"  # noqa S105
 
 
-def register_functions(book: dict):
-    """Register plugin function of postgres in Nua orchestrator playbook."""
-    # aliases:
-    book["alias"]["postgresql"] = "postgres"
-    # check service
-    book["check"]["postgres"] = pg_check_listening
-    # restart service
-    book["restart"]["postgres"] = pg_restart_service
-    # environment variables provider:
-    book["environ"]["postgres"] = pg_run_environment
-
-
 def postgres_pwd() -> str:
     """Return the 'postgres' user DB password.
       - When used in container context, the env variable NUA_POSTGRES_PASSWORD should
@@ -170,7 +158,7 @@ def _pg_check_std_port() -> bool:
     return False
 
 
-def pg_check_listening(_unused_site: dict) -> bool:
+def pg_check_listening(_unused_site: dict | None = None) -> bool:
     """Check at deploy time that the postgres daemon is listening on the gateway port
     of the docker service (ip passed as parameter).
 

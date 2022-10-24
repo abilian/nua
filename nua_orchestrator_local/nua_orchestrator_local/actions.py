@@ -108,7 +108,7 @@ def install_nodejs_via_nvm(home: Path | str = "/nua"):
     """Install nodejs (versions recommaended for Frappe/ERPNext)."""
     node_version_14 = "14.19.3"
     node_version = "16.18.0"
-    nvm_version = "v0.39.0"
+    # nvm_version = "v0.39.0"
     nvm_dir = f"{home}/.nvm"
     install_package_list("wget", rm_lists=False)
     bashrc_modif = (
