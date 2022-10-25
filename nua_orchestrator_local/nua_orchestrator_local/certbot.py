@@ -33,7 +33,7 @@ def register_certbot_domains(sites: list):
     """
     tops = {}
     for site in sites:
-        hostname = site["hostname"]
+        hostname = site.hostname
         # hostname is "www.exemple.com"
         # -> top domain is "exemple.com"
         top_domain = ".".join(hostname.split(".")[-2:])

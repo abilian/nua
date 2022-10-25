@@ -33,17 +33,13 @@ from ..nginx_util import (
     configure_nginx_hostname,
     nginx_restart,
 )
-from ..normalize_parameters import (
-    normalize_deploy_sites,
-    normalize_ports,
-    ports_convert_to_dict,
-    ports_convert_to_dict_sites,
-)
 from ..panic import error
+from ..port_normalization import normalize_ports, ports_as_dict
 from ..rich_console import print_green, print_magenta, print_red
 from ..search_cmd import search_nua
 from ..server_utils.net_utils import check_port_available
 from ..service_loader import Services
+from ..site import Site
 from ..state import verbosity
 from ..utils import size_to_bytes
 from ..volume_utils import volumes_merge_config
@@ -59,6 +55,7 @@ class SitesDeployment:
     def __init__(self):
         self.required_services = []
         self.deploy_sites = {}
+        self.host_list = []
         self.available_services = {}
         self.orig_mounted_volumes = []
         self.sites = []
@@ -77,11 +74,26 @@ class SitesDeployment:
         config_path = Path(deploy_config).expanduser().resolve()
         if verbosity(1):
             print_magenta(f"Deploy sites from: {config_path}")
-        deploy_sites = tomli.loads(config_path.read_text())
-        normalize_deploy_sites(deploy_sites)
-        ports_convert_to_dict_sites(deploy_sites)
-        self.deploy_sites = deploy_sites
-        self.host_list = sort_per_host(deploy_sites)
+        deploy_sites_config = tomli.loads(config_path.read_text())
+        self.deploy_sites = self.build_deploy_sites(deploy_sites_config)
+        self.host_list = self.build_host_list()
+
+    def build_deploy_sites(self, deploy_sites_config: dict):
+        """Check config syntax, replace missing informations by defaults."""
+        sites = []
+        for site_dict in deploy_sites_config["site"]:
+            if not isinstance(site_dict, dict):
+                raise ValueError(f"Site configuration must be a dict: '{site_dict}'")
+            site = Site(site_dict)
+            site.check_valid()
+            site.set_ports_as_dict()
+            sites.append(site)
+        return sites
+
+    def build_host_list(self) -> list:
+        host_list = _make_host_list(_sites_per_host(self.deploy_sites))
+        _classify_located_sites(host_list)
+        return host_list
 
     def install_required_images(self):
         # first: check that all images are available:
@@ -91,29 +103,28 @@ class SitesDeployment:
 
     def find_all_images(self) -> bool:
         images_found = set()
-        for site in self.deploy_sites["site"]:
-            image_str = site["image"]
-            if image_str in images_found:
+        for site in self.deploy_sites:
+            if site.image in images_found:
                 continue
-            results = search_nua(image_str)
+            results = search_nua(site.image)
             if not results:
-                print_red(f"No image found for '{image_str}'.")
+                print_red(f"No image found for '{site.image}'.")
                 return False
-            images_found.add(image_str)
+            images_found.add(site.image)
             if verbosity(1):
-                print_red(f"image found: '{image_str}'.")
+                print_red(f"image found: '{site.image}'.")
         return True
 
     def install_images(self):
         # ensure docker is running
         docker_service_start_if_needed()
         installed = {}
-        for site in self.deploy_sites["site"]:
-            image_str = site["image"]
-            results = search_nua(image_str)
+        for site in self.deploy_sites:
+            results = search_nua(site.image)
             if not results:
-                error(f"No image found for '{image_str}'. Exiting.")
-            img_path = results[-1]  # results are sorted by version, take higher
+                error(f"No image found for '{site.image}'. Exiting.")
+            # results are sorted by version, take higher:
+            img_path = results[-1]
             if img_path in installed:
                 image_id = installed[img_path][0]
                 image_nua_config = deepcopy(installed[img_path][1])
@@ -121,7 +132,7 @@ class SitesDeployment:
                 image_id, image_nua_config = install_image(img_path)
                 installed[img_path] = (image_id, image_nua_config)
             site["image_id"] = image_id
-            site["image_nua_config"] = image_nua_config
+            site.image_nua_config = image_nua_config
 
     def deactivate_all_sites(self):
         """Find all instance in DB
@@ -139,9 +150,9 @@ class SitesDeployment:
             docker_remove_container_db(instance.domain)
 
     def configure_deployment(self):
+        self.sites = host_list_to_sites(self.host_list)
         self.generate_ports()
         self.configure_nginx()
-        self.sites = host_list_to_sites(self.host_list)
         if verbosity(2):
             print("'sites':\n", pformat(self.sites))
         register_certbot_domains(self.sites)
@@ -150,17 +161,18 @@ class SitesDeployment:
 
     def check_services(self):
         for site in self.sites:
-            for service in self._required_services(site):
+            site.normalize_required_services(self.available_services)
+            for service in site.required_services:
                 handler = self.available_services[service]
                 if not handler.check_site_configuration(site):
                     print_red(
-                        f"Service '{service}': configuration problem for '{site['image']}'"
+                        f"Service '{service}': configuration problem for '{site.image}'"
                     )
 
     def restart_services(self):
         reboots = set()
         for site in self.sites:
-            reboots.update(self._required_services(site))
+            reboots.update(site.required_services)
         if verbosity(2):
             if reboots:
                 print("Services to restart:", pformat(reboots))
@@ -184,10 +196,8 @@ class SitesDeployment:
             print(
                 f"generate_ports(): auto addresses in interval {start_ports} to {end_ports}"
             )
-        # all sites from all hosts:
-        site_list = [site for host in self.host_list for site in host["sites"]]
-        _update_ports_from_nua_config(site_list)
-        configured_ports = _configured_ports(site_list)
+        update_ports_from_nua_config(self.sites)
+        configured_ports = _configured_ports(self.sites)
         if verbosity(4):
             print(f"generate_ports(): {configured_ports=}")
         # list of ports used for domains / sites, trying to keep them unchanged
@@ -197,7 +207,7 @@ class SitesDeployment:
         configured_ports.update(ports_instances_domains)
         if verbosity(3):
             print(f"generate_ports() used ports:\n {configured_ports=}")
-        for site in site_list:
+        for site in self.sites:
             _generate_host_port(site, start_ports, end_ports, configured_ports)
 
     def start_sites(self):
@@ -207,7 +217,7 @@ class SitesDeployment:
         chown_r_nua_nginx()
         nginx_restart()
 
-    def start_one_container(self, site: dict):
+    def start_one_container(self, site: Site):
         run_params = self.generate_container_run_parameters(site)
         if verbosity(4):
             print(f"start_one_container(): {run_params=}")
@@ -216,28 +226,28 @@ class SitesDeployment:
         mounted_volumes = mount_volumes(site)
         if mounted_volumes:
             run_params["mounts"] = mounted_volumes
-        site["run_params"] = run_params
+        site.run_params = run_params
         docker_run(site)
         if mounted_volumes:
-            site["run_params"]["mounts"] = True
+            site.run_params["mounts"] = True
         if verbosity(1):
             print_magenta(f"    -> run new container         '{site['container']}'")
 
     def store_container_instance(self, site):
-        meta = site["image_nua_config"]["metadata"]
+        meta = site.image_nua_config["metadata"]
         store.store_instance(
             app_id=meta["id"],
             nua_tag=store.nua_tag_string(meta),
-            domain=site["domain"],
+            domain=site.domain,
             container=site["container"],
-            image=site["image"],
+            image=site.image,
             state=RUNNING,
-            site_config=site,
+            site_config=dict(site),
         )
 
-    def generate_container_run_parameters(self, site: dict):
+    def generate_container_run_parameters(self, site: Site):
         """Return suitable parameters for the docker.run() command."""
-        image_nua_config = site["image_nua_config"]
+        image_nua_config = site.image_nua_config
         run_params = deepcopy(RUN_BASE)
         docker_default_run = config.read("nua", "docker_default_run")
         if verbosity(4):
@@ -250,36 +260,20 @@ class SitesDeployment:
         run_params["environment"] = self.run_parameters_container_environment(site)
         return run_params
 
-    def run_parameters_container_environment(self, site: dict) -> dict:
-        image_nua_config = site["image_nua_config"]
+    def run_parameters_container_environment(self, site: Site) -> dict:
+        image_nua_config = site.image_nua_config
         run_env = image_nua_config.get("run_env", {})
         run_env.update(self.services_environment(site))
-        run_env.update(site.get("run_env", {}))
+        run_env.update(site.run_env)
         return run_env
 
-    def services_environment(self, site: dict) -> dict:
+    def services_environment(self, site: Site) -> dict:
         run_env = {}
-        for service in self._required_services(site):
+        for service in site.required_services:
             handler = self.available_services[service]
             # function may need or not site param:
             run_env.update(handler.environment(site))
         return run_env
-
-    def _required_services(self, site: dict) -> set:
-        image_nua_config = site["image_nua_config"]
-        services = image_nua_config.get("instance", {}).get("services")
-        if not services:
-            return set()
-        if isinstance(services, str):
-            services = [services]
-        set_services = set(services)
-        # filter alias if needed:
-        for name, handler in self.available_services.items():
-            for alias in handler.aliases():
-                if alias in set_services:
-                    set_services.discard(alias)
-                    set_services.add(name)
-        return set_services
 
     def display_final(self):
         self.display_deployed()
@@ -289,7 +283,7 @@ class SitesDeployment:
     def display_deployed(self):
         protocol = protocol_prefix()
         for site in self.sites:
-            msg = f"image '{site['image']}' deployed as {protocol}{site['domain']}"
+            msg = f"image '{site.image}' deployed as {protocol}{site.domain}"
             print_green(msg)
 
     def display_used_volumes(self):
@@ -348,7 +342,7 @@ def install_image(image_path: str | Path) -> tuple:
     return loaded_img.id, image_nua_config
 
 
-def _update_ports_from_nua_config(site_list: list):
+def update_ports_from_nua_config(site_list: list):
     """If port not declared in site config, use image definition.
 
     Merge ports modifications from site config with image config.
@@ -359,18 +353,21 @@ def _update_ports_from_nua_config(site_list: list):
         if verbosity(5):
             print("..............................")
             print(f"_update_ports_from_nua_config(): site={pformat(site)}")
-        image_nua_config = deepcopy(site["image_nua_config"])
-        normalize_ports(image_nua_config)
-        ports_convert_to_dict(image_nua_config)
+        _site_update_ports_from_nua_config(site)
         if verbosity(5):
-            print(
-                f"_update_ports_from_nua_config(): image_nua_config={pformat(image_nua_config)}"
-            )
-        ports = image_nua_config["ports"]  # a dict
-        ports.update(site["ports"])
-        site["ports"] = ports
-        if verbosity(5):
-            print(f"_update_ports_from_nua_config(): ports={pformat(ports)}")
+            print(f"_update_ports_from_nua_config(): ports={pformat(site.ports)}")
+
+
+def _site_update_ports_from_nua_config(site: Site):
+    image_nua_config_ports = deepcopy(site.image_nua_config.get("ports", []))
+    if not isinstance(image_nua_config_ports, list):
+        raise ValueError("Site['ports'] must be a list")
+    normalize_ports(image_nua_config_ports)
+    ports = ports_as_dict(image_nua_config_ports)
+    if verbosity(5):
+        print(f"_update_ports_from_nua_config(): ports={pformat(ports)}")
+    ports.update(site.ports)
+    site.ports = ports
 
 
 def _configured_ports(site_list: list) -> set[int]:
@@ -392,9 +389,8 @@ def _configured_ports(site_list: list) -> set[int]:
     """
     used = set()
     for site in site_list:
-        ports = site["ports"]
         try:
-            used.update(_configured_ports_used_ports(ports))
+            used.update(_configured_ports_used_ports(site.ports))
         except (ValueError, IndexError) as e:
             print_red("Error for site config:", e)
             print(pformat(site))
@@ -423,15 +419,14 @@ def _find_free_port(start_ports: int, end_ports: int, used: set) -> int:
 
 
 def _generate_host_port(
-    site: dict, start_ports: int, end_ports: int, configured_ports: set
+    site: Site, start_ports: int, end_ports: int, configured_ports: set
 ):
     """
     Update site dict with auto generated ports.
     """
-    ports = site["ports"]  # a dict
-    if not ports:
+    if not site.ports:
         return
-    for port in ports.values():
+    for port in site.ports.values():
         host = port["host"]
         if host == "auto":
             host_port = _find_free_port(start_ports, end_ports, configured_ports)
@@ -479,7 +474,7 @@ def new_docker_mount(volume_params: dict) -> docker.types.Mount:
     )
 
 
-def mount_volumes(site: dict):
+def mount_volumes(site: Site):
     volumes = volumes_merge_config(site)
     create_docker_volumes(volumes)
     mounted_volumes = []
@@ -501,16 +496,16 @@ def add_host_gateway(run_params: dict):
     run_params["extra_hosts"] = extra_hosts
 
 
-def _run_parameters_container_name(site: dict) -> str:
-    image_nua_config = site["image_nua_config"]
+def _run_parameters_container_name(site: Site) -> str:
+    image_nua_config = site.image_nua_config
     meta = image_nua_config["metadata"]
-    suffix = DomainSplit(site["domain"]).containner_suffix()
+    suffix = DomainSplit(site.domain).containner_suffix()
     app_name = nua_long_name(meta)
     name_base = f"{app_name}-{suffix}"
     return "".join([x for x in name_base if x in ALLOW_DOCKER_NAME])
 
 
-def _run_parameters_container_ports(site: dict) -> dict:
+def _run_parameters_container_ports(site: Site) -> dict:
     # if "container_port" in run_params:
     #     container_port = run_params["container_port"]
     #     del run_params["container_port"]
@@ -522,11 +517,10 @@ def _run_parameters_container_ports(site: dict) -> dict:
     # else:
     #     ports = {}  # for app not using web interface (ie: computation storage only...)
     # return ports
-    ports = site["ports"]
+    ports = site.ports
     cont_ports = {}
     for port in ports.values():
         cont_ports[f"{port['container']}/{port['protocol']}"] = port["host_port"]
-
     return cont_ports
 
 
@@ -571,6 +565,7 @@ def _sites_per_host(deploy_sites: dict) -> dict:
     domain = "sloop.example.com"
     image = "nua-flask-upload-one:1.0-1"
 
+
     ouput format: dict of hostnames, with explicit port = "auto".
 
     {'sloop.example.com': [{'domain': 'sloop.example.com',
@@ -581,19 +576,16 @@ def _sites_per_host(deploy_sites: dict) -> dict:
                          },
                          ...
     """
-    domains = {}
-    for site in deploy_sites["site"]:
-        # if "port" not in site:
-        #     site["port"] = "auto"
-        dom = DomainSplit(site.get("domain", ""))
-        site["domain"] = dom.full_path()
-        if dom.hostname not in domains:
-            domains[dom.hostname] = []
-        domains[dom.hostname].append(site)
-    return domains
+    hostnames = {}
+    for site in deploy_sites:
+        dom = DomainSplit(site.domain)
+        if dom.hostname not in hostnames:
+            hostnames[dom.hostname] = []
+        hostnames[dom.hostname].append(site)
+    return hostnames
 
 
-def _make_host_list(domains: dict) -> list:
+def _make_host_list(hostnames: dict) -> list:
     """Convert dict(hostname:[sites,..]) to list({hostname, sites}).
 
     ouput format:
@@ -612,7 +604,7 @@ def _make_host_list(domains: dict) -> list:
     """
     return [
         {"hostname": hostname, "sites": sites_list}
-        for hostname, sites_list in domains.items()
+        for hostname, sites_list in hostnames.items()
     ]
 
 
@@ -623,7 +615,7 @@ def _classify_located_sites(host_list: list):
     for host in host_list:
         sites_list = host["sites"]
         first = sites_list[0]  # by construction, there is at least 1 element
-        dom = DomainSplit(first["domain"])
+        dom = DomainSplit(first.domain)
         if dom.location:
             _verify_located(host)
         else:
@@ -656,18 +648,17 @@ def _verify_located(host: dict):
     valid = []
     hostname = host["hostname"]
     for site in host["sites"]:
-        dom = DomainSplit(site["domain"])
+        dom = DomainSplit(site.domain)
         if not dom.location:
-            image = site.get("image")
-            # port = site.get("port")
+            image = site.image
             print_red("Error: required location is missing, site discarded:")
             print_red(f"    for {hostname=} / {image=}")
             continue
         if dom.location in known_location:
-            image = site.get("image")
+            image = site.image
             # port = site.get("port")
             print_red("Error: location is already used for a domain, site discarded:")
-            print_red(f"    {hostname=} / {image=} / {site['domain']}")
+            print_red(f"    {hostname=} / {image=} / {site.domain}")
             continue
         known_location.add(dom.location)
         site["location"] = dom.location
@@ -699,17 +690,10 @@ def _verify_not_located(host: dict):
         valid.append(host["sites"].pop(0))
         print_red(f"Error: too many sites for {hostname=}, site discarded:")
         for site in host["sites"]:
-            image = site.get("image")
-            # port = site.get("port")
+            image = site.image
             print_red(f"    {image=} / {site['domain']}")
     host["sites"] = valid
     host["located"] = False
-
-
-def sort_per_host(deploy_sites: dict) -> list:
-    host_list = _make_host_list(_sites_per_host(deploy_sites))
-    _classify_located_sites(host_list)
-    return host_list
 
 
 def host_list_to_sites(host_list: list) -> list:
@@ -737,7 +721,7 @@ def host_list_to_sites(host_list: list) -> list:
     sites_list = []
     for host in host_list:
         for site in host["sites"]:
-            site["hostname"] = host["hostname"]
+            site.hostname = host["hostname"]
             sites_list.append(site)
     return sites_list
 

@@ -6,8 +6,10 @@ from pprint import pformat
 from subprocess import run  # noqa: S404
 from time import sleep
 
-from docker import Container, DockerClient, Image, from_env
+from docker import DockerClient, from_env
 from docker.errors import APIError, BuildError, ImageNotFound, NotFound
+from docker.models.containers import Container
+from docker.models.images import Image
 
 from . import config
 from .db import store

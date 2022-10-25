@@ -44,7 +44,7 @@ class Services:
         for service_options in self.configuration_services.values():
             if not service_options.get("enable", True):
                 continue
-            name = service_options["name"]
+            name = snake_format(service_options["name"])
             module_name = service_options.get("module", name)
             class_name = camel_format(service_options.get("class", name))
             module_path = f"{base_name}.{module_name}"
@@ -57,6 +57,10 @@ class Services:
                 )
                 raise
             self.loaded[name] = cls(service_options)
+
+
+def snake_format(name: str):
+    return "_".join(word.lower() for word in name.replace("-", "_").split("_"))
 
 
 def camel_format(name: str) -> str:
