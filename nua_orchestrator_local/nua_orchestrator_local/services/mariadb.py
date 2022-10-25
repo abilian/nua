@@ -1,6 +1,6 @@
 """Nua mariadb as a service."""
 from ..mariadb_utils import mariadb_pwd, mariadb_restart_service
-from ..service_loader import ServiceBase
+from ..service_base import ServiceBase
 
 
 class Mariadb(ServiceBase):
@@ -11,5 +11,5 @@ class Mariadb(ServiceBase):
         mariadb_restart_service()
         return True
 
-    def environment(self, _site: dict) -> dict:
+    def environment(self, _site: dict | None = None) -> dict:
         return {"NUA_MARIADB_PASSWORD": mariadb_pwd()}

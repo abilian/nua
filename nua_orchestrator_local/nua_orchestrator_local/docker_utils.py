@@ -6,7 +6,8 @@ from pprint import pformat
 from subprocess import run  # noqa: S404
 from time import sleep
 
-import docker
+from docker import Container, DockerClient, Image, from_env
+from docker.errors import APIError, BuildError, ImageNotFound, NotFound
 
 from . import config
 from .db import store
@@ -29,7 +30,7 @@ def docker_build_log_error(func):
     def build_log_error_wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except docker.errors.BuildError as e:
+        except BuildError as e:
             print("=" * 60)
             print_red("Something went wrong with image build!")
             print_red(str(e))
@@ -52,7 +53,7 @@ def docker_image_size(image):
 
 def display_docker_img(iname):
     print_magenta(f"Docker image for '{iname}':")
-    client = docker.from_env()
+    client = from_env()
     result = client.images.list(filters={"reference": iname})
     if not result:
         print("No image found")
@@ -71,12 +72,12 @@ def docker_host_gateway_ip() -> str:
     return ""
 
 
-def display_one_docker_img(img):
-    sid = img.id.split(":")[-1][:10]
-    tags = "|".join(img.tags)
-    crea = datetime.fromisoformat(image_created_as_iso(img)).isoformat(" ")
+def display_one_docker_img(image: Image):
+    sid = image.id.split(":")[-1][:10]
+    tags = "|".join(image.tags)
+    crea = datetime.fromisoformat(image_created_as_iso(image)).isoformat(" ")
     # Note on size of image: Docker uses 10**6 for MB, here I use 2**20
-    size = docker_image_size(img)
+    size = docker_image_size(image)
     as_mib = config.read("nua", "ui", "size_unit_MiB")
     print(f"    tags: {tags}")
     print(f"    id: {sid}")
@@ -103,9 +104,19 @@ def docker_service_start_if_needed():
         docker_service_start()
 
 
-def docker_list_container(name: str):
-    client = docker.from_env()
+def docker_list_container(name: str) -> list[Container]:
+    client = from_env()
     return client.containers.list(filters={"name": name})
+
+
+def docker_pull(image: str) -> Image:
+    client = from_env()
+    try:
+        return client.images.pull(image)
+    except (APIError, ImageNotFound) as e:
+        print(f"Error while pulling image '{image}'")
+        print(e)
+        return None
 
 
 def _docker_wait_empty_container_list(name: str, timeout: int) -> bool:
@@ -230,12 +241,12 @@ def docker_remove_prior_container_live(site: dict):
         docker_remove_container(cont.name)
 
 
-def _erase_previous_container(client: docker.DockerClient, name: str):
+def _erase_previous_container(client: DockerClient, name: str):
     try:
         container = client.containers.get(name)
         print_red(f"    -> Remove existing container '{container.name}'")
         container.remove(force=True)
-    except docker.errors.APIError:
+    except APIError:
         pass
 
 
@@ -249,7 +260,7 @@ def docker_run(site: dict):
     docker_remove_prior_container_db(site)
     docker_remove_prior_container_live(site)
     params["detach"] = True  # force detach option
-    client = docker.from_env()
+    client = from_env()
     _erase_previous_container(client, params["name"])
     cont = client.containers.run(image_id, **params)
     if verbosity(3):
@@ -261,7 +272,7 @@ def docker_run(site: dict):
 
 
 def docker_volume_list(name: str) -> list:
-    client = docker.from_env()
+    client = from_env()
     lst = client.volumes.list(filters={"name": name})
     # filter match is not equality
     return [vol for vol in lst if vol.name == name]
@@ -279,7 +290,7 @@ def docker_volume_create_new(volume_opt: dict):
     if driver != "local" and not install_plugin(driver):
         # assuming it is the name of a plugin
         error(f"Install of Docker's plugin '{driver}' failed.")
-    client = docker.from_env()
+    client = from_env()
     client.volumes.create(
         name=volume_opt["source"],
         driver=driver,
@@ -291,7 +302,7 @@ def docker_volume_create_new(volume_opt: dict):
 # def docker_tmpfs_create(volume_opt: dict):
 #     """Create a new volume of type "tmpfs"."""
 #
-#     client = docker.from_env()
+#     client = from_env()
 #     client.volumes.create(
 #         name=volume_opt["source"],
 #         driver=driver,
@@ -323,7 +334,7 @@ def docker_volume_prune(volume_opt: dict):
         return
     name = volume_opt["source"]
     try:
-        client = docker.from_env()
+        client = from_env()
         lst = client.volumes.list(filters={"name": name})
         # filter match is not equality
         found = [vol for vol in lst if vol.name == name]
@@ -331,22 +342,22 @@ def docker_volume_prune(volume_opt: dict):
             # shoud be only one.
             volume = found[0]
             volume.remove(force=True)
-    except docker.errors.APIError as e:
+    except APIError as e:
         print("Error while unmounting volume:")
         print("volume_opt")
         print(e)
 
 
 def install_plugin(plugin_name: str) -> str:
-    client = docker.from_env()
+    client = from_env()
     try:
         plugin = client.plugins.get(plugin_name)
-    except docker.errors.NotFound:
+    except NotFound:
         plugin = None
     if not plugin:
         try:
             plugin = client.plugins.install(plugin_name)
-        except docker.errors.APIError:
+        except APIError:
             plugin = None
     if plugin:
         return plugin.name

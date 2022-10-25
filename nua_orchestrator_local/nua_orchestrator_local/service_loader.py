@@ -60,21 +60,4 @@ class Services:
 
 
 def camel_format(name: str) -> str:
-    return "".join(word.title() for word in name.split("_"))
-
-
-class ServiceBase:
-    def __init__(self, options: dict):
-        self.options = options
-
-    def aliases(self) -> list:
-        return []
-
-    def check_site_configuration(self, site: dict) -> bool:
-        return True
-
-    def restart(self) -> bool:
-        return True
-
-    def environment(self, site: dict) -> dict:
-        return {}
+    return "".join(word.title() for word in name.replace("-", "_").split("_"))

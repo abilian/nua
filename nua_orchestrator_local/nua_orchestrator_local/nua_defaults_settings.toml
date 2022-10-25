@@ -51,9 +51,12 @@
 #     volume.env = "REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY"
 [[services]]
     name = "postgres"
-    enable=true
+    enable = true # default is true
 [[services]]
     name = "postgres-docker"
-    enable=false
+    enable = true
+    image = "docker.io/library/postgres:14.5"
+    format = "docker"
 [[services]]
     name = "mariadb"
+    # enable = true # default is true
