@@ -9,8 +9,8 @@ import requests
 import tomli
 from typer.testing import CliRunner
 
-from nua_orchestrator_local.main import app
-from nua_orchestrator_local.scripts.test_replace_domain import replace_file
+from nua_orchestrator.main import app
+from nua_orchestrator.scripts.test_replace_domain import replace_file
 
 runner = CliRunner()
 

@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "nua_orchestrator_local"
+name = "nua_orchestrator"
 version = "0.4.21"
 description = "Nua orchestrator local implementation for Nua v0."
 authors = ["Jerome Dumonteil <jd@abilian.com>"]
@@ -7,15 +7,15 @@ license = "AGPL"
 readme = "README.md"
 
 [tool.poetry.scripts]
-nua = "nua_orchestrator_local.main:app"
-nua-bootstrap = "nua_orchestrator_local.scripts.bootstrap:main"
-nua-pg-pwd = "nua_orchestrator_local.scripts.set_pg_pwd:app"
-nua-mariadb-init = "nua_orchestrator_local.scripts.mariadb_restore:app"
-nua-print-instances = "nua_orchestrator_local.scripts.print_instances:main"
-nua-print-volumes = "nua_orchestrator_local.scripts.print_mounted_volumes:main"
-nua-print-ports = "nua_orchestrator_local.scripts.print_used_ports:main"
-nua_test_replace_domain = "nua_orchestrator_local.scripts.test_replace_domain:main"
-nua_test_services = "nua_orchestrator_local.service:test"
+nua = "nua_orchestrator.main:app"
+nua-bootstrap = "nua_orchestrator.scripts.bootstrap:main"
+nua-pg-pwd = "nua_orchestrator.scripts.set_pg_pwd:app"
+nua-mariadb-init = "nua_orchestrator.scripts.mariadb_restore:app"
+nua-print-instances = "nua_orchestrator.scripts.print_instances:main"
+nua-print-volumes = "nua_orchestrator.scripts.print_mounted_volumes:main"
+nua-print-ports = "nua_orchestrator.scripts.print_used_ports:main"
+nua_test_replace_domain = "nua_orchestrator.scripts.test_replace_domain:main"
+nua_test_services = "nua_orchestrator.service:test"
 
 [tool.poetry.dependencies]
 python = "^3.10"

@@ -1,6 +1,6 @@
 import string
 
-from nua_orchestrator_local.gen_password import gen_password
+from nua_orchestrator.gen_password import gen_password
 
 
 def test_gen_password_len():
