@@ -42,7 +42,6 @@ from ..service_loader import Services
 from ..site import Site
 from ..state import verbosity
 from ..utils import size_to_bytes
-from ..volume_utils import volumes_merge_config
 
 ALLOW_DOCKER_NAME = set(ascii_letters + digits + "-_.")
 # parameters passed as a dict to docker run
@@ -475,7 +474,7 @@ def new_docker_mount(volume_params: dict) -> docker.types.Mount:
 
 
 def mount_volumes(site: Site):
-    volumes = volumes_merge_config(site)
+    volumes = site.rebased_volumes_upon_nua_conf()
     create_docker_volumes(volumes)
     mounted_volumes = []
     for volume_params in volumes:

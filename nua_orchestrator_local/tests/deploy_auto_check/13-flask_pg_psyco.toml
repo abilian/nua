@@ -1,0 +1,16 @@
+[[site]]
+image = "flask-pg-dock-psyco:1.0-1"
+domain = "test1.example.com"
+[site.run_env]
+DB_NAME = "flask_db_1"
+
+
+
+[[site.test]]
+url = "https://test1.example.com/"
+expect_status = 200
+expect_str = "Books"
+[[site.test]]
+url = "https://test1.example.com/create/"
+expect_status = 200
+expect_str = "Add a New Book"

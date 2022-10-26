@@ -9,13 +9,15 @@ from datetime import datetime, timezone
 from .. import __version__ as nua_version
 from .. import config
 from ..constants import NUA_ORCH_ID, NUA_ORCHESTRATOR_TAG
+from ..site import Site
 from ..utils import image_size_repr, size_unit
-from ..volume_utils import volumes_merge_config
 from .model.auth import User
 from .model.image import Image
 from .model.instance import RUNNING, STOPPED, Instance
 from .model.setting import Setting
 from .session import Session
+
+# from pprint import pformat
 
 
 def now_iso() -> str:
@@ -274,8 +276,11 @@ def list_instances_container_local_active_volumes() -> list:
     """
     volumes_dict = {}
     for instance in list_instances_all_active():
+
         # for volume in volumes_merge_config(instance.site_config):
-        for volume in volumes_merge_config(instance):
+        site = Site(instance.site_config)
+
+        for volume in site.rebased_volumes_upon_nua_conf():
             if volume["type"] == "volume" and volume.get("driver", "") == "local":
                 _update_volumes_domains(volumes_dict, volume, instance.domain)
     return list(volumes_dict.values())
@@ -303,7 +308,9 @@ def list_instances_container_active_volumes() -> list:
     volumes_dict = {}
     containers_dict = {}
     for instance in list_instances_all_active():
-        for volume in volumes_merge_config(instance.site_config):
+        # for volume in volumes_merge_config(instance.site_config):
+        site = Site(instance.site_config)
+        for volume in site.rebased_volumes_upon_nua_conf():
             if volume["type"] == "tmpfs":
                 continue
             source = volume["source"]

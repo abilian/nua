@@ -1,0 +1,56 @@
+[metadata]
+id = "flask-pg-psyco"
+version = "1.0"
+title = "Flask/PostgreSQL/docker/psycopg2 test wheel"
+author = "Nua testers"
+tagline = "Nua test with Flask/PostgreSQL/psycopg2"
+website = "https://nua.rocks/"
+tags = ["test", "html", "web", "static", "plugin", "PostgreSQL", "docker", "psycopg2"]
+licence = "MIT"
+profile = ["test"]
+release = 1
+
+[build]
+document_root = "/nua/app/html"
+
+[instance]
+PG_DATA = "toto"
+VOLUME = "titi"
+services = ["resource1"]
+resource1.run_env.DB_USER = "toto"
+
+[run]
+# parameters passed as a dict to docker run
+auto_remove = true
+# detach = true mandatory, forced
+
+[[ports]]
+container = 80
+
+[run_env]
+# parameters passed as a dict to docker run: environment dict
+DB_NAME = "flask_db"
+DB_USER = "bob"
+DB_USER_PWD = "bob_pwd"
+
+# additional services
+[resource1]
+type = "docker"
+image = "docker.io/library/postgres:14.5"
+[resource1.run]
+detach = true
+restart_policy.name="always"
+[resource1.run_env]
+PGDATA = "flask_db"
+DB_USER = "bobroot"
+[[resource1.volume]]
+    # The mount type (bind / volume / tmpfs / npipe). Default: volume :
+    type = "bind"
+    # Name of the driver used to create the volume: (for type == "volume")
+    # driver = "local"
+    # Mount source (e.g. a volume name or a host path):
+    source = "/var/tmp/db1"
+    # Container path:
+    target = "/xxxxxxxx/app/dbs"
+    #
+    mode = "rw"
