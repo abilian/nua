@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "flask_pg_psyco"
+name = "flask_pg_dock_psyco"
 version = "0.1.0"
-description = "Flask test with postgres"
+description = "Flask test with postgres docker image"
 authors = ["Jerome Dumonteil <jd@abilian.com>"]
 license = "MIT"
 

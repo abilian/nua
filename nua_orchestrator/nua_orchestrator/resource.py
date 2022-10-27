@@ -1,3 +1,5 @@
+from typing import Callable
+
 from .port_normalization import normalize_ports, ports_as_dict
 from .volume_normalization import normalize_volumes
 
@@ -97,6 +99,34 @@ class Resource(dict):
             raise ValueError("Site['ports'] must be a list")
         self.ports = [p for p in self.ports if p]
         normalize_ports(self.ports)
+
+    def used_ports(self) -> set[int]:
+        used = set()
+        # when method is used, ports became a dict:
+        for port in self.ports.values():
+            if not port:  # could be an empty {} ?
+                continue
+            host = port["host"]
+            # normalization done: host is present and either 'auto' or an int
+            if isinstance(host, int):
+                used.add(host)
+        return used
+
+    def allocate_auto_ports(self, allocator: Callable):
+        if not self.ports:
+            return
+        # when method is used, ports became a dict:
+        for port in self.ports.values():
+            if port["host"] == "auto":
+                port["host_port"] = allocator()
+            else:
+                port["host_port"] = port["host"]
+
+    def ports_as_docker_params(self) -> dict:
+        cont_ports = {}
+        for port in self.ports.values():
+            cont_ports[f"{port['container']}/{port['protocol']}"] = port["host_port"]
+        return cont_ports
 
     def _normalize_volumes(self):
         if "volume" not in self:

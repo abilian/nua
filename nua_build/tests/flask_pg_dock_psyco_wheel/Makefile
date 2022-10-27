@@ -1,10 +1,9 @@
-PACKAGENAME = flask_pg_psyco
 
 all: nua
 
 .PHONY: clean
 clean:
-	@rm -fr  $(PACKAGENAME)/dist
+	@rm -fr  dist
 	@rm -fr  build_dir
 
 .PHONY: build

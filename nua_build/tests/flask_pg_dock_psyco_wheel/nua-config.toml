@@ -1,9 +1,9 @@
 [metadata]
-id = "flask-pg-psyco"
+id = "flask-pg-dock-psyco"
 version = "1.0"
 title = "Flask/PostgreSQL/docker/psycopg2 test wheel"
 author = "Nua testers"
-tagline = "Nua test with Flask/PostgreSQL/psycopg2"
+tagline = "Nua test with Flask/PostgreSQL/docker/psycopg2"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static", "plugin", "PostgreSQL", "docker", "psycopg2"]
 licence = "MIT"
@@ -14,10 +14,10 @@ release = 1
 document_root = "/nua/app/html"
 
 [instance]
-PG_DATA = "toto"
-VOLUME = "titi"
-services = ["resource1"]
-resource1.run_env.DB_USER = "toto"
+# PG_DATA = "toto"
+# VOLUME = "titi"
+resources = ["database"]
+# resource1.run_env.DB_USER = "toto"
 
 [run]
 # parameters passed as a dict to docker run
@@ -34,23 +34,26 @@ DB_USER = "bob"
 DB_USER_PWD = "bob_pwd"
 
 # additional services
-[resource1]
+[database]
 type = "docker"
 image = "docker.io/library/postgres:14.5"
-[resource1.run]
-detach = true
-restart_policy.name="always"
-[resource1.run_env]
-PGDATA = "flask_db"
-DB_USER = "bobroot"
-[[resource1.volume]]
+
+[database.run]
+    detach = true
+    restart_policy.name="always"
+
+[database.run_env]
+    PGDATA = "flask_db"
+    DB_USER = "bobroot"
+
+[[database.volume]]
     # The mount type (bind / volume / tmpfs / npipe). Default: volume :
-    type = "bind"
+    type = "volume"
     # Name of the driver used to create the volume: (for type == "volume")
-    # driver = "local"
+    driver = "local"
     # Mount source (e.g. a volume name or a host path):
-    source = "/var/tmp/db1"
+    source = "postgres_data"
     # Container path:
-    target = "/xxxxxxxx/app/dbs"
-    #
+    target = "/var/lib/postgresql/data"
+    # mode (default to 'rw'
     mode = "rw"

@@ -2,12 +2,12 @@
 
 WIP
 """
+from ..deploy_utils import load_install_image
 from ..docker_utils import docker_service_start_if_needed
 from ..panic import error
 from ..rich_console import print_magenta
 from ..search_cmd import search_nua
 from ..state import verbosity
-from .deploy import install_image
 
 
 def deploy_nua(app_name: str) -> int:
@@ -25,7 +25,7 @@ def deploy_nua(app_name: str) -> int:
     docker_service_start_if_needed()
     # images are sorted by version, take the last one:
     image_id, image_nua_config = install_image(results[-1])
-    deploy_image(image_id, image_nua_config)
+    load_install_image(image_id, image_nua_config)
     return 0
 
 

@@ -4,7 +4,7 @@ https://www.digitalocean.com/community/tutorials/how-to-use-a-postgresql-databas
 import os
 
 import psycopg2
-from flask_pg_psyco.constants import DB_HOST, DB_NAME, DB_USER, DB_USER_PWD
+from flask_pg_dock_psyco.constants import DB_HOST, DB_NAME, DB_USER, DB_USER_PWD
 
 from nua_build import postgres  # Nua shortcuts to manage postgres operations
 from nua_build.exec import exec_as_root
@@ -73,7 +73,9 @@ def add_content():
 setup_db()
 init_db_content()
 
-cmd = "gunicorn --worker-tmp-dir /dev/shm --workers 2 -b :80 flask_pg_psyco.wsgi:app"
+cmd = (
+    "gunicorn --worker-tmp-dir /dev/shm --workers 2 -b :80 flask_pg_dock_psyco.wsgi:app"
+)
 # exec_as_nua(cmd, env)
 # We need to exec as root to be able to write files in the docker volume.
 exec_as_root(cmd, env=os.environ)
