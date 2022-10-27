@@ -20,6 +20,8 @@ from .deploy_utils import (
     volume_print,
 )
 from .docker_utils import (
+    display_one_docker_img,
+    docker_pull,
     docker_remove_container_db,
     docker_run,
     docker_service_start_if_needed,
@@ -46,8 +48,25 @@ RUN_BASE = {
 
 
 class SitesDeployment:
+    """Deployment of a list of site/nua-image
+
+    example of use:
+        deployer = SitesDeployment()
+        deployer.load_available_services()
+        deployer.load_deploy_config(deploy_config)
+        deployer.install_required_images()
+        if verbosity(3):
+            deployer.print_host_list()
+        deployer.install_required_resources()
+        deployer.deactivate_all_sites()
+        deployer.configure_deployment()
+        deployer.start_sites()
+        deployer.display_final()
+    """
+
     def __init__(self):
         self.required_services = []
+        self.required_resources = []
         self.deploy_sites = {}
         self.host_list = []
         self.available_services = {}
@@ -178,7 +197,9 @@ class SitesDeployment:
     def install_required_images(self):
         # first: check that all images are available:
         if not self.find_all_images():
-            error("Missing images")
+            error("Missing Nua images")
+        # if not self.find_all_resource_images():
+        #     error("Missing resources image")
         self.install_images()
 
     def find_all_images(self) -> bool:
@@ -213,6 +234,39 @@ class SitesDeployment:
                 installed[img_path] = (image_id, image_nua_config)
             site["image_id"] = image_id
             site.image_nua_config = image_nua_config
+
+    def install_required_resources(self):
+        for site in self.deploy_sites:
+            site.parse_resources()
+        if not self.pull_all_resource_images():
+            error("Missing Nua images")
+
+    def pull_all_resource_images(self) -> bool:
+        images_found = set()
+        for site in self.deploy_sites:
+            if not all(
+                self._pull_resource(resource, images_found)
+                for resource in site.resources
+            ):
+                # if not self._pull_site_resources(site, images_found):
+                return False
+        return True
+
+    @staticmethod
+    def _pull_resource(resource: Resource, images_found: set) -> bool:
+        if resource.image in images_found or resource.type != "docker":
+            return True
+        if verbosity(1):
+            print_magenta(f"Pulling image '{resource.image}'")
+        docker_image = docker_pull(resource.image)
+        if docker_image:
+            if verbosity(1):
+                display_one_docker_img(docker_image)
+            # print_magenta(f"    -> {docker_image}")
+            images_found.add(resource.image)
+            return True
+        print_red(f"No image found for '{resource.image}'")
+        return False
 
     def deactivate_all_sites(self):
         """Find all instance in DB
@@ -432,6 +486,9 @@ class SitesDeployment:
         )
         for volume in unused:
             volume_print(volume)
+
+    def print_host_list(self):
+        print("'host_list':\n", pformat(self.host_list))
 
 
 def _classify_located_sites(host_list: list):

@@ -1,5 +1,4 @@
-from .actions import pull_docker_image
-from .docker_utils import display_one_docker_img
+from .docker_utils import display_one_docker_img, pull_docker_image
 from .state import verbosity
 
 

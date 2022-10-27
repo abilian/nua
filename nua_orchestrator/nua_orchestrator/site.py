@@ -23,6 +23,14 @@ class Site(Resource):
         self._normalize_domain()
 
     @property
+    def resources(self) -> list:
+        return self.get("resources", [])
+
+    @resources.setter
+    def resources(self, resources: list):
+        self["resources"] = resources
+
+    @property
     def image_nua_config(self) -> dict:
         return self["image_nua_config"]
 
@@ -56,6 +64,30 @@ class Site(Resource):
                     services.discard(alias)
                     services.add(name)
         return services
+
+    def resources_instance_updated(self) -> list:
+        #
+        # todo: currently not updated by site instance config
+        #
+        resources = []
+        instance = self.image_nua_config.get("instance", {})
+        inst_resources_names = instance.get("resources", [])
+        if isinstance(inst_resources_names, str):
+            inst_resources_names = [inst_resources_names]
+        for name in inst_resources_names:
+            if name not in self.image_nua_config:
+                raise ValueError(
+                    f"nua-config declared resource '{name}' is not defined"
+                )
+            resource = Resource(self.image_nua_config[name])
+            resource.check_valid()
+            resources.append(resource)
+        if verbosity(3):
+            print(f"Image resources: {pformat(resources)}")
+        return resources
+
+    def parse_resources(self):
+        self.resources = self.resources_instance_updated()
 
     def _normalize_domain(self):
         dom = DomainSplit(self.domain)

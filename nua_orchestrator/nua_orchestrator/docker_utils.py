@@ -365,3 +365,8 @@ def install_plugin(plugin_name: str) -> str:
         return plugin.name
     else:
         return ""
+
+
+def pull_docker_image(image: str) -> Image:
+    docker_service_start_if_needed()
+    return docker_pull(image)

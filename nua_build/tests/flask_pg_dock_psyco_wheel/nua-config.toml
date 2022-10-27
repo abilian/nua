@@ -14,26 +14,22 @@ release = 1
 document_root = "/nua/app/html"
 
 [instance]
-# PG_DATA = "toto"
-# VOLUME = "titi"
 resources = ["database"]
-# resource1.run_env.DB_USER = "toto"
 
 [run]
 # parameters passed as a dict to docker run
 auto_remove = true
 # detach = true mandatory, forced
+restart_policy.name="always"
 
 [[ports]]
 container = 80
+host = "auto"
 
 [run_env]
 # parameters passed as a dict to docker run: environment dict
-DB_NAME = "flask_db"
-DB_USER = "bob"
-DB_USER_PWD = "bob_pwd"
+DATABASE_URL="postgresql://bob:bob_pwd@postgres_data:5432/flask_db"
 
-# additional services
 [database]
 type = "docker"
 image = "docker.io/library/postgres:14.5"
@@ -43,8 +39,13 @@ image = "docker.io/library/postgres:14.5"
     restart_policy.name="always"
 
 [database.run_env]
-    PGDATA = "flask_db"
-    DB_USER = "bobroot"
+    POSTGRES_USER = "bob"
+    POSTGRES_PASSWORD = "bob_pwd"
+    POSTGRES_DB = "flask_db"
+
+[[database.ports]]
+    container = 5432
+    host = 5432
 
 [[database.volume]]
     # The mount type (bind / volume / tmpfs / npipe). Default: volume :

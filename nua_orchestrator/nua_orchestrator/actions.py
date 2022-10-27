@@ -5,10 +5,8 @@ import sys
 from glob import glob
 from pathlib import Path
 
-from docker.models.images import Image
 from jinja2 import Template
 
-from .docker_utils import docker_pull, docker_service_start_if_needed
 from .shell import sh
 
 
@@ -169,11 +167,6 @@ def poetry_install(nodev: bool = True) -> None:
         sh("poetry install")
     cmd = "pip-autoremove -y poetry"
     sh(cmd)
-
-
-def pull_docker_image(image: str) -> Image:
-    docker_service_start_if_needed()
-    return docker_pull(image)
 
 
 def replace_in(file_pattern: str, string_pattern: str, replacement: str):
