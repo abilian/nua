@@ -4,7 +4,13 @@ https://www.digitalocean.com/community/tutorials/how-to-use-a-postgresql-databas
 import os
 
 import psycopg2
-from flask_pg_dock_psyco.constants import DB_HOST, DB_NAME, DB_USER, DB_USER_PWD
+from flask_pg_dock_psyco.constants import (
+    DB_HOST,
+    DB_PORT,
+    POSTGRES_DB,
+    POSTGRES_PASSWORD,
+    POSTGRES_USER,
+)
 
 from nua_build import postgres  # Nua shortcuts to manage postgres operations
 from nua_build.exec import exec_as_root
@@ -13,16 +19,24 @@ from nua_build.exec import exec_as_root
 def setup_db():
     """Find or create the required DB.
 
-    In this example The DB is local to the Host (outside Docker).
-    When orchestrator was installed, it must have setup postgreSQL v14 on the host."""
-    postgres.pg_setup_db_user(
-        host=DB_HOST, dbname=DB_NAME, user=DB_USER, password=DB_USER_PWD
+    In this example The DB is on remote docker container."""
+    postgres.pg_setup_db_user_port(
+        host=DB_HOST,
+        port=DB_PORT,
+        dbname=POSTGRES_DB,
+        user=POSTGRES_USER,
+        password=POSTGRES_PASSWORD,
     )
 
 
 def init_db_content():
-    if not postgres.pg_db_table_exist(
-        host=DB_HOST, dbname=DB_NAME, user=DB_USER, password=DB_USER_PWD, table="books"
+    if not postgres.pg_db_table_exist_port(
+        host=DB_HOST,
+        port=DB_PORT,
+        dbname=POSTGRES_DB,
+        user=POSTGRES_USER,
+        password=POSTGRES_PASSWORD,
+        table="books",
     ):
         add_content()
 
@@ -30,9 +44,10 @@ def init_db_content():
 def add_content():
     connection = psycopg2.connect(
         host=DB_HOST,
-        database=DB_NAME,
-        user=DB_USER,
-        password=DB_USER_PWD,
+        port=DB_PORT,
+        database=POSTGRES_DB,
+        user=POSTGRES_USER,
+        password=POSTGRES_PASSWORD,
     )
     with connection:
         with connection.cursor() as cur:

@@ -44,7 +44,7 @@ def run_regitry_container():
         ports={
             f"{conf.get('cont_port')}/tcp": (
                 conf.get("address"),
-                f"{conf.get('host_port')}",
+                f"{conf.get('host_use')}",
             )
         },
         environment={volume_env: str(volume_path)},

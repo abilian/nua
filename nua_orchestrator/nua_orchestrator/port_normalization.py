@@ -8,19 +8,19 @@ def ports_as_dict(port_list: list) -> dict:
     return {str(port["container"]): port for port in port_list}
 
 
-def normalize_ports(port_list: list):
+def normalize_ports(port_list: list, default_proxy: str):
     for index, port in enumerate(port_list):
-        _normalize_port(index, port)
+        _normalize_port(index, port, default_proxy)
 
 
-def _normalize_port(index: int, port: dict):
+def _normalize_port(index: int, port: dict, default_proxy: str):
     try:
         if not isinstance(port, dict):
             raise ValueError(" 'port' must be a dict")
         _normalize_port_item_container(port)
         _normalize_port_item_host(index, port)
         _normalize_port_item_protocol(port)
-        _normalize_port_item_proxy(index, port)
+        _normalize_port_item_proxy(index, port, default_proxy)
     except ValueError:
         print("--- Error in ports config: ---")
         print(pformat(port))
@@ -40,10 +40,12 @@ def _normalize_port_item_container(port: dict):
 def _normalize_port_item_host(index: int, port: dict):
     host = str(port.get("host", "auto")).lower().strip()
     if host == "auto":
-        if index > 0:
-            raise ValueError("Only the first port can have an 'host' = 'auto' value")
-        else:
-            port["host"] = "auto"
+        # if index > 0:
+        #     raise ValueError("Only the first port can have an 'host' = 'auto' value")
+        # else:
+        #     port["host"] = "auto"
+        # return
+        port["host"] = "auto"
         return
     try:
         host = int(host)
@@ -59,9 +61,9 @@ def _normalize_port_item_protocol(port: dict):
     port["protocol"] = proto
 
 
-def _normalize_port_item_proxy(index: int, port: dict):
+def _normalize_port_item_proxy(index: int, port: dict, default_proxy: str):
     # fixme: currently only one proxy is managed by nginx configuration
-    proxy = str(port.get("proxy", "auto")).lower().strip()
+    proxy = str(port.get("proxy", default_proxy)).lower().strip()
     if proxy == "auto" and index > 0:
         raise ValueError("Only the first port can have an 'proxy' = 'auto' value")
     if proxy in {"auto", "none"}:

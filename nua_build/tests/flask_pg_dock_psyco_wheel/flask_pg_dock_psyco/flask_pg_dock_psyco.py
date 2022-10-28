@@ -1,8 +1,10 @@
+import os
+
 import psycopg2
 from flask import Flask, redirect, render_template, request, url_for
 from psycopg2.sql import SQL
 
-from .constants import DB_HOST, DB_NAME, DB_USER, DB_USER_PWD
+from .constants import DB_HOST, DB_PORT, POSTGRES_DB, POSTGRES_PASSWORD, POSTGRES_USER
 
 app = Flask(__name__)
 
@@ -10,9 +12,10 @@ app = Flask(__name__)
 def db_connection():
     return psycopg2.connect(
         host=DB_HOST,
-        database=DB_NAME,
-        user=DB_USER,
-        password=DB_USER_PWD,
+        port=DB_PORT,
+        database=POSTGRES_DB,
+        user=POSTGRES_USER,
+        password=POSTGRES_PASSWORD,
     )
 
 

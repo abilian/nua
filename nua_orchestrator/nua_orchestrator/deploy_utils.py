@@ -15,6 +15,7 @@ from .docker_utils import (
     docker_volume_create_or_use,
     docker_volume_prune,
 )
+from .resource import Resource
 from .rich_console import print_green, print_magenta, print_red
 from .server_utils.net_utils import check_port_available
 from .site import Site
@@ -78,10 +79,17 @@ def mount_volumes(site: Site) -> list:
     return mounted_volumes
 
 
-def add_host_gateway(run_params: dict):
-    extra_hosts = run_params.get("extra_hosts", {})
-    extra_hosts["host.docker.internal"] = docker_host_gateway_ip()
-    run_params["extra_hosts"] = extra_hosts
+def mount_resource_volumes(resource: Resource) -> list:
+    create_docker_volumes(resource.volume)
+    mounted_volumes = []
+    for volume_params in resource.volume:
+        mounted_volumes.append(new_docker_mount(volume_params))
+    return mounted_volumes
+
+
+def extra_host_gateway() -> dict:
+    """Sent an update for docker parameters 'extra_hosts': host.docker.internal"""
+    return {"host.docker.internal": docker_host_gateway_ip()}
 
 
 def volume_print(volume: dict):
@@ -101,7 +109,7 @@ def unused_volumes(orig_mounted_volumes: list) -> list:
     return [vol for vol in orig_mounted_volumes if vol["source"] not in current_sources]
 
 
-def create_docker_volumes(volumes_config):
+def create_docker_volumes(volumes_config: list):
     for volume_params in volumes_config:
         docker_volume_create_or_use(volume_params)
 

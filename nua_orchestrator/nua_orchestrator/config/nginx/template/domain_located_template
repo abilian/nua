@@ -4,7 +4,7 @@ server {
     {% for site in sites %}
 	location /{{site.location}} {
 		rewrite /{{site.location}}(/.*|$) /$1  break;
-        proxy_pass         http://localhost:{{site.host_port}};
+        proxy_pass         http://localhost:{{site.host_use}};
         proxy_redirect     off;
         proxy_set_header   Host $host;
 	}

@@ -21,7 +21,7 @@ class Instance(Base, SerializerMixin):
     - site_config: JSON data representation of actual deployment config
       values, including the instance nginx domain.
 
-     {'host_port': 8109,
+     {'host_use': 8109,
       'container': 'nua-flask-upload-one-1.0-1-sloop.example.com',
       'domain': 'sloop.example.com/xxx',
       'image': 'nua-flask-upload-one:1.0-1',

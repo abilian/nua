@@ -332,7 +332,7 @@ def ports_instances_domains() -> dict[int, str]:
         ports = site_config.get("ports")  # a dict
         if ports:
             for port in ports.values():
-                used_domain_ports[port["host_port"]] = site_config["domain"]
+                used_domain_ports[port["host_use"]] = site_config["domain"]
     return used_domain_ports
 
 
@@ -359,7 +359,7 @@ def _fetch_instance_port_site(site_config: dict) -> int | None:
     for port in ports.values():
         proxy = port["proxy"]
         if proxy == "auto":
-            return port["host_port"]
+            return port["host_use"]
     return None
 
 
@@ -371,7 +371,7 @@ def instance_port(domain: str) -> int | None:
         existing = session.query(Instance).filter_by(domain=domain).first()
         if existing:
             site_config = existing.site_config
-            port = site_config.get("host_port")
+            port = site_config.get("host_use")
             if not port:
                 port = _fetch_instance_port_site(site_config)
         else:

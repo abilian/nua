@@ -79,6 +79,34 @@ class Resource(dict):
     def run_env(self, run_env: dict):
         self["run_env"] = run_env
 
+    @property
+    def base_name(self) -> str:
+        return self.image.split("/")[-1].replace(":", "-")
+
+    @property
+    def image_id(self) -> str:
+        return self.get("image_id", "")
+
+    @image_id.setter
+    def image_id(self, image_id: str):
+        self["image_id"] = image_id
+
+    @property
+    def container(self) -> str:
+        return self.get("container", "")
+
+    @container.setter
+    def container(self, name: str):
+        self["container"] = name
+
+    @property
+    def resource_name(self) -> str:
+        return self.get("resource_name", "")
+
+    @resource_name.setter
+    def resource_name(self, resource_name: str):
+        self["resource_name"] = resource_name
+
     def set_ports_as_dict(self):
         """replace ports list by a dict with container port as key
 
@@ -91,14 +119,14 @@ class Resource(dict):
             if not self.get(key):
                 raise ValueError(f"Site configuration missing '{key}' key")
 
-    def _normalize_ports(self):
+    def _normalize_ports(self, default_proxy: str = "none"):
         if "ports" not in self:
             self.ports = []
             return
         if not isinstance(self.ports, list):
             raise ValueError("Site['ports'] must be a list")
         self.ports = [p for p in self.ports if p]
-        normalize_ports(self.ports)
+        normalize_ports(self.ports, default_proxy)
 
     def used_ports(self) -> set[int]:
         used = set()
@@ -118,14 +146,14 @@ class Resource(dict):
         # when method is used, ports became a dict:
         for port in self.ports.values():
             if port["host"] == "auto":
-                port["host_port"] = allocator()
+                port["host_use"] = allocator()
             else:
-                port["host_port"] = port["host"]
+                port["host_use"] = port["host"]
 
     def ports_as_docker_params(self) -> dict:
         cont_ports = {}
         for port in self.ports.values():
-            cont_ports[f"{port['container']}/{port['protocol']}"] = port["host_port"]
+            cont_ports[f"{port['container']}/{port['protocol']}"] = port["host_use"]
         return cont_ports
 
     def _normalize_volumes(self):
@@ -157,3 +185,12 @@ class Resource(dict):
             # the unicity key for volume is 'source'
             merge_dict[vol["source"]] = vol
         return list(merge_dict.values())
+
+    def environment_ports(self) -> dict:
+        """Return exposed ports as env variables."""
+        run_env = {}
+        for port in self.ports.values():
+            variable = f"NUA_RESOURCE_{self.resource_name.upper()}_{port['container']}"
+            value = str(port["host_use"])
+            run_env[variable] = value
+        return run_env

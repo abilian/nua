@@ -16,6 +16,7 @@ from .db import store
 
 # from .db.model.instance import RUNNING
 from .panic import error
+from .resource import Resource
 from .rich_console import print_magenta, print_red
 from .state import verbosity
 from .utils import image_size_repr, size_unit
@@ -108,10 +109,24 @@ def docker_service_start_if_needed():
 
 def docker_list_container(name: str) -> list[Container]:
     client = from_env()
-    return client.containers.list(filters={"name": name})
+    return [c for c in client.containers.list(filters={"name": name}) if c.name == name]
 
 
-def docker_pull(image: str) -> Image:
+def docker_pull(image: str, force: bool = False) -> Image:
+    if force:
+        return docker_force_pull(image)
+    client = from_env()
+    name = image.split("/")[-1]
+    try:
+        locally_found = client.images.get(name)
+    except ImageNotFound:
+        locally_found = None
+    if locally_found:
+        return locally_found
+    return docker_force_pull(image)
+
+
+def docker_force_pull(image: str) -> Image:
     client = from_env()
     try:
         return client.images.pull(image)
@@ -203,10 +218,13 @@ def docker_check_container_listed(name: str) -> bool:
         return False
 
 
-def docker_remove_prior_container_db(site: dict):
-    """Search & remove containers already configured for this same site
+def docker_remove_prior_container_db(rsite: Resource):
+    """Search & remove containers already configured for this same Site or Resource
     (running or stopped), from DB."""
-    previous_name = store.instance_container(site["domain"])
+    if rsite.type != "nua-site":
+        # FIXME for resourc containers
+        return
+    previous_name = store.instance_container(rsite.domain)
     if not previous_name:
         return
     if verbosity(1):
@@ -216,8 +234,7 @@ def docker_remove_prior_container_db(site: dict):
     if verbosity(3):
         containers = docker_list_container(previous_name)
         print("docker_remove_container after", containers)
-
-    store.instance_delete_by_domain(site["domain"])
+    store.instance_delete_by_domain(rsite.domain)
 
 
 def docker_remove_container_db(domain: str):
@@ -227,20 +244,20 @@ def docker_remove_container_db(domain: str):
     store.instance_delete_by_domain(domain)
 
 
-def docker_remove_prior_container_live(site: dict):
-    """Search & remove containers already configured for this same site
+def docker_remove_prior_container_live(rsite: Resource):
+    """Search & remove containers already configured for this same Site or Resource
     (running or stopped), from Docker.
 
     Security feature: try to remove containers of exactly same name that
     could be found in docker daemon:
     """
-    previous_name = site["run_params"]["name"]
+    previous_name = rsite.run_params.get("name", "")
     if not previous_name:
         return
-    for cont in docker_list_container(previous_name):
-        print_red(f"Try removing a container not listed in Nua DB: {cont.name}")
-        docker_kill_container(cont.name)
-        docker_remove_container(cont.name)
+    for container in docker_list_container(previous_name):
+        print_red(f"Try removing a container not listed in Nua DB: {container.name}")
+        docker_kill_container(container.name)
+        docker_remove_container(container.name)
 
 
 def _erase_previous_container(client: DockerClient, name: str):
@@ -252,25 +269,24 @@ def _erase_previous_container(client: DockerClient, name: str):
         pass
 
 
-def docker_run(site: dict):
-    image_id = site["image_id"]
-    params = site["run_params"]
+def docker_run(rsite: Resource):
+    params = rsite.run_params
     if verbosity(1):
-        print_magenta(f"Docker run image '{image_id}'")
+        print_magenta(f"Docker run image '{rsite.image_id}'")
         if verbosity(2):
             print("run parameters:\n", pformat(params))
-    docker_remove_prior_container_db(site)
-    docker_remove_prior_container_live(site)
+    docker_remove_prior_container_db(rsite)
+    docker_remove_prior_container_live(rsite)
     params["detach"] = True  # force detach option
     client = from_env()
     _erase_previous_container(client, params["name"])
-    cont = client.containers.run(image_id, **params)
+    container = client.containers.run(rsite.image_id, **params)
     if verbosity(3):
         name = params["name"]
         print("run done:", docker_list_container(name))
-    if not docker_check_container_listed(cont.name):
-        error(f"Failed starting container {cont.name}")
-    site["container"] = cont.name
+    if not docker_check_container_listed(container.name):
+        error(f"Failed starting container {container.name}")
+    rsite.container = container.name
 
 
 def docker_volume_list(name: str) -> list:

@@ -1,6 +1,7 @@
 import os
 
-DB_NAME = os.environ.get("DB_NAME") or "flask_db"
-DB_USER = os.environ.get("DB_USER") or "bob"
-DB_USER_PWD = os.environ.get("DB_USER_PWD") or "bob_pwd"
+POSTGRES_DB = os.environ.get("POSTGRES_DB") or "flask_db"
+POSTGRES_USER = os.environ.get("POSTGRES_USER") or "bob"
+POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD") or "bob_pwd"
 DB_HOST = "host.docker.internal"
+DB_PORT = os.environ["NUA_RESOURCE_DATABASE_5432"]

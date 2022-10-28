@@ -2,7 +2,7 @@ server {
     server_name {{hostname}};
 
 	location / {
-        proxy_pass         http://localhost:{{sites[0].host_port}};
+        proxy_pass         http://localhost:{{sites[0].host_use}};
         proxy_redirect     off;
         proxy_set_header   Host $host;
 	}

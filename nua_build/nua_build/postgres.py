@@ -33,6 +33,10 @@ def postgres_pwd() -> str:
     was generated (or its another bug).
 
     Rem.: No cache. Rarely used function and pwd can be changed."""
+    pwd = os.environ.get("POSTGRES_PASSWORD")
+    if pwd:
+        # it the common environ variable for postgres docker image
+        return pwd
     pwd = os.environ.get("NUA_POSTGRES_PASSWORD")
     if pwd:
         return pwd
@@ -247,28 +251,44 @@ def pg_restart_service():
 
 
 def pg_setup_db_user(host: str, dbname: str, user: str, password: str):
+    pg_setup_db_user_port(host, "5432", dbname, user, password)
+
+
+def pg_setup_db_user_port(host: str, port: str, dbname: str, user: str, password: str):
     """Create a postgres user if needed."""
-    if not pg_user_exist(host, user):
-        pg_user_create(host, user, password)
-    if not pg_db_exist(host, dbname):
-        pg_db_create(host, dbname, user)
+    if not pg_user_exist_port(host, port, user):
+        pg_user_create_port(host, port, user, password)
+    if not pg_db_exist_port(host, port, dbname):
+        pg_db_create_port(host, port, dbname, user)
 
 
 def pg_remove_db_user(host: str, dbname: str, user: str):
+    pg_remove_db_user_port(host, "5432", dbname, user)
+
+
+def pg_remove_db_user_port(host: str, port: str, dbname: str, user: str):
     """Remove a postgres user if needed."""
-    if pg_db_exist(host, dbname):
-        pg_db_drop(host, dbname)
-    if pg_user_exist(host, user):
-        pg_user_drop(host, user)
+    if pg_db_exist_port(host, port, dbname):
+        pg_db_drop_port(host, port, dbname)
+    if pg_user_exist_port(host, port, user):
+        pg_user_drop_port(host, port, user)
 
 
 def pg_db_drop(host: str, dbname: str):
+    pg_db_drop_port(host, "5432", dbname)
+
+
+def pg_db_drop_port(host: str, port: str, dbname: str):
     """Basic drop database.
 
     See pg_remove_db_user
     """
     connection = psycopg2.connect(
-        dbname="postgres", user="postgres", host=host, password=postgres_pwd()
+        dbname="postgres",
+        port=port,
+        user="postgres",
+        host=host,
+        password=postgres_pwd(),
     )
     connection.autocommit = True
     with connection:
@@ -291,8 +311,14 @@ def pg_db_dump(dbname: str, options_str: str = ""):
 
 
 def pg_user_drop(host: str, user: str) -> bool:
+    return pg_user_drop_port(host, "5432", user)
+
+
+def pg_user_drop_port(host: str, port: str, user: str) -> bool:
     """Drop user (wip, not enough)."""
-    connection = psycopg2.connect(host=host, user="postgres", password=postgres_pwd())
+    connection = psycopg2.connect(
+        host=host, port=port, user="postgres", password=postgres_pwd()
+    )
     connection.autocommit = True
     with connection:  # noqa SIM117
         with connection.cursor() as cur:
@@ -302,8 +328,14 @@ def pg_user_drop(host: str, user: str) -> bool:
 
 
 def pg_user_exist(host: str, user: str) -> bool:
+    return pg_user_exist_port(host, "5432", user)
+
+
+def pg_user_exist_port(host: str, port: str, user: str) -> bool:
     """Test if a postgres user exists."""
-    connection = psycopg2.connect(host=host, user="postgres", password=postgres_pwd())
+    connection = psycopg2.connect(
+        host=host, port=port, user="postgres", password=postgres_pwd()
+    )
     connection.autocommit = True
     with connection:  # noqa SIM117
         with connection.cursor() as cur:
@@ -315,11 +347,17 @@ def pg_user_exist(host: str, user: str) -> bool:
 
 
 def pg_user_create(host: str, user: str, password: str):
+    pg_user_create_port(host, "5432", user, password)
+
+
+def pg_user_create_port(host: str, port: str, user: str, password: str):
     """Create a postgres user.
 
     Assuming standard port == 5432
     """
-    connection = psycopg2.connect(host=host, user="postgres", password=postgres_pwd())
+    connection = psycopg2.connect(
+        host=host, port=port, user="postgres", password=postgres_pwd()
+    )
     with connection:  # noqa SIM117
         with connection.cursor() as cur:
             # or:  CREATE USER user WITH ENCRYPTED PASSWORD 'pwd'
@@ -330,12 +368,20 @@ def pg_user_create(host: str, user: str, password: str):
 
 
 def pg_db_create(host: str, dbname: str, user: str):
+    pg_db_create_port(host, "5432", dbname, user)
+
+
+def pg_db_create_port(host: str, port: str, dbname: str, user: str):
     """Create a postgres DB.
 
     Assuming standard port == 5432
     """
     connection = psycopg2.connect(
-        host=host, dbname="postgres", user="postgres", password=postgres_pwd()
+        host=host,
+        port=port,
+        dbname="postgres",
+        user="postgres",
+        password=postgres_pwd(),
     )
     connection.autocommit = True
     cur = connection.cursor()
@@ -343,7 +389,11 @@ def pg_db_create(host: str, dbname: str, user: str):
     cur.execute(SQL(query).format(db=Identifier(dbname), user=Identifier(user)))
     connection.close()
     connection = psycopg2.connect(
-        host=host, dbname="postgres", user="postgres", password=postgres_pwd()
+        host=host,
+        port=port,
+        dbname="postgres",
+        user="postgres",
+        password=postgres_pwd(),
     )
     connection.autocommit = True
     with connection:  # noqa SIM117
@@ -355,9 +405,17 @@ def pg_db_create(host: str, dbname: str, user: str):
 
 
 def pg_db_exist(host: str, dbname: str) -> bool:
+    return pg_db_exist_port(host, "5432", dbname)
+
+
+def pg_db_exist_port(host: str, port: str, dbname: str) -> bool:
     "Test if the named postgres database exists."
     connection = psycopg2.connect(
-        host=host, dbname="postgres", user="postgres", password=postgres_pwd()
+        host=host,
+        port=port,
+        dbname="postgres",
+        user="postgres",
+        password=postgres_pwd(),
     )
     connection.autocommit = True
     with connection:  # noqa SIM117
@@ -373,10 +431,16 @@ def pg_db_exist(host: str, dbname: str) -> bool:
 def pg_db_table_exist(
     host: str, dbname: str, user: str, password: str, table: str
 ) -> bool:
+    return pg_db_table_exist_port(host, "5432", dbname, user, password, table)
+
+
+def pg_db_table_exist_port(
+    host: str, port: str, dbname: str, user: str, password: str, table: str
+) -> bool:
     """Check if the named database exists (for host, connecting as user), assuming
     DB exists."""
     connection = psycopg2.connect(
-        host=host, dbname=dbname, user=user, password=password
+        host=host, port=port, dbname=dbname, user=user, password=password
     )
     with connection:  # noqa SIM117
         with connection.cursor() as cur:

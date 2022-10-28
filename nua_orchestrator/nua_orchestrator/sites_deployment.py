@@ -12,8 +12,9 @@ from .certbot import protocol_prefix, register_certbot_domains
 from .db import store
 from .db.model.instance import RUNNING
 from .deploy_utils import (
-    add_host_gateway,
+    extra_host_gateway,
     load_install_image,
+    mount_resource_volumes,
     mount_volumes,
     port_allocator,
     unused_volumes,
@@ -42,9 +43,7 @@ from .site import Site
 from .state import verbosity
 
 # parameters passed as a dict to docker run
-RUN_BASE = {
-    "extra_hosts": {"host.docker.internal": "host-gateway"},
-}
+RUN_BASE = {}
 
 
 class SitesDeployment:
@@ -169,20 +168,20 @@ class SitesDeployment:
         """Convert to list of sites format.
 
         output format:
-        [{'host_port': 8100,
+        [{'host_use': 8100,
           'hostname': 'test.example.com',
           'domain': 'test.example.com/instance1',
           'location': 'instance1',
           'image': 'flask-one:1.2-1',
           'ports': {...},
-         {'host_port': 8101,
+         {'host_use': 8101,
           'hostname': 'test.example.com',
           'domain': 'test.example.com/instance2',
           'image': 'flask-one:1.2-1',
           'ports': {...},
           },
           ...
-         {'host_port': 8108,
+         {'host_use': 8108,
           'domain': 'sloop.example.com',
           'image': 'nua-flask-upload-one:1.0-1',
           'ports': {...}]
@@ -232,7 +231,7 @@ class SitesDeployment:
             else:
                 image_id, image_nua_config = load_install_image(img_path)
                 installed[img_path] = (image_id, image_nua_config)
-            site["image_id"] = image_id
+            site.image_id = image_id
             site.image_nua_config = image_nua_config
 
     def install_required_resources(self):
@@ -263,6 +262,7 @@ class SitesDeployment:
             if verbosity(1):
                 display_one_docker_img(docker_image)
             # print_magenta(f"    -> {docker_image}")
+            resource.image_id = docker_image.id
             images_found.add(resource.image)
             return True
         print_red(f"No image found for '{resource.image}'")
@@ -328,7 +328,7 @@ class SitesDeployment:
         end_ports = config.read("nua", "ports", "end") or 9000
         if verbosity(4):
             print(
-                f"generate_ports(): auto addresses in interval {start_ports} to {end_ports}"
+                f"generate_ports(): addresses in interval {start_ports} to {end_ports}"
             )
         self.update_ports_from_nua_config()
         allocated_ports = self._configured_ports()
@@ -378,6 +378,8 @@ class SitesDeployment:
         """
         for site in self.sites:
             site.allocate_auto_ports(allocator)
+            for resource in site.resources:
+                resource.allocate_auto_ports(allocator)
 
     def update_ports_from_nua_config(self):
         """If port not declared in site config, use image definition.
@@ -391,10 +393,31 @@ class SitesDeployment:
 
     def start_sites(self):
         for site in self.sites:
+            self.start_resources_containers(site)
             self.start_one_container(site)
             self.store_container_instance(site)
         chown_r_nua_nginx()
         nginx_restart()
+
+    def start_resources_containers(self, site: Site):
+        for resource in site.resources:
+            self.start_one_resource_container(site, resource)
+
+    def start_one_resource_container(self, site: Site, resource: Resource):
+        run_params = self.generate_resource_container_run_parameters(site, resource)
+        if verbosity(4):
+            print(f"start_one_resource_container(): {run_params=}")
+        # volumes need to be mounted before beeing passed as arguments to
+        # docker.run()
+        mounted_volumes = mount_resource_volumes(resource)
+        if mounted_volumes:
+            run_params["mounts"] = mounted_volumes
+        resource.run_params = run_params
+        docker_run(resource)
+        if mounted_volumes:
+            resource.run_params["mounts"] = True
+        if verbosity(1):
+            print_magenta(f"    -> run new container         '{resource.container}'")
 
     def start_one_container(self, site: Site):
         run_params = self.generate_container_run_parameters(site)
@@ -410,15 +433,15 @@ class SitesDeployment:
         if mounted_volumes:
             site.run_params["mounts"] = True
         if verbosity(1):
-            print_magenta(f"    -> run new container         '{site['container']}'")
+            print_magenta(f"    -> run new container         '{site.container}'")
 
-    def store_container_instance(self, site):
+    def store_container_instance(self, site: Site):
         meta = site.image_nua_config["metadata"]
         store.store_instance(
             app_id=meta["id"],
             nua_tag=store.nua_tag_string(meta),
             domain=site.domain,
-            container=site["container"],
+            container=site.container,
             image=site.image,
             state=RUNNING,
             site_config=dict(site),
@@ -429,22 +452,46 @@ class SitesDeployment:
         image_nua_config = site.image_nua_config
         run_params = deepcopy(RUN_BASE)
         docker_default_run = config.read("nua", "docker_default_run")
-        if verbosity(4):
-            print(f"generate_container_run_parameters(): {docker_default_run=}")
         run_params.update(docker_default_run)
         run_params.update(image_nua_config.get("run", {}))
-        add_host_gateway(run_params)
+        self.run_params_extra_hosts(run_params)
         run_params["name"] = site.container_name
         run_params["ports"] = site.ports_as_docker_params()
         run_params["environment"] = self.run_parameters_container_environment(site)
+        self.sanitize_run_params(run_params)
         return run_params
+
+    def generate_resource_container_run_parameters(
+        self, site: Site, resource: Resource
+    ):
+        """Return suitable parameters for the docker.run() command (for Resource)."""
+        run_params = {}
+        self.run_params_extra_hosts(run_params)
+        name = f"{site.container_name}-{resource.base_name}"
+        run_params["name"] = name
+        run_params["ports"] = resource.ports_as_docker_params()
+        run_params["environment"] = resource.run_env
+        self.sanitize_run_params(run_params)
+        return run_params
+
+    @staticmethod
+    def run_params_extra_hosts(run_params: dict):
+        extra_hosts = run_params.get("extra_hosts", {})
+        extra_hosts.update(extra_host_gateway())
+        run_params["extra_hosts"] = extra_hosts
 
     def run_parameters_container_environment(self, site: Site) -> dict:
         image_nua_config = site.image_nua_config
         run_env = image_nua_config.get("run_env", {})
         run_env.update(self.services_environment(site))
+        run_env.update(self.resources_environment(site))
         run_env.update(site.run_env)
         return run_env
+
+    @staticmethod
+    def sanitize_run_params(run_params: dict):
+        if "restart_policy" in run_params:
+            run_params["auto_remove"] = False
 
     def services_environment(self, site: Site) -> dict:
         run_env = {}
@@ -452,6 +499,12 @@ class SitesDeployment:
             handler = self.available_services[service]
             # function may need or not site param:
             run_env.update(handler.environment(site))
+        return run_env
+
+    def resources_environment(self, site: Site) -> dict:
+        run_env = {}
+        for resource in site.resources:
+            run_env.update(resource.environment_ports())
         return run_env
 
     def display_final(self):

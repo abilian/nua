@@ -19,7 +19,7 @@ class Site(Resource):
 
     def check_valid(self):
         self._check_mandatory()
-        self._normalize_ports()
+        self._normalize_ports(default_proxy="auto")
         self._normalize_domain()
 
     @property
@@ -80,6 +80,7 @@ class Site(Resource):
                     f"nua-config declared resource '{name}' is not defined"
                 )
             resource = Resource(self.image_nua_config[name])
+            resource.resource_name = name
             resource.check_valid()
             resources.append(resource)
         if verbosity(3):
@@ -101,12 +102,14 @@ class Site(Resource):
         config_ports = deepcopy(self.image_nua_config.get("ports", []))
         if not isinstance(config_ports, list):
             raise ValueError("nua_config['ports'] must be a list")
-        normalize_ports(config_ports)
+        normalize_ports(config_ports, default_proxy="auto")
         ports = ports_as_dict(config_ports)
         if verbosity(5):
             print(f"rebase_ports_upon_nua_config(): ports={pformat(ports)}")
         ports.update(self.ports)
         self.ports = ports
+        for resource in self.resources:
+            resource.ports = ports_as_dict(resource.ports)
 
     @property
     def nua_long_name(self) -> str:

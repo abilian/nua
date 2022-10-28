@@ -17,9 +17,6 @@ document_root = "/nua/app/html"
 resources = ["database"]
 
 [run]
-# parameters passed as a dict to docker run
-auto_remove = true
-# detach = true mandatory, forced
 restart_policy.name="always"
 
 [[ports]]
@@ -27,8 +24,10 @@ container = 80
 host = "auto"
 
 [run_env]
-# parameters passed as a dict to docker run: environment dict
-DATABASE_URL="postgresql://bob:bob_pwd@postgres_data:5432/flask_db"
+POSTGRES_USER = "bob"
+POSTGRES_PASSWORD = "bob_pwd"
+POSTGRES_DB = "flask_db"
+# port will be available in environment as NUA_RESOURCE_DATABASE_5432
 
 [database]
 type = "docker"
@@ -45,7 +44,8 @@ image = "docker.io/library/postgres:14.5"
 
 [[database.ports]]
     container = 5432
-    host = 5432
+    # host = 5432
+    host = "auto"
 
 [[database.volume]]
     # The mount type (bind / volume / tmpfs / npipe). Default: volume :
