@@ -1,6 +1,5 @@
 from copy import deepcopy
 from pprint import pformat
-from string import ascii_letters, digits
 
 from .domain_split import DomainSplit
 from .port_normalization import normalize_ports, ports_as_dict
@@ -45,22 +44,20 @@ class Site(Resource):
     def required_services(self, required_services: set):
         self["required_services"] = required_services
 
-    @property
-    def network_name(self) -> str:
-        return self.get("network_name", "")
-
-    @network_name.setter
-    def network_name(self, network_name: str):
-        self["network_name"] = sanitized_name(network_name)
-
-    def set_network_name(self):
+    def _merged_instance_network_name(self) -> str:
         instance = self.image_nua_config.get("instance", {})
         network_name = instance.get("network") or ""
-        if network_name:
-            renamed = self.get("network") or ""
-            self.network_name = renamed if renamed else network_name
-        else:
-            self.network_name = ""
+        if not network_name:
+            return ""
+        renamed = self.get("network") or ""
+        network_name = renamed if renamed else network_name
+        return sanitized_name(network_name)
+
+    def set_network_name(self):
+        self.network_name = self._merged_instance_network_name()
+        if self.network_name:
+            for resource in self.resources:
+                resource.network_name = self.network_name
 
     def services_instance_updated(self) -> set:
         instance = self.image_nua_config.get("instance", {})

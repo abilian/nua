@@ -15,17 +15,18 @@ from .deploy_utils import (
     extra_host_gateway,
     load_install_image,
     mount_resource_volumes,
-    mount_volumes,
+    mount_site_volumes,
     port_allocator,
+    start_one_container,
     unused_volumes,
     volume_print,
 )
 from .docker_utils import (
     display_one_docker_img,
     docker_network_create_bridge,
+    docker_network_prune,
     docker_pull,
     docker_remove_container_db,
-    docker_run,
     docker_service_start_if_needed,
 )
 from .domain_split import DomainSplit
@@ -243,14 +244,13 @@ class SitesDeployment:
 
     def pull_all_resource_images(self) -> bool:
         images_found = set()
-        for site in self.deploy_sites:
-            if not all(
+        return all(
+            all(
                 self._pull_resource(resource, images_found)
                 for resource in site.resources
-            ):
-                # if not self._pull_site_resources(site, images_found):
-                return False
-        return True
+            )
+            for site in self.deploy_sites
+        )
 
     @staticmethod
     def _pull_resource(resource: Resource, images_found: set) -> bool:
@@ -283,10 +283,11 @@ class SitesDeployment:
                     f"'{instance.app_id}' instance on '{instance.domain}'"
                 )
             docker_remove_container_db(instance.domain)
+        docker_network_prune()
 
     def configure_deployment(self):
         self.sites = self.host_list_to_sites()
-        self.list_networks()
+        self.set_network_names()
         self.generate_ports()
         self.configure_nginx()
         if verbosity(2):
@@ -295,7 +296,7 @@ class SitesDeployment:
         self.check_services()
         self.restart_services()
 
-    def list_networks(self):
+    def set_network_names(self):
         for site in self.sites:
             site.set_network_name()
 
@@ -401,7 +402,7 @@ class SitesDeployment:
         for site in self.sites:
             self.start_network(site)
             self.start_resources_containers(site)
-            self.start_one_container(site)
+            self.start_one_site_container(site)
             self.store_container_instance(site)
         chown_r_nua_nginx()
         nginx_restart()
@@ -417,37 +418,17 @@ class SitesDeployment:
 
     def start_one_resource_container(self, site: Site, resource: Resource):
         run_params = self.generate_resource_container_run_parameters(site, resource)
-        if verbosity(4):
-            print(f"start_one_resource_container(): {run_params=}")
         # volumes need to be mounted before beeing passed as arguments to
         # docker.run()
         mounted_volumes = mount_resource_volumes(resource)
-        if mounted_volumes:
-            run_params["mounts"] = mounted_volumes
-        resource.run_params = run_params
-        started_container = docker_run(resource)
-        if mounted_volumes:
-            resource.run_params["mounts"] = True
-        if verbosity(1):
-            print_magenta(f"    -> run new container         '{resource.container}'")
-            if site.network_name:
-                print_magenta(f"       connected to network '{site.network_name}'")
+        start_one_container(resource, run_params, mounted_volumes)
 
-    def start_one_container(self, site: Site):
+    def start_one_site_container(self, site: Site):
         run_params = self.generate_container_run_parameters(site)
-        if verbosity(4):
-            print(f"start_one_container(): {run_params=}")
         # volumes need to be mounted before beeing passed as arguments to
         # docker.run()
-        mounted_volumes = mount_volumes(site)
-        if mounted_volumes:
-            run_params["mounts"] = mounted_volumes
-        site.run_params = run_params
-        docker_run(site)
-        if mounted_volumes:
-            site.run_params["mounts"] = True
-        if verbosity(1):
-            print_magenta(f"    -> run new container         '{site.container}'")
+        mounted_volumes = mount_site_volumes(site)
+        start_one_container(site, run_params, mounted_volumes)
 
     def store_container_instance(self, site: Site):
         meta = site.image_nua_config["metadata"]

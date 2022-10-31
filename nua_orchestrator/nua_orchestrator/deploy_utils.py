@@ -12,6 +12,7 @@ from .db import store
 from .docker_utils import (
     display_one_docker_img,
     docker_host_gateway_ip,
+    docker_run,
     docker_volume_create_or_use,
     docker_volume_prune,
 )
@@ -70,7 +71,7 @@ def port_allocator(start_ports: int, end_ports: int, allocated_ports: set) -> Ca
     return allocator
 
 
-def mount_volumes(site: Site) -> list:
+def mount_site_volumes(site: Site) -> list:
     volumes = site.rebased_volumes_upon_nua_conf()
     create_docker_volumes(volumes)
     mounted_volumes = []
@@ -150,6 +151,23 @@ def new_docker_driver_config(volume_params: dict) -> docker.types.DriverConfig |
 def unmount_unused_volumes(orig_mounted_volumes: list):
     for unused in unused_volumes(orig_mounted_volumes):
         docker_volume_prune(unused)
+
+
+def start_one_container(rsite: Resource, run_params: dict, mounted_volumes: list):
+    if mounted_volumes:
+        run_params["mounts"] = mounted_volumes
+    rsite.run_params = run_params
+    if verbosity(4):
+        print(f"start_one_container(): {run_params=}")
+    docker_run(rsite)
+    if mounted_volumes:
+        rsite.run_params["mounts"] = True
+    if verbosity(1):
+        print_magenta(f"    -> run new container         '{rsite.container}'")
+        if rsite.network_name:
+            print_magenta(
+                f"       container connected to network '{rsite.network_name}'"
+            )
 
 
 def stop_previous_containers(sites: list):

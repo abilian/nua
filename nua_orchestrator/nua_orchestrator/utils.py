@@ -1,6 +1,8 @@
 import re
 import string
 
+from .panic import error
+
 RE_NB_UNIT = re.compile(r"(\d+\.?\d*)\s*(\S*)")
 UNIT = {"B": 1, "K": 2**10, "M": 2**20, "G": 2**30, "T": 2**40}
 ALLOW_FIRST = set(string.ascii_lowercase + string.digits)
@@ -29,7 +31,7 @@ def size_to_bytes(input: str) -> int:
     return int(value * UNIT.get(unit, 1))
 
 
-def sanitized_name(name: name, length=255) -> str:
+def sanitized_name(name: str, length=255) -> str:
     name = "".join(x for x in str(name).lower() if x in ALLOW_NAME)
     name = name[:length]
     if len(name) < 2:

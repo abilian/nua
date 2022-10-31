@@ -1,6 +1,7 @@
 from typing import Callable
 
 from .port_normalization import normalize_ports, ports_as_dict
+from .utils import sanitized_name
 from .volume_normalization import normalize_volumes
 
 
@@ -106,6 +107,14 @@ class Resource(dict):
     @resource_name.setter
     def resource_name(self, resource_name: str):
         self["resource_name"] = resource_name
+
+    @property
+    def network_name(self) -> str:
+        return self.get("network_name", "")
+
+    @network_name.setter
+    def network_name(self, network_name: str):
+        self["network_name"] = sanitized_name(network_name)
 
     def set_ports_as_dict(self):
         """replace ports list by a dict with container port as key
