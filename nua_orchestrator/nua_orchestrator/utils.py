@@ -1,7 +1,10 @@
 import re
+import string
 
 RE_NB_UNIT = re.compile(r"(\d+\.?\d*)\s*(\S*)")
 UNIT = {"B": 1, "K": 2**10, "M": 2**20, "G": 2**30, "T": 2**40}
+ALLOW_FIRST = set(string.ascii_lowercase + string.digits)
+ALLOW_NAME = set(string.ascii_lowercase + string.digits + "_.-")
 
 
 def image_size_repr(image_bytes: int, as_mib: bool) -> int:
@@ -24,3 +27,13 @@ def size_to_bytes(input: str) -> int:
     value = float(match.group(1))
     unit = match.group(2).upper()[0:1]
     return int(value * UNIT.get(unit, 1))
+
+
+def sanitized_name(name: name, length=255) -> str:
+    name = "".join(x for x in str(name).lower() if x in ALLOW_NAME)
+    name = name[:length]
+    if len(name) < 2:
+        error(f"Name is too short: '{name}'")
+    if name[0] not in ALLOW_FIRST:
+        error(f"Name first character not valid: '{name}'")
+    return name

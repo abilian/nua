@@ -7,8 +7,8 @@ from .volume_normalization import normalize_volumes
 class Resource(dict):
     MANDATORY_KEYS = ("image", "type")
 
-    def __init__(self, site_dict: dict):
-        super().__init__(site_dict)
+    def __init__(self, resource_dict: dict):
+        super().__init__(resource_dict)
 
     def check_valid(self):
         self._check_mandatory()

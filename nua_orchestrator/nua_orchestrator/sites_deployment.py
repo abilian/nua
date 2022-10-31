@@ -22,6 +22,7 @@ from .deploy_utils import (
 )
 from .docker_utils import (
     display_one_docker_img,
+    docker_network_create_bridge,
     docker_pull,
     docker_remove_container_db,
     docker_run,
@@ -285,6 +286,7 @@ class SitesDeployment:
 
     def configure_deployment(self):
         self.sites = self.host_list_to_sites()
+        self.list_networks()
         self.generate_ports()
         self.configure_nginx()
         if verbosity(2):
@@ -292,6 +294,10 @@ class SitesDeployment:
         register_certbot_domains(self.sites)
         self.check_services()
         self.restart_services()
+
+    def list_networks(self):
+        for site in self.sites:
+            site.set_network_name()
 
     def check_services(self):
         for site in self.sites:
@@ -393,11 +399,17 @@ class SitesDeployment:
 
     def start_sites(self):
         for site in self.sites:
+            self.start_network(site)
             self.start_resources_containers(site)
             self.start_one_container(site)
             self.store_container_instance(site)
         chown_r_nua_nginx()
         nginx_restart()
+
+    def start_network(self, site: Site):
+        if not site.network_name:
+            return
+        docker_network_create_bridge(site.network_name)
 
     def start_resources_containers(self, site: Site):
         for resource in site.resources:
@@ -413,11 +425,13 @@ class SitesDeployment:
         if mounted_volumes:
             run_params["mounts"] = mounted_volumes
         resource.run_params = run_params
-        docker_run(resource)
+        started_container = docker_run(resource)
         if mounted_volumes:
             resource.run_params["mounts"] = True
         if verbosity(1):
             print_magenta(f"    -> run new container         '{resource.container}'")
+            if site.network_name:
+                print_magenta(f"       connected to network '{site.network_name}'")
 
     def start_one_container(self, site: Site):
         run_params = self.generate_container_run_parameters(site)

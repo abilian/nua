@@ -1,5 +1,6 @@
 """Docker utils."""
 import json
+from copy import deepcopy
 from datetime import datetime
 from functools import cache, wraps
 from pprint import pformat
@@ -269,8 +270,8 @@ def _erase_previous_container(client: DockerClient, name: str):
         pass
 
 
-def docker_run(rsite: Resource):
-    params = rsite.run_params
+def docker_run(rsite: Resource) -> Container:
+    params = deepcopy(rsite.run_params)
     if verbosity(1):
         print_magenta(f"Docker run image '{rsite.image_id}'")
         if verbosity(2):
@@ -278,6 +279,8 @@ def docker_run(rsite: Resource):
     docker_remove_prior_container_db(rsite)
     docker_remove_prior_container_live(rsite)
     params["detach"] = True  # force detach option
+    if rsite.network_name:
+        params["network"] = rsite.network_name
     client = from_env()
     _erase_previous_container(client, params["name"])
     container = client.containers.run(rsite.image_id, **params)
@@ -287,6 +290,7 @@ def docker_run(rsite: Resource):
     if not docker_check_container_listed(container.name):
         error(f"Failed starting container {container.name}")
     rsite.container = container.name
+    return container
 
 
 def docker_volume_list(name: str) -> list:
@@ -364,6 +368,27 @@ def docker_volume_prune(volume_opt: dict):
         print("Error while unmounting volume:")
         print("volume_opt")
         print(e)
+
+
+def docker_network_create_bridge(network_name: str):
+    client = from_env()
+    found = docker_network_by_name(network_name)
+    if found:
+        return found
+    else:
+        return client.networks.create(network_name, driver="bridge")
+
+
+def docker_network_prune():
+    """prune all unused networks (no option in py-docker?)"""
+    client = from_env()
+    client.networks.prune()
+
+
+def docker_network_by_name(network_name: str):
+    client = from_env()
+    all_nets = {netw.name: netw for netw in client.networks.list()}
+    return all_nets.get(network_name)
 
 
 def install_plugin(plugin_name: str) -> str:

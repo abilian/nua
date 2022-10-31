@@ -15,6 +15,7 @@ document_root = "/nua/app/html"
 
 [instance]
 resources = ["database"]
+network = "flask-pg-1"
 
 [run]
 restart_policy.name="always"

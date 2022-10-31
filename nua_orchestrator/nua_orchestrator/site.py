@@ -6,8 +6,7 @@ from .domain_split import DomainSplit
 from .port_normalization import normalize_ports, ports_as_dict
 from .resource import Resource
 from .state import verbosity
-
-ALLOW_DOCKER_NAME = set(ascii_letters + digits + "-_.")
+from .utils import sanitized_name
 
 
 class Site(Resource):
@@ -45,6 +44,23 @@ class Site(Resource):
     @required_services.setter
     def required_services(self, required_services: set):
         self["required_services"] = required_services
+
+    @property
+    def network_name(self) -> str:
+        return self.get("network_name", "")
+
+    @network_name.setter
+    def network_name(self, network_name: str):
+        self["network_name"] = sanitized_name(network_name)
+
+    def set_network_name(self):
+        instance = self.image_nua_config.get("instance", {})
+        network_name = instance.get("network") or ""
+        if network_name:
+            renamed = self.get("network") or ""
+            self.network_name = renamed if renamed else network_name
+        else:
+            self.network_name = ""
 
     def services_instance_updated(self) -> set:
         instance = self.image_nua_config.get("instance", {})
@@ -123,4 +139,4 @@ class Site(Resource):
     def container_name(self) -> str:
         suffix = DomainSplit(self.domain).containner_suffix()
         name_base = f"{self.nua_long_name}-{suffix}"
-        return "".join([x for x in name_base if x in ALLOW_DOCKER_NAME])
+        return sanitized_name(name_base)
