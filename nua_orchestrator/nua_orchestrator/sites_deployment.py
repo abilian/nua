@@ -243,18 +243,14 @@ class SitesDeployment:
             error("Missing Nua images")
 
     def pull_all_resource_images(self) -> bool:
-        images_found = set()
         return all(
-            all(
-                self._pull_resource(resource, images_found)
-                for resource in site.resources
-            )
+            all(self._pull_resource(resource) for resource in site.resources)
             for site in self.deploy_sites
         )
 
     @staticmethod
-    def _pull_resource(resource: Resource, images_found: set) -> bool:
-        if resource.image in images_found or resource.type != "docker":
+    def _pull_resource(resource: Resource) -> bool:
+        if resource.type != "docker":
             return True
         if verbosity(1):
             print_magenta(f"Pulling image '{resource.image}'")
@@ -264,7 +260,6 @@ class SitesDeployment:
                 display_one_docker_img(docker_image)
             # print_magenta(f"    -> {docker_image}")
             resource.image_id = docker_image.id
-            images_found.add(resource.image)
             return True
         print_red(f"No image found for '{resource.image}'")
         return False
@@ -288,6 +283,7 @@ class SitesDeployment:
     def configure_deployment(self):
         self.sites = self.host_list_to_sites()
         self.set_network_names()
+        self.merge_instances_to_resources()
         self.generate_ports()
         self.configure_nginx()
         if verbosity(2):
@@ -299,6 +295,10 @@ class SitesDeployment:
     def set_network_names(self):
         for site in self.sites:
             site.set_network_name()
+
+    def merge_instances_to_resources(self):
+        for site in self.sites:
+            site.merge_instance_to_resources()
 
     def check_services(self):
         for site in self.sites:

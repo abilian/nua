@@ -1,3 +1,4 @@
+from pprint import pformat
 from typing import Callable
 
 from .port_normalization import normalize_ports, ports_as_dict
@@ -195,11 +196,22 @@ class Resource(dict):
             merge_dict[vol["source"]] = vol
         return list(merge_dict.values())
 
+    def update_instance_from_site(self, resource_updates: dict):
+        print("update_instance_from_site()")
+        print(pformat(resource_updates))
+        print("--------")
+        print(pformat(self))
+        for key, value in resource_updates.items():
+            # brutal replacement, TODO make special cases for volumes
+            self[key] = value
+
     def environment_ports(self) -> dict:
-        """Return exposed ports as env variables."""
+        """Return exposed ports and resource host (container name) as env variables."""
         run_env = {}
         for port in self.ports.values():
-            variable = f"NUA_RESOURCE_{self.resource_name.upper()}_{port['container']}"
+            variable = f"NUA_{self.resource_name.upper()}_PORT_{port['container']}"
             value = str(port["host_use"])
             run_env[variable] = value
+        variable = f"NUA_{self.resource_name.upper()}_HOST"
+        run_env[variable] = self.container
         return run_env

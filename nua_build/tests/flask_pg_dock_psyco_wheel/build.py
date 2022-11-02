@@ -11,7 +11,7 @@ def main():
     config = NuaConfig(".")
 
     # this app requires some packages (for pg_config):
-    install_package_list(["libpq-dev"])
+    install_package_list(["python3-dev", "libpq-dev"])
     # install from a wheel
     pip_install_glob("*.whl")
 

@@ -1,5 +1,8 @@
 """Example adapted from:
 https://www.digitalocean.com/community/tutorials/how-to-use-a-postgresql-database-in-a-flask-application"""
+#
+# RUN echo "listen_addresses='*'" >> /etc/postgresql/9.3/main/postgresql.conf
+# RUN echo "host all  all    0.0.0.0/0  trust" >> /etc/postgresql/9.3/main/pg_hba.conf
 
 import os
 
@@ -7,9 +10,10 @@ import psycopg2
 from flask_pg_dock_psyco.constants import (
     DB_HOST,
     DB_PORT,
-    POSTGRES_DB,
     POSTGRES_PASSWORD,
-    POSTGRES_USER,
+    USER_DB,
+    USER_NAME,
+    USER_PASSWORD,
 )
 
 from nua_build import postgres  # Nua shortcuts to manage postgres operations
@@ -17,15 +21,15 @@ from nua_build.exec import exec_as_root
 
 
 def setup_db():
-    """Find or create the required DB.
+    """Find or create the required DB for app user.
 
     In this example The DB is on remote docker container."""
     postgres.pg_setup_db_user_port(
         host=DB_HOST,
         port=DB_PORT,
-        dbname=POSTGRES_DB,
-        user=POSTGRES_USER,
-        password=POSTGRES_PASSWORD,
+        dbname=USER_DB,
+        user=USER_NAME,
+        password=USER_PASSWORD,
     )
 
 
@@ -33,9 +37,9 @@ def init_db_content():
     if not postgres.pg_db_table_exist_port(
         host=DB_HOST,
         port=DB_PORT,
-        dbname=POSTGRES_DB,
-        user=POSTGRES_USER,
-        password=POSTGRES_PASSWORD,
+        dbname=USER_DB,
+        user=USER_NAME,
+        password=USER_PASSWORD,
         table="books",
     ):
         add_content()
@@ -45,9 +49,9 @@ def add_content():
     connection = psycopg2.connect(
         host=DB_HOST,
         port=DB_PORT,
-        database=POSTGRES_DB,
-        user=POSTGRES_USER,
-        password=POSTGRES_PASSWORD,
+        database=USER_DB,
+        user=USER_NAME,
+        password=USER_PASSWORD,
     )
     with connection:
         with connection.cursor() as cur:

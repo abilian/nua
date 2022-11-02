@@ -4,7 +4,14 @@ import psycopg2
 from flask import Flask, redirect, render_template, request, url_for
 from psycopg2.sql import SQL
 
-from .constants import DB_HOST, DB_PORT, POSTGRES_DB, POSTGRES_PASSWORD, POSTGRES_USER
+from .constants import (
+    DB_HOST,
+    DB_PORT,
+    POSTGRES_PASSWORD,
+    USER_DB,
+    USER_NAME,
+    USER_PASSWORD,
+)
 
 app = Flask(__name__)
 
@@ -13,9 +20,9 @@ def db_connection():
     return psycopg2.connect(
         host=DB_HOST,
         port=DB_PORT,
-        database=POSTGRES_DB,
-        user=POSTGRES_USER,
-        password=POSTGRES_PASSWORD,
+        database=USER_DB,
+        user=USER_NAME,
+        password=USER_PASSWORD,
     )
 
 

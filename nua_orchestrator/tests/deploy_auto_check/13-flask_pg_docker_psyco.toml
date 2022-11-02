@@ -2,8 +2,6 @@
 image = "flask-pg-dock-psyco:1.0-1"
 domain = "test1.example.com"
 [site.run_env]
-DB_NAME = "flask_db_1"
-
 
 
 [[site.test]]

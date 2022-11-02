@@ -59,6 +59,19 @@ class Site(Resource):
             for resource in self.resources:
                 resource.network_name = self.network_name
 
+    def merge_instance_to_resources(self):
+        for resource in self.resources:
+            resource_updates = self.get(resource.resource_name)
+            if not resource_updates:
+                # no redefinition of any configuration of the resource
+                continue
+            if not isinstance(resource_updates, dict):
+                print(
+                    f"Warning: {self.name}, resource {resource.resource_name} updates must be a dict."
+                )
+                continue
+            resource.update_instance_from_site(resource_updates)
+
     def services_instance_updated(self) -> set:
         instance = self.image_nua_config.get("instance", {})
         instance.update({k: v for k, v in self.items() if not isinstance(v, dict)})
