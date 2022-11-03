@@ -1,0 +1,13 @@
+[[site]]
+image = "nua-flask-mariadb-docker-wheel"
+domain = "test1.example.com"
+[site.run_env]
+
+[[site.test]]
+url = "https://test1.example.com/"
+expect_status = 200
+expect_str = "Books"
+[[site.test]]
+url = "https://test1.example.com/create/"
+expect_status = 200
+expect_str = "Add a New Book"
