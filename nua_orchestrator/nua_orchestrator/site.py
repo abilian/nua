@@ -67,7 +67,8 @@ class Site(Resource):
                 continue
             if not isinstance(resource_updates, dict):
                 print(
-                    f"Warning: {self.name}, resource {resource.resource_name} updates must be a dict."
+                    f"Warning: {self.name}, resource {resource.resource_name} "
+                    "updates must be a dict."
                 )
                 continue
             resource.update_instance_from_site(resource_updates)

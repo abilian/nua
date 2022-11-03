@@ -1,8 +1,7 @@
 """class to manage the deployment of a group os sites
 """
 from pathlib import Path
-
-# from pprint import pprint
+from pprint import pformat
 from typing import Callable
 
 import docker
@@ -158,7 +157,7 @@ def start_one_container(rsite: Resource, run_params: dict, mounted_volumes: list
         run_params["mounts"] = mounted_volumes
     rsite.run_params = run_params
     if verbosity(4):
-        print(f"start_one_container(): {run_params=}")
+        print(f"start_one_container() run_params:\n{pformat(run_params)}")
     docker_run(rsite)
     if mounted_volumes:
         rsite.run_params["mounts"] = True

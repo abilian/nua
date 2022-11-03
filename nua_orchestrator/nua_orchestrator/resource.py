@@ -1,4 +1,4 @@
-from pprint import pformat
+# from pprint import pformat
 from typing import Callable
 
 from .port_normalization import normalize_ports, ports_as_dict
@@ -197,16 +197,55 @@ class Resource(dict):
         return list(merge_dict.values())
 
     def update_instance_from_site(self, resource_updates: dict):
-        print("update_instance_from_site()")
-        print(pformat(resource_updates))
-        print("--------")
-        print(pformat(self))
+        # print("update_instance_from_site()")
+        # print(pformat(resource_updates))
+        # print("--------")
+        # print(pformat(self))
         for key, value in resource_updates.items():
             # brutal replacement, TODO make special cases for volumes
-            self[key] = value
+            # less brutal:
+            if key not in {"ports", "run", "run_env", "volume"}:
+                print(
+                    "Warning: maybe updating an unknown key in "
+                    f"the configuration '{key}'"
+                )
+            if key not in self:
+                self[key] = value
+                continue
+            self._update_instance_from_site_deep(key, value)
+
+    def _update_instance_from_site_deep(self, key: str, value):
+        orig = self[key]
+        if isinstance(orig, dict):
+            if not isinstance(value, dict):
+                raise ValueError(
+                    f"Updated value in deploy config must be a dict.\n"
+                    f"{orig=}\n{value=}"
+                )
+            orig.update(value)
+            return
+        if key == "volume":
+            return self._update_instance_from_site_deep_volume(value)
+        # unknow, (or ports?) be brutal
+        self[key] = value
+
+    def _update_instance_from_site_deep_volume(self, value):
+        if not isinstance(value, list):
+            raise ValueError(
+                f"Updated volumes in deploy config must be a list.\n" f"{value=}"
+            )
+        vol_dic = {}
+        for orig_vol in self.volume:
+            vol_dic[orig_vol["target"]] = orig_vol
+        for update_vol in value:
+            vol_dic[update_vol["target"]] = update_vol
+        self.volume = list(vol_dic.values())
 
     def environment_ports(self) -> dict:
-        """Return exposed ports and resource host (container name) as env variables."""
+        """Return exposed ports and resource host (container name) as env variables.
+
+        To be used by remote container from same bridge network to connect to the
+        resource container port."""
         run_env = {}
         for port in self.ports.values():
             variable = f"NUA_{self.resource_name.upper()}_PORT_{port['container']}"

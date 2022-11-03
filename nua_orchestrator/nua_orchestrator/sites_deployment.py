@@ -45,7 +45,8 @@ from .site import Site
 from .state import verbosity
 
 # parameters passed as a dict to docker run
-RUN_BASE = {}
+RUN_BASE = {}  # see also nua_config
+RUN_BASE_RESOURCE = {"restart_policy": {"name": "always"}}
 
 
 class SitesDeployment:
@@ -424,7 +425,7 @@ class SitesDeployment:
         start_one_container(resource, run_params, mounted_volumes)
 
     def start_one_site_container(self, site: Site):
-        run_params = self.generate_container_run_parameters(site)
+        run_params = self.generate_site_container_run_parameters(site)
         # volumes need to be mounted before beeing passed as arguments to
         # docker.run()
         mounted_volumes = mount_site_volumes(site)
@@ -442,14 +443,17 @@ class SitesDeployment:
             site_config=dict(site),
         )
 
-    def generate_container_run_parameters(self, site: Site):
+    def generate_site_container_run_parameters(self, site: Site):
         """Return suitable parameters for the docker.run() command."""
         image_nua_config = site.image_nua_config
         run_params = deepcopy(RUN_BASE)
-        docker_default_run = config.read("nua", "docker_default_run")
-        run_params.update(docker_default_run)
+        nua_docker_default_run = config.read("nua", "docker_default_run")
+        run_params.update(nua_docker_default_run)
+        # run parameters defined in the image configuration:
         run_params.update(image_nua_config.get("run", {}))
-        self.run_params_extra_hosts(run_params)
+        # run parameters defined in the site configuration file (deploy toml):
+        run_params.update(site.get("run", {}))
+        self.add_host_gareway_to_extra_hosts(run_params)
         run_params["name"] = site.container_name
         run_params["ports"] = site.ports_as_docker_params()
         run_params["environment"] = self.run_parameters_container_environment(site)
@@ -460,8 +464,9 @@ class SitesDeployment:
         self, site: Site, resource: Resource
     ):
         """Return suitable parameters for the docker.run() command (for Resource)."""
-        run_params = {}
-        self.run_params_extra_hosts(run_params)
+        run_params = deepcopy(RUN_BASE_RESOURCE)
+        run_params.update(resource.get("run", {}))
+        self.add_host_gareway_to_extra_hosts(run_params)
         name = f"{site.container_name}-{resource.base_name}"
         run_params["name"] = name
         run_params["ports"] = resource.ports_as_docker_params()
@@ -470,7 +475,7 @@ class SitesDeployment:
         return run_params
 
     @staticmethod
-    def run_params_extra_hosts(run_params: dict):
+    def add_host_gareway_to_extra_hosts(run_params: dict):
         extra_hosts = run_params.get("extra_hosts", {})
         extra_hosts.update(extra_host_gateway())
         run_params["extra_hosts"] = extra_hosts
