@@ -20,6 +20,9 @@ def mariadb_pwd() -> str:
     was generated (or its another bug).
 
     Rem.: No cache. Rarely used function and pwd can be changed."""
+    pwd = os.environ.get("MARIADB_ROOT_PASSWORD")
+    if pwd:
+        return pwd
     pwd = os.environ.get("NUA_MARIADB_PASSWORD")
     if pwd:
         return pwd

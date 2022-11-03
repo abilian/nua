@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "frappe-bench"
-version = "0.1.0"
+version = "5.14.4"
 description = "Base for frappe bench"
 authors = ["Jerome Dumonteil <jd@abilian.com>"]
 license = "MIT"
