@@ -1,0 +1,7 @@
+[[site]]
+image = "nua-flask-mariadb-docker-wheel"
+domain = "test1.example.xyz"
+
+[site.run]
+# basically do nothing, no start.py
+command = "sleep infinity"
