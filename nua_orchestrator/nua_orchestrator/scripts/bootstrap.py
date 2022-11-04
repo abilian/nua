@@ -20,7 +20,7 @@ from ..bash import bash_as_nua
 from ..exec import exec_as_nua, mp_exec_as_nua
 from ..mariadb_utils import bootstrap_install_mariadb, set_random_mariadb_pwd
 from ..nginx_util import install_nginx
-from ..panic import error
+from ..panic import error, warning
 from ..postgres_utils import bootstrap_install_postgres, set_random_postgres_pwd
 from ..rich_console import print_green, print_magenta, print_red
 from ..shell import chown_r, mkdir_p, rm_fr, sh, user_exists
@@ -43,7 +43,7 @@ def main():
     if not check_python_version():
         error("Python 3.10+ is required for Nua installation.")
     if user_exists(NUA):
-        print_red("Warning: Nua was already installed.")
+        warning("Nua was already installed.")
     if os.geteuid() != 0:
         print_red(
             "Nua bootstrap script requires root privileges.\n"

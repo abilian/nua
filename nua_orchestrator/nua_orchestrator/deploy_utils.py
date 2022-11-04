@@ -15,8 +15,9 @@ from .docker_utils import (
     docker_volume_create_or_use,
     docker_volume_prune,
 )
+from .panic import error, warning
 from .resource import Resource
-from .rich_console import print_green, print_magenta, print_red
+from .rich_console import print_green, print_magenta
 from .server_utils.net_utils import check_port_available
 from .site import Site
 from .state import verbosity
@@ -31,12 +32,12 @@ def load_install_image(image_path: str | Path) -> tuple:
     path = Path(image_path)
     # image is local, so we can mount it directly
     if not path.is_file():
+        warning("Local Docker image does not exist")
         raise FileNotFoundError(path)
     arch_search = ArchiveSearch(path)
     image_nua_config = arch_search.nua_config_dict()
     if not image_nua_config:
-        print_red(f"Error: image non compatible Nua: {path}.")
-        raise ValueError("No Nua config found")
+        error(f"image non compatible Nua: {path}.", explanation="No Nua config found")
     metadata = image_nua_config["metadata"]
     msg = "Installing App: {id} {version}, {title}".format(**metadata)
     print_magenta(msg)
@@ -45,8 +46,7 @@ def load_install_image(image_path: str | Path) -> tuple:
     with open(path, "rb") as input:  # noqa: S108
         loaded = client.images.load(input)
     if not loaded or len(loaded) > 1:
-        print_red("Warning: loaded image result is strange:")
-        print_red(f"{loaded=}")
+        warning("loaded image result is strange:", f"{loaded=}")
     loaded_img = loaded[0]
     # images_after = {img.id for img in client.images.list()}
     # new = images_after - images_before
@@ -65,7 +65,7 @@ def port_allocator(start_ports: int, end_ports: int, allocated_ports: set) -> Ca
             ):
                 allocated_ports.add(port)
                 return port
-        raise RuntimeError("Not enough available port")
+        error("Not enough available ports")
 
     return allocator
 

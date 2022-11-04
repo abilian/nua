@@ -16,7 +16,7 @@ from . import config
 from .db import store
 
 # from .db.model.instance import RUNNING
-from .panic import error
+from .panic import error, warning
 from .resource import Resource
 from .rich_console import print_magenta, print_red
 from .state import verbosity
@@ -163,7 +163,7 @@ def docker_kill_container(name: str):
         name, config.read("host", "docker_kill_timeout")
     ):
         for remain in docker_list_container(name):
-            print_red(f"Warning: container not killed: {remain}")
+            warning(f"container not killed: {remain}")
     # if verbosity(3):
     #     containers = docker_list_container(name)
     #     print("docker_kill_container after", containers)
@@ -171,14 +171,14 @@ def docker_kill_container(name: str):
 
 def _docker_remove_container(name: str, force=False):
     if force and verbosity(1):
-        print_red(f"Warning: removing container with '--force': {name}")
+        warning(f"removing container with '--force': {name}")
     for cont in docker_list_container(name):
         cont.remove(v=True, force=force)
 
 
 def _docker_display_not_removed(name: str):
     for remain in docker_list_container(name):
-        print_red(f"Warning: container not removed: {remain}")
+        warning(f"container not removed: {remain}")
 
 
 def docker_remove_container(name: str, force=False):
@@ -212,8 +212,7 @@ def docker_check_container_listed(name: str) -> bool:
     if _docker_wait_container_listed(name):
         return True
     else:
-        print_red(f"Warning: container not seen in list: {name}")
-        print_red("         container listed:")
+        warning(f"container not seen in list: {name}", "container listed:")
         for cont in docker_list_container(name):
             print_red(f"         {cont.name}  {cont.status}")
         return False

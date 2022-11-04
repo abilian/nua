@@ -36,7 +36,7 @@ from .nginx_util import (
     configure_nginx_hostname,
     nginx_restart,
 )
-from .panic import error
+from .panic import error, warning
 from .resource import Resource
 from .rich_console import print_green, print_magenta, print_red
 from .search_cmd import search_nua
@@ -98,7 +98,10 @@ class SitesDeployment:
         sites = []
         for site_dict in deploy_sites_config["site"]:
             if not isinstance(site_dict, dict):
-                raise ValueError(f"Site configuration must be a dict: '{site_dict}'")
+                error(
+                    "Site configuration must be a dict",
+                    explanation=f"{pformat(site_dict)}",
+                )
             site = Site(site_dict)
             site.check_valid()
             site.set_ports_as_dict()
@@ -197,11 +200,9 @@ class SitesDeployment:
         return sites_list
 
     def install_required_images(self):
-        # first: check that all images are available:
+        # first: check that all Nua images are available:
         if not self.find_all_images():
             error("Missing Nua images")
-        # if not self.find_all_resource_images():
-        #     error("Missing resources image")
         self.install_images()
 
     def find_all_images(self) -> bool:
@@ -225,7 +226,7 @@ class SitesDeployment:
         for site in self.deploy_sites:
             results = search_nua(site.image)
             if not results:
-                error(f"No image found for '{site.image}'. Exiting.")
+                error(f"No image found for '{site.image}'")
             # results are sorted by version, take higher:
             img_path = results[-1]
             if img_path in installed:
@@ -262,7 +263,7 @@ class SitesDeployment:
             # print_magenta(f"    -> {docker_image}")
             resource.image_id = docker_image.id
             return True
-        print_red(f"No image found for '{resource.image}'")
+        warning(f"no image found for '{resource.image}'")
         return False
 
     def deactivate_all_sites(self):
@@ -307,7 +308,7 @@ class SitesDeployment:
             for service in site.required_services:
                 handler = self.available_services[service]
                 if not handler.check_site_configuration(site):
-                    print_red(
+                    warning(
                         f"Service '{service}': configuration problem for '{site.image}'"
                     )
 
@@ -375,7 +376,7 @@ class SitesDeployment:
             try:
                 used.update(site.used_ports())
             except (ValueError, IndexError) as e:
-                print_red("Error for site config:", e)
+                print_red("Error: for site config:", e)
                 print(pformat(site))
                 raise
         return used
@@ -597,14 +598,18 @@ def _verify_located(host: dict):
         dom = DomainSplit(site.domain)
         if not dom.location:
             image = site.image
-            print_red("Error: required location is missing, site discarded:")
-            print_red(f"    for {hostname=} / {image=}")
+            warning(
+                "required location is missing, site discarded:",
+                f"for {hostname=} / {image=}",
+            )
             continue
         if dom.location in known_location:
             image = site.image
             # port = site.get("port")
-            print_red("Error: location is already used for a domain, site discarded:")
-            print_red(f"    {hostname=} / {image=} / {site.domain}")
+            warning(
+                "location is already used for a domain, site discarded:",
+                f"{hostname=} / {image=} / {site.domain}",
+            )
             continue
         known_location.add(dom.location)
         site["location"] = dom.location
@@ -634,7 +639,7 @@ def _verify_not_located(host: dict):
         hostname = host["hostname"]
         valid = []
         valid.append(host["sites"].pop(0))
-        print_red(f"Error: too many sites for {hostname=}, site discarded:")
+        warning(f"too many sites for {hostname=}, site discarded:")
         for site in host["sites"]:
             image = site.image
             print_red(f"    {image=} / {site['domain']}")

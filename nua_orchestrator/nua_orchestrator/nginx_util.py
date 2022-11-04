@@ -5,7 +5,8 @@ from time import sleep
 
 from . import config, nua_env
 from .actions import jinja2_render_file
-from .rich_console import print_magenta, print_red
+from .panic import warning
+from .rich_console import print_magenta
 from .shell import chown_r, mkdir_p, rm_fr, sh
 from .state import verbosity
 
@@ -32,7 +33,7 @@ def replace_nginx_conf():
             # do no overwrite prior backup
             host_nginx_conf.rename(back_nginx_conf)
     else:
-        print_red("Warning: the default host nginx.conf file was not found")
+        warning("the default host nginx.conf file was not found")
     jinja2_render_file(orch_nginx_conf, host_nginx_conf, nua_env.as_dict())
     os.chmod(host_nginx_conf, 0o644)
 
@@ -118,7 +119,7 @@ def configure_nginx_hostname(host: dict):
     jinja2_render_file(template, dest_path, host)
     if verbosity(2):
         if not dest_path.exists():
-            print(host["hostname"], "Warning: target not created")
+            warning(f"host '{host['hostname']}', target not created")
         else:
             print(host["hostname"], "content:")
             with open(dest_path, "r", encoding="utf8") as rfile:

@@ -26,7 +26,7 @@ def search_nua_print(app_name: str) -> list:
         for path in results:
             print(f"    {path}")
     else:
-        print_red(f"No image found for '{app_name}'.")
+        print_red(f"Search: no image found for '{app_name}'.")
     return results
 
 

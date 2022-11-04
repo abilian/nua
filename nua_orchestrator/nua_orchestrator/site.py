@@ -2,6 +2,7 @@ from copy import deepcopy
 from pprint import pformat
 
 from .domain_split import DomainSplit
+from .panic import error, warning
 from .port_normalization import normalize_ports, ports_as_dict
 from .resource import Resource
 from .state import verbosity
@@ -59,19 +60,40 @@ class Site(Resource):
             for resource in self.resources:
                 resource.network_name = self.network_name
 
-    def merge_instance_to_resources(self):
+    def resource_per_name(self, name: str) -> Resource | None:
         for resource in self.resources:
-            resource_updates = self.get(resource.resource_name)
-            if not resource_updates:
-                # no redefinition of any configuration of the resource
-                continue
-            if not isinstance(resource_updates, dict):
-                print(
-                    f"Warning: {self.name}, resource {resource.resource_name} "
-                    "updates must be a dict."
-                )
-                continue
-            resource.update_instance_from_site(resource_updates)
+            if resource.resource_name == name:
+                return resource
+        return None
+
+    def merge_instance_to_resources(self):
+        resource_declarations = self.get("resource", [])
+        if not resource_declarations:
+            return
+        for resource_updates in resource_declarations:
+            self._merge_resource_updates_to_resource(resource_updates)
+
+    def _merge_resource_updates_to_resource(self, resource_updates):
+        if not resource_updates:
+            # no redefinition of any configuration of the resource
+            return
+        if not isinstance(resource_updates, dict):
+            warning(
+                f"ignoring update for '{self.name}' resource, need a dict",
+                explanation=pformat(resource_updates),
+            )
+            return
+        resource_name = resource_updates.get("name")
+        if not resource_name or not isinstance(resource_name, str):
+            warning(
+                "ignoring resource update without name",
+                pformat(resource_updates),
+            )
+            return
+        resource = self.resource_per_name(resource_name)
+        if not resource:
+            warning(f"ignoring resource update, unknown resource '{resource_name}'")
+        resource.update_instance_from_site(resource_updates)
 
     def services_instance_updated(self) -> set:
         instance = self.image_nua_config.get("instance", {})
@@ -92,30 +114,36 @@ class Site(Resource):
                     services.add(name)
         return services
 
-    def resources_instance_updated(self) -> list:
-        #
-        # todo: currently not updated by site instance config
-        #
-        resources = []
-        instance = self.image_nua_config.get("instance", {})
-        inst_resources_names = instance.get("resources", [])
-        if isinstance(inst_resources_names, str):
-            inst_resources_names = [inst_resources_names]
-        for name in inst_resources_names:
-            if name not in self.image_nua_config:
-                raise ValueError(
-                    f"nua-config declared resource '{name}' is not defined"
-                )
-            resource = Resource(self.image_nua_config[name])
-            resource.resource_name = name
-            resource.check_valid()
-            resources.append(resource)
+    def parse_resources(self):
+        resources = [
+            self._parse_resource(resource_declaration)
+            for resource_declaration in self.image_nua_config.get("resource", [])
+        ]
+        resources = [res for res in resources if res]
         if verbosity(3):
             print(f"Image resources: {pformat(resources)}")
-        return resources
+        self.resources = resources
 
-    def parse_resources(self):
-        self.resources = self.resources_instance_updated()
+    def _parse_resource(self, declaration: dict) -> Resource | None:
+        for required_key in ("name", "type"):
+            value = declaration.get(required_key)
+            if not value or not isinstance(value, str):
+                warning(
+                    f"ignoring resource declaration without {required_key}",
+                    pformat(declaration),
+                )
+                return None
+        # for now, only "docker" resources are implemented:
+        if declaration["type"] != "docker":
+            warning(
+                f"ignoring resource of type {declaration['type'] }",
+                pformat(declaration),
+            )
+            return None
+        resource = Resource(declaration)
+        resource.resource_name = declaration["name"]
+        resource.check_valid()
+        return resource
 
     def _normalize_domain(self):
         dom = DomainSplit(self.domain)
@@ -128,7 +156,7 @@ class Site(Resource):
     def rebase_ports_upon_nua_config(self):
         config_ports = deepcopy(self.image_nua_config.get("ports", []))
         if not isinstance(config_ports, list):
-            raise ValueError("nua_config['ports'] must be a list")
+            error("nua_config['ports'] must be a list")
         normalize_ports(config_ports, default_proxy="auto")
         ports = ports_as_dict(config_ports)
         if verbosity(5):

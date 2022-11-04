@@ -14,13 +14,6 @@ release = 1
 document_root = "/nua/app/html"
 
 [instance]
-# A resource is another container required by the main app container, its
-# configuration is described below, under the key of name of the resource. Several
-# resources can be declared. The resource host will appear in the local network
-# with a hostname equal to the container name. The name of the resource hostname
-# is available in the environment variable NUA_${name_of_the_resource}_HOST, ie in
-# this example: NUA_DATABASE_HOST
-resources = ["database"]
 
 # name of the bridge network used by this container and related resources.
 network = "flask-pg-1"
@@ -46,26 +39,34 @@ USER_NAME = "bob"
 USER_PASSWORD = "bob_pwd"
 
 
-[database]
+[[resource]]
+# A resource is another container required by the main app container, its
+# configuration is described below, under the key of name of the resource. Several
+# resources can be declared. The resource host will appear in the local network
+# with a hostname equal to the container name. The name of the resource hostname
+# is available in the environment variable NUA_${name_of_the_resource}_HOST, ie in
+# this example: NUA_DATABASE_HOST
+
 # declaration of the required image for the resurce, here the official Postgres
 # Docker image
+name = "database"
 type = "docker"
 image = "docker.io/library/postgres:14.5"
 
-[database.run]
+[resource.run]
     detach = true
     restart_policy.name="always"
 
-[database.run_env]
+[resource.run_env]
     POSTGRES_PASSWORD = "postgres_root_passwd"
 
-[[database.ports]]
+[[resource.ports]]
     # no port declaration: port declaration is required. The resource does not need to
     # expose ports on the locahost network, the main container will directly connect
     # using hostname:port of the resource through the bridge network declared as
     # ' network = "flask-pg-1" '
 
-[[database.volume]]
+[[resource.volume]]
     # here we declare a mounted volume (ie: managed by Docker daemon)
 
     # The mount type (bind / volume / tmpfs / npipe). Default: volume :

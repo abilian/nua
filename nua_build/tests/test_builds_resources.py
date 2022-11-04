@@ -6,9 +6,7 @@ from .build_image import build_test_image
 
 root = Path(__file__).parent
 
-app_folder = [
-    "flask_pg_dock_psyco_wheel",
-]
+app_folder = ["flask_pg_dock_psyco_wheel", "flask_mariadb_docker_wheel"]
 
 
 @pytest.mark.parametrize("app", app_folder)

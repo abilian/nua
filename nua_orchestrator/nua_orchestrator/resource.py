@@ -1,6 +1,6 @@
-# from pprint import pformat
 from typing import Callable
 
+from .panic import error, warning
 from .port_normalization import normalize_ports, ports_as_dict
 from .utils import sanitized_name
 from .volume_normalization import normalize_volumes
@@ -9,8 +9,8 @@ from .volume_normalization import normalize_volumes
 class Resource(dict):
     MANDATORY_KEYS = ("image", "type")
 
-    def __init__(self, resource_dict: dict):
-        super().__init__(resource_dict)
+    def __init__(self, declaration: dict):
+        super().__init__(declaration)
 
     def check_valid(self):
         self._check_mandatory()
@@ -127,14 +127,14 @@ class Resource(dict):
     def _check_mandatory(self):
         for key in self.MANDATORY_KEYS:
             if not self.get(key):
-                raise ValueError(f"Site configuration missing '{key}' key")
+                error(f"Site or Resource configuration missing '{key}' key")
 
     def _normalize_ports(self, default_proxy: str = "none"):
         if "ports" not in self:
             self.ports = []
             return
         if not isinstance(self.ports, list):
-            raise ValueError("Site['ports'] must be a list")
+            error("Site['ports'] must be a list")
         self.ports = [p for p in self.ports if p]
         normalize_ports(self.ports, default_proxy)
 
@@ -171,7 +171,7 @@ class Resource(dict):
             self.volume = []
             return
         if not isinstance(self.volume, list):
-            raise ValueError("Site['volume'] must be a list")
+            error("Site['volume'] must be a list")
         self.volume = [v for v in self.volume if v]
         normalize_volumes(self.volume)
 
@@ -205,9 +205,8 @@ class Resource(dict):
             # brutal replacement, TODO make special cases for volumes
             # less brutal:
             if key not in {"ports", "run", "run_env", "volume"}:
-                print(
-                    "Warning: maybe updating an unknown key in "
-                    f"the configuration '{key}'"
+                warning(
+                    "maybe updating an unknown key in " f"the configuration '{key}'"
                 )
             if key not in self:
                 self[key] = value
@@ -218,9 +217,9 @@ class Resource(dict):
         orig = self[key]
         if isinstance(orig, dict):
             if not isinstance(value, dict):
-                raise ValueError(
-                    f"Updated value in deploy config must be a dict.\n"
-                    f"{orig=}\n{value=}"
+                error(
+                    "Updated value in deploy config must be a dict.",
+                    explanation=f"{orig=}\n{value=}",
                 )
             orig.update(value)
             return
@@ -231,8 +230,9 @@ class Resource(dict):
 
     def _update_instance_from_site_deep_volume(self, value):
         if not isinstance(value, list):
-            raise ValueError(
-                f"Updated volumes in deploy config must be a list.\n" f"{value=}"
+            error(
+                "Updated volumes in deploy config must be a list.",
+                explanation=f"{value=}",
             )
         vol_dic = {}
         for orig_vol in self.volume:
