@@ -11,6 +11,8 @@ from .db import store
 from .docker_utils import (
     display_one_docker_img,
     docker_host_gateway_ip,
+    docker_network_prune,
+    docker_remove_container_db,
     docker_run,
     docker_volume_create_or_use,
     docker_volume_prune,
@@ -171,3 +173,21 @@ def start_one_container(rsite: Resource, run_params: dict, mounted_volumes: list
 
 def stop_previous_containers(sites: list):
     pass
+
+
+def deactivate_all_instances():
+    """Find all instance in DB
+    - remove container if exists
+    - remove site from DB
+    """
+    for instance in store.list_instances_all():
+        if verbosity(2):
+            print(
+                f"Removing from containers and DB: "
+                f"'{instance.app_id}' instance on '{instance.domain}'"
+            )
+        site_config = instance.site_config
+        container_names = [res["container"] for res in site_config.get("resources", [])]
+        container_names.append(site_config["container"])
+        docker_remove_container_db(container_names)
+    docker_network_prune()

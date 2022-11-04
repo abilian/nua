@@ -352,6 +352,12 @@ def instance_delete_by_domain(domain: str):
         session.commit()
 
 
+def instance_delete_by_container(container: str):
+    with Session() as session:
+        session.query(Instance).filter_by(container=container).delete()
+        session.commit()
+
+
 def _fetch_instance_port_site(site_config: dict) -> int | None:
     ports = site_config.get("ports")
     if not ports:

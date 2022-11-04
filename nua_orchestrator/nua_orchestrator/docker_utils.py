@@ -108,7 +108,8 @@ def docker_service_start_if_needed():
         docker_service_start()
 
 
-def docker_list_container(name: str) -> list[Container]:
+def docker_container_of_name(name: str) -> list[Container]:
+    """Send a list of 0 or 1 Continer of the given name."""
     client = from_env()
     return [c for c in client.containers.list(filters={"name": name}) if c.name == name]
 
@@ -141,7 +142,7 @@ def _docker_wait_empty_container_list(name: str, timeout: int) -> bool:
     if not timeout:
         timeout = 1
     count = timeout * 10
-    while docker_list_container(name):
+    while docker_container_of_name(name):
         if count <= 0:
             return False
         count -= 1
@@ -149,35 +150,58 @@ def _docker_wait_empty_container_list(name: str, timeout: int) -> bool:
     return True
 
 
-def docker_kill_container(name: str):
+def docker_stop_container_name(name: str):
     if not name:
         return
-    containers = docker_list_container(name)
+    containers = docker_container_of_name(name)
     if verbosity(3):
-        print("docker_kill_container", containers)
+        print("docker_stop_container_name():", containers)
     if not containers:
+        warning(f"docker_stop_container_name(): no container of name '{name}'")
         return
-    for cont in containers:
-        cont.kill()
+    for ctn in containers:
+        _docker_stop_container(ctn)
     if not _docker_wait_empty_container_list(
         name, config.read("host", "docker_kill_timeout")
     ):
-        for remain in docker_list_container(name):
-            warning(f"container not killed: {remain}")
-    # if verbosity(3):
-    #     containers = docker_list_container(name)
-    #     print("docker_kill_container after", containers)
+        for remain in docker_container_of_name(name):
+            warning(f"container not killed: {remain.name}")
 
 
-def _docker_remove_container(name: str, force=False):
+def docker_stop_container(name: str):
+    if not name:
+        return
+    containers = docker_container_of_name(name)
+    if verbosity(3):
+        print("docker_stop_container_name():", containers)
+    if not containers:
+        warning(f"docker_stop_container_name(): no container of name '{name}'")
+        return
+    for ctn in containers:
+        _docker_stop_container(ctn)
+    if not _docker_wait_empty_container_list(
+        name, config.read("host", "docker_kill_timeout")
+    ):
+        for remain in docker_container_of_name(name):
+            warning(f"container not killed: {remain.name}")
+
+
+def _docker_stop_container(container: Container):
+    try:
+        container.stop()
+    except APIError as e:
+        warning(f"Stopping container error: {e}")
+
+
+def _docker_remove_container(name: str, force=False, volume=False):
     if force and verbosity(1):
         warning(f"removing container with '--force': {name}")
-    for cont in docker_list_container(name):
-        cont.remove(v=True, force=force)
+    for cont in docker_container_of_name(name):
+        cont.remove(v=volume, force=force)
 
 
 def _docker_display_not_removed(name: str):
-    for remain in docker_list_container(name):
+    for remain in docker_container_of_name(name):
         warning(f"container not removed: {remain}")
 
 
@@ -185,7 +209,7 @@ def docker_remove_container(name: str, force=False):
     if not name:
         return
     if verbosity(3):
-        containers = docker_list_container(name)
+        containers = docker_container_of_name(name)
         print("docker_remove_container", containers)
     _docker_remove_container(name, force=force)
     if _docker_wait_empty_container_list(
@@ -200,7 +224,7 @@ def docker_remove_container(name: str, force=False):
 def _docker_wait_container_listed(name: str) -> bool:
     timeout = config.read("host", "docker_run_timeout") or 5
     count = timeout * 10
-    while not docker_list_container(name):
+    while not docker_container_of_name(name):
         if count <= 0:
             return False
         count -= 1
@@ -213,7 +237,7 @@ def docker_check_container_listed(name: str) -> bool:
         return True
     else:
         warning(f"container not seen in list: {name}", "container listed:")
-        for cont in docker_list_container(name):
+        for cont in docker_container_of_name(name):
             print_red(f"         {cont.name}  {cont.status}")
         return False
 
@@ -229,19 +253,32 @@ def docker_remove_prior_container_db(rsite: Resource):
         return
     if verbosity(1):
         print_magenta(f"    -> remove previous container: {previous_name}")
-    docker_kill_container(previous_name)
+    docker_stop_container_name(previous_name)
     docker_remove_container(previous_name)
     if verbosity(3):
-        containers = docker_list_container(previous_name)
+        containers = docker_container_of_name(previous_name)
         print("docker_remove_container after", containers)
     store.instance_delete_by_domain(rsite.domain)
 
 
-def docker_remove_container_db(domain: str):
+def docker_remove_container_db(container_names: list):
     """Remove container of full domain name from running container and DB"""
-    docker_kill_container(domain)
-    docker_remove_container(domain)
-    store.instance_delete_by_domain(domain)
+    for name in container_names:
+        if not name:
+            continue
+        containers = docker_container_of_name(name)
+        if containers:
+            container = containers[0]
+            if verbosity(2):
+                print(f"Stopping container '{container.name}'")
+            _docker_stop_container(container)
+            if verbosity(2):
+                print(f"Removing container '{container.name}'")
+            container.remove(v=False, force=True)
+        else:
+            warning(f"while removing container: no container of name '{name}'")
+            continue
+        store.instance_delete_by_container(name)
 
 
 def docker_remove_prior_container_live(rsite: Resource):
@@ -254,9 +291,9 @@ def docker_remove_prior_container_live(rsite: Resource):
     previous_name = rsite.run_params.get("name", "")
     if not previous_name:
         return
-    for container in docker_list_container(previous_name):
+    for container in docker_container_of_name(previous_name):
         print_red(f"Try removing a container not listed in Nua DB: {container.name}")
-        docker_kill_container(container.name)
+        docker_stop_container_name(container.name)
         docker_remove_container(container.name)
 
 
@@ -269,13 +306,21 @@ def _erase_previous_container(client: DockerClient, name: str):
         pass
 
 
+def deactivate_site(rsite=Resource):
+    container_names = [res.get("container") for res in rsite.get("resources", [])]
+    container_names.append(rsite.get("container"))
+    container_names = [name for name in container_names if name]
+    if container_names:
+        docker_remove_container_db(container_names)
+
+
 def docker_run(rsite: Resource) -> Container:
     params = deepcopy(rsite.run_params)
     if verbosity(1):
         print_magenta(f"Docker run image '{rsite.image_id}'")
         if verbosity(2):
             print("run parameters:\n", pformat(params))
-    docker_remove_prior_container_db(rsite)
+    deactivate_site(rsite)
     docker_remove_prior_container_live(rsite)
     params["detach"] = True  # force detach option
     if rsite.network_name:
@@ -285,7 +330,7 @@ def docker_run(rsite: Resource) -> Container:
     container = client.containers.run(rsite.image_id, **params)
     if verbosity(3):
         name = params["name"]
-        print("run done:", docker_list_container(name))
+        print("run done:", docker_container_of_name(name))
     if not docker_check_container_listed(container.name):
         error(f"Failed starting container {container.name}")
     rsite.container = container.name
@@ -410,3 +455,17 @@ def install_plugin(plugin_name: str) -> str:
 def pull_docker_image(image: str) -> Image:
     docker_service_start_if_needed()
     return docker_pull(image)
+
+
+def list_containers():
+    client = from_env()
+    for ctn in client.containers.list(all=True):
+        image = ctn.image
+        if image.tags:
+            name = image.tags[0]
+        else:
+            name = image.short_id
+        print(
+            f"{ctn.name}\n"
+            f"    status: {ctn.status}  id: {ctn.short_id}  image: {name}"
+        )

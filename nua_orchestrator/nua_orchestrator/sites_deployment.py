@@ -12,6 +12,7 @@ from .certbot import protocol_prefix, register_certbot_domains
 from .db import store
 from .db.model.instance import RUNNING
 from .deploy_utils import (
+    deactivate_all_instances,
     extra_host_gateway,
     load_install_image,
     mount_resource_volumes,
@@ -24,9 +25,7 @@ from .deploy_utils import (
 from .docker_utils import (
     display_one_docker_img,
     docker_network_create_bridge,
-    docker_network_prune,
     docker_pull,
-    docker_remove_container_db,
     docker_service_start_if_needed,
 )
 from .domain_split import DomainSplit
@@ -272,15 +271,7 @@ class SitesDeployment:
         - remove site from DB
         """
         self.orig_mounted_volumes = store.list_instances_container_active_volumes()
-        instances = store.list_instances_all()
-        for instance in instances:
-            if verbosity(2):
-                print(
-                    f"Removing from containers and DB: "
-                    f"'{instance.app_id}' instance on '{instance.domain}'"
-                )
-            docker_remove_container_db(instance.domain)
-        docker_network_prune()
+        deactivate_all_instances()
 
     def configure_deployment(self):
         self.sites = self.host_list_to_sites()
