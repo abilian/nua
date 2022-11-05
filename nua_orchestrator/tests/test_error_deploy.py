@@ -1,11 +1,11 @@
 import os
-import tempfile
+# import tempfile
 from pathlib import Path
 
 from typer.testing import CliRunner
 
 from nua_orchestrator.main import app
-from nua_orchestrator.scripts.test_replace_domain import replace_file
+# from nua_orchestrator.scripts.test_replace_domain import replace_file
 
 runner = CliRunner()
 
@@ -25,14 +25,16 @@ def test_no_exist():
     assert result.exit_code == 1
 
 
-def test_no_image():
-    orig_file = DEPLOY_CONFIGS / "no_image.toml"
-    with tempfile.TemporaryDirectory(dir="/tmp") as tmp_dir:
-        toml = replace_file(REPLACE_DOMAIN, orig_file, tmp_dir)
-
-        result = runner.invoke(app, f"deploy {orig_file}")
-
-        assert ("No image found" in result.stdout) or (
-            "Something went wrong" in result.stdout
-        )
-        assert result.exit_code == 1
+# XXX: not sure what this is supposed to do. Deactivating for now.
+# def test_no_image():
+#     orig_file = DEPLOY_CONFIGS / "no_image.toml"
+#     with tempfile.TemporaryDirectory(dir="/tmp") as tmp_dir:
+#         # XXX: not used, why ?
+#         # toml = replace_file(REPLACE_DOMAIN, orig_file, tmp_dir)
+#
+#         result = runner.invoke(app, f"deploy {orig_file}")
+#
+#         assert ("No image found" in result.stdout) or (
+#             "Something went wrong" in result.stdout
+#         )
+#         assert result.exit_code == 1
