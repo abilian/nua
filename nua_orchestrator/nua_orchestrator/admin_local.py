@@ -3,9 +3,10 @@ import sys
 from pathlib import Path
 from pprint import pformat
 
+from paramiko import RSAKey
+
 from nua_orchestrator.db import store
 from nua_orchestrator.db_setup import setup_db
-from paramiko import RSAKey
 
 from .panic import error
 
