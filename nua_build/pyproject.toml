@@ -31,6 +31,7 @@ paramiko = "^2.11.0"
 
 # Testing
 pytest = "^7"
+pytest-cov = "^4.0.0"
 pytest-xdist = "*"
 
 # Linting
