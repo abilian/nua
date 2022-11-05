@@ -116,16 +116,20 @@ install:
 	poetry install
 
 clean:
+	cd nua_build && make clean
+	cd nua_orchestrator && make clean
 	find . -name __pycache__ -print0 | xargs -0 rm -rf
 	find . -type d -empty -delete
+	rm -rf .mypy_cache .pytest_cache .ruff_cache
+	# Remove more cruft
 	rm -rf *.egg-info *.egg .coverage .eggs .cache .mypy_cache .pyre \
 		.pytest_cache .pytest .DS_Store  docs/_build docs/cache docs/tmp \
 		dist build pip-wheel-metadata junit-*.xml htmlcov coverage.xml
 
 tidy: clean
-	rm -rf .tox .nox .dox .travis-solo
-	rm -rf node_modules
-	rm -rf instance
+	rm -rf .tox .nox
+	cd nua_build && make tidy
+	cd nua_orchestrator && make tidy
 
 update-deps:
 	pip install -U pip setuptools wheel

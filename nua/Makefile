@@ -57,7 +57,7 @@ clean:
 	find . -name .DS_Store -delete
 	find . -name cache -type d -delete
 	find . -type d -empty -delete
-	rm -rf .mypy_cache .tox
+	rm -rf .mypy_cache .pytest_cache .ruff_cache
 	rm -f migration.log
 	rm -rf build dist
 	rm -rf tests/data tests/integration/data

@@ -78,6 +78,7 @@ def pull_remote_image(tag: str):
     return image
 
 
+# SF: I don't understand the name of this function
 def chech_image_in_local_registry(tag: str) -> bool:
     found = False
     message = None
