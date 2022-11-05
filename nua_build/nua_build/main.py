@@ -52,7 +52,8 @@ def _version_string():
 # def usage():
 #     _version_string()
 #     typer.echo(
-#         "Usage: nua-build [OPTIONS] COMMAND [ARGS]...\n\nTry 'nua-build --help' for help."
+#         "Usage: nua-build [OPTIONS] COMMAND [ARGS]...\n\n"
+#         "Try 'nua-build --help' for help."
 #     )
 #     raise typer.Exit(0)
 

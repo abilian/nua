@@ -17,11 +17,13 @@ python = "^3.10"
 setuptools = "^65.5.0"
 
 tomli = "^2.0"
-psutil = "^5.9.1"
 typer = {extras = ["all"], version = "^0.6"}
 rich = "^12.4.4"
 docker = "^6.0"
 jinja2 = "^3.1.2"
+
+# XXX: Not needed ??
+# psutil = "^5.9.1"
 
 [tool.poetry.dev-dependencies]
 # XXX: why is this needed here ?
@@ -61,10 +63,10 @@ docformatter = "^1.4"
 mypy = "^0.961"
 types-toml = "^0.10.7"
 
-
-[tool.poetry.group.dev.dependencies]
+# More checks
 vulture = "^2.6"
 deptry = "^0.6.3"
+ruff = "^0.0.100"
 
 [tool.pytest.ini_options]
 filterwarnings = ["ignore:.*distutils package:DeprecationWarning", "ignore::DeprecationWarning"]
@@ -72,3 +74,25 @@ filterwarnings = ["ignore:.*distutils package:DeprecationWarning", "ignore::Depr
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+ignore = [
+#    "E711",  # comparison to None should be 'if cond is not None:'
+#    "E501",  # line too long
+#    "E999",  # Syntax error, probably because ruff doesn't support the match statement
+#    "F401",  # 'module' imported but unused
+]
+
+[tool.deptry]
+exclude = [
+    '.tox', 'tests', 'sandbox', 'doc', 'scripts'
+]
+ignore_obsolete = [
+    "setuptools",
+]
+ignore_missing = [
+    "mariadb",
+    "psycopg2",
+]
+ignore_transitive = [
+]

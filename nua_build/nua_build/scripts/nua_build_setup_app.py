@@ -101,7 +101,7 @@ class BuilderApp:
         # assuming it is a python script
         print(f"run build script: {self.build_script_path}")
         chdir(self.build_dir)
-        cmd = f"python --version"
+        cmd = "python --version"
         sh(cmd, env=os.environ)
         cmd = f"python {self.build_script_path}"
         sh(cmd, env=os.environ)

@@ -36,10 +36,12 @@ clean-test: ## remove test and coverage artifacts
 #
 .PHONY: lint
 lint: ## check style
+	ruff $(SRC) tests
 	flake8 $(SRC) tests
-	isort $(SRC)/**/*.py tests/**/*.py
+	isort --check $(SRC) tests
 	black --check $(SRC) tests
 	mypy $(SRC) tests
+	deptry .
 
 #
 # Formatting
@@ -59,9 +61,10 @@ format-py:
 clean:
 	find . -name __pycache__ -print0 | xargs -0 rm -rf
 	find . -type d -empty -delete
-	rm -rf *.egg-info *.egg .coverage .eggs .cache .mypy_cache .pyre \
-		.pytest_cache .pytest .DS_Store  docs/_build docs/cache docs/tmp \
-		dist build pip-wheel-metadata junit-*.xml htmlcov coverage.xml
+# 	rm -rf *.egg-info *.egg .coverage .eggs .cache .mypy_cache .pyre \
+# 		.pytest_cache .pytest .DS_Store  docs/_build docs/cache docs/tmp \
+# 		dist build pip-wheel-metadata junit-*.xml htmlcov coverage.xml
+	rm -rf ./tests/*/build_dir ./tests/*/mariadb-1.1.4
 
 .PHONY: tidy
 tidy: clean
