@@ -15,34 +15,41 @@ nua_test_replace_domain = "nua_build.scripts.test_replace_domain:main"
 [tool.poetry.dependencies]
 python = "^3.10"
 setuptools = "^65.5.0"
+
 tomli = "^2.0"
 psutil = "^5.9.1"
 typer = {extras = ["all"], version = "^0.6"}
 rich = "^12.4.4"
 docker = "^6.0"
-Jinja2 = "^3.1.2"
+jinja2 = "^3.1.2"
 
 [tool.poetry.dev-dependencies]
-pytest = "^7.1.2"
+# XXX: why is this needed here ?
+paramiko = "^2.11.0"
+
+# Testing
+pytest = "^7"
+pytest-xdist = "*"
+
 # Linting
-flake8 = "^4.0.1"
-flake8-aaa = "0.12.2"
-flake8-bandit = "3.0.0"
-flake8-bugbear = "^22.4.25"
-flake8-cognitive-complexity = "0.1.0"
-flake8-comprehensions = "^3.10.0"
-flake8-datetimez = "20.10.0"
-flake8-functions = "0.0.7"
-flake8-mutable = "^1.2.0"
-flake8-pytest = "^1.3"
-flake8-simplify = "0.19.2"
-flake8-super = "0.1.3"
-flake8-super-call = "^1.0.0"
-flake8-tidy-imports = "^4.8.0"
-flake8-tuple = "0.4.1"
-bandit = "^1.7.4"
-pep8-naming = "^0.13.0"
-mastool = "^0.1.3"
+flake8 = "^5"
+flake8-aaa = "*"
+flake8-bandit = "*"
+flake8-bugbear = "*"
+flake8-cognitive-complexity = "*"
+flake8-comprehensions = "*"
+flake8-datetimez = "*"
+flake8-functions = "*"
+flake8-mutable = "*"
+flake8-pytest = "*"
+flake8-simplify = "*"
+flake8-super = "*"
+flake8-super-call = "*"
+flake8-tidy-imports = "*"
+flake8-tuple = "*"
+pep8-naming = "*"
+# bandit = "*"
+# mastool = "^0.1.3"
 # mccabe = "^0.7"
 
 # Formatting
@@ -53,7 +60,11 @@ docformatter = "^1.4"
 # Typechecking
 mypy = "^0.961"
 types-toml = "^0.10.7"
-paramiko = "^2.11.0"
+
+
+[tool.poetry.group.dev.dependencies]
+vulture = "^2.6"
+deptry = "^0.6.3"
 
 [tool.pytest.ini_options]
 filterwarnings = ["ignore:.*distutils package:DeprecationWarning", "ignore::DeprecationWarning"]
