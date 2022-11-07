@@ -1,5 +1,8 @@
 from pprint import pformat
 
+from .panic import error
+from .rich_console import print_red
+
 # later, add 'npipe' when managed:
 ALLOWED_TYPE = {"volume", "bind", "tmpfs"}
 
@@ -12,14 +15,14 @@ def normalize_volumes(volume_list: list):
 def _normalize_volume(volume: dict):
     try:
         if not isinstance(volume, dict):
-            raise ValueError(" 'volume' must be a dict")
+            raise ValueError("'volume' must be a dict")
         _check_type(volume)
         _check_source(volume)
         _check_target(volume)
-    except ValueError:
-        print("--- Error in volume config: ---")
-        print(pformat(volume))
-        raise
+    except ValueError as e:
+        print_red(str(e))
+        print_red(pformat(volume))
+        error("Volume configuration has errors")
 
 
 def _check_type(volume: dict):
@@ -42,7 +45,7 @@ def _check_source(volume: dict):
             src_key = alias
             break
     if not src_key:
-        raise ValueError("Missing key 'volume.source'")
+        raise ValueError("missing key 'volume.source'")
     value = volume[src_key]
     if not value or not isinstance(value, str):
         raise ValueError("invalid value for 'volume.source'")
@@ -57,7 +60,7 @@ def _check_target(volume: dict):
             dest_key = alias
             break
     if not dest_key:
-        raise ValueError("Missing key 'volume.target'")
+        raise ValueError("missing key 'volume.target'")
     value = volume[dest_key]
     if not value or not isinstance(value, str):
         raise ValueError("invalid value for 'volume.target'")

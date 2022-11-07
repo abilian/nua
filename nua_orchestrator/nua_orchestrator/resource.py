@@ -175,25 +175,31 @@ class Resource(dict):
         self.volume = [v for v in self.volume if v]
         normalize_volumes(self.volume)
 
-    def update_volume_from_instance(self, instance_dict: dict) -> list:
-        self.volume = self._merge_volumes_lists(instance_dict, reverse=True)
+    # def update_volume_from_instance(self, instance_dict: dict) -> list:
+    #     self.volume = self._merge_volumes_lists(instance_dict, reverse=True)
 
-    def rebased_volumes_upon_package_conf(self, package_dict: dict):
+    def rebased_volumes_upon_package_conf(self, package_dict: dict) -> list:
         """warning: here, no update of self data"""
         return self._merge_volumes_lists(package_dict, reverse=False)
 
-    def _merge_volumes_lists(self, other_dict: dict, reverse: bool):
+    def _merge_volumes_lists(self, other_dict: dict, reverse: bool) -> list:
         base = other_dict.get("volume") or []
         base = [v for v in base if v]
         if not base:
+            # if volumes are not configured in the package nua-config, there
+            # is no point to add vomlumes in the site configuration
             return []
         merge_dict = {}
         merge_list = base + self.volume
         if reverse:
             merge_list.reverse()
-        for vol in base + self.volume:
-            # the unicity key for volume is 'source'
-            merge_dict[vol["source"]] = vol
+        for vol in merge_list:
+            # 1) merging instance site / package config:
+            #    unicity key here is 'target', to replace package target by instance
+            #    definition
+            # 2) at host level and between several instance, it should be taken care
+            #    higher level to have different 'source' vales on the host
+            merge_dict[vol["target"]] = vol
         return list(merge_dict.values())
 
     def update_instance_from_site(self, resource_updates: dict):
