@@ -276,13 +276,23 @@ class SitesDeployment:
     def configure_deployment(self):
         self.sites = self.host_list_to_sites()
         self.set_network_names()
+        if verbosity(3):
+            print("set_network_names() done")
         self.merge_instances_to_resources()
+        if verbosity(3):
+            print("merge_instances_to_resources() done")
         self.generate_ports()
+        if verbosity(3):
+            print("generate_ports() done")
         self.configure_nginx()
         if verbosity(2):
             print("'sites':\n", pformat(self.sites))
         register_certbot_domains(self.sites)
+        if verbosity(3):
+            print("register_certbot_domains() done")
         self.check_services()
+        if verbosity(3):
+            print("check_services() done")
         self.restart_services()
 
     def set_network_names(self):

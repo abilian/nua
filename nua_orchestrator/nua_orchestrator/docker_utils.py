@@ -277,7 +277,6 @@ def docker_remove_container_db(container_names: list):
             container.remove(v=False, force=True)
         else:
             warning(f"while removing container: no container of name '{name}'")
-            continue
         store.instance_delete_by_container(name)
 
 

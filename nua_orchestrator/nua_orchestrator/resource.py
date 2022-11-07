@@ -114,8 +114,11 @@ class Resource(dict):
         return self.get("network_name", "")
 
     @network_name.setter
-    def network_name(self, network_name: str):
-        self["network_name"] = sanitized_name(network_name)
+    def network_name(self, name: str):
+        if name:
+            self["network_name"] = sanitized_name(name)
+        else:
+            self["network_name"] = ""
 
     def set_ports_as_dict(self):
         """replace ports list by a dict with container port as key
@@ -210,7 +213,7 @@ class Resource(dict):
         for key, value in resource_updates.items():
             # brutal replacement, TODO make special cases for volumes
             # less brutal:
-            if key not in {"ports", "run", "run_env", "volume"}:
+            if key not in {"ports", "run", "run_env", "volume", "name"}:
                 warning(
                     "maybe updating an unknown key in " f"the configuration '{key}'"
                 )
