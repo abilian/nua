@@ -69,6 +69,9 @@ vulture = "^2.6"
 deptry = "^0.6.3"
 ruff = "^0.0.100"
 
+[tool.poetry.group.dev.dependencies]
+nox = "^2022.8.7"
+
 [tool.pytest.ini_options]
 filterwarnings = ["ignore:.*distutils package:DeprecationWarning", "ignore::DeprecationWarning"]
 
