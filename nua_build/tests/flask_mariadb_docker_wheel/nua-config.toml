@@ -16,6 +16,7 @@ document_root = "/nua/app/html"
 [instance]
 # name of the bridge network used by this container and related resources.
 network = "flask-mariadb-1"
+secrets = "MARIADB_PASSWORD"
 
 [run]
 restart_policy.name="always"
@@ -31,7 +32,6 @@ host = "auto"
 # using default port of mariadb (3306), directly addressing the mariadb docker
 # container.
 # DB_HOST for the resource "mariadb" will be found in the env variable NUA_MARIADB_HOST
-MARIADB_ROOT_PASSWORD = "mariadb_root_passwd"
 USER_DB = "flask_db"
 USER_NAME = "bob"
 USER_PASSWORD = "bob_pwd"

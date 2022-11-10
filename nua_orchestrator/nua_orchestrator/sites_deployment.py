@@ -278,6 +278,9 @@ class SitesDeployment:
         self.set_network_names()
         if verbosity(3):
             print("set_network_names() done")
+        self.set_secrets()
+        if verbosity(3):
+            print("set_secrets() done")
         self.merge_instances_to_resources()
         if verbosity(3):
             print("merge_instances_to_resources() done")
@@ -298,6 +301,10 @@ class SitesDeployment:
     def set_network_names(self):
         for site in self.sites:
             site.set_network_name()
+
+    def set_secrets(self):
+        for site in self.sites:
+            site.set_secrets()
 
     def merge_instances_to_resources(self):
         for site in self.sites:

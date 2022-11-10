@@ -160,6 +160,8 @@ def start_one_container(rsite: Resource, run_params: dict, mounted_volumes: list
     rsite.run_params = run_params
     if verbosity(4):
         print(f"start_one_container() run_params:\n{pformat(run_params)}")
+    secret_dict = rsite.read_secrets()
+    run_params.update(secret_dict)
     docker_run(rsite)
     if mounted_volumes:
         rsite.run_params["mounts"] = True

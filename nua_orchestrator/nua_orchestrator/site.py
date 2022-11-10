@@ -60,6 +60,12 @@ class Site(Resource):
             for resource in self.resources:
                 resource.network_name = self.network_name
 
+    def set_secrets(self):
+        instance = self.image_nua_config.get("instance", {})
+        self.secrets = instance.get("secrets") or []
+        for resource in self.resources:
+            resource.secrets = self.secrets
+
     def resource_per_name(self, name: str) -> Resource | None:
         for resource in self.resources:
             if resource.resource_name == name:

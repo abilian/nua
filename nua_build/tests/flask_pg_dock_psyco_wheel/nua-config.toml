@@ -17,6 +17,7 @@ document_root = "/nua/app/html"
 
 # name of the bridge network used by this container and related resources.
 network = "flask-pg-1"
+secrets = "POSTGRES_PASSWORD"
 
 [run]
 restart_policy.name="always"
@@ -33,10 +34,9 @@ host = "auto"
 # DB_HOST for the resource "database" will be found in the env variable NUA_DATABASE_HOST
 DB_PORT = "5432"
 # Postgres password of the "remote" resource DB:
-POSTGRES_PASSWORD = "postgres_root_passwd"
 USER_DB = "bob_db"
 USER_NAME = "bob"
-USER_PASSWORD = "bob_pwd"
+USER_PASSWORD = ""
 
 
 [[resource]]
@@ -58,7 +58,7 @@ image = "docker.io/library/postgres:14.5"
     restart_policy.name="always"
 
 [resource.run_env]
-    POSTGRES_PASSWORD = "postgres_root_passwd"
+
 
 # [resource.port.web]
     # no port declaration: port declaration is required. The resource does not need to

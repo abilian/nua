@@ -38,6 +38,7 @@ document_root = "/nua/app/html"
 # this configuration is for use of a local DB (localhost)
 # thus requiring --add-host=host.docker.internal:host-gateway
 services = "postgres"
+secrets = "POSTGRES_PASSWORD"
 
 [run]
 # parameters passed as a dict to docker run
