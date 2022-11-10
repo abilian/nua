@@ -36,7 +36,6 @@ pytest-xdist = "*"
 
 # Linting
 flake8 = "^5"
-flake8-aaa = "*"
 flake8-bandit = "*"
 flake8-bugbear = "*"
 flake8-cognitive-complexity = "*"
@@ -51,9 +50,11 @@ flake8-super-call = "*"
 flake8-tidy-imports = "*"
 flake8-tuple = "*"
 pep8-naming = "*"
+# Buggy plugins or not relevant for now
 # bandit = "*"
 # mastool = "^0.1.3"
 # mccabe = "^0.7"
+# flake8-aaa = "*"
 
 # Formatting
 isort = "^5.10.1"
@@ -81,10 +82,14 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
 ignore = [
-#    "E711",  # comparison to None should be 'if cond is not None:'
-#    "E501",  # line too long
-#    "E999",  # Syntax error, probably because ruff doesn't support the match statement
-#    "F401",  # 'module' imported but unused
+    'E711', # comparison to None should be 'if cond is not None:'
+    # TODO: fix these
+    'E501', # Line too long
+    'F401', # "..." imported but unused
+    'F841', # Local variable assigned to but never used
+    # Not ruff
+    # 'W503', # line break before binary operator
+    # 'S101', # Use of assert detected
 ]
 
 [tool.deptry]
