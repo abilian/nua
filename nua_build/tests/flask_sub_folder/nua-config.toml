@@ -45,5 +45,5 @@ auto_remove = true
 [run_env]
 # parameters passed as a dict to docker run: environment dict
 
-[[ports]]
+[port.web]
 container = 80

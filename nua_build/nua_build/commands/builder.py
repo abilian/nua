@@ -105,7 +105,7 @@ class Builder:
                 self.nua_dir = self.config.root_dir
             return
         # Check if provided path does exists
-        path = self.config.root_dir / Path(nua_dir)
+        path = self.config.root_dir / nua_dir
         if path.is_dir():
             self.nua_dir = path
             return
@@ -141,6 +141,8 @@ class Builder:
             pass
 
     def copy_from_local_dir(self):
+        """Copy content form local dir: either: root_dir or nua_dir if defined.
+        To be fixed for /nua subdir."""
         for user_file in self.config.root_dir.glob("*"):
             if (user_file.name).startswith("."):
                 continue

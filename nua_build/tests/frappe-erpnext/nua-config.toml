@@ -35,7 +35,7 @@ document_root = "/nua/app/html"
 # instance contains values suited to be chaned at deploy time for
 # multi-instance deployment. Values here are used by default, i.e. for a single
 # deployment of the app
-port = 5200
+# port = 5200
 # this configuration is for use of a local DB (localhost)
 # thus requiring --add-host=host.docker.internal:host-gateway
 services = "mariadb"
@@ -45,7 +45,7 @@ services = "mariadb"
 # auto_remove = true
 # detach = true mandatory
 
-[[ports]]
+[port.web]
 container = 80
 
 [run_env]

@@ -76,7 +76,7 @@ def clean_nua_nginx_default_site():
 def _set_instances_proxy_port(host: dict):
     # FIXME: update templates to accept several proxyied ports
     for site in host["sites"]:
-        ports = site["ports"]
+        ports = site["port"]
         for port in ports.values():
             proxy = port["proxy"]
             if proxy == "auto":
@@ -93,8 +93,9 @@ def configure_nginx_hostname(host: dict):
        'sites': [{'domain': 'test.example.com/instance1',
                    'image': 'flask-one:1.2-1',
                    'location': 'instance1'
-                   'ports': {
+                   'port': {
                       "80": {
+                        'name': 'web'
                         'container': 80,
                         'host': 'auto',
                         'host_use': 8100,},

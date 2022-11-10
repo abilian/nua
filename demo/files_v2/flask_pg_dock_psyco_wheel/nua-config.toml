@@ -21,7 +21,7 @@ network = "flask-pg-1"
 [run]
 restart_policy.name="always"
 
-[[ports]]
+[port.web]
 # publication port of the app inside the container
 container = 80
 # Publication port on the localhost, that will be automatically generated and will

@@ -37,17 +37,17 @@ release = 1
 # parameters passed as a dict to docker run
 # detach = true mandatory
 
-[[ports]]
+[port.web]
 container = 8765
 host = "auto" # default
 protocol = "tcp" # default
-proxy = "auto" # default: "auto" for first port, "None" for next ones, or a port value (int).
+# proxy = "auto" # default: "auto" for first port, "None" for next ones, or a port value (int).
 
-[[ports]]
+[ports.abcd]
 container = 8764
 host = 8764 # default
 protocol = "tcp" # default
-proxy = "none" # default: "auto" for first port, "None" for next ones, or a port value (int).
+# proxy = "none" # default: "auto" for first port, "None" for next ones, or a port value (int).
 
 [run_env]
 # parameters passed as a dict to docker run: environment dict

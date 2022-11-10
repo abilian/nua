@@ -44,7 +44,7 @@ services = "postgres"
 auto_remove = true
 # detach = true mandatory
 
-[[ports]]
+[port.web]
 container = 80
 
 [run_env]

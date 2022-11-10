@@ -329,7 +329,7 @@ def ports_instances_domains() -> dict[int, str]:
     used_domain_ports = {}
     for inst in list_instances_all():
         site_config = inst.site_config
-        ports = site_config.get("ports")  # a dict
+        ports = site_config.get("port")  # a dict
         if ports:
             for port in ports.values():
                 used_domain_ports[port["host_use"]] = site_config["domain"]
@@ -359,7 +359,7 @@ def instance_delete_by_container(container: str):
 
 
 def _fetch_instance_port_site(site_config: dict) -> int | None:
-    ports = site_config.get("ports")
+    ports = site_config.get("port")
     if not ports:
         return None
     for port in ports.values():

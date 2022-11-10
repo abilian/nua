@@ -154,17 +154,22 @@ class Site(Resource):
         return self.rebased_volumes_upon_package_conf(self.image_nua_config)
 
     def rebase_ports_upon_nua_config(self):
-        config_ports = deepcopy(self.image_nua_config.get("ports", []))
-        if not isinstance(config_ports, list):
-            error("nua_config['ports'] must be a list")
+        config_ports = deepcopy(self.image_nua_config.get("port", {}))
+        if not isinstance(config_ports, dict):
+            error("nua_config['port'] must be a dict")
+        port_list = []
+        keys = list(config_ports.keys())
+        for key in keys:
+            config_ports[key]["name"] = key
+        config_ports = list(config_ports.values())
         normalize_ports(config_ports, default_proxy="auto")
         ports = ports_as_dict(config_ports)
-        if verbosity(5):
+        if verbosity(4):
             print(f"rebase_ports_upon_nua_config(): ports={pformat(ports)}")
-        ports.update(self.ports)
-        self.ports = ports
+        ports.update(self.port)
+        self.port = ports
         for resource in self.resources:
-            resource.ports = ports_as_dict(resource.ports)
+            resource.port = ports_as_dict(resource.port)
 
     @property
     def nua_long_name(self) -> str:

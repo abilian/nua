@@ -40,7 +40,7 @@ document_root = "/nua/app/html"
 # parameters passed as a dict to docker run: environment dict
 UPLOAD_DIRNAME = "uploads_local"
 
-[[ports]]
+[port.web]
 container = 80
 
 [[volume]]

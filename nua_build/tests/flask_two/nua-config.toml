@@ -41,5 +41,5 @@ auto_remove = true
 mem_limit = "8G"
 [run_env]
 # parameters passed as a dict to docker run: environment dict
-[[ports]]
+[port.web]
 container = 80

@@ -9,18 +9,18 @@ def ports_as_dict(port_list: list) -> dict:
 
 
 def normalize_ports(port_list: list, default_proxy: str):
-    for index, port in enumerate(port_list):
-        _normalize_port(index, port, default_proxy)
+    for port in port_list:
+        _normalize_port(port, default_proxy)
 
 
-def _normalize_port(index: int, port: dict, default_proxy: str):
+def _normalize_port(port: dict, default_proxy: str):
     try:
         if not isinstance(port, dict):
             raise ValueError(" 'port' must be a dict")
         _normalize_port_item_container(port)
-        _normalize_port_item_host(index, port)
+        _normalize_port_item_host(port)
         _normalize_port_item_protocol(port)
-        _normalize_port_item_proxy(index, port, default_proxy)
+        _normalize_port_item_proxy(port, default_proxy)
     except ValueError:
         print("--- Error in ports config: ---")
         print(pformat(port))
@@ -29,7 +29,7 @@ def _normalize_port(index: int, port: dict, default_proxy: str):
 
 def _normalize_port_item_container(port: dict):
     if "container" not in port:
-        raise ValueError("Missing 'container' key in ports configuration")
+        raise ValueError("Missing 'container' key in port configuration")
     try:
         cont = int(port["container"])
     except (ValueError, TypeError):
@@ -37,14 +37,9 @@ def _normalize_port_item_container(port: dict):
     port["container"] = cont
 
 
-def _normalize_port_item_host(index: int, port: dict):
+def _normalize_port_item_host(port: dict):
     host = str(port.get("host", "auto")).lower().strip()
     if host == "auto":
-        # if index > 0:
-        #     raise ValueError("Only the first port can have an 'host' = 'auto' value")
-        # else:
-        #     port["host"] = "auto"
-        # return
         port["host"] = "auto"
         return
     try:
@@ -61,11 +56,12 @@ def _normalize_port_item_protocol(port: dict):
     port["protocol"] = proto
 
 
-def _normalize_port_item_proxy(index: int, port: dict, default_proxy: str):
+def _normalize_port_item_proxy(port: dict, default_proxy: str):
     # fixme: currently only one proxy is managed by nginx configuration
     proxy = str(port.get("proxy", default_proxy)).lower().strip()
-    if proxy == "auto" and index > 0:
-        raise ValueError("Only the first port can have an 'proxy' = 'auto' value")
+    name = port["name"]
+    if proxy == "auto" and name != "web":
+        raise ValueError("Only port.web can have an 'proxy' = 'auto' value")
     if proxy in {"auto", "none"}:
         port["proxy"] = proxy
         return

@@ -267,6 +267,8 @@ def docker_remove_container_db(container_names: list):
         if not name:
             continue
         containers = docker_container_of_name(name)
+        if verbosity(3):
+            print(f"Stopping container: {pformat(containers)}")
         if containers:
             container = containers[0]
             if verbosity(2):
@@ -274,7 +276,11 @@ def docker_remove_container_db(container_names: list):
             _docker_stop_container(container)
             if verbosity(2):
                 print(f"Removing container '{container.name}'")
-            container.remove(v=False, force=True)
+            try:
+                container.remove(v=False, force=True)
+            except NotFound:
+                # container was "autoremoved" after stop
+                pass
         else:
             warning(f"while removing container: no container of name '{name}'")
         store.instance_delete_by_container(name)

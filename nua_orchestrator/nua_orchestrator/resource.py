@@ -42,12 +42,12 @@ class Resource(dict):
         self["domain"] = domain
 
     @property
-    def ports(self) -> list | dict:
-        return self["ports"]
+    def port(self) -> list | dict:
+        return self["port"]
 
-    @ports.setter
-    def ports(self, ports: list | dict):
-        self["ports"] = ports
+    @port.setter
+    def port(self, ports: list | dict):
+        self["port"] = ports
 
     @property
     def volume(self) -> list:
@@ -124,8 +124,8 @@ class Resource(dict):
         """replace ports list by a dict with container port as key
 
         (use str key because later conversion to json)"""
-        ports_dict = ports_as_dict(self.ports)
-        self.ports = ports_dict
+        ports_dict = ports_as_dict(self.port)
+        self.port = ports_dict
 
     def _check_mandatory(self):
         for key in self.MANDATORY_KEYS:
@@ -133,18 +133,22 @@ class Resource(dict):
                 error(f"Site or Resource configuration missing '{key}' key")
 
     def _normalize_ports(self, default_proxy: str = "none"):
-        if "ports" not in self:
-            self.ports = []
+        if "port" not in self:
+            self.port = []
             return
-        if not isinstance(self.ports, list):
-            error("Site['ports'] must be a list")
-        self.ports = [p for p in self.ports if p]
-        normalize_ports(self.ports, default_proxy)
+        if not isinstance(self.port, dict):
+            error("Site['port'] must be a dict")
+        port_list = []
+        keys = list(self.port.keys())
+        for key in keys:
+            self.port[key]["name"] = key
+        self.port = list(self.port.values())
+        normalize_ports(self.port, default_proxy)
 
     def used_ports(self) -> set[int]:
         used = set()
         # when method is used, ports became a dict:
-        for port in self.ports.values():
+        for port in self.port.values():
             if not port:  # could be an empty {} ?
                 continue
             host = port["host"]
@@ -154,10 +158,10 @@ class Resource(dict):
         return used
 
     def allocate_auto_ports(self, allocator: Callable):
-        if not self.ports:
+        if not self.port:
             return
         # when method is used, ports became a dict:
-        for port in self.ports.values():
+        for port in self.port.values():
             if port["host"] == "auto":
                 port["host_use"] = allocator()
             else:
@@ -165,7 +169,7 @@ class Resource(dict):
 
     def ports_as_docker_params(self) -> dict:
         cont_ports = {}
-        for port in self.ports.values():
+        for port in self.port.values():
             cont_ports[f"{port['container']}/{port['protocol']}"] = port["host_use"]
         return cont_ports
 
@@ -213,7 +217,7 @@ class Resource(dict):
         for key, value in resource_updates.items():
             # brutal replacement, TODO make special cases for volumes
             # less brutal:
-            if key not in {"ports", "run", "run_env", "volume", "name"}:
+            if key not in {"port", "run", "run_env", "volume", "name"}:
                 warning(
                     "maybe updating an unknown key in " f"the configuration '{key}'"
                 )
@@ -256,7 +260,7 @@ class Resource(dict):
         To be used by remote container from same bridge network to connect to the
         resource container port."""
         run_env = {}
-        for port in self.ports.values():
+        for port in self.port.values():
             variable = f"NUA_{self.resource_name.upper()}_PORT_{port['container']}"
             value = str(port["host_use"])
             run_env[variable] = value

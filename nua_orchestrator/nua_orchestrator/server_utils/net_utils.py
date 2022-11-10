@@ -28,7 +28,7 @@ def verify_ports_availability() -> None:
         # here check that maybe the registry container is still running, so
         # no actual problem
     seen.add(port)
-    # zmq rpc server
-    port = config.read("nua", "zmq", "port")
-    if port and (port in seen or not check_port_available("127.0.0.1", port)):
-        raise ValueError(f"nua.zmq: RPC port {port} already in use")
+    # # zmq rpc server
+    # port = config.read("nua", "zmq", "port")
+    # if port and (port in seen or not check_port_available("127.0.0.1", port)):
+    #     raise ValueError(f"nua.zmq: RPC port {port} already in use")

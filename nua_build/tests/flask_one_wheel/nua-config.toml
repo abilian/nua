@@ -38,7 +38,7 @@ document_root = "/nua/app/html"
 # parameters passed as a dict to docker run
 # detach = true mandatory
 
-[[ports]]
+[port.web]
 container = 80
 
 [run_env]

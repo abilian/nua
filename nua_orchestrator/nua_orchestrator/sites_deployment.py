@@ -178,18 +178,18 @@ class SitesDeployment:
           'domain': 'test.example.com/instance1',
           'location': 'instance1',
           'image': 'flask-one:1.2-1',
-          'ports': {...},
+          'port': {...},
          {'host_use': 8101,
           'hostname': 'test.example.com',
           'domain': 'test.example.com/instance2',
           'image': 'flask-one:1.2-1',
-          'ports': {...},
+          'port': {...},
           },
           ...
          {'host_use': 8108,
           'domain': 'sloop.example.com',
           'image': 'nua-flask-upload-one:1.0-1',
-          'ports': {...}]
+          'port': {...}]
         """
         sites_list = []
         for host in self.host_list:
@@ -362,8 +362,9 @@ class SitesDeployment:
         Returns: set of integers
 
         Expected format for ports:
-        ports = {
+        port = {
             "80":{
+                "name": web,
                 "container": 80,
                 "host": "auto",
                 "protocol": "tcp",

@@ -44,7 +44,7 @@ document_root = "/nua/app/html"
 auto_remove = true
 # detach = true mandatory
 
-[[ports]]
+[port.web]
 container = 80
 
 [[volume]]

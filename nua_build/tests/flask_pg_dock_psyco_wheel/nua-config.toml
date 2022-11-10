@@ -21,7 +21,7 @@ network = "flask-pg-1"
 [run]
 restart_policy.name="always"
 
-[[ports]]
+[port.web]
 # publication port of the app inside the container
 container = 80
 # Publication port on the localhost, that will be automatically generated and will
@@ -60,7 +60,7 @@ image = "docker.io/library/postgres:14.5"
 [resource.run_env]
     POSTGRES_PASSWORD = "postgres_root_passwd"
 
-[[resource.ports]]
+# [resource.port.web]
     # no port declaration: port declaration is required. The resource does not need to
     # expose ports on the locahost network, the main container will directly connect
     # using hostname:port of the resource through the bridge network declared as
