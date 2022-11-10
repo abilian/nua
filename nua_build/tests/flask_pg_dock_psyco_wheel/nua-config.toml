@@ -28,7 +28,7 @@ DB_PORT = "5432"
 # Postgres password of the "remote" resource DB:
 USER_DB = "bob_db"
 USER_NAME = "bob"
-USER_PASSWORD = ""
+USER_PASSWORD = "bob_pwd"
 
 
 [port.web]

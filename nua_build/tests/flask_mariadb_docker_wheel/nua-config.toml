@@ -53,8 +53,6 @@ image = "docker.io/library/mariadb:10.6.10"
     detach = true  # default value
     restart_policy.name = "always"
 
-[resource.run_env]
-    MARIADB_ROOT_PASSWORD = "mariadb_root_passwd"
 
 [[resource.ports]]
     # no port declaration: port declaration is required. The resource does not need to

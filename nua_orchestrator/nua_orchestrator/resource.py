@@ -1,3 +1,5 @@
+import os
+from pathlib import Path
 from typing import Callable
 
 from .panic import error, warning
@@ -135,7 +137,7 @@ class Resource(dict):
                 secrets_list = [secrets_list]
             self["secrets"] = secrets_list
         else:
-            self["network_name"] = []
+            self["secrets"] = []
 
     def set_ports_as_dict(self):
         """replace ports list by a dict with container port as key
@@ -156,6 +158,9 @@ class Resource(dict):
             error(f"[run.env] must be a dict")
         old_format.update(run_env)
         self.run_env = old_format
+        run = self.get("run", {})
+        if "env" in run:
+            del self["run"]["env"]
 
     def _normalize_ports(self, default_proxy: str = "none"):
         if "port" not in self:
@@ -292,6 +297,7 @@ class Resource(dict):
         run_env[variable] = self.container
         return run_env
 
+    @staticmethod
     def _postgres_pwd() -> str:
         """Return the 'postgres' user DB password.
           - When used in container context, the env variable NUA_POSTGRES_PASSWORD should
@@ -308,6 +314,7 @@ class Resource(dict):
         file_path = Path(os.path.expanduser("~nua")) / NUA_PG_PWD_FILE
         return file_path.read_text(encoding="utf8").strip()
 
+    @staticmethod
     def _mariadb_pwd() -> str:
         """Return the 'root' user DB password of mariadb.
           - When used in container context, the env variable NUA_MARIADB_PASSWORD should
@@ -329,7 +336,7 @@ class Resource(dict):
             return {}
         secrets_env = {}
         if "POSTGRES_PASSWORD" in self.secrets:
-            secrets_env["POSTGRES_PASSWORD"] = _postgres_pwd()
+            secrets_env["POSTGRES_PASSWORD"] = self._postgres_pwd()
         if "MARIADB_PASSWORD" in self.secrets:
-            secrets_env["MARIADB_PASSWORD"] = _mariadb_pwd()
+            secrets_env["MARIADB_PASSWORD"] = self._mariadb_pwd()
         return secrets_env
