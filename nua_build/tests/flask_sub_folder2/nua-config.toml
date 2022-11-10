@@ -45,7 +45,7 @@ document_root = "/nua/app/html"
 # parameters passed as a dict to docker run
 auto_remove = true
 # detach = true mandatory
-[run/env]
+[run.env]
 # parameters passed as a dict to docker run: environment dict
 
 [port.web]
