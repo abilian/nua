@@ -89,10 +89,10 @@ class SitesDeployment:
         if verbosity(1):
             print_magenta(f"Deploy sites from: {config_path}")
         deploy_sites_config = tomli.loads(config_path.read_text())
-        self.deploy_sites = self.build_deploy_sites(deploy_sites_config)
+        self.deploy_sites = self.parse_deploy_sites(deploy_sites_config)
         self.host_list = self.build_host_list()
 
-    def build_deploy_sites(self, deploy_sites_config: dict):
+    def parse_deploy_sites(self, deploy_sites_config: dict):
         """Check config syntax, replace missing informations by defaults."""
         sites = []
         for site_dict in deploy_sites_config["site"]:

@@ -34,11 +34,12 @@ document_root = "/nua/app/html"
 # instance contains values suited to be chaned at deploy time for
 # multi-instance deploument. Values here are used by default, i.e. for a single
 # deployment of the app
+
 [run]
 # parameters passed as a dict to docker run
 auto_remove = true
 # detach = true mandatory
-[run_env]
+[run.env]
 # parameters passed as a dict to docker run: environment dict
 
 [port.web]

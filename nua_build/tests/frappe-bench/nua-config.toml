@@ -47,9 +47,3 @@ release = 1
 
 [port.web]
 # container = 80
-
-[run_env]
-# parameters passed as a dict to docker run: environment dict
-# DB_NAME = "flask_db"
-# DB_USER = "bob"
-# DB_USER_PWD = "bob_pwd"

@@ -17,6 +17,7 @@ class Resource(dict):
 
     def check_valid(self):
         self._check_mandatory()
+        self._parse_run_env()
         self._normalize_ports()
         self._normalize_volumes()
 
@@ -147,6 +148,14 @@ class Resource(dict):
         for key in self.MANDATORY_KEYS:
             if not self.get(key):
                 error(f"Site or Resource configuration missing '{key}' key")
+
+    def _parse_run_env(self):
+        old_format = self.run_env
+        run_env = self.get("run", {}).get("env", {})
+        if not isinstance(run_env, dict):
+            error(f"[run.env] must be a dict")
+        old_format.update(run_env)
+        self.run_env = old_format
 
     def _normalize_ports(self, default_proxy: str = "none"):
         if "port" not in self:

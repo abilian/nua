@@ -46,11 +46,11 @@ secrets = "POSTGRES_PASSWORD"
 auto_remove = true
 # detach = true mandatory
 
-[port.web]
-container = 80
-
-[run_env]
+[run.env]
 # parameters passed as a dict to docker run: environment dict
 DB_NAME = "flask_db"
 DB_USER = "bob"
 DB_USER_PWD = "bob_pwd"
+
+[port.web]
+container = 80

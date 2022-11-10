@@ -47,6 +47,15 @@ auto_remove = true
 # mem_limit = "8G"
 container_port = 8080
 
+[run.env]
+# parameters passed as a dict to docker run: environment dict
+FLASK_ENV = "production"
+FLASK_SECRET_KEY = "secret"
+FLASK_SQLALCHEMY_DATABASE_URI = "sqlite:////app/data/db.sqlite3"
+FLASK_SQLALCHEMY_TRACK_MODIFICATIONS = false
+FLASK_DEMO_PASSWORD = "pour erick"
+APP_PORT = 8080
+
 [[volume]]
 # The mount type (bind / volume / tmpfs / npipe). Default: volume :
 type = "bind"
@@ -57,12 +66,3 @@ source = "/var/tmp"
 # Container path:
 target = "/app/data"
 mode = "rw"
-
-[run_env]
-# parameters passed as a dict to docker run: environment dict
-FLASK_ENV = "production"
-FLASK_SECRET_KEY = "secret"
-FLASK_SQLALCHEMY_DATABASE_URI = "sqlite:////app/data/db.sqlite3"
-FLASK_SQLALCHEMY_TRACK_MODIFICATIONS = false
-FLASK_DEMO_PASSWORD = "pour erick"
-APP_PORT = 8080

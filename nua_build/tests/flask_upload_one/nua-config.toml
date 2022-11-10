@@ -30,15 +30,18 @@ release = 1
 # optional start script, default is "start.py" if found
 # start_script = ""
 document_root = "/nua/app/html"
+
 [instance]
 # instance contains values suited to be chaned at deploy time for
 # multi-instance deploument. Values here are used by default, i.e. for a single
 # deployment of the app
+
 [run]
 # parameters passed as a dict to docker run
 auto_remove = true
 # detach = true mandatory
-[run_env]
+
+[run.env]
 # parameters passed as a dict to docker run: environment dict
 
 [port.web]

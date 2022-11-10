@@ -19,4 +19,5 @@ If something goes really wrong:
     docker volume prune
     docker system prune -a
 
-docker run -p 8101:80 -e DB_NAME=flask_db_2 -e DB_USER=bob2 -e DB_USER_PWD=bob_pwd_2 --add-host host.docker.internal:172.17.0.1 --name test sha256:b414517f8b952f8ac77896136b9f7a0b2c179721574f87f082fe05c11c6eba9f bash
+Test with docker like:
+docker run -p 8101:80 -e DB_NAME=flask_db_2 -e DB_USER=bob2  --add-host host.docker.internal:172.17.0.1 --name test sha256:b414517f8b95 bash

@@ -21,15 +21,7 @@ secrets = "POSTGRES_PASSWORD"
 
 [run]
 restart_policy.name="always"
-
-[port.web]
-# publication port of the app inside the container
-container = 80
-# Publication port on the localhost, that will be automatically generated and will
-# be used for configuration of the nginx proxy
-host = "auto"
-
-[run_env]
+[run.env]
 # using default port of postgres, directly addressing the postgres docker container.
 # DB_HOST for the resource "database" will be found in the env variable NUA_DATABASE_HOST
 DB_PORT = "5432"
@@ -38,6 +30,13 @@ USER_DB = "bob_db"
 USER_NAME = "bob"
 USER_PASSWORD = ""
 
+
+[port.web]
+# publication port of the app inside the container
+container = 80
+# Publication port on the localhost, that will be automatically generated and will
+# be used for configuration of the nginx proxy
+host = "auto"
 
 [[resource]]
 # A resource is another container required by the main app container, its

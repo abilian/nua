@@ -21,20 +21,20 @@ secrets = "MARIADB_PASSWORD"
 [run]
 restart_policy.name="always"
 
-[port.web]
-# publication port of the app inside the container
-container = 80
-# Publication port on the localhost, that will be automatically generated and will
-# be used for configuration of the nginx proxy
-host = "auto"
-
-[run_env]
+[run.env]
 # using default port of mariadb (3306), directly addressing the mariadb docker
 # container.
 # DB_HOST for the resource "mariadb" will be found in the env variable NUA_MARIADB_HOST
 USER_DB = "flask_db"
 USER_NAME = "bob"
 USER_PASSWORD = "bob_pwd"
+
+[port.web]
+# publication port of the app inside the container
+container = 80
+# Publication port on the localhost, that will be automatically generated and will
+# be used for configuration of the nginx proxy
+host = "auto"
 
 [[resource]]
 # A resource is another container required by the main app container, its

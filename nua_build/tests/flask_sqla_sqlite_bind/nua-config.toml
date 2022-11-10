@@ -43,6 +43,10 @@ document_root = "/nua/app/html"
 # parameters passed as a dict to docker run
 auto_remove = true
 # detach = true mandatory
+[run.env]
+# parameters passed as a dict to docker run: environment dict
+DB_FOLDER = "/nua/app/dbs"
+DB_NAME = "student_test.db"
 
 [port.web]
 container = 80
@@ -59,8 +63,3 @@ target = "/nua/app/dbs"
 #
 mode = "rw"
 # dst = "/var/tmp/uploads"
-
-[run_env]
-# parameters passed as a dict to docker run: environment dict
-DB_FOLDER = "/nua/app/dbs"
-DB_NAME = "student_test.db"
