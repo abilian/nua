@@ -127,6 +127,7 @@ def sh(
             error(msg, status)
     except OSError as e:
         panic(f"Execution failed: {e}\nshell command was: '{cmd}'\n")
+
     if capture_output:
         return completed.stdout
     else:

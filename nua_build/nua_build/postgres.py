@@ -409,7 +409,7 @@ def pg_db_exist(host: str, dbname: str) -> bool:
 
 
 def pg_db_exist_port(host: str, port: str, dbname: str) -> bool:
-    "Test if the named postgres database exists."
+    """Test if the named postgres database exists."""
     connection = psycopg2.connect(
         host=host,
         port=port,
@@ -450,6 +450,3 @@ def pg_db_table_exist_port(
             count = result[0] if result else 0
     connection.close()
     return count > 0
-
-
-##

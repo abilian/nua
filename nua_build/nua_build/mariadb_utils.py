@@ -114,7 +114,7 @@ def mariadb_db_create(host: str, dbname: str, user: str, password: str):
 
 
 def mariadb_db_exist(host: str, dbname: str) -> bool:
-    "Test if the named mariadb database exists."
+    """Test if the named mariadb database exists."""
     connection = mariadb.connect(host=host, user="root", password=mariadb_pwd())
     cursor = connection.cursor()
     query = f"SHOW DATABASES LIKE '{dbname}'"
