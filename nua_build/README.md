@@ -1,6 +1,6 @@
 # Work in progress:
 
-Content will be splitted between modules for:
+Content will be split between modules for:
 
 - actual build of a package (with framework example for the setup of a package)
 
