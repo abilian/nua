@@ -8,12 +8,13 @@ nox.options.sessions = ("pytest", "lint")
 
 @nox.session(python="python3.10")
 def lint(session: nox.Session) -> None:
-    session.run("poetry", "install", "-q", external=True)
+    session.run("poetry", "install", external=True)
+    session.run("pip", "check")
     session.run("make", "lint", external=True)
 
 
 @nox.session(python=PYTHON_VERSIONS)
 def pytest(session: nox.Session) -> None:
-    session.run("poetry", "install", "-q", external=True)
+    session.run("poetry", "install", external=True)
     session.run("pip", "check")
-    session.run("pytest", "-q")
+    session.run("pytest", "--tb=line")
