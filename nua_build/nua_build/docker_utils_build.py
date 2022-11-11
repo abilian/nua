@@ -3,6 +3,7 @@ from datetime import datetime
 from functools import wraps
 
 import docker
+import docker.errors
 
 from . import config
 from .panic import panic

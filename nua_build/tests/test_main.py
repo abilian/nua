@@ -7,7 +7,6 @@ runner = CliRunner()
 
 
 def test_version_string():  # noqa
-    # AAA01 no Act block found in test
     version_split = __version__.split(".")
 
     assert len(version_split) >= 2
