@@ -1,9 +1,13 @@
+import pytest
 from typer.testing import CliRunner
 
 from nua_build import __version__
 from nua_build.main import app
 
-runner = CliRunner()
+
+@pytest.fixture
+def runner():
+    return CliRunner()
 
 
 def test_version_string():  # noqa
@@ -22,45 +26,30 @@ def test_version_string():  # noqa
 #     assert "Try 'nua-build --help'" in result.stdout
 
 
-def test_version():
-    runner = CliRunner()
-
+def test_version(runner):
     result = runner.invoke(app, "--version")
-
     assert result.exit_code == 0
     assert "nua-build version:" in result.stdout
     assert __version__ in result.stdout
 
 
-def test_version_short():
-    runner = CliRunner()
-
+def test_version_short(runner):
     result = runner.invoke(app, "-V")
-
     assert result.exit_code == 0
     assert "nua-build version:" in result.stdout
     assert __version__ in result.stdout
 
 
-def test_bad_arg():
-    runner = CliRunner()
-
+def test_bad_arg(runner):
     result = runner.invoke(app, "bad_arg")
-
     assert result.exit_code == 1
 
 
-def test_verbose():
-    runner = CliRunner()
-
+def test_verbose(runner):
     result = runner.invoke(app, "--verbose")
-
     assert result.exit_code == 1
 
 
-def test_verbose_short():
-    runner = CliRunner()
-
+def test_verbose_short(runner):
     result = runner.invoke(app, "-v")
-
     assert result.exit_code == 1
