@@ -155,7 +155,7 @@ class Resource(dict):
         old_format = self.run_env
         run_env = self.get("run", {}).get("env", {})
         if not isinstance(run_env, dict):
-            error(f"[run.env] must be a dict")
+            error("[run.env] must be a dict")
         old_format.update(run_env)
         self.run_env = old_format
         run = self.get("run", {})

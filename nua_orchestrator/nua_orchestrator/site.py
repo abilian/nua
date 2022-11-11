@@ -164,7 +164,7 @@ class Site(Resource):
         config_ports = deepcopy(self.image_nua_config.get("port", {}))
         if not isinstance(config_ports, dict):
             error("nua_config['port'] must be a dict")
-        port_list = []
+
         keys = list(config_ports.keys())
         for key in keys:
             config_ports[key]["name"] = key
