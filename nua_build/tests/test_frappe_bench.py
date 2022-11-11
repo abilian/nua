@@ -11,7 +11,7 @@ import docker
 
 class TestFrappeBench:
     def test_build_frappe_bench(self):
-        src_path = Path(__file__).parent / "frappe-bench"
+        src_path = Path(__file__).parent / "apps" / "frappe-bench"
         image_target = "nua-frappe-bench:1.0-1"
         with tempfile.TemporaryDirectory(dir="/tmp") as tmpdirname:
             build_dir = Path(tmpdirname) / "build"

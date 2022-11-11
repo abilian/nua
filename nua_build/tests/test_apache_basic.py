@@ -35,7 +35,7 @@ class TestApacheBasic:
 
         assert check_port_available("127.0.0.1", host_port)
 
-        src_path = Path(__file__).parent / "apache_basic"
+        src_path = Path(__file__).parent / "apps" / "apache_basic"
         image_target = "nua-apache-basic:2.4.52-2"
         with tempfile.TemporaryDirectory(dir="/tmp") as tmpdirname:
             build_dir = Path(tmpdirname) / "build"
@@ -115,7 +115,7 @@ class TestApacheBasic:
 
         assert check_port_available("127.0.0.1", host_port)
 
-        src_path = Path(__file__).parent / "apache_basic"
+        src_path = Path(__file__).parent / "apps" / "apache_basic"
         image_target = "nua-apache-basic:2.4.52-2"
         with tempfile.TemporaryDirectory(dir="/tmp") as tmpdirname:
             build_dir = Path(tmpdirname) / "build"

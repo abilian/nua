@@ -16,7 +16,7 @@ def test_complete_build_with_cache():
 
     pytest -rP test_nodejs_install.py
     """
-    src_path = Path(__file__).parent / "nodejs_install"
+    src_path = Path(__file__).parent / "apps" / "nodejs_install"
     image_target = "nua-nodejs-test:1.0-1"
     with tempfile.TemporaryDirectory(dir="/tmp") as tmpdirname:
         _build_test_cache(tmpdirname, src_path, image_target)

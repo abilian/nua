@@ -28,6 +28,7 @@ def build_test_image(src_dir: Path | str):
     name = f"{name}:{meta['version']}"
     if "release" in meta:
         name = f"{name}-{meta['release']}"
+
     with tempfile.TemporaryDirectory(dir="/tmp") as tmpdirname:  # noqa
         print("created temporary directory", tmpdirname)
         _build_test(tmpdirname, actual_path, name)

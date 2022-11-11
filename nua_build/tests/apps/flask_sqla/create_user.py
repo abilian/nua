@@ -36,7 +36,7 @@ def prompt_username(con):
 
 
 def main():
-    "create user"
+    """create user"""
     con = psycopg2.connect(
         user="postgres",
         host="127.0.0.1",

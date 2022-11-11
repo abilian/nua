@@ -5,7 +5,7 @@ from psycopg2 import sql
 
 
 def create_db(dbname, user):
-    "create db"
+    """create db"""
 
     con = psycopg2.connect(
         dbname="postgres", user="postgres", host="127.0.0.1", password="the_pass"

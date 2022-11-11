@@ -10,7 +10,7 @@ from nua_build.archive_search import ArchiveSearch
 
 
 def test_archive_search():
-    src_path = Path(__file__).parent / "nodejs_install"
+    src_path = Path(__file__).parent / "apps" / "nodejs_install"
     image_target = "nua-nodejs-test:1.0-1"
     with tempfile.TemporaryDirectory(dir="/tmp") as tmpdirname:
         _build_test_search(tmpdirname, src_path, image_target)

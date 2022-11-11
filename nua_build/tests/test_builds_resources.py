@@ -12,5 +12,5 @@ app_folder = ["flask_pg_dock_psyco_wheel", "flask_mariadb_docker_wheel"]
 # @pytest.mark.skip
 @pytest.mark.parametrize("app", app_folder)
 def test_build_all(app):
-    build_test_image(root / app)
+    build_test_image(root / "apps" / app)
     print(Path.cwd())
