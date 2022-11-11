@@ -1,7 +1,7 @@
 [[site]]
 image = "flask-pg-dock-psyco:1.0-1"
 domain = "test1.example.com"
-[site.run_env]
+[site.run.env]
 
 [[site.test]]
 url = "https://test1.example.com/"

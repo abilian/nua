@@ -1,6 +1,7 @@
 [[site]]
 image = "flask-upload-tmpfs"
 domain = "test1.example.com"
+
 [[site.test]]
 url = "https://test1.example.com/"
 expect_status = 200
@@ -8,9 +9,11 @@ expect_str = "File Upload on container tmpfs"
 [[site.test]]
 expect_str = "/var/tmp/mount_point"
 
+
 [[site]]
 image = "flask-upload-tmpfs"
 domain = "test2.example.com"
+
 [[site.test]]
 url = "https://test2.example.com/"
 expect_status = 200

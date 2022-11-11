@@ -23,6 +23,7 @@ from .deploy_utils import (
     volume_print,
 )
 from .docker_utils import (
+    deactivate_site,
     display_one_docker_img,
     docker_network_create_bridge,
     docker_pull,
@@ -411,6 +412,7 @@ class SitesDeployment:
 
     def start_sites(self):
         for site in self.sites:
+            deactivate_site(site)
             self.start_network(site)
             self.start_resources_containers(site)
             self.start_one_site_container(site)
@@ -463,7 +465,7 @@ class SitesDeployment:
         run_params.update(image_nua_config.get("run", {}))
         # run parameters defined in the site configuration file (deploy toml):
         run_params.update(site.get("run", {}))
-        self.add_host_gareway_to_extra_hosts(run_params)
+        self.add_host_gateway_to_extra_hosts(run_params)
         run_params["name"] = site.container_name
         run_params["ports"] = site.ports_as_docker_params()
         run_params["environment"] = self.run_parameters_container_environment(site)
@@ -476,7 +478,7 @@ class SitesDeployment:
         """Return suitable parameters for the docker.run() command (for Resource)."""
         run_params = deepcopy(RUN_BASE_RESOURCE)
         run_params.update(resource.get("run", {}))
-        self.add_host_gareway_to_extra_hosts(run_params)
+        self.add_host_gateway_to_extra_hosts(run_params)
         name = f"{site.container_name}-{resource.base_name}"
         run_params["name"] = name
         run_params["ports"] = resource.ports_as_docker_params()
@@ -485,7 +487,7 @@ class SitesDeployment:
         return run_params
 
     @staticmethod
-    def add_host_gareway_to_extra_hosts(run_params: dict):
+    def add_host_gateway_to_extra_hosts(run_params: dict):
         extra_hosts = run_params.get("extra_hosts", {})
         extra_hosts.update(extra_host_gateway())
         run_params["extra_hosts"] = extra_hosts
@@ -493,6 +495,8 @@ class SitesDeployment:
     def run_parameters_container_environment(self, site: Site) -> dict:
         image_nua_config = site.image_nua_config
         run_env = image_nua_config.get("run_env", {})
+        run_dot_env = image_nua_config.get("run", {}).get("env", {})
+        run_env.update(run_dot_env)
         run_env.update(self.services_environment(site))
         run_env.update(self.resources_environment(site))
         run_env.update(site.run_env)

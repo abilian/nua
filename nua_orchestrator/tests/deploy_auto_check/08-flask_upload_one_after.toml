@@ -1,22 +1,25 @@
 [[site]]
 image = "flask-upload-one"
 domain = "test1.example.com"
+
 [[site.test]]
 url = "https://test1.example.com/"
 expect_status = 200
 expect_str = "File Upload"
 expect_host_volume = "flask_uploads"
 
+
 [[site]]
 image = "flask-upload-one"
 domain = "test2.example.com"
-[site.run_env]
+[site.run.env]
 UPLOAD_PATH = "/var/tmp/uploads_t2"
 [[site.volume]]
 type = "volume"
 driver = "local"
 source = "flask_uploads_t2"
 target = "/var/tmp/uploads_t2"
+
 [[site.test]]
 url = "https://test2.example.com/"
 expect_status = 200

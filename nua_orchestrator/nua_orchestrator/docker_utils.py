@@ -311,7 +311,7 @@ def _erase_previous_container(client: DockerClient, name: str):
         pass
 
 
-def deactivate_site(rsite=Resource):
+def deactivate_site(rsite: Resource):
     container_names = [res.get("container") for res in rsite.get("resources", [])]
     container_names.append(rsite.get("container"))
     container_names = [name for name in container_names if name]
@@ -321,15 +321,19 @@ def deactivate_site(rsite=Resource):
 
 def docker_run(rsite: Resource) -> Container:
     params = deepcopy(rsite.run_params)
+    if "env" in params:
+        del params["env"]
     if verbosity(1):
         print_magenta(f"Docker run image '{rsite.image_id}'")
         if verbosity(2):
             print("run parameters:\n", pformat(params))
-    deactivate_site(rsite)
+    # deactivate_site(rsite)
     docker_remove_prior_container_live(rsite)
     params["detach"] = True  # force detach option
     if rsite.network_name:
         params["network"] = rsite.network_name
+        if verbosity(2):
+            print("added network:\n", pformat(params))
     client = from_env()
     _erase_previous_container(client, params["name"])
     container = client.containers.run(rsite.image_id, **params)

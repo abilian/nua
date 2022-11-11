@@ -1,8 +1,9 @@
 [[site]]
 image = "flask_sqla_sqlite_bind"
 domain = "test1.example.com"
-[site.run_env]
+[site.run.env]
 DB_NAME = "first_student_test.db"
+
 [[site.test]]
 url = "https://test1.example.com/"
 expect_status = 200
@@ -19,8 +20,9 @@ expect_str = "Add a New Student"
 [[site]]
 image = "flask_sqla_sqlite_bind"
 domain = "test2.example.com"
-[site.run_env]
+[site.run.env]
 DB_NAME = "second_student_test.db"
+
 [[site.test]]
 url = "https://test2.example.com/"
 expect_status = 200
