@@ -94,7 +94,8 @@ class DockerCommand:
             repository and repository not in self.allow_repository
         ):
             raise NotImplementedError(
-                f"Command not available for this Nua orchestrator configuration.rep:{repository} allow:{self.allow_repository}"
+                f"Command not available for this Nua orchestrator "
+                f"configuration.rep:{repository} allow:{self.allow_repository}"
             )
         return True
 
