@@ -80,6 +80,7 @@ class TestApacheBasic:
             print(" ===================================")
             assert result.returncode == 0
             assert dock.images.list(image_target)
+
         print("Testing the container:")
         # clean previous run if any
         for previous in dock.containers.list(filters={"ancestor": image_target}):

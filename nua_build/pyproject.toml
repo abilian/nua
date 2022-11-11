@@ -6,11 +6,13 @@ authors = ["Stefane Fermigier <sf@abilian.com>", "Jerome Dumonteil <jd@abilian.c
 license = "AGPL"
 readme = "README.md"
 
+
 [tool.poetry.scripts]
 nua-build = "nua_build.main:app"
 nua_build_self_setup = "nua_build.scripts.nuad_self_setup:main"
 nua_build_setup_app = "nua_build.scripts.nua_build_setup_app:main"
 nua_test_replace_domain = "nua_build.scripts.test_replace_domain:main"
+
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -25,13 +27,14 @@ jinja2 = "^3.1.2"
 # XXX: Not needed ??
 # psutil = "^5.9.1"
 
+
 [tool.poetry.dev-dependencies]
 # XXX: why is this needed here ?
 paramiko = "^2.11.0"
 
 # Testing
 pytest = "^7"
-pytest-cov = "^4.0.0"
+pytest-cov = "^4"
 pytest-xdist = "*"
 
 # Linting
@@ -57,18 +60,18 @@ pep8-naming = "*"
 # flake8-aaa = "*"
 
 # Formatting
-isort = "^5.10.1"
-black = "^22.3.0"
+isort = "*"
+black = "*"
 docformatter = "^1.4"
 
 # Typechecking
-mypy = "^0.961"
-types-toml = "^0.10.7"
+mypy = "*"
+types-toml = "*"
 
 # More checks
-vulture = "^2.6"
-deptry = "^0.6.3"
-ruff = "^0.0.100"
+vulture = "*"
+deptry = "*"
+ruff = "*"
 
 [tool.poetry.group.dev.dependencies]
 nox = "^2022.8.7"
@@ -79,6 +82,7 @@ filterwarnings = ["ignore:.*distutils package:DeprecationWarning", "ignore::Depr
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
 
 [tool.ruff]
 ignore = [
@@ -91,6 +95,10 @@ ignore = [
     # 'W503', # line break before binary operator
     # 'S101', # Use of assert detected
 ]
+exclude = [
+    "tests/apps",
+]
+
 
 [tool.deptry]
 exclude = [
