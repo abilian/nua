@@ -41,7 +41,7 @@ def postgres_pwd() -> str:
     if pwd:
         return pwd
     file_path = Path(os.path.expanduser("~nua")) / NUA_PG_PWD_FILE
-    with open(file_path, "r", encoding="utf8") as rfile:
+    with open(file_path, encoding="utf8") as rfile:
         pwd = rfile.read().strip()
     return pwd
 
@@ -154,7 +154,7 @@ def _pg_check_std_port() -> bool:
     if not path.is_file():
         print_red(f"Postgres config file not found: {path}")
         return False
-    with open(path, "r", encoding="utf8") as rfile:
+    with open(path, encoding="utf8") as rfile:
         for line in rfile:
             if RE_5432.match(line):
                 return True
@@ -179,7 +179,7 @@ def pg_check_listening(gateway: str) -> bool:
 
 
 def _actual_check_listening(gateway: str, path: Path) -> bool:
-    with open(path, "r", encoding="utf8") as rfile:
+    with open(path, encoding="utf8") as rfile:
         for line in rfile:
             if RE_COMMENT.match(line):
                 continue
@@ -203,7 +203,7 @@ def allow_docker_connection():
     if not path.is_file():
         print_red(f"Postgres config file not found: {path}")
         return False
-    with open(path, "r", encoding="utf8") as rfile:
+    with open(path, encoding="utf8") as rfile:
         content = rfile.read()
     if auth_line in content:
         return
