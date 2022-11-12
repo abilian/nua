@@ -1,5 +1,6 @@
 from pathlib import Path
 from tarfile import TarFile, TarInfo
+from typing import Generator
 
 import tomli
 
@@ -34,15 +35,23 @@ class ArchiveSearch:
                     return [result[0]]
         return []
 
-    def _sub_search(self, tinfo: TarInfo, pattern: str) -> dict:
-        with self.tar_file.extractfile(tinfo) as bytes_content:
+    def _sub_search(self, tinfo: TarInfo, pattern: str) -> Generator[dict, None, None]:
+        fd = self.tar_file.extractfile(tinfo)
+        if fd is None:
+            return
+
+        with fd as bytes_content:
             sub_tar = TarFile(fileobj=bytes_content)
             for sub_tinfo in sub_tar.getmembers():
                 if (self.equal_match and sub_tinfo.name == pattern) or (
                     not self.equal_match and sub_tinfo.name.endswith(pattern)
                 ):
-                    result = {}
-                    with sub_tar.extractfile(sub_tinfo) as fileh:
+                    result: dict[str, str | bytes] = {}
+                    fd2 = sub_tar.extractfile(sub_tinfo)
+                    if fd2 is None:
+                        continue
+
+                    with fd2 as fileh:
                         result["content"] = fileh.read()
                         result["path"] = sub_tinfo.name
                         result["member"] = tinfo.name

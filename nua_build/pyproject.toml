@@ -102,7 +102,12 @@ exclude = [
 
 [tool.deptry]
 exclude = [
-    '.tox', 'tests', 'sandbox', 'doc', 'scripts'
+    '.tox',
+    'tests',
+    'sandbox',
+    'doc',
+    'scripts',
+    "noxfile.py"
 ]
 ignore_obsolete = [
     "setuptools",

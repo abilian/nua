@@ -40,8 +40,8 @@ lint: ## check style
 	flake8 $(SRC) tests
 	isort --skip tests/apps --check $(SRC) tests
 	black --exclude tests/apps --check $(SRC) tests
-	# mypy --exclude tests/apps $(SRC) tests
-	# deptry .
+	mypy --exclude tests/apps $(SRC) tests
+	deptry .
 
 #
 # Formatting

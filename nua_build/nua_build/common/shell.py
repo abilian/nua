@@ -74,7 +74,7 @@ def rm_rf(path: str | Path) -> bool:
     return False
 
 
-def _base_sh(cmd: str, timeout: int, env: dict | None, capture_output: bool):
+def _base_sh(cmd: str, timeout: int | None, env: dict | None, capture_output: bool):
     if capture_output:
         return run(
             cmd,
@@ -103,6 +103,7 @@ def sh(
     show_cmd: bool = True,
     capture_output: bool = False,
 ) -> str:
+    """Run a shell command."""
     if show_cmd:
         console.print(
             cmd,

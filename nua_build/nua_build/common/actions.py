@@ -132,7 +132,8 @@ def install_nodejs_via_nvm(home: Path | str = "/nua"):
         f"&& nvm alias default v{node_version} "
         f"&& rm -rf {nvm_dir}/.cache "
     )
-    sh(cmd, env=os.environ)
+    _env = dict(os.environ)
+    sh(cmd, env=_env)
 
 
 def pip_install(packages: list | str, update: bool = False) -> None:

@@ -71,6 +71,8 @@ def mariadb_user_drop(host: str, user: str) -> bool:
     query = "DROP USER IF EXISTS ?"
     cursor.execute(query, (user,))
     connection.close()
+    # Needed ?
+    return True
 
 
 def mariadb_user_exist(host: str, user: str) -> bool:

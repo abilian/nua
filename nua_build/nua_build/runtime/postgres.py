@@ -325,6 +325,8 @@ def pg_user_drop_port(host: str, port: str, user: str) -> bool:
             query = "DROP USER IF EXISTS {username}"
             cur.execute(SQL(query).format(username=Identifier(user)))
     connection.close()
+    # Needed ?
+    return True
 
 
 def pg_user_exist(host: str, user: str) -> bool:

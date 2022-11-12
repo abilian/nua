@@ -45,8 +45,10 @@ def _run_shell_cmd(
     env: dict | None = None,
     show_cmd: bool = True,
 ):
-    if not env:
-        env = os.environ
+    if env is None:
+        _env = dict(os.environ)
+    else:
+        _env = env
     if show_cmd:
         stdout = None
     else:
@@ -57,7 +59,7 @@ def _run_shell_cmd(
         timeout=timeout,
         cwd=cwd,
         executable="/bin/bash",
-        env=env,
+        env=_env,
         stdout=stdout,
     )
 
@@ -71,8 +73,10 @@ def _run_cmd(
 ):
     if isinstance(cmd, str):
         cmd = shlex.split(cmd)
-    if not env:
-        env = os.environ
+    if env is None:
+        _env = dict(os.environ)
+    else:
+        _env = env
     if show_cmd:
         stdout = None
     else:
@@ -82,7 +86,7 @@ def _run_cmd(
         shell=False,  # noqa S603
         timeout=timeout,
         cwd=cwd,
-        env=env,
+        env=_env,
         stdout=stdout,
     )
 
@@ -158,10 +162,12 @@ def exec_as_root_daemon(
             cmd = "sudo " + cmd
         else:
             raise ValueError(f"Not allowed : exec_as_root_daemon as uid {os.getuid()}")
-    cmd = shlex.split(cmd)
+    args = tuple(shlex.split(cmd))
     if not env:
-        env = os.environ
-    proc = mp.Process(target=_run_cmd, args=(cmd,), kwargs={"env": env}, daemon=True)
+        _env = dict(os.environ)
+    else:
+        _env = env
+    proc = mp.Process(target=_run_cmd, args=args, kwargs={"env": _env}, daemon=True)
     proc.start()
     return proc
 
@@ -205,6 +211,7 @@ def set_nua_user() -> None:
     if os.getuid() != nua_record.pw_uid:
         os.setgid(nua_record.pw_gid)
         os.setuid(nua_record.pw_uid)
+
     ensure_env("USER", NUA)
     ensure_env("HOME", nua_record.pw_dir)
     ensure_env("UID", str(nua_record.pw_uid))
