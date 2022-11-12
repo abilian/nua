@@ -17,4 +17,4 @@ def lint(session: nox.Session) -> None:
 def pytest(session: nox.Session) -> None:
     session.run("poetry", "install", external=True)
     session.run("pip", "check")
-    session.run("pytest", "--tb=line")
+    session.run("pytest", "--tb=short")
