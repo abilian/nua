@@ -1,4 +1,4 @@
-from nua_build.actions import install_nodejs
+from nua_build.common.actions import install_nodejs
 
 # from nua_build.nua_config import NuaConfig
 

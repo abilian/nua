@@ -3,7 +3,7 @@ Make a docker image for frappe/bench
 """
 import os
 
-from nua_build.actions import (  # pip_install_glob,
+from nua_build.common.actions import (  # pip_install_glob,
     append_bashrc,
     install_nodejs_via_nvm,
     install_package_list,

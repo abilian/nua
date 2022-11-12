@@ -9,7 +9,7 @@ Please run this script as a non-root user with sudo privileges, but without usin
 import os
 from pathlib import Path
 
-from nua_build.actions import (
+from nua_build.common.actions import (
     install_nodejs,
     install_package_list,
     pip_install,

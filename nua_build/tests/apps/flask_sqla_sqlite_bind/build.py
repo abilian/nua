@@ -1,6 +1,6 @@
 import os
 
-from nua_build.actions import poetry_install
+from nua_build.common.actions import poetry_install
 
 # from nua_build.nua_config import NuaConfig
 

@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from nua_build.actions import poetry_install
+from nua_build.common.actions import poetry_install
 from nua_build.nua_config import NuaConfig
 from nua_build.shell import chmod_r, mkdir_p, rm_fr
 
