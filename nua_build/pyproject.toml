@@ -28,7 +28,7 @@ jinja2 = "^3.1.2"
 # psutil = "^5.9.1"
 
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 # XXX: why is this needed here ?
 paramiko = "^2.11.0"
 
@@ -36,6 +36,7 @@ paramiko = "^2.11.0"
 pytest = "^7"
 pytest-cov = "^4"
 pytest-xdist = "*"
+nox = "^2022.8.7"
 
 # Linting
 flake8 = "^5"
@@ -73,11 +74,10 @@ vulture = "*"
 deptry = "*"
 ruff = "*"
 
-[tool.poetry.group.dev.dependencies]
-nox = "^2022.8.7"
 
 [tool.pytest.ini_options]
 filterwarnings = ["ignore:.*distutils package:DeprecationWarning", "ignore::DeprecationWarning"]
+
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

@@ -1047,7 +1047,7 @@ test = ["websockets"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "b48dcb4840414ac04d781dbb2a4e4913c5656a5498d9a624f0c848a7f412cebe"
+content-hash = "5cdbde18ba09810822a0d271f9ad3035132f14e36ca5fc04193e687debd66d3f"
 
 [metadata.files]
 argcomplete = [
