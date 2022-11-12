@@ -16,7 +16,7 @@ from flask_pg_dock_psyco.constants import (
     USER_PASSWORD,
 )
 
-from nua_build.exec import exec_as_root
+from nua_build.common.exec import exec_as_root
 from nua_build.runtime import postgres  # Nua shortcuts to manage postgres operations
 
 

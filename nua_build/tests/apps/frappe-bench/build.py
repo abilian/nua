@@ -9,11 +9,11 @@ from nua_build.common.actions import (  # pip_install_glob,
     install_package_list,
     pip_install,
 )
-from nua_build.shell import chown_r, sh
+from nua_build.common.shell import chown_r, sh
 
 # from nua_build.nua_config import NuaConfig
 # from pathlib import Path
-# from nua_build.shell import chmod_r, mkdir_p, rm_fr
+# from nua_build.common.shell import chmod_r, mkdir_p, rm_fr
 
 BENCH_PKGS = """apt-utils build-essential git mariadb-client postgresql-client
     gettext-base wget libssl-dev fonts-cantarell xfonts-75dpi xfonts-base locales

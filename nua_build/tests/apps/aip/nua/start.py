@@ -1,7 +1,7 @@
 import os
 
-from nua_build.exec import exec_as_root
-from nua_build.shell import sh
+from nua_build.common.exec import exec_as_root
+from nua_build.common.shell import sh
 
 sh("pip list")
 sh("aip-config")

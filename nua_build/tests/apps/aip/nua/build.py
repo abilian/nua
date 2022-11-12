@@ -4,7 +4,7 @@ from nua_build.common.actions import install_package_list, poetry_install
 
 # from nua_build.nua_config import NuaConfig
 
-# from nua_build.shell import mkdir_p, rm_fr, sh
+# from nua_build.common.shell import mkdir_p, rm_fr, sh
 
 
 def main():

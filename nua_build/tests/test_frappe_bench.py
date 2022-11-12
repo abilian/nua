@@ -4,7 +4,7 @@ import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 from shutil import copytree
-from time import perf_counter, sleep
+from time import perf_counter
 
 import docker
 

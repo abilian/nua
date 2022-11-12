@@ -1,4 +1,4 @@
-from nua_build.exec import exec_as_root
+from nua_build.common.exec import exec_as_root
 
 cmd = "gunicorn --worker-tmp-dir /dev/shm --workers 2 -b :80 flask_upload_bind_mount.wsgi:app"
 

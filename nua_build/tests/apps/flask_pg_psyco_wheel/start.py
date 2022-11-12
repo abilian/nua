@@ -6,7 +6,7 @@ import os
 import psycopg2
 from flask_pg_psyco.constants import DB_HOST, DB_NAME, DB_USER, DB_USER_PWD
 
-from nua_build.exec import exec_as_root
+from nua_build.common.exec import exec_as_root
 from nua_build.runtime import postgres  # Nua shortcuts to manage postgres operations
 
 

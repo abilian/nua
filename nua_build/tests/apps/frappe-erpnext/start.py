@@ -4,7 +4,7 @@ https://www.digitalocean.com/community/tutorials/
 
 import os
 
-from nua_build.exec import exec_as_root
+from nua_build.common.exec import exec_as_root
 from nua_build.runtime import mariadb_utils as mdb  # Nua shortcuts to manage mariadb
 
 # import mariadb

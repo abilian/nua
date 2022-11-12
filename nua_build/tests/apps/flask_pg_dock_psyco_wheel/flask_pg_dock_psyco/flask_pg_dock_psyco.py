@@ -1,5 +1,3 @@
-import os
-
 import psycopg2
 from flask import Flask, redirect, render_template, request, url_for
 from psycopg2.sql import SQL

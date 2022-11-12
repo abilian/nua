@@ -7,16 +7,10 @@ os.environ['SUDO_USER']
 Please run this script as a non-root user with sudo privileges, but without using sudo or pass --user=USER')
 """
 import os
-from pathlib import Path
 
-from nua_build.common.actions import (
-    install_nodejs,
-    install_package_list,
-    pip_install,
-    pip_install_glob,
-)
+from nua_build.common.actions import install_package_list, pip_install, pip_install_glob
+from nua_build.common.shell import sh
 from nua_build.nua_config import NuaConfig
-from nua_build.shell import chmod_r, mkdir_p, rm_fr, sh
 
 
 def main():
