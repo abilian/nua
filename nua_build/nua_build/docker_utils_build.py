@@ -6,8 +6,8 @@ import docker
 import docker.errors
 
 from . import config
-from .panic import panic
-from .rich_console import print_magenta, print_red
+from .common.panic import panic
+from .common.rich_console import print_magenta, print_red
 
 
 def print_log_stream(docker_log):

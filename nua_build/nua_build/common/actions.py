@@ -119,7 +119,7 @@ def install_nodejs_via_nvm(home: Path | str = "/nua"):
     )
     append_bashrc(home, bashrc_modif)
     os.environ["NVM_DIR"] = ""
-    os.environ["HOME"] = home
+    os.environ["HOME"] = str(home)
     cmd = (
         f"wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh "
         f"| bash  && . {nvm_dir}/nvm.sh "

@@ -4,8 +4,8 @@ from typing import Any
 
 import tomli
 
+from .common.panic import error
 from .constants import NUA_CONFIG
-from .panic import error
 
 REQUIRED_BLOCKS = ["metadata", "build"]
 REQUIRED = ["id", "version", "title", "author", "licence"]

@@ -17,6 +17,9 @@ from shutil import copy2, copytree
 import docker
 
 from .. import __version__, config
+from ..common.panic import error
+from ..common.rich_console import print_green
+from ..common.shell import rm_fr
 from ..constants import (
     DEFAULTS_DIR,
     MYSELF_DIR,
@@ -26,9 +29,6 @@ from ..constants import (
 )
 from ..docker_utils_build import display_docker_img, docker_build_log_error
 from ..nua_config import NuaConfig
-from ..panic import error
-from ..rich_console import print_green
-from ..shell import rm_fr
 from ..state import verbosity
 from .build_nua_builder import build_nua_builder
 

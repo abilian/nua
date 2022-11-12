@@ -13,7 +13,7 @@ import typer
 
 from . import __version__
 from .commands.builder import Builder, build_nua_builder_if_needed
-from .rich_console import print_green
+from .common.rich_console import print_green
 from .state import set_verbose
 
 app = typer.Typer()

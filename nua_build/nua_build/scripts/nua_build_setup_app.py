@@ -10,6 +10,8 @@ from os import chdir
 from pathlib import Path
 from shutil import copy2
 
+from ..common.panic import error
+from ..common.shell import mkdir_p, sh
 from ..constants import (
     DEFAULTS_DIR,
     NUA_APP_PATH,
@@ -19,8 +21,6 @@ from ..constants import (
     NUA_SCRIPTS_PATH,
 )
 from ..nua_config import NuaConfig
-from ..panic import error
-from ..shell import mkdir_p, sh
 
 logging.basicConfig(level=logging.INFO)
 

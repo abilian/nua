@@ -13,8 +13,8 @@ from flask_mariadb_docker_wheel.constants import (
     USER_PASSWORD,
 )
 
-from nua_build import mariadb_utils as mdb  # Nua shortcuts to manage mariadb
 from nua_build.exec import exec_as_root
+from nua_build.runtime import mariadb_utils as mdb  # Nua shortcuts to manage mariadb
 
 
 def setup_db():
