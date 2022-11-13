@@ -51,13 +51,14 @@ class Builder:
     container_type = ""
     build_dir: Path
     nua_dir: Path
+    nua_dir_relative: Path
 
     def __init__(self, config_file):
         self.config = NuaConfig(config_file)
         # self.container_type = ""
         # self.build_dir = None
         # self.nua_dir = None
-        self.nua_dir_relative = None
+        # self.nua_dir_relative = None
 
     def run(self):
         self.detect_container_type()
@@ -169,6 +170,7 @@ class Builder:
             return
         if verbosity(1):
             print("Copying Nua default file:", default_file.name)
+
         copy2(default_file, self.build_dir / self.nua_dir_relative)
 
     def copy_build_files(self):

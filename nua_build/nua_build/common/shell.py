@@ -102,7 +102,8 @@ def sh(
     env: dict | None = None,
     show_cmd: bool = True,
     capture_output: bool = False,
-) -> str:
+) -> str | bytes:
+    # XXX: can/should it really return bytes?
     """Run a shell command."""
     if show_cmd:
         console.print(
