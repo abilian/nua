@@ -48,11 +48,15 @@ logging.basicConfig(level=logging.INFO)
 class Builder:
     """Class to hold config and other state information during build."""
 
+    container_type = ""
+    build_dir: Path
+    nua_dir: Path
+
     def __init__(self, config_file):
         self.config = NuaConfig(config_file)
-        self.container_type = ""
-        self.build_dir = None
-        self.nua_dir = None
+        # self.container_type = ""
+        # self.build_dir = None
+        # self.nua_dir = None
         self.nua_dir_relative = None
 
     def run(self):

@@ -41,6 +41,7 @@ lint: ## check style
 	isort --skip tests/apps --check $(SRC) tests
 	black --exclude tests/apps --check $(SRC) tests
 	mypy --exclude tests/apps $(SRC) tests
+	# pyright
 	deptry .
 
 #

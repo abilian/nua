@@ -73,6 +73,7 @@ types-toml = "*"
 vulture = "*"
 deptry = "*"
 ruff = "*"
+pyright = "^1.1.279"
 
 
 [tool.pytest.ini_options]
@@ -119,3 +120,15 @@ ignore_missing = [
 ]
 ignore_transitive = [
 ]
+
+
+[tool.pyright]
+exclude = [
+    '.tox',
+    '.nox',
+    'tests',
+    'sandbox',
+    'doc',
+    'scripts',
+]
+

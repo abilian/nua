@@ -15,6 +15,9 @@ OPTIONAL = ["tagline", "website", "tags", "profile", "release", "changelog"]
 class NuaConfig:
     """Wrapper for the "nua-config.toml" file."""
 
+    path: Path
+    root_dir: Path
+
     def __init__(self, filename=None):
         if not filename:
             filename = NUA_CONFIG

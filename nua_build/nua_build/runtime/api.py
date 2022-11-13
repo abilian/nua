@@ -25,38 +25,38 @@ class DbManager(Protocol):
     """Database manager."""
 
     def __init__(self, host: str, port: str, user: str, password: str):
-        pass
+        ...
 
     # Common methods (between PostgreSQL and MariaDB)
     def setup_db_user(self, dbname: str, user: str, password: str):
-        pass
+        ...
 
     def remove_db_user(self, dbname: str, user: str):
-        pass
+        ...
 
     def db_drop(self, dbname: str):
-        pass
+        ...
 
     def db_dump(self, dbname: str, options_str: str = ""):
-        pass
+        ...
 
     def user_drop(self, user: str) -> bool:
-        pass
+        ...
 
     def user_exist(self, user: str) -> bool:
-        pass
+        ...
 
     def user_create(self, user: str, password: str):
-        pass
+        ...
 
     def db_create(self, dbname: str, user: str):
-        pass
+        ...
 
     def db_exist(self, dbname: str) -> bool:
-        pass
+        ...
 
     def db_table_exist(self, dbname: str, user: str, password: str, table: str) -> bool:
-        pass
+        ...
 
     # # Additional from mariadb_utils
     # def pwd(self) -> str:

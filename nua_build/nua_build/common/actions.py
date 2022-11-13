@@ -24,7 +24,8 @@ def build_python(path=None):
 
 
 def _apt_remove_lists():
-    sh("rm -rf /var/lib/apt/lists/*", env=os.environ, timeout=600)
+    env = dict(os.environ)
+    sh("rm -rf /var/lib/apt/lists/*", env=env, timeout=600)
 
 
 def apt_update():
@@ -51,11 +52,13 @@ def install_package_list(
     if not packages:
         print("install_package_list(): nothing to install")
         return
+
     environ = os.environ.copy()
     environ["DEBIAN_FRONTEND"] = "noninteractive"
     update_cmd = "apt-get update --fix-missing; " if update else ""
     cmd = f"{update_cmd}apt-get install --no-install-recommends -y {' '.join(packages)}"
     sh(cmd, env=environ, timeout=600)
+
     if clean:
         sh("apt-get autoremove; apt-get clean", env=environ, timeout=600)
     if rm_lists:

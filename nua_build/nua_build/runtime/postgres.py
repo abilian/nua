@@ -151,13 +151,16 @@ def _pg_check_installed_version() -> bool:
 
 def _pg_check_std_port() -> bool:
     path = POSTGRES_CONF_PATH / "postgresql.conf"
+
     if not path.is_file():
         print_red(f"Postgres config file not found: {path}")
         return False
+
     with open(path, encoding="utf8") as rfile:
         for line in rfile:
             if RE_5432.match(line):
                 return True
+
     print_red("Postgres is expected on standard port 5432, check configuration.")
     return False
 
@@ -207,6 +210,7 @@ def allow_docker_connection():
         content = rfile.read()
     if auth_line in content:
         return
+
     with open(path, "a", encoding="utf8") as afile:
         afile.write(auth_line)
         afile.write("\n")
@@ -217,10 +221,13 @@ def _save_config_gateway_address(content: str):
     with open(src_path, "w", encoding="utf8") as wfile:
         wfile.write(content)
     dest_path = POSTGRES_CONF_PATH / "conf.d" / "nua_listening_docker.conf"
+
     cmd = f"sudo mv -f {src_path} {dest_path}"
     sh(cmd, show_cmd=False)
+
     cmd = f"sudo chown postgres:postgres {dest_path}"
     sh(cmd, show_cmd=False)
+
     cmd = f"sudo chmod 644 {dest_path}"
     sh(cmd, show_cmd=False)
 
@@ -298,7 +305,7 @@ def pg_db_drop_port(host: str, port: str, dbname: str):
         with connection.cursor() as cur:
             query = "DROP DATABASE {db}"
             cur.execute(SQL(query).format(db=Identifier(dbname)))
-    connection.close()
+    connection.close()  # <- Needed? The with statement should close it.
 
 
 def pg_db_dump(dbname: str, options_str: str = ""):
@@ -324,7 +331,7 @@ def pg_user_drop_port(host: str, port: str, user: str) -> bool:
         with connection.cursor() as cur:
             query = "DROP USER IF EXISTS {username}"
             cur.execute(SQL(query).format(username=Identifier(user)))
-    connection.close()
+    connection.close()  # <- Needed? The with statement should close it.
     # Needed ?
     return True
 
@@ -344,7 +351,7 @@ def pg_user_exist_port(host: str, port: str, user: str) -> bool:
             query = "SELECT COUNT(*) FROM pg_catalog.pg_roles WHERE rolname = %s"
             cur.execute(SQL(query), (user,))
             (count,) = cur.fetchone()
-    connection.close()
+    connection.close()  # <- Needed? The with statement should close it.
     return count != 0
 
 

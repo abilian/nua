@@ -28,6 +28,8 @@ logging.basicConfig(level=logging.INFO)
 class BuilderApp:
     """Class to hold config and other state information during build."""
 
+    nua_dir: Path
+
     def __init__(self):
         # we are supposed to launch "nua buld" from cwd, but we'll see later
         # self.root_dir = Path.cwd()
@@ -37,7 +39,7 @@ class BuilderApp:
         chdir(self.build_dir)
         self.config = NuaConfig(self.build_dir)
         self.build_script_path = None
-        self.nua_dir = None
+        # self.nua_dir = None
 
     def fetch(self):
         chdir(self.build_dir)
@@ -101,10 +103,13 @@ class BuilderApp:
         # assuming it is a python script
         print(f"run build script: {self.build_script_path}")
         chdir(self.build_dir)
+        env = dict(os.environ)
+
         cmd = "python --version"
-        sh(cmd, env=os.environ)
+        sh(cmd, env=env)
+
         cmd = f"python {self.build_script_path}"
-        sh(cmd, env=os.environ)
+        sh(cmd, env=env)
 
 
 def main() -> None:
