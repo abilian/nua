@@ -4,10 +4,10 @@ from pathlib import Path
 from time import sleep
 
 from . import config, nua_env
-from .actions import jinja2_render_file
+from .common.actions import jinja2_render_file
 from .common.panic import warning
 from .common.rich_console import print_magenta
-from .shell import chown_r, mkdir_p, rm_fr, sh
+from .common.shell import chown_r, mkdir_p, rm_fr, sh
 from .state import verbosity
 
 CONF_NGINX = Path(__file__).parent.resolve() / "config" / "nginx"

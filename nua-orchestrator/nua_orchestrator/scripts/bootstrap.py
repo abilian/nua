@@ -9,14 +9,14 @@ import os
 from pathlib import Path
 
 from .. import nua_env
-from ..actions import (
+from ..bash import bash_as_nua
+from ..common.actions import (
     apt_final_clean,
     apt_update,
     check_python_version,
     install_package_list,
     string_in,
 )
-from ..bash import bash_as_nua
 from ..common.exec import exec_as_nua, mp_exec_as_nua
 from ..common.panic import error, warning
 from ..common.rich_console import print_green, print_magenta, print_red

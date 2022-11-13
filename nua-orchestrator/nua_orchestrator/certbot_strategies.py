@@ -14,7 +14,7 @@ import os
 
 from . import config
 from .common.rich_console import print_magenta
-from .shell import sh
+from .common.shell import sh
 from .state import verbosity
 
 

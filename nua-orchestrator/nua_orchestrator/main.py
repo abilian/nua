@@ -7,9 +7,9 @@ from typing import Optional
 import typer
 
 from . import __version__
-from .actions import check_python_version
 from .commands.deploy import deploy_nua_sites
 from .commands.deploy_nua import deploy_nua
+from .common.actions import check_python_version
 from .common.exec import is_current_user, set_nua_user
 from .common.panic import error
 from .common.rich_console import print_red

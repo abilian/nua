@@ -17,7 +17,7 @@ from .common.rich_console import print_green, print_red
 from .db import store
 from .db.create import create_base
 from .db.session import configure_session
-from .deep_access_dict import DeepAccessDict
+from .util.deep_access_dict import DeepAccessDict
 
 
 def setup_db():
@@ -83,10 +83,12 @@ def set_db_url_in_settings(settings):
 
 
 def setup_first_launch():
+    # global config
+
     settings = store.installed_nua_settings()
     if not settings:
         print_green(
-            f"First launch: set Nua defaults in '{config.read('nua','db','url')}'"
+            f"First launch: set Nua defaults in '{config.read('nua', 'db', 'url')}'"
         )
         return set_default_settings()
     installed_version = settings.get("version", "")

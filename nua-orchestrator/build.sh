@@ -1,9 +1,12 @@
 #!/bin/bash
 
-for installed in $( pip list --format freeze | grep nua-orchestrator )
-do
-    echo "${installed}"
-    pip uninstall -y "${installed}"
-done
+echo "Why is this needed?"
+echo "Just run 'poetry install'"
 
-poetry install
+#for installed in $( pip list --format freeze | grep nua-orchestrator )
+#do
+#    echo "${installed}"
+#    pip uninstall -y "${installed}"
+#done
+#
+#poetry install
