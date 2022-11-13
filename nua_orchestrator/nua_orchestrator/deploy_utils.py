@@ -5,6 +5,7 @@ from pprint import pformat
 from typing import Callable
 
 import docker
+import docker.types
 
 from .archive_search import ArchiveSearch
 from .db import store

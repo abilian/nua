@@ -13,7 +13,6 @@ from .gen_password import gen_password
 from .rich_console import print_magenta, print_red
 from .shell import chown_r, sh
 
-docker_host_gateway_ip
 PG_VERSION = "14"
 POSTGRES_CONF_PATH = Path(f"/etc/postgresql/{PG_VERSION}/main")
 RE_ANY_PG = re.compile(r"^postgresql-[0-9\.]+/")

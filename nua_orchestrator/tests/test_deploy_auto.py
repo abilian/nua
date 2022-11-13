@@ -99,7 +99,8 @@ def _make_check_test(test: dict):
     url = test.get("url")
     if not url:
         return
-    if os.environ.get("NUA_CERTBOT_STRATEGY").lower() == "none":
+    # FIXME: configuration via env var should not be directly exposed
+    if os.environ.get("NUA_CERTBOT_STRATEGY", "none").lower() == "none":
         url = url.replace("https://", "http://")
     else:
         url = url.replace("http://", "https://")

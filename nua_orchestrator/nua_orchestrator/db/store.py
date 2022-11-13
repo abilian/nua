@@ -161,7 +161,7 @@ def installed_nua_version():
         return setting.data.get("nua_version", "")
 
 
-def list_all_settings() -> str:
+def list_all_settings() -> list[dict]:
     with Session() as session:
         settings = session.query(Setting).all()
         return [s.to_dict() for s in settings]

@@ -2,6 +2,7 @@
 """
 from operator import itemgetter
 from pathlib import Path
+from typing import Generator
 from urllib.parse import urlparse
 
 from packaging.version import Version
@@ -86,14 +87,14 @@ def search_docker_tar_local(app, tag) -> list:
     return [t[1] for t in version_path]
 
 
-def find_local_tar_tagged(registry, app, tag) -> Path:
+def find_local_tar_tagged(registry, app, tag) -> Generator[Path, None, None]:
     # we expect a local directory with files like 'nua-app:1.2-3.tar'
     folder = Path(urlparse(registry["url"]).path)
     if folder.is_dir():
         yield from folder.rglob(f"nua-{app}:{tag}.tar")
 
 
-def find_local_tar_untagged(registry, app) -> Path:
+def find_local_tar_untagged(registry, app) -> Generator[Path, None, None]:
     # we expect a local dirctory with files like 'nua-app:1.2-3.tar'
     folder = Path(urlparse(registry["url"]).path)
     if folder.is_dir():

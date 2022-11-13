@@ -650,11 +650,12 @@ def _verify_not_located(host: dict):
         valid = host["sites"]
     else:
         hostname = host["hostname"]
-        valid = []
-        valid.append(host["sites"].pop(0))
         warning(f"too many sites for {hostname=}, site discarded:")
+        site = host["sites"].pop(0)
+        valid = [site]
         for site in host["sites"]:
             image = site.image
             print_red(f"    {image=} / {site['domain']}")
+
     host["sites"] = valid
     host["located"] = False

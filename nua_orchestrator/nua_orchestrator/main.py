@@ -90,7 +90,7 @@ def restart_local():
 
 
 @app.command("search")
-def search_local(app: str = arg_search_app) -> bool:
+def search_local(app: str = arg_search_app):
     """Search Nua image."""
     initialization()
     search_nua_print(app)

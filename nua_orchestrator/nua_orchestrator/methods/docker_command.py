@@ -18,6 +18,7 @@ from contextlib import suppress
 from pathlib import Path
 
 import docker
+import docker.errors
 import requests
 from fabric import Connection
 
@@ -99,7 +100,7 @@ class DockerCommand:
             )
         return True
 
-    def list(self) -> str:
+    def list(self) -> list[str]:
         """List Nua packages in local repository."""
         log_me(f"DockerCommand.list allow_repository {self.allow_repository}")
         self.check_allowed_command(repository="registry")
@@ -266,6 +267,7 @@ class DockerCommand:
             log_me(f"docker_push: Image {image_id} not found")
             print(f"Image {image_id} not found.")
             return False
+
         repos, tag = self.repos_tag(nua_tag)
         image.tag(repos, tag=tag)
         result = client.api.push(repository=repos, tag=tag)
