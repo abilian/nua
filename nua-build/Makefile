@@ -72,3 +72,10 @@ clean:
 tidy: clean
 	rm -rf .tox .nox
 
+
+#
+# Update environment
+#
+update-env:
+	poetry run pip install -U pip setuptools wheel poetry
+

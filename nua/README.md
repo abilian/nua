@@ -1,7 +1,3 @@
-# Work in progress:
+# Old code
 
-`Nua` package may become a meta package containing:
-  - setup tools to install a `Nua` server,
-  - `nua_orchestrator` and related run tools,
-  - probably `nua_build` tools,
-  - ...
+This is the initial code for Nua, and will be removed soon.
