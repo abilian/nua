@@ -7,8 +7,8 @@ from pathlib import Path
 # subprocess module.
 from subprocess import run  # noqa: S404
 
-from .panic import error
-from .rich_console import console
+from .common.panic import error
+from .common.rich_console import console
 
 
 def cat(filename: str | Path):

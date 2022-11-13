@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from typing import Callable
 
-from .panic import error, warning
+from .common.panic import error, warning
 from .port_normalization import normalize_ports, ports_as_dict
 from .utils import sanitized_name
 from .volume_normalization import normalize_volumes

@@ -6,12 +6,12 @@ from pathlib import Path
 import psycopg2
 from psycopg2.sql import SQL, Identifier
 
-from .actions import install_package_list, installed_packages
+from .common.actions import install_package_list, installed_packages
+from .common.exec import mp_exec_as_postgres
+from .common.rich_console import print_magenta, print_red
+from .common.shell import chown_r, sh
 from .docker_utils import docker_host_gateway_ip
-from .exec import mp_exec_as_postgres
 from .gen_password import gen_password
-from .rich_console import print_magenta, print_red
-from .shell import chown_r, sh
 
 PG_VERSION = "14"
 POSTGRES_CONF_PATH = Path(f"/etc/postgresql/{PG_VERSION}/main")

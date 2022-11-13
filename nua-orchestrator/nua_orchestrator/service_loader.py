@@ -1,7 +1,7 @@
 from importlib import import_module
 
+from .common.rich_console import print_red
 from .db import store
-from .rich_console import print_red
 
 
 def test():

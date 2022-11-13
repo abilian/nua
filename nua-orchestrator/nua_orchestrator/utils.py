@@ -1,7 +1,7 @@
 import re
 import string
 
-from .panic import error
+from .common.panic import error
 
 RE_NB_UNIT = re.compile(r"(\d+\.?\d*)\s*(\S*)")
 UNIT = {"B": 1, "K": 2**10, "M": 2**20, "G": 2**30, "T": 2**40}

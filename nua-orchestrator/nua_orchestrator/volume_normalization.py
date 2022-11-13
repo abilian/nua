@@ -1,7 +1,7 @@
 from pprint import pformat
 
-from .panic import error
-from .rich_console import print_red
+from .common.panic import error
+from .common.rich_console import print_red
 
 # later, add 'npipe' when managed:
 ALLOWED_TYPE = {"volume", "bind", "tmpfs"}

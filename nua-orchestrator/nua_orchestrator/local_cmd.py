@@ -7,7 +7,7 @@ import os
 from operator import itemgetter
 
 from . import __version__, config
-from .panic import error
+from .common.panic import error
 
 # from .registry import start_registry_container  # to remove
 # from .server_utils.mini_log import log, log_me, log_sentinel

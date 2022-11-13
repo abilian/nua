@@ -19,11 +19,11 @@ import re
 from pathlib import Path
 from time import sleep
 
-from .actions import install_package_list, installed_packages
-from .exec import exec_as_root, exec_as_root_daemon
+from .common.actions import install_package_list, installed_packages
+from .common.exec import exec_as_root, exec_as_root_daemon
+from .common.rich_console import print_magenta, print_red
+from .common.shell import chown_r, sh
 from .gen_password import gen_password
-from .rich_console import print_magenta, print_red
-from .shell import chown_r, sh
 
 MARIADB_VERSION = "10.6"
 RE_PORT = re.compile(r"\s*port\s*=\s*(\d+)")

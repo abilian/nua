@@ -1,8 +1,8 @@
 from copy import deepcopy
 from pprint import pformat
 
+from .common.panic import error, warning
 from .domain_split import DomainSplit
-from .panic import error, warning
 from .port_normalization import normalize_ports, ports_as_dict
 from .resource import Resource
 from .state import verbosity

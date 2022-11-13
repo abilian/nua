@@ -8,7 +8,7 @@ from paramiko import RSAKey
 from nua_orchestrator.db import store
 from nua_orchestrator.db_setup import setup_db
 
-from .panic import error
+from .common.panic import error
 
 
 def generate_rsa_host_key(bits=4096) -> RSAKey:

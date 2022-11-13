@@ -9,7 +9,7 @@ from packaging.version import Version
 from packaging.version import parse as parse_version
 
 from . import config
-from .rich_console import print_green, print_magenta, print_red
+from .common.rich_console import print_green, print_magenta, print_red
 
 
 def search_nua(app_name: str) -> list:

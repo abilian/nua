@@ -41,7 +41,8 @@ lint: ## check style
 	isort --check $(SRC) tests
 	black --check $(SRC) tests
 	# mypy $(SRC) tests
-	deptry .
+	# pyright
+	# deptry .
 
 #
 # Formatting

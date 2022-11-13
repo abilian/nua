@@ -9,6 +9,8 @@ import tomli
 
 from . import config
 from .certbot import protocol_prefix, register_certbot_domains
+from .common.panic import error, warning
+from .common.rich_console import print_green, print_magenta, print_red
 from .db import store
 from .db.model.instance import RUNNING
 from .deploy_utils import (
@@ -36,9 +38,7 @@ from .nginx_util import (
     configure_nginx_hostname,
     nginx_restart,
 )
-from .panic import error, warning
 from .resource import Resource
-from .rich_console import print_green, print_magenta, print_red
 from .search_cmd import search_nua
 from .service_loader import Services
 from .site import Site

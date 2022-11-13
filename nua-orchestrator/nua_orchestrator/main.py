@@ -10,15 +10,15 @@ from . import __version__
 from .actions import check_python_version
 from .commands.deploy import deploy_nua_sites
 from .commands.deploy_nua import deploy_nua
+from .common.exec import is_current_user, set_nua_user
+from .common.panic import error
+from .common.rich_console import print_red
 from .db.store import installed_nua_settings, list_all_settings
 
 # setup_db() does create the db if needed and also populate the configuration
 # from both db values and default parameters
 from .db_setup import setup_db
-from .exec import is_current_user, set_nua_user
 from .local_cmd import reload_servers, status
-from .panic import error
-from .rich_console import print_red
 from .search_cmd import search_nua_print
 from .state import set_verbose
 

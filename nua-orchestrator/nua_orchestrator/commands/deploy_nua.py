@@ -2,10 +2,10 @@
 
 WIP
 """
+from ..common.panic import error
+from ..common.rich_console import print_magenta
 from ..deploy_utils import load_install_image
 from ..docker_utils import docker_service_start_if_needed
-from ..panic import error
-from ..rich_console import print_magenta
 from ..search_cmd import search_nua
 from ..state import verbosity
 

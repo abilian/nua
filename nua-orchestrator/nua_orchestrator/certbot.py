@@ -14,8 +14,8 @@ import os
 
 from . import config
 from .certbot_strategies import apply_auto_strategy, apply_none_strategy
-from .panic import error
-from .rich_console import print_red
+from .common.panic import error
+from .common.rich_console import print_red
 
 ALLOWED_STRATEGY = {"auto": apply_auto_strategy, "none": apply_none_strategy}
 STRATEGY_PROTO = {"auto": "https://", "none": "http://"}

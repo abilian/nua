@@ -8,7 +8,7 @@ from pathlib import Path
 from subprocess import run  # noqa: S404
 
 from . import nua_env
-from .exec import set_nua_user
+from .common.exec import set_nua_user
 
 
 def bash_as_nua(cmd: str, cwd: str | Path | None = None, timeout: int | None = 600):

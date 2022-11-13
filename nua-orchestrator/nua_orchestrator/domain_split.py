@@ -3,7 +3,7 @@
 
 from urllib.parse import urlparse
 
-from .panic import error
+from .common.panic import error
 
 
 class DomainSplit:

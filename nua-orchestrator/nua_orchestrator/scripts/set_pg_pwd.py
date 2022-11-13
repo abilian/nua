@@ -4,8 +4,8 @@
 """
 import typer
 
+from ..common.rich_console import print_green, print_red
 from ..postgres_utils import set_postgres_pwd
-from ..rich_console import print_green, print_red
 
 option_pwd = typer.Option(..., prompt=True, confirmation_prompt=True, hide_input=True)
 

@@ -5,8 +5,8 @@ from time import sleep
 
 from . import config, nua_env
 from .actions import jinja2_render_file
-from .panic import warning
-from .rich_console import print_magenta
+from .common.panic import warning
+from .common.rich_console import print_magenta
 from .shell import chown_r, mkdir_p, rm_fr, sh
 from .state import verbosity
 

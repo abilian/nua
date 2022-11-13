@@ -13,11 +13,11 @@ from pathlib import Path
 import tomli
 
 from . import __version__, config
+from .common.rich_console import print_green, print_red
 from .db import store
 from .db.create import create_base
 from .db.session import configure_session
 from .deep_access_dict import DeepAccessDict
-from .rich_console import print_green, print_red
 
 
 def setup_db():
