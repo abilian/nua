@@ -15,8 +15,8 @@ nox.options.sessions = [
 ]
 
 SUB_REPOS = [
-    "nua_build",
-    "nua_orchestrator",
+    "nua-build",
+    "nua-orchestrator",
 ]
 
 

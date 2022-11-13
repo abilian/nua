@@ -52,9 +52,9 @@ lint/black: ## check style with black
 	black --check nua*
 
 lint/mypy: ## typecheck with mypy
-	mypy nua_build
-	mypy nua_orchestrator
-	mypy nua_cli
+	mypy nua-build
+	mypy nua-orchestrator
+	mypy nua-cli
 	mypy nua
 
 lint/isort:  ## check imports are properly sorted
@@ -116,8 +116,8 @@ install:
 	poetry install
 
 clean:
-	cd nua_build && make clean
-	cd nua_orchestrator && make clean
+	cd nua-build && make clean
+	cd nua-orchestrator && make clean
 	find . -name __pycache__ -print0 | xargs -0 rm -rf
 	find . -type d -empty -delete
 	rm -rf .mypy_cache .pytest_cache .ruff_cache
@@ -128,8 +128,8 @@ clean:
 
 tidy: clean
 	rm -rf .tox .nox
-	cd nua_build && make tidy
-	cd nua_orchestrator && make tidy
+	cd nua-build && make tidy
+	cd nua-orchestrator && make tidy
 
 update-deps:
 	pip install -U pip setuptools wheel
