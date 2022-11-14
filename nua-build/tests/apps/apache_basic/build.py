@@ -2,10 +2,11 @@ import os
 from pathlib import Path
 from shutil import copy2, copytree
 
-from nua_build import __version__ as nua_version
-from nua_build.common.actions import install_package_list, replace_in
-from nua_build.common.shell import chmod_r, chown_r, mkdir_p, rm_fr, sh
-from nua_build.nua_config import NuaConfig
+from nua.lib.common.actions import install_package_list, replace_in
+from nua.lib.common.shell import chmod_r, chown_r, mkdir_p, rm_fr, sh
+
+from nua.build import __version__ as nua_version
+from nua.build.nua_config import NuaConfig
 
 
 def main():

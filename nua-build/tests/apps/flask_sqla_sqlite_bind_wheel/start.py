@@ -4,8 +4,7 @@ https://www.digitalocean.com/community/tutorials/how-to-use-a-postgresql-databas
 import os
 
 from flask_sqla_sqlite_bind.app import setup_db
-
-from nua_build.common.exec import exec_as_root
+from nua.lib.common.exec import exec_as_root
 
 setup_db()
 

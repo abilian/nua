@@ -2,8 +2,8 @@
 
 import os
 
-# from nua_build import mariadb_utils as mdb  # Nua shortcuts to manage mariadb
-from nua_build.common.exec import exec_as_nua
+# from nua.build import mariadb_utils as mdb  # Nua shortcuts to manage mariadb
+from nua.lib.common.exec import exec_as_nua
 
 os.environ.update(
     {

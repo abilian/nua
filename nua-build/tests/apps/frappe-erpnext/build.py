@@ -8,9 +8,10 @@ Please run this script as a non-root user with sudo privileges, but without usin
 """
 import os
 
-from nua_build.common.actions import install_package_list, pip_install, pip_install_glob
-from nua_build.common.shell import sh
-from nua_build.nua_config import NuaConfig
+from nua.lib.common.actions import install_package_list, pip_install, pip_install_glob
+from nua.lib.common.shell import sh
+
+from nua.build.nua_config import NuaConfig
 
 
 def main():

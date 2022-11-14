@@ -1,9 +1,10 @@
 import os
 from pathlib import Path
 
-from nua_build.common.actions import pip_install, poetry_install
-from nua_build.common.shell import chmod_r, mkdir_p, rm_fr
-from nua_build.nua_config import NuaConfig
+from nua.lib.common.actions import pip_install, poetry_install
+from nua.lib.common.shell import chmod_r, mkdir_p, rm_fr
+
+from nua.build.nua_config import NuaConfig
 
 
 def main():

@@ -1,6 +1,6 @@
-from nua_build.common.actions import install_nodejs
+from nua.lib.common.actions import install_nodejs
 
-# from nua_build.nua_config import NuaConfig
+# from nua.build.nua_config import NuaConfig
 
 
 def main():
