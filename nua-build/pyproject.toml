@@ -10,10 +10,10 @@ packages = [
 ]
 
 [tool.poetry.scripts]
-nua-build = "nua_build.main:app"
-nua_build_self_setup = "nua_build.scripts.nuad_self_setup:main"
-nua_build_setup_app = "nua_build.scripts.nua_build_setup_app:main"
-nua_test_replace_domain = "nua_build.scripts.test_replace_domain:main"
+nua-build = "nua.build.main:app"
+nua_build_self_setup = "nua.build.scripts.nuad_self_setup:main"
+nua_build_setup_app = "nua.build.scripts.nua_build_setup_app:main"
+nua_test_replace_domain = "nua.build.scripts.test_replace_domain:main"
 
 [tool.poetry.dependencies]
 nua-lib = { path = "../nua-lib/", develop = false }

@@ -8,7 +8,7 @@ from time import perf_counter
 
 import docker
 
-from nua_build.constants import NUA_BUILDER_TAG, NUA_LINUX_BASE, NUA_PYTHON_TAG
+from nua.build.constants import NUA_BUILDER_TAG, NUA_LINUX_BASE, NUA_PYTHON_TAG
 
 
 def test_complete_build_with_cache():

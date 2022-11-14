@@ -1,6 +1,6 @@
 import pytest
 
-from nua_orchestrator.utils import size_to_bytes
+from nua.orchestrator.utils import size_to_bytes
 
 STR_INT = (
     (None, 0),

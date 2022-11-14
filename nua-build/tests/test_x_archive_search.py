@@ -6,7 +6,7 @@ from shutil import copytree
 
 import docker
 
-from nua_build.archive_search import ArchiveSearch
+from nua.build.archive_search import ArchiveSearch
 
 
 def test_archive_search():

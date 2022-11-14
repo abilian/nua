@@ -10,18 +10,18 @@ packages = [
 ]
 
 [tool.poetry.scripts]
-nua = "nua_orchestrator.main:app"
-nua-bootstrap = "nua_orchestrator.scripts.bootstrap:main"
-nua-pg-pwd = "nua_orchestrator.scripts.set_pg_pwd:app"
-nua-mariadb-init = "nua_orchestrator.scripts.mariadb_restore:app"
-nua-print-instances = "nua_orchestrator.scripts.print_instances:main"
-nua-print-volumes = "nua_orchestrator.scripts.print_mounted_volumes:main"
-nua-print-ports = "nua_orchestrator.scripts.print_used_ports:main"
-nua-deactivate-all = "nua_orchestrator.scripts.deactivate_all_instances:main"
-nua-docker-list-all = "nua_orchestrator.scripts.docker_list_all:main"
-nua-docker-rm-all = "nua_orchestrator.scripts.docker_remove_all:main"
-nua_test_replace_domain = "nua_orchestrator.scripts.test_replace_domain:main"
-nua_test_services = "nua_orchestrator.service:test"
+nua = "nua.orchestrator.main:app"
+nua-bootstrap = "nua.orchestrator.scripts.bootstrap:main"
+nua-pg-pwd = "nua.orchestrator.scripts.set_pg_pwd:app"
+nua-mariadb-init = "nua.orchestrator.scripts.mariadb_restore:app"
+nua-print-instances = "nua.orchestrator.scripts.print_instances:main"
+nua-print-volumes = "nua.orchestrator.scripts.print_mounted_volumes:main"
+nua-print-ports = "nua.orchestrator.scripts.print_used_ports:main"
+nua-deactivate-all = "nua.orchestrator.scripts.deactivate_all_instances:main"
+nua-docker-list-all = "nua.orchestrator.scripts.docker_list_all:main"
+nua-docker-rm-all = "nua.orchestrator.scripts.docker_remove_all:main"
+nua_test_replace_domain = "nua.orchestrator.scripts.test_replace_domain:main"
+nua_test_services = "nua.orchestrator.service:test"
 
 [tool.poetry.dependencies]
 nua-lib = { path = "../nua-lib/", develop = false }

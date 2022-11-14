@@ -1,8 +1,8 @@
 import pytest
 from typer.testing import CliRunner
 
-from nua_build import __version__
-from nua_build.main import app
+from nua.build import __version__
+from nua.build.main import app
 
 
 @pytest.fixture

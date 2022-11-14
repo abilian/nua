@@ -5,9 +5,9 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from nua_orchestrator.main import app
+from nua.orchestrator.main import app
 
-# from nua_orchestrator.scripts.test_replace_domain import replace_file
+# from nua.orchestrator.scripts.test_replace_domain import replace_file
 
 runner = CliRunner()
 
