@@ -126,15 +126,17 @@ def docker_build_builder(build_dir):
 
 
 def copy_myself(build_dir: Path):
-    wheel_list = list(NUA_WHEEL_DIR.glob("nua_build*.whl"))
-    if not wheel_list:
+    wheel_list_build = list(NUA_WHEEL_DIR.glob("nua_build*.whl"))
+    wheel_list_lib = list(NUA_WHEEL_DIR.glob("nua_lib*.whl"))
+    if not wheel_list_build or not wheel_list_lib:
         raise RuntimeError(
-            f"Missing {NUA_WHEEL_DIR} wheel\n"
-            "[fixme]: Make new installation of the package with ./build.sh"
+            f"Missing {NUA_WHEEL_DIR} wheels of nua-build and nua-lib\n"
+            "[fix]: Make new installation of the nua-build package using ./build.sh"
         )
     dest = build_dir / "nua_build_whl"
     mkdir_p(dest)
-    copy2(wheel_list[-1], dest)
+    copy2(wheel_list_build[-1], dest)
+    copy2(wheel_list_lib[-1], dest)
 
 
 @app.command("build_nua_docker")
