@@ -1,5 +1,5 @@
-PKG := nua_orchestrator
-SRC := nua_orchestrator
+PKG := nua-orchestrator
+SRC := src/nua
 
 .PHONY: all
 all: test lint
@@ -78,4 +78,3 @@ tidy: clean
 #
 update-env:
 	poetry run pip install -U pip setuptools wheel poetry
-

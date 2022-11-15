@@ -4,9 +4,10 @@ from pathlib import Path
 from pprint import pformat
 
 from nua.lib.common.panic import error
-from nua_orchestrator.db import store
-from nua_orchestrator.db_setup import setup_db
 from paramiko import RSAKey
+
+from nua.orchestrator.db import store
+from nua.orchestrator.db_setup import setup_db
 
 
 def generate_rsa_host_key(bits=4096) -> RSAKey:

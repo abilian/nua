@@ -8,10 +8,10 @@ from nua.lib.common.actions import install_package_list, installed_packages
 from nua.lib.common.exec import mp_exec_as_postgres
 from nua.lib.common.rich_console import print_magenta, print_red
 from nua.lib.common.shell import chown_r, sh
+from nua.runtime.gen_password import gen_password
 from psycopg2.sql import SQL, Identifier
 
 from .docker_utils import docker_host_gateway_ip
-from .gen_password import gen_password
 
 PG_VERSION = "14"
 POSTGRES_CONF_PATH = Path(f"/etc/postgresql/{PG_VERSION}/main")

@@ -18,7 +18,7 @@ class NuaConfig:
     path: Path
     root_dir: Path
 
-    def __init__(self, filename=None):
+    def __init__(self, filename: str | Path | None = None):
         if not filename:
             filename = NUA_CONFIG
         self.path = Path(filename).resolve()
@@ -31,7 +31,7 @@ class NuaConfig:
         self.root_dir = self.path.parent
         self.assert_format()
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         return self._data
 
     def assert_format(self):

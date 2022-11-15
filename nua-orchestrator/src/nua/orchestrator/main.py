@@ -9,6 +9,7 @@ from nua.lib.common.actions import check_python_version
 from nua.lib.common.exec import is_current_user, set_nua_user
 from nua.lib.common.panic import error
 from nua.lib.common.rich_console import print_red
+from nua.lib.tool.state import set_verbose
 
 from . import __version__
 from .commands.deploy import deploy_nua_sites
@@ -20,7 +21,6 @@ from .db.store import installed_nua_settings, list_all_settings
 from .db_setup import setup_db
 from .local_cmd import reload_servers, status
 from .search_cmd import search_nua_print
-from .state import set_verbose
 
 app = typer.Typer()
 is_initialized = False

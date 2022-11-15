@@ -183,7 +183,7 @@ def install_local_orchestrator():
     rm_fr(gits / "nua")
     cmd = f"git clone -o github {url}"
     mp_exec_as_nua(cmd)
-    cwd = gits / "nua" / "nua_orchestrator"
+    cwd = gits / "nua" / "nua-orchestrator"
     cmd = "./build.sh"
     bash_as_nua(cmd, cwd)
     cmd = "nua status"

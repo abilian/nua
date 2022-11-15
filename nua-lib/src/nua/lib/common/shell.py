@@ -7,7 +7,7 @@ from pathlib import Path
 # subprocess module.
 from subprocess import run  # noqa: S404
 
-from .panic import error, panic
+from .panic import error
 from .rich_console import console
 
 
@@ -128,7 +128,7 @@ def sh(
             )
             error(msg, status)
     except OSError as e:
-        panic(f"Execution failed: {e}\nshell command was: '{cmd}'\n")
+        error(f"Execution failed: {e}\nshell command was: '{cmd}'\n")
         # Not used, actually, but silences warnings.
         raise SystemExit(1)
 

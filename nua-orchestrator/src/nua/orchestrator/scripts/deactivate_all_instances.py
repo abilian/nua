@@ -1,8 +1,9 @@
 """For debug, remove all sites instances.
 """
+from nua.lib.tool.state import set_verbose
+
 from ..db_setup import setup_db
 from ..deploy_utils import deactivate_all_instances
-from ..state import set_verbose
 
 
 def main():

@@ -8,6 +8,7 @@ import docker
 import docker.types
 from nua.lib.common.panic import error, warning
 from nua.lib.common.rich_console import print_green, print_magenta
+from nua.lib.tool.state import verbosity
 
 from .archive_search import ArchiveSearch
 from .db import store
@@ -23,7 +24,6 @@ from .docker_utils import (
 from .resource import Resource
 from .server_utils.net_utils import check_port_available
 from .site import Site
-from .state import verbosity
 from .utils import size_to_bytes
 
 

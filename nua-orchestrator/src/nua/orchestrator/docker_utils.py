@@ -15,11 +15,11 @@ from docker.models.images import Image
 # from .db.model.instance import RUNNING
 from nua.lib.common.panic import error, warning
 from nua.lib.common.rich_console import print_magenta, print_red
+from nua.lib.tool.state import verbosity
 
 from . import config
 from .db import store
 from .resource import Resource
-from .state import verbosity
 from .utils import image_size_repr, size_unit
 
 

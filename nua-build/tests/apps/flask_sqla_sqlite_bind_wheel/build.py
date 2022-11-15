@@ -2,7 +2,7 @@ import os
 
 from nua.lib.common.actions import pip_install_glob
 
-# from nua.build.nua_config import NuaConfig
+# from nua.runtime.nua_config import NuaConfig
 
 
 def main():

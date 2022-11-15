@@ -37,7 +37,7 @@ class DbManager(Protocol):
     def db_drop(self, dbname: str):
         ...
 
-    def db_dump(self, dbname: str, options_str: str = ""):
+    def db_dump(self, dbname: str, **kwargs: str):
         ...
 
     def user_drop(self, user: str) -> bool:

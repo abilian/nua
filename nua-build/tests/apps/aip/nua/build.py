@@ -2,7 +2,7 @@ import os
 
 from nua.lib.common.actions import install_package_list, poetry_install
 
-# from nua.build.nua_config import NuaConfig
+# from nua.runtime.nua_config import NuaConfig
 
 # from nua.lib.common.shell import mkdir_p, rm_fr, sh
 

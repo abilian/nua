@@ -4,11 +4,11 @@ WIP
 """
 from nua.lib.common.panic import error
 from nua.lib.common.rich_console import print_magenta
+from nua.lib.tool.state import verbosity
 
 from ..deploy_utils import load_install_image
 from ..docker_utils import docker_service_start_if_needed
 from ..search_cmd import search_nua
-from ..state import verbosity
 
 
 def deploy_nua(app_name: str) -> int:

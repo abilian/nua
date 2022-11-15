@@ -1,4 +1,4 @@
-"""configuration of the nua_orchestrator server.
+"""configuration of the nua orchestrator server.
 
 'config' is an DeepAccessDict(), if a dict is needed, use config.read()
 """

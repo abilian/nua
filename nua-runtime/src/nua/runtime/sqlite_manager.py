@@ -14,20 +14,20 @@ class SQLiteManager(DbManager):
 
     def __init__(self, host: str, port: str, user: str, password: str):
         """No actual init required for SQLite3."""
-        pass
+        return
 
     def setup_db_user(self, dbname: str, user: str, password: str):
-        pass
+        return
 
     def remove_db_user(self, dbname: str, user: str):
-        pass
+        return
 
     def db_drop(self, dbname: str):
         if dbname == ":memory:":
             return
         Path(dbname).unlink()
 
-    def db_dump(self, dbname: str, *kwargs: str):
+    def db_dump(self, dbname: str, **kwargs: str):
         if not self.db_exist(dbname):
             return False
         dest_file = kwargs.get("output")
@@ -36,25 +36,26 @@ class SQLiteManager(DbManager):
         connection = sqlite3.connect(dbname)
         with open(dest_file, "w") as wfile:
             for line in connection.iterdump():
-                f.write("{line}\n")
+                wfile.write(f"{line}\n")
         connection.close()
 
     def user_drop(self, user: str) -> bool:
-        pass
+        return True
 
     def user_exist(self, user: str) -> bool:
-        pass
+        return True
 
     def user_create(self, user: str, password: str):
-        pass
+        return
 
     def db_exist(self, dbname: str) -> bool:
         return Path(dbname).is_file()
 
     def db_create(self, dbname: str, user: str):
-        conn = sqlite3.connect(dbname)
+        connection = sqlite3.connect(dbname)
         if verbosity(2):
             print(f"SQLite DB {dbname} created.")
+        connection.close()
 
     def db_table_exist(self, dbname: str, user: str, password: str, table: str) -> bool:
         if not self.db_exist(dbname):

@@ -1,9 +1,9 @@
 import os
 from pathlib import Path
 
-from nua_build.actions import pip_install_glob
-from nua_build.nua_config import NuaConfig
-from nua_build.shell import chmod_r, mkdir_p, rm_fr
+from nua.lib.common.actions import pip_install_glob
+from nua.lib.common.shell import chmod_r, mkdir_p, rm_fr
+from nua.runtime.nua_config import NuaConfig
 
 MOUNT_POINT = Path("/var/tmp/mount_point")
 

@@ -12,7 +12,8 @@ packages = [
 [tool.poetry.scripts]
 
 [tool.poetry.dependencies]
-nua-lib = { path = "../nua-lib/", develop = false }
+#nua---lib = { path = "../nua-lib/", develop = false }
+nua-lib = "*"
 python = "^3.10"
 setuptools = "^65.5.0"
 # psycopg2-binary = "^2.9.4"  # fixme: need until refactoring

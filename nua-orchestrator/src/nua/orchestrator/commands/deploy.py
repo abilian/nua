@@ -2,8 +2,9 @@
 
 Rem: maybe need to refactor the "site" thing into a class and refactor a lot
 """
+from nua.lib.tool.state import verbosity
+
 from ..sites_deployment import SitesDeployment
-from ..state import verbosity
 
 
 def deploy_nua_sites(deploy_config: str) -> int:

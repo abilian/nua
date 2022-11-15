@@ -2,11 +2,11 @@ from copy import deepcopy
 from pprint import pformat
 
 from nua.lib.common.panic import error, warning
+from nua.lib.tool.state import verbosity
 
 from .domain_split import DomainSplit
 from .port_normalization import normalize_ports, ports_as_dict
 from .resource import Resource
-from .state import verbosity
 from .utils import sanitized_name
 
 

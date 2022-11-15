@@ -8,6 +8,7 @@ from typing import Callable
 import tomli
 from nua.lib.common.panic import error, warning
 from nua.lib.common.rich_console import print_green, print_magenta, print_red
+from nua.lib.tool.state import verbosity
 
 from . import config
 from .certbot import protocol_prefix, register_certbot_domains
@@ -42,7 +43,6 @@ from .resource import Resource
 from .search_cmd import search_nua
 from .service_loader import Services
 from .site import Site
-from .state import verbosity
 
 # parameters passed as a dict to docker run
 RUN_BASE = {}  # see also nua_config

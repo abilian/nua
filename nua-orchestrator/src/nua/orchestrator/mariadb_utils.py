@@ -23,8 +23,7 @@ from nua.lib.common.actions import install_package_list, installed_packages
 from nua.lib.common.exec import exec_as_root, exec_as_root_daemon
 from nua.lib.common.rich_console import print_magenta, print_red
 from nua.lib.common.shell import chown_r, sh
-
-from .gen_password import gen_password
+from nua.runtime.gen_password import gen_password
 
 MARIADB_VERSION = "10.6"
 RE_PORT = re.compile(r"\s*port\s*=\s*(\d+)")

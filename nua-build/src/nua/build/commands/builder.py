@@ -18,7 +18,8 @@ import docker
 from nua.lib.common.panic import error
 from nua.lib.common.rich_console import print_green
 from nua.lib.common.shell import rm_fr
-from nua.lib.tool.state import set_verbose
+from nua.lib.tool.state import verbosity
+from nua.runtime.nua_config import NuaConfig
 
 from .. import __version__, config
 from ..constants import (
@@ -29,7 +30,6 @@ from ..constants import (
     NUA_WHEEL_DIR,
 )
 from ..docker_utils_build import display_docker_img, docker_build_log_error
-from ..nua_config import NuaConfig
 from .build_nua_builder import build_nua_builder
 
 # import typer

@@ -4,7 +4,7 @@ from functools import wraps
 
 import docker
 import docker.errors
-from nua.lib.common.panic import panic
+from nua.lib.common.panic import error
 from nua.lib.common.rich_console import print_magenta, print_red
 
 from . import config
@@ -27,7 +27,7 @@ def docker_build_log_error(func):
             print_red(str(e))
             print("=" * 60)
             print_log_stream(e.build_log)
-            panic("Exiting.")
+            error("Exiting.")
 
     return build_log_error_wrapper
 

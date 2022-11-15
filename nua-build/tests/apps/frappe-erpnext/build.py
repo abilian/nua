@@ -10,8 +10,7 @@ import os
 
 from nua.lib.common.actions import install_package_list, pip_install, pip_install_glob
 from nua.lib.common.shell import sh
-
-from nua.build.nua_config import NuaConfig
+from nua.runtime.nua_config import NuaConfig
 
 
 def main():

@@ -2,7 +2,7 @@ from .main import app
 
 
 def main():
-    app(prog_name="nua_orchestrator")
+    app(prog_name="nua.orchestrator")
 
 
 if __name__ == "__main__":

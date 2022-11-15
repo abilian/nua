@@ -7,9 +7,9 @@ from nua.lib.common.actions import jinja2_render_file
 from nua.lib.common.panic import warning
 from nua.lib.common.rich_console import print_magenta
 from nua.lib.common.shell import chown_r, mkdir_p, rm_fr, sh
+from nua.lib.tool.state import verbosity
 
 from . import config, nua_env
-from .state import verbosity
 
 CONF_NGINX = Path(__file__).parent.resolve() / "config" / "nginx"
 

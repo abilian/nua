@@ -2,9 +2,9 @@
 """
 from docker import from_env
 from docker.errors import APIError, NotFound
+from nua.lib.tool.state import set_verbose
 
 from ..docker_utils import docker_network_prune, list_containers
-from ..state import set_verbose
 
 
 def stop_containers():

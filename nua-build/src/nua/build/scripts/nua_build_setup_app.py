@@ -12,6 +12,7 @@ from shutil import copy2
 
 from nua.lib.common.panic import error
 from nua.lib.common.shell import mkdir_p, sh
+from nua.runtime.nua_config import NuaConfig
 
 from ..constants import (
     DEFAULTS_DIR,
@@ -21,7 +22,6 @@ from ..constants import (
     NUA_METADATA_PATH,
     NUA_SCRIPTS_PATH,
 )
-from ..nua_config import NuaConfig
 
 logging.basicConfig(level=logging.INFO)
 

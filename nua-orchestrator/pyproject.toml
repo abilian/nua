@@ -26,6 +26,7 @@ nua_test_services = "nua.orchestrator.service:test"
 [tool.poetry.dependencies]
 # nua----lib = { path = "../nua-lib/", develop = false }
 nua-lib = "*"
+nua-runtime = "*"
 python = "^3.10"
 
 # Databases

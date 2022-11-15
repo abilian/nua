@@ -9,6 +9,7 @@ import typer
 from nua.lib.common.panic import error
 from nua.lib.common.rich_console import print_green
 from nua.lib.common.shell import mkdir_p, rm_fr
+from nua.lib.tool.state import set_verbose, verbosity
 
 from .. import __version__ as nua_version
 from .. import config
@@ -21,7 +22,6 @@ from ..constants import (
     NUA_WHEEL_DIR,
 )
 from ..docker_utils_build import display_docker_img, docker_build_log_error
-from ..state import set_verbose, verbosity
 
 # from shutil import ignore_patterns
 
@@ -128,15 +128,17 @@ def docker_build_builder(build_dir):
 def copy_myself(build_dir: Path):
     wheel_list_build = list(NUA_WHEEL_DIR.glob("nua_build*.whl"))
     wheel_list_lib = list(NUA_WHEEL_DIR.glob("nua_lib*.whl"))
-    if not wheel_list_build or not wheel_list_lib:
+    wheel_list_runtime = list(NUA_WHEEL_DIR.glob("nua_runtime*.whl"))
+    if not wheel_list_build or not wheel_list_lib or not wheel_list_runtime:
         raise RuntimeError(
-            f"Missing {NUA_WHEEL_DIR} wheels of nua-build and nua-lib\n"
+            f"Missing {NUA_WHEEL_DIR} wheels of nua-build, nua-lib, nua-runtime\n"
             "[fix]: Make new installation of the nua-build package using ./build.sh"
         )
     dest = build_dir / "nua_build_whl"
     mkdir_p(dest)
     copy2(wheel_list_build[-1], dest)
     copy2(wheel_list_lib[-1], dest)
+    copy2(wheel_list_runtime[-1], dest)
 
 
 @app.command("build_nua_docker")

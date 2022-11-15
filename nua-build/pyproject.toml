@@ -18,6 +18,7 @@ nua_test_replace_domain = "nua.build.scripts.test_replace_domain:main"
 [tool.poetry.dependencies]
 # nua---lib = { path = "../nua-lib/", develop = false }
 nua-lib = "*"
+nua-runtime = "*"
 python = "^3.10"
 setuptools = "^65.5.0"
 tomli = "^2.0"
