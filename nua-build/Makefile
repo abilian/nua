@@ -1,5 +1,5 @@
-PKG := nua_build
-SRC := nua_build
+PKG := nua-build
+SRC := src/nua
 
 .PHONY: all
 all: test lint
@@ -52,8 +52,8 @@ format: format-py
 
 .PHONY: format-py
 format-py:
-	black nua_build tests
-	isort nua_build tests
+	black $(SRC) tests
+	isort $(SRC) tests
 
 #
 # Cleaning up
@@ -78,4 +78,3 @@ tidy: clean
 #
 update-env:
 	poetry run pip install -U pip setuptools wheel poetry
-
