@@ -11,10 +11,10 @@ from typing import Optional
 
 import typer
 from nua.lib.common.rich_console import print_green
+from nua.lib.tool.state import set_verbose
 
 from . import __version__
 from .commands.builder import Builder, build_nua_builder_if_needed
-from .state import set_verbose
 
 app = typer.Typer()
 
