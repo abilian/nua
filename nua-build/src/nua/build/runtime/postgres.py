@@ -350,7 +350,8 @@ def pg_user_exist_port(host: str, port: str, user: str) -> bool:
         with connection.cursor() as cur:
             query = "SELECT COUNT(*) FROM pg_catalog.pg_roles WHERE rolname = %s"
             cur.execute(SQL(query), (user,))
-            (count,) = cur.fetchone()
+            result = cur.fetchone()
+            count = result[0] if result else 0
     connection.close()  # <- Needed? The with statement should close it.
     return count != 0
 
