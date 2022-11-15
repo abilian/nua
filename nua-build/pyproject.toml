@@ -16,7 +16,8 @@ nua_build_setup_app = "nua.build.scripts.nua_build_setup_app:main"
 nua_test_replace_domain = "nua.build.scripts.test_replace_domain:main"
 
 [tool.poetry.dependencies]
-nua-lib = { path = "../nua-lib/", develop = false }
+# nua---lib = { path = "../nua-lib/", develop = false }
+nua-lib = "*"
 python = "^3.10"
 setuptools = "^65.5.0"
 tomli = "^2.0"

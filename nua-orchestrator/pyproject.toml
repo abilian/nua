@@ -24,7 +24,8 @@ nua_test_replace_domain = "nua.orchestrator.scripts.test_replace_domain:main"
 nua_test_services = "nua.orchestrator.service:test"
 
 [tool.poetry.dependencies]
-nua-lib = { path = "../nua-lib/", develop = false }
+# nua----lib = { path = "../nua-lib/", develop = false }
+nua-lib = "*"
 python = "^3.10"
 
 # Databases
