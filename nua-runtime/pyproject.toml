@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-runtime"
-version = "0.4.30"
+version = "0.4.31"
 description = "Nua runtime"
 authors = ["Stefane Fermigier <sf@abilian.com>", "Jerome Dumonteil <jd@abilian.com>"]
 license = "AGPL"
@@ -13,7 +13,7 @@ packages = [
 
 [tool.poetry.dependencies]
 #nua---lib = { path = "../nua-lib/", develop = false }
-nua-lib = "*"
+nua-lib = "==0.4.31"
 python = "^3.10"
 setuptools = "^65.5.0"
 # psycopg2-binary = "^2.9.4"  # fixme: need until refactoring

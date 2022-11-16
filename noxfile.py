@@ -9,6 +9,7 @@ PYTHON_VERSIONS = ["3.10", "3.11"]
 
 nox.options.reuse_existing_virtualenvs = True
 nox.options.sessions = [
+    "preinst",
     "pytest",
     "lint",
     "doc",
@@ -16,9 +17,15 @@ nox.options.sessions = [
 
 SUB_REPOS = [
     "nua-lib",
+    "nua-runtime",
     "nua-build",
     "nua-orchestrator",
 ]
+
+
+@nox.session(python=PYTHON_VERSIONS)
+def preinst(session):
+    run_subsessions(session)
 
 
 @nox.session(python=PYTHON_VERSIONS)

@@ -6,6 +6,11 @@ PYTHON_VERSIONS = ["3.10"]
 nox.options.reuse_existing_virtualenvs = True
 
 
+@nox.session(python=PYTHON_VERSIONS)
+def preinst(session):
+    pass
+
+
 @nox.session(python="python3.10")
 def lint(session: nox.Session) -> None:
     session.run("poetry", "install", external=True)
