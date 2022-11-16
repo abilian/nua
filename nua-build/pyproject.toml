@@ -22,7 +22,7 @@ nua-runtime = "==0.4.31"
 python = "^3.10"
 setuptools = "^65.5.0"
 tomli = "^2.0"
-typer = { extras = ["all"], version = "^0.6" }
+typer = {extras = ["all"], version = "^0.7.0"}
 rich = "^12.4.4"
 docker = "^6.0"
 psycopg2-binary = "^2.9.4"  # fixme: need until refactoring

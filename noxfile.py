@@ -5,13 +5,12 @@ import nox
 from nox.sessions import Session
 
 BASE_PYTHON_VERSION = "3.10"
-PYTHON_VERSIONS = ["3.10", "3.11"]
+# PYTHON_VERSIONS = ["3.10", "3.11"]
+PYTHON_VERSIONS = ["3.10"]
 
-nox.options.reuse_existing_virtualenvs = True
 nox.options.sessions = [
-    "preinst",
-    "pytest",
     "lint",
+    "pytest",
     "doc",
 ]
 
@@ -23,22 +22,17 @@ SUB_REPOS = [
 ]
 
 
-@nox.session(python=PYTHON_VERSIONS)
-def preinst(session):
-    run_subsessions(session)
-
-
-@nox.session(python=PYTHON_VERSIONS)
-def pytest(session):
-    run_subsessions(session)
-
-
-@nox.session(python=BASE_PYTHON_VERSION)
+@nox.session(python=BASE_PYTHON_VERSION, venv_backend="venv")
 def lint(session):
     run_subsessions(session)
 
 
-@nox.session(python=BASE_PYTHON_VERSION)
+@nox.session(python=PYTHON_VERSIONS, venv_backend="venv")
+def pytest(session):
+    run_subsessions(session)
+
+
+@nox.session(python=BASE_PYTHON_VERSION, venv_backend="venv")
 def doc(session):
     print("TODO: do something with the docs")
 

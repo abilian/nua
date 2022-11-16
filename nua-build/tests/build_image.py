@@ -68,6 +68,7 @@ def _build_test(tmpdirname, src_path, name):
     print("----------------------------------------------")
     print(f"Build {name}")
     print("Time now:", datetime.now(timezone.utc).isoformat(" "))
+    print(os.environ)
     cmd = shlex.split(f"nua-build {build_dir}")
     t0 = perf_counter()
     result = sp.run(cmd, capture_output=True)  # noqa
