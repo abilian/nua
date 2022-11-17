@@ -763,6 +763,14 @@ optional = false
 python-versions = ">=3.7"
 
 [[package]]
+name = "types-setuptools"
+version = "65.5.0.3"
+description = "Typing stubs for setuptools"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "types-toml"
 version = "0.10.8.1"
 description = "Typing stubs for toml"
@@ -817,7 +825,7 @@ toml = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "35e45ebe31a11c60ecb027896d3bc1fb9897f65b5c7befc764ddd78dcc69e542"
+content-hash = "0b16ed04c8fb54330f9babf1900b0614ce4ba635238e78117f966250326b02cf"
 
 [metadata.files]
 argcomplete = [
@@ -1224,6 +1232,10 @@ toml = [
 tomli = [
     {file = "tomli-2.0.1-py3-none-any.whl", hash = "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc"},
     {file = "tomli-2.0.1.tar.gz", hash = "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"},
+]
+types-setuptools = [
+    {file = "types-setuptools-65.5.0.3.tar.gz", hash = "sha256:17769171f5f2a2dc69b25c0d3106552a5cda767bbf6b36cb6212b26dae5aa9fc"},
+    {file = "types_setuptools-65.5.0.3-py3-none-any.whl", hash = "sha256:9254c32b0cc91c486548e7d7561243b5bd185402a383e93c6691e1b9bc8d86e2"},
 ]
 types-toml = [
     {file = "types-toml-0.10.8.1.tar.gz", hash = "sha256:171bdb3163d79a520560f24ba916a9fc9bff81659c5448a9fea89240923722be"},

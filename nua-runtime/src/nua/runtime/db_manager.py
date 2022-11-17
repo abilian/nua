@@ -49,7 +49,7 @@ class DbManager(Protocol):
     def user_create(self, user: str, password: str):
         ...
 
-    def db_create(self, dbname: str, user: str):
+    def db_create(self, dbname: str, user: str, password: str | None = None):
         ...
 
     def db_exist(self, dbname: str) -> bool:

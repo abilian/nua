@@ -51,7 +51,7 @@ class SQLiteManager(DbManager):
     def db_exist(self, dbname: str) -> bool:
         return Path(dbname).is_file()
 
-    def db_create(self, dbname: str, user: str):
+    def db_create(self, dbname: str, user: str, _password: str | None = None):
         connection = sqlite3.connect(dbname)
         if verbosity(2):
             print(f"SQLite DB {dbname} created.")

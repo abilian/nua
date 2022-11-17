@@ -18,6 +18,7 @@ python = "^3.10"
 setuptools = "^65.5.0"
 # psycopg2-binary = "^2.9.4"  # fixme: need until refactoring
 # mariadb  # same
+types-setuptools = "^65.5.0.3"
 
 [tool.poetry.group.dev.dependencies]
 
