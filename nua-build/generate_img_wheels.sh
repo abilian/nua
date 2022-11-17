@@ -20,8 +20,8 @@ cd ../nua-runtime
 rm -fr dist
 poetry build -f wheel
 mv dist/* "${WHEEL_DIR}"
-
-cd ../nua-build
-rm -fr dist
-poetry build -f wheel
-mv dist/* "${WHEEL_DIR}"
+#
+# cd ../nua-build
+# rm -fr dist
+# poetry build -f wheel
+# mv dist/* "${WHEEL_DIR}"
