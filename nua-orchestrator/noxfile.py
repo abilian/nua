@@ -4,7 +4,7 @@ import nox
 PYTHON_VERSIONS = ["3.10"]
 
 
-@nox.session(python=PYTHON_VERSIONS)
+@nox.session(python=PYTHON_VERSIONS, venv_backend="venv")
 def lint(session: nox.Session) -> None:
     with session.chdir("../nua-lib"):
         session.run("poetry", "install", external=True)
@@ -15,7 +15,7 @@ def lint(session: nox.Session) -> None:
     session.run("make", "lint", external=True)
 
 
-@nox.session(python=PYTHON_VERSIONS)
+@nox.session(python=PYTHON_VERSIONS, venv_backend="venv")
 def pytest(session: nox.Session) -> None:
     with session.chdir("../nua-lib"):
         session.run("poetry", "install", external=True)

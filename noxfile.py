@@ -47,8 +47,6 @@ def run_subsessions(session: nox.Session):
                 "nox",
                 "-e",
                 session.name,
-                "-db",
-                "venv",
                 "--reuse-existing-virtualenvs",
                 external=True,
             )
