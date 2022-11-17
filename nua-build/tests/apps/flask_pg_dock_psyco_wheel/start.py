@@ -17,30 +17,29 @@ from flask_pg_dock_psyco.constants import (
 )
 from nua.lib.common.exec import exec_as_root
 
-from nua.build.runtime import postgres  # Nua shortcuts to manage postgres operations
+# Nua shortcuts to manage postgres operations
+from nua.runtime.postgres_manager import PostgresManager
 
 
 def setup_db():
     """Find or create the required DB for app user.
 
     In this example The DB is on remote docker container."""
-    postgres.pg_setup_db_user_port(
-        host=DB_HOST,
-        port=DB_PORT,
-        dbname=USER_DB,
-        user=USER_NAME,
-        password=USER_PASSWORD,
+    manager = PostgresManager(DB_HOST, DB_PORT, "", "")
+    postgres.setup_db_user(
+        USER_DB,
+        USER_NAME,
+        USER_PASSWORD,
     )
 
 
 def init_db_content():
-    if not postgres.pg_db_table_exist_port(
-        host=DB_HOST,
-        port=DB_PORT,
-        dbname=USER_DB,
-        user=USER_NAME,
-        password=USER_PASSWORD,
-        table="books",
+    manager = PostgresManager(DB_HOST, DB_PORT, "", "")
+    if not manager.db_table_exist(
+        USER_DB,
+        USER_NAME,
+        USER_PASSWORD,
+        "books",
     ):
         add_content()
 

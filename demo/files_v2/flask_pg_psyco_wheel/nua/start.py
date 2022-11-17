@@ -6,8 +6,8 @@ import os
 import psycopg2
 from flask_pg_psyco.constants import DB_HOST, DB_NAME, DB_USER, DB_USER_PWD
 
-from nua.build import postgres  # Nua shortcuts to manage postgres operations
 from nua.lib.common.exec import exec_as_root
+from nua.runtime.postgres_manager import PostgresManager
 
 
 def setup_db():
@@ -15,15 +15,17 @@ def setup_db():
 
     In this example The DB is local to the Host (outside Docker).
     When orchestrator was installed, it must have setup postgreSQL v14 on the host."""
-    postgres.pg_setup_db_user(
-        host=DB_HOST, dbname=DB_NAME, user=DB_USER, password=DB_USER_PWD
+    manager = PostgresManager(DB_HOST, "", "", "")
+    manager.setup_db_user(
+        DB_NAME,
+        DB_USER,
+        DB_USER_PWD,
     )
 
 
 def init_db_content():
-    if not postgres.pg_db_table_exist(
-        host=DB_HOST, dbname=DB_NAME, user=DB_USER, password=DB_USER_PWD, table="books"
-    ):
+    manager = PostgresManager(DB_HOST, "", "", "")
+    if not manager.db_table_exist(DB_NAME, DB_USER, DB_USER_PWD, "books"):
         add_content()
 
 

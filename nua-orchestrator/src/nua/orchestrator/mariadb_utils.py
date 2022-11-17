@@ -24,11 +24,11 @@ from nua.lib.common.exec import exec_as_root, exec_as_root_daemon
 from nua.lib.common.rich_console import print_magenta, print_red
 from nua.lib.common.shell import chown_r, sh
 from nua.runtime.gen_password import gen_password
+from nua.runtime.mariadb_manager import NUA_MARIADB_PWD_FILE
 
 MARIADB_VERSION = "10.6"
 RE_PORT = re.compile(r"\s*port\s*=\s*(\d+)")
 RE_COMMENT = re.compile(r"\s*#")
-NUA_MARIADB_PWD_FILE = ".mariadb_pwd"  # noqa S105
 
 
 def mariadb_pwd() -> str:

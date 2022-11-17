@@ -9,6 +9,7 @@ from nua.lib.common.exec import mp_exec_as_postgres
 from nua.lib.common.rich_console import print_magenta, print_red
 from nua.lib.common.shell import chown_r, sh
 from nua.runtime.gen_password import gen_password
+from nua.runtime.postgresmanager import NUA_PG_PWD_FILE
 from psycopg2.sql import SQL, Identifier
 
 from .docker_utils import docker_host_gateway_ip
@@ -19,7 +20,6 @@ RE_ANY_PG = re.compile(r"^postgresql-[0-9\.]+/")
 RE_5432 = re.compile(r"\s*port\s*=\s*5432\D")
 RE_COMMENT = re.compile(r"\s*#")
 RE_LISTEN = re.compile(r"\s*listen_addresses\s*=(.*)$")
-NUA_PG_PWD_FILE = ".postgres_pwd"  # noqa S105
 
 
 def postgres_pwd() -> str:
@@ -242,149 +242,6 @@ def pg_restart_service():
     # cmd = "sudo service postgresql restart"
     cmd = "sudo systemctl restart postgresql"
     sh(cmd)
-
-
-def pg_setup_db_user(host: str, dbname: str, user: str, password: str):
-    """Create a postgres user if needed."""
-    if not pg_user_exist(host, user):
-        pg_user_create(host, user, password)
-    if not pg_db_exist(host, dbname):
-        pg_db_create(host, dbname, user)
-
-
-def pg_remove_db_user(host: str, dbname: str, user: str):
-    """Remove a postgres user if needed."""
-    if pg_db_exist(host, dbname):
-        pg_db_drop(host, dbname)
-    if pg_user_exist(host, user):
-        pg_user_drop(host, user)
-
-
-def pg_db_drop(host: str, dbname: str):
-    """Basic drop database.
-
-    See pg_remove_db_user
-    """
-    connection = psycopg2.connect(
-        dbname="postgres", user="postgres", host=host, password=postgres_pwd()
-    )
-    connection.autocommit = True
-    with connection:
-        with connection.cursor() as cur:
-            query = "REVOKE CONNECT ON DATABASE {db} FROM public"
-            cur.execute(SQL(query).format(db=Identifier(dbname)))
-        with connection.cursor() as cur:
-            query = "DROP DATABASE {db}"
-            cur.execute(SQL(query).format(db=Identifier(dbname)))
-    connection.close()
-
-
-def pg_db_dump(dbname: str, options_str: str = ""):
-    """Basic pg_dump call.
-
-    FIXME: not ok for remote host
-    """
-    cmd = f"pg_dump {dbname} {options_str}"
-    mp_exec_as_postgres(cmd)
-
-
-def pg_user_drop(host: str, user: str) -> bool:
-    """Drop user (wip, not enough)."""
-    connection = psycopg2.connect(host=host, user="postgres", password=postgres_pwd())
-    connection.autocommit = True
-    with connection:  # noqa SIM117
-        with connection.cursor() as cur:
-            query = "DROP USER IF EXISTS {username}"
-            cur.execute(SQL(query).format(username=Identifier(user)))
-    connection.close()
-
-
-def pg_user_exist(host: str, user: str) -> bool:
-    """Test if a postgres user exists."""
-    connection = psycopg2.connect(host=host, user="postgres", password=postgres_pwd())
-    connection.autocommit = True
-    with connection:  # noqa SIM117
-        with connection.cursor() as cur:
-            query = "SELECT COUNT(*) FROM pg_catalog.pg_roles WHERE rolname = %s"
-            cur.execute(SQL(query), (user,))
-            result = cur.fetchone()
-            count = result[0] if result else 0
-    connection.close()
-    return count != 0
-
-
-def pg_user_create(host: str, user: str, password: str):
-    """Create a postgres user.
-
-    Assuming standard port == 5432
-    """
-    connection = psycopg2.connect(host=host, user="postgres", password=postgres_pwd())
-    with connection:  # noqa SIM117
-        with connection.cursor() as cur:
-            # or:  CREATE USER user WITH ENCRYPTED PASSWORD 'pwd'
-            query = "CREATE ROLE {username} LOGIN PASSWORD %s"
-            cur.execute(SQL(query).format(username=Identifier(user)), (password,))
-            cur.execute("COMMIT")
-    connection.close()
-
-
-def pg_db_create(host: str, dbname: str, user: str):
-    """Create a postgres DB.
-
-    Assuming standard port == 5432
-    """
-    connection = psycopg2.connect(
-        host=host, dbname="postgres", user="postgres", password=postgres_pwd()
-    )
-    connection.autocommit = True
-    cur = connection.cursor()
-    query = "CREATE DATABASE {db} OWNER {user}"
-    cur.execute(SQL(query).format(db=Identifier(dbname), user=Identifier(user)))
-    connection.close()
-    connection = psycopg2.connect(
-        host=host, dbname="postgres", user="postgres", password=postgres_pwd()
-    )
-    connection.autocommit = True
-    with connection:  # noqa SIM117
-        with connection.cursor() as cur:
-            # not this: WITH GRANT OPTION;"
-            query = "GRANT ALL PRIVILEGES ON DATABASE {db} TO {user}"
-            cur.execute(SQL(query).format(db=Identifier(dbname), user=Identifier(user)))
-    connection.close()
-
-
-def pg_db_exist(host: str, dbname: str) -> bool:
-    "Test if the named postgres database exists."
-    connection = psycopg2.connect(
-        host=host, dbname="postgres", user="postgres", password=postgres_pwd()
-    )
-    connection.autocommit = True
-    with connection:  # noqa SIM117
-        with connection.cursor() as cur:
-            query = "SELECT datname FROM pg_database"
-            cur.execute(SQL(query))
-            results = cur.fetchall()
-    connection.close()
-    db_set = {x[0] for x in results if x}
-    return dbname in db_set
-
-
-def pg_db_table_exist(
-    host: str, dbname: str, user: str, password: str, table: str
-) -> bool:
-    """Check if the named database exists (for host, connecting as user), assuming
-    DB exists."""
-    connection = psycopg2.connect(
-        host=host, dbname=dbname, user=user, password=password
-    )
-    with connection:  # noqa SIM117
-        with connection.cursor() as cur:
-            query = "SELECT COUNT(*) FROM information_schema.tables WHERE table_name=%s"
-            cur.execute(SQL(query), (table,))
-            result = cur.fetchone()
-            count = result[0] if result else 0
-    connection.close()
-    return count > 0
 
 
 ##

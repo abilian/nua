@@ -8,7 +8,8 @@ import mariadb
 from flask_mariadb_wheel.constants import DB_HOST, DB_NAME, DB_USER, DB_USER_PWD
 from nua.lib.common.exec import exec_as_root
 
-from nua.build.runtime import mariadb_utils as mdb  # Nua shortcuts to manage mariadb
+# Nua shortcuts to manage mariadb:
+from nua.runtime.mariadb_manager import MariaDbManager
 
 
 def setup_db():
@@ -16,15 +17,13 @@ def setup_db():
 
     In this example The DB is local to the Host (outside Docker).
     When orchestrator was installed, it must have setup mariadb package on the host."""
-    mdb.mariadb_setup_db_user(
-        host=DB_HOST, dbname=DB_NAME, user=DB_USER, password=DB_USER_PWD
-    )
+    manager = MariaDbManager(DB_HOST, "", "", "")
+    manager.setup_db_user(DB_NAME, DB_USER, DB_USER_PWD)
 
 
 def init_db_content():
-    if not mdb.mariadb_db_table_exist(
-        host=DB_HOST, dbname=DB_NAME, user=DB_USER, password=DB_USER_PWD, table="books"
-    ):
+    manager = MariaDbManager(DB_HOST, "", "", "")
+    if not manager.db_table_exist(DB_NAME, DB_USER, DB_USER_PWD, "books"):
         add_content()
 
 

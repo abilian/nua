@@ -14,25 +14,25 @@ from flask_mariadb_docker_wheel.constants import (
 )
 from nua.lib.common.exec import exec_as_root
 
-from nua.build.runtime import mariadb_utils as mdb  # Nua shortcuts to manage mariadb
+# Nua shortcuts to manage mariadb:
+from nua.runtime.mariadb_manager import MariaDbManager
 
 
 def setup_db():
     """Find or create the required DB.
 
     In this example The DB is manage by a dedicated docker container."""
-    mdb.mariadb_setup_db_user(
-        host=DB_HOST, dbname=USER_DB, user=USER_NAME, password=USER_PASSWORD
-    )
+    manager = MariaDbManager(DB_HOST, DB_PORT, "", "")
+    manager.setup_db_user(USER_DB, USER_NAME, USER_PASSWORD)
 
 
 def init_db_content():
-    if not mdb.mariadb_db_table_exist(
-        host=DB_HOST,
-        dbname=USER_DB,
-        user=USER_NAME,
-        password=USER_PASSWORD,
-        table="books",
+    manager = MariaDbManager(DB_HOST, DB_PORT, "", "")
+    if not manager.db_table_exist(
+        USER_DB,
+        USER_NAME,
+        USER_PASSWORD,
+        "books",
     ):
         add_content()
 
