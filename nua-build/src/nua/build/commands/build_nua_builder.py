@@ -129,7 +129,7 @@ def copy_myself(build_dir: Path):
     # wheel_list_build = list(NUA_WHEEL_DIR.glob("nua_build*.whl"))
     wheel_list_lib = list(NUA_WHEEL_DIR.glob("nua_lib*.whl"))
     wheel_list_runtime = list(NUA_WHEEL_DIR.glob("nua_runtime*.whl"))
-    if not wheel_list_build or not wheel_list_lib or not wheel_list_runtime:
+    if not wheel_list_lib or not wheel_list_runtime:
         raise RuntimeError(
             f"Missing {NUA_WHEEL_DIR} wheels of nua-lib and nua-runtime\n"
             "[fix]: Make new installation of the nua-build package using ./build.sh"
