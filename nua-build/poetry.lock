@@ -560,7 +560,7 @@ tox-to-nox = ["jinja2", "tox"]
 
 [[package]]
 name = "nua-lib"
-version = "0.4.33"
+version = "0.4.34"
 description = "Nua common library"
 category = "main"
 optional = false
@@ -573,7 +573,7 @@ url = "../nua-lib"
 
 [[package]]
 name = "nua-runtime"
-version = "0.4.33"
+version = "0.4.34"
 description = "Nua runtime"
 category = "main"
 optional = false
@@ -1000,7 +1000,7 @@ test = ["websockets"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "15e4b94a77124a4f366a28411e427bb7f38d52d270d05f8efca21e55fb3de709"
+content-hash = "765e552aa63c24f7cbe568d02af92c6cc52e397f46f87cdbb750334bfc30a934"
 
 [metadata.files]
 argcomplete = [
