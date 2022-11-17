@@ -16,17 +16,28 @@ nua_build_setup_app = "nua.build.scripts.nua_build_setup_app:main"
 nua_test_replace_domain = "nua.build.scripts.test_replace_domain:main"
 
 [tool.poetry.dependencies]
+python = "^3.10"
+
+# Internal deps "poor man's monorepo"
 # nua---lib = { path = "../nua-lib/", develop = false }
 nua-lib = "==0.4.36"
 nua-runtime = "==0.4.36"
-python = "^3.10"
+
 setuptools = "^65.5.0"
 tomli = "^2.0"
+
+# CLI and text ui
 typer = {extras = ["all"], version = "^0.7.0"}
 rich = "^12.4.4"
-docker = "^6.0"
+
+# DB drivers
 psycopg2-binary = "^2.9.4"  # fixme: need until refactoring
 # mariadb  # same
+
+# Docker client
+docker = "^6.0"
+# Useful for docker over ssh
+paramiko = "^2.12.0"
 
 [tool.poetry.group.dev.dependencies]
 
