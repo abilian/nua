@@ -504,7 +504,7 @@ tox-to-nox = ["jinja2", "tox"]
 
 [[package]]
 name = "nua-lib"
-version = "0.4.35"
+version = "0.4.36"
 description = "Nua common library"
 category = "main"
 optional = false
@@ -758,7 +758,7 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 name = "tomli"
 version = "2.0.1"
 description = "A lil' TOML parser"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 
@@ -825,7 +825,7 @@ toml = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "763929a68029835f5936f414bb0b2af60dd5467764abe07f740e845c36852a09"
+content-hash = "ddde285d9ca4da8282bda69d9ae22b876d6f11600ca7bce13f923d340ec89a91"
 
 [metadata.files]
 argcomplete = [

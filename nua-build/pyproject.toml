@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-build"
-version = "0.4.35"
+version = "0.4.36"
 description = "Nua build package (currently: build, core build, runtime)"
 authors = ["Stefane Fermigier <sf@abilian.com>", "Jerome Dumonteil <jd@abilian.com>"]
 license = "AGPL"
@@ -17,8 +17,8 @@ nua_test_replace_domain = "nua.build.scripts.test_replace_domain:main"
 
 [tool.poetry.dependencies]
 # nua---lib = { path = "../nua-lib/", develop = false }
-nua-lib = "==0.4.35"
-nua-runtime = "==0.4.35"
+nua-lib = "==0.4.36"
+nua-runtime = "==0.4.36"
 python = "^3.10"
 setuptools = "^65.5.0"
 tomli = "^2.0"

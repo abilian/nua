@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-runtime"
-version = "0.4.35"
+version = "0.4.36"
 description = "Nua runtime"
 authors = ["Stefane Fermigier <sf@abilian.com>", "Jerome Dumonteil <jd@abilian.com>"]
 license = "AGPL"
@@ -10,15 +10,17 @@ packages = [
 ]
 
 [tool.poetry.scripts]
+nua_build_setup_app = "nua.runtime.scripts.nua_build_setup_app:main"
 
 [tool.poetry.dependencies]
 #nua---lib = { path = "../nua-lib/", develop = false }
-nua-lib = "==0.4.35"
+nua-lib = "==0.4.36"
 python = "^3.10"
 setuptools = "^65.5.0"
 # psycopg2-binary = "^2.9.4"  # fixme: need until refactoring
 # mariadb  # same
 types-setuptools = "^65.5.0.3"
+tomli = "^2.0.1"
 
 [tool.poetry.group.dev.dependencies]
 
