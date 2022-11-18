@@ -1,7 +1,9 @@
 """Nua scripting: action commands."""
 import mmap
 import os
+import re
 import sys
+import tempfile
 from glob import glob
 from pathlib import Path
 
@@ -78,6 +80,20 @@ def install_package_list(
         sh("apt-get autoremove; apt-get clean", env=environ, timeout=600)
     if rm_lists:
         _apt_remove_lists()
+
+
+def purge_package_list(packages: list | str, clean: bool = True):
+    if isinstance(packages, str):
+        packages = packages.strip().split()
+    if not packages:
+        print("purge_package_list(): nothing to install")
+        return
+    environ = os.environ.copy()
+    environ["DEBIAN_FRONTEND"] = "noninteractive"
+    cmd = f"apt-get purge -y {' '.join(packages)}"
+    sh(cmd, env=environ, timeout=600)
+    if clean:
+        sh("apt-get autoremove; apt-get clean", env=environ, timeout=600)
 
 
 def installed_packages() -> list:
@@ -179,6 +195,48 @@ def poetry_install(nodev: bool = True) -> None:
     sh(cmd)
 
 
+def install_mariadb_python(version: str = "1.1.4"):
+    """Connector for MariaDB"""
+    install_package_list(
+        [
+            "python3-dev",
+            "libmariadb3",
+            "libmariadb-dev",
+            "mariadb-client",
+            "unzip",
+            "build-essential",
+        ]
+    )
+    with tempfile.TemporaryDirectory(dir="/var/tmp") as tmpdirname:
+        cmd = f"python -m pip download mariadb=={version}"
+        result = sh(cmd, cwd=tmpdirname, capture_output=True)
+        saved_file = re.search("Saved(.*)\n", result).group(1).strip()  # type: ignore
+        archive = Path(saved_file).name
+        stem = Path(archive).stem
+        if stem.endswith(".tar"):
+            stem = Path(stem).stem
+        if archive.endswith("zip"):
+            unzip = f"unzip {archive}"  # for 1.1.4
+        else:
+            unzip = f"tar xzf {archive}"  # for 1.1.5.post2
+        cmd = (
+            f"{unzip} "
+            f"&& cd {stem} && python setup.py bdist_wheel && mv dist/*.whl .."
+        )
+        sh(cmd, cwd=tmpdirname)
+        pip_install_glob(f"tmpdirname/{stem}*.whl")
+    purge_package_list(["build-essential", "unzip"])
+
+
+def install_psycopg2_python():
+    """Connector for PostgreSQL"""
+    install_package_list("libpq-dev")
+    pip_install("psycopg2-binary")
+
+
+#
+# String and replacement utils
+#
 def replace_in(file_pattern: str, string_pattern: str, replacement: str):
     for file_name in glob(file_pattern, recursive=True):
         path = Path(file_name)

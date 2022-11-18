@@ -15,7 +15,7 @@ Flask = "^2.1.3"
 Flask-WTF = "^1.0"
 Jinja2 = "^3.1.2"
 # build will require: apt-get install libmariadb3 libmariadb-dev mariadb-client
-mariadb = "^1.1.4"
+mariadb = "==1.1.4"
 
 [tool.poetry.dev-dependencies]
 

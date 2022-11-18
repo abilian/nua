@@ -74,7 +74,13 @@ def rm_rf(path: str | Path) -> bool:
     return False
 
 
-def _base_sh(cmd: str, timeout: int | None, env: dict | None, capture_output: bool):
+def _base_sh(
+    cmd: str,
+    timeout: int | None,
+    env: dict | None,
+    capture_output: bool,
+    cwd: str | Path | None,
+):
     if capture_output:
         return run(
             cmd,
@@ -85,6 +91,7 @@ def _base_sh(cmd: str, timeout: int | None, env: dict | None, capture_output: bo
             capture_output=True,
             encoding="utf8",
             text=True,
+            cwd=cwd,
         )
     else:
         return run(
@@ -93,6 +100,7 @@ def _base_sh(cmd: str, timeout: int | None, env: dict | None, capture_output: bo
             executable="/bin/bash",
             timeout=timeout,
             env=env,
+            cwd=cwd,
         )
 
 
@@ -102,6 +110,7 @@ def sh(
     env: dict | None = None,
     show_cmd: bool = True,
     capture_output: bool = False,
+    cwd: str | Path | None = None,
 ) -> str | bytes:
     # XXX: can/should it really return bytes?
     """Run a shell command."""
@@ -113,7 +122,7 @@ def sh(
     try:
         # subprocess call with shell=True identified, security issue:
         # We do want to mimic current shell action, including all environment
-        completed = _base_sh(cmd, timeout, env, capture_output)
+        completed = _base_sh(cmd, timeout, env, capture_output, cwd)
         status = completed.returncode
         if status < 0:
             msg = (
@@ -131,7 +140,6 @@ def sh(
         error(f"Execution failed: {e}\nshell command was: '{cmd}'\n")
         # Not used, actually, but silences warnings.
         raise SystemExit(1)
-
     if capture_output:
         return completed.stdout
     else:
