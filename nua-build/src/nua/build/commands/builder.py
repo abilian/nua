@@ -20,17 +20,12 @@ from nua.lib.common.rich_console import print_green
 from nua.lib.common.shell import rm_fr
 from nua.lib.tool.state import verbosity
 from nua.runtime.nua_config import NuaConfig
+from nua.selfbuilder.constants import NUA_BUILDER_TAG
+from nua.selfbuilder.nua_image_builder import NUAImageBuilder
 
 from .. import __version__, config
-from ..constants import (
-    DEFAULTS_DIR,
-    MYSELF_DIR,
-    NUA_BUILDER_TAG,
-    NUA_CONFIG,
-    NUA_WHEEL_DIR,
-)
+from ..constants import DEFAULTS_DIR, MYSELF_DIR, NUA_CONFIG
 from ..docker_utils_build import display_docker_img, docker_build_log_error
-from .build_nua_builder import build_nua_builder
 
 # import typer
 
@@ -227,17 +222,6 @@ class Builder:
             print(dest)
 
 
-def _check_nua_build_wheel() -> bool:
-    if not NUA_WHEEL_DIR.is_dir() or not list(NUA_WHEEL_DIR.glob("nua_build*.whl")):
-        if verbosity(1):
-            message = f"Python wheel for '{NUA_BUILDER_TAG}' not found locally\n"
-            print(message)
-            message = "[fixme]: Make new installation of the package with ./build.sh"
-            error(message)
-        return False
-    return True
-
-
 def _check_nua_build_docker_image() -> bool:
     client = docker.from_env()
     result = bool(client.images.list(filters={"reference": NUA_BUILDER_TAG}))
@@ -248,20 +232,6 @@ def _check_nua_build_docker_image() -> bool:
 
 
 def build_nua_builder_if_needed():
-    if not _check_nua_build_wheel() or not _check_nua_build_docker_image():
-        build_nua_builder()
-
-
-# @app.command("build")
-# @app.command()
-# def build_cmd(
-#     config_file: Optional[str] = argument_config,
-#     verbose: bool = option_verbose,
-# ) -> None:
-#     """Build Nua package from some 'nua-config.toml' file."""
-#     # first build the nua_base image if needed
-#     build_nua_builder_if_needed(verbose)
-#     builder = Builder(config_file, verbose)
-#     print_green(f"*** Generation of the docker image for {builder.config.app_id} ***")
-#     builder.setup_build_directory()
-#     builder.build_with_docker()
+    if not _check_nua_build_docker_image():
+        image_builder = NUAImageBuilder()
+        image_builder.build()

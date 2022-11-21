@@ -2,15 +2,14 @@
 from datetime import datetime
 from functools import wraps
 
-import docker
-from docker import DockerClient, from_env
-from docker.errors import APIError, BuildError, ImageNotFound, NotFound
+from docker import from_env
+from docker.errors import APIError, BuildError, ImageNotFound
 from docker.models.images import Image
 from nua.lib.common.panic import error
 from nua.lib.common.rich_console import print_magenta, print_red
 from nua.lib.tool.state import verbosity
 
-LOCAL_CONFIG = {"size_unit_MiB": True}
+LOCAL_CONFIG = {"size_unit_MiB": False}
 
 
 def print_log_stream(docker_log):

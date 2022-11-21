@@ -4,16 +4,11 @@ import tempfile
 from os import chdir
 from pathlib import Path
 from shutil import copy2
-from typing import Optional
 
 import docker
-from docker import DockerClient, from_env
-from docker.errors import APIError, BuildError, ImageNotFound, NotFound
-from docker.models.containers import Container
-from docker.models.images import Image
 from nua.lib.common.panic import error
 from nua.lib.common.rich_console import print_green
-from nua.lib.common.shell import mkdir_p, rm_fr
+from nua.lib.common.shell import mkdir_p
 from nua.lib.tool.state import verbosity
 
 from . import __version__ as nua_version
@@ -23,7 +18,6 @@ from .constants import (
     NUA_BUILDER_TAG,
     NUA_LINUX_BASE,
     NUA_PYTHON_TAG,
-    NUA_WHEEL_DIR,
 )
 from .docker_build_utils import (
     display_docker_img,
@@ -96,7 +90,8 @@ class NUAImageBuilder:
         wheel_path = build_path / "nua_build_whl"
         mkdir_p(wheel_path)
         wheel_builder = NuaWheelBuilder(wheel_path, self.download)
-        success = wheel_builder.make_wheels()
+        if not wheel_builder.make_wheels():
+            error("Build of required Nua wheels failed")
 
 
 @docker_build_log_error

@@ -14,9 +14,9 @@ from shutil import copytree
 from time import perf_counter, sleep
 
 import docker
+from nua.selfbuilder.constants import NUA_BUILDER_TAG, NUA_LINUX_BASE, NUA_PYTHON_TAG
 
 from nua.build import __version__ as nua_version
-from nua.build.constants import NUA_BUILDER_TAG, NUA_LINUX_BASE, NUA_PYTHON_TAG
 
 
 def check_port_available(host: str, port: str | int, timeout: int = 1) -> bool:

@@ -19,6 +19,7 @@ nox.options.sessions = [
 SUB_REPOS = [
     "nua-lib",
     "nua-runtime",
+    "nua-selfbuilder",
     "nua-build",
     "nua-orchestrator",
 ]
