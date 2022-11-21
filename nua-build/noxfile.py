@@ -15,6 +15,8 @@ def lint(session: nox.Session) -> None:
 
 @nox.session(python=PYTHON_VERSIONS, venv_backend="venv")
 def pytest(session: nox.Session) -> None:
+    _install(session)
+    # session.run("bash", "generate_img_wheels.sh", external=True)
     session.run("pytest", "--tb=short", external=True)
 
 
