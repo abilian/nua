@@ -18,11 +18,19 @@ def version_callback(value: bool) -> None:
         raise typer.Exit(0)
 
 
-argument_path = typer.Argument(
-    ...,
-    help="Work dir path.",
+option_force = typer.Option(
+    False,
+    "--force",
+    "-f",
+    help="Force build of images.",
 )
 
+option_dowload = typer.Option(
+    False,
+    "--dowload",
+    "-d",
+    help="Force download of Nua source code.",
+)
 
 option_version = typer.Option(
     None,
@@ -45,10 +53,12 @@ def _version_string():
 # @app.callback(invoke_without_command=True)
 @app.command()
 def main(
-    version: Optional[bool] = option_version,
+    force: bool = option_force,
+    download: bool = option_dowload,
     verbose: int = option_verbose,
+    version: Optional[bool] = option_version,
 ):
     """Nua-self-build CLI inferface."""
     set_verbose(verbose)
-    image_builder = NUAImageBuilder(force=True)
-    image_builder.run()
+    image_builder = NUAImageBuilder()
+    image_builder.build(force=force, download=download)

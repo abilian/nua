@@ -3,11 +3,14 @@ from datetime import datetime
 from functools import wraps
 
 import docker
-import docker.errors
+from docker import DockerClient, from_env
+from docker.errors import APIError, BuildError, ImageNotFound, NotFound
+from docker.models.images import Image
 from nua.lib.common.panic import error
 from nua.lib.common.rich_console import print_magenta, print_red
+from nua.lib.tool.state import verbosity
 
-from . import config
+LOCAL_CONFIG = {"size_unit_MiB": True}
 
 
 def print_log_stream(docker_log):
@@ -21,7 +24,7 @@ def docker_build_log_error(func):
     def build_log_error_wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except docker.errors.BuildError as e:
+        except BuildError as e:
             print("=" * 60)
             print_red("Something went wrong with image build!")
             print_red(str(e))
@@ -41,18 +44,18 @@ def docker_image_size(image):
 
 
 def image_size_repr(image_bytes):
-    if config.get("ui", {}).get("size_unit_MiB"):
+    if LOCAL_CONFIG.get("size_unit_MiB"):
         return round(image_bytes / 2**20)
     return round(image_bytes / 10**6)
 
 
 def size_unit():
-    return "MiB" if config.get("ui", {}).get("size_unit_MiB") else "MB"
+    return "MiB" if LOCAL_CONFIG.get("size_unit_MiB") else "MB"
 
 
 def display_docker_img(iname):
     print_magenta(f"Docker image for '{iname}':")
-    client = docker.from_env()
+    client = from_env()
     result = client.images.list(filters={"reference": iname})
     if not result:
         print("No image found")
@@ -67,3 +70,44 @@ def display_docker_img(iname):
         print(f"    id: {sid}")
         print(f"    size: {size}{size_unit()}")
         print(f"    created: {crea}")
+
+
+def docker_require(reference: str) -> Image | None:
+    return docker_get_locally(reference) or docker_pull(reference)
+
+
+def docker_remove_locally(reference: str):
+    client = from_env()
+    try:
+        image = client.images.get(reference)
+        if image and verbosity(3):
+            print(f"Image '{reference}' found in local Docker instance: remove it")
+            client.images.remove(image=image.id, force=True, noprune=False)
+    except (APIError, ImageNotFound):
+        pass
+
+
+def docker_get_locally(reference: str) -> Image | None:
+    client = from_env()
+    try:
+        image = client.images.get(reference)
+        if image and verbosity(3):
+            print(f"Image '{reference}' found in local Docker instance")
+        return image
+    except (APIError, ImageNotFound):
+        if verbosity(3):
+            print(f"Image '{reference}' not found in local Docker instance")
+        return None
+
+
+def docker_pull(reference: str) -> Image | None:
+    client = from_env()
+    try:
+        image = client.images.pull(reference)
+        if image and verbosity(3):
+            print(f"Image '{reference}' pulled from Docker hub")
+        return image
+    except (APIError, ImageNotFound):
+        if verbosity(3):
+            print(f"Image '{reference}' not found in Docker hub")
+        return None
