@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "nua-image"
-version = "0.4.30"
-description = "Nua self build package (currently: build, core build, runtime)"
+name = "nua-selfbuilder"
+version = "0.4.36"
+description = "Nua self builder"
 authors = ["Stefane Fermigier <sf@abilian.com>", "Jerome Dumonteil <jd@abilian.com>"]
 license = "AGPL"
 readme = "README.md"
@@ -10,20 +10,18 @@ packages = [
 ]
 
 [tool.poetry.scripts]
-nua-build = "nua.build.main:app"
-nua_build_self_setup = "nua.build.scripts.nuad_self_setup:main"
-nua_build_setup_app = "nua.build.scripts.nua_build_setup_app:main"
-nua_test_replace_domain = "nua.build.scripts.test_replace_domain:main"
+nua-self-build = "nua.selfbuilder:main"
 
 [tool.poetry.dependencies]
-nua-lib = { path = "../nua-lib/", develop = false }
+# nua---lib = { path = "../nua-lib/", develop = false }
+nua-lib = "==0.4.36"
+nua-runtime = "==0.4.36"
 python = "^3.10"
 setuptools = "^65.5.0"
 tomli = "^2.0"
-typer = { extras = ["all"], version = "^0.6" }
+typer = {extras = ["all"], version = "^0.7.0"}
 rich = "^12.4.4"
 docker = "^6.0"
-psycopg2-binary = "^2.9.4"  # fixme: need until refactoring
 # mariadb  # same
 
 [tool.poetry.group.dev.dependencies]

@@ -1,0 +1,9 @@
+ARG nua_python_tag
+FROM ${nua_python_tag} as builder
+
+COPY nua_build_whl /nua/
+RUN pip install /nua/*.whl
+
+USER root
+FROM ${nua_python_tag}
+COPY --chown=nua:nua --from=builder /nua/venv /nua/venv
