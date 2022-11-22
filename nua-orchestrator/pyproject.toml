@@ -27,6 +27,7 @@ nua_test_services = "nua.orchestrator.service:test"
 # nua----lib = { path = "../nua-lib/", develop = false }
 nua-lib = "==0.4.39"
 nua-runtime = "==0.4.39"
+nua-selfbuilder = "==0.4.39"
 python = "^3.10"
 
 # Databases

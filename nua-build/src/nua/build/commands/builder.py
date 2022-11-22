@@ -21,11 +21,14 @@ from nua.lib.common.shell import rm_fr
 from nua.lib.tool.state import verbosity
 from nua.runtime.nua_config import NuaConfig
 from nua.selfbuilder.constants import NUA_BUILDER_TAG
+from nua.selfbuilder.docker_build_utils import (
+    display_docker_img,
+    docker_build_log_error,
+)
 from nua.selfbuilder.nua_image_builder import NUAImageBuilder
 
 from .. import __version__, config
 from ..constants import DEFAULTS_DIR, MYSELF_DIR, NUA_CONFIG
-from ..docker_utils_build import display_docker_img, docker_build_log_error
 
 # import typer
 

@@ -52,7 +52,7 @@ def size_unit():
     return "MiB" if LOCAL_CONFIG.get("size_unit_MiB") else "MB"
 
 
-def display_docker_img(iname):
+def display_docker_img(iname: str):
     print_magenta(f"Docker image for '{iname}':")
     client = from_env()
     result = client.images.list(filters={"reference": iname})
@@ -60,15 +60,19 @@ def display_docker_img(iname):
         print("No image found")
         return
     for img in result:
-        sid = img.id.split(":")[-1][:10]
-        tags = "|".join(img.tags)
-        crea = datetime.fromisoformat(image_created_as_iso(img)).isoformat(" ")
-        # Note on size of image: Docker uses 10**6 for MB, here I use 2**20
-        size = docker_image_size(img)
-        print(f"    tags: {tags}")
-        print(f"    id: {sid}")
-        print(f"    size: {size}{size_unit()}")
-        print(f"    created: {crea}")
+        display_one_docker_img(img)
+
+
+def display_one_docker_img(image: Image):
+    sid = image.id.split(":")[-1][:10]
+    tags = "|".join(image.tags)
+    crea = datetime.fromisoformat(image_created_as_iso(image)).isoformat(" ")
+    # Note on size of image: Docker uses 10**6 for MB, not 2**20
+    size = docker_image_size(image)
+    print(f"    tags: {tags}")
+    print(f"    id: {sid}")
+    print(f"    size: {size}{size_unit()}")
+    print(f"    created: {crea}")
 
 
 def docker_require(reference: str) -> Image | None:
@@ -89,12 +93,13 @@ def docker_remove_locally(reference: str):
 def docker_get_locally(reference: str) -> Image | None:
     client = from_env()
     try:
-        image = client.images.get(reference)
+        name = reference.split("/")[-1]
+        image = client.images.get(name)
         if image and verbosity(3):
             print(f"Image '{reference}' found in local Docker instance")
         return image
     except (APIError, ImageNotFound):
-        if verbosity(3):
+        if verbosity(4):
             print(f"Image '{reference}' not found in local Docker instance")
         return None
 

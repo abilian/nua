@@ -9,6 +9,7 @@ import tomli
 from nua.lib.common.panic import error, warning
 from nua.lib.common.rich_console import print_green, print_magenta, print_red
 from nua.lib.tool.state import verbosity
+from nua.selfbuilder.docker_build_utils import display_one_docker_img, docker_require
 
 from . import config
 from .certbot import protocol_prefix, register_certbot_domains
@@ -27,9 +28,7 @@ from .deploy_utils import (
 )
 from .docker_utils import (
     deactivate_site,
-    display_one_docker_img,
     docker_network_create_bridge,
-    docker_pull,
     docker_service_start_if_needed,
 )
 from .domain_split import DomainSplit
@@ -256,7 +255,7 @@ class SitesDeployment:
             return True
         if verbosity(1):
             print_magenta(f"Pulling image '{resource.image}'")
-        docker_image = docker_pull(resource.image)
+        docker_image = docker_require(resource.image)
         if docker_image:
             if verbosity(1):
                 display_one_docker_img(docker_image)

@@ -1,6 +1,7 @@
 from nua.lib.tool.state import verbosity
+from nua.selfbuilder.docker_build_utils import display_one_docker_img
 
-from .docker_utils import display_one_docker_img, pull_docker_image
+from .docker_utils import pull_docker_image
 
 
 class ServiceBase:

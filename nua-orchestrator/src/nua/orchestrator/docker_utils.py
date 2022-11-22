@@ -16,54 +16,12 @@ from docker.models.images import Image
 from nua.lib.common.panic import error, warning
 from nua.lib.common.rich_console import print_magenta, print_red
 from nua.lib.tool.state import verbosity
+from nua.selfbuilder.docker_build_utils import docker_require
 
 from . import config
 from .db import store
 from .resource import Resource
 from .utils import image_size_repr, size_unit
-
-
-def print_log_stream(docker_log):
-    for line in docker_log:
-        if "stream" in line:
-            print("    ", line["stream"].strip())
-
-
-def docker_build_log_error(func):
-    @wraps(func)
-    def build_log_error_wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except BuildError as e:
-            print("=" * 60)
-            print_red("Something went wrong with image build!")
-            print_red(str(e))
-            print("=" * 60)
-            print_log_stream(e.build_log)
-            error("Build error.")
-
-    return build_log_error_wrapper
-
-
-def image_created_as_iso(image):
-    return image.attrs["Created"][:19]
-
-
-def docker_image_size(image):
-    return image_size_repr(
-        round(image.attrs["Size"]), config.read("nua", "ui", "size_unit_MiB")
-    )
-
-
-def display_docker_img(iname):
-    print_magenta(f"Docker image for '{iname}':")
-    client = from_env()
-    result = client.images.list(filters={"reference": iname})
-    if not result:
-        print("No image found")
-        return
-    for img in result:
-        display_one_docker_img(img)
 
 
 @cache
@@ -74,19 +32,6 @@ def docker_host_gateway_ip() -> str:
         if route.get("dev") == "docker0":
             return route.get("prefsrc", "")
     return ""
-
-
-def display_one_docker_img(image: Image):
-    sid = image.id.split(":")[-1][:10]
-    tags = "|".join(image.tags)
-    crea = datetime.fromisoformat(image_created_as_iso(image)).isoformat(" ")
-    # Note on size of image: Docker uses 10**6 for MB, here I use 2**20
-    size = docker_image_size(image)
-    as_mib = config.read("nua", "ui", "size_unit_MiB")
-    print(f"    tags: {tags}")
-    print(f"    id: {sid}")
-    print(f"    size: {size}{size_unit(as_mib)}")
-    print(f"    created: {crea}")
 
 
 def docker_service_is_active() -> bool:
@@ -112,30 +57,6 @@ def docker_container_of_name(name: str) -> list[Container]:
     """Send a list of 0 or 1 Continer of the given name."""
     client = from_env()
     return [c for c in client.containers.list(filters={"name": name}) if c.name == name]
-
-
-def docker_pull(image: str, force: bool = False) -> Image:
-    if force:
-        return docker_force_pull(image)
-    client = from_env()
-    name = image.split("/")[-1]
-    try:
-        locally_found = client.images.get(name)
-    except ImageNotFound:
-        locally_found = None
-    if locally_found:
-        return locally_found
-    return docker_force_pull(image)
-
-
-def docker_force_pull(image: str) -> Image:
-    client = from_env()
-    try:
-        return client.images.pull(image)
-    except (APIError, ImageNotFound) as e:
-        print(f"Error while pulling image '{image}'")
-        print(e)
-        return None
 
 
 def _docker_wait_empty_container_list(name: str, timeout: int) -> bool:
@@ -463,7 +384,7 @@ def install_plugin(plugin_name: str) -> str:
 
 def pull_docker_image(image: str) -> Image:
     docker_service_start_if_needed()
-    return docker_pull(image)
+    return docker_require(image)
 
 
 def list_containers():

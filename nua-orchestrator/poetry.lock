@@ -671,6 +671,19 @@ type = "directory"
 url = "../nua-runtime"
 
 [[package]]
+name = "nua-selfbuilder"
+version = "0.4.39"
+description = "Nua self builder"
+category = "main"
+optional = false
+python-versions = "*"
+develop = true
+
+[package.source]
+type = "directory"
+url = "../nua-selfbuilder"
+
+[[package]]
 name = "packaging"
 version = "21.3"
 description = "Core utilities for Python packages"

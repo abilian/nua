@@ -21,3 +21,4 @@ perl -pi -e 's/(\s*nua-selfbuilder\s*=\s*)\"(.+)\"/\1\"=='${VERS}'\"/' ${top}/nu
 perl -pi -e '!$x && s/(\s*version\s*=\s*)\"(.+)\"/\1\"'${VERS}'\"/ && ($x=1)' ${top}/nua-orchestrator/pyproject.toml
 perl -pi -e 's/(\s*nua-lib\s*=\s*)\"(.+)\"/\1\"=='${VERS}'\"/' ${top}/nua-orchestrator/pyproject.toml
 perl -pi -e 's/(\s*nua-runtime\s*=\s*)\"(.+)\"/\1\"=='${VERS}'\"/' ${top}/nua-orchestrator/pyproject.toml
+perl -pi -e 's/(\s*nua-selfbuilder\s*=\s*)\"(.+)\"/\1\"=='${VERS}'\"/' ${top}/nua-orchestrator/pyproject.toml

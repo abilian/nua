@@ -9,11 +9,11 @@ import docker.types
 from nua.lib.common.panic import error, warning
 from nua.lib.common.rich_console import print_green, print_magenta
 from nua.lib.tool.state import verbosity
+from nua.selfbuilder.docker_build_utils import display_one_docker_img
 
 from .archive_search import ArchiveSearch
 from .db import store
 from .docker_utils import (
-    display_one_docker_img,
     docker_host_gateway_ip,
     docker_network_prune,
     docker_remove_container_db,
