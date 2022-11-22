@@ -3,9 +3,11 @@ import mmap
 import os
 import re
 import sys
+import tarfile
 import tempfile
 from glob import glob
 from pathlib import Path
+from urllib.request import urlopen
 
 from jinja2 import Template
 
@@ -90,8 +92,9 @@ def purge_package_list(packages: list | str, clean: bool = True):
         return
     environ = os.environ.copy()
     environ["DEBIAN_FRONTEND"] = "noninteractive"
-    cmd = f"apt-get purge -y {' '.join(packages)}"
-    sh(cmd, env=environ, timeout=600)
+    for package in packages:
+        cmd = f"apt-get purge -y {package} || true"
+        sh(cmd, env=environ, timeout=600)
     if clean:
         sh("apt-get autoremove; apt-get clean", env=environ, timeout=600)
 
@@ -102,22 +105,28 @@ def installed_packages() -> list:
     return result.splitlines()
 
 
-def npm_install(package: str) -> None:
-    cmd = f"/usr/bin/npm install -g {package}"
+def npm_install(package: str, force: bool = False) -> None:
+    opt = " --force" if force else ""
+    cmd = f"/usr/bin/npm install -g{opt} {package}"
     sh(cmd)
 
 
 def install_nodejs(version: str = "16.x", rm_lists: bool = True):
     src = f"setup_{version}"
+    purge_package_list(["yarn", "npm", "nodejs"])
     install_package_list("curl", rm_lists=False)
-    cmd = (
-        f"curl -sL https://deb.nodesource.com/{src} "
-        "| bash - && apt-get install -y nodejs npm"
-    )
+    cmd = f"sudo curl -sL https://deb.nodesource.com/{src} -o /nua/install_node.sh"
+    sh(cmd)
+    cmd = "bash /nua/install_node.sh"
+    sh(cmd)
+    cmd = "apt-get install -y nodejs"
+    sh(cmd)
+    cmd = "/usr/bin/npm update -g npm"
+    sh(cmd)
+    cmd = "/usr/bin/npm install -g --force yarn"
     sh(cmd)
     if rm_lists:
         _apt_remove_lists()
-    npm_install("yarn")
 
 
 def append_bashrc(home: str | Path, content: str):
@@ -232,6 +241,34 @@ def install_psycopg2_python():
     """Connector for PostgreSQL"""
     install_package_list("libpq-dev")
     pip_install("psycopg2-binary")
+
+
+def download_extract(url: str, dest: str | Path) -> Path:
+    name = Path(url).name
+    if not any(name.endswith(suf) for suf in (".zip", ".tar", ".tar.gz", ".tgz")):
+        raise ValueError(f"Unknown archive format for '{name}'")
+    with tempfile.TemporaryDirectory() as tmp:
+        target = Path(tmp) / name
+        with urlopen(url) as remote:  # noqa S310
+            target.write_bytes(remote.read())
+        # if name.endswith(".zip"):
+        #     return extract_zip(target, dest)
+        return extract_all(target, dest)
+
+
+def extract_all(archive: str | Path, dest: str | Path) -> Path:
+    with tarfile.open(archive) as tar:
+        tar.extractall(dest)
+    name = Path(archive).stem
+    if name.endswith(".tar"):
+        name = name[:-4]
+    result = Path(dest) / name
+    if not result.exists():
+        name = re.sub(r"-[0-9\.post]*$", "", name)
+        result = Path(dest) / name
+    if not result.exists():
+        print(f"expected '{result}' not found")
+    return result
 
 
 #

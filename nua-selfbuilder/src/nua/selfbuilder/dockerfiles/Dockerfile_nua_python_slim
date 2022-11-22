@@ -15,7 +15,7 @@ FROM ${nua_linux_base} as runner
 
 RUN apt-get -y --fix-missing update \
     && apt-get install --no-install-recommends -y \
-    python3.10 sudo \
+    python3.10 sudo ca-certificates \
 	&& apt-get clean && rm -rf /var/lib/apt/lists/*
 RUN echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache && \
     echo 'APT::Install-Recommends "0"; APT::Install-Suggests "0";' >  /etc/apt/apt.conf.d/01norecommend && \
