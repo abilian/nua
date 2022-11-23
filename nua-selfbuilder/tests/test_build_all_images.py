@@ -1,9 +1,18 @@
+import re
+import shlex
+from contextlib import suppress
+from subprocess import run
+
 import docker
 import pytest
 
 
 def test_force_build():  # noqa
-    from nua.selfbuilder.constants import NUA_BUILDER_TAG, NUA_PYTHON_TAG
+    from nua.selfbuilder.constants import (
+        NUA_BUILDER_NODE_TAG,
+        NUA_BUILDER_TAG,
+        NUA_PYTHON_TAG,
+    )
     from nua.selfbuilder.nua_image_builder import NUAImageBuilder
 
     client = docker.from_env()
@@ -19,3 +28,29 @@ def test_force_build():  # noqa
 
     for image in (NUA_BUILDER_NODE_TAG, NUA_BUILDER_TAG, NUA_PYTHON_TAG):
         assert client.images.list(image)
+
+
+def test_quick_build():  # noqa
+    from nua.selfbuilder.constants import (
+        NUA_BUILDER_NODE_TAG,
+        NUA_BUILDER_TAG,
+        NUA_PYTHON_TAG,
+    )
+    from nua.selfbuilder.nua_image_builder import NUAImageBuilder
+
+    client = docker.from_env()
+
+    image_builder = NUAImageBuilder()
+    image_builder.build(all=True)
+
+    for image in (NUA_BUILDER_NODE_TAG, NUA_BUILDER_TAG, NUA_PYTHON_TAG):
+        assert client.images.list(image)
+
+
+def test_node_installed():  # noqa
+    from nua.selfbuilder.constants import NUA_BUILDER_NODE_TAG
+
+    cmd = f"docker run {NUA_BUILDER_NODE_TAG} /usr/bin/node --version"
+    result = run(shlex.split(cmd), capture_output=True, text=True)
+
+    assert result.stdout.strip().startswith("v16.")
