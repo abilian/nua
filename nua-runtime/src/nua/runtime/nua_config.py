@@ -5,7 +5,8 @@ from typing import Any
 import tomli
 from nua.lib.panic import error
 
-from .constants import NUA_CONFIG
+from .constants import NUA_BUILDER_TAG, NUA_CONFIG
+from .version import __version__
 
 REQUIRED_BLOCKS = ["metadata", "build"]
 REQUIRED = ["id", "version", "title", "author", "licence"]
@@ -79,3 +80,10 @@ class NuaConfig:
     @property
     def src_git(self) -> str:
         return self.build.get("src_git") or ""
+
+    @property
+    def nua_base(self) -> str:
+        base = self.build.get("nua_base") or NUA_BUILDER_TAG
+        if ":" not in base:
+            base = f"{base}:{__version__}"
+        return base

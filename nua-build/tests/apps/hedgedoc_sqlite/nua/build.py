@@ -14,8 +14,12 @@ def main():
         "https://github.com/hedgedoc/hedgedoc/releases/"
         "download/1.9.6/hedgedoc-1.9.6.tar.gz"
     )
-    install_nodejs(rm_lists=False)
-    install_package_list(["git"], rm_lists=False, update=False)
+    install_package_list(
+        "build-essential python3-dev libsqlite3-dev netcat libicu-dev libssl-dev git fontconfig fonts-noto ",
+        rm_lists=False,
+    )
+    # start from the base image containing nodejs 16
+    # install_nodejs(rm_lists=False)
     npm_install("node-gyp", force=True)
     hedge_path = download_extract(hedge_url, "/nua/build")
     chdir(hedge_path)

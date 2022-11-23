@@ -12,6 +12,7 @@ release = 1
 
 [build]
 # src_url = "https://github.com/moinwiki/moin/archive/refs/heads/master.tar.gz"
+nua_base = "nua-builder-nodejs16"
 document_root = "/nua/app/html"
 
 [instance]

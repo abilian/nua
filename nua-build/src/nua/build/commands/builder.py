@@ -15,28 +15,20 @@ from pathlib import Path
 from shutil import copy2, copytree
 
 import docker
-from nua.lib.panic import error
-from nua.lib.rich_console import print_green
+from nua.lib.panic import bold, error, info, show
 from nua.lib.shell import rm_fr
 from nua.lib.tool.state import verbosity
+from nua.runtime.constants import NUA_BUILDER_NODE_TAG, NUA_BUILDER_TAG
 from nua.runtime.nua_config import NuaConfig
-from nua.selfbuilder.constants import NUA_BUILDER_TAG
 from nua.selfbuilder.docker_build_utils import (
     display_docker_img,
     docker_build_log_error,
+    docker_get_locally,
 )
 from nua.selfbuilder.nua_image_builder import NUAImageBuilder
 
 from .. import __version__, config
-from ..constants import DEFAULTS_DIR, MYSELF_DIR, NUA_CONFIG
-
-# import typer
-
-
-# from typing import Optional
-
-
-assert MYSELF_DIR.is_dir()
+from ..constants import DEFAULTS_DIR, NUA_CONFIG
 
 logging.basicConfig(level=logging.INFO)
 
@@ -60,17 +52,27 @@ class Builder:
 
     def run(self):
         self.detect_container_type()
+        self.check_base_image()
         self.detect_nua_dir()
         self.nua_dir_relative = self.nua_dir.relative_to(self.config.root_dir)
         if self.container_type == "docker":
             self.make_docker_image()
+
+    def check_base_image(self):
+        if not docker_get_locally(self.config.nua_base):
+            error(
+                f"Required Nua base image '{self.config.nua_base}' was not found.",
+                explanation=(
+                    f"Nua images are:\n{NUA_BUILDER_TAG}\n{NUA_BUILDER_NODE_TAG}"
+                ),
+            )
 
     def make_docker_image(self):
         self.make_build_dir()
         self.copy_build_files()
         # self.copy_myself()
         if verbosity(1):
-            print("Copying Nua config file:", self.config.path.name)
+            show("Copying Nua config file:", self.config.path.name)
         copy2(self.config.path, self.build_dir)
         self.build_with_docker()
         rm_fr(self.build_dir)
@@ -83,7 +85,7 @@ class Builder:
             error(f"Build directory parent not found: '{build_dir_parent}'")
         self.build_dir = Path(tempfile.mkdtemp(dir=build_dir_parent))
         if verbosity(1):
-            print(f"Build directory: {self.build_dir}")
+            show(f"Build directory: {self.build_dir}")
 
     def detect_container_type(self):
         """Placeholder for future container technology detection.
@@ -122,11 +124,11 @@ class Builder:
         user_file = self.config.root_dir / name
         if user_file.is_file():
             if verbosity(1):
-                print("Copying manifest file:", user_file.name)
+                show("Copying manifest file:", user_file.name)
             copy2(user_file, self.build_dir)
         elif user_file.is_dir():
             if verbosity(1):
-                print("Copying manifest directory:", user_file.name)
+                show("Copying manifest directory:", user_file.name)
             copytree(user_file, self.build_dir / name)
         else:
             error(f"File from manifest not found: {repr(name)}")
@@ -134,11 +136,11 @@ class Builder:
     def copy_file_or_dir(self, user_file):
         if user_file.is_file():
             if verbosity(1):
-                print("Copying local file:", user_file.name)
+                show("Copying local file:", user_file.name)
             copy2(user_file, self.build_dir)
         elif user_file.is_dir():
             if verbosity(1):
-                print("Copying local directory:", user_file.name)
+                show("Copying local directory:", user_file.name)
             copytree(user_file, self.build_dir / user_file.name)
         else:
             pass
@@ -167,7 +169,7 @@ class Builder:
         if dest.is_file():
             return
         if verbosity(1):
-            print("Copying Nua default file:", default_file.name)
+            show("Copying Nua default file:", default_file.name)
 
         copy2(default_file, self.build_dir / self.nua_dir_relative)
 
@@ -188,21 +190,21 @@ class Builder:
     @docker_build_log_error
     def build_with_docker(self, save=True):
         if verbosity(2):
-            print("Starting build_with_docker()")
+            info("Starting build_with_docker()")
         chdir(self.build_dir)
         with suppress(IOError):
             copy2(self.build_dir / self.nua_dir_relative / "Dockerfile", self.build_dir)
         release = self.config.metadata.get("release", "")
         rel_tag = f"-{release}" if release else ""
         nua_tag = f"nua-{self.config.app_id}:{self.config.version}{rel_tag}"
-        print_green(f"Building image {nua_tag}")
+        show(f"Building image {nua_tag}")
         client = docker.from_env()
         image, tee = client.images.build(
             path=".",
             tag=nua_tag,
             rm=True,
             forcerm=True,
-            buildargs={"nua_builder_tag": NUA_BUILDER_TAG},
+            buildargs={"nua_builder_tag": self.config.nua_base},
             labels={
                 "APP_ID": self.config.app_id,
                 "NUA_TAG": nua_tag,
@@ -221,8 +223,8 @@ class Builder:
             for chunk in image.save(named=True):
                 tarfile.write(chunk)
         if verbosity(1):
-            print("Docker image saved:")
-            print(dest)
+            show("Docker image saved:")
+            info(dest)
 
 
 def _check_nua_build_docker_image() -> bool:
@@ -230,11 +232,11 @@ def _check_nua_build_docker_image() -> bool:
     result = bool(client.images.list(filters={"reference": NUA_BUILDER_TAG}))
     if not result and verbosity(1):
         message = f"Docker image '{NUA_BUILDER_TAG}' not found locally, build required."
-        print(message)
+        bold(message)
     return result
 
 
 def build_nua_builder_if_needed():
     if not _check_nua_build_docker_image():
         image_builder = NUAImageBuilder()
-        image_builder.build()
+        image_builder.build(all=True)

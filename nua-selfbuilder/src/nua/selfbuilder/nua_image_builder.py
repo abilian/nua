@@ -9,16 +9,14 @@ import docker
 from nua.lib.panic import bold, error, show
 from nua.lib.shell import mkdir_p
 from nua.lib.tool.state import verbosity
+from nua.runtime.constants import NUA_BUILDER_NODE_TAG, NUA_BUILDER_TAG, NUA_PYTHON_TAG
 
 from . import __version__ as nua_version
 from .constants import (
     DOCKERFILE_BUILDER,
     DOCKERFILE_BUILDER_NODE,
     DOCKERFILE_PYTHON,
-    NUA_BUILDER_NODE_TAG,
-    NUA_BUILDER_TAG,
     NUA_LINUX_BASE,
-    NUA_PYTHON_TAG,
 )
 from .docker_build_utils import (
     display_docker_img,

@@ -1,10 +1,6 @@
 from pathlib import Path
 
-# from .version import __version__
-
-_folder = Path(__file__).parent
-MYSELF_DIR = _folder.parent
-DEFAULTS_DIR = _folder / "defaults"
+DEFAULTS_DIR = Path(__file__).parent / "defaults"
 NUA_CONFIG = "nua-config.toml"
 
 # in docker:
