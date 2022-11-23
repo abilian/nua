@@ -10,7 +10,7 @@ import os
 import re
 from pathlib import Path
 
-from nua.lib.common.exec import mp_exec_as_postgres
+from nua.lib.exec import mp_exec_as_postgres
 
 from .db_manager import DbManager
 from .utils import is_package_installed

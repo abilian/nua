@@ -1,12 +1,12 @@
 from os import chdir
 
-from nua.lib.common.actions import (
+from nua.lib.actions import (
     download_extract,
     install_nodejs,
     install_package_list,
     npm_install,
 )
-from nua.lib.common.shell import sh
+from nua.lib.shell import sh
 
 
 def main():

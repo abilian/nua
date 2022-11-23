@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 from subprocess import run  # noqa: S404
 
-from nua.lib.common.exec import set_nua_user
+from nua.lib.exec import set_nua_user
 
 from . import nua_env
 

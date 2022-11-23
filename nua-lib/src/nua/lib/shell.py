@@ -2,13 +2,9 @@
 import pwd
 import shutil
 from pathlib import Path
-
-# Considering possible security implications associated with the
-# subprocess module.
 from subprocess import run  # noqa: S404
 
-from .panic import error
-from .rich_console import console
+from .panic import error, show
 
 
 def cat(filename: str | Path):
@@ -115,10 +111,7 @@ def sh(
     # XXX: can/should it really return bytes?
     """Run a shell command."""
     if show_cmd:
-        console.print(
-            cmd,
-            style="green",
-        )
+        show(cmd)
     try:
         # subprocess call with shell=True identified, security issue:
         # We do want to mimic current shell action, including all environment

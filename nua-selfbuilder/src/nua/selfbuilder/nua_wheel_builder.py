@@ -8,8 +8,8 @@ from pathlib import Path
 from shutil import copy2
 from urllib.request import urlopen
 
-from nua.lib.common.panic import error, warning
-from nua.lib.common.shell import rm_fr, sh
+from nua.lib.panic import error, warning
+from nua.lib.shell import rm_fr, sh
 from nua.lib.tool.state import verbosity
 
 from .constants import CODE_URL

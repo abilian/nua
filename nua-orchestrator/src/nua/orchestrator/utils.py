@@ -1,7 +1,7 @@
 import re
 import string
 
-from nua.lib.common.panic import error
+from nua.lib.panic import error
 
 RE_NB_UNIT = re.compile(r"(\d+\.?\d*)\s*(\S*)")
 UNIT = {"B": 1, "K": 2**10, "M": 2**20, "G": 2**30, "T": 2**40}

@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Any
 
 import tomli
-from nua.lib.common.panic import error
+from nua.lib.panic import error
 
 from .constants import NUA_CONFIG
 

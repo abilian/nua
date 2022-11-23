@@ -6,9 +6,9 @@ from pathlib import Path
 from shutil import copy2
 
 import docker
-from nua.lib.common.panic import error
-from nua.lib.common.rich_console import print_green
-from nua.lib.common.shell import mkdir_p
+from nua.lib.panic import error
+from nua.lib.rich_console import print_green
+from nua.lib.shell import mkdir_p
 from nua.lib.tool.state import verbosity
 
 from . import __version__ as nua_version

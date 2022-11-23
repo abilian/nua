@@ -1,4 +1,4 @@
-from nua.lib.common.actions import poetry_install
+from nua.lib.actions import poetry_install
 
 # from nua.runtime.nua_config import NuaConfig
 

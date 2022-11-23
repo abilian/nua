@@ -1,4 +1,4 @@
-from nua.lib.common.exec import exec_as_root
+from nua.lib.exec import exec_as_root
 
 env = {
     "APACHE_RUN_USER": "www-data",

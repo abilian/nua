@@ -10,7 +10,7 @@ See later if move this to "nua ...".
 from typing import Optional
 
 import typer
-from nua.lib.common.rich_console import print_green
+from nua.lib.rich_console import print_green
 from nua.lib.tool.state import set_verbose
 
 from . import __version__

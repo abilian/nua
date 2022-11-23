@@ -4,10 +4,10 @@ import re
 from pathlib import Path
 
 import psycopg2
-from nua.lib.common.actions import install_package_list, installed_packages
-from nua.lib.common.exec import mp_exec_as_postgres
-from nua.lib.common.rich_console import print_magenta, print_red
-from nua.lib.common.shell import chown_r, sh
+from nua.lib.actions import install_package_list, installed_packages
+from nua.lib.exec import mp_exec_as_postgres
+from nua.lib.rich_console import print_magenta, print_red
+from nua.lib.shell import chown_r, sh
 from nua.runtime.gen_password import gen_password
 from nua.runtime.postgresmanager import NUA_PG_PWD_FILE
 from psycopg2.sql import SQL, Identifier

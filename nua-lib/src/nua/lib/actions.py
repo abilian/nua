@@ -11,40 +11,38 @@ from urllib.request import urlopen
 
 from jinja2 import Template
 
+from .panic import warning
 from .shell import sh
 
 
 #
 # Builder for Python projects
 #
-def is_python_project():
-    if Path("src/requirements.txt").exists():
+def is_python_project(path: str | Path = "") -> bool:
+    root = Path(path).expanduser().resolve()
+    if any(
+        (root / f).exists() for f in ("requirements.txt", "setup.py", "pyproject.toml")
+    ):
         return True
-    if Path("src/setup.py").exists():
-        return True
-
     return False
 
 
-def build_python(path=None):
-    # fixme: improve this
-    if not path:
-        path = Path()
-    requirements = path / "requirements.txt"
-    setup_py = path / "setup.py"
-    if requirements.exists():
-        sh(f"python -m pip install -r {requirements}")
-    elif setup_py.exists():
-        # assuming code is in src:
-        pip_install("src")
+def build_python(path: str | Path = ""):
+    root = Path(path).expanduser().resolve()
+    requirements = root / "requirements.txt"
+    setup_py = root / "setup.py"
+    if requirements.is_file():
+        sh(f"python -m pip install -r {requirements}", cwd=root)
+    elif setup_py.is_file():
+        sh("python -m pip install", cwd=root)
 
 
 #
 # Other stuff
 #
 def _apt_remove_lists():
-    env = dict(os.environ)
-    sh("rm -rf /var/lib/apt/lists/*", env=env, timeout=600)
+    environ = os.environ.copy()
+    sh("rm -rf /var/lib/apt/lists/*", env=environ, timeout=600)
 
 
 def apt_update():
@@ -69,7 +67,7 @@ def install_package_list(
     if isinstance(packages, str):
         packages = packages.strip().split()
     if not packages:
-        print("install_package_list(): nothing to install")
+        warning("install_package_list(): nothing to install")
         return
 
     environ = os.environ.copy()
@@ -88,15 +86,20 @@ def purge_package_list(packages: list | str, clean: bool = True):
     if isinstance(packages, str):
         packages = packages.strip().split()
     if not packages:
-        print("purge_package_list(): nothing to install")
+        warning("purge_package_list(): nothing to remove")
         return
     environ = os.environ.copy()
     environ["DEBIAN_FRONTEND"] = "noninteractive"
     for package in packages:
         cmd = f"apt-get purge -y {package} || true"
-        sh(cmd, env=environ, timeout=600)
+        sh(cmd, env=environ, timeout=600, show_cmd=False)
     if clean:
-        sh("apt-get autoremove; apt-get clean", env=environ, timeout=600)
+        sh(
+            "apt-get autoremove; apt-get clean",
+            env=environ,
+            timeout=600,
+            show_cmd=False,
+        )
 
 
 def installed_packages() -> list:
@@ -113,7 +116,7 @@ def npm_install(package: str, force: bool = False) -> None:
 
 def install_nodejs(version: str = "16.x", rm_lists: bool = True):
     src = f"setup_{version}"
-    purge_package_list(["yarn", "npm", "nodejs"])
+    purge_package_list("yarn npm nodejs")
     install_package_list("curl", rm_lists=False)
     cmd = f"sudo curl -sL https://deb.nodesource.com/{src} -o /nua/install_node.sh"
     sh(cmd)
@@ -166,15 +169,15 @@ def install_nodejs_via_nvm(home: Path | str = "/nua"):
         f"&& nvm alias default v{node_version} "
         f"&& rm -rf {nvm_dir}/.cache "
     )
-    _env = dict(os.environ)
-    sh(cmd, env=_env)
+    environ = os.environ.copy()
+    sh(cmd, env=environ)
 
 
 def pip_install(packages: list | str, update: bool = False) -> None:
     if isinstance(packages, str):
         packages = packages.strip().split()
     if not packages:
-        print("pip_install(): nothing to install")
+        warning("pip_install(): nothing to install")
         return
     option = "-U " if update else " "
     cmd = f"python -m pip install {option}{' '.join(packages)}"
@@ -184,7 +187,7 @@ def pip_install(packages: list | str, update: bool = False) -> None:
 def pip_install_glob(pattern: str) -> None:
     packages = [str(f) for f in Path.cwd().glob(pattern)]
     if not packages:
-        print("pip_install_glob(): nothing to install")
+        warning("pip_install_glob(): nothing to install")
         return
     cmd = f"python -m pip install {' '.join(packages)}"
     sh(cmd)
@@ -234,7 +237,7 @@ def install_mariadb_python(version: str = "1.1.4"):
         )
         sh(cmd, cwd=tmpdirname)
         pip_install_glob(f"tmpdirname/{stem}*.whl")
-    purge_package_list(["build-essential", "unzip"])
+    purge_package_list("build-essential unzip")
 
 
 def install_psycopg2_python():
@@ -267,7 +270,7 @@ def extract_all(archive: str | Path, dest: str | Path) -> Path:
         name = re.sub(r"-[0-9\.post]*$", "", name)
         result = Path(dest) / name
     if not result.exists():
-        print(f"expected '{result}' not found")
+        warning(f"expected '{result}' not found")
     return result
 
 
@@ -307,7 +310,7 @@ def environ_replace_in(str_path: str | Path, env: dict | None = None):
         return
     orig_env = {}
     if env:
-        orig_env = dict(os.environ)
+        orig_env = os.environ.copy()
         os.environ.update(env)
     try:
         # assuming it's an utf8 world

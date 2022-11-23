@@ -5,8 +5,8 @@ from functools import wraps
 from docker import from_env
 from docker.errors import APIError, BuildError, ImageNotFound
 from docker.models.images import Image
-from nua.lib.common.panic import error
-from nua.lib.common.rich_console import print_magenta, print_red
+from nua.lib.panic import error
+from nua.lib.rich_console import print_magenta, print_red
 from nua.lib.tool.state import verbosity
 
 LOCAL_CONFIG = {"size_unit_MiB": False}

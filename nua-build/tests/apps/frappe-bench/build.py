@@ -3,17 +3,17 @@ Make a docker image for frappe/bench
 """
 import os
 
-from nua.lib.common.actions import (  # pip_install_glob,
+from nua.lib.actions import (  # pip_install_glob,
     append_bashrc,
     install_nodejs_via_nvm,
     install_package_list,
     pip_install,
 )
-from nua.lib.common.shell import chown_r, sh
+from nua.lib.shell import chown_r, sh
 
 # from nua.runtime.nua_config import NuaConfig
 # from pathlib import Path
-# from nua.lib.common.shell import chmod_r, mkdir_p, rm_fr
+# from nua.lib.shell import chmod_r, mkdir_p, rm_fr
 
 BENCH_PKGS = """apt-utils build-essential git mariadb-client postgresql-client
     gettext-base wget libssl-dev fonts-cantarell xfonts-75dpi xfonts-base locales

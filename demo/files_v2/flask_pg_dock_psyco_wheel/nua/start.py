@@ -16,7 +16,7 @@ from flask_pg_dock_psyco.constants import (
     USER_PASSWORD,
 )
 
-from nua.lib.common.exec import exec_as_root
+from nua.lib.exec import exec_as_root
 from nua.runtime.postgres_manager import PostgresManager
 
 

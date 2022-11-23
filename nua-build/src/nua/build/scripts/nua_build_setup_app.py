@@ -10,8 +10,8 @@ from os import chdir
 from pathlib import Path
 from shutil import copy2
 
-from nua.lib.common.panic import error
-from nua.lib.common.shell import mkdir_p, sh
+from nua.lib.panic import error
+from nua.lib.shell import mkdir_p, sh
 from nua.runtime.nua_config import NuaConfig
 
 from ..constants import (

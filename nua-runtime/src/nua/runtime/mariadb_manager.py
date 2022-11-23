@@ -7,7 +7,7 @@ import importlib
 import os
 from pathlib import Path
 
-from nua.lib.common.exec import exec_as_root
+from nua.lib.exec import exec_as_root
 
 from .db_manager import DbManager
 from .utils import is_package_installed

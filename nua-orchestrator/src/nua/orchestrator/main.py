@@ -5,10 +5,10 @@ from pprint import pformat
 from typing import Optional
 
 import typer
-from nua.lib.common.actions import check_python_version
-from nua.lib.common.exec import is_current_user, set_nua_user
-from nua.lib.common.panic import error
-from nua.lib.common.rich_console import print_red
+from nua.lib.actions import check_python_version
+from nua.lib.exec import is_current_user, set_nua_user
+from nua.lib.panic import error
+from nua.lib.rich_console import print_red
 from nua.lib.tool.state import set_verbose
 
 from . import __version__

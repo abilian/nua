@@ -1,4 +1,4 @@
-from nua.lib.common.exec import exec_as_nua
+from nua.lib.exec import exec_as_nua
 
 env = {}
 

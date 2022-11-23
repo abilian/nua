@@ -14,3 +14,11 @@ def print_magenta(msg: str):
 
 def print_red(msg: str):
     console.print(msg, style="bold red")
+
+
+def print_bold(msg: str):
+    console.print(msg, style="bold")
+
+
+def print_bold_yellow(msg: str):
+    console.print(msg, style="bold yellow")

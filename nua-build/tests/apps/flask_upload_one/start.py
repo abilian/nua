@@ -1,4 +1,4 @@
-from nua.lib.common.exec import exec_as_root
+from nua.lib.exec import exec_as_root
 
 cmd = "gunicorn --worker-tmp-dir /dev/shm --workers 2 -b :80 flask_upload_one.wsgi:app"
 

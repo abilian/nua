@@ -12,8 +12,8 @@ Test ENV variables:
 
 import os
 
-from nua.lib.common.panic import error
-from nua.lib.common.rich_console import print_red
+from nua.lib.panic import error
+from nua.lib.rich_console import print_red
 
 from . import config
 from .certbot_strategies import apply_auto_strategy, apply_none_strategy

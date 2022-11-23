@@ -1,7 +1,7 @@
 from copy import deepcopy
 from pprint import pformat
 
-from nua.lib.common.panic import error, warning
+from nua.lib.panic import error, warning
 from nua.lib.tool.state import verbosity
 
 from .domain_split import DomainSplit

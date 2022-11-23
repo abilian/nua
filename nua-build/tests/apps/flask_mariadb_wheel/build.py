@@ -5,8 +5,8 @@ require:
 import os
 from pathlib import Path
 
-from nua.lib.common.actions import install_mariadb_python, pip_install_glob
-from nua.lib.common.shell import chmod_r, mkdir_p, rm_fr
+from nua.lib.actions import install_mariadb_python, pip_install_glob
+from nua.lib.shell import chmod_r, mkdir_p, rm_fr
 from nua.runtime.nua_config import NuaConfig
 
 

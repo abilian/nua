@@ -6,8 +6,8 @@ from typing import Callable
 
 import docker
 import docker.types
-from nua.lib.common.panic import error, warning
-from nua.lib.common.rich_console import print_green, print_magenta
+from nua.lib.panic import error, warning
+from nua.lib.rich_console import print_green, print_magenta
 from nua.lib.tool.state import verbosity
 from nua.selfbuilder.docker_build_utils import display_one_docker_img
 

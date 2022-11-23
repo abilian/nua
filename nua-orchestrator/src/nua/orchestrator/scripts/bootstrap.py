@@ -8,17 +8,17 @@ import os
 # import venv -> this induce bugs (venv from venv...), prefer direct /usr/bin/python3
 from pathlib import Path
 
-from nua.lib.common.actions import (
+from nua.lib.actions import (
     apt_final_clean,
     apt_update,
     check_python_version,
     install_package_list,
     string_in,
 )
-from nua.lib.common.exec import exec_as_nua, mp_exec_as_nua
-from nua.lib.common.panic import error, warning
-from nua.lib.common.rich_console import print_green, print_magenta, print_red
-from nua.lib.common.shell import chown_r, mkdir_p, rm_fr, sh, user_exists
+from nua.lib.exec import exec_as_nua, mp_exec_as_nua
+from nua.lib.panic import error, warning
+from nua.lib.rich_console import print_green, print_magenta, print_red
+from nua.lib.shell import chown_r, mkdir_p, rm_fr, sh, user_exists
 
 from .. import nua_env
 from ..bash import bash_as_nua

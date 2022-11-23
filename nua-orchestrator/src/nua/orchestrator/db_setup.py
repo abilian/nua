@@ -11,7 +11,7 @@ import os
 from pathlib import Path
 
 import tomli
-from nua.lib.common.rich_console import print_green, print_red
+from nua.lib.rich_console import print_green, print_red
 
 from . import __version__, config
 from .db import store

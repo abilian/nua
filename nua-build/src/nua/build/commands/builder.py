@@ -15,9 +15,9 @@ from pathlib import Path
 from shutil import copy2, copytree
 
 import docker
-from nua.lib.common.panic import error
-from nua.lib.common.rich_console import print_green
-from nua.lib.common.shell import rm_fr
+from nua.lib.panic import error
+from nua.lib.rich_console import print_green
+from nua.lib.shell import rm_fr
 from nua.lib.tool.state import verbosity
 from nua.runtime.nua_config import NuaConfig
 from nua.selfbuilder.constants import NUA_BUILDER_TAG

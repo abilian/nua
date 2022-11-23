@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 from pprint import pformat
 
-from nua.lib.common.panic import error
+from nua.lib.panic import error
 from paramiko import RSAKey
 
 from nua.orchestrator.db import store

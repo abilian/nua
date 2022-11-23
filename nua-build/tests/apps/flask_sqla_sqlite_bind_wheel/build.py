@@ -1,6 +1,6 @@
 import os
 
-from nua.lib.common.actions import pip_install_glob
+from nua.lib.actions import pip_install_glob
 
 # from nua.runtime.nua_config import NuaConfig
 

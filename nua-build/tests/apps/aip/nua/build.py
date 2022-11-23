@@ -1,10 +1,10 @@
 import os
 
-from nua.lib.common.actions import install_package_list, poetry_install
+from nua.lib.actions import install_package_list, poetry_install
 
 # from nua.runtime.nua_config import NuaConfig
 
-# from nua.lib.common.shell import mkdir_p, rm_fr, sh
+# from nua.lib.shell import mkdir_p, rm_fr, sh
 
 
 def main():

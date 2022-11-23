@@ -12,9 +12,9 @@ Default config of a Nua app will require from the host some base packages:
 
 import os
 
-from nua.lib.common.actions import install_package_list, pip_install
-from nua.lib.common.rich_console import print_green
-from nua.lib.common.shell import echo
+from nua.lib.actions import install_package_list, pip_install
+from nua.lib.rich_console import print_green
+from nua.lib.shell import echo
 
 # some packages may be alreay installed at Docker initial setup
 # Python stuff needed for nua:

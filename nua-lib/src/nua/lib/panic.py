@@ -1,6 +1,7 @@
 """Nua scripting: 'panic' and 'error' shortcuts."""
+from typing import Any
 
-from .rich_console import print_red
+from .rich_console import print_bold, print_bold_yellow, print_green, print_red
 
 
 def error(msg: str, status: int = 1, explanation: str = ""):
@@ -25,3 +26,15 @@ def _print(prefix: str, msg: str, explanation: str):
         print_red(f"{prefix}: {msg.capitalize()}.")
     if explanation:
         print_red(f"    {explanation}")
+
+
+def show(*args: Any):
+    print_green(" ".join(str(x) for x in args))
+
+
+def info(*args: Any):
+    print_bold(" ".join(str(x) for x in args))
+
+
+def bold(*args):
+    print_bold_yellow(" ".join(str(x) for x in args))

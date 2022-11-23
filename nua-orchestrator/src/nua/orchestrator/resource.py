@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from typing import Callable
 
-from nua.lib.common.panic import error, warning
+from nua.lib.panic import error, warning
 
 from .port_normalization import normalize_ports, ports_as_dict
 from .utils import sanitized_name

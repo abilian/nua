@@ -3,7 +3,7 @@
 
 from urllib.parse import urlparse
 
-from nua.lib.common.panic import error
+from nua.lib.panic import error
 
 
 class DomainSplit:

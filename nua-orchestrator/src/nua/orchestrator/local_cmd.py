@@ -6,7 +6,7 @@ import os
 # from contextlib import suppress
 from operator import itemgetter
 
-from nua.lib.common.panic import error
+from nua.lib.panic import error
 
 from . import __version__, config
 

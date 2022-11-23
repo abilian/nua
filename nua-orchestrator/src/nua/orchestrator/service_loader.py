@@ -1,6 +1,6 @@
 from importlib import import_module
 
-from nua.lib.common.rich_console import print_red
+from nua.lib.rich_console import print_red
 
 from .db import store
 

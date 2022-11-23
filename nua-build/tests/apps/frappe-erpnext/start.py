@@ -4,7 +4,7 @@ https://www.digitalocean.com/community/tutorials/
 
 import os
 
-from nua.lib.common.exec import exec_as_root
+from nua.lib.exec import exec_as_root
 
 # import mariadb
 # from flask_mariadb_wheel.constants import DB_HOST, DB_NAME, DB_USER, DB_USER_PWD
