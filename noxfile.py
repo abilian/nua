@@ -1,6 +1,6 @@
 import nox
-from nox.sessions import Session
-
+from pprint import pprint
+import os
 
 BASE_PYTHON_VERSION = "3.10"
 PYTHON_VERSIONS = ["3.10"]
@@ -21,6 +21,10 @@ SUB_REPOS = [
     "nua-build",
     "nua-orchestrator",
 ]
+
+print("Env:")
+pprint(dict(sorted(os.environ.items())))
+print()
 
 
 @nox.session(python=PYTHON_VERSIONS)

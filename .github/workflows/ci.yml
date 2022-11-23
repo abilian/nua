@@ -13,37 +13,14 @@ jobs:
       fail-fast: false
       matrix:
         # os: [ubuntu, windows, macos]
-        os: [ubuntu, macos]
-        python-version: ['3.9', '3.10', '3.11']
-    steps:
-#       - if: ${{ matrix.os == 'ubuntu' }}
-#         run: |
-#           sudo apt-get install strace poppler-utils
-#           sudo yarn global add less
-#       - if: ${{ matrix.os == 'macos' }}
-#         run: |
-#           brew install libmagic poppler
-#           yarn global add less
-
+        # os: [ubuntu, macos]
+        os: [ubuntu]
+        # python-version: ['3.10', '3.11']
+        python-version: ['3.10']
+      steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - run: pip install -U pip setuptools wheel nox tox tox-gh-actions poetry
-      - id: pip-cache
-        run: echo "::set-output name=dir::$(pip cache dir)"
-      - uses: actions/cache@v2
-        with:
-          path: ${{ steps.pip-cache.outputs.dir }}
-          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('poetry.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-${{ matrix.python-version }}-
-            ${{ runner.os }}-pip-
-
+      - run: pip install -U pip setuptools wheel nox poetry
       - run: nox
-
-#       - if: ${{ matrix.os == 'ubuntu' && matrix.python-version == '3.8' }}
-#         run: |
-#           pip install codecov
-#           # doit coverage
-#           codecov
