@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-build"
-version = "0.4.43"
+version = "0.4.44"
 description = "Nua build package (currently: build, core build, runtime)"
 authors = ["Stefane Fermigier <sf@abilian.com>", "Jerome Dumonteil <jd@abilian.com>"]
 license = "AGPL"
@@ -19,9 +19,9 @@ python = "^3.10"
 
 # Internal deps "poor man's monorepo"
 # nua---lib = { path = "../nua-lib/", develop = false }
-nua-lib = "==0.4.43"
-nua-runtime = "==0.4.43"
-nua-selfbuilder = "==0.4.43"
+nua-lib = "==0.4.44"
+nua-runtime = "==0.4.44"
+nua-selfbuilder = "==0.4.44"
 
 setuptools = "^65.5.0"
 tomli = "^2.0"

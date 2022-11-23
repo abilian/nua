@@ -8,10 +8,12 @@ CODE_URL = "https://github.com/abilian/nua/archive/refs/heads/main.zip"
 # NUA_LINUX_BASE = "ubuntu:jammy-20221003"
 NUA_LINUX_BASE = "ubuntu:jammy-20221101"
 
-NUA_BUILDER_TAG = f"nua-builder:{__version__}"
 NUA_PYTHON_TAG = f"nua-python:{__version__}"
+NUA_BUILDER_TAG = f"nua-builder:{__version__}"
+NUA_BUILDER_NODE_TAG = f"nua-builder-nodejs16:{__version__}"
 
 _folder = Path(__file__).parent
 # DOCKERFILE_PYTHON = _folder / "dockerfiles" / "Dockerfile_nua_python"
 DOCKERFILE_PYTHON = _folder / "dockerfiles" / "Dockerfile_nua_python_slim"
 DOCKERFILE_BUILDER = _folder / "dockerfiles" / "Dockerfile_nua_builder_slim"
+DOCKERFILE_BUILDER_NODE = _folder / "dockerfiles" / "Dockerfile_nua_builder_node"

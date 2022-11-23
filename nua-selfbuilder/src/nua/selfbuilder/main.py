@@ -24,11 +24,18 @@ option_force = typer.Option(
     help="Force build of images.",
 )
 
-option_dowload = typer.Option(
+option_download = typer.Option(
     False,
     "--dowload",
     "-d",
     help="Force download of Nua source code.",
+)
+
+option_all = typer.Option(
+    True,
+    "--all",
+    "-a",
+    help="Build all base images (Nodejs, ...).",
 )
 
 option_version = typer.Option(
@@ -53,11 +60,12 @@ def _version_string():
 @app.command()
 def main(
     force: bool = option_force,
-    download: bool = option_dowload,
+    download: bool = option_download,
+    all: bool = option_all,
     verbose: int = option_verbose,
     version: Optional[bool] = option_version,
 ):
     """Nua-self-build CLI inferface."""
     set_verbose(verbose)
     image_builder = NUAImageBuilder()
-    image_builder.build(force=force, download=download)
+    image_builder.build(force=force, download=download, all=all)

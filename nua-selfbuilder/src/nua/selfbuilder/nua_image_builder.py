@@ -6,15 +6,16 @@ from pathlib import Path
 from shutil import copy2
 
 import docker
-from nua.lib.panic import error
-from nua.lib.rich_console import print_green
+from nua.lib.panic import bold, error, show
 from nua.lib.shell import mkdir_p
 from nua.lib.tool.state import verbosity
 
 from . import __version__ as nua_version
 from .constants import (
     DOCKERFILE_BUILDER,
+    DOCKERFILE_BUILDER_NODE,
     DOCKERFILE_PYTHON,
+    NUA_BUILDER_NODE_TAG,
     NUA_BUILDER_TAG,
     NUA_LINUX_BASE,
     NUA_PYTHON_TAG,
@@ -35,17 +36,21 @@ class NUAImageBuilder:
         self.force = False
         self.download = False
 
-    def build(self, force: bool = False, download: bool = False) -> dict:
+    def build(
+        self, force: bool = False, download: bool = False, all: bool = True
+    ) -> dict:
         self.force = force
         self.download = download
         if verbosity(2):
             if self.force:
-                print("Force rebuild of images")
+                show("Force rebuild of images")
             if self.download:
-                print("Force download of source code")
+                show("Force download of source code")
         self.orig_wd = Path.cwd()
         self.ensure_nua_python()
         self.ensure_nua_builder()
+        if all:
+            self.ensure_nua_builder_node()
         chdir(self.orig_wd)
         return self.images_path
 
@@ -65,26 +70,46 @@ class NUAImageBuilder:
         if verbosity(1):
             display_docker_img(NUA_BUILDER_TAG)
 
+    def ensure_nua_builder_node(self):
+        if self.force or not docker_require(NUA_BUILDER_NODE_TAG):
+            if self.force:
+                docker_remove_locally(NUA_BUILDER_NODE_TAG)
+            self.build_nua_builder_node()
+        if verbosity(1):
+            display_docker_img(NUA_BUILDER_NODE_TAG)
+
     def build_nua_python(self):
-        print_green(f"Build of the docker image {NUA_PYTHON_TAG}")
+        bold(f"Build of the docker image {NUA_PYTHON_TAG}")
         with tempfile.TemporaryDirectory() as build_dir:
             build_path = Path(build_dir)
             if verbosity(3):
-                print(f"build directory: {build_path}")
+                show(f"build directory: {build_path}")
             copy2(DOCKERFILE_PYTHON, build_path)
             chdir(build_path)
             docker_build_python()
 
     def build_nua_builder(self):
-        print_green(f"Build of the docker image {NUA_BUILDER_TAG}")
+        bold(f"Build of the docker image {NUA_BUILDER_TAG}")
         with tempfile.TemporaryDirectory() as build_dir:
             build_path = Path(build_dir)
             if verbosity(3):
-                print(f"build directory: {build_path}")
+                show(f"build directory: {build_path}")
             copy2(DOCKERFILE_BUILDER, build_path)
             self.copy_wheels(build_path)
             chdir(build_path)
             docker_build_builder()
+
+    def build_nua_builder_node(self):
+        bold(f"Build of the docker image {NUA_BUILDER_NODE_TAG}")
+        with tempfile.TemporaryDirectory() as build_dir:
+            build_path = Path(build_dir)
+            if verbosity(3):
+                show(f"build directory: {build_path}")
+            # Fixme: later do a dedicated dockerfile for nodejs, now using base image
+            copy2(DOCKERFILE_BUILDER_NODE, build_path)
+            self.copy_wheels(build_path)
+            chdir(build_path)
+            docker_build_builder_node()
 
     def copy_wheels(self, build_path: Path):
         wheel_path = build_path / "nua_build_whl"
@@ -121,6 +146,24 @@ def docker_build_builder():
         dockerfile=Path(DOCKERFILE_BUILDER).name,
         buildargs={"nua_python_tag": NUA_PYTHON_TAG, "nua_version": nua_version},
         tag=NUA_BUILDER_TAG,
+        labels={
+            "APP_ID": app_id,
+            "NUA_TAG": NUA_BUILDER_TAG,
+            "NUA_BUILD_VERSION": nua_version,
+        },
+        rm=True,
+    )
+
+
+@docker_build_log_error
+def docker_build_builder_node():
+    app_id = "nua-builder-nodejs16"
+    client = docker.from_env()
+    image, tee = client.images.build(
+        path=".",
+        dockerfile=Path(DOCKERFILE_BUILDER_NODE).name,
+        buildargs={"nua_builder_tag": NUA_BUILDER_TAG, "nua_version": nua_version},
+        tag=NUA_BUILDER_NODE_TAG,
         labels={
             "APP_ID": app_id,
             "NUA_TAG": NUA_BUILDER_TAG,
