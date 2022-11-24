@@ -12,7 +12,7 @@ from nua.lib.tool.state import verbosity
 LOCAL_CONFIG = {"size_unit_MiB": False}
 
 
-def print_log_stream(docker_log):
+def print_log_stream(docker_log: list):
     for line in docker_log:
         if "stream" in line:
             print("    ", line["stream"].strip())

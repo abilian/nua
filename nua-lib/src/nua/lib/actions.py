@@ -5,6 +5,7 @@ import re
 import sys
 import tarfile
 import tempfile
+from contextlib import contextmanager
 from glob import glob
 from pathlib import Path
 from urllib.request import urlopen
@@ -40,7 +41,7 @@ def build_python(path: str | Path = ""):
 #
 # Other stuff
 #
-def _apt_remove_lists():
+def apt_remove_lists():
     environ = os.environ.copy()
     sh("rm -rf /var/lib/apt/lists/*", env=environ, timeout=600)
 
@@ -55,7 +56,30 @@ def apt_update():
 def apt_final_clean():
     environ = os.environ.copy()
     environ["DEBIAN_FRONTEND"] = "noninteractive"
-    sh("apt-get autoremove; apt-get clean", env=environ, timeout=600, show_cmd=False)
+    cmd = "apt-get autoremove -y; apt-get clean"
+    sh(cmd, env=environ, timeout=600)
+
+
+def _install_packages(packages: list, update: bool):
+    if packages:
+        environ = os.environ.copy()
+        environ["DEBIAN_FRONTEND"] = "noninteractive"
+        update_cmd = "apt-get update --fix-missing; " if update else ""
+        cmd = f"{update_cmd}apt-get install --no-install-recommends -y {' '.join(packages)}"
+        sh(cmd, env=environ, timeout=600)
+    else:
+        warning("install_package(): nothing to install")
+
+
+def _purge_packages(packages: list):
+    if not packages:
+        return
+    print(f"Purge packages: {' '.join(packages)}")
+    environ = os.environ.copy()
+    environ["DEBIAN_FRONTEND"] = "noninteractive"
+    for package in packages:
+        cmd = f"apt-get purge -y {package} || true"
+        sh(cmd, env=environ, timeout=600, show_cmd=False)
 
 
 def install_package_list(
@@ -66,40 +90,36 @@ def install_package_list(
 ):
     if isinstance(packages, str):
         packages = packages.strip().split()
-    if not packages:
-        warning("install_package_list(): nothing to install")
-        return
-
-    environ = os.environ.copy()
-    environ["DEBIAN_FRONTEND"] = "noninteractive"
-    update_cmd = "apt-get update --fix-missing; " if update else ""
-    cmd = f"{update_cmd}apt-get install --no-install-recommends -y {' '.join(packages)}"
-    sh(cmd, env=environ, timeout=600)
-
+    _install_packages(packages, update)
     if clean:
-        sh("apt-get autoremove; apt-get clean", env=environ, timeout=600)
+        apt_final_clean()
     if rm_lists:
-        _apt_remove_lists()
+        apt_remove_lists()
 
 
-def purge_package_list(packages: list | str, clean: bool = True):
+def purge_package_list(packages: list | str):
     if isinstance(packages, str):
         packages = packages.strip().split()
-    if not packages:
-        warning("purge_package_list(): nothing to remove")
-        return
-    environ = os.environ.copy()
-    environ["DEBIAN_FRONTEND"] = "noninteractive"
-    for package in packages:
-        cmd = f"apt-get purge -y {package} || true"
-        sh(cmd, env=environ, timeout=600, show_cmd=False)
-    if clean:
-        sh(
-            "apt-get autoremove; apt-get clean",
-            env=environ,
-            timeout=600,
-            show_cmd=False,
-        )
+    _purge_packages(packages)
+    apt_final_clean()
+
+
+@contextmanager
+def tmp_install_package_list(
+    packages: list | str,
+    update: bool = True,
+    rm_lists: bool = True,
+):
+    if isinstance(packages, str):
+        packages = packages.strip().split()
+    _install_packages(packages, update)
+    try:
+        yield
+    finally:
+        _purge_packages(packages)
+        apt_final_clean()
+        if rm_lists:
+            apt_remove_lists()
 
 
 def installed_packages() -> list:
@@ -115,11 +135,11 @@ def npm_install(package: str, force: bool = False) -> None:
 
 
 def install_nodejs(version: str = "16.x", rm_lists: bool = True):
-    src = f"setup_{version}"
     purge_package_list("yarn npm nodejs")
-    install_package_list("curl", rm_lists=False)
-    cmd = f"sudo curl -sL https://deb.nodesource.com/{src} -o /nua/install_node.sh"
-    sh(cmd)
+    url = f"https://deb.nodesource.com/setup_{version}"
+    target = Path("/nua") / "install_node.sh"
+    with urlopen(url) as remote:  # noqa S310
+        target.write_bytes(remote.read())
     cmd = "bash /nua/install_node.sh"
     sh(cmd)
     cmd = "apt-get install -y nodejs"
@@ -129,7 +149,7 @@ def install_nodejs(version: str = "16.x", rm_lists: bool = True):
     cmd = "/usr/bin/npm install -g --force yarn"
     sh(cmd)
     if rm_lists:
-        _apt_remove_lists()
+        apt_remove_lists()
 
 
 def append_bashrc(home: str | Path, content: str):
@@ -219,7 +239,7 @@ def install_mariadb_python(version: str = "1.1.4"):
             "build-essential",
         ]
     )
-    with tempfile.TemporaryDirectory(dir="/var/tmp") as tmpdirname:
+    with tempfile.TemporaryDirectory(dir="/var/tmp") as tmpdirname:  # noqa S108
         cmd = f"python -m pip download mariadb=={version}"
         result = sh(cmd, cwd=tmpdirname, capture_output=True)
         saved_file = re.search("Saved(.*)\n", result).group(1).strip()  # type: ignore

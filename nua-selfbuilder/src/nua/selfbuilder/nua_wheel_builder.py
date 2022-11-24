@@ -22,18 +22,23 @@ class NuaWheelBuilder:
         self.download = download
 
     def make_wheels(self) -> bool:
-        if not self.download and self.check_devel_mode():
+        if self.download:
+            return self._make_wheels_download()
+        return self._make_wheels_local()
+
+    def _make_wheels_download(self) -> bool:
+        if verbosity(3):
+            print("make_wheels(): download of source code forced")
+        return self.build_from_download()
+
+    def _make_wheels_local(self) -> bool:
+        if self.check_devel_mode():
             if verbosity(3):
                 print("make_wheels(): local git found")
-            done = self.build_from_local()
-        else:
-            if verbosity(3):
-                if self.download:
-                    print("make_wheels(): download of source code forced")
-                else:
-                    print("make_wheels(): local git not found, will download")
-            done = self.build_from_download()
-        return done
+            return self.build_from_local()
+        if verbosity(3):
+            print("make_wheels(): local git not found, will download")
+        return self.build_from_download()
 
     @staticmethod
     def _nua_top() -> Path:

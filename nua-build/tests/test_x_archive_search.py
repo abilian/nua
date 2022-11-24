@@ -10,13 +10,14 @@ from nua.build.archive_search import ArchiveSearch
 
 
 def test_archive_search():
-    src_path = Path(__file__).parent / "apps" / "nodejs_install"
-    image_target = "nua-nodejs-test:1.0-1"
+    app_id = "flask-one-wheel"
+    image_target = "nua-flask-one-wheel:1.2-1"
+    src_path = Path(__file__).parent / "apps" / app_id
     with tempfile.TemporaryDirectory(dir="/tmp") as tmpdirname:
-        _build_test_search(tmpdirname, src_path, image_target)
+        _build_test_search(tmpdirname, src_path, image_target, app_id)
 
 
-def _build_test_search(tmpdirname, src_path, image_target):
+def _build_test_search(tmpdirname, src_path, image_target, app_id):
     build_dir = Path(tmpdirname) / "build"
     copytree(src_path, build_dir)
     dock = docker.from_env()
@@ -31,4 +32,4 @@ def _build_test_search(tmpdirname, src_path, image_target):
     sp.run(cmd)
     arch_search = ArchiveSearch(archive)
     internal_config = arch_search.nua_config_dict()
-    assert internal_config["metadata"]["id"] == "nodejs-test"
+    assert internal_config["metadata"]["id"] == app_id

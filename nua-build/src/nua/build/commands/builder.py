@@ -24,6 +24,7 @@ from nua.selfbuilder.docker_build_utils import (
     display_docker_img,
     docker_build_log_error,
     docker_get_locally,
+    print_log_stream,
 )
 from nua.selfbuilder.nua_image_builder import NUAImageBuilder
 
@@ -216,11 +217,16 @@ class Builder:
             display_docker_img(nua_tag)
         if save:
             self.save(image, nua_tag)
+        if verbosity(3):
+            print("-" * 60)
+            print("Build log:")
+            print_log_stream(tee)
+            print("-" * 60)
 
     def save(self, image, nua_tag):
-        dest = f"/var/tmp/{nua_tag}.tar"
+        dest = f"/var/tmp/{nua_tag}.tar"  # noqa S108
         with open(dest, "wb") as tarfile:
-            for chunk in image.save(named=True):
+            for chunk in image.save(chunk_size=2**25, named=True):
                 tarfile.write(chunk)
         if verbosity(1):
             show("Docker image saved:")
