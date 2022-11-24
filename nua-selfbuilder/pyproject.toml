@@ -22,6 +22,7 @@ tomli = "^2.0"
 typer = {extras = ["all"], version = "^0.7.0"}
 rich = "^12.4.4"
 docker = "^6.0"
+paramiko = "*"
 # mariadb  # same
 
 [tool.poetry.group.dev.dependencies]
