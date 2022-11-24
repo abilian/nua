@@ -12,7 +12,7 @@ from nua.build.archive_search import ArchiveSearch
 def test_archive_search():
     app_id = "flask-one-wheel"
     image_target = "nua-flask-one-wheel:1.2-1"
-    src_path = Path(__file__).parent / "apps" / app_id
+    src_path = Path(__file__).parent / "apps" / app_id.replace("-", "_")
     with tempfile.TemporaryDirectory(dir="/tmp") as tmpdirname:
         _build_test_search(tmpdirname, src_path, image_target, app_id)
 
