@@ -260,6 +260,13 @@ def install_mariadb_python(version: str = "1.1.4"):
     purge_package_list("build-essential unzip")
 
 
+def install_mariadb_1_1_5():
+    """Connector for MariaDB, since version 1.1.5post3"""
+    install_package_list("libmariadb3 mariadb-client", rm_lists=False)
+    with tmp_install_package_list("libmariadb-dev python3-dev build-essential"):
+        pip_install("mariadb")
+
+
 def install_psycopg2_python():
     """Connector for PostgreSQL"""
     install_package_list("libpq-dev")

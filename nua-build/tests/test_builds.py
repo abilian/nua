@@ -21,7 +21,6 @@ app_dirs = [
     "flask_upload_one",
     "flask_upload_sshfs",
     "flask_upload_tmpfs",
-    "flask_mariadb_wheel",
 ]
 
 # app_dirs = [dir for dir in (root / "apps").iterdir() if dir.is_dir()]
