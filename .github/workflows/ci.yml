@@ -25,8 +25,8 @@ jobs:
         nox_action: ${{ matrix.action }}
         nox_sub_repo: ${{ matrix.sub_repo }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
       - run: pip install -U pip setuptools wheel nox poetry
@@ -37,6 +37,6 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
-          channel: app-alerts
+          channel: code
           status: FAILED
           color: danger
