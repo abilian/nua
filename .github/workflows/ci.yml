@@ -31,3 +31,12 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: pip install -U pip setuptools wheel nox poetry
       - run: nox -e "${{ matrix.action }}(sub_repo='${{ matrix.sub_repo }}')"
+      - name: Notify slack fail
+        if: failure()
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel: app-alerts
+          status: FAILED
+          color: danger
