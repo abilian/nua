@@ -18,11 +18,16 @@ jobs:
         os: [ubuntu]
         # python-version: ['3.10', '3.11']
         python-version: ['3.10']
+        action: ["pytest", "lint"]
+        sub_repo: ["nua-lib", "nua-runtime", "nua-selfbuilder", "nua-build"] # + "nua-orchestrator"
 
+    env:
+        nox_action: ${{ matrix.action }}
+        nox_sub_repo: ${{ matrix.sub_repo }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
       - run: pip install -U pip setuptools wheel nox poetry
-      - run: nox
+      - run: nox -e "${{ matrix.action }}(sub_repo='${{ matrix.sub_repo }}')"
