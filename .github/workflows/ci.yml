@@ -18,7 +18,7 @@ jobs:
         os: [ubuntu]
         # python-version: ['3.10', '3.11']
         python-version: ['3.10']
-        action: ["pytest", "lint"]
+        action: ["pytest-3.10", "lint"]
         sub_repo: ["nua-lib", "nua-runtime", "nua-selfbuilder", "nua-build"] # + "nua-orchestrator"
 
     env:

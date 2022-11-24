@@ -22,10 +22,6 @@ SUB_REPOS = [
     "nua-orchestrator",
 ]
 
-print("Env:")
-pprint(dict(sorted(os.environ.items())))
-print()
-
 
 @nox.session(python=PYTHON_VERSIONS)
 @nox.parametrize("sub_repo", SUB_REPOS)
