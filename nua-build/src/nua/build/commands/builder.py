@@ -15,7 +15,7 @@ from pathlib import Path
 from shutil import copy2, copytree
 
 import docker
-from nua.lib.panic import bold, error, info, show
+from nua.lib.panic import bold, error, info, show, warning
 from nua.lib.shell import rm_fr
 from nua.lib.tool.state import verbosity
 from nua.runtime.constants import NUA_BUILDER_NODE_TAG, NUA_BUILDER_TAG
@@ -60,13 +60,13 @@ class Builder:
             self.make_docker_image()
 
     def check_base_image(self):
-        if not docker_get_locally(self.config.nua_base):
-            error(
-                f"Required Nua base image '{self.config.nua_base}' was not found.",
-                explanation=(
-                    f"Nua images are:\n{NUA_BUILDER_TAG}\n{NUA_BUILDER_NODE_TAG}"
-                ),
-            )
+        if docker_get_locally(self.config.nua_base):
+            return
+        warning(f"Required Nua base image '{self.config.nua_base}' was not found.")
+        if self.config.nua_base not in (NUA_BUILDER_TAG, NUA_BUILDER_NODE_TAG):
+            error(f"Nua images are:\n{NUA_BUILDER_TAG}\n{NUA_BUILDER_NODE_TAG}")
+        image_builder = NUAImageBuilder()
+        image_builder.build(all=True)
 
     def make_docker_image(self):
         self.make_build_dir()
