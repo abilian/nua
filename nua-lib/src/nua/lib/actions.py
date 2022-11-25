@@ -86,14 +86,14 @@ def install_package_list(
     packages: list | str,
     update: bool = True,
     clean: bool = True,
-    rm_lists: bool = True,
+    keep_lists: bool = False,
 ):
     if isinstance(packages, str):
         packages = packages.strip().split()
     _install_packages(packages, update)
     if clean:
         apt_final_clean()
-    if rm_lists:
+    if not keep_lists:
         apt_remove_lists()
 
 
@@ -108,7 +108,7 @@ def purge_package_list(packages: list | str):
 def tmp_install_package_list(
     packages: list | str,
     update: bool = True,
-    rm_lists: bool = True,
+    keep_lists: bool = False,
 ):
     if isinstance(packages, str):
         packages = packages.strip().split()
@@ -118,7 +118,7 @@ def tmp_install_package_list(
     finally:
         _purge_packages(packages)
         apt_final_clean()
-        if rm_lists:
+        if not keep_lists:
             apt_remove_lists()
 
 
@@ -134,7 +134,7 @@ def npm_install(package: str, force: bool = False) -> None:
     sh(cmd)
 
 
-def install_nodejs(version: str = "16.x", rm_lists: bool = True):
+def install_nodejs(version: str = "16.x", keep_lists: bool = False):
     purge_package_list("yarn npm nodejs")
     url = f"https://deb.nodesource.com/setup_{version}"
     target = Path("/nua") / "install_node.sh"
@@ -148,7 +148,7 @@ def install_nodejs(version: str = "16.x", rm_lists: bool = True):
     sh(cmd)
     cmd = "/usr/bin/npm install -g --force yarn"
     sh(cmd)
-    if rm_lists:
+    if not keep_lists:
         apt_remove_lists()
 
 
@@ -167,7 +167,7 @@ def install_nodejs_via_nvm(home: Path | str = "/nua"):
     node_version = "16.18.0"
     # nvm_version = "v0.39.0"
     nvm_dir = f"{home}/.nvm"
-    install_package_list("wget", rm_lists=False)
+    install_package_list("wget", keep_lists=True)
     bashrc_modif = (
         f'export PATH="{nvm_dir}/versions/node/v{node_version}/bin/:$PATH"\n'
         f'export NVM_DIR="{nvm_dir}"\n'
@@ -262,7 +262,7 @@ def install_mariadb_python(version: str = "1.1.4"):
 
 def install_mariadb_1_1_5():
     """Connector for MariaDB, since version 1.1.5post3"""
-    install_package_list("libmariadb3 mariadb-client", rm_lists=False)
+    install_package_list("libmariadb3 mariadb-client", keep_lists=True)
     with tmp_install_package_list("libmariadb-dev python3-dev build-essential"):
         pip_install("mariadb")
 

@@ -102,7 +102,7 @@ def bootstrap_install_postgres() -> bool:
         [f"postgresql-{PG_VERSION}", "libpq-dev"],
         update=False,
         clean=False,
-        rm_lists=False,
+        keep_lists=True,
     )
     allow_docker_connection()
     return pg_check_installed()

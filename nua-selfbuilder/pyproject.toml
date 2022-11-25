@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-selfbuilder"
-version = "0.4.51"
+version = "0.4.52"
 description = "Nua self builder"
 authors = ["Stefane Fermigier <sf@abilian.com>", "Jerome Dumonteil <jd@abilian.com>"]
 license = "AGPL"
@@ -14,8 +14,8 @@ nua-self-build = "nua.selfbuilder.main:app"
 
 [tool.poetry.dependencies]
 # nua---lib = { path = "../nua-lib/", develop = false }
-nua-lib = "==0.4.51"
-nua-runtime = "==0.4.51"
+nua-lib = "==0.4.52"
+nua-runtime = "==0.4.52"
 python = "^3.10"
 setuptools = "^65.5.0"
 tomli = "^2.0"

@@ -141,7 +141,7 @@ def bootstrap_install_mariadb() -> bool:
         ],
         update=False,
         clean=False,
-        rm_lists=False,
+        keep_lists=True,
     )
     allow_docker_connection()
     return mariadb_check_installed()
