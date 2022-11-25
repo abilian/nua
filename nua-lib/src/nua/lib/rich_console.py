@@ -1,24 +1,40 @@
-"""Define console (singleton)"""
-import rich.console
+from functools import wraps
 
-console = rich.console.Console()
+from .tool.color_str import ColorStr
+from .tool.state import use_color
 
 
+def if_color(func):
+    @wraps(func)
+    def wrapper(*args):
+        if use_color():
+            return func(*args)
+        else:
+            return print(*args)
+
+    return wrapper
+
+
+@if_color
 def print_green(msg: str):
-    console.print(msg, style="green")
+    print(ColorStr.green(msg))
 
 
+@if_color
 def print_magenta(msg: str):
-    console.print(msg, style="magenta")
+    print(ColorStr.magenta(msg))
 
 
+@if_color
 def print_red(msg: str):
-    console.print(msg, style="bold red")
+    print(ColorStr.red_bold(msg))
 
 
+@if_color
 def print_bold(msg: str):
-    console.print(msg, style="bold")
+    print(ColorStr.colorize(msg, bold=True))
 
 
+@if_color
 def print_bold_yellow(msg: str):
-    console.print(msg, style="bold yellow")
+    print(ColorStr.yellow_bold(msg))

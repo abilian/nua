@@ -9,7 +9,7 @@ from nua.lib.actions import check_python_version
 from nua.lib.exec import is_current_user, set_nua_user
 from nua.lib.panic import error
 from nua.lib.rich_console import print_red
-from nua.lib.tool.state import set_verbose
+from nua.lib.tool.state import set_color, set_verbose
 
 from . import __version__
 from .commands.deploy import deploy_nua_sites
@@ -47,6 +47,7 @@ opt_version = typer.Option(
 opt_verbose = typer.Option(
     0, "--verbose", "-v", help="Show more informations, until -vvv. ", count=True
 )
+option_color = typer.Option(True, "--color/--no-color", help="Colorize messages. ")
 
 
 def _version_string():
@@ -100,9 +101,11 @@ def search_local(app: str = arg_search_app):
 def deploy_local(
     app_name: str = arg_deploy_app,
     verbose: int = opt_verbose,
+    colorize: bool = option_color,
 ):
     """Search, install and launch Nua image."""
     set_verbose(verbose)
+    set_color(colorize)
     if app_name.endswith(".toml") and Path(app_name).is_file():
         initialization()
         deploy_nua_sites(app_name)

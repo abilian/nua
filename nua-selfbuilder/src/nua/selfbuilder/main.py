@@ -3,7 +3,7 @@
 from typing import Optional
 
 import typer
-from nua.lib.tool.state import set_verbose
+from nua.lib.tool.state import set_color, set_verbose
 
 from . import __version__
 from .nua_image_builder import NUAImageBuilder
@@ -51,6 +51,8 @@ option_verbose = typer.Option(
     0, "--verbose", "-v", help="Show more informations, until -vvv. ", count=True
 )
 
+option_color = typer.Option(True, "--color/--no-color", help="Colorize messages. ")
+
 
 def _version_string():
     typer.echo(f"nua-self-build version: {__version__}")
@@ -63,9 +65,11 @@ def main(
     download: bool = option_download,
     all: bool = option_all,
     verbose: int = option_verbose,
+    colorize: bool = option_color,
     version: Optional[bool] = option_version,
 ):
     """Nua-self-build CLI inferface."""
     set_verbose(verbose)
+    set_color(colorize)
     image_builder = NUAImageBuilder()
     image_builder.build(force=force, download=download, all=all)

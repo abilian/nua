@@ -11,7 +11,7 @@ from typing import Optional
 
 import typer
 from nua.lib.rich_console import print_green
-from nua.lib.tool.state import set_verbose
+from nua.lib.tool.state import set_color, set_verbose
 
 from . import __version__
 from .commands.builder import Builder, build_nua_builder_if_needed
@@ -44,6 +44,8 @@ option_verbose = typer.Option(
     0, "--verbose", "-v", help="Show more informations, until -vvv. ", count=True
 )
 
+option_color = typer.Option(True, "--color/--no-color", help="Colorize messages. ")
+
 
 def _version_string():
     typer.echo(f"nua-build version: {__version__}")
@@ -69,9 +71,11 @@ def main(
     config_file: Optional[str] = argument_config,
     version: Optional[bool] = option_version,
     verbose: int = option_verbose,
+    colorize: bool = option_color,
 ):
     """Nua-build CLI inferface."""
     set_verbose(verbose)
+    set_color(colorize)
     initialization()
     build_nua_builder_if_needed()
     builder = Builder(config_file)
