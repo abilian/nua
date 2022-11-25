@@ -1,10 +1,11 @@
 """
-The build will require:  libmariadb3 libmariadb-dev for the mariadb python connector
+require:
+    libmariadb3 libmariadb-dev
 """
 import os
 from pathlib import Path
 
-from nua.lib.actions import install_mariadb_python, pip_install_glob
+from nua.lib.actions import install_mariadb_1_1_5
 from nua.lib.shell import chmod_r, mkdir_p, rm_fr
 from nua.runtime.nua_config import NuaConfig
 
