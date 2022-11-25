@@ -22,4 +22,4 @@ def verbosity(threshold: int = 1) -> bool:
 def use_color() -> bool:
     if "NO_COLOR" in os.environ:
         return False
-    return STATE["colorize"]
+    return bool(STATE["colorize"])  # noqa
