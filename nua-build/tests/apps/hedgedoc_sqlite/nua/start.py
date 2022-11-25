@@ -1,5 +1,5 @@
-from nua.lib.exec import exec_as_root
+import os
 
-setup_db()
+from nua.lib.exec import exec_as_nua
 
-exec_as_root("sleep 3600", env=os.environ)
+exec_as_nua("node app.js", cwd="/nua/build/hedgedoc", env=os.environ)

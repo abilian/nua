@@ -30,8 +30,9 @@ def main():
     # to test: can we remove {hedge_src}
     # cmd = f"yarn cache clean ; rm -fr /tmp/* ; rm -fr {hedge_src}"
 
+    install_package_list(packages, keep_lists=True)
+
     with tmp_install_package_list(tmp_packages):
-        install_package_list(packages, keep_lists=True)
         npm_install("node-gyp", force=True)
         hedge_src = download_extract(url, "/nua/build")
         chdir(hedge_src)
