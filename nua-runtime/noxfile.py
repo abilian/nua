@@ -6,18 +6,18 @@ PYTHON_VERSIONS = ["3.10"]
 
 @nox.session(python=PYTHON_VERSIONS, venv_backend="venv")
 def lint(session: nox.Session) -> None:
-    session.run("pip", "install", "-e", "../nua-lib")
-    # with session.chdir("../nua-lib"):
-    #     session.run("poetry", "install", external=True)
-    session.run("poetry", "install", external=True)
-    session.run("pip", "check", external=True)
+    _install(session)
     session.run("make", "lint", external=True)
 
 
 @nox.session(python=PYTHON_VERSIONS, venv_backend="venv")
 def pytest(session: nox.Session) -> None:
-    with session.chdir("../nua-lib"):
-        session.run("poetry", "install", external=True)
+    _install(session)
+    session.run("pytest", "--tb=short", external=True)
+
+
+def _install(session: nox.Session):
+    session.run("pip", "install", "../nua-lib")
     session.run("poetry", "install", external=True)
     session.run("pip", "check", external=True)
-    session.run("pytest", "--tb=short", external=True)
+    session.run("poetry", "check", external=True)

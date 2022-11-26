@@ -9,22 +9,17 @@ nox.options.reuse_existing_virtualenvs = True
 @nox.session(python=PYTHON_VERSIONS, venv_backend="venv")
 def lint(session: nox.Session) -> None:
     _install(session)
-    session.run("pip", "check", external=True)
     session.run("make", "lint", external=True)
 
 
 @nox.session(python=PYTHON_VERSIONS, venv_backend="venv")
 def pytest(session: nox.Session) -> None:
     _install(session)
-    # session.run("bash", "generate_img_wheels.sh", external=True)
     session.run("pytest", "--tb=short", external=True)
 
 
 def _install(session):
-    session.run("poetry", "install", "--sync", external=True)
-    with session.chdir("../nua-lib"):
-        session.run("poetry", "install", external=True)
-    with session.chdir("../nua-runtime"):
-        session.run("poetry", "install", external=True)
-    with session.chdir("../nua-selfbuilder"):
-        session.run("poetry", "install", external=True)
+    session.run("pip", "install", "../nua-lib", "../nua-runtime", "../nua-selfbuilder")
+    session.run("poetry", "install", external=True)
+    session.run("pip", "check", external=True)
+    session.run("poetry", "check", external=True)

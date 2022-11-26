@@ -13,11 +13,13 @@ packages = [
 nua-self-build = "nua.selfbuilder.main:app"
 
 [tool.poetry.dependencies]
-# nua---lib = { path = "../nua-lib/", develop = false }
-nua-lib = "==0.4.52"
-nua-runtime = "==0.4.52"
 python = "^3.10"
 setuptools = "^65.5.0"
+
+# nua---lib = { path = "../nua-lib/", develop = false }
+nua-lib = "*"
+nua-runtime = "*"
+
 tomli = "^2.0"
 typer = {extras = ["all"], version = "^0.7.0"}
 rich = "^12.4.4"

@@ -18,9 +18,9 @@ python = "^3.10"
 
 # Internal deps "poor man's monorepo"
 # nua---lib = { path = "../nua-lib/", develop = false }
-nua-lib = "==0.4.52"
-nua-runtime = "==0.4.52"
-nua-selfbuilder = "==0.4.52"
+nua-lib = "*"
+nua-runtime = "*"
+nua-selfbuilder = "*"
 
 setuptools = "^65.5.0"
 tomli = "^2.0"
