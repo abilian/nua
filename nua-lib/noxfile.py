@@ -8,6 +8,7 @@ PYTHON_VERSIONS = ["3.10"]
 def lint(session: nox.Session) -> None:
     session.run("poetry", "install", external=True)
     session.run("pip", "check", external=True)
+    session.run("poetry", "check", external=True)
     session.run("make", "lint", external=True)
 
 
@@ -15,4 +16,5 @@ def lint(session: nox.Session) -> None:
 def pytest(session: nox.Session) -> None:
     session.run("poetry", "install", external=True)
     session.run("pip", "check", external=True)
+    session.run("poetry", "check", external=True)
     session.run("pytest", "--tb=short", external=True)
