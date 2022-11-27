@@ -1,6 +1,6 @@
 [[package]]
 name = "abilian-devtools"
-version = "0.1.4"
+version = "0.1.5"
 description = "A curated set of dependencies for quality software development"
 category = "dev"
 optional = false
@@ -11,6 +11,7 @@ black = "*"
 deptry = "*"
 docformatter = "*"
 flake8 = ">=6,<7"
+flake8-assertive = "*"
 flake8-bandit = "*"
 flake8-breakpoint = "*"
 flake8-bugbear = "*"
@@ -22,6 +23,10 @@ flake8-if-expr = "*"
 flake8-isort = "*"
 flake8-logging-format = "*"
 flake8-mutable = "*"
+flake8-no-pep420 = "*"
+flake8-pep3101 = "*"
+flake8-pep585 = "*"
+flake8-pep604 = "*"
 flake8-pytest = "*"
 flake8-pytest-style = "*"
 flake8-simplify = "*"
@@ -374,6 +379,17 @@ pycodestyle = ">=2.10.0,<2.11.0"
 pyflakes = ">=3.0.0,<3.1.0"
 
 [[package]]
+name = "flake8-assertive"
+version = "2.1.0"
+description = "Flake8 unittest assert method checker"
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+flake8 = ">=3.0.0"
+
+[[package]]
 name = "flake8-bandit"
 version = "4.1.1"
 description = "Automated security testing with bandit and flake8."
@@ -505,6 +521,50 @@ python-versions = "*"
 
 [package.dependencies]
 flake8 = "*"
+
+[[package]]
+name = "flake8-no-pep420"
+version = "2.3.0"
+description = "A flake8 plugin to ban PEP-420 implicit namespace packages."
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+flake8 = ">=3.0,<3.2.0 || >3.2.0"
+
+[[package]]
+name = "flake8-pep3101"
+version = "2.0.0"
+description = "Checks for old string formatting."
+category = "dev"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+flake8 = "*"
+
+[package.extras]
+test = ["pytest"]
+
+[[package]]
+name = "flake8-pep585"
+version = "0.1.6"
+description = "flake8 plugin to enforce new-style type hints (PEP 585)"
+category = "dev"
+optional = false
+python-versions = ">=3.7,<4.0"
+
+[[package]]
+name = "flake8-pep604"
+version = "1.1.0"
+description = "flake8 plugin to enforce use of `|` over `typing.Union`"
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+flake8 = ">=3.8"
 
 [[package]]
 name = "flake8-plugin-utils"
@@ -1392,8 +1452,8 @@ content-hash = "7ccac29605c2c191b8d4cca354ac6692cf7c89f70ac55c25576083fcbbf658ac
 
 [metadata.files]
 abilian-devtools = [
-    {file = "abilian_devtools-0.1.4-py3-none-any.whl", hash = "sha256:2ee1718f98f05c74b6572a24e2eed6cbd48ef6cf494f8357176d86c2e4d3799b"},
-    {file = "abilian_devtools-0.1.4.tar.gz", hash = "sha256:7725262234658d3a8d836f6da9e4379de9ca664494d2afa45d37b2b87195a8a7"},
+    {file = "abilian_devtools-0.1.5-py3-none-any.whl", hash = "sha256:1dee0cb7d2a62142501d525fb68aa48fd0823ca8feea6f6ab6d00f1e7b3e392a"},
+    {file = "abilian_devtools-0.1.5.tar.gz", hash = "sha256:54136bb0cc8f067d6063144f334983647df2864bf7d559ae8285d18dd17a97bf"},
 ]
 argcomplete = [
     {file = "argcomplete-2.0.0-py2.py3-none-any.whl", hash = "sha256:cffa11ea77999bb0dd27bb25ff6dc142a6796142f68d45b1a26b11f58724561e"},
@@ -1569,6 +1629,10 @@ flake8 = [
     {file = "flake8-6.0.0-py2.py3-none-any.whl", hash = "sha256:3833794e27ff64ea4e9cf5d410082a8b97ff1a06c16aa3d2027339cd0f1195c7"},
     {file = "flake8-6.0.0.tar.gz", hash = "sha256:c61007e76655af75e6785a931f452915b371dc48f56efd765247c8fe68f2b181"},
 ]
+flake8-assertive = [
+    {file = "flake8-assertive-2.1.0.tar.gz", hash = "sha256:72a333fefe1af1f8d46359f4d083f8a8d42d7edb9db84406ce8de17bcffbbd10"},
+    {file = "flake8_assertive-2.1.0-py3-none-any.whl", hash = "sha256:dc0c561010b2c00f7314f7fbf3b3de302efb24154316deb338d07e083fa30b26"},
+]
 flake8-bandit = [
     {file = "flake8_bandit-4.1.1-py3-none-any.whl", hash = "sha256:4c8a53eb48f23d4ef1e59293657181a3c989d0077c9952717e98a0eace43e06d"},
     {file = "flake8_bandit-4.1.1.tar.gz", hash = "sha256:068e09287189cbfd7f986e92605adea2067630b75380c6b5733dab7d87f9a84e"},
@@ -1610,6 +1674,22 @@ flake8-logging-format = [
 flake8-mutable = [
     {file = "flake8-mutable-1.2.0.tar.gz", hash = "sha256:ee9b77111b867d845177bbc289d87d541445ffcc6029a0c5c65865b42b18c6a6"},
     {file = "flake8_mutable-1.2.0-py2-none-any.whl", hash = "sha256:38fd9dadcbcda6550a916197bc40ed76908119dabb37fbcca30873666c31d2d5"},
+]
+flake8-no-pep420 = [
+    {file = "flake8-no-pep420-2.3.0.tar.gz", hash = "sha256:1b965a18508ac7842de288740aa43627d3a5bb2be64f7d5d70d55cb691c3de84"},
+    {file = "flake8_no_pep420-2.3.0-py3-none-any.whl", hash = "sha256:ccba3efa05c50b1c2712d78807cca81e563ab571d6b3bcb90228e87388704cf5"},
+]
+flake8-pep3101 = [
+    {file = "flake8-pep3101-2.0.0.tar.gz", hash = "sha256:ae2ee1758734a473ca971b4bf9ff09c961b6099916db91fdb6b9718328dfcacb"},
+    {file = "flake8_pep3101-2.0.0-py3-none-any.whl", hash = "sha256:1d818e1f53c6d26e875714f2f041ec15fbb23c17e2268dbbb024e9c3383541cd"},
+]
+flake8-pep585 = [
+    {file = "flake8-pep585-0.1.6.tar.gz", hash = "sha256:8b7bccfa760c40baedb28dc48b1b514907867b3551a7aec87552d115355a6def"},
+    {file = "flake8_pep585-0.1.6-py3-none-any.whl", hash = "sha256:67feae956ccf7ef20c5cfe57bb63f5342e4f7898fd1cb1d3a8a8a52e26393fd2"},
+]
+flake8-pep604 = [
+    {file = "flake8_pep604-1.1.0-py3-none-any.whl", hash = "sha256:6e0c4ef8bfa6377eed47df382bde1519a1ddde6508d18b32281846f5a3f77301"},
+    {file = "flake8_pep604-1.1.0.tar.gz", hash = "sha256:e533659d0eda50fa83cbca9dde4f3a3fc0b1593d8cd7134e494ccd71102d3fb4"},
 ]
 flake8-plugin-utils = [
     {file = "flake8-plugin-utils-1.3.2.tar.gz", hash = "sha256:20fa2a8ca2decac50116edb42e6af0a1253ef639ad79941249b840531889c65a"},
