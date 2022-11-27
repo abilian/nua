@@ -30,6 +30,8 @@ paramiko = "*"
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
 nox = "^2022.8.7"
+# Should be installed as an abilian-devtools dependency. Poetry bug ?
+mypy = "*" 
 
 
 [tool.pytest.ini_options]

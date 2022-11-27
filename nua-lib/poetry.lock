@@ -1,6 +1,6 @@
 [[package]]
 name = "abilian-devtools"
-version = "0.1.1"
+version = "0.1.4"
 description = "A curated set of dependencies for quality software development"
 category = "dev"
 optional = false
@@ -12,13 +12,18 @@ deptry = "*"
 docformatter = "*"
 flake8 = ">=6,<7"
 flake8-bandit = "*"
+flake8-breakpoint = "*"
 flake8-bugbear = "*"
 flake8-cognitive-complexity = "*"
 flake8-comprehensions = "*"
 flake8-datetimez = "*"
 flake8-functions = "*"
+flake8-if-expr = "*"
+flake8-isort = "*"
+flake8-logging-format = "*"
 flake8-mutable = "*"
 flake8-pytest = "*"
+flake8-pytest-style = "*"
 flake8-simplify = "*"
 flake8-super = "*"
 flake8-super-call = "*"
@@ -381,6 +386,17 @@ bandit = ">=1.7.3"
 flake8 = ">=5.0.0"
 
 [[package]]
+name = "flake8-breakpoint"
+version = "1.1.0"
+description = "Flake8 plugin that check forgotten breakpoints"
+category = "dev"
+optional = false
+python-versions = ">=3.6,<4.0"
+
+[package.dependencies]
+flake8-plugin-utils = ">=1.0,<2.0"
+
+[[package]]
 name = "flake8-bugbear"
 version = "22.10.27"
 description = "A plugin for flake8 finding likely bugs and design problems in your program. Contains warnings that don't belong in pyflakes and pycodestyle."
@@ -442,6 +458,44 @@ mr-proper = "*"
 setuptools = "*"
 
 [[package]]
+name = "flake8-if-expr"
+version = "1.0.4"
+description = "The plugin checks `if expressions` (ternary operator)"
+category = "dev"
+optional = false
+python-versions = ">=3.6,<4.0"
+
+[package.dependencies]
+flake8-plugin-utils = ">=1.0,<2.0"
+
+[[package]]
+name = "flake8-isort"
+version = "5.0.3"
+description = "flake8 plugin that integrates isort ."
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+flake8 = "*"
+isort = ">=4.3.5,<6"
+
+[package.extras]
+test = ["pytest"]
+
+[[package]]
+name = "flake8-logging-format"
+version = "0.9.0"
+description = ""
+category = "dev"
+optional = false
+python-versions = "*"
+
+[package.extras]
+lint = ["flake8"]
+test = ["PyHamcrest", "pytest", "pytest-cov"]
+
+[[package]]
 name = "flake8-mutable"
 version = "1.2.0"
 description = "mutable defaults flake8 extension"
@@ -470,6 +524,17 @@ python-versions = "*"
 
 [package.dependencies]
 flake8 = "*"
+
+[[package]]
+name = "flake8-pytest-style"
+version = "1.6.0"
+description = "A flake8 plugin checking common style issues or inconsistencies with pytest-based tests."
+category = "dev"
+optional = false
+python-versions = ">=3.6.2,<4.0.0"
+
+[package.dependencies]
+flake8-plugin-utils = ">=1.3.2,<2.0.0"
 
 [[package]]
 name = "flake8-simplify"
@@ -873,7 +938,7 @@ testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
 name = "poetryup"
-version = "0.12.3"
+version = "0.12.4"
 description = "Update dependencies and bump their version in the pyproject.toml file"
 category = "dev"
 optional = false
@@ -1121,7 +1186,7 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "ruff"
-version = "0.0.139"
+version = "0.0.141"
 description = "An extremely fast Python linter, written in Rust."
 category = "dev"
 optional = false
@@ -1327,8 +1392,8 @@ content-hash = "7ccac29605c2c191b8d4cca354ac6692cf7c89f70ac55c25576083fcbbf658ac
 
 [metadata.files]
 abilian-devtools = [
-    {file = "abilian_devtools-0.1.1-py3-none-any.whl", hash = "sha256:be16ad25ecd23213c9579ee4d3f7280c868323e48206b9f1f5f9dee39624f75a"},
-    {file = "abilian_devtools-0.1.1.tar.gz", hash = "sha256:79e470b67874b43b3ec6158a5599b89b8c874c42c9b936df3d369dc029c07c1b"},
+    {file = "abilian_devtools-0.1.4-py3-none-any.whl", hash = "sha256:2ee1718f98f05c74b6572a24e2eed6cbd48ef6cf494f8357176d86c2e4d3799b"},
+    {file = "abilian_devtools-0.1.4.tar.gz", hash = "sha256:7725262234658d3a8d836f6da9e4379de9ca664494d2afa45d37b2b87195a8a7"},
 ]
 argcomplete = [
     {file = "argcomplete-2.0.0-py2.py3-none-any.whl", hash = "sha256:cffa11ea77999bb0dd27bb25ff6dc142a6796142f68d45b1a26b11f58724561e"},
@@ -1508,6 +1573,10 @@ flake8-bandit = [
     {file = "flake8_bandit-4.1.1-py3-none-any.whl", hash = "sha256:4c8a53eb48f23d4ef1e59293657181a3c989d0077c9952717e98a0eace43e06d"},
     {file = "flake8_bandit-4.1.1.tar.gz", hash = "sha256:068e09287189cbfd7f986e92605adea2067630b75380c6b5733dab7d87f9a84e"},
 ]
+flake8-breakpoint = [
+    {file = "flake8-breakpoint-1.1.0.tar.gz", hash = "sha256:5bc70d478f0437a3655d094e1d2fca81ddacabaa84d99db45ad3630bf2004064"},
+    {file = "flake8_breakpoint-1.1.0-py3-none-any.whl", hash = "sha256:27e0cb132647f9ef348b4a3c3126e7350bedbb22e8e221cd11712a223855ea0b"},
+]
 flake8-bugbear = [
     {file = "flake8-bugbear-22.10.27.tar.gz", hash = "sha256:a6708608965c9e0de5fff13904fed82e0ba21ac929fe4896459226a797e11cd5"},
     {file = "flake8_bugbear-22.10.27-py3-none-any.whl", hash = "sha256:6ad0ab754507319060695e2f2be80e6d8977cfcea082293089a9226276bd825d"},
@@ -1527,6 +1596,17 @@ flake8-functions = [
     {file = "flake8_functions-0.0.7-py3-none-any.whl", hash = "sha256:f2f75545c2b0df9eeba0ad316e2ac38c101676970b4441300fc07af3226a44f6"},
     {file = "flake8_functions-0.0.7.tar.gz", hash = "sha256:40584b05d57e5ab185545bcfa08aa0edca52b04646d0df266e2b1667d6437184"},
 ]
+flake8-if-expr = [
+    {file = "flake8-if-expr-1.0.4.tar.gz", hash = "sha256:e0050b59b46114b6e20628d61175a7a608d3eb55fb5b90d87db0f9352a91a491"},
+    {file = "flake8_if_expr-1.0.4-py3-none-any.whl", hash = "sha256:3f2d45cc1e48b4cdf22377ca1624b2a59b6f1c7825ba1cdee99ff1e647e7ae3f"},
+]
+flake8-isort = [
+    {file = "flake8-isort-5.0.3.tar.gz", hash = "sha256:0951398c343c67f4933407adbbfb495d4df7c038650c5d05753a006efcfeb390"},
+    {file = "flake8_isort-5.0.3-py3-none-any.whl", hash = "sha256:8c4ab431d87780d0c8336e9614e50ef11201bc848ef64ca017532dec39d4bf49"},
+]
+flake8-logging-format = [
+    {file = "flake8-logging-format-0.9.0.tar.gz", hash = "sha256:e830cc49091e4b8ab9ea3da69a3da074bd631ce9a7db300e5c89fb48ba4a6986"},
+]
 flake8-mutable = [
     {file = "flake8-mutable-1.2.0.tar.gz", hash = "sha256:ee9b77111b867d845177bbc289d87d541445ffcc6029a0c5c65865b42b18c6a6"},
     {file = "flake8_mutable-1.2.0-py2-none-any.whl", hash = "sha256:38fd9dadcbcda6550a916197bc40ed76908119dabb37fbcca30873666c31d2d5"},
@@ -1538,6 +1618,10 @@ flake8-plugin-utils = [
 flake8-pytest = [
     {file = "flake8-pytest-1.4.tar.gz", hash = "sha256:19f543b2d1cc89d61b76f19d0a9e58e9a110a035175f701b3425c363a7732c56"},
     {file = "flake8_pytest-1.4-py2.py3-none-any.whl", hash = "sha256:97328f258ffad9fe18babb3b0714a16b121505ad3ac87d4e33020874555d0784"},
+]
+flake8-pytest-style = [
+    {file = "flake8-pytest-style-1.6.0.tar.gz", hash = "sha256:c1175713e9e11b78cd1a035ed0bca0d1e41d09c4af329a952750b61d4194ddac"},
+    {file = "flake8_pytest_style-1.6.0-py3-none-any.whl", hash = "sha256:5fedb371a950e9fe0e0e6bfc854be7d99151271208f34cd2cc517681ece27780"},
 ]
 flake8-simplify = [
     {file = "flake8_simplify-0.19.3-py3-none-any.whl", hash = "sha256:1057320e9312d75849541fee822900d27bcad05b2405edc84713affee635629e"},
@@ -1791,8 +1875,8 @@ pluggy = [
     {file = "pluggy-1.0.0.tar.gz", hash = "sha256:4224373bacce55f955a878bf9cfa763c1e360858e330072059e10bad68531159"},
 ]
 poetryup = [
-    {file = "poetryup-0.12.3-py3-none-any.whl", hash = "sha256:fb8349a18ac6498e65654129a421248e9577f157e89bae592cf7e95dfddd1ba9"},
-    {file = "poetryup-0.12.3.tar.gz", hash = "sha256:772eb5d625193630637f927cd5982b9d1393aecd5ffd7b8b2a3a7b9066160009"},
+    {file = "poetryup-0.12.4-py3-none-any.whl", hash = "sha256:a77c2356a98b80c540c4f1422b0c9d2a8aed58a46badb7e3dc9b097053f41b2c"},
+    {file = "poetryup-0.12.4.tar.gz", hash = "sha256:0162972317fc4b810fa9ac0533cc2aa2a8dd840395c488a4e9f8d95d98596d70"},
 ]
 pre-commit = [
     {file = "pre_commit-2.20.0-py2.py3-none-any.whl", hash = "sha256:51a5ba7c480ae8072ecdb6933df22d2f812dc897d5fe848778116129a681aac7"},
@@ -1936,22 +2020,22 @@ ruamel-yaml-clib = [
     {file = "ruamel.yaml.clib-0.2.7.tar.gz", hash = "sha256:1f08fd5a2bea9c4180db71678e850b995d2a5f4537be0e94557668cf0f5f9497"},
 ]
 ruff = [
-    {file = "ruff-0.0.139-py3-none-macosx_10_7_x86_64.whl", hash = "sha256:fccdeda463c3fb18f4429518ada681b7e6cc7cf8f278a17b9721d1c2f0b01ce0"},
-    {file = "ruff-0.0.139-py3-none-macosx_10_9_x86_64.macosx_10_9_arm64.macosx_10_9_universal2.whl", hash = "sha256:f5f8ac03d57ff49b7fc2678f5ec565ad89da13acf2b6c4dd13b8c187dff30660"},
-    {file = "ruff-0.0.139-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:ee49503783772ef3e2c9d93cd030c125cdc102facf26f3db396dae375e585e33"},
-    {file = "ruff-0.0.139-py3-none-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:d1068e2b18e3bf16fc9b85a2477564698c855b1354f85b0911b95401cd7674f9"},
-    {file = "ruff-0.0.139-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:ce75c3bc83b8ac055730dfa9bc25e2b9a7665f303930b62329724f585396f02f"},
-    {file = "ruff-0.0.139-py3-none-manylinux_2_17_ppc64.manylinux2014_ppc64.whl", hash = "sha256:5d3cef04b2881bfce0b6e5a2110299f55bafdd268bec2a6ed583aaa66326ae57"},
-    {file = "ruff-0.0.139-py3-none-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:11c8293531456647587c9dbcb3008f7da8d6a2680f629307f4b0d10816afecd1"},
-    {file = "ruff-0.0.139-py3-none-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:ea81b464432b2c3ecc9934a1bdefc7d83719f941796d7d2d48796b28e98951e0"},
-    {file = "ruff-0.0.139-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:490c2b6b9228ab9de8e4830d581359df3deb79e50132877fb7a03e2ebd98c1f2"},
-    {file = "ruff-0.0.139-py3-none-musllinux_1_2_aarch64.whl", hash = "sha256:370a8de219de6e671f9cbe8daa7138d9ccd5d12202bb20b6774da044b96fa95d"},
-    {file = "ruff-0.0.139-py3-none-musllinux_1_2_armv7l.whl", hash = "sha256:a76a90ac432eeebc40fe0b732fc0b27c33b469dce33f69cd4f3014a3bcf32562"},
-    {file = "ruff-0.0.139-py3-none-musllinux_1_2_i686.whl", hash = "sha256:5db1377fe523b6efee622162dfd16a5f99e361a27b1ca862ace7acf5d0073f62"},
-    {file = "ruff-0.0.139-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:f6c5258fb70ea0f915eb969aae088e7b8c9c52abd5d02414c8e75efec81cc3a8"},
-    {file = "ruff-0.0.139-py3-none-win32.whl", hash = "sha256:4ffd3b714a8d742bf936b2b626f5e00f592c55d37b99afaeb794ddee873cf2fa"},
-    {file = "ruff-0.0.139-py3-none-win_amd64.whl", hash = "sha256:0641b56a1083dc4d510a422c9fce1ede0bde50bc72a6dd28786933eab602e09e"},
-    {file = "ruff-0.0.139.tar.gz", hash = "sha256:93ca3a7fbbae240486fa8d87de9abc4d0ceefc773887cd1f22807374cfa54af1"},
+    {file = "ruff-0.0.141-py3-none-macosx_10_7_x86_64.whl", hash = "sha256:7937f83133236dd0349ac30121de16cd8bb5947f4e897b101119f3d9efa0128e"},
+    {file = "ruff-0.0.141-py3-none-macosx_10_9_x86_64.macosx_10_9_arm64.macosx_10_9_universal2.whl", hash = "sha256:3607762898d28a05751c712271469633ba47deee6b0c980ba1ef659bf6a46566"},
+    {file = "ruff-0.0.141-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:e2decfb3430c7f84b33a60673d170694a74ffce500f35c13fade557fd3e1c89d"},
+    {file = "ruff-0.0.141-py3-none-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:806c781d9f3e46dd9d9bc7b5f47ca17c8ac4cff4dcc5e85d5fbedb7e8edf203f"},
+    {file = "ruff-0.0.141-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:6a1f87468e96330e8c83b2bacf9dff338cc212bdac02ac7430cf7e42199b40ac"},
+    {file = "ruff-0.0.141-py3-none-manylinux_2_17_ppc64.manylinux2014_ppc64.whl", hash = "sha256:4f3603cdbd321c917151cd5b08a9f80d7e795668d51b5107cea43a702133a42c"},
+    {file = "ruff-0.0.141-py3-none-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:53d4f404bf719e63585560f30a7b393066308d2c11e25b2f8568075042d3f31d"},
+    {file = "ruff-0.0.141-py3-none-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:f21476d8c8a6d91acb6857b606f13e3987ea70551451a29b4ca5bad2455adca0"},
+    {file = "ruff-0.0.141-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:3f61d9d72095d2d7be0672e3f8e87e943b84f7e85118a540335c0f895e8b6c8e"},
+    {file = "ruff-0.0.141-py3-none-musllinux_1_2_aarch64.whl", hash = "sha256:bedf225e47fae0ddf65a60818809712ed1376ac1a263f39ae524c40a0d8f4474"},
+    {file = "ruff-0.0.141-py3-none-musllinux_1_2_armv7l.whl", hash = "sha256:1dee4f787d567a8475628ca5148af9a1119121d0fd86517147cde957f9e7f085"},
+    {file = "ruff-0.0.141-py3-none-musllinux_1_2_i686.whl", hash = "sha256:ab1b273b83e6552d5ee5a36b3fcc22e73d3487add16cd3dfd398e6e8b2884eb7"},
+    {file = "ruff-0.0.141-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:be6eedb40e3987bc3688e94b3db9e56fb37790485440ce751b25dff0a01e8106"},
+    {file = "ruff-0.0.141-py3-none-win32.whl", hash = "sha256:f4255964cad562cf4b5e3bd95a814abb87d70917a92fc0c90ea94b73932aa5bb"},
+    {file = "ruff-0.0.141-py3-none-win_amd64.whl", hash = "sha256:60ac43f72b13c10876a3e8d99901b67670f61c2812ad1f9d4aad7f7e7f370d1f"},
+    {file = "ruff-0.0.141.tar.gz", hash = "sha256:9383eed681570e5f183675bcf8b913c866a92b4fe48865339cfd3da9c083672a"},
 ]
 safety = [
     {file = "safety-2.3.2-py3-none-any.whl", hash = "sha256:d824cccd76fcf451c745d0a280dabc5176903878a68b9b9a2ec7dbfc2f8d03ff"},

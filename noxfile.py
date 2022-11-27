@@ -1,18 +1,15 @@
 import nox
-from pprint import pprint
-import os
 
 BASE_PYTHON_VERSION = "3.10"
 PYTHON_VERSIONS = ["3.10"]
 
-
-nox.options.pythons = PYTHON_VERSIONS
-nox.options.default_venv_backend = "venv"
-# nox.options.sessions = [
-#     "lint",
-#     "pytest",
-#     "doc",
-# ]
+nox.options.reuse_existing_virtualenvs = True
+# nox.options.default_venv_backend = "venv"
+nox.options.sessions = [
+    "lint",
+    "pytest",
+    "doc",
+]
 
 SUB_REPOS = [
     "nua-lib",
@@ -29,15 +26,24 @@ def pytest(session: nox.Session, sub_repo: str):
     run_subsession(session, sub_repo)
 
 
-@nox.session(python=BASE_PYTHON_VERSION)
+@nox.session
 @nox.parametrize("sub_repo", SUB_REPOS)
 def lint(session: nox.Session, sub_repo: str):
     run_subsession(session, sub_repo)
 
 
-@nox.session(python=BASE_PYTHON_VERSION)
+@nox.session
 def doc(session: nox.Session):
     print("TODO: do something with the docs")
+
+
+@nox.session(name="update-deps")
+def update_deps(session: nox.Session):
+    for sub_repo in SUB_REPOS:
+        with session.chdir(sub_repo):
+            session.run("poetry", "install", external=True)
+            session.run("poetry", "update", external=True)
+        print()
 
 
 def run_subsession(session, sub_repo):
