@@ -15,7 +15,7 @@ from nua.lib.exec import mp_exec_as_postgres
 from .db_manager import DbManager
 from .utils import is_package_installed
 
-if is_package_installed("psycopg2"):
+if is_package_installed("psycopg2") or is_package_installed("psycopg2-binary"):
     psycopg2 = importlib.import_module("psycopg2")
     SQL = getattr(importlib.import_module("psycopg2.sql"), "SQL")  # noqa B009
     Identifier = getattr(  # noqa B009
@@ -41,7 +41,7 @@ class PostgresManager(DbManager):
 
     def __init__(self, host: str, port: str, user: str, password: str):
         if not psycopg2:
-            raise ValueError("The package 'postgres' is not installed.")
+            raise ValueError("The package 'psycopg2' is not installed.")
         self.host = host or "localhost"
         self.port = int(port or "5432")
         self.user = user or "postgres"

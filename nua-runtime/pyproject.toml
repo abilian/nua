@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-runtime"
-version = "0.4.52"
+version = "0.4.54"
 description = "Nua runtime"
 authors = ["Stefane Fermigier <sf@abilian.com>", "Jerome Dumonteil <jd@abilian.com>"]
 license = "AGPL"
@@ -18,7 +18,7 @@ setuptools = "^65.5.0"
 types-setuptools = "^65.5.0.3"
 
 #nua---lib = { path = "../nua-lib/", develop = false }
-nua-lib = "*"
+nua-lib = "==0.4.54"
 # psycopg2-binary = "^2.9.4"  # fixme: need until refactoring
 # mariadb  # same
 tomli = "^2.0.1"

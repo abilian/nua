@@ -4,6 +4,7 @@ from shutil import copy2
 from nua.lib.actions import (  # installed_packages,
     download_extract,
     install_package_list,
+    install_psycopg2_python,
     npm_install,
     tmp_install_package_list,
 )
@@ -30,6 +31,8 @@ def main():
     # to test: can we remove {hedge_src}
     # cmd = f"yarn cache clean ; rm -fr /tmp/* ; rm -fr {hedge_src}"
 
+    install_psycopg2_python()
+
     install_package_list(packages, keep_lists=True)
 
     with tmp_install_package_list(tmp_packages):
@@ -41,7 +44,7 @@ def main():
         cmd = "yarn cache clean; rm -fr /tmp/*"
         sh(cmd)
 
-    # chdir("/nua")
+    chdir("/nua")
     copy2("/nua/build/nua/config.json", "/nua/build/hedgedoc/")
 
 

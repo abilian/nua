@@ -1,0 +1,12 @@
+[[site]]
+image = "hedgedoc:1.9.6-1"
+domain = "test1.yerom.xyz"
+[site.run.env]
+# CMD_SESSION_LIFE = 60  # for test
+CMD_DOMAIN = "test1.yerom.xyz"
+CMD_EMAIL = true
+CMD_ALLOW_EMAIL_REGISTER = true
+CMD_ALLOW_ANONYMOUS = true
+# sqlite:
+# CMD_DB_URL = "sqlite:///nua/data/sqlite.db"
+CMD_DB_PASSWORD = "azerty"
