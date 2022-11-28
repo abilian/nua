@@ -14,7 +14,8 @@ from ..search_cmd import search_nua
 def deploy_nua(app_name: str) -> int:
     """Search, install and launch Nua image.
 
-    (from local registry for now.)"""
+    (from local registry for now.)
+    """
     # if app_name.endswith(".toml") and Path(app_name).is_file():
     #     return deploy_nua_sites(app_name)
     if verbosity(2):

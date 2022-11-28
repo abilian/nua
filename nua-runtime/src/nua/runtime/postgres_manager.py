@@ -61,6 +61,7 @@ class PostgresManager(DbManager):
 
     def postgres_pwd(self) -> str:
         """Return the 'postgres' user DB password.
+
         - When used in container context, the env variable POSTGRES_PASSWORD or
           NUA_POSTGRES_PASSWORD should contain the password.
         - When used in nua-orchestrator context, read the password from local file.
@@ -185,8 +186,7 @@ class PostgresManager(DbManager):
 
     def db_table_exist(self, dbname: str, user: str, password: str, table: str) -> bool:
         """Check if the named database exists (for host, connecting as user),
-        assuming DB exists.
-        """
+        assuming DB exists."""
         connection = psycopg2.connect(
             host=self.host, port=self.port, dbname=dbname, user=user, password=password
         )

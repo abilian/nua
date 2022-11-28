@@ -33,6 +33,7 @@ RE_COMMENT = re.compile(r"\s*#")
 
 def mariadb_pwd() -> str:
     """Return the 'root' user DB password of mariadb.
+
       - When used in container context, the env variable NUA_MARIADB_PASSWORD should
         contain the password.
       - When used in nua-orchestrator context, read the password from local file.
@@ -40,7 +41,8 @@ def mariadb_pwd() -> str:
     For orchestrator context, assuming this function can only be used *after* password
     was generated (or its another bug).
 
-    Rem.: No cache. Rarely used function and pwd can be changed."""
+    Rem.: No cache. Rarely used function and pwd can be changed.
+    """
     pwd = os.environ.get("NUA_MARIADB_PASSWORD")
     if pwd:
         return pwd
@@ -67,13 +69,13 @@ def _store_mariadb_password(password: str):
 def set_mariadb_pwd(password: str, any_ip=True) -> bool:
     """Set mariadb root password for local instance of mariadb.
 
-    The password is stored in clear in Nua home. In future version, it could be
-    replaced by SSL key, thus gaining the ability to have encyption of streams and
-    expiration date.
-    Basically we need clear password somewhere. Since this password is only used
-    by Nua scripts (if Nua is the only user of local mariadb DB), it could also be
-    generated / erased at each invocation.
-    No test of min password length in this function.
+    The password is stored in clear in Nua home. In future version, it
+    could be replaced by SSL key, thus gaining the ability to have
+    encyption of streams and expiration date. Basically we need clear
+    password somewhere. Since this password is only used by Nua scripts
+    (if Nua is the only user of local mariadb DB), it could also be
+    generated / erased at each invocation. No test of min password
+    length in this function.
     """
     r_pwd = repr(password)
     exec_as_root("systemctl stop mariadb")
@@ -206,8 +208,7 @@ def _mariadb_check_std_port() -> bool:
 
 
 def allow_docker_connection():
-    """
-    Check at deploy time that the mariadb_hba.conf file permit connexion.
+    """Check at deploy time that the mariadb_hba.conf file permit connexion.
 
     Must be run as root at bootstrap time.
     """

@@ -22,7 +22,8 @@ from . import config
 def certbot_run_args(domains: list) -> str:
     """Build cerbot's arguments for a domain and subdomains.
 
-    (Local function)"""
+    (Local function)
+    """
     run_args = [
         "--nginx",
         "--keep",
@@ -57,8 +58,8 @@ def apply_none_strategy(domains: list[str]):
 
 
 def apply_auto_strategy(domains: list[str]):
-    """Convert just created HTTP configuration (by nginx template) to HTTPS using
-    certbot (if strategy is 'auto').
+    """Convert just created HTTP configuration (by nginx template) to HTTPS
+    using certbot (if strategy is 'auto').
 
     Each domain of the list uses the same SSL key.
 

@@ -65,7 +65,8 @@ def install_nua_nginx_default_site():
 def clean_nua_nginx_default_site():
     """Remove previous nginx sites.
 
-    Warning: only for user 'nua' or 'root'"""
+    Warning: only for user 'nua' or 'root'
+    """
     nua_nginx = nua_env.nginx_path()
     sites = nua_nginx / "sites"
     rm_fr(sites)

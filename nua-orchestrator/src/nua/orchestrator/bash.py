@@ -1,4 +1,4 @@
-"""Nua comple bash environment
+"""Nua comple bash environment.
 
 To be able to lanch python script with the relevant venv
 """

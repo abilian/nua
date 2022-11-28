@@ -1,6 +1,8 @@
 """Example adapted from:
+
 https://www.digitalocean.com/community/tutorials/
-    how-to-use-a-postgresql-database-in-a-flask-application"""
+    how-to-use-a-postgresql-database-in-a-flask-application
+"""
 
 import os
 
@@ -15,8 +17,10 @@ from nua.runtime.mariadb_manager import MariaDbManager
 def setup_db():
     """Find or create the required DB.
 
-    In this example The DB is local to the Host (outside Docker).
-    When orchestrator was installed, it must have setup mariadb package on the host."""
+    In this example The DB is local to the Host (outside Docker). When
+    orchestrator was installed, it must have setup mariadb package on
+    the host.
+    """
     manager = MariaDbManager(DB_HOST, "", "", "")
     manager.setup_db_user(DB_NAME, DB_USER, DB_USER_PWD)
 

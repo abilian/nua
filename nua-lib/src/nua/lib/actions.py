@@ -228,7 +228,7 @@ def poetry_install(nodev: bool = True) -> None:
 
 
 def install_mariadb_python(version: str = "1.1.4"):
-    """Connector for MariaDB"""
+    """Connector for MariaDB."""
     install_package_list(
         [
             "python3-dev",
@@ -261,14 +261,14 @@ def install_mariadb_python(version: str = "1.1.4"):
 
 
 def install_mariadb_1_1_5():
-    """Connector for MariaDB, since version 1.1.5post3"""
+    """Connector for MariaDB, since version 1.1.5post3."""
     install_package_list("libmariadb3 mariadb-client", keep_lists=True)
     with tmp_install_package_list("libmariadb-dev python3-dev build-essential"):
         pip_install("mariadb")
 
 
 def install_psycopg2_python():
-    """Connector for PostgreSQL"""
+    """Connector for PostgreSQL."""
     install_package_list("libpq-dev")
     pip_install("psycopg2-binary")
 

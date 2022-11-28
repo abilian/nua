@@ -1,5 +1,4 @@
-"""Script to build Nua own images.
-"""
+"""Script to build Nua own images."""
 import tempfile
 from os import chdir
 from pathlib import Path

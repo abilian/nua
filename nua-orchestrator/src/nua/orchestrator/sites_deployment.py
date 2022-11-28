@@ -1,5 +1,4 @@
-"""class to manage the deployment of a group os sites
-"""
+"""class to manage the deployment of a group os sites."""
 from copy import deepcopy
 from pathlib import Path
 from pprint import pformat
@@ -49,7 +48,7 @@ RUN_BASE_RESOURCE = {"restart_policy": {"name": "always"}}
 
 
 class SitesDeployment:
-    """Deployment of a list of site/nua-image
+    """Deployment of a list of site/nua-image.
 
     example of use:
         deployer = SitesDeployment()
@@ -266,7 +265,8 @@ class SitesDeployment:
         return False
 
     def deactivate_all_sites(self):
-        """Find all instance in DB
+        """Find all instance in DB.
+
         - remove container if exists
         - remove site from DB
         """
@@ -363,8 +363,8 @@ class SitesDeployment:
         )
 
     def _configured_ports(self) -> set[int]:
-        """
-        Return set of required host ports (aka non auto ports) from site_list.
+        """Return set of required host ports (aka non auto ports) from
+        site_list.
 
         Returns: set of integers
 
@@ -391,9 +391,7 @@ class SitesDeployment:
         return used
 
     def generate_ports_for_sites(self, allocator: Callable):
-        """
-        Update site dict with auto generated ports.
-        """
+        """Update site dict with auto generated ports."""
         for site in self.sites:
             site.allocate_auto_ports(allocator)
             for resource in site.resources:
@@ -474,7 +472,8 @@ class SitesDeployment:
     def generate_resource_container_run_parameters(
         self, site: Site, resource: Resource
     ):
-        """Return suitable parameters for the docker.run() command (for Resource)."""
+        """Return suitable parameters for the docker.run() command (for
+        Resource)."""
         run_params = deepcopy(RUN_BASE_RESOURCE)
         run_params.update(resource.get("run", {}))
         self.add_host_gateway_to_extra_hosts(run_params)
@@ -583,6 +582,7 @@ def _classify_located_sites(host_list: list):
 
 def _verify_located(host: dict):
     """host format:
+
      {'hostname': 'test.example.com',
       'sites': [{'domain': 'test.example.com/instance1',
                   'image': 'flask-one:1.2-1',
@@ -632,6 +632,7 @@ def _verify_located(host: dict):
 
 def _verify_not_located(host: dict):
     """host format:
+
         {'hostname': 'sloop.example.com',
          'sites': [{'domain': 'sloop.example.com',
                     'image': 'nua-flask-upload-one:1.0-1',

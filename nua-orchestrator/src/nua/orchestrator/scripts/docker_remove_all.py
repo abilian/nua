@@ -1,5 +1,4 @@
-"""For debug, remove all docker containers.
-"""
+"""For debug, remove all docker containers."""
 from docker import from_env
 from docker.errors import APIError, NotFound
 from nua.lib.tool.state import set_verbose

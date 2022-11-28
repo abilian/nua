@@ -1,10 +1,7 @@
-"""
+"""args options.
 
-args options
-
-
-os.environ['SUDO_USER']
-Please run this script as a non-root user with sudo privileges, but without using sudo or pass --user=USER')
+os.environ['SUDO_USER'] Please run this script as a non-root user with
+sudo privileges, but without using sudo or pass --user=USER')
 """
 import os
 

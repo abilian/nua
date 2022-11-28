@@ -24,6 +24,7 @@ RE_LISTEN = re.compile(r"\s*listen_addresses\s*=(.*)$")
 
 def postgres_pwd() -> str:
     """Return the 'postgres' user DB password.
+
       - When used in container context, the env variable NUA_POSTGRES_PASSWORD should
         contain the password.
       - When used in nua-orchestrator context, read the password from local file.
@@ -31,7 +32,8 @@ def postgres_pwd() -> str:
     For orchestrator context, assuming this function can only be used *after* password
     was generated (or its another bug).
 
-    Rem.: No cache. Rarely used function and pwd can be changed."""
+    Rem.: No cache. Rarely used function and pwd can be changed.
+    """
     pwd = os.environ.get("NUA_POSTGRES_PASSWORD")
     if pwd:
         return pwd
@@ -61,14 +63,14 @@ def _store_pg_password(password: str):
 def set_postgres_pwd(password: str) -> bool:
     """Set postgres password for local instance of postgres.
 
-    The password is stored in clear in Nua home. In future version, it could be
-    replaced by SSL key, thus gaining the ability to have encyption of streams and
-    expiration date.
-    Basically we need clear password somewhere. Since this password is only used
-    by Nua scripts (if Nua is the only user of local postgres DB), it could also be
-    generated / erased at each invocation. Passord could be stored in some file in the
-    postgres user home (a postgres feature).
-    No test of min password length in this function.
+    The password is stored in clear in Nua home. In future version, it
+    could be replaced by SSL key, thus gaining the ability to have
+    encyption of streams and expiration date. Basically we need clear
+    password somewhere. Since this password is only used by Nua scripts
+    (if Nua is the only user of local postgres DB), it could also be
+    generated / erased at each invocation. Passord could be stored in
+    some file in the postgres user home (a postgres feature). No test of
+    min password length in this function.
     """
     r_pwd = repr(password)
     # query = SQL("ALTER USER postgres PASSWORD {}".format(i_pwd))
@@ -82,9 +84,9 @@ def set_postgres_pwd(password: str) -> bool:
 def pg_run_environment(_unused_site: dict) -> dict:
     """Return a dict of environ variable for docker.run().
 
-    Actually, returns the DB postges password.
-    This function to be used in orchestrator environment, thus the password will
-    be read from host file.
+    Actually, returns the DB postges password. This function to be used
+    in orchestrator environment, thus the password will be read from
+    host file.
     """
     return {"NUA_POSTGRES_PASSWORD": postgres_pwd()}
 
@@ -158,8 +160,8 @@ def _pg_check_std_port() -> bool:
 
 
 def pg_check_listening(_unused_site: dict | None = None) -> bool:
-    """Check at deploy time that the postgres daemon is listening on the gateway port
-    of the docker service (ip passed as parameter).
+    """Check at deploy time that the postgres daemon is listening on the
+    gateway port of the docker service (ip passed as parameter).
 
     This is launched for every deployed image (so cached).
     """

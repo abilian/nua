@@ -99,7 +99,8 @@ class Builder:
         self.container_type = container
 
     def detect_nua_dir(self):
-        """Detect dir containing nua files (start.py, build.py, Dockerfile, ...)."""
+        """Detect dir containing nua files (start.py, build.py, Dockerfile,
+        ...)."""
         nua_dir = self.config.build.get("nua_dir")
         if not nua_dir:
             # Check if default 'nua' dir exists
@@ -148,7 +149,9 @@ class Builder:
 
     def copy_from_local_dir(self):
         """Copy content form local dir: either: root_dir or nua_dir if defined.
-        To be fixed for /nua subdir."""
+
+        To be fixed for /nua subdir.
+        """
         for user_file in self.config.root_dir.glob("*"):
             if (user_file.name).startswith("."):
                 continue

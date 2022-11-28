@@ -1,4 +1,4 @@
-"""at start, just test intalled versions"""
+"""at start, just test intalled versions."""
 
 import os
 

@@ -1,5 +1,4 @@
-"""class to manage the deployment of a group os sites
-"""
+"""class to manage the deployment of a group os sites."""
 from pathlib import Path
 from pprint import pformat
 from typing import Callable
@@ -91,7 +90,8 @@ def mount_resource_volumes(resource: Resource) -> list:
 
 
 def extra_host_gateway() -> dict:
-    """Sent an update for docker parameters 'extra_hosts': host.docker.internal"""
+    """Sent an update for docker parameters 'extra_hosts':
+    host.docker.internal."""
     return {"host.docker.internal": docker_host_gateway_ip()}
 
 
@@ -142,7 +142,10 @@ def new_docker_mount(volume_params: dict) -> docker.types.Mount:
 
 
 def new_docker_driver_config(volume_params: dict) -> docker.types.DriverConfig | None:
-    """Volume driver configuration. Only valid for the 'volume' type."""
+    """Volume driver configuration.
+
+    Only valid for the 'volume' type.
+    """
     driver = volume_params.get("driver")
     if not driver or driver == "local":
         return None
@@ -181,7 +184,8 @@ def stop_previous_containers(sites: list):
 
 
 def deactivate_all_instances():
-    """Find all instance in DB
+    """Find all instance in DB.
+
     - remove container if exists
     - remove site from DB
     """

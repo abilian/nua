@@ -2,9 +2,10 @@ from pprint import pformat
 
 
 def ports_as_dict(port_list: list) -> dict:
-    """replace ports list by a dict with container port as key
+    """replace ports list by a dict with container port as key.
 
-    (use str key because later conversion to json)"""
+    (use str key because later conversion to json)
+    """
     return {str(port["container"]): port for port in port_list}
 
 

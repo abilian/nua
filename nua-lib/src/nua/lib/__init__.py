@@ -1,6 +1,4 @@
-"""
-Low-level utilities for both NUA build and NUA runtime.
-"""
+"""Low-level utilities for both NUA build and NUA runtime."""
 
 # Version of module available at first level, __version__
 # computed from pyproject data in version.py module

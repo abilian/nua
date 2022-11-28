@@ -1,6 +1,4 @@
-"""
-Make a docker image for frappe/bench
-"""
+"""Make a docker image for frappe/bench."""
 import os
 
 from nua.lib.actions import (  # pip_install_glob,

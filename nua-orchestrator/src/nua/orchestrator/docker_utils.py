@@ -164,8 +164,8 @@ def docker_check_container_listed(name: str) -> bool:
 
 
 def docker_remove_prior_container_db(rsite: Resource):
-    """Search & remove containers already configured for this same Site or Resource
-    (running or stopped), from DB."""
+    """Search & remove containers already configured for this same Site or
+    Resource (running or stopped), from DB."""
     if rsite.type != "nua-site":
         # FIXME for resourc containers
         return
@@ -183,7 +183,7 @@ def docker_remove_prior_container_db(rsite: Resource):
 
 
 def docker_remove_container_db(container_names: list):
-    """Remove container of full domain name from running container and DB"""
+    """Remove container of full domain name from running container and DB."""
     for name in container_names:
         if not name:
             continue
@@ -208,8 +208,8 @@ def docker_remove_container_db(container_names: list):
 
 
 def docker_remove_prior_container_live(rsite: Resource):
-    """Search & remove containers already configured for this same Site or Resource
-    (running or stopped), from Docker.
+    """Search & remove containers already configured for this same Site or
+    Resource (running or stopped), from Docker.
 
     Security feature: try to remove containers of exactly same name that
     could be found in docker daemon:

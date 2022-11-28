@@ -13,13 +13,19 @@ from . import config
 
 
 def search_nua(app_name: str) -> list:
-    """Search Nua image from the registries. (local registry for now)."""
+    """Search Nua image from the registries.
+
+    (local registry for now).
+    """
     app, tag = parse_app_name(app_name)
     return search_docker_tar_local(app, tag)
 
 
 def search_nua_print(app_name: str) -> list:
-    """Search Nua image from the registries. (local registry for now)."""
+    """Search Nua image from the registries.
+
+    (local registry for now).
+    """
     print_magenta(f"Search image '{app_name}'")
     results = search_nua(app_name)
     if results:

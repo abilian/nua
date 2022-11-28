@@ -41,6 +41,7 @@ class MariaDbManager(DbManager):
 
     def mariadb_pwd(self) -> str:
         """Return the 'root' user DB password of mariadb.
+
         - container context: the env variable NUA_MARIADB_PASSWORD should contain
         the password.
         """
@@ -136,8 +137,7 @@ class MariaDbManager(DbManager):
 
     def db_table_exist(self, dbname: str, user: str, password: str, table: str) -> bool:
         """Check if the named database exists (for host, connecting as user),
-        assuming DB exists.
-        """
+        assuming DB exists."""
         connection = mariadb.connect(
             host=self.host, database=dbname, user=user, password=password
         )

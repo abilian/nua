@@ -141,9 +141,10 @@ class Resource(dict):
             self["secrets"] = []
 
     def set_ports_as_dict(self):
-        """replace ports list by a dict with container port as key
+        """replace ports list by a dict with container port as key.
 
-        (use str key because later conversion to json)"""
+        (use str key because later conversion to json)
+        """
         ports_dict = ports_as_dict(self.port)
         self.port = ports_dict
 
@@ -285,10 +286,12 @@ class Resource(dict):
         self.volume = list(vol_dic.values())
 
     def environment_ports(self) -> dict:
-        """Return exposed ports and resource host (container name) as env variables.
+        """Return exposed ports and resource host (container name) as env
+        variables.
 
-        To be used by remote container from same bridge network to connect to the
-        resource container port."""
+        To be used by remote container from same bridge network to
+        connect to the resource container port.
+        """
         run_env = {}
         for port in self.port.values():
             variable = f"NUA_{self.resource_name.upper()}_PORT_{port['container']}"
@@ -301,6 +304,7 @@ class Resource(dict):
     @staticmethod
     def _postgres_pwd() -> str:
         """Return the 'postgres' user DB password.
+
           - When used in container context, the env variable NUA_POSTGRES_PASSWORD should
             contain the password.
           - When used in nua-orchestrator context, read the password from local file.
@@ -308,7 +312,8 @@ class Resource(dict):
         For orchestrator context, assuming this function can only be used *after*
         password was generated (or its another bug).
 
-        Rem.: No cache. Rarely used function and pwd can be changed."""
+        Rem.: No cache. Rarely used function and pwd can be changed.
+        """
         pwd = os.environ.get("NUA_POSTGRES_PASSWORD")
         if pwd:
             return pwd
@@ -318,6 +323,7 @@ class Resource(dict):
     @staticmethod
     def _mariadb_pwd() -> str:
         """Return the 'root' user DB password of mariadb.
+
           - When used in container context, the env variable NUA_MARIADB_PASSWORD should
             contain the password.
           - When used in nua-orchestrator context, read the password from local file.
@@ -325,7 +331,8 @@ class Resource(dict):
         For orchestrator context, assuming this function can only be used *after* password
         was generated (or its another bug).
 
-        Rem.: No cache. Rarely used function and pwd can be changed."""
+        Rem.: No cache. Rarely used function and pwd can be changed.
+        """
         pwd = os.environ.get("NUA_MARIADB_PASSWORD")
         if pwd:
             return pwd

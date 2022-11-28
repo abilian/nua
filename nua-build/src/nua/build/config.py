@@ -1,5 +1,4 @@
-"""configuration of the nua_build instance.
-"""
+"""configuration of the nua_build instance."""
 from pathlib import Path
 
 import tomli

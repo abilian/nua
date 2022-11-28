@@ -1,5 +1,4 @@
-"""Class DomainSplit to parse a doman string in valid parts.
-"""
+"""Class DomainSplit to parse a doman string in valid parts."""
 
 from urllib.parse import urlparse
 

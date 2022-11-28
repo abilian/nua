@@ -5,7 +5,6 @@ from .model.base import Base
 
 
 def create_base():
-
     # assert config.db.backend == "sqlite"
 
     engine = create_engine(

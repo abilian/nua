@@ -1,5 +1,4 @@
-"""For debug, remove all sites instances.
-"""
+"""For debug, remove all sites instances."""
 from nua.lib.tool.state import set_verbose
 
 from ..db_setup import setup_db

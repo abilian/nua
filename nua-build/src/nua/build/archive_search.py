@@ -8,8 +8,8 @@ import tomli
 class ArchiveSearch:
     """Utilities to search files in docker image stored as .tar archive.
 
-    Current usage: retrieve the nua-config.toml config used when building the
-    Nua app.
+    Current usage: retrieve the nua-config.toml config used when
+    building the Nua app.
     """
 
     def __init__(self, archive: str | Path) -> None:

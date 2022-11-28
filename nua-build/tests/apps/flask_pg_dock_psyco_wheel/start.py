@@ -1,5 +1,7 @@
 """Example adapted from:
-https://www.digitalocean.com/community/tutorials/how-to-use-a-postgresql-database-in-a-flask-application"""
+
+https://www.digitalocean.com/community/tutorials/how-to-use-a-postgresql-database-in-a-flask-application
+"""
 #
 # RUN echo "listen_addresses='*'" >> /etc/postgresql/9.3/main/postgresql.conf
 # RUN echo "host all  all    0.0.0.0/0  trust" >> /etc/postgresql/9.3/main/pg_hba.conf
@@ -24,7 +26,8 @@ from nua.runtime.postgres_manager import PostgresManager
 def setup_db():
     """Find or create the required DB for app user.
 
-    In this example The DB is on remote docker container."""
+    In this example The DB is on remote docker container.
+    """
     manager = PostgresManager(DB_HOST, DB_PORT, "", "")
     postgres.setup_db_user(
         USER_DB,

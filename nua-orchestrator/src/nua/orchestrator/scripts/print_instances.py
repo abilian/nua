@@ -1,5 +1,4 @@
-"""For debug, print the content of the Instance table.
-"""
+"""For debug, print the content of the Instance table."""
 from pprint import pprint
 
 from ..db import store

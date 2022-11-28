@@ -1,5 +1,4 @@
-"""Nua main scripts.
-"""
+"""Nua main scripts."""
 # import multiprocessing as mp
 import os
 

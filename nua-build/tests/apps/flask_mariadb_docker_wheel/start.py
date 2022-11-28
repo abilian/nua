@@ -1,6 +1,8 @@
 """Example adapted from:
+
 https://www.digitalocean.com/community/tutorials/
-    how-to-use-a-postgresql-database-in-a-flask-application"""
+    how-to-use-a-postgresql-database-in-a-flask-application
+"""
 
 import os
 
@@ -21,7 +23,8 @@ from nua.runtime.mariadb_manager import MariaDbManager
 def setup_db():
     """Find or create the required DB.
 
-    In this example The DB is manage by a dedicated docker container."""
+    In this example The DB is manage by a dedicated docker container.
+    """
     manager = MariaDbManager(DB_HOST, DB_PORT, "", "")
     manager.setup_db_user(USER_DB, USER_NAME, USER_PASSWORD)
 
