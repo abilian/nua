@@ -15,7 +15,7 @@ def lint(session: nox.Session) -> None:
 @nox.session(python=PYTHON_VERSIONS)
 def pytest(session: nox.Session) -> None:
     _install(session)
-    session.run("pytest", "--tb=short", external=True)
+    session.run("pytest", "--tb=short")
 
 
 def _install(session: nox.Session):

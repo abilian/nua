@@ -1,6 +1,5 @@
 import nox
 
-BASE_PYTHON_VERSION = "3.10"
 PYTHON_VERSIONS = ["3.10"]
 
 nox.options.reuse_existing_virtualenvs = True
@@ -50,11 +49,5 @@ def run_subsession(session, sub_repo):
     name = session.name.split("(")[0]
     print(f"\nRunning session: {session.name} in subrepo: {sub_repo}\n")
     with session.chdir(sub_repo):
-        session.run(
-            "nox",
-            "-e",
-            name,
-            "--reuse-existing-virtualenvs",
-            external=True,
-        )
+        session.run("nox", "-e", name, external=True)
     print()
