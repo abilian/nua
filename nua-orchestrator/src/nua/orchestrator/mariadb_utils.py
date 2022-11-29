@@ -139,7 +139,7 @@ def bootstrap_install_mariadb() -> bool:
             f"mariadb-server-{MARIADB_VERSION}",
             "libmariadb3",
             "libmariadb-dev",
-            "mariadb-client",
+            # "mariadb-client",
         ],
         update=False,
         clean=False,
