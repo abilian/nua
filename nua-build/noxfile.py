@@ -6,13 +6,13 @@ PYTHON_VERSIONS = ["3.10"]
 nox.options.reuse_existing_virtualenvs = True
 
 
-@nox.session(python=PYTHON_VERSIONS, venv_backend="venv")
+@nox.session
 def lint(session: nox.Session) -> None:
     _install(session)
     session.run("make", "lint", external=True)
 
 
-@nox.session(python=PYTHON_VERSIONS, venv_backend="venv")
+@nox.session(python=PYTHON_VERSIONS)
 def pytest(session: nox.Session) -> None:
     _install(session)
     session.run("pytest", "--tb=short", external=True)
