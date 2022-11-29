@@ -76,7 +76,7 @@ def bootstrap():
     create_nua_venv()
     install_python_packages()
     bootstrap_install_postgres_or_fail()
-    bootstrap_install_mariadb_or_fail()
+    # bootstrap_install_mariadb_or_fail()
     install_nginx()
     install_local_orchestrator()
     # create_nua_key()
