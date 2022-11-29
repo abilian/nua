@@ -8,7 +8,7 @@ website = "https://nua.rocks/"
 tags = ["test", "html", "web", "Hedgedoc"]
 licence = "MIT"
 profile = ["test"]
-release = 1
+release = 3
 
 [build]
 # use a base docker image containing nodejs:
@@ -27,7 +27,7 @@ auto_remove = false
 
 [run.env]
 NODE_ENV = "production"
-DEBUG = false
+DEBUG = true
 UPLOADS_MODE = "0700"
 
 # DB_HOST=<hostname or ip>
@@ -47,14 +47,14 @@ CMD_DOMAIN = "localhost"
 CMD_HSTS_ENABLE = false
 # URL_ADDPORT defines if generated links should contain the port.
 CMD_URL_ADDPORT = false
-CMD_PROTOCOL_USESSL=false
+CMD_PROTOCOL_USESSL = false
 # CMD_ALLOW_ORIGIN=['localhost'] #optional
 # CMD_ALLOW_ORIGIN =
 
 # See https://docs.hedgedoc.org/configuration/#users-and-privileges
 CMD_ALLOW_ANONYMOUS = true
 # CMD_ALLOW_ANONYMOUS = true
-# CMD_ALLOW_ANONYMOUS_EDITS
+CMD_ALLOW_ANONYMOUS_EDITS = true
 # CMD_ALLOW_FREEURL
 # CMD_REQUIRE_FREEURL_AUTHENTICATION
 # CMD_DEFAULT_PERMISSION
@@ -74,6 +74,18 @@ CMD_DB_DATABASE = "hedgedoc"
 
 [port.web]
 container = 3000
+
+[[volume]]
+# declare a local volume for plublic uploads
+type = "bind"
+# Name of the driver used to create the volume: (for type == "volume")
+# driver = "local"
+# Mount source (e.g. a volume name or a host path):
+source = "/var/tmp"
+# Container path:
+target = "/hedgedoc/public/uploads"
+# mode (default to 'rw'
+mode = "rw"
 
 [[resource]]
 # A resource is another container required by the main app container, its
@@ -111,6 +123,8 @@ image = "docker.io/library/postgres:14.5"
     target = "/var/lib/postgresql/data"
     # mode (default to 'rw'
     mode = "rw"
+
+
 
 # For sqlite:
 # [[volume]]

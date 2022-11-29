@@ -7,6 +7,7 @@ CMD_DOMAIN = "test1.yerom.xyz"
 CMD_EMAIL = true
 CMD_ALLOW_EMAIL_REGISTER = true
 CMD_ALLOW_ANONYMOUS = true
+CMD_ALLOW_ORIGIN=["localhost", "test1.yerom.xyz"]
 # sqlite:
 # CMD_DB_URL = "sqlite:///nua/data/sqlite.db"
 CMD_DB_PASSWORD = "azerty"

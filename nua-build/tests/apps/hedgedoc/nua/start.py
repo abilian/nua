@@ -28,4 +28,4 @@ def setup_db():
 
 
 setup_db()
-exec_as_nua("node app.js", cwd="/nua/build/hedgedoc", env=env)
+exec_as_nua("node app.js", cwd="/hedgedoc", env=env)

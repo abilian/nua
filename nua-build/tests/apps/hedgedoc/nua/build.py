@@ -28,24 +28,23 @@ def main():
         "git",
     ]
 
-    # to test: can we remove {hedge_src}
-    # cmd = f"yarn cache clean ; rm -fr /tmp/* ; rm -fr {hedge_src}"
-
     install_psycopg2_python()
 
     install_package_list(packages, keep_lists=True)
 
     with tmp_install_package_list(tmp_packages):
         npm_install("node-gyp", force=True)
-        hedge_src = download_extract(url, "/nua/build")
+        hedge_src = download_extract(url, "/")
         chdir(hedge_src)
         cmd = "bin/setup"
         sh(cmd)
         cmd = "yarn cache clean; rm -fr /tmp/*"
         sh(cmd)
 
+    install_package_list("netcat libsqlite3-dev")
+
     chdir("/nua")
-    copy2("/nua/build/nua/config.json", "/nua/build/hedgedoc/")
+    copy2("/nua/build/nua/config.json", "/hedgedoc/")
 
 
 if __name__ == "__main__":
