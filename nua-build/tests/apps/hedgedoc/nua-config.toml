@@ -8,7 +8,7 @@ website = "https://nua.rocks/"
 tags = ["test", "html", "web", "Hedgedoc"]
 licence = "MIT"
 profile = ["test"]
-release = 3
+release = 4
 
 [build]
 # use a base docker image containing nodejs:
@@ -27,7 +27,7 @@ auto_remove = false
 
 [run.env]
 NODE_ENV = "production"
-DEBUG = true
+DEBUG = "true"
 UPLOADS_MODE = "0700"
 
 # DB_HOST=<hostname or ip>
@@ -44,23 +44,22 @@ CMD_DOMAIN = "localhost"
 # CMD_DB_URL = "postgres://hedgedoc:password@database:5432/hedgedoc"
 # CMD_DB_URL = "sqlite:///nua/data/sqlite.db"
 # HSTS_ENABLE defines if HSTS headers should be sent. Set this to true if you use HTTPS.
-CMD_HSTS_ENABLE = false
+CMD_HSTS_ENABLE = "false"
 # URL_ADDPORT defines if generated links should contain the port.
-CMD_URL_ADDPORT = false
-CMD_PROTOCOL_USESSL = false
+CMD_URL_ADDPORT = "false"
+CMD_PROTOCOL_USESSL = "false"
 # CMD_ALLOW_ORIGIN=['localhost'] #optional
 # CMD_ALLOW_ORIGIN =
 
 # See https://docs.hedgedoc.org/configuration/#users-and-privileges
-CMD_ALLOW_ANONYMOUS = true
-# CMD_ALLOW_ANONYMOUS = true
-CMD_ALLOW_ANONYMOUS_EDITS = true
+CMD_ALLOW_ANONYMOUS = "true"
+CMD_ALLOW_ANONYMOUS_EDITS = "true"
 # CMD_ALLOW_FREEURL
 # CMD_REQUIRE_FREEURL_AUTHENTICATION
 # CMD_DEFAULT_PERMISSION
 
-CMD_EMAIL = true
-CMD_ALLOW_EMAIL_REGISTER = true
+CMD_EMAIL = "true"
+CMD_ALLOW_EMAIL_REGISTER = "true"
 
 # postgres:
 CMD_DB_HOST = ""  # will be replaced by actual local network configuration of docker

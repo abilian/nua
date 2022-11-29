@@ -1,12 +1,12 @@
 [[site]]
-image = "hedgedoc:1.9.6-3"
+image = "hedgedoc:1.9.6-4"
 domain = "test1.yerom.xyz"
 [site.run.env]
 # CMD_SESSION_LIFE = 60  # for test
 CMD_DOMAIN = "test1.yerom.xyz"
-CMD_EMAIL = true
-CMD_ALLOW_EMAIL_REGISTER = true
-CMD_ALLOW_ANONYMOUS = true
+CMD_EMAIL = "true"
+CMD_ALLOW_EMAIL_REGISTER = "true"
+CMD_ALLOW_ANONYMOUS = "true"
 CMD_ALLOW_ORIGIN=["localhost", "test1.yerom.xyz"]
 # sqlite:
 # CMD_DB_URL = "sqlite:///nua/data/sqlite.db"

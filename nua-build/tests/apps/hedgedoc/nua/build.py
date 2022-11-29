@@ -41,9 +41,8 @@ def main():
         cmd = "yarn cache clean; rm -fr /tmp/*"
         sh(cmd)
 
-    install_package_list("netcat libsqlite3-dev")
-
-    chdir("/nua/build")
+    # install_package_list("netcat libsqlite3-dev")
+    # chdir("/nua/build")
     copy2("/nua/build/nua/config.json", "/nua/build/hedgedoc/")
 
 
