@@ -34,7 +34,7 @@ def main():
 
     with tmp_install_package_list(tmp_packages):
         npm_install("node-gyp", force=True)
-        hedge_src = download_extract(url, "/")
+        hedge_src = download_extract(url, "/nua/build")
         chdir(hedge_src)
         cmd = "bin/setup"
         sh(cmd)
@@ -43,8 +43,8 @@ def main():
 
     install_package_list("netcat libsqlite3-dev")
 
-    chdir("/nua")
-    copy2("/nua/build/nua/config.json", "/hedgedoc/")
+    chdir("/nua/build")
+    copy2("/nua/build/nua/config.json", "/nua/build/hedgedoc/")
 
 
 if __name__ == "__main__":
