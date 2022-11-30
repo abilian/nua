@@ -1,6 +1,6 @@
+from collections.abc import Generator
 from pathlib import Path
 from tarfile import TarFile, TarInfo
-from typing import Generator
 
 import tomli
 
