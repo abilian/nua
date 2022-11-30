@@ -1,7 +1,13 @@
 """Nua scripting: 'panic' and 'error' shortcuts."""
 from typing import Any
 
-from .rich_console import print_bold, print_bold_yellow, print_green, print_red
+from .rich_console import (  # print_bold,
+    print_bold_yellow,
+    print_bold_yellow_white,
+    print_green,
+    print_green_cyan,
+    print_red,
+)
 
 
 def error(msg: str, status: int = 1, explanation: str = ""):
@@ -33,8 +39,12 @@ def show(*args: Any):
 
 
 def info(*args: Any):
-    print_bold(" ".join(str(x) for x in args))
+    print_green_cyan(" ".join(str(x) for x in args))
 
 
 def bold(*args):
     print_bold_yellow(" ".join(str(x) for x in args))
+
+
+def title(*args):
+    print_bold_yellow_white(" ".join(str(x) for x in args))

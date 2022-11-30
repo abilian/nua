@@ -10,7 +10,7 @@ See later if move this to "nua ...".
 from typing import Optional
 
 import typer
-from nua.lib.rich_console import print_green
+from nua.lib.panic import title
 from nua.lib.tool.state import set_color, set_verbose
 
 from . import __version__
@@ -79,5 +79,5 @@ def main(
     initialization()
     build_nua_builder_if_needed()
     builder = Builder(config_file)
-    print_green(f"*** Generation of the image for {builder.config.app_id} ***")
+    title(f"Generation of the image for {builder.config.app_id}")
     builder.run()

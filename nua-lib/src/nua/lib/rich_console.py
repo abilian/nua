@@ -26,6 +26,11 @@ def print_magenta(msg: str):
 
 
 @if_color
+def print_stream_blue(msg: str):
+    print(ColorStr.blue_bright(msg), end="")
+
+
+@if_color
 def print_red(msg: str):
     print(ColorStr.red_bold(msg))
 
@@ -38,3 +43,21 @@ def print_bold(msg: str):
 @if_color
 def print_bold_yellow(msg: str):
     print(ColorStr.yellow_bold(msg))
+
+
+@if_color
+def print_bold_yellow_white(msg: str):
+    parts = msg.rsplit(" ", 1)
+    if len(parts) == 2:
+        print(ColorStr.yellow_bold(parts[0]), ColorStr.white_bold(parts[1]))
+    else:
+        print(ColorStr.yellow_bold(msg))
+
+
+@if_color
+def print_green_cyan(msg: str):
+    parts = msg.rsplit(" ", 1)
+    if len(parts) == 2:
+        print(ColorStr.green(parts[0]), ColorStr.cyan(parts[1]))
+    else:
+        print(ColorStr.green(msg))

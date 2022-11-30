@@ -8,6 +8,7 @@ Note: **currently use "nuad ..." for command line**. See later if move this
 to "nua ...".
 """
 import logging
+import re
 import tempfile
 from contextlib import suppress
 from os import chdir
@@ -15,7 +16,10 @@ from pathlib import Path
 from shutil import copy2, copytree
 
 import docker
+from docker.errors import BuildError
+from docker.utils.json_stream import json_stream
 from nua.lib.panic import bold, error, info, show, warning
+from nua.lib.rich_console import print_stream_blue
 from nua.lib.shell import rm_fr
 from nua.lib.tool.state import verbosity
 from nua.runtime.constants import NUA_BUILDER_NODE_TAG, NUA_BUILDER_TAG
@@ -33,6 +37,7 @@ from ..constants import DEFAULTS_DIR, NUA_CONFIG
 
 logging.basicConfig(level=logging.INFO)
 
+RE_SUCCESS = re.compile(r"(^Successfully built |sha256:)([0-9a-f]+)$")
 # app = typer.Typer()
 
 
@@ -73,9 +78,9 @@ class Builder:
         self.copy_build_files()
         # self.copy_myself()
         if verbosity(1):
-            show("Copying Nua config file:", self.config.path.name)
+            info("Copying Nua config file:", self.config.path.name)
         copy2(self.config.path, self.build_dir)
-        self.build_with_docker()
+        self.build_with_docker_stream()
         rm_fr(self.build_dir)
 
     def make_build_dir(self):
@@ -86,7 +91,7 @@ class Builder:
             error(f"Build directory parent not found: '{build_dir_parent}'")
         self.build_dir = Path(tempfile.mkdtemp(dir=build_dir_parent))
         if verbosity(1):
-            show(f"Build directory: {self.build_dir}")
+            info(f"Build directory: {self.build_dir}")
 
     def detect_container_type(self):
         """Placeholder for future container technology detection.
@@ -126,11 +131,11 @@ class Builder:
         user_file = self.config.root_dir / name
         if user_file.is_file():
             if verbosity(1):
-                show("Copying manifest file:", user_file.name)
+                info("Copying manifest file:", user_file.name)
             copy2(user_file, self.build_dir)
         elif user_file.is_dir():
             if verbosity(1):
-                show("Copying manifest directory:", user_file.name)
+                info("Copying manifest directory:", user_file.name)
             copytree(user_file, self.build_dir / name)
         else:
             error(f"File from manifest not found: {repr(name)}")
@@ -138,11 +143,11 @@ class Builder:
     def copy_file_or_dir(self, user_file):
         if user_file.is_file():
             if verbosity(1):
-                show("Copying local file:", user_file.name)
+                info("Copying local file:", user_file.name)
             copy2(user_file, self.build_dir)
         elif user_file.is_dir():
             if verbosity(1):
-                show("Copying local directory:", user_file.name)
+                info("Copying local directory:", user_file.name)
             copytree(user_file, self.build_dir / user_file.name)
         else:
             pass
@@ -173,7 +178,7 @@ class Builder:
         if dest.is_file():
             return
         if verbosity(1):
-            show("Copying Nua default file:", default_file.name)
+            info("Copying Nua default file:", default_file.name)
 
         copy2(default_file, self.build_dir / self.nua_dir_relative)
 
@@ -199,9 +204,12 @@ class Builder:
         with suppress(IOError):
             copy2(self.build_dir / self.nua_dir_relative / "Dockerfile", self.build_dir)
         release = self.config.metadata.get("release", "")
-        rel_tag = f"-{release}" if release else ""
+        if release:
+            rel_tag = f"-{release}"
+        else:
+            rel_tag = ""
         nua_tag = f"nua-{self.config.app_id}:{self.config.version}{rel_tag}"
-        show(f"Building image {nua_tag}")
+        info(f"Building image {nua_tag}")
         client = docker.from_env()
         image, tee = client.images.build(
             path=".",
@@ -226,6 +234,34 @@ class Builder:
             print_log_stream(tee)
             print("-" * 60)
 
+    @docker_build_log_error
+    def build_with_docker_stream(self, save=True):
+        # if verbosity(2):
+        #     info("Starting build_with_docker()")
+        chdir(self.build_dir)
+        with suppress(IOError):
+            copy2(self.build_dir / self.nua_dir_relative / "Dockerfile", self.build_dir)
+        release = self.config.metadata.get("release", "")
+        if release:
+            rel_tag = f"-{release}"
+        else:
+            rel_tag = ""
+        nua_tag = f"nua-{self.config.app_id}:{self.config.version}{rel_tag}"
+        buildargs = {"nua_builder_tag": self.config.nua_base}
+        labels = {
+            "APP_ID": self.config.app_id,
+            "NUA_TAG": nua_tag,
+            "NUA_BUILD_VERSION": __version__,
+        }
+        info(f"Building image {nua_tag}")
+        image_id = _docker_stream_build(".", nua_tag, buildargs, labels)
+        if verbosity(1):
+            display_docker_img(nua_tag)
+        if save:
+            client = docker.from_env()
+            image = client.images.get(image_id)
+            self.save(image, nua_tag)
+
     def save(self, image, nua_tag):
         dest = f"/var/tmp/{nua_tag}.tar"  # noqa S108
         with open(dest, "wb") as tarfile:
@@ -234,6 +270,36 @@ class Builder:
         if verbosity(1):
             show("Docker image saved:")
             info(dest)
+
+
+def _docker_stream_build(path: str, tag: str, buildargs: dict, labels: dict) -> str:
+    client = docker.from_env()
+    resp = client.api.build(
+        path=path,
+        tag=tag,
+        rm=True,
+        forcerm=True,
+        buildargs=buildargs,
+        labels=labels,
+        nocache=True,
+    )
+    last_event = None
+    image_id = None
+    stream = json_stream(resp)
+    for chunk in stream:
+        if "error" in chunk:
+            raise BuildError(chunk["error"], stream)
+        last_event = chunk
+        message = chunk.get("stream")
+        if not message:
+            continue
+        if match := RE_SUCCESS.search(message):
+            image_id = match.group(2)
+        if verbosity(2):
+            print_stream_blue(message)
+    if not image_id:
+        raise BuildError(last_event or "Unknown", stream)
+    return image_id
 
 
 def _check_nua_build_docker_image() -> bool:
