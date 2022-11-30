@@ -1,0 +1,13 @@
+[[site]]
+image = "flask-pg-dock-psyco-autonet:1.0-2"
+domain = "test1.example.com"
+[site.run.env]
+
+[[site.test]]
+url = "https://test1.example.com/"
+expect_status = 200
+expect_str = "Books"
+[[site.test]]
+url = "https://test1.example.com/create/"
+expect_status = 200
+expect_str = "Add a New Book"

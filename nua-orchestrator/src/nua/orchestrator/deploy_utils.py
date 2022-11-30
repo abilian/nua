@@ -1,11 +1,11 @@
 """class to manage the deployment of a group os sites."""
+from collections.abc import Callable
 from pathlib import Path
 from pprint import pformat
-from typing import Callable
 
 import docker
 import docker.types
-from nua.lib.panic import error, warning
+from nua.lib.panic import error, info, warning
 from nua.lib.rich_console import print_green, print_magenta
 from nua.lib.tool.state import verbosity
 from nua.selfbuilder.docker_build_utils import display_one_docker_img
@@ -123,7 +123,10 @@ def new_docker_mount(volume_params: dict) -> docker.types.Mount:
     target = volume_params.get("target") or volume_params.get("destination")
     # Mount source (e.g. a volume name or a host path).
     source = volume_params.get("source")  # for "volume" or "bind" types
-    driver_config = new_docker_driver_config(volume_params) if tpe == "volume" else None
+    if tpe == "volume":
+        driver_config = new_docker_driver_config(volume_params)
+    else:
+        driver_config = None
     read_only = bool(volume_params.get("read_only", False))
     if tpe == "tmpfs":
         tmpfs_size = size_to_bytes(volume_params.get("tmpfs_size")) or None

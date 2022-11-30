@@ -13,7 +13,7 @@ from docker.models.containers import Container
 from docker.models.images import Image
 
 # from .db.model.instance import RUNNING
-from nua.lib.panic import error, warning
+from nua.lib.panic import error, info, warning
 from nua.lib.rich_console import print_magenta, print_red
 from nua.lib.tool.state import verbosity
 from nua.selfbuilder.docker_build_utils import docker_require
@@ -173,7 +173,7 @@ def docker_remove_prior_container_db(rsite: Resource):
     if not previous_name:
         return
     if verbosity(1):
-        print_magenta(f"    -> remove previous container: {previous_name}")
+        info(f"    -> remove previous container: {previous_name}")
     docker_stop_container_name(previous_name)
     docker_remove_container(previous_name)
     if verbosity(3):
@@ -226,7 +226,7 @@ def docker_remove_prior_container_live(rsite: Resource):
 def _erase_previous_container(client: DockerClient, name: str):
     try:
         container = client.containers.get(name)
-        print_red(f"    -> Remove existing container '{container.name}'")
+        info(f"    -> Remove existing container '{container.name}'")
         container.remove(force=True)
     except APIError:
         pass
@@ -253,8 +253,8 @@ def docker_run(rsite: Resource) -> Container:
     params["detach"] = True  # force detach option
     if rsite.network_name:
         params["network"] = rsite.network_name
-        if verbosity(2):
-            print("added network:\n", pformat(params))
+        if verbosity(2) and rsite.network_name:
+            info("network:", rsite.network_name)
     client = from_env()
     _erase_previous_container(client, params["name"])
     container = client.containers.run(rsite.image_id, **params)

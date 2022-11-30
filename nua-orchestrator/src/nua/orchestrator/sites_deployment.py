@@ -1,8 +1,8 @@
 """class to manage the deployment of a group os sites."""
+from collections.abc import Callable
 from copy import deepcopy
 from pathlib import Path
 from pprint import pformat
-from typing import Callable
 
 import tomli
 from nua.lib.panic import error, info, warning

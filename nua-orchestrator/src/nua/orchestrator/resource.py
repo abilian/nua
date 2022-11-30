@@ -1,6 +1,6 @@
 import os
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable
 
 from nua.lib.panic import error, warning
 
@@ -284,6 +284,15 @@ class Resource(dict):
         for update_vol in value:
             vol_dic[update_vol["target"]] = update_vol
         self.volume = list(vol_dic.values())
+
+    def require_network(self) -> bool:
+        """Heuristic to evaluate the need of docker private network.
+
+        Basic: using a docker container as resource probably implies need of network.
+        """
+        if self.type == "docker":
+            return True
+        return False
 
     def environment_ports(self) -> dict:
         """Return exposed ports and resource host (container name) as env

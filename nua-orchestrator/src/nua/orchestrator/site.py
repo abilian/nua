@@ -58,9 +58,23 @@ class Site(Resource):
 
     def set_network_name(self):
         self.network_name = self._merged_instance_network_name()
+        if verbosity(4):
+            print("set_network_name() network_name =", self.network_name)
+        if not self.network_name or self.network_name == "auto":
+            self.detect_required_network()
         if self.network_name:
             for resource in self.resources:
                 resource.network_name = self.network_name
+
+    def detect_required_network(self):
+        """Evaluate the need of a bridge private network.
+
+        If needed, stet a relevant network name.
+        """
+        if any(resource.require_network() for resource in self.resources):
+            self.network_name = self.container_name
+            if verbosity(4):
+                print("detect_required_network() network_name =", self.network_name)
 
     def set_secrets(self):
         instance = self.image_nua_config.get("instance", {})
