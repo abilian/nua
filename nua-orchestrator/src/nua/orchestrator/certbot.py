@@ -14,6 +14,7 @@ import os
 
 from nua.lib.panic import error
 from nua.lib.rich_console import print_red
+from nua.lib.tool.state import verbosity
 
 from . import config
 from .certbot_strategies import apply_auto_strategy, apply_none_strategy
@@ -45,6 +46,8 @@ def register_certbot_domains(sites: list):
     strategy_function = ALLOWED_STRATEGY[strategy]
     for domains in tops.values():
         strategy_function(list(domains))
+    if verbosity(3):
+        print("register_certbot_domains() done")
 
 
 def get_certbot_strategy() -> str:

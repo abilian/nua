@@ -5,7 +5,7 @@ from pprint import pformat
 from typing import Callable
 
 import tomli
-from nua.lib.panic import error, warning
+from nua.lib.panic import error, info, warning
 from nua.lib.rich_console import print_green, print_magenta, print_red
 from nua.lib.tool.state import verbosity
 from nua.selfbuilder.docker_build_utils import display_one_docker_img, docker_require
@@ -86,7 +86,7 @@ class SitesDeployment:
     def load_deploy_config(self, deploy_config: str):
         config_path = Path(deploy_config).expanduser().resolve()
         if verbosity(1):
-            print_magenta(f"Deploy sites from: {config_path}")
+            info(f"Deploy sites from: {config_path}")
         deploy_sites_config = tomli.loads(config_path.read_text())
         self.deploy_sites = self.parse_deploy_sites(deploy_sites_config)
         self.host_list = self.build_host_list()
@@ -240,7 +240,7 @@ class SitesDeployment:
         for site in self.deploy_sites:
             site.parse_resources()
         if not self.pull_all_resource_images():
-            error("Missing Nua images")
+            error("Missing Docker images")
 
     def pull_all_resource_images(self) -> bool:
         return all(
@@ -253,7 +253,7 @@ class SitesDeployment:
         if resource.type != "docker":
             return True
         if verbosity(1):
-            print_magenta(f"Pulling image '{resource.image}'")
+            info(f"Pulling image '{resource.image}'")
         docker_image = docker_require(resource.image)
         if docker_image:
             if verbosity(1):
@@ -276,39 +276,33 @@ class SitesDeployment:
     def configure_deployment(self):
         self.sites = self.host_list_to_sites()
         self.set_network_names()
-        if verbosity(3):
-            print("set_network_names() done")
         self.set_secrets()
-        if verbosity(3):
-            print("set_secrets() done")
         self.merge_instances_to_resources()
-        if verbosity(3):
-            print("merge_instances_to_resources() done")
         self.generate_ports()
-        if verbosity(3):
-            print("generate_ports() done")
         self.configure_nginx()
         if verbosity(2):
             print("'sites':\n", pformat(self.sites))
         register_certbot_domains(self.sites)
-        if verbosity(3):
-            print("register_certbot_domains() done")
         self.check_services()
-        if verbosity(3):
-            print("check_services() done")
         self.restart_services()
 
     def set_network_names(self):
         for site in self.sites:
             site.set_network_name()
+        if verbosity(3):
+            print("set_network_names() done")
 
     def set_secrets(self):
         for site in self.sites:
             site.set_secrets()
+        if verbosity(3):
+            print("set_secrets() done")
 
     def merge_instances_to_resources(self):
         for site in self.sites:
             site.merge_instance_to_resources()
+        if verbosity(3):
+            print("merge_instances_to_resources() done")
 
     def check_services(self):
         for site in self.sites:
@@ -319,6 +313,8 @@ class SitesDeployment:
                     warning(
                         f"Service '{service}': configuration problem for '{site.image}'"
                     )
+        if verbosity(3):
+            print("check_services() done")
 
     def restart_services(self):
         reboots = set()
@@ -326,9 +322,9 @@ class SitesDeployment:
             reboots.update(site.required_services)
         if verbosity(2):
             if reboots:
-                print("Services to restart:", pformat(reboots))
+                info("Services to restart:", pformat(reboots))
             else:
-                print("Services to restart: None")
+                info("Services to restart: None")
         for service in reboots:
             handler = self.available_services[service]
             handler.restart()
@@ -337,7 +333,7 @@ class SitesDeployment:
         clean_nua_nginx_default_site()
         for host in self.host_list:
             if verbosity(1):
-                print_magenta(f"Configure Nginx for hostname '{host['hostname']}'")
+                info(f"Configure Nginx for hostname '{host['hostname']}'")
             configure_nginx_hostname(host)
 
     def generate_ports(self):
@@ -361,6 +357,8 @@ class SitesDeployment:
         self.generate_ports_for_sites(
             port_allocator(start_ports, end_ports, allocated_ports)
         )
+        if verbosity(3):
+            print("generate_ports() done")
 
     def _configured_ports(self) -> set[int]:
         """Return set of required host ports (aka non auto ports) from
