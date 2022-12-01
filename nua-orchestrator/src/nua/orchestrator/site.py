@@ -52,8 +52,8 @@ class Site(Resource):
         network_name = instance.get("network") or ""
         if not network_name:
             return ""
-        renamed = self.get("network") or ""
-        network_name = renamed if renamed else network_name
+        if renamed := self.get("network"):
+            network_name = renamed
         return sanitized_name(network_name)
 
     def set_network_name(self):
@@ -81,6 +81,23 @@ class Site(Resource):
         self.secrets = instance.get("secrets") or []
         for resource in self.resources:
             resource.secrets = self.secrets
+
+    def instance_key_requirements(self) -> list:
+        """grab requirements like:
+
+        [instance.db_host]
+        key = "DB_HOST"
+        resource_property = "database.container"
+        """
+        instance = self.image_nua_config.get("instance", {})
+        requirements = []
+        for _inst_key, require in instance.items():
+            if not isinstance(require, dict):
+                continue
+            if "key" not in require:
+                continue
+            requirements.append(require)
+        return requirements
 
     def resource_per_name(self, name: str) -> Resource | None:
         for resource in self.resources:
@@ -197,8 +214,15 @@ class Site(Resource):
     def nua_long_name(self) -> str:
         meta = self.image_nua_config["metadata"]
         release = meta.get("release", "")
-        rel_tag = f"-{release}" if release else ""
-        nua_prefix = "" if meta["id"].startswith("nua-") else "nua-"
+        rel_tag = f"-{release}"
+        if release:
+            rel_tag = f"-{release}"
+        else:
+            rel_tag = ""
+        if meta["id"].startswith("nua-"):
+            nua_prefix = ""
+        else:
+            nua_prefix = "nua-"
         return f"{nua_prefix}{meta['id']}-{meta['version']}{rel_tag}"
 
     @property

@@ -1,0 +1,87 @@
+[metadata]
+id = "flask-pg-dock-psyco-exp"
+version = "1.0"
+title = "Flask/PostgreSQL/docker/psycopg2 test exp wheel"
+author = "Nua testers"
+tagline = "Nua test with Flask/PostgreSQL/docker/psycopg2"
+website = "https://nua.rocks/"
+tags = ["test", "html", "web", "static", "plugin", "PostgreSQL", "docker", "psycopg2"]
+licence = "MIT"
+profile = ["test"]
+release = 1
+
+[build]
+document_root = "/nua/app/html"
+
+[instance]
+
+# name of the bridge network used by this container and related resources.
+# network = "flask-pg-1"
+secrets = "POSTGRES_PASSWORD"
+
+[instance.user_passwd]
+key = "USER_PASSWORD"
+random_str = true
+[instance.db_host]
+key = "DB_HOST"
+resource_property = "database.container"
+
+[run]
+restart_policy.name = "always"
+[run.env]
+# using default port of postgres, directly addressing the postgres docker container.
+# DB_HOST for the resource "database" will be found in the env variable NUA_DATABASE_HOST
+DB_PORT = "5432"
+# Postgres password of the "remote" resource DB:
+USER_DB = "bob_db"
+USER_NAME = "bob"
+# USER_PASSWORD = "bob_pwd"
+
+
+[port.web]
+# publication port of the app inside the container
+container = 80
+# Publication port on the localhost, that will be automatically generated and will
+# be used for configuration of the nginx proxy
+# host = "auto"
+
+[[resource]]
+# A resource is another container required by the main app container, its
+# configuration is described below, under the key of name of the resource. Several
+# resources can be declared. The resource host will appear in the local network
+# with a hostname equal to the container name. The name of the resource hostname
+# is available in the environment variable NUA_${name_of_the_resource}_HOST, ie in
+# this example: NUA_DATABASE_HOST
+
+# declaration of the required image for the resurce, here the official Postgres
+# Docker image
+name = "database"
+type = "docker"
+image = "docker.io/library/postgres:14.5"
+
+[resource.run]
+    detach = true
+    restart_policy.name="always"
+
+[resource.run_env]
+
+
+# [resource.port.web]
+    # no port declaration: port declaration is required. The resource does not need to
+    # expose ports on the locahost network, the main container will directly connect
+    # using hostname:port of the resource through the bridge network declared as
+    # ' network = "flask-pg-1" '
+
+[[resource.volume]]
+    # here we declare a mounted volume (ie: managed by Docker daemon)
+
+    # The mount type (bind / volume / tmpfs / npipe). Default: volume :
+    type = "volume"
+    # Name of the driver used to create the volume: (for type == "volume")
+    driver = "local"
+    # Mount source (e.g. a volume name or a host path):
+    source = "postgres_data_pg_1"
+    # Container path:
+    target = "/var/lib/postgresql/data"
+    # mode (default to 'rw'
+    mode = "rw"

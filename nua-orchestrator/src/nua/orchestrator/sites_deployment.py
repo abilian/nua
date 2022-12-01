@@ -37,6 +37,7 @@ from .nginx_util import (
     configure_nginx_hostname,
     nginx_restart,
 )
+from .requirement_evaluator import instance_key_evaluator
 from .resource import Resource
 from .search_cmd import search_nua
 from .service_loader import Services
@@ -495,6 +496,8 @@ class SitesDeployment:
         run_env.update(run_dot_env)
         run_env.update(self.services_environment(site))
         run_env.update(self.resources_environment(site))
+        run_env.update(instance_key_evaluator(site))
+        # variables declared in run_env can replace any other source:
         run_env.update(site.run_env)
         return run_env
 
