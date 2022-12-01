@@ -15,7 +15,7 @@ from .db import store
 from .docker_utils import (
     docker_host_gateway_ip,
     docker_network_prune,
-    docker_remove_container_db,
+    docker_remove_container_previous,
     docker_run,
     docker_volume_create_or_use,
     docker_volume_prune,
@@ -171,19 +171,35 @@ def start_one_container(rsite: Resource, run_params: dict, mounted_volumes: list
     environ = run_params.get("environment", {})
     environ.update(secret_dict)
     rsite.run_params["environment"] = environ
-    docker_run(rsite)
+    new_container = docker_run(rsite)
     if mounted_volumes:
         rsite.run_params["mounts"] = True
     if verbosity(1):
-        print_magenta(f"    -> run new container         '{rsite.container}'")
+        info(f"    -> run new container of name: {rsite.container}")
+        info(f"                    container ID: {new_container.id}")
         if rsite.network_name:
-            print_magenta(
-                f"       container connected to network '{rsite.network_name}'"
-            )
+            info(f"       container is connected to network {rsite.network_name}")
 
 
 def stop_previous_containers(sites: list):
     pass
+
+
+def deactivate_containers(container_names: list):
+    for name in container_names:
+        if not name:
+            continue
+        docker_remove_container_previous(name)
+        store.instance_delete_by_container(name)
+
+
+def deactivate_site(site: Site):
+    """Deactive containers of Site and all sub Resources (updating
+    orchestrator DB).
+    """
+    container_names = [res.container for res in site.resources]
+    container_names.append(site.container)
+    deactivate_containers(container_names)
 
 
 def deactivate_all_instances():
@@ -199,7 +215,10 @@ def deactivate_all_instances():
                 f"'{instance.app_id}' instance on '{instance.domain}'"
             )
         site_config = instance.site_config
-        container_names = [res["container"] for res in site_config.get("resources", [])]
+        container_names = [
+            res.get("container", "") for res in site_config.get("resources", [])
+        ]
         container_names.append(site_config["container"])
-        docker_remove_container_db(container_names)
+        container_names = [name for name in container_names if name]
+        deactivate_containers(container_names)
     docker_network_prune()

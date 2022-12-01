@@ -25,6 +25,11 @@ class Site(Resource):
 
     @property
     def resources(self) -> list:
+        """List of sub resources of the Site object.
+
+        Warning: only Site class has an actual use of 'resources'.
+        The sub class Resource will always provide an *empty* list
+        """
         return self.get("resources", [])
 
     @resources.setter
@@ -209,6 +214,13 @@ class Site(Resource):
         self.port = ports
         for resource in self.resources:
             resource.port = ports_as_dict(resource.port)
+
+    @property
+    def app_id(self) -> str:
+        return self.image_nua_config["metadata"]["id"]
+        # if app_id.startswith("nua-"):
+        #     app_id = app_id[4:]
+        # return app_id
 
     @property
     def nua_long_name(self) -> str:

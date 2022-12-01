@@ -182,29 +182,25 @@ def docker_remove_prior_container_db(rsite: Resource):
     store.instance_delete_by_domain(rsite.domain)
 
 
-def docker_remove_container_db(container_names: list):
+def docker_remove_container_previous(name: str):
     """Remove container of full domain name from running container and DB."""
-    for name in container_names:
-        if not name:
-            continue
-        containers = docker_container_of_name(name)
-        if verbosity(3):
-            print(f"Stopping container: {pformat(containers)}")
-        if containers:
-            container = containers[0]
-            if verbosity(2):
-                print(f"Stopping container '{container.name}'")
-            _docker_stop_container(container)
-            if verbosity(2):
-                print(f"Removing container '{container.name}'")
-            try:
-                container.remove(v=False, force=True)
-            except NotFound:
-                # container was "autoremoved" after stop
-                pass
-        else:
-            warning(f"while removing container: no container of name '{name}'")
-        store.instance_delete_by_container(name)
+    containers = docker_container_of_name(name)
+    if verbosity(3):
+        print(f"Stopping container: {pformat(containers)}")
+    if containers:
+        container = containers[0]
+        if verbosity(2):
+            print(f"Stopping container '{container.name}'")
+        _docker_stop_container(container)
+        if verbosity(2):
+            print(f"Removing container '{container.name}'")
+        try:
+            container.remove(v=False, force=True)
+        except NotFound:
+            # container was "autoremoved" after stop
+            pass
+    else:
+        warning(f"while removing container: no container of name '{name}'")
 
 
 def docker_remove_prior_container_live(rsite: Resource):
@@ -232,23 +228,14 @@ def _erase_previous_container(client: DockerClient, name: str):
         pass
 
 
-def deactivate_site(rsite: Resource):
-    container_names = [res.get("container") for res in rsite.get("resources", [])]
-    container_names.append(rsite.get("container"))
-    container_names = [name for name in container_names if name]
-    if container_names:
-        docker_remove_container_db(container_names)
-
-
 def docker_run(rsite: Resource) -> Container:
     params = deepcopy(rsite.run_params)
     if "env" in params:
         del params["env"]
     if verbosity(1):
-        print_magenta(f"Docker run image '{rsite.image_id}'")
+        info(f"Docker run image: {rsite.image_id}")
         if verbosity(2):
             print("run parameters:\n", pformat(params))
-    # deactivate_site(rsite)
     docker_remove_prior_container_live(rsite)
     params["detach"] = True  # force detach option
     if rsite.network_name:

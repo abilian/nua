@@ -34,7 +34,10 @@ def nua_tag_string(metadata):
     app_id = metadata["id"]
     version = metadata["version"]
     release = metadata.get("release", "")
-    rel_tag = f"-{release}" if release else ""
+    if release:
+        rel_tag = f"-{release}"
+    else:
+        rel_tag = ""
     return f"nua-{app_id}:{version}{rel_tag}"
 
 
@@ -393,3 +396,21 @@ def set_instance_container_state(domain: str, state: str):
         if existing:
             existing.state = state
             session.commit()
+
+
+def instance_persistent(domain: str, app_id: str) -> dict:
+    """Return the persistent dictionary if (or an empty dict if not found)"""
+    persistent = {}
+    with Session() as session:
+        existing = (
+            session.query(Instance)
+            .filter_by(
+                domain=domain,
+                app_id=app_id,
+            )
+            .first()
+        )
+        if existing:
+            site_config = existing.site_config
+            persistent = site_config.get("persistent", {})
+    return persistent

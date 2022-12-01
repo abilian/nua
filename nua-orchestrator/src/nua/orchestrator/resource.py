@@ -1,5 +1,6 @@
 import os
 from collections.abc import Callable
+from copy import deepcopy
 from pathlib import Path
 
 from nua.lib.panic import error, warning
@@ -23,6 +24,19 @@ class Resource(dict):
         self._parse_run_env()
         self._normalize_ports()
         self._normalize_volumes()
+
+    @property
+    def resources(self) -> list:
+        """List of sub resources of the object.
+
+        Warning: only Site upper class has an actual use of 'resources'.
+        This sub class Resource will always provide an *empty*list
+        """
+        return []
+
+    @resources.setter
+    def resources(self, _resources: list):
+        pass
 
     @property
     def type(self) -> str:
@@ -139,6 +153,16 @@ class Resource(dict):
             self["secrets"] = secrets_list
         else:
             self["secrets"] = []
+
+    @property
+    def persistent(self) -> dict:
+        if "persistent" not in self:
+            self["persistent"] = {}
+        return self["persistent"]
+
+    @persistent.setter
+    def persistent(self, persist: dict):
+        self["persistent"] = deepcopy(persist)
 
     def set_ports_as_dict(self):
         """replace ports list by a dict with container port as key.

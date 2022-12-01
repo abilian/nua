@@ -15,7 +15,8 @@ def deploy_nua_sites(deploy_config: str) -> int:
     if verbosity(3):
         deployer.print_host_list()
     deployer.install_required_resources()
+    deployer.configure_deployment_phase_1()
     deployer.deactivate_all_sites()
-    deployer.configure_deployment()
+    deployer.configure_deployment_phase_2()
     deployer.start_sites()
     deployer.display_final()

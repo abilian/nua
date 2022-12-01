@@ -8,23 +8,31 @@ website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static", "plugin", "PostgreSQL", "docker", "psycopg2"]
 licence = "MIT"
 profile = ["test"]
-release = 1
+release = 3
 
 [build]
 document_root = "/nua/app/html"
 
 [instance]
-
 # name of the bridge network used by this container and related resources.
 # network = "flask-pg-1"
 secrets = "POSTGRES_PASSWORD"
 
-[instance.user_passwd]
-key = "USER_PASSWORD"
-random_str = true
 [instance.db_host]
 key = "DB_HOST"
 resource_property = "database.container"
+[instance.user_db]
+key = "USER_DB"
+persistent = true
+random_str = true
+[instance.user_name]
+key = "USER_NAME"
+persistent = true
+random_str = true
+[instance.user_passwd]
+key = "USER_PASSWORD"
+persistent = true
+random_str = true
 
 [run]
 restart_policy.name = "always"
@@ -33,8 +41,8 @@ restart_policy.name = "always"
 # DB_HOST for the resource "database" will be found in the env variable NUA_DATABASE_HOST
 DB_PORT = "5432"
 # Postgres password of the "remote" resource DB:
-USER_DB = "bob_db"
-USER_NAME = "bob"
+# USER_DB = "bob_db"
+# USER_NAME = "bob"
 # USER_PASSWORD = "bob_pwd"
 
 
@@ -80,7 +88,7 @@ image = "docker.io/library/postgres:14.5"
     # Name of the driver used to create the volume: (for type == "volume")
     driver = "local"
     # Mount source (e.g. a volume name or a host path):
-    source = "postgres_data_pg_1"
+    source = "postgres_data_pg_exp_3"
     # Container path:
     target = "/var/lib/postgresql/data"
     # mode (default to 'rw'

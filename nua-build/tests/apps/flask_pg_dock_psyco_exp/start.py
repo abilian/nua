@@ -27,6 +27,12 @@ def setup_db():
 
     In this example The DB is on remote docker container.
     """
+    print(f"{DB_HOST=}")
+    print(f"{DB_PORT=}")
+    print(f"{USER_DB=}")
+    print(f"{USER_NAME=}")
+    print(f"{USER_PASSWORD=}")
+
     manager = PostgresManager(DB_HOST, DB_PORT, "", "")
     manager.setup_db_user(
         USER_DB,

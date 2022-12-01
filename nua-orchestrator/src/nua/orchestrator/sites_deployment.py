@@ -16,6 +16,7 @@ from .db import store
 from .db.model.instance import RUNNING
 from .deploy_utils import (
     deactivate_all_instances,
+    deactivate_site,
     extra_host_gateway,
     load_install_image,
     mount_resource_volumes,
@@ -26,8 +27,8 @@ from .deploy_utils import (
     volume_print,
 )
 from .docker_utils import (
-    deactivate_site,
     docker_network_create_bridge,
+    docker_remove_container_previous,
     docker_service_start_if_needed,
 )
 from .domain_split import DomainSplit
@@ -59,8 +60,9 @@ class SitesDeployment:
         if verbosity(3):
             deployer.print_host_list()
         deployer.install_required_resources()
+        deployer.configure_deployment_phase_1()
         deployer.deactivate_all_sites()
-        deployer.configure_deployment()
+        deployer.configure_deployment_phase_2()
         deployer.start_sites()
         deployer.display_final()
     """
@@ -274,11 +276,15 @@ class SitesDeployment:
         self.orig_mounted_volumes = store.list_instances_container_active_volumes()
         deactivate_all_instances()
 
-    def configure_deployment(self):
+    def configure_deployment_phase_1(self):
         self.sites = self.host_list_to_sites()
         self.set_network_names()
         self.set_secrets()
         self.merge_instances_to_resources()
+        for site in self.sites:
+            self.retrieve_persistent(site)
+
+    def configure_deployment_phase_2(self):
         self.generate_ports()
         self.configure_nginx()
         if verbosity(2):
@@ -416,6 +422,13 @@ class SitesDeployment:
         chown_r_nua_nginx()
         nginx_restart()
 
+    def retrieve_persistent(self, site: Site):
+        previous = store.instance_persistent(site.domain, site.app_id)
+        if verbosity(4):
+            print(f"presistent previous: {previous=}")
+        previous.update(site.persistent)
+        site.persistent = previous
+
     def start_network(self, site: Site):
         if not site.network_name:
             return
@@ -440,9 +453,11 @@ class SitesDeployment:
         start_one_container(site, run_params, mounted_volumes)
 
     def store_container_instance(self, site: Site):
+        if verbosity(2):
+            print("saving site config in Nua DB")
         meta = site.image_nua_config["metadata"]
         store.store_instance(
-            app_id=meta["id"],
+            app_id=site.app_id,
             nua_tag=store.nua_tag_string(meta),
             domain=site.domain,
             container=site.container,
