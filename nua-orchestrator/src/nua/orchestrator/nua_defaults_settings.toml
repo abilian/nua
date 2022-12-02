@@ -52,11 +52,11 @@
 [[services]]
     name = "postgres"
     enable = true # default is true
-[[services]]
-    name = "postgres-docker"
-    enable = true
-    image = "docker.io/library/postgres:14.5"
-    format = "docker"
+# [[services]]
+#     name = "postgres-docker"
+#     enable = true
+#     image = "docker.io/library/postgres:14.5"
+#     format = "docker"
 [[services]]
     name = "mariadb"
     # enable = true # default is true

@@ -5,14 +5,13 @@ from nua.lib.rich_console import print_red
 
 from .db import store
 
-
-def test():
-    from .db_setup import setup_db
-
-    setup_db()
-    s = Services()
-    s.load()
-    s.list()
+# def test():
+#     from .db_setup import setup_db
+#
+#     setup_db()
+#     s = Services()
+#     s.load()
+#     s.list()
 
 
 class Services:
@@ -55,7 +54,7 @@ class Services:
                 cls = getattr(module, class_name)
             except Exception:
                 print_red(
-                    f"load_services_modules(): {name=} {module_name=} {class_name=}"
+                    f"error loading local service: {name=} {module_name=} {class_name=}"
                 )
-                raise
+                continue
             self.loaded[name] = cls(service_options)
