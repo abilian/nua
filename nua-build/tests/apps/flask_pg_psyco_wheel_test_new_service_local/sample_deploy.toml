@@ -1,0 +1,6 @@
+[[site]]
+image = "nua-flask-pg-psyco:5.0-2"
+domain = "test1.yerom.xyz"
+[site.run.env]
+DB_USER = "bob22"
+DB_NAME = "flask_db22"

@@ -21,16 +21,15 @@ def instance_key_evaluator(site: Site) -> dict:
         destination_key = requirement["key"]
         function = required_function(requirement)
         if function:
-            env[destination_key] = function(site, requirement)
+            result = function(site, requirement)
             if verbosity(2):
-                info(
-                    f"generated value for '{destination_key}': '{env[destination_key]}'"
-                )
+                info(f"generated value: {result}")
         else:
             warning(
                 f"Requirement maybe not valid for {destination_key}, key set to empty"
             )
-            env[destination_key] = ""
+            result = {destination_key: ""}
+        env.update(result)
     return env
 
 

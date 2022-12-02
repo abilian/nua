@@ -2,6 +2,7 @@ from collections.abc import Callable
 from copy import deepcopy
 
 from nua.lib.panic import error, warning
+from nua.lib.tool.state import verbosity
 
 from .port_normalization import normalize_ports, ports_as_dict
 from .utils import sanitized_name
@@ -9,8 +10,6 @@ from .volume_normalization import normalize_volumes
 
 
 class Resource(dict):
-    MANDATORY_KEYS = ("image", "type")
-
     def __init__(self, declaration: dict):
         super().__init__(declaration)
         if "requested_secrets" not in self:
@@ -50,6 +49,14 @@ class Resource(dict):
     @image.setter
     def image(self, image: str):
         self["image"] = image
+
+    @property
+    def service(self) -> str:
+        return self["service"]
+
+    @service.setter
+    def service(self, service: str):
+        self["service"] = service
 
     @property
     def domain(self) -> str:
@@ -157,9 +164,15 @@ class Resource(dict):
         self.port = ports_dict
 
     def _check_mandatory(self):
-        for key in self.MANDATORY_KEYS:
-            if not self.get(key):
-                error(f"Site or Resource configuration missing '{key}' key")
+        self._check_missing("type")
+        if self["type"] == "local":
+            self._check_missing("service")
+        elif self["type"] == "docker":
+            self._check_missing("image")
+
+    def _check_missing(self, key: str):
+        if key not in self:
+            error(f"Site or Resource configuration missing '{key}' key")
 
     def _parse_run_env(self):
         old_format = self.run_env
@@ -319,6 +332,8 @@ class Resource(dict):
         return run_env
 
     def add_requested_secrets(self, key: str):
+        if verbosity(3):
+            print("add_requested_secrets", key)
         self.requested_secrets.append(key)
         for resource in self.resources:
             resource.add_requested_secrets(key)

@@ -258,6 +258,7 @@ def docker_run(rsite: Resource, secrets: dict) -> Container:
     container = client.containers.run(rsite.image_id, **actual_params)
     if verbosity(3):
         name = params["name"]
+        print("docker secrets:", secrets)
         print("run done:", docker_container_of_name(name))
     if not docker_check_container_listed(container.name):
         error(f"Failed starting container {container.name}")

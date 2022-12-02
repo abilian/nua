@@ -48,8 +48,8 @@ random_str = true
 
 [run]
 # parameters passed as a dict to docker run
-auto_remove = true
-# detach = true mandatory
+# auto_remove = true  # dangerous
+# detach = true (mandatory, always set)
 [run.env]
 # parameters passed as a dict to docker run: environment dict
 DB_HOST = "host.docker.internal"

@@ -44,12 +44,39 @@ class Site(Resource):
     def image_nua_config(self, image_nua_config: str):
         self["image_nua_config"] = image_nua_config
 
+    @property
     def local_services(self) -> list:
-        result = []
-        for resource in self.resources:
-            if resource.type == "local":
-                result.append(resource.service)
-        return result
+        return [
+            resource.service for resource in self.resources if resource.type == "local"
+        ]
+
+    @property
+    def app_id(self) -> str:
+        return self.image_nua_config["metadata"]["id"]
+        # if app_id.startswith("nua-"):
+        #     app_id = app_id[4:]
+        # return app_id
+
+    @property
+    def nua_long_name(self) -> str:
+        meta = self.image_nua_config["metadata"]
+        release = meta.get("release", "")
+        rel_tag = f"-{release}"
+        if release:
+            rel_tag = f"-{release}"
+        else:
+            rel_tag = ""
+        if meta["id"].startswith("nua-"):
+            nua_prefix = ""
+        else:
+            nua_prefix = "nua-"
+        return f"{nua_prefix}{meta['id']}-{meta['version']}{rel_tag}"
+
+    @property
+    def container_name(self) -> str:
+        suffix = DomainSplit(self.domain).containner_suffix()
+        name_base = f"{self.nua_long_name}-{suffix}"
+        return sanitized_name(name_base)
 
     def _merged_instance_network_name(self) -> str:
         instance = self.image_nua_config.get("instance", {})
@@ -149,17 +176,10 @@ class Site(Resource):
             value = declaration.get(required_key)
             if not value or not isinstance(value, str):
                 warning(
-                    f"ignoring resource declaration without {required_key}",
+                    f"ignoring resource declaration without '{required_key}'",
                     pformat(declaration),
                 )
                 return None
-        # for now, only "docker" resources are implemented:
-        if declaration["type"] != "docker":
-            warning(
-                f"ignoring resource of type {declaration['type'] }",
-                pformat(declaration),
-            )
-            return None
         resource = Resource(declaration)
         resource.resource_name = declaration["name"]
         resource.check_valid()
@@ -190,31 +210,3 @@ class Site(Resource):
         self.port = ports
         for resource in self.resources:
             resource.port = ports_as_dict(resource.port)
-
-    @property
-    def app_id(self) -> str:
-        return self.image_nua_config["metadata"]["id"]
-        # if app_id.startswith("nua-"):
-        #     app_id = app_id[4:]
-        # return app_id
-
-    @property
-    def nua_long_name(self) -> str:
-        meta = self.image_nua_config["metadata"]
-        release = meta.get("release", "")
-        rel_tag = f"-{release}"
-        if release:
-            rel_tag = f"-{release}"
-        else:
-            rel_tag = ""
-        if meta["id"].startswith("nua-"):
-            nua_prefix = ""
-        else:
-            nua_prefix = "nua-"
-        return f"{nua_prefix}{meta['id']}-{meta['version']}{rel_tag}"
-
-    @property
-    def container_name(self) -> str:
-        suffix = DomainSplit(self.domain).containner_suffix()
-        name_base = f"{self.nua_long_name}-{suffix}"
-        return sanitized_name(name_base)

@@ -293,7 +293,7 @@ class SitesDeployment:
             self.retrieve_persistent(site)
 
     def check_required_local_resources(self):
-        required_services = {s for site in self.sites for s in site.local_services()}
+        required_services = {s for site in self.sites for s in site.local_services}
         if verbosity(3):
             print("required services:", required_services)
         available_services = set(self.available_services.keys())
@@ -303,7 +303,7 @@ class SitesDeployment:
         self.required_services = required_services
 
     def check_required_local_resources_configuration(self, site: Site):
-        required_services = site.local_services()
+        required_services = site.local_services
         for service in required_services:
             handler = self.available_services[service]
             if not handler.check_site_configuration(site):
@@ -441,7 +441,8 @@ class SitesDeployment:
 
     def start_resources_containers(self, site: Site):
         for resource in site.resources:
-            self.start_one_resource_container(site, resource)
+            if resource.type == "docker":
+                self.start_one_resource_container(site, resource)
 
     def start_one_resource_container(self, site: Site, resource: Resource):
         run_params = self.generate_resource_container_run_parameters(site, resource)
@@ -525,12 +526,13 @@ class SitesDeployment:
 
     @staticmethod
     def sanitize_run_params(run_params: dict):
+        """Docker constraint: 2 docker options not compatible."""
         if "restart_policy" in run_params:
             run_params["auto_remove"] = False
 
     def services_environment(self, site: Site) -> dict:
         run_env = {}
-        for service in site.required_services:
+        for service in site.local_services:
             handler = self.available_services[service]
             # function may need or not site param:
             run_env.update(handler.environment(site))

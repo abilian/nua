@@ -21,25 +21,27 @@ def persistent_value(func):
         if requirement.get(PERSISTENT, False):
             value = site.persistent.get(requirement[KEY])
             if value is None:
-                value = func(site, requirement)
-                site.persistent[requirement[KEY]] = value
-            return value
+                result = func(site, requirement)
+                site.persistent[requirement[KEY]] = result[requirement[KEY]]
+            else:
+                result = {requirement[KEY]: value}
+            return result
         return func(site, requirement)
 
     return wrapper
 
 
 @persistent_value
-def random_str(site: Site, requirement: dict) -> str:
+def random_str(site: Site, requirement: dict) -> dict:
     """Send a password
     - ramdom generated,
     - or from previous execution if 'persistent' is true and previous
     data is found.
     """
-    return gen_password(24)
+    return {requirement[KEY]: gen_password(24)}
 
 
-def resource_property(site: Site, requirement: dict) -> str:
+def resource_property(site: Site, requirement: dict) -> dict:
     values = requirement[RESOURCE_PROPERTY].split(".")
     if len(values) != 2:
         error(f"Bad content for resource_property: {requirement}")
@@ -50,15 +52,16 @@ def resource_property(site: Site, requirement: dict) -> str:
         if hasattr(resource, prop):
             attr = getattr(resource, prop)
             if callable(attr):
-                return str(attr())
+                value = str(attr())
             else:
-                return attr
+                value = str(attr)
+            return {requirement[KEY]: value}
         error(f"Unknown property for resource_property: {requirement}")
     warning(f"resource not found for {requirement}")
-    return ""
+    return {}
 
 
-def nua_internal(site: Site, requirement: dict) -> str:
+def nua_internal(site: Site, requirement: dict) -> dict:
     """Retrieve key from nua_internal values, do not store the value in instance
     configuration. The value is only set when executing the docker.run() for main
     site and all sub resources.
@@ -66,3 +69,4 @@ def nua_internal(site: Site, requirement: dict) -> str:
     if requirement.get(NUA_INTERNAL, False):
         # add the key to the list of secrets to pass at run() time
         site.add_requested_secrets(requirement[KEY])
+    return {}
