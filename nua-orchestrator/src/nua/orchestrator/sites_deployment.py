@@ -68,10 +68,9 @@ class SitesDeployment:
     """
 
     def __init__(self):
-        self.required_services = []
-        self.required_resources = []
         self.deploy_sites = {}
         self.host_list = []
+        self.required_services = set()
         self.available_services = {}
         self.orig_mounted_volumes = []
         self.sites = []
@@ -251,10 +250,17 @@ class SitesDeployment:
             for site in self.deploy_sites
         )
 
-    @staticmethod
-    def _pull_resource(resource: Resource) -> bool:
-        if resource.type != "docker":
+    def _pull_resource(self, resource: Resource) -> bool:
+        if resource.type == "docker":
+            return self._pull_resource_docker(resource)
+        if resource.type == "local":
+            # will check later in the process
             return True
+        warning(f"Unknown resource type: {resource.type}")
+        return True
+
+    @staticmethod
+    def _pull_resource_docker(resource: Resource) -> bool:
         if verbosity(1):
             info(f"Pulling image '{resource.image}'")
         docker_image = docker_require(resource.image)
@@ -280,8 +286,30 @@ class SitesDeployment:
         self.sites = self.host_list_to_sites()
         self.set_network_names()
         self.merge_instances_to_resources()
+        self.check_required_local_resources()
+        for site in self.sites:
+            self.check_required_local_resources_configuration(site)
         for site in self.sites:
             self.retrieve_persistent(site)
+
+    def check_required_local_resources(self):
+        required_services = {s for site in self.sites for s in site.local_services()}
+        if verbosity(3):
+            print("required services:", required_services)
+        available_services = set(self.available_services.keys())
+        for service in required_services:
+            if service not in available_services:
+                error(f"Required service '{service}' is not available")
+        self.required_services = required_services
+
+    def check_required_local_resources_configuration(self, site: Site):
+        required_services = site.local_services()
+        for service in required_services:
+            handler = self.available_services[service]
+            if not handler.check_site_configuration(site):
+                error(
+                    f"Required service '{service}' not configured for site {site.domain}"
+                )
 
     def configure_deployment_phase_2(self):
         self.generate_ports()
@@ -289,7 +317,6 @@ class SitesDeployment:
         if verbosity(2):
             print("'sites':\n", pformat(self.sites))
         register_certbot_domains(self.sites)
-        self.check_services()
         self.restart_services()
 
     def set_network_names(self):
@@ -304,28 +331,13 @@ class SitesDeployment:
         if verbosity(3):
             print("merge_instances_to_resources() done")
 
-    def check_services(self):
-        for site in self.sites:
-            site.normalize_required_services(self.available_services)
-            for service in site.required_services:
-                handler = self.available_services[service]
-                if not handler.check_site_configuration(site):
-                    warning(
-                        f"Service '{service}': configuration problem for '{site.image}'"
-                    )
-        if verbosity(3):
-            print("check_services() done")
-
     def restart_services(self):
-        reboots = set()
-        for site in self.sites:
-            reboots.update(site.required_services)
         if verbosity(2):
-            if reboots:
-                info("Services to restart:", pformat(reboots))
+            if self.required_services:
+                info("Services to restart:", pformat(self.required_services))
             else:
                 info("Services to restart: None")
-        for service in reboots:
+        for service in self.required_services:
             handler = self.available_services[service]
             handler.restart()
 

@@ -44,13 +44,12 @@ class Site(Resource):
     def image_nua_config(self, image_nua_config: str):
         self["image_nua_config"] = image_nua_config
 
-    @property
-    def required_services(self) -> set:
-        return self.get("required_services", set())
-
-    @required_services.setter
-    def required_services(self, required_services: set):
-        self["required_services"] = required_services
+    def local_services(self) -> list:
+        result = []
+        for resource in self.resources:
+            if resource.type == "local":
+                result.append(resource.service)
+        return result
 
     def _merged_instance_network_name(self) -> str:
         instance = self.image_nua_config.get("instance", {})
@@ -119,7 +118,7 @@ class Site(Resource):
             return
         if not isinstance(resource_updates, dict):
             warning(
-                f"ignoring update for '{self.name}' resource, need a dict",
+                f"ignoring update for '{self.domain}' resources, need a dict",
                 explanation=pformat(resource_updates),
             )
             return
@@ -134,25 +133,6 @@ class Site(Resource):
         if not resource:
             warning(f"ignoring resource update, unknown resource '{resource_name}'")
         resource.update_instance_from_site(resource_updates)
-
-    def services_instance_updated(self) -> set:
-        instance = self.image_nua_config.get("instance", {})
-        instance.update({k: v for k, v in self.items() if not isinstance(v, dict)})
-        services = instance.get("services") or []
-        if isinstance(services, str):
-            services = [services]
-        if verbosity(3):
-            print(f"Site services: {pformat(services)}")
-        return set(services)
-
-    def normalize_required_services(self, available_services: dict):
-        services = self.services_instance_updated()
-        for name, handler in available_services.items():
-            for alias in handler.aliases():
-                if alias in services:
-                    services.discard(alias)
-                    services.add(name)
-        return services
 
     def parse_resources(self):
         resources = [

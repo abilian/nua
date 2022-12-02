@@ -1,27 +1,28 @@
 """Docker utils."""
 import json
 from copy import deepcopy
-from datetime import datetime
-from functools import cache, wraps
+from functools import cache
 from pprint import pformat
 from subprocess import run  # noqa: S404
 from time import sleep
 
 from docker import DockerClient, from_env
-from docker.errors import APIError, BuildError, ImageNotFound, NotFound
+
+# from docker.errors import APIError, BuildError, ImageNotFound, NotFound
+from docker.errors import APIError, NotFound
 from docker.models.containers import Container
 from docker.models.images import Image
 
 # from .db.model.instance import RUNNING
 from nua.lib.panic import error, info, warning
-from nua.lib.rich_console import print_magenta, print_red
+from nua.lib.rich_console import print_red
 from nua.lib.tool.state import verbosity
 from nua.selfbuilder.docker_build_utils import docker_require
 
 from . import config
 from .db import store
 from .resource import Resource
-from .utils import image_size_repr, size_unit
+from .utils import image_size_repr
 
 
 @cache

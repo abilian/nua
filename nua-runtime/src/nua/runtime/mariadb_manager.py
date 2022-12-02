@@ -23,7 +23,9 @@ NUA_MARIADB_PWD_FILE = ".mariadb_pwd"  # noqa S105
 class MariaDbManager(DbManager):
     """Database manager for MariaDB."""
 
-    def __init__(self, host: str, port: str, user: str, password: str):
+    def __init__(
+        self, host: str = "", port: str | int = "", user: str = "", password: str = ""
+    ):
         if not mariadb:
             raise ValueError("The package 'mariadb' is not installed.")
         self.host = host or "localhost"
@@ -152,54 +154,3 @@ class MariaDbManager(DbManager):
         count = result[0] if result else 0
         connection.close()
         return count > 0
-
-
-# TODO: check if needed in runtime:
-
-# # Additional from mariadb_utils
-# def pwd(self) -> str:
-#     pass
-#
-# # Additional from postgres:
-# def run_environment(_unused: dict) -> dict:
-#     pass
-#
-# def check_installed() -> bool:
-#     pass
-#
-# def check_listening(gateway: str) -> bool:
-#     pass
-#
-# def restart_service():
-#     pass
-#
-# # "Port" variants. Probably can be refactored somehow.
-# def setup_db_user_port(host: str, port: str, dbname: str, user: str, password: str):
-#     pass
-#
-# def remove_db_user_port(host: str, port: str, dbname: str, user: str):
-#     pass
-#
-# def db_drop_port(host: str, port: str, dbname: str):
-#     pass
-#
-# def user_drop_port(host: str, port: str, user: str) -> bool:
-#     pass
-#
-# def user_exist_port(host: str, port: str, user: str) -> bool:
-#     pass
-#
-# def user_create_port(host: str, port: str, user: str, password: str):
-#     pass
-#
-# def db_create_port(host: str, port: str, dbname: str, user: str):
-#     pass
-#
-# def db_exist_port(host: str, port: str, dbname: str) -> bool:
-#     pass
-#
-# def pg_db_table_exist_port(
-#     host: str, port: str, dbname: str, user: str, password: str, table: str
-# ) -> bool:
-#     """Check if the named database exists (for host, connecting as user), assuming
-#     DB exists."""

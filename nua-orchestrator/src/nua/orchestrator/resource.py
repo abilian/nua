@@ -1,7 +1,5 @@
-import os
 from collections.abc import Callable
 from copy import deepcopy
-from pathlib import Path
 
 from nua.lib.panic import error, warning
 

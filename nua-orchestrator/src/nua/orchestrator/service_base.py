@@ -22,15 +22,15 @@ class ServiceBase:
         else:
             return False
 
-    def check_site_configuration(self, site: dict | None = None) -> bool:
+    def check_site_configuration(self, _site: dict | None = None) -> bool:
         required_image = self.options.get("image")
-        format = self.options.get("format")
-        if required_image and format == "docker":
+        opt_format = self.options.get("format")
+        if required_image and opt_format == "docker":
             return self._pull_docker_image(required_image)
         return True
 
     def restart(self) -> bool:
         return True
 
-    def environment(self, site: dict | None = None) -> dict:
+    def environment(self, _site: dict | None = None) -> dict:
         return {}
