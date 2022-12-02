@@ -372,7 +372,7 @@ def check_python_version() -> bool:
     return True
 
 
-def snake_format(name: str) -> sr:
+def snake_format(name: str) -> str:
     return "_".join(word.lower() for word in name.replace("-", "_").split("_"))
 
 
