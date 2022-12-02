@@ -1,5 +1,6 @@
 from importlib import import_module
 
+from nua.lib.actions import camel_format, snake_format
 from nua.lib.rich_console import print_red
 
 from .db import store
@@ -58,11 +59,3 @@ class Services:
                 )
                 raise
             self.loaded[name] = cls(service_options)
-
-
-def snake_format(name: str):
-    return "_".join(word.lower() for word in name.replace("-", "_").split("_"))
-
-
-def camel_format(name: str) -> str:
-    return "".join(word.title() for word in name.replace("-", "_").split("_"))

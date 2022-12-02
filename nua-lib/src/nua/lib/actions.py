@@ -370,3 +370,11 @@ def check_python_version() -> bool:
     if sys.version_info.minor < 10:
         return False
     return True
+
+
+def snake_format(name: str) -> sr:
+    return "_".join(word.lower() for word in name.replace("-", "_").split("_"))
+
+
+def camel_format(name: str) -> str:
+    return "".join(word.title() for word in name.replace("-", "_").split("_"))

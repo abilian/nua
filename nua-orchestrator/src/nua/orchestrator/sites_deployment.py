@@ -83,7 +83,7 @@ class SitesDeployment:
         self.available_services = services.loaded
         if verbosity(2):
             print_magenta(
-                f"Available services: {pformat(list(services.loaded.keys()))}"
+                f"Available local services: {pformat(list(services.loaded.keys()))}"
             )
 
     def load_deploy_config(self, deploy_config: str):
