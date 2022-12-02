@@ -16,8 +16,17 @@ document_root = "/nua/app/html"
 [instance]
 
 # name of the bridge network used by this container and related resources.
-network = "flask-pg-1"
-secrets = "POSTGRES_PASSWORD"
+# network = "flask-pg-1"
+# secrets = "POSTGRES_PASSWORD"
+
+[instance.postgres_password]
+key = "POSTGRES_PASSWORD"
+nua_internal = true
+# nua_internal = "POSTGRES_PASSWORD" maybe this syntax ?
+[instance.user_passwd]
+key = "USER_PASSWORD"
+persistent = true
+random_str = true
 
 [run]
 restart_policy.name="always"
@@ -28,7 +37,7 @@ DB_PORT = "5432"
 # Postgres password of the "remote" resource DB:
 USER_DB = "bob_db"
 USER_NAME = "bob"
-USER_PASSWORD = "bob_pwd"
+# USER_PASSWORD = "bob_pwd"
 
 
 [port.web]

@@ -39,7 +39,15 @@ document_root = "/nua/app/html"
 # this configuration is for use of a local DB (localhost)
 # thus requiring --add-host=host.docker.internal:host-gateway
 services = "mariadb"
-secrets = "MARIADB_PASSWORD"
+
+[instance.mariadb_password]
+key = "MARIADB_PASSWORD"
+nua_internal = true
+
+[instance.user_passwd]
+key = "DB_USER_PWD"
+persistent = true
+random_str = true
 
 [run]
 # parameters passed as a dict to docker run
@@ -49,7 +57,7 @@ secrets = "MARIADB_PASSWORD"
 # parameters passed as a dict to docker run: environment dict
 DB_NAME = "flask_db"
 DB_USER = "bob"
-DB_USER_PWD = "bob_pwd"
+# DB_USER_PWD = "bob_pwd"
 
 [port.web]
 container = 80

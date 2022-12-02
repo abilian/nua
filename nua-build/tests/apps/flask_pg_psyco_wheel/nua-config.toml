@@ -38,7 +38,15 @@ document_root = "/nua/app/html"
 # this configuration is for use of a local DB (localhost)
 # thus requiring --add-host=host.docker.internal:host-gateway
 services = "postgres"
-secrets = "POSTGRES_PASSWORD"
+# secrets = "POSTGRES_PASSWORD"
+[instance.postgres_password]
+key = "POSTGRES_PASSWORD"
+nua_internal = true
+# nua_internal = "POSTGRES_PASSWORD" maybe this syntax ?
+[instance.user_passwd]
+key = "DB_USER_PWD"
+persistent = true
+random_str = true
 
 [run]
 # parameters passed as a dict to docker run
@@ -48,7 +56,7 @@ auto_remove = true
 # parameters passed as a dict to docker run: environment dict
 DB_NAME = "flask_db"
 DB_USER = "bob"
-DB_USER_PWD = "bob_pwd"
+# DB_USER_PWD = "bob_pwd"
 
 [port.web]
 container = 80

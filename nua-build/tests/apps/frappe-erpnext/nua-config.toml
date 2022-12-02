@@ -40,6 +40,11 @@ document_root = "/nua/app/html"
 # thus requiring --add-host=host.docker.internal:host-gateway
 services = "mariadb"
 
+[instance.user_passwd]
+key = "DB_USER_PWD"
+persistent = true
+random_str = true
+
 [run]
 # parameters passed as a dict to docker run
 # auto_remove = true
@@ -48,7 +53,7 @@ services = "mariadb"
 # parameters passed as a dict to docker run: environment dict
 DB_NAME = "flask_db"
 DB_USER = "bob"
-DB_USER_PWD = "bob_pwd"
+# DB_USER_PWD = "bob_pwd"
 
 [port.web]
 container = 80

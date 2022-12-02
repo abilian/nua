@@ -14,9 +14,14 @@ release = 1
 document_root = "/nua/app/html"
 
 [instance]
-# name of the bridge network used by this container and related resources.
-network = "flask-mariadb-1"
-secrets = "MARIADB_PASSWORD"
+[instance.mariadb_password]
+key = "MARIADB_PASSWORD"
+nua_internal = true
+
+[instance.user_passwd]
+key = "USER_PASSWORD"
+persistent = true
+random_str = true
 
 [run]
 restart_policy.name="always"
@@ -27,7 +32,7 @@ restart_policy.name="always"
 # DB_HOST for the resource "mariadb" will be found in the env variable NUA_MARIADB_HOST
 USER_DB = "flask_db"
 USER_NAME = "bob"
-USER_PASSWORD = "bob_pwd"
+# USER_PASSWORD = "bob_pwd"
 
 [port.web]
 # publication port of the app inside the container

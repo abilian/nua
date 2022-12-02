@@ -17,8 +17,23 @@ nua_base = "nua-builder-nodejs16"
 
 [instance]
 # for postgres:
-network = "hedgedoc-1"
-secrets = "POSTGRES_PASSWORD"
+# network = "hedgedoc-1"
+# secrets = "POSTGRES_PASSWORD"
+
+
+[instance.postgres_password]
+key = "POSTGRES_PASSWORD"
+nua_internal = true
+# nua_internal = "POSTGRES_PASSWORD" maybe this syntax ?
+
+[instance.db_host]
+key = "CMD_DB_HOST"
+resource_property = "database.container"
+
+[instance.user_passwd]
+key = "CMD_DB_PASSWORD"
+persistent = true
+random_str = true
 
 [run]
 # parameters passed as a dict to docker run
@@ -62,11 +77,11 @@ CMD_EMAIL = "true"
 CMD_ALLOW_EMAIL_REGISTER = "true"
 
 # postgres:
-CMD_DB_HOST = ""  # will be replaced by actual local network configuration of docker
+# CMD_DB_HOST = ""  # will be replaced by actual local network configuration of docker
 CMD_DB_PORT = "5432"
 CMD_DB_DIALECT = "postgres"
 CMD_DB_USERNAME = "hedgedoc"
-CMD_DB_PASSWORD = "some_secret"
+# CMD_DB_PASSWORD = "some_secret"
 CMD_DB_DATABASE = "hedgedoc"
 # CMD_DB_URL = "postgres://username:password@localhost:5432/hedgedoc"
 # Postgres password of the "remote" resource DB:
