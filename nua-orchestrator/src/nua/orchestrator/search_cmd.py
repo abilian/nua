@@ -1,8 +1,8 @@
 """Nua : search image related funcitons.
 """
+from collections.abc import Generator
 from operator import itemgetter
 from pathlib import Path
-from typing import Generator
 from urllib.parse import urlparse
 
 from nua.lib.rich_console import print_green, print_magenta, print_red

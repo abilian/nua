@@ -16,7 +16,9 @@ def image_size_repr(image_bytes: int, as_mib: bool) -> int:
 
 
 def size_unit(as_mib: bool) -> str:
-    return "MiB" if as_mib else "MB"
+    if as_mib:
+        return "MiB"
+    return "MB"
 
 
 def size_to_bytes(input: str) -> int:
