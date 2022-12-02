@@ -12,6 +12,7 @@ from .site import Site
 KEY = "key"
 PERSISTENT = "persistent"
 RESOURCE_PROPERTY = "resource_property"
+NUA_INTERNAL = "nua_internal"
 
 
 def persistent_value(func):
@@ -57,3 +58,13 @@ def resource_property(site: Site, requirement: dict) -> str:
             error(f"Bad property for resource_property: {requirement}")
     warning(f"resource not found for {requirement}")
     return ""
+
+
+def nua_internal(site: Site, requirement: dict) -> str:
+    """Retrieve key from nua_internal values, do not store the value in instance
+    configuration. The value is only set when executing the docker.run() for main
+    site and all sub resources.
+    """
+    if requirement.get(NUA_INTERNAL, False):
+        # add the key to the list of secrets to pass at run() time
+        site.add_requested_secrets(requirement[KEY])

@@ -228,8 +228,17 @@ def _erase_previous_container(client: DockerClient, name: str):
         pass
 
 
-def docker_run(rsite: Resource) -> Container:
+def params_with_secrets(params: dict, secrets: dict):
+    result = deepcopy(params)
+    env = result.get("environment", {})
+    env.update(secrets)
+    result["environment"] = env
+    return result
+
+
+def docker_run(rsite: Resource, secrets: dict) -> Container:
     params = deepcopy(rsite.run_params)
+    # the actual key is 'environment'
     if "env" in params:
         del params["env"]
     if verbosity(1):
@@ -244,7 +253,8 @@ def docker_run(rsite: Resource) -> Container:
             info("network:", rsite.network_name)
     client = from_env()
     _erase_previous_container(client, params["name"])
-    container = client.containers.run(rsite.image_id, **params)
+    actual_params = params_with_secrets(params, secrets)
+    container = client.containers.run(rsite.image_id, **actual_params)
     if verbosity(3):
         name = params["name"]
         print("run done:", docker_container_of_name(name))

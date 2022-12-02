@@ -37,7 +37,7 @@ def postgres_pwd() -> str:
     pwd = os.environ.get("NUA_POSTGRES_PASSWORD")
     if pwd:
         return pwd
-    file_path = Path(os.path.expanduser("~nua")) / NUA_PG_PWD_FILE
+    file_path = Path("~nua").expanduser() / NUA_PG_PWD_FILE
     with open(file_path, "r", encoding="utf8") as rfile:
         pwd = rfile.read().strip()
     return pwd
@@ -53,7 +53,7 @@ def _store_pg_password(password: str):
 
     Expect to be run either by root or nua.
     """
-    file_path = Path(os.path.expanduser("~nua")) / NUA_PG_PWD_FILE
+    file_path = Path("~nua").expanduser() / NUA_PG_PWD_FILE
     with open(file_path, "w", encoding="utf8") as wfile:
         wfile.write(f"{password}\n")
     chown_r(file_path, "nua")

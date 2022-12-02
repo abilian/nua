@@ -9,15 +9,14 @@ from .port_normalization import normalize_ports, ports_as_dict
 from .utils import sanitized_name
 from .volume_normalization import normalize_volumes
 
-NUA_PG_PWD_FILE = ".postgres_pwd"  # noqa S105
-NUA_MARIADB_PWD_FILE = ".mariadb_pwd"  # noqa S105
-
 
 class Resource(dict):
     MANDATORY_KEYS = ("image", "type")
 
     def __init__(self, declaration: dict):
         super().__init__(declaration)
+        if "requested_secrets" not in self:
+            self.requested_secrets = []
 
     def check_valid(self):
         self._check_mandatory()
@@ -140,19 +139,6 @@ class Resource(dict):
             self["network_name"] = sanitized_name(name)
         else:
             self["network_name"] = ""
-
-    @property
-    def secrets(self) -> list[str]:
-        return self.get("secrets", [])
-
-    @secrets.setter
-    def secrets(self, secrets_list: list | str):
-        if secrets_list:
-            if isinstance(secrets_list, str):
-                secrets_list = [secrets_list]
-            self["secrets"] = secrets_list
-        else:
-            self["secrets"] = []
 
     @property
     def persistent(self) -> dict:
@@ -334,50 +320,7 @@ class Resource(dict):
         run_env[variable] = self.container
         return run_env
 
-    @staticmethod
-    def _postgres_pwd() -> str:
-        """Return the 'postgres' user DB password.
-
-          - When used in container context, the env variable NUA_POSTGRES_PASSWORD should
-            contain the password.
-          - When used in nua-orchestrator context, read the password from local file.
-
-        For orchestrator context, assuming this function can only be used *after*
-        password was generated (or its another bug).
-
-        Rem.: No cache. Rarely used function and pwd can be changed.
-        """
-        pwd = os.environ.get("NUA_POSTGRES_PASSWORD")
-        if pwd:
-            return pwd
-        file_path = Path(os.path.expanduser("~nua")) / NUA_PG_PWD_FILE
-        return file_path.read_text(encoding="utf8").strip()
-
-    @staticmethod
-    def _mariadb_pwd() -> str:
-        """Return the 'root' user DB password of mariadb.
-
-          - When used in container context, the env variable NUA_MARIADB_PASSWORD should
-            contain the password.
-          - When used in nua-orchestrator context, read the password from local file.
-
-        For orchestrator context, assuming this function can only be used *after* password
-        was generated (or its another bug).
-
-        Rem.: No cache. Rarely used function and pwd can be changed.
-        """
-        pwd = os.environ.get("NUA_MARIADB_PASSWORD")
-        if pwd:
-            return pwd
-        file_path = Path(os.path.expanduser("~nua")) / NUA_MARIADB_PWD_FILE
-        return file_path.read_text(encoding="utf8").strip()
-
-    def read_secrets(self) -> dict:
-        if not self.secrets:
-            return {}
-        secrets_env = {}
-        if "POSTGRES_PASSWORD" in self.secrets:
-            secrets_env["POSTGRES_PASSWORD"] = self._postgres_pwd()
-        if "MARIADB_PASSWORD" in self.secrets:
-            secrets_env["MARIADB_PASSWORD"] = self._mariadb_pwd()
-        return secrets_env
+    def add_requested_secrets(self, key: str):
+        self.requested_secrets.append(key)
+        for resource in self.resources:
+            resource.add_requested_secrets(key)

@@ -81,12 +81,6 @@ class Site(Resource):
             if verbosity(4):
                 print("detect_required_network() network_name =", self.network_name)
 
-    def set_secrets(self):
-        instance = self.image_nua_config.get("instance", {})
-        self.secrets = instance.get("secrets") or []
-        for resource in self.resources:
-            resource.secrets = self.secrets
-
     def instance_key_requirements(self) -> list:
         """grab requirements like:
 
@@ -99,9 +93,11 @@ class Site(Resource):
         for _inst_key, require in instance.items():
             if not isinstance(require, dict):
                 continue
-            if "key" not in require:
+            # normalize keys of the requirement dict to lowercase
+            normalized_require = {k.lower(): v for k, v in require.items()}
+            if "key" not in normalized_require:
                 continue
-            requirements.append(require)
+            requirements.append(normalized_require)
         return requirements
 
     def resource_per_name(self, name: str) -> Resource | None:

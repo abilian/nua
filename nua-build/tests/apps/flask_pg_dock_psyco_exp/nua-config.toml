@@ -13,11 +13,10 @@ release = 3
 [build]
 document_root = "/nua/app/html"
 
-[instance]
-# name of the bridge network used by this container and related resources.
-# network = "flask-pg-1"
-secrets = "POSTGRES_PASSWORD"
-
+[instance.postgres_password]
+key = "POSTGRES_PASSWORD"
+nua_internal = true
+# nua_internal = "POSTGRES_PASSWORD" maybe this syntax ?
 [instance.db_host]
 key = "DB_HOST"
 resource_property = "database.container"

@@ -279,7 +279,6 @@ class SitesDeployment:
     def configure_deployment_phase_1(self):
         self.sites = self.host_list_to_sites()
         self.set_network_names()
-        self.set_secrets()
         self.merge_instances_to_resources()
         for site in self.sites:
             self.retrieve_persistent(site)
@@ -298,12 +297,6 @@ class SitesDeployment:
             site.set_network_name()
         if verbosity(3):
             print("set_network_names() done")
-
-    def set_secrets(self):
-        for site in self.sites:
-            site.set_secrets()
-        if verbosity(3):
-            print("set_secrets() done")
 
     def merge_instances_to_resources(self):
         for site in self.sites:
@@ -467,7 +460,9 @@ class SitesDeployment:
         )
 
     def generate_site_container_run_parameters(self, site: Site):
-        """Return suitable parameters for the docker.run() command."""
+        """Return suitable parameters for the docker.run() command. Except the
+        internal_secrets, that are passed only at docker.run() execution, thus
+        secrets not stored in instance data."""
         image_nua_config = site.image_nua_config
         run_params = deepcopy(RUN_BASE)
         nua_docker_default_run = config.read("nua", "docker_default_run")

@@ -20,6 +20,7 @@ from .docker_utils import (
     docker_volume_create_or_use,
     docker_volume_prune,
 )
+from .internal_secrets import secrets_dict
 from .resource import Resource
 from .server_utils.net_utils import check_port_available
 from .site import Site
@@ -167,11 +168,8 @@ def start_one_container(rsite: Resource, run_params: dict, mounted_volumes: list
     rsite.run_params = run_params
     if verbosity(4):
         print(f"start_one_container() run_params:\n{pformat(run_params)}")
-    secret_dict = rsite.read_secrets()
-    environ = run_params.get("environment", {})
-    environ.update(secret_dict)
-    rsite.run_params["environment"] = environ
-    new_container = docker_run(rsite)
+    secrets = secrets_dict(rsite.requested_secrets)
+    new_container = docker_run(rsite, secrets)
     if mounted_volumes:
         rsite.run_params["mounts"] = True
     if verbosity(1):

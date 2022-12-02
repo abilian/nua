@@ -5,12 +5,13 @@ from nua.lib.panic import info, warning
 from nua.lib.tool.state import verbosity
 
 # from . import config
-from .evaluators import random_str, resource_property
+from .evaluators import nua_internal, random_str, resource_property
 from .site import Site
 
 EVALUATOR_FCT = {
     "random_str": random_str,
     "resource_property": resource_property,
+    "nua_internal": nua_internal,
 }
 
 
