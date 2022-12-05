@@ -40,7 +40,11 @@ class PostgresManager(DbManager):
     """Database manager for Postgres."""
 
     def __init__(
-        self, host: str = "", port: str | int = "", user: str = "", password: str = ""
+        self,
+        host: str = "",
+        port: str | int = "",
+        user: str = "",
+        password: str | None = None,
     ):
         if not psycopg2:
             raise ValueError("The package 'psycopg2' is not installed.")

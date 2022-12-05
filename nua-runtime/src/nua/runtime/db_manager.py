@@ -24,7 +24,11 @@ class DbManager(Protocol):
     """Database manager."""
 
     def __init__(
-        self, host: str = "", port: str | int = "", user: str = "", password: str = ""
+        self,
+        host: str = "",
+        port: str | int = "",
+        user: str = "",
+        password: str | None = None,
     ):
         ...
 

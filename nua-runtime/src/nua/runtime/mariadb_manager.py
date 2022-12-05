@@ -24,7 +24,11 @@ class MariaDbManager(DbManager):
     """Database manager for MariaDB."""
 
     def __init__(
-        self, host: str = "", port: str | int = "", user: str = "", password: str = ""
+        self,
+        host: str = "",
+        port: str | int = "",
+        user: str = "",
+        password: str | None = None,
     ):
         if not mariadb:
             raise ValueError("The package 'mariadb' is not installed.")
