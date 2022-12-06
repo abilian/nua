@@ -304,6 +304,14 @@ def extract_all(archive: str | Path, dest: str | Path) -> Path:
 #
 # String and replacement utils
 #
+def set_php_ini_keys(replacements: dict, path: str | Path):
+    path = Path(path)
+    content = path.read_text()
+    for key, value in replacements.items():
+        content = re.sub(rf"^;*\s*{key}\s*=", f"{key} = {value}", content, flags=re.M)
+    path.write_text(content)
+
+
 def replace_in(file_pattern: str, string_pattern: str, replacement: str):
     for file_name in glob(file_pattern, recursive=True):
         path = Path(file_name)
