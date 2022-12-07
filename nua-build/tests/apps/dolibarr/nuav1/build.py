@@ -10,7 +10,7 @@ from nua.lib.actions import (  # installed_packages,
     set_php_ini_keys,
     tmp_install_package_list,
 )
-from nua.lib.shell import chmod_r, chown_r, mkdir_p, rm_fr, sh
+from nua.lib.shell import chown_r, mkdir_p, rm_fr, sh
 from nua.runtime.nua_config import NuaConfig
 
 
@@ -38,7 +38,6 @@ def main():
         "libapache2-mod-php",
         "postgresql-client",
         "unzip",  # ?
-        "rsync",
     ]
     # "bzip2",
     # "cron",
@@ -101,17 +100,14 @@ def main():
     chdir("/nua/build")
     download_extract(doli_url, "/nua/build")
     src = Path(f"/nua/build/dolibarr-{release}")
-    src.rename("dolibarr")
-    chmod_r("/nua/build/dolibarr/scripts", 0o555)
-
-    # rm_fr("/var/www/html")
-    # copytree(src / "htdocs", "/var/www/html")
-    # sh("ln -s /var/www/html /var/www/htdocs")
-    # copytree(src / "scripts", "/var/www/scripts")
-    # rm_fr(src)
-    # mkdir_p("/var/www/documents")
-    # mkdir_p("/var/www/html/custom")
-    # chown_r("/var/www", "www-data", "www-data")
+    rm_fr("/var/www/html")
+    copytree(src / "htdocs", "/var/www/html")
+    sh("ln -s /var/www/html /var/www/htdocs")
+    copytree(src / "scripts", "/var/www/scripts")
+    rm_fr(src)
+    mkdir_p("/var/www/documents")
+    mkdir_p("/var/www/html/custom")
+    chown_r("/var/www", "www-data", "www-data")
 
 
 if __name__ == "__main__":

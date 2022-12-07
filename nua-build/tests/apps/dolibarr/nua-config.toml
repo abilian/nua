@@ -17,55 +17,6 @@ release = 1
 [instance]
 # instance is a list of parameters use when installing an instance of the package.
 # These parameters can be over written by the deployment parameteers.
-# for postgres:
-# network = "hedgedoc-1"
-# secrets = "POSTGRES_PASSWORD"
-
-DOLI_VERSION = "16.0.3"
-# The installation will be executed on first boot
-DOLI_INSTALL_AUTO = 1
-
-DOLI_PROD = 0
-
-DOLI_DB_TYPE = "pgsql"
-DOLI_DB_HOST = ""
-DOLI_DB_HOST_PORT = 5432
-DOLI_DB_NAME = "dolidb"
-DOLI_DB_USER = "doli"
-DOLI_DB_PASSWORD = "doli"
-
-DOLI_ADMIN_LOGIN = ""
-DOLI_ADMIN_PASSWORD = ""
-
-DOLI_URL_ROOT = "http://0.0.0.0"
-PHP_INI_DATE_TIMEZONE = "Europe/Paris"
-PHP_INI_MEMORY_LIMIT = "256M"
-PHP_MAX_UPLOAD = "20M"
-PHP_MAX_EXECUTION_TIME = "300"
-
-
-WWW_USER_ID = 33
-WWW_GROUP_ID = 33
-
-# might be required behind a proxy that make URL rewriting
-DOLI_NOCSRFCHECK = "1" #
-
-DOLI_AUTH = "dolibarr" # ldap
-DOLI_LDAP_HOST = "127.0.0.1"
-DOLI_LDAP_PORT = 389
-DOLI_LDAP_VERSION = 3
-DOLI_LDAP_SERVER_TYPE = "openldap"
-DOLI_LDAP_LOGIN_ATTRIBUTE = "uid"
-DOLI_LDAP_DN = "ou=users,dc=my-domain,dc=com"
-DOLI_LDAP_FILTER = ""
-DOLI_LDAP_BIND_DN = ""
-DOLI_LDAP_BIND_PASS = ""
-DOLI_LDAP_DEBUG = "false"
-
-DOLI_CRON = 0
-# DOLI_CRON_KEY		Security key launch cron jobs
-# DOLI_CRON_USER
-
 
 
 [instance.postgres_password]
@@ -74,11 +25,11 @@ nua_internal = true
 # nua_internal = "POSTGRES_PASSWORD" maybe this syntax ?
 
 [instance.db_host]
-key = "CMD_DB_HOST"
+key = "DOLI_DB_HOST"
 resource_property = "database.container"
 
 [instance.user_passwd]
-key = "CMD_DB_PASSWORD"
+key = "DOLI_DB_PASSWORD"
 persistent = true
 random_str = true
 
@@ -88,18 +39,12 @@ auto_remove = false
 # detach = true mandatory
 
 [run.env]
-TZ = "Europe/Paris"
 
+DOLI_VERSION = "16.0.3"
+# The installation will be executed on first boot
 DOLI_INSTALL_AUTO = 1
 
 DOLI_PROD = 0
-
-DOLI_DB_TYPE = "pgsql"
-DOLI_DB_HOST = ""
-DOLI_DB_HOST_PORT = 5432
-DOLI_DB_NAME = "dolidb"
-DOLI_DB_USER = "doli"
-DOLI_DB_PASSWORD = "doli"
 
 DOLI_ADMIN_LOGIN = ""
 DOLI_ADMIN_PASSWORD = ""
@@ -109,7 +54,6 @@ PHP_INI_DATE_TIMEZONE = "Europe/Paris"
 PHP_INI_MEMORY_LIMIT = "256M"
 PHP_MAX_UPLOAD = "20M"
 PHP_MAX_EXECUTION_TIME = "300"
-
 
 WWW_USER_ID = 33
 WWW_GROUP_ID = 33
@@ -132,20 +76,32 @@ DOLI_LDAP_DEBUG = "false"
 DOLI_CRON = 0
 
 
+
+# DOLI_CRON_KEY		Security key launch cron jobs
+# DOLI_CRON_USER
+
+DOLI_DB_TYPE = "pgsql"
+# DOLI_DB_HOST = ""
+DOLI_DB_HOST_PORT = 5432
+DOLI_DB_NAME = "dolidb"
+DOLI_DB_USER = "doli"
+
 [port.web]
 container = 80
 
 [[volume]]
 # declare a local volume for plublic uploads
-type = "bind"
+# type = "bind"
+type = "volume"
 # Name of the driver used to create the volume: (for type == "volume")
-# driver = "local"
+driver = "local"
 # Mount source (e.g. a volume name or a host path):
-source = "/var/tmp"
+source = "dolibarr_html"
 # Container path:
-target = "/var/www/documents"
+target = "/var/www/html"
 # mode (default to 'rw'
-mode = "rw"
+# mode = "rw"
+
 
 [[resource]]
 # A resource is another container required by the main app container, its
@@ -165,12 +121,6 @@ image = "docker.io/library/postgres:14.5"
     restart_policy.name = "always"
 [resource.run_env]
 
-# [resource.port.web]
-    # no port declaration: port declaration is required. The resource does not need to
-    # expose ports on the locahost network, the main container will directly connect
-    # using hostname:port of the resource through the bridge network declared as
-    # ' network = "hedgedoc-1" '
-
 [[resource.volume]]
     # here we declare a mounted volume (ie: managed by Docker daemon)
     # The mount type (bind / volume / tmpfs / npipe). Default: volume :
@@ -178,25 +128,8 @@ image = "docker.io/library/postgres:14.5"
     # Name of the driver used to create the volume: (for type == "volume")
     driver = "local"
     # Mount source (e.g. a volume name or a host path):
-    source = "postgres_dolibarr_1"
+    source = "postgres_dolibarr_2"
     # Container path:
     target = "/var/lib/postgresql/data"
     # mode (default to 'rw'
-    mode = "rw"
-
-
-
-# For sqlite:
-# [[volume]]
-# # uploads:/hedgedoc/public/uploads
-# # The mount type (bind / volume / tmpfs / npipe). Default: volume :
-# type = "bind"
-# # Name of the driver used to create the volume: (for type == "volume")
-# # driver = "local"
-# # Mount source (e.g. a volume name or a host path):
-# source = "/var/tmp"
-# # Container path:
-# target = "/nua/data"
-# #
-# mode = "rw"
-# # dst = "/var/tmp/uploads"
+    # mode = "rw"
