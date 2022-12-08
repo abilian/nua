@@ -56,6 +56,9 @@ class PostgresManager(DbManager):
         else:
             self.password = self.postgres_pwd()
 
+    def __str__(self):
+        return f"{self.user}@{self.host}:{self.port}"
+
     def root_connect(self):
         return psycopg2.connect(
             host=self.host,

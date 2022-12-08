@@ -1,4 +1,5 @@
 """class to manage the deployment of a group os sites."""
+import time
 from collections.abc import Callable
 from copy import deepcopy
 from pathlib import Path
@@ -450,6 +451,8 @@ class SitesDeployment:
         # docker.run()
         mounted_volumes = mount_resource_volumes(resource)
         start_one_container(resource, run_params, mounted_volumes)
+        # until we check startup of container...
+        time.sleep(2)
 
     def start_one_site_container(self, site: Site):
         run_params = self.generate_site_container_run_parameters(site)
