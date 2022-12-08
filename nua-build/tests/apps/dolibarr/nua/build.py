@@ -16,59 +16,11 @@ from nua.runtime.nua_config import NuaConfig
 
 def main():
     config = NuaConfig(".")
-
-    release = "16.0.3"
-    doli_url = f"https://github.com/Dolibarr/dolibarr/archive/{release}.tar.gz"
-    packages = [
-        "apache2",
-        "php",
-        "php-cli",
-        # "php-mysql",
-        "php-pgsql",
-        "php-common",
-        "php-zip",
-        "php-mbstring",
-        "php-xmlrpc",
-        "php-curl",
-        "php-soap",
-        "php-gd",
-        "php-xml",
-        "php-intl",
-        "php-ldap",
-        "libapache2-mod-php",
-        "postgresql-client",
-        "unzip",  # ?
-        "rsync",
-    ]
-    # "bzip2",
-    # "cron",
-    # "rsync",
-    # "sendmail",
-    # "unzip",
-    # "zip",
-    # "libc-client-dev",
-    # "libfreetype6-dev",
-    # "libjpeg62-dev",
-    # "libkrb5-dev",
-    # "libldap2-dev",
-    # "libpng-dev",
-    # "libpq-dev",
-    # "libxml2-dev",
-    # "libzip-dev",
-    # "build-essential",
-    # ]
-
-    # tmp_packages = [
-    # "build-essential",
-    # "python3-dev",
-    # "libsqlite3-dev",
-    # "netcat",
-    # "libicu-dev",
-    # "libssl-dev",
-    # "git",
-    # ]
-    install_package_list(packages, keep_lists=True)
-    install_psycopg2_python()  # for db initialialization in start.py
+    params = config.build
+    source = params["source_url"].format(**params)
+    install_package_list(params["packages"], keep_lists=True)
+    if params.get("postgres", False):
+        install_psycopg2_python()  # for db initialialization in start.py
 
     set_php_ini_keys(
         {
@@ -99,8 +51,8 @@ def main():
     # log_errors = Off
 
     chdir("/nua/build")
-    download_extract(doli_url, "/nua/build")
-    src = Path(f"/nua/build/dolibarr-{release}")
+    download_extract(source, "/nua/build")
+    src = Path(f"/nua/build/dolibarr-{params['version']}")
     src.rename("dolibarr")
     chmod_r("/nua/build/dolibarr/scripts", 0o555)
 

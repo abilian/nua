@@ -43,18 +43,19 @@ class BuilderApp:
         # self.nua_dir = None
 
     def fetch(self):
-        chdir(self.build_dir)
-        if self.config.src_url:
-            cmd = (
-                f"curl -sL {self.config.src_url} | "
-                "tar -xz -c src --strip-components 1 -f -"
-            )
-            sh(cmd)
-        elif self.config.src_git:
-            cmd = f"git clone {self.config.src_git} src"
-            sh(cmd)
-        else:
-            print("No src_url or src_git content to fetch.")
+        pass
+        # chdir(self.build_dir)
+        # if self.config.source_url:
+        #     cmd = (
+        #         f"curl -sL {self.config.source_url} | "
+        #         "tar -xz -c src --strip-components 1 -f -"
+        #     )
+        #     sh(cmd)
+        # elif self.config.src_git:
+        #     cmd = f"git clone {self.config.src_git} src"
+        #     sh(cmd)
+        # else:
+        #     print("No src_url or src_git content to fetch.")
 
     def detect_nua_dir(self):
         """Detect dir containing nua files (start.py, build.py, Dockerfile,

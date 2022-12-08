@@ -12,8 +12,8 @@ from nua.lib.shell import sh
 
 
 def main():
-    release = "1.9.6"
-    url = (
+    version = "1.9.6"
+    src_url = (
         "https://github.com/hedgedoc/hedgedoc/releases/"
         f"download/{release}/hedgedoc-{release}.tar.gz"
     )

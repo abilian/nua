@@ -12,7 +12,29 @@ release = 1
 
 [build]
 # build is a list of parameters used by the main build.py script
-# use standard nua base image
+version = "16.0.3"
+source_url = "https://github.com/Dolibarr/dolibarr/archive/{version}.tar.gz"
+packages = [
+    "apache2",
+    "php",
+    "php-cli",
+    "php-pgsql",
+    "php-common",
+    "php-zip",
+    "php-mbstring",
+    "php-xmlrpc",
+    "php-curl",
+    "php-soap",
+    "php-gd",
+    "php-xml",
+    "php-intl",
+    "php-ldap",
+    "libapache2-mod-php",
+    "postgresql-client",
+    "unzip",
+    "rsync",
+]
+postgres = true
 
 
 # [[assign]] is a list of parameters use when installing an instance of the package.

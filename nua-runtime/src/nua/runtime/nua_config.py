@@ -70,16 +70,9 @@ class NuaConfig:
         return self.build.get("manifest", [])
 
     @property
-    def src_url(self) -> str:
-        src_url = self.build.get("src_url") or ""
-        if "{" in src_url and self.version:
-            src_url = src_url.format(version=self.version)
-
-        return src_url
-
-    @property
-    def src_git(self) -> str:
-        return self.build.get("src_git") or ""
+    def source_url(self) -> str:
+        source_url = self.build.get("source_url") or ""
+        return source_url
 
     @property
     def nua_base(self) -> str:
