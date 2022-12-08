@@ -59,6 +59,14 @@ class Resource(dict):
         self["service"] = service
 
     @property
+    def assign(self) -> list:
+        return self.get("assign", [])
+
+    @assign.setter
+    def assign(self, assign_list: list):
+        self["assign"] = assign
+
+    @property
     def domain(self) -> str:
         return self.get("domain", "")
 
@@ -269,7 +277,7 @@ class Resource(dict):
         for key, value in resource_updates.items():
             # brutal replacement, TODO make special cases for volumes
             # less brutal:
-            if key not in {"port", "run", "run_env", "volume", "name"}:
+            if key not in {"port", "run", "volume", "name", "assign"}:
                 warning(
                     "maybe updating an unknown key in " f"the configuration '{key}'"
                 )
@@ -290,6 +298,8 @@ class Resource(dict):
             return
         if key == "volume":
             return self._update_instance_from_site_deep_volume(value)
+        if key == "assign":
+            return self._update_instance_from_site_deep_assign(value)
         # unknow, (or ports?) be brutal
         self[key] = value
 
@@ -305,6 +315,21 @@ class Resource(dict):
         for update_vol in value:
             vol_dic[update_vol["target"]] = update_vol
         self.volume = list(vol_dic.values())
+
+    def _update_instance_from_site_deep_assign(self, value):
+        if not isinstance(value, list):
+            error(
+                "Updated assignment in deploy config must be a list.",
+                explanation=f"{value=}",
+            )
+        assign_dic = {}
+        for orig in self.assign:
+            if "key" in orig:
+                assign_dic[orig["key"]] = orig
+        for update in value:
+            if "key" in orig:
+                assign_dic[orig["key"]] = update
+        self.assign = list(assign_dic.values())
 
     def require_network(self) -> bool:
         """Heuristic to evaluate the need of docker private network.
@@ -333,6 +358,7 @@ class Resource(dict):
 
     def add_requested_secrets(self, key: str):
         if verbosity(3):
+            print(self)
             print("add_requested_secrets", key)
         self.requested_secrets.append(key)
         for resource in self.resources:

@@ -6,6 +6,7 @@ from nua.lib.tool.state import verbosity
 
 # from . import config
 from .evaluators import nua_internal, random_str, resource_property
+from .resource import Resource
 from .site import Site
 
 EVALUATOR_FCT = {
@@ -15,13 +16,15 @@ EVALUATOR_FCT = {
 }
 
 
-def instance_key_evaluator(site: Site) -> dict:
+def instance_key_evaluator(resource: Resource) -> dict:
     env = {}
-    for requirement in site.instance_key_requirements():
+    if verbosity(3):
+        info(f"resource.assign: {resource.assign}")
+    for requirement in resource.assign:
         destination_key = requirement["key"]
         function = required_function(requirement)
         if function:
-            result = function(site, requirement)
+            result = function(resource, requirement)
             if verbosity(2):
                 info(f"generated value: {result}")
         else:

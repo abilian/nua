@@ -55,9 +55,13 @@ def docker_service_start_if_needed():
 
 
 def docker_container_of_name(name: str) -> list[Container]:
-    """Send a list of 0 or 1 Continer of the given name."""
+    """Send a list of 0 or 1 Container of the given name."""
     client = from_env()
-    return [c for c in client.containers.list(filters={"name": name}) if c.name == name]
+    return [
+        cont
+        for cont in client.containers.list(all=True, filters={"name": name})
+        if cont.name == name
+    ]
 
 
 def _docker_wait_empty_container_list(name: str, timeout: int) -> bool:
@@ -158,7 +162,7 @@ def docker_check_container_listed(name: str) -> bool:
     if _docker_wait_container_listed(name):
         return True
     else:
-        warning(f"container not seen in list: {name}", "container listed:")
+        warning(f"container not seen in running list: {name}", "container listed:")
         for cont in docker_container_of_name(name):
             print_red(f"         {cont.name}  {cont.status}")
         return False
@@ -220,8 +224,10 @@ def docker_remove_prior_container_live(rsite: Resource):
         docker_remove_container(container.name)
 
 
-def _erase_previous_container(client: DockerClient, name: str):
+def erase_previous_container(client: DockerClient, name: str):
     try:
+        if verbosity(2):
+            info(f"Search previous container of name: {name}")
         container = client.containers.get(name)
         info(f"    -> Remove existing container '{container.name}'")
         container.remove(force=True)
@@ -242,18 +248,18 @@ def docker_run(rsite: Resource, secrets: dict) -> Container:
     # the actual key is 'environment'
     if "env" in params:
         del params["env"]
+    params["detach"] = True  # force detach option
     if verbosity(1):
         info(f"Docker run image: {rsite.image_id}")
         if verbosity(2):
             print("run parameters:\n", pformat(params))
     docker_remove_prior_container_live(rsite)
-    params["detach"] = True  # force detach option
     if rsite.network_name:
         params["network"] = rsite.network_name
         if verbosity(2) and rsite.network_name:
             info("network:", rsite.network_name)
     client = from_env()
-    _erase_previous_container(client, params["name"])
+    erase_previous_container(client, params["name"])
     actual_params = params_with_secrets(params, secrets)
     container = client.containers.run(rsite.image_id, **actual_params)
     if verbosity(3):

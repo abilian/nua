@@ -283,10 +283,10 @@ def download_extract(url: str, dest: str | Path) -> Path:
             target.write_bytes(remote.read())
         # if name.endswith(".zip"):
         #     return extract_zip(target, dest)
-        return extract_all(target, dest)
+        return extract_all(target, dest, url)
 
 
-def extract_all(archive: str | Path, dest: str | Path) -> Path:
+def extract_all(archive: str | Path, dest: str | Path, url: str = "") -> Path | None:
     with tarfile.open(archive) as tar:
         tar.extractall(dest)
     name = Path(archive).stem
@@ -296,8 +296,12 @@ def extract_all(archive: str | Path, dest: str | Path) -> Path:
     if not result.exists():
         name = re.sub(r"-[0-9\.post]*$", "", name)
         result = Path(dest) / name
+    if url:
+        if match := re.search(f".*/(.*)/archive/.*", url):
+            name = match.group(1)
+            result = Path(dest) / name
     if not result.exists():
-        warning(f"expected '{result}' not found")
+        result = None
     return result
 
 

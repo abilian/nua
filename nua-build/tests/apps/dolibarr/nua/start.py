@@ -21,6 +21,8 @@ def setup_db():
     In this example The DB is on remote docker container.
     """
     manager = PostgresManager(DOLI_DB_HOST, os.environ.get("DOLI_DB_HOST_PORT"))
+    print(manager)
+    print("pass:", manager.password)
     manager.setup_db_user(
         os.environ.get("DOLI_DB_NAME"),
         os.environ.get("DOLI_DB_USER"),

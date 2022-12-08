@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-orchestrator"
-version = "0.4.57"
+version = "0.4.60"
 description = "Nua orchestrator local implementation for Nua v0."
 authors = ["Jerome Dumonteil <jd@abilian.com>"]
 license = "AGPL"
@@ -25,9 +25,9 @@ nua_test_services = "nua.orchestrator.service:test"
 
 [tool.poetry.dependencies]
 # nua----lib = { path = "../nua-lib/", develop = false }
-nua-lib = "==0.4.57"
-nua-runtime = "==0.4.57"
-nua-selfbuilder = "==0.4.57"
+nua-lib = "==0.4.60"
+nua-runtime = "==0.4.60"
+nua-selfbuilder = "==0.4.60"
 python = "^3.10"
 
 # Databases

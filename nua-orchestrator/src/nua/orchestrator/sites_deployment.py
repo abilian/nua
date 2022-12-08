@@ -77,6 +77,8 @@ class SitesDeployment:
         self.sites = []
 
     def load_available_services(self):
+        # deprecated
+        return
         # assuming db_setup was run at initialization of the command
         services = Services()
         services.load()
@@ -451,7 +453,7 @@ class SitesDeployment:
         # docker.run()
         mounted_volumes = mount_resource_volumes(resource)
         start_one_container(resource, run_params, mounted_volumes)
-        # until we check startup of container...
+        # until we check startup of container or set value in parameters...
         time.sleep(2)
 
     def start_one_site_container(self, site: Site):
@@ -490,7 +492,7 @@ class SitesDeployment:
         self.add_host_gateway_to_extra_hosts(run_params)
         run_params["name"] = site.container_name
         run_params["ports"] = site.ports_as_docker_params()
-        run_params["environment"] = self.run_parameters_container_environment(site)
+        run_params["environment"] = self.run_parameters_environment(site)
         self.sanitize_run_params(run_params)
         return run_params
 
@@ -505,7 +507,7 @@ class SitesDeployment:
         name = f"{site.container_name}-{resource.base_name}"
         run_params["name"] = name
         run_params["ports"] = resource.ports_as_docker_params()
-        run_params["environment"] = resource.run_env
+        run_params["environment"] = self.run_parameters_resource_environment(resource)
         self.sanitize_run_params(run_params)
         return run_params
 
@@ -515,16 +517,25 @@ class SitesDeployment:
         extra_hosts.update(extra_host_gateway())
         run_params["extra_hosts"] = extra_hosts
 
-    def run_parameters_container_environment(self, site: Site) -> dict:
+    def run_parameters_environment(self, site: Site) -> dict:
         image_nua_config = site.image_nua_config
         run_env = image_nua_config.get("run_env", {})
-        run_dot_env = image_nua_config.get("run", {}).get("env", {})
-        run_env.update(run_dot_env)
         run_env.update(self.services_environment(site))
         run_env.update(self.resources_environment(site))
         run_env.update(instance_key_evaluator(site))
         # variables declared in run_env can replace any other source:
-        run_env.update(site.run_env)
+        run_dot_env = image_nua_config.get("run", {}).get("env", {})
+        run_env.update(run_dot_env)
+        return run_env
+
+    def run_parameters_resource_environment(self, resource: Resource) -> dict:
+        # debug:
+        run_env = resource.run_env
+        run_env.update(instance_key_evaluator(resource))
+        # variables declared in run.env can replace any other source:
+        run_dot_env = resource.get("run", {}).get("env", {})
+        run_env.update(run_dot_env)
+        resource.run_env = run_env
         return run_env
 
     @staticmethod

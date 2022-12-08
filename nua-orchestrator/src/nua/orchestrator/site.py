@@ -45,6 +45,14 @@ class Site(Resource):
         self["image_nua_config"] = image_nua_config
 
     @property
+    def assign(self) -> list:
+        return self.image_nua_config.get("assign", [])
+
+    @assign.setter
+    def assign(self, assign_list: list):
+        self.image_nua_config["assign"] = assign
+
+    @property
     def local_services(self) -> list:
         return [
             resource.service for resource in self.resources if resource.type == "local"
@@ -78,21 +86,8 @@ class Site(Resource):
         name_base = f"{self.nua_long_name}-{suffix}"
         return sanitized_name(name_base)
 
-    def _merged_instance_network_name(self) -> str:
-        instance = self.image_nua_config.get("instance", {})
-        network_name = instance.get("network") or ""
-        if not network_name:
-            return ""
-        if renamed := self.get("network"):
-            network_name = renamed
-        return sanitized_name(network_name)
-
     def set_network_name(self):
-        self.network_name = self._merged_instance_network_name()
-        if verbosity(4):
-            print("set_network_name() network_name =", self.network_name)
-        if not self.network_name or self.network_name == "auto":
-            self.detect_required_network()
+        self.detect_required_network()
         if self.network_name:
             for resource in self.resources:
                 resource.network_name = self.network_name
@@ -102,29 +97,11 @@ class Site(Resource):
 
         If needed, stet a relevant network name.
         """
+        self.network_name = ""
         if any(resource.require_network() for resource in self.resources):
             self.network_name = self.container_name
             if verbosity(4):
                 print("detect_required_network() network_name =", self.network_name)
-
-    def instance_key_requirements(self) -> list:
-        """grab requirements like:
-
-        [instance.db_host]
-        key = "DB_HOST"
-        resource_property = "database.container"
-        """
-        instance = self.image_nua_config.get("instance", {})
-        requirements = []
-        for _inst_key, require in instance.items():
-            if not isinstance(require, dict):
-                continue
-            # normalize keys of the requirement dict to lowercase
-            normalized_require = {k.lower(): v for k, v in require.items()}
-            if "key" not in normalized_require:
-                continue
-            requirements.append(normalized_require)
-        return requirements
 
     def resource_per_name(self, name: str) -> Resource | None:
         for resource in self.resources:
