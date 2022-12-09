@@ -8,7 +8,7 @@ import docker.types
 from nua.lib.panic import error, info, warning
 from nua.lib.rich_console import print_green, print_magenta
 from nua.lib.tool.state import verbosity
-from nua.selfbuilder.docker_build_utils import display_one_docker_img
+from nua.autobuild.docker_build_utils import display_one_docker_img
 
 from .archive_search import ArchiveSearch
 from .db import store

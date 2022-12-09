@@ -4,7 +4,7 @@ function is_gnu_sed(){
   sed --version >/dev/null 2>&1
 }
 
-for pack in nua-lib nua-selfbuilder
+for pack in nua-lib nua-autobuild
 do
     for installed in $( pip list --format freeze | grep "${pack}" )
     do
@@ -18,7 +18,7 @@ done
 # while using the 'safe' "*" value for test deployments
 cd ../nua-runtime
 poetry install
-cd ../nua-selfbuilder
+cd ../nua-autobuild
 
 cp -f pyproject.toml pyproject.toml.orig
 
@@ -34,4 +34,4 @@ is_gnu_sed && {
 poetry install
 
 mv -f pyproject.toml.orig pyproject.toml
-python -c "from nua.selfbuilder import __version__; print('nua.selfbuilder', __version__)"
+python -c "from nua.autobuild import __version__; print('nua.autobuild', __version__)"

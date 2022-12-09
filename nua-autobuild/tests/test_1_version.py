@@ -2,7 +2,7 @@ import pytest
 
 
 def test_version_string():  # noqa
-    from nua.selfbuilder import __version__
+    from nua.autobuild import __version__
 
     version_split = __version__.split(".")
 

@@ -19,7 +19,7 @@ def pytest(session: nox.Session) -> None:
 
 
 def _install(session):
-    session.run("pip", "install", "../nua-lib", "../nua-runtime", "../nua-selfbuilder")
+    session.run("pip", "install", "../nua-lib", "../nua-runtime", "../nua-autobuild")
     session.run("poetry", "install", external=True)
     session.run("pip", "check", external=True)
     session.run("poetry", "check", external=True)

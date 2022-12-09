@@ -41,7 +41,7 @@ option_version = typer.Option(
     None,
     "--version",
     "-V",
-    help="Show nua-selfbuilder version and exit.",
+    help="Show nua-autobuild version and exit.",
     callback=version_callback,
     is_eager=True,
 )

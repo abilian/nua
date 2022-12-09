@@ -9,7 +9,7 @@ from nua.runtime.constants import NUA_BUILDER_NODE_TAG, NUA_BUILDER_TAG, NUA_PYT
 
 
 def test_force_build():  # noqa
-    from nua.selfbuilder.nua_image_builder import NUAImageBuilder
+    from nua.autobuild.nua_image_builder import NUAImageBuilder
 
     client = docker.from_env()
 
@@ -27,7 +27,7 @@ def test_force_build():  # noqa
 
 
 def test_quick_build():  # noqa
-    from nua.selfbuilder.nua_image_builder import NUAImageBuilder
+    from nua.autobuild.nua_image_builder import NUAImageBuilder
 
     client = docker.from_env()
 

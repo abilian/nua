@@ -7,7 +7,7 @@ poetry install
 cd ../nua-runtime
 poetry update
 poetry install
-cd ../nua-selfbuilder
+cd ../nua-autobuild
 poetry update
 poetry install
 cd ../nua-build

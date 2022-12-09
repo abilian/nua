@@ -9,7 +9,7 @@ import tomli
 from nua.lib.panic import error, info, warning
 from nua.lib.rich_console import print_green, print_magenta, print_red
 from nua.lib.tool.state import verbosity
-from nua.selfbuilder.docker_build_utils import display_one_docker_img, docker_require
+from nua.autobuild.docker_build_utils import display_one_docker_img, docker_require
 
 from . import config
 from .certbot import protocol_prefix, register_certbot_domains
