@@ -12,7 +12,7 @@ from nua.runtime.postgres_manager import PostgresManager
 # env = os.environ.copy()
 # env["DOLI_DB_HOST"] = os.environ.get("NUA_DATABASE_HOST")
 
-print(env)
+print(os.environ)
 
 
 def setup_db():
