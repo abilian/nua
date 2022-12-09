@@ -8,9 +8,9 @@ from nua.runtime.postgres_manager import PostgresManager
 
 # set in CMD_DB_HOST the actual value of the just created docker private network
 # This laybe not needed now (see [instance.db_host])
-DOLI_DB_HOST = os.environ.get("NUA_DATABASE_HOST")
-env = os.environ.copy()
-env["DOLI_DB_HOST"] = os.environ.get("NUA_DATABASE_HOST")
+# DOLI_DB_HOST = os.environ.get("NUA_DATABASE_HOST")
+# env = os.environ.copy()
+# env["DOLI_DB_HOST"] = os.environ.get("NUA_DATABASE_HOST")
 
 print(env)
 
@@ -20,8 +20,9 @@ def setup_db():
 
     In this example The DB is on remote docker container.
     """
-    manager = PostgresManager(DOLI_DB_HOST, os.environ.get("DOLI_DB_HOST_PORT"))
-    print(manager)
+    manager = PostgresManager(
+        host=DOLI_DB_HOST, port=os.environ.get("DOLI_DB_HOST_PORT")
+    )
     print("pass:", manager.password)
     manager.setup_db_user(
         os.environ.get("DOLI_DB_NAME"),
@@ -33,7 +34,7 @@ def setup_db():
 setup_db()
 print("setup_db done")
 
-exec_as_root("/bin/bash /nua/build/entrypoint.sh")
+exec_as_root("/bin/bash /nua/build/nua/entrypoint.sh")
 
 env = {
     "APACHE_RUN_USER": "www-data",

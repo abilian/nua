@@ -8,7 +8,7 @@ website = "https://nua.rocks/"
 tags = ["test", "php", "web", "Dolibarr"]
 licence = "GPLv3"
 profile = ["test"]
-release = 1
+release = 2
 
 [build]
 # build is a list of parameters used by the main build.py script

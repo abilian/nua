@@ -1,5 +1,5 @@
 import re
-from os import chdir
+from os import chdir, listdir
 from pathlib import Path
 from shutil import copy2, copytree
 
@@ -51,11 +51,12 @@ def main():
     # log_errors = Off
 
     chdir("/nua/build")
-    download_extract(source, "/nua/build")
+    response = download_extract(source, "/nua/build")
+    print(response)
     src = Path(f"/nua/build/dolibarr-{params['version']}")
     src.rename("dolibarr")
     chmod_r("/nua/build/dolibarr/scripts", 0o555)
-
+    print(listdir("/nua/build/"))
     # rm_fr("/var/www/html")
     # copytree(src / "htdocs", "/var/www/html")
     # sh("ln -s /var/www/html /var/www/htdocs")
