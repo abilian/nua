@@ -1,4 +1,4 @@
 [[site]]
-image = "dolibarr:16.0-1"
+image = "dolibarr:16.0-3"
 domain = "test1.yerom.xyz"
 [site.run.env]

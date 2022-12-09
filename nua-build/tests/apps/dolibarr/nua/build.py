@@ -1,14 +1,12 @@
-import re
 from os import chdir, listdir
 from pathlib import Path
-from shutil import copy2, copytree
+from shutil import copytree
 
 from nua.lib.actions import (  # installed_packages,
     download_extract,
     install_package_list,
     install_psycopg2_python,
     set_php_ini_keys,
-    tmp_install_package_list,
 )
 from nua.lib.shell import chmod_r, chown_r, mkdir_p, rm_fr, sh
 from nua.runtime.nua_config import NuaConfig
@@ -36,7 +34,7 @@ def main():
             ),
             "max_execution_time": "60",
             "memory_limit": "256M",
-            "open_basedir": "/var/www/localhost/htdocs:/var/www/documents:/var/www/run:/tmp",
+            "open_basedir": "/var/www/html:/var/www/localhost/htdocs:/var/www/documents:/var/www/run:/tmp",
             "post_max_size": "64M",
             "session.cookie_samesite": "Lax",
             "session.save_path": "/var/www/run",
@@ -53,18 +51,18 @@ def main():
     chdir("/nua/build")
     response = download_extract(source, "/nua/build")
     print(response)
-    src = Path(f"/nua/build/dolibarr-{params['version']}")
-    src.rename("dolibarr")
-    chmod_r("/nua/build/dolibarr/scripts", 0o555)
-    print(listdir("/nua/build/"))
-    # rm_fr("/var/www/html")
-    # copytree(src / "htdocs", "/var/www/html")
-    # sh("ln -s /var/www/html /var/www/htdocs")
-    # copytree(src / "scripts", "/var/www/scripts")
-    # rm_fr(src)
-    # mkdir_p("/var/www/documents")
-    # mkdir_p("/var/www/html/custom")
-    # chown_r("/var/www", "www-data", "www-data")
+    src = Path(response)
+    # src = Path(f"/nua/build/dolibarr-{params['version']}")
+    # src.rename("dolibarr")
+    # chmod_r("/nua/build/dolibarr/scripts", 0o555)
+    rm_fr("/var/www/html")
+    copytree(src / "htdocs", "/var/www/html")
+    sh("ln -s /var/www/html /var/www/htdocs")
+    copytree(src / "scripts", "/var/www/scripts")
+    rm_fr(src)
+    mkdir_p("/var/www/documents")
+    mkdir_p("/var/www/html/custom")
+    chown_r("/var/www", "www-data", "www-data")
 
 
 if __name__ == "__main__":

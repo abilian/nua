@@ -865,7 +865,7 @@ tox-to-nox = ["jinja2", "tox"]
 
 [[package]]
 name = "nua-lib"
-version = "0.4.61"
+version = "0.4.62"
 description = "Nua common library"
 category = "main"
 optional = false
@@ -892,7 +892,7 @@ test = ["black", "isort", "pytest"]
 name = "packaging"
 version = "22.0"
 description = "Core utilities for Python packages"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 
@@ -1407,7 +1407,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "214c7367601381a42c1166f0a6893eaf9d9aaa07458240432a707390762f0c2e"
+content-hash = "cee9a4a296fb2543f3cad6d6a60ea5a601738ae8063308d627368600ec0c825f"
 
 [metadata.files]
 abilian-devtools = [

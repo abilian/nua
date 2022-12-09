@@ -601,7 +601,7 @@ tox-to-nox = ["jinja2", "tox"]
 
 [[package]]
 name = "nua-autobuild"
-version = "0.4.61"
+version = "0.4.62"
 description = "Nua self builder"
 category = "main"
 optional = false
@@ -614,7 +614,7 @@ url = "../nua-autobuild"
 
 [[package]]
 name = "nua-lib"
-version = "0.4.61"
+version = "0.4.62"
 description = "Nua common library"
 category = "main"
 optional = false
@@ -627,7 +627,7 @@ url = "../nua-lib"
 
 [[package]]
 name = "nua-runtime"
-version = "0.4.61"
+version = "0.4.62"
 description = "Nua runtime"
 category = "main"
 optional = false
@@ -1075,7 +1075,7 @@ test = ["websockets"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "2fda09955c4685aa610cd56c7e9ae9163c3157f13863ad0db52186cce6f53900"
+content-hash = "703ea63043df732e306b5f769d46ff937fe84dfd9d44f5a1dc88ddb1aa8b1ad8"
 
 [metadata.files]
 argcomplete = [

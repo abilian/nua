@@ -8,7 +8,7 @@ website = "https://nua.rocks/"
 tags = ["test", "php", "web", "Dolibarr"]
 licence = "GPLv3"
 profile = ["test"]
-release = 2
+release = 3
 
 [build]
 # build is a list of parameters used by the main build.py script
@@ -60,13 +60,18 @@ auto_remove = false
 [run.env]
 
 DOLI_VERSION = "16.0.3"
+
+DOLI_ADMIN_LOGIN = "admin"
+DOLI_ADMIN_PASSWORD = "admin"
+
 # The installation will be executed on first boot
-DOLI_INSTALL_AUTO = 1
+DOLI_INSTALL_AUTO = "1"
+DOLI_MODULES = ""
 
-DOLI_PROD = 0
+DOLI_DB_ROOT_LOGIN = ""
 
-DOLI_ADMIN_LOGIN = ""
-DOLI_ADMIN_PASSWORD = ""
+DOLI_PROD = "0"
+DOLI_FORCE_HTTPS = "0"
 
 DOLI_URL_ROOT = "http://0.0.0.0"
 PHP_INI_DATE_TIMEZONE = "Europe/Paris"
@@ -84,7 +89,7 @@ DOLI_AUTH = "dolibarr" # ldap
 DOLI_LDAP_HOST = "127.0.0.1"
 DOLI_LDAP_PORT = 389
 DOLI_LDAP_VERSION = 3
-DOLI_LDAP_SERVER_TYPE = "openldap"
+DOLI_LDAP_SERVERTYPE = "openldap"
 DOLI_LDAP_LOGIN_ATTRIBUTE = "uid"
 DOLI_LDAP_DN = "ou=users,dc=my-domain,dc=com"
 DOLI_LDAP_FILTER = ""
@@ -94,16 +99,15 @@ DOLI_LDAP_DEBUG = "false"
 
 DOLI_CRON = 0
 
-
-
 # DOLI_CRON_KEY		Security key launch cron jobs
 # DOLI_CRON_USER
 
 DOLI_DB_TYPE = "pgsql"
 # DOLI_DB_HOST = ""
-DOLI_DB_HOST_PORT = 5432
-DOLI_DB_NAME = "dolidb"
-DOLI_DB_USER = "doli"
+DOLI_DB_PORT = 5432
+DOLI_DB_NAME = "dolibarr"
+DOLI_DB_USER = "dolibarr"
+DOLI_DB_PREFIX = "llx_"
 
 [port.web]
 container = 80
@@ -115,9 +119,22 @@ type = "volume"
 # Name of the driver used to create the volume: (for type == "volume")
 driver = "local"
 # Mount source (e.g. a volume name or a host path):
-source = "dolibarr_html"
+source = "dolibarr_html_custom"
 # Container path:
-target = "/var/www/html"
+target = "/var/www/html/custom"
+# mode (default to 'rw'
+# mode = "rw"
+
+[[volume]]
+# declare a local volume for plublic uploads
+# type = "bind"
+type = "volume"
+# Name of the driver used to create the volume: (for type == "volume")
+driver = "local"
+# Mount source (e.g. a volume name or a host path):
+source = "dolibarr_documents"
+# Container path:
+target = "/var/www/documents"
 # mode (default to 'rw'
 # mode = "rw"
 
@@ -141,8 +158,9 @@ key = "POSTGRES_PASSWORD"
 nua_internal = true
 
 [resource.run]
-    detach = true
-    restart_policy.name = "always"
+detach = true
+restart_policy.name = "always"
+
 [resource.run.env]
 
 [[resource.volume]]
@@ -152,7 +170,7 @@ nua_internal = true
     # Name of the driver used to create the volume: (for type == "volume")
     driver = "local"
     # Mount source (e.g. a volume name or a host path):
-    source = "postgres_dolibarr_2"
+    source = "postgres_dolibarr_3"
     # Container path:
     target = "/var/lib/postgresql/data"
     # mode (default to 'rw'
