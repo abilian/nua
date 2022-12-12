@@ -2,7 +2,7 @@ ARG nua_python_tag
 FROM ${nua_python_tag} as builder
 
 COPY nua_build_whl /nua/
-RUN pip install /nua/*.whl
+RUN pip install /nua/nua_lib-*.whl /nua/nua_runtime-*.whl
 
 USER root
 FROM ${nua_python_tag}

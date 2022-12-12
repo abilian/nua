@@ -22,6 +22,7 @@ nua-runtime = { path = "../nua-runtime/", develop = false }
 # nua-runtime = "==0.4.62"
 
 tomli = "^2.0.1"
+tomli-w = "^1.0.0"
 typer = {extras = ["all"], version = "^0.7.0"}
 rich = "^12.4.4"
 docker = "^6.0"

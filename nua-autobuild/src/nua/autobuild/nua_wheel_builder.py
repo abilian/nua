@@ -7,6 +7,8 @@ from pathlib import Path
 from shutil import copy2
 from urllib.request import urlopen
 
+import tomli
+import tomli_w
 from nua.lib.panic import error, warning
 from nua.lib.shell import rm_fr, sh
 from nua.lib.tool.state import verbosity
@@ -86,7 +88,22 @@ class NuaWheelBuilder:
         return self.poetry_build(top_git / "nua-lib")
 
     def build_nua_runtime(self, top_git: Path) -> bool:
+        self.hack_runtime_pyproject(top_git)
         return self.poetry_build(top_git / "nua-runtime")
+
+    @staticmethod
+    def hack_runtime_pyproject(top_git: Path):
+        """Since we use local path dependencies when making wheel,
+        we need to force the version deps to something local.
+
+        FIXME: to be solved by publishing to Pypi index.
+        """
+        path = top_git / "nua-runtime" / "pyproject.toml"
+        pyproject = tomli.loads(path.read_text(encoding="utf8"))
+        version = pyproject["tool"]["poetry"]["version"]
+        dep = f"=={version}"
+        pyproject["tool"]["poetry"]["dependencies"]["nua-lib"] = dep
+        path.write_text(tomli_w.dumps(pyproject))
 
     def poetry_build(self, path: Path) -> bool:
         if verbosity(3):
