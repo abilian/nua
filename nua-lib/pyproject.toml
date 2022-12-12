@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-lib"
-version = "0.4.62"
+version = "0.4.63"
 description = "Nua common library"
 authors = ["Stefane Fermigier <sf@abilian.com>", "Jerome Dumonteil <jd@abilian.com>"]
 license = "AGPL"
@@ -24,7 +24,7 @@ pytest-xdist = "*"
 nox = "^2022.8.7"
 
 # Linting
-flake8 = "^6"
+flake8 = "^6.0"
 flake8-bandit = "*"
 flake8-bugbear = "*"
 flake8-cognitive-complexity = "*"

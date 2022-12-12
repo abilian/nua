@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-orchestrator"
-version = "0.4.62"
+version = "0.4.63"
 description = "Nua orchestrator local implementation for Nua v0."
 authors = ["Jerome Dumonteil <jd@abilian.com>"]
 license = "AGPL"
@@ -24,11 +24,14 @@ nua_test_replace_domain = "nua.orchestrator.scripts.test_replace_domain:main"
 nua_test_services = "nua.orchestrator.service:test"
 
 [tool.poetry.dependencies]
-# nua----lib = { path = "../nua-lib/", develop = false }
-nua-lib = "==0.4.62"
-nua-runtime = "==0.4.62"
-nua-autobuild = "==0.4.62"
 python = "^3.10"
+
+nua-lib = { path = "../nua-lib/", develop = false }
+nua-runtime = { path = "../nua-runtime/", develop = false }
+nua-autobuild = { path = "../nua-autobuild/", develop = false }
+# nua-lib = "==0.4.62"
+# nua-runtime = "==0.4.62"
+# nua-autobuild = "==0.4.62"
 
 # Databases
 SQLAlchemy-serializer = "^1.4.1"
@@ -36,15 +39,16 @@ SQLAlchemy = "^1.4.36"
 psycopg2-binary = "^2.9.3"
 
 # Other deps
+setuptools = "^65.5.0"
+wheel = "^0.38"
+tomli = "^2.0.1"
 paramiko = "^2.11.0"
-tomli = "^2.0"
 docker = "^6.0"
 fabric = "^2.7.0"
 typer = {extras = ["all"], version = "^0.7.0"}
 rich = "^12.4.4"
 jinja2 = "^3.1.2"
 python-dotenv = "^0.21"
-wheel = "^0.38"
 
 [tool.poetry.dev-dependencies]
 # Testing
@@ -53,7 +57,7 @@ pytest-xdist = "*"
 nox = "*"
 
 # Linting
-flake8 = "^5"
+flake8 = "^6.0"
 flake8-bandit = "*"
 flake8-bugbear = "*"
 flake8-cognitive-complexity = "*"

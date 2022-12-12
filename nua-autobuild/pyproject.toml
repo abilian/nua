@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-autobuild"
-version = "0.4.62"
+version = "0.4.63"
 description = "Nua self builder"
 authors = ["Stefane Fermigier <sf@abilian.com>", "Jerome Dumonteil <jd@abilian.com>"]
 license = "AGPL"
@@ -16,22 +16,22 @@ nua-self-build = "nua.autobuild.main:app"
 python = "^3.10"
 setuptools = "^65.5.0"
 
-# nua---lib = { path = "../nua-lib/", develop = false }
-nua-lib = "==0.4.62"
-nua-runtime = "==0.4.62"
+nua-lib = { path = "../nua-lib/", develop = false }
+nua-runtime = { path = "../nua-runtime/", develop = false }
+# nua-lib = "==0.4.62"
+# nua-runtime = "==0.4.62"
 
-tomli = "^2.0"
+tomli = "^2.0.1"
 typer = {extras = ["all"], version = "^0.7.0"}
 rich = "^12.4.4"
 docker = "^6.0"
 paramiko = "*"
-# mariadb  # same
 
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
 nox = "^2022.8.7"
 # Should be installed as an abilian-devtools dependency. Poetry bug ?
-mypy = "*" 
+mypy = "*"
 
 
 [tool.pytest.ini_options]
