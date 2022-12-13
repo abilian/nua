@@ -71,7 +71,29 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.ruff]
-select = ["F", "E", "C90", "I"]
+select = [
+    "F",
+    "E",
+    "C90",
+    "I",
+    "UP",
+    "N",
+    "YTT",
+    "B",
+    "A",
+    "C4",
+    "ICN",
+    "Q",
+    "S",
+    "BLE",
+    "RET",
+    "SIM",
+    "TID",
+    "RUF",
+    "PLC", "PLE", "PLR", "PLW",
+]
+# Add later: "ANN", "ERA"...
+
 ignore = [
     # FIXME: this is easy to test
     "E501",  # line too long
