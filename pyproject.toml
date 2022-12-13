@@ -5,9 +5,19 @@ description = ""
 authors = ["Stefane Fermigier <sf@abilian.com>"]
 license = "AGPL"
 
+#packages = [
+#  { include = "nua/lib", from = "nua-lib/src" },
+#  { include = "nua/selfbuilder", from = "nua-selfbuilder/src" },
+#  { include = "nua/build", from = "nua-build/src" },
+#]
 
 [tool.poetry.dependencies]
 python = "^3.10"
+
+# nua-lib = { path = "nua-lib" }
+# nua-runtime = { path = "nua-runtime" }
+# nua-selfbuilder = { path = "nua-selfbuilder" }
+# nua-build = { path = "nua-build" }
 
 
 [tool.poetry.dev-dependencies]
@@ -46,14 +56,14 @@ black = "^22.3.0"
 # flake8-tuple = "*"
 # bandit = "*"
 # pep8-naming = "^0.13.0"
-# 
+#
 
 # # Typechecking
 # mypy = "^0.971"
 # types-toml = "^0.10.7"
-# 
+#
 # reuse = "^1.0.0"
-# 
+#
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
