@@ -50,14 +50,18 @@ def resource_property(site: Site, requirement: dict) -> dict:
     for resource in site.resources:
         if resource.resource_name != resource_name:
             continue
-        if hasattr(resource, prop):
+        # first try in environ variables of differnt kinds
+        if prop in resource.run_env:
+            value = resource.run_env[prop]
+        elif hasattr(resource, prop):
             attr = getattr(resource, prop)
             if callable(attr):
                 value = str(attr())
             else:
                 value = str(attr)
-            return {requirement[KEY]: value}
-        error(f"Unknown property for resource_property: {requirement}")
+        else:
+            error(f"Unknown property for resource_property: {requirement}")
+        return {requirement[KEY]: value}
     warning(f"resource not found for {requirement}")
     return {}
 
