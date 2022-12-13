@@ -5,6 +5,6 @@
 
 import packaging  # to ensure the module ins installed
 
-assert packaging  # to avoid flake8 warning
-
 from .version import __version__  # noqa: F401
+
+assert packaging  # to avoid flake8 warning

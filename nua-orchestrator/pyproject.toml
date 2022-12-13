@@ -110,7 +110,6 @@ ignore = [
     "F401",  # 'module' imported but unused
 ]
 
-
 [tool.deptry]
 exclude = [
     '.tox', '.nox', 'noxfile.py', 'tests', 'sandbox', 'doc', 'scripts'

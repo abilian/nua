@@ -82,6 +82,10 @@ typeguard = "^2.9.1"
 # Devops
 # invoke = "^1.4.1"
 
+[tool.ruff]
+extend-exclude = [
+    "src",
+]
 
 [tool.isort]
 profile = "black"

@@ -45,22 +45,26 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr htmlcov/
 	rm -fr .pytest_cache
 
+
+lint/ruff: ## check style with ruff
+	ruff .
+
 lint/flake8: ## check style with flake8
-	flake8 nua*
+	flake8 nua-*/src nua-*/tests
 
 lint/black: ## check style with black
-	black --check nua*
+	black --check nua-*/src nua-*/tests
 
 lint/mypy: ## typecheck with mypy
 	mypy nua-build
 	mypy nua-orchestrator
 	mypy nua-cli
-	mypy nua
+	# mypy nua
 
 lint/isort:  ## check imports are properly sorted
-	isort nua-*/**/*.py
+	isort -c nua-*/**/*.py
 
-lint: lint/flake8 lint/mypy lint/black lint/isort ## check style
+lint: lint/ruff lint/flake8 lint/mypy lint/black lint/isort ## check style
 
 test: ## run tests quickly with the default Python
 	pytest
@@ -87,9 +91,9 @@ vagrant-tests:
 format: format-py format-js
 
 format-py:
-	docformatter -i -r nua*
-	black nua*
-	isort nua*
+	docformatter -i -r nua-*
+	black nua-*/
+	isort nua-*/
 
 format-js:
 	echo "TODO"

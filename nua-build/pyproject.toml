@@ -106,10 +106,10 @@ ignore = [
     # 'W503', # line break before binary operator
     # 'S101', # Use of assert detected
 ]
-exclude = [
+extend-exclude = [
     "tests/apps",
+    ".nox"
 ]
-
 
 [tool.deptry]
 exclude = [
