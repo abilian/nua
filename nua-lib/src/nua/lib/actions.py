@@ -286,7 +286,9 @@ def download_extract(url: str, dest: str | Path) -> Path:
         return extract_all(target, dest, url)
 
 
-def extract_all(archive: str | Path, dest: str | Path, url: str = "") -> Path | None:
+def extract_all(
+    archive: str | Path, dest: str | Path, url: str = ""
+) -> Path | None:  # noqa: CCR001
     with tarfile.open(archive) as tar:
         tar.extractall(dest)
     name = Path(archive).stem

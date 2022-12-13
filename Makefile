@@ -58,7 +58,7 @@ lint/mypy: ## typecheck with mypy
 	mypy nua
 
 lint/isort:  ## check imports are properly sorted
-	isort nua*/**/*.py
+	isort nua-*/**/*.py
 
 lint: lint/flake8 lint/mypy lint/black lint/isort ## check style
 
