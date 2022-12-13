@@ -16,7 +16,7 @@ def secrets_dict(key_list: list) -> dict:
 def read_secret(key: str) -> str | None:
     if key == "POSTGRES_PASSWORD":
         return _postgres_pwd()
-    if key == "MARIADB_PASSWORD":
+    if key in {"MARIADB_ROOT_PASSWORD", "MYSQL_ROOT_PASSWORD"}:
         return _mariadb_pwd()
     return None
 

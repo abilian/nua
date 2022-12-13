@@ -52,9 +52,10 @@ class MariaDbManager(DbManager):
         the password.
         """
         pwd = os.environ.get("MARIADB_ROOT_PASSWORD")
-        if pwd:
-            return pwd
-        pwd = os.environ.get("NUA_MARIADB_PASSWORD")
+        if not pwd:
+            pwd = os.environ.get("MYSQL_ROOT_PASSWORD")
+        if not pwd:
+            pwd = os.environ.get("NUA_MARIADB_PASSWORD")
         if pwd:
             return pwd
         file_path = Path(os.path.expanduser("~nua")) / NUA_MARIADB_PWD_FILE
