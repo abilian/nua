@@ -257,6 +257,7 @@ def install_mariadb_python(version: str = "1.1.4"):
         )
         sh(cmd, cwd=tmpdirname)
         pip_install_glob(f"tmpdirname/{stem}*.whl")
+
     purge_package_list("build-essential unzip")
 
 
@@ -273,10 +274,11 @@ def install_psycopg2_python():
     pip_install("psycopg2-binary")
 
 
-def download_extract(url: str, dest: str | Path) -> Path:
+def download_extract(url: str, dest: str | Path) -> Path | None:
     name = Path(url).name
     if not any(name.endswith(suf) for suf in (".zip", ".tar", ".tar.gz", ".tgz")):
         raise ValueError(f"Unknown archive format for '{name}'")
+
     with tempfile.TemporaryDirectory() as tmp:
         target = Path(tmp) / name
         with urlopen(url) as remote:  # noqa S310
@@ -297,6 +299,7 @@ def extract_all(
 
     possible = [name]
 
+    # FIXME: this regular expression looks fishy
     name2 = re.sub(r"-[0-9\.post]*$", "", name)
     if name2:
         possible.append(name2)
@@ -304,6 +307,7 @@ def extract_all(
     if url:
         if match := re.search(".*/(.*)/archive/.*", url):
             possible.append(match.group(1))
+        # FIXME: this regular expression looks fishy
         version = re.sub(r".*-([0-9\.post]*$)", "", name)
         if version:
             possible.extend([f"{n}-{version}" for n in possible])
