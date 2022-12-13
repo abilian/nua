@@ -5,10 +5,10 @@ from pprint import pformat
 
 import docker
 import docker.types
+from nua.autobuild.docker_build_utils import display_one_docker_img
 from nua.lib.panic import error, info, warning
 from nua.lib.rich_console import print_green, print_magenta
 from nua.lib.tool.state import verbosity
-from nua.autobuild.docker_build_utils import display_one_docker_img
 
 from .archive_search import ArchiveSearch
 from .db import store
@@ -92,7 +92,9 @@ def mount_resource_volumes(resource: Resource) -> list:
 
 def extra_host_gateway() -> dict:
     """Sent an update for docker parameters 'extra_hosts':
-    host.docker.internal."""
+
+    host.docker.internal.
+    """
     return {"host.docker.internal": docker_host_gateway_ip()}
 
 
@@ -192,9 +194,8 @@ def deactivate_containers(container_names: list):
 
 
 def deactivate_site(site: Site):
-    """Deactive containers of Site and all sub Resources (updating
-    orchestrator DB).
-    """
+    """Deactive containers of Site and all sub Resources (updating orchestrator
+    DB)."""
     container_names = [res.container for res in site.resources]
     container_names.append(site.container)
     deactivate_containers(container_names)

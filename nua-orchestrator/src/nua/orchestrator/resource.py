@@ -64,7 +64,7 @@ class Resource(dict):
 
     @assign.setter
     def assign(self, assign_list: list):
-        self["assign"] = assign
+        self["assign"] = assign_list
 
     @property
     def domain(self) -> str:

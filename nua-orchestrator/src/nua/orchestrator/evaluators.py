@@ -33,7 +33,8 @@ def persistent_value(func):
 
 @persistent_value
 def random_str(site: Site, requirement: dict) -> dict:
-    """Send a password
+    """Send a password.
+
     - ramdom generated,
     - or from previous execution if 'persistent' is true and previous
     data is found.
@@ -62,9 +63,11 @@ def resource_property(site: Site, requirement: dict) -> dict:
 
 
 def nua_internal(site: Site, requirement: dict) -> dict:
-    """Retrieve key from nua_internal values, do not store the value in instance
-    configuration. The value is only set when executing the docker.run() for main
-    site and all sub resources.
+    """Retrieve key from nua_internal values, do not store the value in
+    instance configuration.
+
+    The value is only set when executing the docker.run() for main site
+    and all sub resources.
     """
     if requirement.get(NUA_INTERNAL, False):
         # add the key to the list of secrets to pass at run() time

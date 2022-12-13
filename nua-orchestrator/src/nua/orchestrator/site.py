@@ -50,7 +50,7 @@ class Site(Resource):
 
     @assign.setter
     def assign(self, assign_list: list):
-        self.image_nua_config["assign"] = assign
+        self.image_nua_config["assign"] = assign_list
 
     @property
     def local_services(self) -> list:

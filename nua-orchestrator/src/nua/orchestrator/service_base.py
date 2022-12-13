@@ -1,5 +1,5 @@
-from nua.lib.tool.state import verbosity
 from nua.autobuild.docker_build_utils import display_one_docker_img
+from nua.lib.tool.state import verbosity
 
 from .docker_utils import pull_docker_image
 

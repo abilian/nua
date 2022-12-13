@@ -292,22 +292,26 @@ def extract_all(archive: str | Path, dest: str | Path, url: str = "") -> Path | 
     name = Path(archive).stem
     if name.endswith(".tar"):
         name = name[:-4]
+
     possible = [name]
+
     name2 = re.sub(r"-[0-9\.post]*$", "", name)
     if name2:
         possible.append(name2)
-    name3 = ""
+
     if url:
-        if match := re.search(f".*/(.*)/archive/.*", url):
+        if match := re.search(".*/(.*)/archive/.*", url):
             possible.append(match.group(1))
         version = re.sub(r".*-([0-9\.post]*$)", "", name)
         if version:
             possible.extend([f"{n}-{version}" for n in possible])
             possible.append(version)
+
     for name in possible:
         result = Path(dest) / name
         if result.exists():
             return result
+
     return None
 
 

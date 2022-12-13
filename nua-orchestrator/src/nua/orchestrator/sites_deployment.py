@@ -6,10 +6,10 @@ from pathlib import Path
 from pprint import pformat
 
 import tomli
+from nua.autobuild.docker_build_utils import display_one_docker_img, docker_require
 from nua.lib.panic import error, info, warning
 from nua.lib.rich_console import print_green, print_magenta, print_red
 from nua.lib.tool.state import verbosity
-from nua.autobuild.docker_build_utils import display_one_docker_img, docker_require
 
 from . import config
 from .certbot import protocol_prefix, register_certbot_domains
@@ -478,9 +478,12 @@ class SitesDeployment:
         )
 
     def generate_site_container_run_parameters(self, site: Site):
-        """Return suitable parameters for the docker.run() command. Except the
-        internal_secrets, that are passed only at docker.run() execution, thus
-        secrets not stored in instance data."""
+        """Return suitable parameters for the docker.run() command.
+
+        Except the internal_secrets, that are passed only at
+        docker.run() execution, thus secrets not stored in instance
+        data.
+        """
         image_nua_config = site.image_nua_config
         run_params = deepcopy(RUN_BASE)
         nua_docker_default_run = config.read("nua", "docker_default_run")

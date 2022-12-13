@@ -105,7 +105,9 @@ class Builder:
 
     def detect_nua_dir(self):
         """Detect dir containing nua files (start.py, build.py, Dockerfile,
-        ...)."""
+
+        ...).
+        """
         nua_dir = self.config.build.get("nua_dir")
         if not nua_dir:
             # Check if default 'nua' dir exists

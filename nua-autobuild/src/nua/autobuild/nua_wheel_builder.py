@@ -93,8 +93,8 @@ class NuaWheelBuilder:
 
     @staticmethod
     def hack_runtime_pyproject(top_git: Path):
-        """Since we use local path dependencies when making wheel,
-        we need to force the version deps to something local.
+        """Since we use local path dependencies when making wheel, we need to
+        force the version deps to something local.
 
         FIXME: to be solved by publishing to Pypi index.
         """

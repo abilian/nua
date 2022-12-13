@@ -12,12 +12,12 @@ from docker import DockerClient, from_env
 from docker.errors import APIError, NotFound
 from docker.models.containers import Container
 from docker.models.images import Image
+from nua.autobuild.docker_build_utils import docker_require
 
 # from .db.model.instance import RUNNING
 from nua.lib.panic import error, info, warning
 from nua.lib.rich_console import print_red
 from nua.lib.tool.state import verbosity
-from nua.autobuild.docker_build_utils import docker_require
 
 from . import config
 from .db import store
