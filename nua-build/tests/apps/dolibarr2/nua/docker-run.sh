@@ -121,6 +121,8 @@ function lockInstallation()
 
 function initializeDatabase()
 {
+  echo 'table:'
+
   for fileSQL in /var/www/html/install/mysql/tables/*.sql; do
     if [[ ${fileSQL} != *.key.sql ]]; then
       echo "Importing table from `basename ${fileSQL}` ..."
@@ -129,22 +131,27 @@ function initializeDatabase()
     fi
   done
 
+  echo 'keys:'
+
   for fileSQL in /var/www/html/install/mysql/tables/*.key.sql; do
     echo "Importing table key from `basename ${fileSQL}` ..."
     sed -i 's/--.*//g;' ${fileSQL}
-    mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} > /dev/null 2>&1
+    mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} > /dev/null
   done
+
+  echo 'functions:'
+
 
   for fileSQL in /var/www/html/install/mysql/functions/*.sql; do
     echo "Importing `basename ${fileSQL}` ..."
     sed -i 's/--.*//g;' ${fileSQL}
-    mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} > /dev/null 2>&1
+    mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} > /dev/null
   done
 
   for fileSQL in /var/www/html/install/mysql/data/*.sql; do
     echo "Importing data from `basename ${fileSQL}` ..."
     sed -i 's/--.*//g;' ${fileSQL}
-    mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} > /dev/null 2>&1
+    mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} > /dev/null
   done
 
   echo "Create SuperAdmin account ..."

@@ -1,4 +1,3 @@
 [[site]]
-image = "nua-dolibarr-mariadb:16.0-1"
+image = "nua-dolibarr-mariadb:16.0-5"
 domain = "test1.yerom.xyz"
-[site.run.env]
