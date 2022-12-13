@@ -116,6 +116,9 @@ install:
 	poetry install
 
 clean:
+	cd nua-lib && make clean
+	cd nua-runtime && make clean
+	cd nua-autobuild && make clean
 	cd nua-build && make clean
 	cd nua-orchestrator && make clean
 	find . -name __pycache__ -print0 | xargs -0 rm -rf
@@ -127,9 +130,7 @@ clean:
 		dist build pip-wheel-metadata junit-*.xml htmlcov coverage.xml
 
 tidy: clean
-	rm -rf .tox .nox
-	cd nua-build && make tidy
-	cd nua-orchestrator && make tidy
+	rm -rf .tox .nox */.nox */.tox
 
 update-deps:
 	pip install -U pip setuptools wheel
