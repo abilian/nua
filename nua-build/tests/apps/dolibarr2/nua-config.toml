@@ -13,25 +13,20 @@ release = 1
 [build]
 
 # [[assign]] is a list of parameters use when installing an instance of the package.
-[[assign]]
-key = "MYSQL_ROOT_PASSWORD"
-nua_internal = true
-# nua_internal = "POSTGRES_PASSWORD" maybe this syntax ?
-
-[[assign]]
-key = "DOLI_DB_PASSWORD"
-resource_property = "database.MYSQL_PASSWORD"
-
+# [[assign]]
+# key = "MYSQL_ROOT_PASSWORD"
+# nua_internal = true
+# # nua_internal = "POSTGRES_PASSWORD" maybe this syntax ?
+#
 # [[assign]]
 # key = "DOLI_DB_PASSWORD"
+# resource_property = "database.MYSQL_PASSWORD"
+
+# [[assign]]
+# key = "DOLI_ADMIN_PASSWORD"
 # persistent = true
 # random_str = true
-
-[[assign]]
-key = "DOLI_ADMIN_PASSWORD"
-persistent = true
-random_str = true
-
+#
 [[assign]]
 key = "DOLI_DB_HOST"
 resource_property = "database.container"
@@ -43,16 +38,23 @@ auto_remove = false
 
 [run.env]
 
-DOLI_DB_HOST_PORT = "3306"
-DOLI_DB_USER = "dolibarr"
-DOLI_DB_NAME = "dolibarr"
-DOLI_ADMIN_LOGIN = "admin"
-# same as MYSQL_PASSWORD
-# DOLI_DB_PASSWORD = "fixmemustneaccessiblefromupper"
-MYSQL_DATABASE = "dolibarr"
-MYSQL_USER = "dolibarr"
-MYSQL_PASSWORD = "fixmemustneaccessiblefromupper"
+# DOLI_DB_HOST_PORT = "3306"
+# DOLI_DB_USER = "dolibarr"
+# DOLI_DB_NAME = "dolibarr"
+# DOLI_ADMIN_LOGIN = "admin"
+# # same as MYSQL_PASSWORD
+# # DOLI_DB_PASSWORD = "fixmemustneaccessiblefromupper"
+# MYSQL_DATABASE = "dolibarr"
+# MYSQL_USER = "dolibarr"
+# MYSQL_PASSWORD = "fixmemustneaccessiblefromupper"
 
+# from example:
+# DOLI_DB_HOST:  mariadb
+DOLI_DB_NAME = "dolibarr"
+DOLI_DB_USER = "dolibarr"
+DOLI_DB_PASSWORD = "fixme"
+DOLI_URL_ROOT = 'http://0.0.0.0'
+PHP_INI_DATE_TIMEZONE = 'Europe/Paris'
 
 [port.web]
 container = 80
@@ -98,9 +100,9 @@ name = "database"
 type = "docker"
 image = "docker.io/library/mariadb:10.6"
 
-[[resource.assign]]
-key = "MYSQL_ROOT_PASSWORD"
-nua_internal = true
+# [[resource.assign]]
+# key = "MYSQL_ROOT_PASSWORD"
+# nua_internal = true
 
 # [[resource.assign]]
 # key = "MYSQL_PASSWORD"
@@ -114,7 +116,8 @@ restart_policy.name = "always"
 [resource.run.env]
 MYSQL_DATABASE = "dolibarr"
 MYSQL_USER = "dolibarr"
-MYSQL_PASSWORD = "fixmemustneaccessiblefromupper"
+MYSQL_PASSWORD = "fixme"
+MYSQL_ROOT_PASSWORD = "aaa"
 
 [[resource.volume]]
     # here we declare a mounted volume (ie: managed by Docker daemon)

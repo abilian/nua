@@ -5,7 +5,7 @@ require:
 import os
 from pathlib import Path
 
-from nua.lib.actions import install_mariadb_1_1_5
+from nua.lib.actions import install_mariadb_1_1_5, pip_install_glob
 from nua.lib.shell import chmod_r, mkdir_p, rm_fr
 from nua.runtime.nua_config import NuaConfig
 
@@ -15,6 +15,8 @@ def main():
     config = NuaConfig(".")
 
     install_mariadb_1_1_5()
+    # install from a wheel
+    pip_install_glob("*.whl")
 
     # create the base folder for html stuff
     document_root = Path(config.build["document_root"] or "/var/www/html")

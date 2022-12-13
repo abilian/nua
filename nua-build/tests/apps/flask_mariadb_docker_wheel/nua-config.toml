@@ -13,18 +13,17 @@ release = 1
 [build]
 document_root = "/nua/app/html"
 
-[instance]
-[instance.mariadb_password]
-key = "MARIADB_PASSWORD"
+[[assign]]
+key = "MARIADB_ROOT_PASSWORD"
 nua_internal = true
 
-[instance.user_passwd]
+[[assign]]
 key = "USER_PASSWORD"
 persistent = true
 random_str = true
 
 [run]
-restart_policy.name="always"
+restart_policy.name = "always"
 
 [run.env]
 # using default port of mariadb (3306), directly addressing the mariadb docker
@@ -53,6 +52,10 @@ name = "mariadb"
 # Docker image
 type = "docker"
 image = "docker.io/library/mariadb:10.6.10"
+
+[[resource.assign]]
+key = "MARIADB_ROOT_PASSWORD"
+nua_internal = true
 
 [resource.run]
     detach = true  # default value
