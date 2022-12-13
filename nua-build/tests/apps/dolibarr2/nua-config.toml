@@ -1,0 +1,119 @@
+[metadata]
+id = "dolibarr-mariadb"
+version = "16.0"
+title = "Dolibarr (for mariadb), based on tuxgazy dockerfile"
+author = "Nua testers"
+tagline = "Nua test with Dolibarr"
+website = "https://nua.rocks/"
+tags = ["test", "php", "web", "Dolibarr"]
+licence = "GPLv3"
+profile = ["test"]
+release = 1
+
+[build]
+
+# [[assign]] is a list of parameters use when installing an instance of the package.
+[[assign]]
+key = "MYSQL_ROOT_PASSWORD"
+nua_internal = true
+# nua_internal = "POSTGRES_PASSWORD" maybe this syntax ?
+
+[[assign]]
+key = "DOLI_DB_HOST"
+resource_property = "database.container"
+
+[[assign]]
+key = "DOLI_DB_PASSWORD"
+persistent = true
+random_str = true
+
+[[assign]]
+key = "DOLI_ADMIN_PASSWORD"
+persistent = true
+random_str = true
+
+[run]
+# parameters passed as a dict to docker run
+auto_remove = false
+# detach = true mandatory
+
+[run.env]
+
+DOLI_DB_HOST_PORT = "3306"
+DOLI_DB_USER = "dolibarr"
+DOLI_DB_NAME = "dolibarr"
+DOLI_ADMIN_LOGIN = "admin"
+
+[port.web]
+container = 80
+
+[[volume]]
+# declare a local volume for plublic uploads
+# type = "bind"
+type = "volume"
+# Name of the driver used to create the volume: (for type == "volume")
+driver = "local"
+# Mount source (e.g. a volume name or a host path):
+source = "dolibarr_custom"
+# Container path:
+target = "/var/www/html/custom"
+# mode (default to 'rw'
+# mode = "rw"
+
+[[volume]]
+# declare a local volume for plublic uploads
+# type = "bind"
+type = "volume"
+# Name of the driver used to create the volume: (for type == "volume")
+driver = "local"
+# Mount source (e.g. a volume name or a host path):
+source = "dolibarr_documents"
+# Container path:
+target = "/var/www/documents"
+# mode (default to 'rw'
+# mode = "rw"
+
+
+[[resource]]
+# A resource is another container required by the main app container, its
+# configuration is described below, under the key of name of the resource. Several
+# resources can be declared. The resource host will appear in the local network
+# with a hostname equal to the container name. The name of the resource hostname
+# is available in the environment variable NUA_${name_of_the_resource}_HOST, ie in
+# this example: NUA_DATABASE_HOST
+
+# declaration of the required image for the resurce, here the official Postgres
+# Docker image
+name = "database"
+type = "docker"
+image = "docker.io/library/mariadb:10.6"
+
+[[resource.assign]]
+key = "MYSQL_ROOT_PASSWORD"
+nua_internal = true
+
+[[resource.assign]]
+key = "MYSQL_PASSWORD"
+persistent = true
+random_str = true
+
+[resource.run]
+detach = true
+restart_policy.name = "always"
+
+[resource.run.env]
+MYSQL_DATABASE = "dolibarr"
+MYSQL_USER = "dolibarr"
+
+[[resource.volume]]
+    # here we declare a mounted volume (ie: managed by Docker daemon)
+    # The mount type (bind / volume / tmpfs / npipe). Default: volume :
+    type = "volume"
+    # Name of the driver used to create the volume: (for type == "volume")
+    driver = "local"
+    # Mount source (e.g. a volume name or a host path):
+    source = "dolibarr_db"
+    # Container path:
+    target = "/var/lib/mysql"
+    # mode (default to 'rw'
+    # mode = "rw"

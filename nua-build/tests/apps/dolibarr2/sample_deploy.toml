@@ -1,0 +1,4 @@
+[[site]]
+image = "nua-dolibarr-mariadb:16.0-1"
+domain = "test1.yerom.xyz"
+[site.run.env]
