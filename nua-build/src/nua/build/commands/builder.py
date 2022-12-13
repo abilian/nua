@@ -18,12 +18,6 @@ from shutil import copy2, copytree
 import docker
 from docker.errors import BuildError
 from docker.utils.json_stream import json_stream
-from nua.lib.panic import bold, error, info, show, warning
-from nua.lib.rich_console import print_stream_blue
-from nua.lib.shell import rm_fr
-from nua.lib.tool.state import verbosity
-from nua.runtime.constants import NUA_BUILDER_NODE_TAG, NUA_BUILDER_TAG
-from nua.runtime.nua_config import NuaConfig
 from nua.autobuild.docker_build_utils import (
     display_docker_img,
     docker_build_log_error,
@@ -31,6 +25,12 @@ from nua.autobuild.docker_build_utils import (
     print_log_stream,
 )
 from nua.autobuild.nua_image_builder import NUAImageBuilder
+from nua.lib.panic import bold, error, info, show, warning
+from nua.lib.rich_console import print_stream_blue
+from nua.lib.shell import rm_fr
+from nua.lib.tool.state import verbosity
+from nua.runtime.constants import NUA_BUILDER_NODE_TAG, NUA_BUILDER_TAG
+from nua.runtime.nua_config import NuaConfig
 
 from .. import __version__, config
 from ..constants import DEFAULTS_DIR, NUA_CONFIG
