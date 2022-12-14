@@ -2398,18 +2398,6 @@ files = [
 ]
 
 [[package]]
-name = "types-toml"
-version = "0.10.8.1"
-description = "Typing stubs for toml"
-category = "dev"
-optional = false
-python-versions = "*"
-files = [
-    {file = "types-toml-0.10.8.1.tar.gz", hash = "sha256:171bdb3163d79a520560f24ba916a9fc9bff81659c5448a9fea89240923722be"},
-    {file = "types_toml-0.10.8.1-py3-none-any.whl", hash = "sha256:b7b5c4977f96ab7b5ac06d8a6590d17c0bf252a96efc03b109c2711fb3e0eafd"},
-]
-
-[[package]]
 name = "typing-extensions"
 version = "4.4.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
@@ -2517,4 +2505,4 @@ test = ["websockets"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "7e48da7608bf49609d3ec5e801835ca50fca6ebbb3767810e3bd6f4d6faad06e"
+content-hash = "11565d9c944a18ed1c98edab2da27dab92797c7617392f7f6b006b3fb31dd61c"

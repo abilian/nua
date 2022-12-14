@@ -18,8 +18,6 @@ setuptools = "^65.5.0"
 
 nua-lib = { path = "../nua-lib/", develop = false }
 nua-runtime = { path = "../nua-runtime/", develop = false }
-# nua-lib = "==0.4.62"
-# nua-runtime = "==0.4.62"
 
 tomli = "^2.0.1"
 tomli-w = "^1.0.0"
@@ -30,9 +28,6 @@ paramiko = "*"
 
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
-nox = "^2022.8.7"
-# Should be installed as an abilian-devtools dependency. Poetry bug ?
-mypy = "*"
 
 
 [tool.pytest.ini_options]
