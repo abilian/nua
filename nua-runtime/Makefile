@@ -63,10 +63,6 @@ clean:
 	find . -name __pycache__ -print0 | xargs -0 rm -rf
 	find . -type d -empty -delete
 	rm -rf .mypy_cache .pytest_cache .ruff_cache
-	rm -rf ./tests/apps/*/build_dir ./tests/apps/*/mariadb-1.1.4
-# 	rm -rf *.egg-info *.egg .coverage .eggs .cache .mypy_cache .pyre \
-# 		.pytest_cache .pytest .DS_Store  docs/_build docs/cache docs/tmp \
-# 		dist build pip-wheel-metadata junit-*.xml htmlcov coverage.xml
 
 .PHONY: tidy
 tidy: clean
