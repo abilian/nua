@@ -424,16 +424,47 @@ class SitesDeployment:
         for site in self.sites:
             deactivate_site(site)
             self.start_network(site)
+            self.set_container_names(site)
+            self.evaluate_site_params(site)
             self.start_resources_containers(site)
-            self.start_one_site_container(site)
+            self.start_main_site_container(site)
             self.store_container_instance(site)
         chown_r_nua_nginx()
         nginx_restart()
 
+    def set_container_names(self, site: Site):
+        """Set first container names of resources to permit early host assignment to
+        variables.
+
+        Site.container_name is always available)
+        """
+        for resource in site.resources:
+            if resource.type == "docker":
+                name = f"{site.container_name}-{resource.base_name}"
+                # - code will be rename to container_name
+                # - See if we tryst Docker to overwrite this variable
+                #   (or emit a warning if pb)
+                resource.container = name
+
+    def evaluate_site_params(self, site: Site):
+        """Compute site run envronment parameters except those requiring late
+        evaluation (i.e. host names of started containers).
+
+        Order of evaluations for Variables:
+        - main Site variable assignment (including hostname of resources)
+        - Resource assignement (they have access to site ENV)
+        - late evaluation (hostnames)
+        """
+        self.generate_site_container_run_parameters(site)
+        env = site.run_params["environment"]
+        for resource in site.resources:
+            if resource.type == "docker":
+                self.generate_resource_container_run_parameters(site, resource, env)
+
     def retrieve_persistent(self, site: Site):
         previous = store.instance_persistent(site.domain, site.app_id)
         if verbosity(4):
-            print(f"presistent previous: {previous=}")
+            print(f"persistent previous: {previous=}")
         previous.update(site.persistent)
         site.persistent = previous
 
@@ -445,23 +476,16 @@ class SitesDeployment:
     def start_resources_containers(self, site: Site):
         for resource in site.resources:
             if resource.type == "docker":
-                self.start_one_resource_container(site, resource)
+                mounted_volumes = mount_resource_volumes(resource)
+                start_one_container(resource, mounted_volumes)
+                # until we check startup of container or set value in parameters...
+                time.sleep(2)
 
-    def start_one_resource_container(self, site: Site, resource: Resource):
-        run_params = self.generate_resource_container_run_parameters(site, resource)
-        # volumes need to be mounted before beeing passed as arguments to
-        # docker.run()
-        mounted_volumes = mount_resource_volumes(resource)
-        start_one_container(resource, run_params, mounted_volumes)
-        # until we check startup of container or set value in parameters...
-        time.sleep(2)
-
-    def start_one_site_container(self, site: Site):
-        run_params = self.generate_site_container_run_parameters(site)
+    def start_main_site_container(self, site: Site):
         # volumes need to be mounted before beeing passed as arguments to
         # docker.run()
         mounted_volumes = mount_site_volumes(site)
-        start_one_container(site, run_params, mounted_volumes)
+        start_one_container(site, mounted_volumes)
 
     def store_container_instance(self, site: Site):
         if verbosity(2):
@@ -497,10 +521,10 @@ class SitesDeployment:
         run_params["ports"] = site.ports_as_docker_params()
         run_params["environment"] = self.run_parameters_environment(site)
         self.sanitize_run_params(run_params)
-        return run_params
+        site.run_params = run_params
 
     def generate_resource_container_run_parameters(
-        self, site: Site, resource: Resource
+        self, site: Site, resource: Resource, site_env: dict
     ):
         """Return suitable parameters for the docker.run() command (for
         Resource)."""
@@ -510,9 +534,10 @@ class SitesDeployment:
         name = f"{site.container_name}-{resource.base_name}"
         run_params["name"] = name
         run_params["ports"] = resource.ports_as_docker_params()
-        run_params["environment"] = self.run_parameters_resource_environment(resource)
+        self.run_parameters_resource_environment(resource, site_env)
+        run_params["environment"] = resource.run_env
         self.sanitize_run_params(run_params)
-        return run_params
+        resource.run_params = run_params
 
     @staticmethod
     def add_host_gateway_to_extra_hosts(run_params: dict):
@@ -524,22 +549,22 @@ class SitesDeployment:
         image_nua_config = site.image_nua_config
         run_env = image_nua_config.get("run_env", {})
         run_env.update(self.services_environment(site))
-        run_env.update(self.resources_environment(site))
-        run_env.update(instance_key_evaluator(site))
+        # run_env.update(self.resources_environment(site))
+        run_env.update(instance_key_evaluator(site, late_evaluation=False))
         # variables declared in run_env can replace any other source:
         run_dot_env = image_nua_config.get("run", {}).get("env", {})
         run_env.update(run_dot_env)
         return run_env
 
-    def run_parameters_resource_environment(self, resource: Resource) -> dict:
-        # debug:
-        run_env = resource.run_env
-        run_env.update(instance_key_evaluator(resource))
+    def run_parameters_resource_environment(self, resource: Resource, site_env: dict):
+        env = deepcopy(site_env)
+        env.update(resource.run_env)
+        resource.run_env = env
+        env.update(instance_key_evaluator(resource, late_evaluation=False))
         # variables declared in run.env can replace any other source:
         run_dot_env = resource.get("run", {}).get("env", {})
-        run_env.update(run_dot_env)
-        resource.run_env = run_env
-        return run_env
+        env.update(run_dot_env)
+        resource.run_env = env
 
     @staticmethod
     def sanitize_run_params(run_params: dict):
@@ -571,6 +596,13 @@ class SitesDeployment:
         for site in self.sites:
             msg = f"image '{site.image}' deployed as {protocol}{site.domain}"
             print_green(msg)
+            self.display_persistent_data(site)
+
+    def display_persistent_data(self, site: Site):
+        if verbosity(1) and site.persistent:
+            print_green("Persistent generated variables:")
+            for key, val in site.persistent.items():
+                info(f"    {key}: {val}")
 
     def display_used_volumes(self):
         if not verbosity(1):

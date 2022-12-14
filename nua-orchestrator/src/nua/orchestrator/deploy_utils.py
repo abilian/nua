@@ -164,7 +164,8 @@ def unmount_unused_volumes(orig_mounted_volumes: list):
         docker_volume_prune(unused)
 
 
-def start_one_container(rsite: Resource, run_params: dict, mounted_volumes: list):
+def start_one_container(rsite: Resource, mounted_volumes: list):
+    run_params = rsite.run_params
     if mounted_volumes:
         run_params["mounts"] = mounted_volumes
     rsite.run_params = run_params

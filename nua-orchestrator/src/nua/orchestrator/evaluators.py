@@ -7,12 +7,15 @@ from typing import Any
 from nua.lib.panic import error, warning
 from nua.runtime.gen_password import gen_password
 
+from .resource import Resource
 from .site import Site
 
 # keys of nua-config file:
 KEY = "key"
+SITE_ENVIRONMENT = "environment"
 PERSISTENT = "persistent"
 RESOURCE_PROPERTY = "resource_property"
+RESOURCE_HOST = "resource_host"
 NUA_INTERNAL = "nua_internal"
 
 
@@ -74,7 +77,27 @@ def resource_property(site: Site, requirement: dict) -> dict:
         else:
             error(f"Unknown property for resource_property: {requirement}")
         return {requirement[KEY]: value}
-    warning(f"resource not found for {requirement}")
+    warning(f"Unknown resource for {requirement}")
+    return {}
+
+
+def resource_host(site: Site, requirement: dict) -> dict:
+    resource_name = requirement[RESOURCE_HOST] or ""
+    for resource in site.resources:
+        if resource.resource_name != resource_name:
+            continue
+        return {requirement[KEY]: resource.container}
+    warning(f"Unknown resource for resource_host: {requirement}")
+    return {}
+
+
+def site_environment(rsite: Resource, requirement: dict) -> dict:
+    variable = requirement[SITE_ENVIRONMENT] or ""
+    # The resource environment was juste completed wth Site's environment:
+    env = rsite.run_env
+    if variable in env:
+        return {requirement[KEY]: env.get(variable)}
+    warning(f"Unknown variable in environment: {variable}")
     return {}
 
 

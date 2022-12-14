@@ -1,28 +1,38 @@
 """Functions to respond to requirement from instance declarations."""
 from collections.abc import Callable
+from pprint import pformat
 
 from nua.lib.panic import info, warning
 from nua.lib.tool.state import verbosity
 
 # from . import config
-from .evaluators import nua_internal, random_str, resource_property
+from .evaluators import (
+    nua_internal,
+    random_str,
+    resource_host,
+    resource_property,
+    site_environment,
+)
 from .resource import Resource
 from .site import Site
 
 EVALUATOR_FCT = {
     "random_str": random_str,
     "resource_property": resource_property,
+    "resource_host": resource_host,
+    "environment": site_environment,
     "nua_internal": nua_internal,
 }
+EVALUATOR_LATE_FCT = {}
 
 
-def instance_key_evaluator(resource: Resource) -> dict:
+def instance_key_evaluator(resource: Resource, late_evaluation: bool = False) -> dict:
     env = {}
     if verbosity(3):
-        info(f"resource.assign: {resource.assign}")
+        info(f"resource.assign ({late_evaluation=}):\n    {pformat(resource.assign)}")
     for requirement in resource.assign:
         destination_key = requirement["key"]
-        function = required_function(requirement)
+        function = required_function(requirement, late_evaluation)
         if function:
             result = function(resource, requirement)
             if verbosity(2):
@@ -36,8 +46,12 @@ def instance_key_evaluator(resource: Resource) -> dict:
     return env
 
 
-def required_function(requirement: dict) -> Callable | None:
-    for name, function in EVALUATOR_FCT.items():
+def required_function(requirement: dict, late: bool = False) -> Callable | None:
+    if late:
+        evaluator_fct = EVALUATOR_LATE_FCT
+    else:
+        evaluator_fct = EVALUATOR_FCT
+    for name, function in evaluator_fct.items():
         if name in requirement:
             return function
     return None

@@ -8,7 +8,7 @@ website = "https://nua.rocks/"
 tags = ["test", "php", "web", "Dolibarr"]
 licence = "GPLv3"
 profile = ["test"]
-release = 7
+release = 8
 
 [build]
 
@@ -18,15 +18,14 @@ nua_internal = true
 
 [[assign]]
 key = "DOLI_DB_HOST"
-resource_property = "database.container"
+resource_host = "database"
 
 [[assign]]
 key = "DOLI_DB_PASSWORD"
-resource_property = "database.MYSQL_PASSWORD"
+random_str = true
 
 [[assign]]
 key = "DOLI_ADMIN_PASSWORD"
-persistent = true
 random_str = true
 
 [run]
@@ -86,13 +85,8 @@ type = "docker"
 image = "docker.io/library/mariadb:10.6"
 
 [[resource.assign]]
-key = "MYSQL_ROOT_PASSWORD"
-nua_internal = true
-
-[[resource.assign]]
 key = "MYSQL_PASSWORD"
-persistent = true
-random_str = true
+environment = "DOLI_DB_PASSWORD"
 
 [resource.run]
 detach = true
