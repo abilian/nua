@@ -29,9 +29,6 @@ python = "^3.10"
 nua-lib = { path = "../nua-lib/", develop = false }
 nua-runtime = { path = "../nua-runtime/", develop = false }
 nua-autobuild = { path = "../nua-autobuild/", develop = false }
-# nua-lib = "==0.4.62"
-# nua-runtime = "==0.4.62"
-# nua-autobuild = "==0.4.62"
 
 # Databases
 SQLAlchemy-serializer = "^1.4.1"
@@ -46,15 +43,13 @@ paramiko = "^2.11.0"
 docker = "^6.0"
 fabric = "^2.7.0"
 typer = {extras = ["all"], version = "^0.7.0"}
-rich = "^12.4.4"
-jinja2 = "^3.1.2"
 python-dotenv = "^0.21"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
-
-types-requests = "^2.28.11.4"
+nox = "*"
 types-paramiko = "^2.12.0.1"
+types-requests = "^2.28.11.5"
 
 
 [tool.pytest.ini_options]
@@ -77,10 +72,15 @@ exclude = [
     '.tox', '.nox', 'noxfile.py', 'tests', 'sandbox', 'doc', 'scripts'
 ]
 ignore_obsolete = [
+    "nua-lib",
+    "nua-runtime",
+    "nua-autobuild",
     "setuptools",
     "wheel",
 ]
-ignore_missing = []
+ignore_missing = [
+    "nua",
+]
 ignore_transitive = [
     "packaging",
     "requests",

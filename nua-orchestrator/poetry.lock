@@ -1661,7 +1661,6 @@ nua-lib = {path = "../nua-lib"}
 packaging = "^22.0"
 setuptools = "^65.5.0"
 tomli = "^2.0.1"
-types-setuptools = "^65.5.0.3"
 
 [package.source]
 type = "directory"
@@ -2735,18 +2734,6 @@ files = [
 types-urllib3 = "<1.27"
 
 [[package]]
-name = "types-setuptools"
-version = "65.6.0.2"
-description = "Typing stubs for setuptools"
-category = "main"
-optional = false
-python-versions = "*"
-files = [
-    {file = "types-setuptools-65.6.0.2.tar.gz", hash = "sha256:ad60ccf01d626de9762224448f36c13e0660e863afd6dc11d979b3739a6c7d24"},
-    {file = "types_setuptools-65.6.0.2-py3-none-any.whl", hash = "sha256:2c2b4f756f79778074ce2d21f745aa737b12160d9f8dfa274f47a7287c7a2fee"},
-]
-
-[[package]]
 name = "types-urllib3"
 version = "1.26.25.4"
 description = "Typing stubs for urllib3"
@@ -2881,4 +2868,4 @@ test = ["pytest (>=3.0.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "737315196152a9e9706ef6d2ed978b3695155e36a020de4f5a8d23a714b33742"
+content-hash = "eaf5ab9e0db28d3aaab3550e3cc963131c3aa24b237115ecb8de43f1f021f619"

@@ -50,12 +50,15 @@ lint/ruff: ## check style with ruff
 	ruff .
 
 lint/flake8: ## check style with flake8
-	flake8 nua-*/src nua-*/tests
+	#flake8 nua-*/src nua-*/tests
 
 lint/black: ## check style with black
 	black --check nua-*/src nua-*/tests
 
 lint/mypy: ## typecheck with mypy
+	mypy nua-lib
+	mypy nua-runtime
+	mypy nua-autobuild
 	mypy nua-build
 	mypy nua-orchestrator
 	mypy nua-cli

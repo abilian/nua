@@ -22,8 +22,8 @@ import docker.errors
 import requests
 from fabric import Connection
 
-from ..deep_access_dict import DeepAccessDict
 from ..server_utils.mini_log import log_me
+from ..util.deep_access_dict import DeepAccessDict
 
 
 def name_tag(tagged_name: str) -> tuple:

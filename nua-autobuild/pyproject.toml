@@ -28,7 +28,7 @@ paramiko = "*"
 
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
-
+nox = "*"
 
 [tool.pytest.ini_options]
 filterwarnings = ["ignore:.*distutils package:DeprecationWarning", "ignore::DeprecationWarning"]

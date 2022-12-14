@@ -2027,7 +2027,7 @@ files = [
 name = "types-setuptools"
 version = "65.6.0.2"
 description = "Typing stubs for setuptools"
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 files = [
@@ -2126,4 +2126,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "86e6aa4246fe297042416967ba07c1d618c5fe5f32b43e9cb6faa9840c78a59a"
+content-hash = "4b92ec6ef704389cd9a09e127967903eb40b6a7c9e3a43fa91d6cbe35e0d379b"

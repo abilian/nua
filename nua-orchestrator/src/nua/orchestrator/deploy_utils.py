@@ -126,16 +126,20 @@ def new_docker_mount(volume_params: dict) -> docker.types.Mount:
     target = volume_params.get("target") or volume_params.get("destination")
     # Mount source (e.g. a volume name or a host path).
     source = volume_params.get("source")  # for "volume" or "bind" types
+
     if tpe == "volume":
         driver_config = new_docker_driver_config(volume_params)
     else:
         driver_config = None
+
     read_only = bool(volume_params.get("read_only", False))
+
     if tpe == "tmpfs":
         tmpfs_size = size_to_bytes(volume_params.get("tmpfs_size")) or None
         tmpfs_mode = volume_params.get("tmpfs_mode") or None
     else:
         tmpfs_size, tmpfs_mode = None, None
+
     return docker.types.Mount(
         target,
         source,
@@ -186,7 +190,7 @@ def stop_previous_containers(sites: list):
     pass
 
 
-def deactivate_containers(container_names: list):
+def deactivate_containers(container_names: list[str]):
     for name in container_names:
         if not name:
             continue
@@ -203,9 +207,9 @@ def deactivate_site(site: Site):
 
 
 def deactivate_all_instances():
-    """Find all instance in DB.
+    """Find all instances in DB.
 
-    - remove container if exists
+    - remove container if it exists
     - remove site from DB
     """
     for instance in store.list_instances_all():
@@ -221,4 +225,5 @@ def deactivate_all_instances():
         container_names.append(site_config["container"])
         container_names = [name for name in container_names if name]
         deactivate_containers(container_names)
+
     docker_network_prune()

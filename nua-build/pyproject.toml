@@ -26,7 +26,6 @@ tomli = "^2.0.1"
 
 # CLI and text ui
 typer = {extras = ["all"], version = "^0.7.0"}
-rich = "^12.4.4"
 
 # DB drivers
 # psycopg2-binary = "^2.9.4"
@@ -38,6 +37,8 @@ paramiko = "^2.12.0"
 
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
+nox = "*"
+types-setuptools = "*"
 
 
 [tool.pytest.ini_options]
@@ -96,6 +97,7 @@ exclude = [
 ]
 ignore_obsolete = [
     "setuptools",
+    "paramiko",
 ]
 ignore_missing = [
     "mariadb",

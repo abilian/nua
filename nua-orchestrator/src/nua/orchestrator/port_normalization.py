@@ -44,10 +44,10 @@ def _normalize_port_item_host(port: dict):
         port["host"] = "auto"
         return
     try:
-        host = int(host)
+        int_host = int(host)
     except (ValueError, TypeError):
         raise ValueError("port['host'] value must be an integer if not 'auto'")
-    port["host"] = host
+    port["host"] = int_host
 
 
 def _normalize_port_item_protocol(port: dict):
@@ -67,7 +67,7 @@ def _normalize_port_item_proxy(port: dict, default_proxy: str):
         port["proxy"] = proxy
         return
     try:
-        proxy = int(proxy)
+        int_proxy = int(proxy)
     except (ValueError, TypeError):
         raise ValueError("'proxy' value must be: an integer or 'auto' or 'none'")
-    port["proxy"] = proxy
+    port["proxy"] = int_proxy

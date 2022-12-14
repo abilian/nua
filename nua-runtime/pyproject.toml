@@ -15,7 +15,6 @@ nua_build_setup_app = "nua.runtime.scripts.nua_build_setup_app:main"
 [tool.poetry.dependencies]
 python = "^3.10"
 setuptools = "^65.5.0"
-types-setuptools = "^65.5.0.3"
 packaging = "^22.0"
 nua-lib = { path = "../nua-lib/", develop = false }
 
@@ -25,9 +24,8 @@ tomli = "^2.0.1"
 
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
-
-# Testing
-nox = "^2022.8.7"
+nox = "*"
+types-setuptools = "^65.5.0.3"
 
 
 [tool.pytest.ini_options]
