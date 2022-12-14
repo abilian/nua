@@ -173,6 +173,9 @@ class Builder:
                 continue
             if not default_file.is_file():
                 continue
+            # The __init__.py in default is only cosmetics:
+            if default_file.name == "__init__.py":
+                continue
             self._complete_with_file(default_file)
 
     def _complete_with_file(self, default_file: Path):
