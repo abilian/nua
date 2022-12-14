@@ -1,11 +1,10 @@
-"""Script to build a nua package (experimental)
+"""Builder class, core of build process.
 
-- informations come from a mandatory local file: "nua-config.toml"
-- origin may be a source tar.gz or a git repository
-- build locally if source is python package
+Builder instance maintains config and other state information during build.
 
-Note: **currently use "nuad ..." for command line**. See later if move this
-to "nua ...".
+Typical use:
+    builder = Builder(config_file)
+    builder.run()
 """
 import logging
 import re
@@ -25,20 +24,22 @@ from nua.autobuild.docker_build_utils import (
     print_log_stream,
 )
 from nua.autobuild.nua_image_builder import NUAImageBuilder
-from nua.lib.panic import bold, error, info, show, warning
+from nua.lib.panic import bold, error, info, show, title, warning
 from nua.lib.rich_console import print_stream_blue
 from nua.lib.shell import rm_fr
 from nua.lib.tool.state import verbosity
 from nua.runtime.constants import NUA_BUILDER_NODE_TAG, NUA_BUILDER_TAG
 from nua.runtime.nua_config import NuaConfig
 
-from .. import __version__, config
-from ..constants import DEFAULTS_DIR, NUA_CONFIG
+from . import __version__, config
+from .constants import DEFAULTS_DIR, NUA_CONFIG
 
 logging.basicConfig(level=logging.INFO)
 
 RE_SUCCESS = re.compile(r"(^Successfully built |sha256:)([0-9a-f]+)$")
-# app = typer.Typer()
+# beyond base image NUA_BUILDER_TAG, permit other build base. Currently tested with
+# a Nodejs base image:
+ALLOWED_BASE_IMAGE = {NUA_BUILDER_TAG, NUA_BUILDER_NODE_TAG}
 
 
 class Builder:
@@ -58,18 +59,35 @@ class Builder:
 
     def run(self):
         self.detect_container_type()
-        self.check_base_image()
+        self.check_allowed_base_image()
+        self.ensure_base_image_availability()
+        title(f"Build of the image for {self.config.app_id}")
         self.detect_nua_dir()
         self.nua_dir_relative = self.nua_dir.relative_to(self.config.root_dir)
         if self.container_type == "docker":
             self.make_docker_image()
 
-    def check_base_image(self):
+    def detect_container_type(self):
+        """Placeholder for future container technology detection.
+
+        Currently only Docker is supported.
+        """
+        container = self.config.build.get("container") or "docker"
+        if container != "docker":
+            error(f"Unknown container type : '{container}'")
+        self.container_type = container
+
+    def check_allowed_base_image(self):
+        if self.config.nua_base not in ALLOWED_BASE_IMAGE:
+            error(f"Nua base must be one of:\n{', '.join(ALLOWED_BASE_IMAGE)}")
+
+    def ensure_base_image_availability(self):
         if docker_get_locally(self.config.nua_base):
             return
-        warning(f"Required Nua base image '{self.config.nua_base}' was not found.")
-        if self.config.nua_base not in (NUA_BUILDER_TAG, NUA_BUILDER_NODE_TAG):
-            error(f"Nua images are:\n{NUA_BUILDER_TAG}\n{NUA_BUILDER_NODE_TAG}")
+        warning(
+            f"Required Nua base image '{self.config.nua_base}' not found, "
+            "image build required."
+        )
         image_builder = NUAImageBuilder()
         image_builder.build(all=True)
 
@@ -92,16 +110,6 @@ class Builder:
         self.build_dir = Path(tempfile.mkdtemp(dir=build_dir_parent))
         if verbosity(1):
             info(f"Build directory: {self.build_dir}")
-
-    def detect_container_type(self):
-        """Placeholder for future container technology detection.
-
-        Currently only Docker is supported.
-        """
-        container = self.config.build.get("container") or "docker"
-        if container != "docker":
-            error(f"Unknown container type : '{container}'")
-        self.container_type = container
 
     def detect_nua_dir(self):
         """Detect dir containing nua files (start.py, build.py, Dockerfile,
@@ -305,18 +313,3 @@ def _docker_stream_build(path: str, tag: str, buildargs: dict, labels: dict) -> 
     if not image_id:
         raise BuildError(last_event or "Unknown", stream)
     return image_id
-
-
-def _check_nua_build_docker_image() -> bool:
-    client = docker.from_env()
-    result = bool(client.images.list(filters={"reference": NUA_BUILDER_TAG}))
-    if not result and verbosity(1):
-        message = f"Docker image '{NUA_BUILDER_TAG}' not found locally, build required."
-        bold(message)
-    return result
-
-
-def build_nua_builder_if_needed():
-    if not _check_nua_build_docker_image():
-        image_builder = NUAImageBuilder()
-        image_builder.build(all=True)

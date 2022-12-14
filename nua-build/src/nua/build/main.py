@@ -10,15 +10,12 @@ See later if move this to "nua ...".
 from typing import Optional
 
 import typer
-from nua.lib.panic import title
 from nua.lib.tool.state import set_color, set_verbose
 
 from . import __version__
-from .commands.builder import Builder, build_nua_builder_if_needed
+from .builder import Builder
 
 app = typer.Typer()
-
-# app.registered_commands += build_cmd.app.registered_commands
 
 
 def version_callback(value: bool) -> None:
@@ -77,7 +74,5 @@ def main(
     set_verbose(verbose)
     set_color(colorize)
     initialization()
-    build_nua_builder_if_needed()
     builder = Builder(config_file)
-    title(f"Generation of the image for {builder.config.app_id}")
     builder.run()

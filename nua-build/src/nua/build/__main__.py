@@ -2,7 +2,7 @@ from .main import app
 
 
 def main():
-    app(prog_name="nuad")
+    app()
 
 
 if __name__ == "__main__":

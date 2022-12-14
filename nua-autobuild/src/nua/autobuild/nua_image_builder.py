@@ -5,7 +5,7 @@ from pathlib import Path
 from shutil import copy2
 
 import docker
-from nua.lib.panic import bold, error, show
+from nua.lib.panic import error, show, title
 from nua.lib.shell import mkdir_p
 from nua.lib.tool.state import verbosity
 from nua.runtime.constants import NUA_BUILDER_NODE_TAG, NUA_BUILDER_TAG, NUA_PYTHON_TAG
@@ -76,7 +76,7 @@ class NUAImageBuilder:
             display_docker_img(NUA_BUILDER_NODE_TAG)
 
     def build_nua_python(self):
-        bold(f"Build of the docker image {NUA_PYTHON_TAG}")
+        title(f"Build of the docker image {NUA_PYTHON_TAG}")
         with tempfile.TemporaryDirectory() as build_dir:
             build_path = Path(build_dir)
             if verbosity(3):
@@ -86,7 +86,7 @@ class NUAImageBuilder:
             docker_build_python()
 
     def build_nua_builder(self):
-        bold(f"Build of the docker image {NUA_BUILDER_TAG}")
+        title(f"Build of the docker image {NUA_BUILDER_TAG}")
         with tempfile.TemporaryDirectory() as build_dir:
             build_path = Path(build_dir)
             if verbosity(3):
@@ -97,7 +97,7 @@ class NUAImageBuilder:
             docker_build_builder()
 
     def build_nua_builder_node(self):
-        bold(f"Build of the docker image {NUA_BUILDER_NODE_TAG}")
+        title(f"Build of the docker image {NUA_BUILDER_NODE_TAG}")
         with tempfile.TemporaryDirectory() as build_dir:
             build_path = Path(build_dir)
             if verbosity(3):
