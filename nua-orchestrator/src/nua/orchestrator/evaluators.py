@@ -1,5 +1,6 @@
 """Functions to respond to requirement from instance declarations."""
 
+from copy import deepcopy
 from functools import wraps
 from typing import Any
 
@@ -16,9 +17,15 @@ NUA_INTERNAL = "nua_internal"
 
 
 def persistent_value(func):
+    """Store automatic generated values for next deployment of the same image.
+
+    Default is 'persistent = true'.
+    If persistent is False, erase the data from *local* config storage.
+    """
+
     @wraps(func)
     def wrapper(site: Site, requirement: dict) -> Any:
-        if requirement.get(PERSISTENT, False):
+        if requirement.get(PERSISTENT, True):
             value = site.persistent.get(requirement[KEY])
             if value is None:
                 result = func(site, requirement)
@@ -26,6 +33,11 @@ def persistent_value(func):
             else:
                 result = {requirement[KEY]: value}
             return result
+        # persistent is False: erase past value if needed
+        if requirement[KEY] in site.persistent:
+            persist = deepcopy(site.persistent)
+            del persist[requirement[KEY]]
+            site.persistent = persist
         return func(site, requirement)
 
     return wrapper
