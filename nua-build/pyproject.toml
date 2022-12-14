@@ -101,14 +101,33 @@ ignore = [
     # TODO: fix these
     'E501', # Line too long
     'F401', # "..." imported but unused
-    'F841', # Local variable assigned to but never used
+    # 'F841', # Local variable assigned to but never used
     # Not ruff
     # 'W503', # line break before binary operator
     # 'S101', # Use of assert detected
 ]
-extend-exclude = [
+
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "dist",
+    "node_modules",
+    "venv",
+    # specific:
     "tests/apps",
-    ".nox"
 ]
 
 [tool.deptry]
