@@ -5,7 +5,7 @@ from operator import itemgetter
 from pathlib import Path
 from urllib.parse import urlparse
 
-from nua.lib.rich_console import print_green, print_magenta, print_red
+from nua.lib.console import print_green, print_magenta, print_red
 from packaging.version import Version
 from packaging.version import parse as parse_version
 

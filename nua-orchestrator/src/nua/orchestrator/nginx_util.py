@@ -5,7 +5,7 @@ from time import sleep
 
 from nua.lib.actions import jinja2_render_file
 from nua.lib.panic import warning
-from nua.lib.rich_console import print_magenta
+from nua.lib.console import print_magenta
 from nua.lib.shell import chown_r, mkdir_p, rm_fr, sh
 from nua.lib.tool.state import verbosity
 

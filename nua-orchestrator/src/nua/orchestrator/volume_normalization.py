@@ -1,7 +1,7 @@
 from pprint import pformat
 
 from nua.lib.panic import error
-from nua.lib.rich_console import print_red
+from nua.lib.console import print_red
 
 # later, add 'npipe' when managed:
 ALLOWED_TYPE = {"volume", "bind", "tmpfs"}

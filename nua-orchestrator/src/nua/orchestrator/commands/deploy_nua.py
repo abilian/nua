@@ -3,7 +3,7 @@
 WIP
 """
 from nua.lib.panic import error
-from nua.lib.rich_console import print_magenta
+from nua.lib.console import print_magenta
 from nua.lib.tool.state import verbosity
 
 from ..deploy_utils import load_install_image
