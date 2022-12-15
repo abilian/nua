@@ -242,9 +242,6 @@ class Resource(dict):
         self.volume = [v for v in self.volume if v]
         normalize_volumes(self.volume)
 
-    # def update_volume_from_instance(self, instance_dict: dict) -> list:
-    #     self.volume = self._merge_volumes_lists(instance_dict, reverse=True)
-
     def rebased_volumes_upon_package_conf(self, package_dict: dict) -> list:
         """warning: here, no update of self data"""
         return self._merge_volumes_lists(package_dict, reverse=False)
@@ -254,7 +251,7 @@ class Resource(dict):
         base = [v for v in base if v]
         if not base:
             # if volumes are not configured in the package nua-config, there
-            # is no point to add vomlumes in the site configuration
+            # is no point to add volumes in the site configuration
             return []
         merge_dict = {}
         merge_list = base + self.volume
@@ -264,7 +261,7 @@ class Resource(dict):
             # 1) merging instance site / package config:
             #    unicity key here is 'target', to replace package target by instance
             #    definition
-            # 2) at host level and between several instance, it should be taken care
+            # 2) at host level and between several instances, it should be taken care
             #    higher level to have different 'source' vales on the host
             merge_dict[vol["target"]] = vol
         return list(merge_dict.values())
@@ -278,9 +275,7 @@ class Resource(dict):
             # brutal replacement, TODO make special cases for volumes
             # less brutal:
             if key not in {"port", "run", "volume", "name", "assign"}:
-                warning(
-                    "maybe updating an unknown key in " f"the configuration '{key}'"
-                )
+                warning(f"maybe updating an unknown key in the configuration '{key}'")
             if key not in self:
                 self[key] = value
                 continue

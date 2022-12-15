@@ -110,6 +110,7 @@ class Site(Resource):
         return None
 
     def merge_instance_to_resources(self):
+        self.rebase_volumes_upon_nua_conf()
         resource_declarations = self.get("resource", [])
         if not resource_declarations:
             return
@@ -166,9 +167,14 @@ class Site(Resource):
         dom = DomainSplit(self.domain)
         self.domain = dom.full_path()
 
-    def rebased_volumes_upon_nua_conf(self):
-        """warning: here, no update of self data"""
-        return self.rebased_volumes_upon_package_conf(self.image_nua_config)
+    # CHANGE: now volumes updated in site configuration, so
+    # different strategy for store.py
+    # def rebased_volumes_upon_nua_conf(self):
+    #     """warning: here, no update of self data"""
+    #     return self.rebased_volumes_upon_package_conf(self.image_nua_config)
+
+    def rebase_volumes_upon_nua_conf(self):
+        self.volume = self.rebased_volumes_upon_package_conf(self.image_nua_config)
 
     def rebase_ports_upon_nua_config(self):
         config_ports = deepcopy(self.image_nua_config.get("port", {}))
