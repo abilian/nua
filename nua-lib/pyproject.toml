@@ -72,7 +72,4 @@ exclude = [
     'sandbox',
     'doc',
     'scripts',
-    # Temp: dependencies are not loaded
-    "nua_build/runtime/mariadb_utils.py",
-    "nua_build/runtime/postgres.py",
 ]

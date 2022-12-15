@@ -60,6 +60,7 @@ ignore = [
     # Not ruff
     # 'W503', # line break before binary operator
     # 'S101', # Use of assert detected
+    "I001", # Import block is un-sorted or un-formatted
 ]
 
 exclude = [
@@ -115,7 +116,4 @@ exclude = [
     'sandbox',
     'doc',
     'scripts',
-    # Temp: dependencies are not loaded
-    "nua_build/runtime/mariadb_utils.py",
-    "nua_build/runtime/postgres.py",
 ]
