@@ -288,6 +288,7 @@ class SitesDeployment:
         self.sites = self.host_list_to_sites()
         self.set_network_names()
         self.merge_instances_to_resources()
+        self.set_volumes_names()
         self.check_required_local_resources()
         for site in self.sites:
             self.check_required_local_resources_configuration(site)
@@ -332,6 +333,10 @@ class SitesDeployment:
             site.merge_instance_to_resources()
         if verbosity(3):
             print("merge_instances_to_resources() done")
+
+    def set_volumes_names(self):
+        for site in self.sites:
+            site.set_volumes_names()
 
     def restart_services(self):
         if verbosity(2):

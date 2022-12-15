@@ -8,6 +8,7 @@ from .domain_split import DomainSplit
 from .port_normalization import normalize_ports, ports_as_dict
 from .resource import Resource
 from .utils import sanitized_name
+from .volume_normalization import update_volume_name
 
 
 class Site(Resource):
@@ -85,6 +86,14 @@ class Site(Resource):
         suffix = DomainSplit(self.domain).container_suffix()
         name_base = f"{self.nua_long_name}-{suffix}"
         return sanitized_name(name_base)
+
+    def set_volumes_names(self):
+        suffix = DomainSplit(self.domain).container_suffix()
+        for volume in self.volume:
+            update_volume_name(volume, suffix)
+        for resource in self.resources:
+            for volume in resource.volume:
+                update_volume_name(volume, suffix)
 
     def set_network_name(self):
         self.detect_required_network()
