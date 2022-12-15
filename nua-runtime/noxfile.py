@@ -1,26 +1,28 @@
 import nox
+from nox import session
 
 # PYTHON_VERSIONS = ["3.10", "3.11"]
 PYTHON_VERSIONS = ["3.10"]
+DEPS = ["../nua-lib"]
 
 nox.options.reuse_existing_virtualenvs = True
 
 
-@nox.session
+@session
 def lint(session: nox.Session) -> None:
     _install(session)
     session.run("make", "lint", external=True)
 
 
-@nox.session(python=PYTHON_VERSIONS)
+@session(python=PYTHON_VERSIONS)
 def pytest(session: nox.Session) -> None:
     _install(session)
     session.run("pytest", "--tb=short")
 
 
 def _install(session: nox.Session):
-    deps = ["../nua-lib"]
-    session.run("pip", "install", "-q", *deps)
-    session.run("poetry", "install", external=True)
+    session.run("poetry", "export", "--output=requirements.txt", "--without-hashes", external=True)
+    session.install("-r", "requirements.txt")
+    session.install(*DEPS)
     session.run("pip", "check", external=True)
     session.run("poetry", "check", external=True)

@@ -15,9 +15,9 @@ from nua.lib.actions import (
     install_package_list,
     string_in,
 )
+from nua.lib.console import print_green, print_magenta, print_red
 from nua.lib.exec import exec_as_nua, mp_exec_as_nua
 from nua.lib.panic import error, warning
-from nua.lib.console import print_green, print_magenta, print_red
 from nua.lib.shell import chown_r, mkdir_p, rm_fr, sh, user_exists
 
 from .. import nua_env

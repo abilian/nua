@@ -24,8 +24,8 @@ from nua.autobuild.docker_build_utils import (
     print_log_stream,
 )
 from nua.autobuild.nua_image_builder import NUAImageBuilder
-from nua.lib.panic import error, info, show, title, warning
 from nua.lib.console import print_stream_blue
+from nua.lib.panic import error, info, show, title, warning
 from nua.lib.shell import rm_fr
 from nua.lib.tool.state import verbosity
 from nua.runtime.constants import NUA_BUILDER_NODE_TAG, NUA_BUILDER_TAG

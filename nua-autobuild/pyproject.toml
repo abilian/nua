@@ -79,4 +79,5 @@ exclude = [
     'sandbox',
     'doc',
     'scripts',
+    'noxfile.py',
 ]

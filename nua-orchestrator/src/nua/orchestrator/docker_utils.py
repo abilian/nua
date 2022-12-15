@@ -13,10 +13,10 @@ from docker.errors import APIError, NotFound
 from docker.models.containers import Container
 from docker.models.images import Image
 from nua.autobuild.docker_build_utils import docker_require
+from nua.lib.console import print_red
 
 # from .db.model.instance import RUNNING
 from nua.lib.panic import error, info, warning
-from nua.lib.console import print_red
 from nua.lib.tool.state import verbosity
 
 from . import config

@@ -12,8 +12,8 @@ Test ENV variables:
 
 import os
 
-from nua.lib.panic import error
 from nua.lib.console import print_red
+from nua.lib.panic import error
 from nua.lib.tool.state import verbosity
 
 from . import config

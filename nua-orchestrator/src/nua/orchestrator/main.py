@@ -6,9 +6,9 @@ from typing import Optional
 
 import typer
 from nua.lib.actions import check_python_version
+from nua.lib.console import print_red
 from nua.lib.exec import is_current_user, set_nua_user
 from nua.lib.panic import error
-from nua.lib.console import print_red
 from nua.lib.tool.state import set_color, set_verbose
 
 from . import __version__

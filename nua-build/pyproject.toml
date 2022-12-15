@@ -9,9 +9,11 @@ packages = [
   { include = "nua", from = "src" }
 ]
 
+
 [tool.poetry.scripts]
 nua-build = "nua.build.main:app"
 nua_test_replace_domain = "nua.build.scripts.test_replace_domain:main"
+
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -35,7 +37,8 @@ docker = "^6.0"
 # Useful for docker over ssh
 paramiko = "^2.12.0"
 
-[tool.poetry.group.dev.dependencies]
+
+#[tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
 nox = "*"
 types-setuptools = "*"
@@ -45,9 +48,9 @@ types-setuptools = "*"
 filterwarnings = ["ignore:.*distutils package:DeprecationWarning", "ignore::DeprecationWarning"]
 
 
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+#[build-system]
+#requires = ["poetry-core>=1.0.0"]
+#build-backend = "poetry.core.masonry.api"
 
 
 [tool.ruff]
@@ -81,6 +84,7 @@ exclude = [
     "tests/apps",
 ]
 
+
 [tool.deptry]
 exclude = [
     '.tox',
@@ -94,6 +98,9 @@ exclude = [
 ignore_obsolete = [
     "setuptools",
     "paramiko",
+	"abilian-devtools",
+	"nox",
+	"types-setuptools",
 ]
 ignore_missing = [
     "mariadb",
@@ -111,4 +118,5 @@ exclude = [
     'sandbox',
     'doc',
     'scripts',
+    'noxfile.py',
 ]
