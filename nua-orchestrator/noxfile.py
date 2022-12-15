@@ -21,7 +21,13 @@ def pytest(session: nox.Session) -> None:
 
 
 def _install(session):
-    session.run("poetry", "export", "--output=requirements.txt", "--without-hashes", external=True)
+    session.run(
+        "poetry",
+        "export",
+        "--output=requirements.txt",
+        "--without-hashes",
+        external=True,
+    )
     session.install("-r", "requirements.txt")
     session.install(*DEPS)
     session.run("pip", "check")
