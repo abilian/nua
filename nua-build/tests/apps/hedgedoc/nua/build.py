@@ -15,7 +15,7 @@ def main():
     version = "1.9.6"
     src_url = (
         "https://github.com/hedgedoc/hedgedoc/releases/"
-        f"download/{release}/hedgedoc-{release}.tar.gz"
+        f"download/{version}/hedgedoc-{version}.tar.gz"
     )
     packages = ["fontconfig", "fonts-noto"]
     tmp_packages = [
@@ -34,7 +34,7 @@ def main():
 
     with tmp_install_package_list(tmp_packages):
         npm_install("node-gyp", force=True)
-        hedge_src = download_extract(url, "/nua/build")
+        hedge_src = download_extract(src_url, "/nua/build")
         chdir(hedge_src)
         cmd = "bin/setup"
         sh(cmd)
