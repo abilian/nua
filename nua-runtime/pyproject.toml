@@ -38,15 +38,11 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.ruff]
-ignore = [
-    'E711', # comparison to None should be 'if cond is not None:'
+extend-ignore = [
+    "F401", # `...` imported but unused
+    "E501", # Line too long
     # TODO: fix these
-    'E501', # Line too long
-    'F401', # "..." imported but unused
     'F841', # Local variable assigned to but never used
-    # Not ruff
-    # 'W503', # line break before binary operator
-    # 'S101', # Use of assert detected
 ]
 
 [tool.deptry]

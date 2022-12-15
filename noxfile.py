@@ -1,9 +1,10 @@
 import nox
 
-PYTHON_VERSIONS = ["3.10"]
+PYTHON_VERSIONS = ["3.10"]  # + "3.11", "3.12"...
 
 nox.options.reuse_existing_virtualenvs = True
 # nox.options.default_venv_backend = "venv"
+# Don't run 'update-deps' by default.
 nox.options.sessions = [
     "lint",
     "pytest",

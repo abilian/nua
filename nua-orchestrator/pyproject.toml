@@ -61,10 +61,10 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.ruff]
-ignore = [
-    # FIXME: this is easy to test
-    "E501",  # line too long
-    "F401",  # 'module' imported but unused
+extend-ignore = [
+    "F401", # `...` imported but unused
+    "E501", # Line too long
+    "I001", # isort found an import in the wrong position
 ]
 
 [tool.deptry]
