@@ -437,8 +437,8 @@ class SitesDeployment:
         nginx_restart()
 
     def set_container_names(self, site: Site):
-        """Set first container names of resources to permit early host assignment to
-        variables.
+        """Set first container names of resources to permit early host
+        assignment to variables.
 
         Site.container_name is always available)
         """
