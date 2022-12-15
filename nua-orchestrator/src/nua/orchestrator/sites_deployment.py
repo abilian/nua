@@ -524,6 +524,7 @@ class SitesDeployment:
         run_params["name"] = site.container_name
         run_params["ports"] = site.ports_as_docker_params()
         run_params["environment"] = self.run_parameters_environment(site)
+        run_params["healthcheck"] = site.run_parameters_healthcheck()
         self.sanitize_run_params(run_params)
         site.run_params = run_params
 
@@ -575,6 +576,9 @@ class SitesDeployment:
         """Docker constraint: 2 docker options not compatible."""
         if "restart_policy" in run_params:
             run_params["auto_remove"] = False
+        # do not pass an incorrect dict for healthcheck to py-docker:
+        if "healthcheck" in run_params and not run_params["healthcheck"]:
+            del run_params["healthcheck"]
 
     def services_environment(self, site: Site) -> dict:
         run_env = {}

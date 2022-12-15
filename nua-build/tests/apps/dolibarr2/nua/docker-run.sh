@@ -1,4 +1,6 @@
 #!/bin/bash
+# scripts taken from: https://github.com/tuxgasy/docker-dolibarr
+# license: GPL-3.0 license
 
 # usage: get_env_value VAR [DEFAULT]
 #    ie: get_env_value 'XYZ_DB_PASSWORD' 'example'
