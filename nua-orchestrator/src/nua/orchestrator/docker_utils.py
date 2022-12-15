@@ -250,7 +250,9 @@ def docker_run(rsite: Resource, secrets: dict) -> Container:
         del params["env"]
     params["detach"] = True  # force detach option
     if verbosity(1):
-        info(f"Docker run image: {rsite.image_id}")
+        # info(f"Docker run image: {rsite.image_id}")
+        info(f"Docker run image: {rsite.image}")
+        info(f"        image id: {rsite.image_id_short}")
         if verbosity(2):
             print("run parameters:\n", pformat(params))
     docker_remove_prior_container_live(rsite)

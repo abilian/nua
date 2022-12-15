@@ -8,7 +8,7 @@ website = "https://nua.rocks/"
 tags = ["test", "php", "web", "Dolibarr"]
 licence = "GPLv3"
 profile = ["test"]
-release = 8
+release = 9
 
 [build]
 
@@ -42,6 +42,13 @@ PHP_INI_DATE_TIMEZONE = 'Europe/Paris'
 
 [port.web]
 container = 80
+
+[healthcheck]
+command = "true"  # shell true -> no command, always ok, for test
+start-period = 900
+interval = 30
+timeout = 30
+retries = 3
 
 [[volume]]
 # declare a local volume for plublic uploads
@@ -89,13 +96,11 @@ key = "MYSQL_PASSWORD"
 environment = "DOLI_DB_PASSWORD"
 
 [resource.run]
-detach = true
 restart_policy.name = "always"
 
 [resource.run.env]
 MYSQL_DATABASE = "dolibarr"
 MYSQL_USER = "dolibarr"
-# MYSQL_PASSWORD = "fixme"
 
 [[resource.volume]]
     # here we declare a mounted volume (ie: managed by Docker daemon)

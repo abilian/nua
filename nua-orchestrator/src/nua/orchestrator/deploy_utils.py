@@ -177,13 +177,14 @@ def start_one_container(rsite: Resource, mounted_volumes: list):
         print(f"start_one_container() run_params:\n{pformat(run_params)}")
     secrets = secrets_dict(rsite.requested_secrets)
     new_container = docker_run(rsite, secrets)
+    rsite.container_id = new_container.id
     if mounted_volumes:
         rsite.run_params["mounts"] = True
     if verbosity(1):
-        info(f"    -> run new container of name: {rsite.container}")
-        info(f"                    container ID: {new_container.id}")
+        info(f"    -> container of name: {rsite.container}")
+        info(f"            container id: {rsite.container_id_short}")
         if rsite.network_name:
-            info(f"       container is connected to network {rsite.network_name}")
+            info(f"    connected to network: {rsite.network_name}")
 
 
 def stop_previous_containers(sites: list):
