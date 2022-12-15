@@ -5,11 +5,6 @@ description = ""
 authors = ["Stefane Fermigier <sf@abilian.com>"]
 license = "AGPL"
 
-#packages = [
-#  { include = "nua/lib", from = "nua-lib/src" },
-#  { include = "nua/selfbuilder", from = "nua-selfbuilder/src" },
-#  { include = "nua/build", from = "nua-build/src" },
-#]
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -31,39 +26,13 @@ mkdocstrings = {extras = ["python"], version = "^0.19"}
 sqla2uml = "^0.1.2"
 pygments = "^2.12.0"
 
-# Nox
+# Testing / checking
 nox = "*"
 
 # Formatting
 isort = "^5.10.1"
 black = "^22.3.0"
 
-# # Linting
-# flake8 = "^5.0"
-# flake8-aaa = "*"
-# flake8-bandit = "*"
-# flake8-bugbear = "*"
-# flake8-cognitive-complexity = "*"
-# flake8-comprehensions = "*"
-# flake8-datetimez = "*"
-# flake8-functions = "*"
-# flake8-mutable = "*"
-# flake8-pytest = "*"
-# flake8-simplify = "*"
-# flake8-super = "*"
-# flake8-super-call = "*"
-# flake8-tidy-imports = "*"
-# flake8-tuple = "*"
-# bandit = "*"
-# pep8-naming = "^0.13.0"
-#
-
-# # Typechecking
-# mypy = "^0.971"
-# types-toml = "^0.10.7"
-#
-# reuse = "^1.0.0"
-#
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -98,6 +67,7 @@ ignore = [
     # FIXME: this is easy to test
     "E501",  # line too long
     "F401",  # 'module' imported but unused
+    "I001",  # Import block is un-sorted or un-formatted
 ]
 extend-exclude = [
     # XXX: check later
