@@ -82,7 +82,7 @@ class Site(Resource):
 
     @property
     def container_name(self) -> str:
-        suffix = DomainSplit(self.domain).containner_suffix()
+        suffix = DomainSplit(self.domain).container_suffix()
         name_base = f"{self.nua_long_name}-{suffix}"
         return sanitized_name(name_base)
 
