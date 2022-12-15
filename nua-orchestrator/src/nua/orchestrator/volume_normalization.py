@@ -1,10 +1,19 @@
 from pprint import pformat
 
+from nua.lib.console import print_red
 from nua.lib.panic import error
-from nua.lib.rich_console import print_red
+
+from .utils import sanitized_name
 
 # later, add 'npipe' when managed:
 ALLOWED_TYPE = {"volume", "bind", "tmpfs"}
+
+
+def update_volume_name(volume: dict, suffix: str):
+    if "source_prefix" not in volume:
+        return
+    prefix = volume["source_prefix"]
+    volume["source"] = sanitized_name(f"{prefix}-{suffix}")
 
 
 def normalize_volumes(volume_list: list):
@@ -17,7 +26,8 @@ def _normalize_volume(volume: dict):
         if not isinstance(volume, dict):
             raise ValueError("'volume' must be a dict")
         _check_type(volume)
-        _check_source(volume)
+        if not _check_source_prefix(volume):
+            _check_source(volume)
         _check_target(volume)
     except ValueError as e:
         print_red(str(e))
@@ -33,6 +43,25 @@ def _check_type(volume: dict):
     if volume["type"] == "volume" and "driver" not in volume:
         # assuming default "local" driver
         volume["driver"] = "local"
+
+
+def _check_source_prefix(volume: dict) -> bool:
+    if volume["type"] == "tmpfs":
+        # no source for tmpfs
+        return False
+    src_key = None
+    for alias in ("source_prefix", "src_prefix"):
+        if alias in volume:
+            src_key = alias
+            break
+    if not src_key:
+        return False
+    value = volume[src_key]
+    if not value or not isinstance(value, str):
+        raise ValueError("invalid value for 'volume.source_prefix'")
+    del volume[src_key]
+    volume["source_prefix"] = value
+    return True
 
 
 def _check_source(volume: dict):

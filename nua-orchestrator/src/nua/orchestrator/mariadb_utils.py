@@ -21,7 +21,7 @@ from time import sleep
 
 from nua.lib.actions import install_package_list, installed_packages
 from nua.lib.exec import exec_as_root, exec_as_root_daemon
-from nua.lib.rich_console import print_magenta, print_red
+from nua.lib.console import print_magenta, print_red
 from nua.lib.shell import chown_r, sh
 from nua.runtime.gen_password import gen_password
 from nua.runtime.mariadb_manager import NUA_MARIADB_PWD_FILE

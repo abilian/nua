@@ -1,7 +1,7 @@
-"""Nua scripting: 'panic' and 'error' shortcuts."""
+"""Nua scripting: print shortcuts."""
 from typing import Any
 
-from .rich_console import (  # print_bold,
+from .console import (
     print_bold_yellow,
     print_bold_yellow_white,
     print_green,

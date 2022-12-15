@@ -7,8 +7,8 @@ from pprint import pformat
 
 import tomli
 from nua.autobuild.docker_build_utils import display_one_docker_img, docker_require
+from nua.lib.console import print_green, print_magenta, print_red
 from nua.lib.panic import error, info, warning
-from nua.lib.rich_console import print_green, print_magenta, print_red
 from nua.lib.tool.state import verbosity
 
 from . import config
@@ -21,7 +21,6 @@ from .deploy_utils import (
     extra_host_gateway,
     load_install_image,
     mount_resource_volumes,
-    mount_site_volumes,
     port_allocator,
     start_one_container,
     unused_volumes,
@@ -289,6 +288,7 @@ class SitesDeployment:
         self.sites = self.host_list_to_sites()
         self.set_network_names()
         self.merge_instances_to_resources()
+        self.set_volumes_names()
         self.check_required_local_resources()
         for site in self.sites:
             self.check_required_local_resources_configuration(site)
@@ -333,6 +333,10 @@ class SitesDeployment:
             site.merge_instance_to_resources()
         if verbosity(3):
             print("merge_instances_to_resources() done")
+
+    def set_volumes_names(self):
+        for site in self.sites:
+            site.set_volumes_names()
 
     def restart_services(self):
         if verbosity(2):
@@ -484,7 +488,7 @@ class SitesDeployment:
     def start_main_site_container(self, site: Site):
         # volumes need to be mounted before beeing passed as arguments to
         # docker.run()
-        mounted_volumes = mount_site_volumes(site)
+        mounted_volumes = mount_resource_volumes(site)
         start_one_container(site, mounted_volumes)
 
     def store_container_instance(self, site: Site):

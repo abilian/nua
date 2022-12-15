@@ -25,7 +25,7 @@ class DomainSplit:
         else:
             return self.hostname
 
-    def containner_suffix(self):
+    def container_suffix(self):
         if self.location:
             return f"{self.hostname}-{self.location}"
         else:

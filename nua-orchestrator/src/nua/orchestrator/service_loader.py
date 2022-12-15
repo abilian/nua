@@ -1,7 +1,7 @@
 from importlib import import_module
 
 from nua.lib.actions import camel_format, snake_format
-from nua.lib.rich_console import print_red
+from nua.lib.console import print_red
 
 from .db import store
 

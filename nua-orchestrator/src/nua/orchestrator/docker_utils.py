@@ -16,7 +16,7 @@ from nua.autobuild.docker_build_utils import docker_require
 
 # from .db.model.instance import RUNNING
 from nua.lib.panic import error, info, warning
-from nua.lib.rich_console import print_red
+from nua.lib.console import print_red
 from nua.lib.tool.state import verbosity
 
 from . import config

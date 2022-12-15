@@ -8,6 +8,7 @@ from .domain_split import DomainSplit
 from .port_normalization import normalize_ports, ports_as_dict
 from .resource import Resource
 from .utils import sanitized_name
+from .volume_normalization import update_volume_name
 
 
 class Site(Resource):
@@ -82,9 +83,17 @@ class Site(Resource):
 
     @property
     def container_name(self) -> str:
-        suffix = DomainSplit(self.domain).containner_suffix()
+        suffix = DomainSplit(self.domain).container_suffix()
         name_base = f"{self.nua_long_name}-{suffix}"
         return sanitized_name(name_base)
+
+    def set_volumes_names(self):
+        suffix = DomainSplit(self.domain).container_suffix()
+        for volume in self.volume:
+            update_volume_name(volume, suffix)
+        for resource in self.resources:
+            for volume in resource.volume:
+                update_volume_name(volume, suffix)
 
     def set_network_name(self):
         self.detect_required_network()
@@ -110,6 +119,7 @@ class Site(Resource):
         return None
 
     def merge_instance_to_resources(self):
+        self.rebase_volumes_upon_nua_conf()
         resource_declarations = self.get("resource", [])
         if not resource_declarations:
             return
@@ -166,9 +176,14 @@ class Site(Resource):
         dom = DomainSplit(self.domain)
         self.domain = dom.full_path()
 
-    def rebased_volumes_upon_nua_conf(self):
-        """warning: here, no update of self data"""
-        return self.rebased_volumes_upon_package_conf(self.image_nua_config)
+    # CHANGE: now volumes updated in site configuration, so
+    # different strategy for store.py
+    # def rebased_volumes_upon_nua_conf(self):
+    #     """warning: here, no update of self data"""
+    #     return self.rebased_volumes_upon_package_conf(self.image_nua_config)
+
+    def rebase_volumes_upon_nua_conf(self):
+        self.volume = self.rebased_volumes_upon_package_conf(self.image_nua_config)
 
     def rebase_ports_upon_nua_config(self):
         config_ports = deepcopy(self.image_nua_config.get("port", {}))
