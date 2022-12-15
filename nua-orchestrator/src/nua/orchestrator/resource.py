@@ -127,12 +127,32 @@ class Resource(dict):
         self["image_id"] = image_id
 
     @property
+    def image_id_short(self) -> str:
+        if self.image_id.startswith("sha256:"):
+            return self.image_id[7:19]
+        return self.image_id[:12]
+
+    @property
     def container(self) -> str:
         return self.get("container", "")
 
     @container.setter
     def container(self, name: str):
         self["container"] = name
+
+    @property
+    def container_id(self) -> str:
+        return self.get("container_id", "")
+
+    @container_id.setter
+    def container_id(self, container_id: str):
+        self["container_id"] = container_id
+
+    @property
+    def container_id_short(self) -> str:
+        if self.container_id.startswith("sha256:"):
+            return self.container_id[7:19]
+        return self.container_id[:12]
 
     @property
     def resource_name(self) -> str:

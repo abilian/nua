@@ -13,10 +13,10 @@ from docker.errors import APIError, NotFound
 from docker.models.containers import Container
 from docker.models.images import Image
 from nua.autobuild.docker_build_utils import docker_require
+from nua.lib.console import print_red
 
 # from .db.model.instance import RUNNING
 from nua.lib.panic import error, info, warning
-from nua.lib.console import print_red
 from nua.lib.tool.state import verbosity
 
 from . import config
@@ -250,7 +250,9 @@ def docker_run(rsite: Resource, secrets: dict) -> Container:
         del params["env"]
     params["detach"] = True  # force detach option
     if verbosity(1):
-        info(f"Docker run image: {rsite.image_id}")
+        # info(f"Docker run image: {rsite.image_id}")
+        info(f"Docker run image: {rsite.image}")
+        info(f"        image id: {rsite.image_id_short}")
         if verbosity(2):
             print("run parameters:\n", pformat(params))
     docker_remove_prior_container_live(rsite)
