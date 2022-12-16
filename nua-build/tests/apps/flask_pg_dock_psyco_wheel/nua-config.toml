@@ -14,22 +14,20 @@ release = 1
 document_root = "/nua/app/html"
 
 [instance]
-
 # name of the bridge network used by this container and related resources.
 # network = "flask-pg-1"
-# secrets = "POSTGRES_PASSWORD"
 
-[instance.postgres_password]
+[[assign]]
 key = "POSTGRES_PASSWORD"
 nua_internal = true
-# nua_internal = "POSTGRES_PASSWORD" maybe this syntax ?
-[instance.user_passwd]
+
+[[assign]]
 key = "USER_PASSWORD"
-persistent = true
 random_str = true
 
 [run]
-restart_policy.name="always"
+restart_policy.name = "always"
+
 [run.env]
 # using default port of postgres, directly addressing the postgres docker container.
 # DB_HOST for the resource "database" will be found in the env variable NUA_DATABASE_HOST
@@ -37,7 +35,6 @@ DB_PORT = "5432"
 # Postgres password of the "remote" resource DB:
 USER_DB = "bob_db"
 USER_NAME = "bob"
-# USER_PASSWORD = "bob_pwd"
 
 
 [port.web]
@@ -66,13 +63,6 @@ image = "docker.io/library/postgres:14.5"
     restart_policy.name="always"
 
 [resource.run_env]
-
-
-# [resource.port.web]
-    # no port declaration: port declaration is required. The resource does not need to
-    # expose ports on the locahost network, the main container will directly connect
-    # using hostname:port of the resource through the bridge network declared as
-    # ' network = "flask-pg-1" '
 
 [[resource.volume]]
     # here we declare a mounted volume (ie: managed by Docker daemon)

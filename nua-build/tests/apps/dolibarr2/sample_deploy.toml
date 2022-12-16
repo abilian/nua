@@ -1,7 +1,0 @@
-[[site]]
-image = "nua-dolibarr-mariadb:16.0-9"
-domain = "test1.yerom.xyz"
-
-[[site]]
-image = "nua-dolibarr-mariadb:16.0-9"
-domain = "test2.yerom.xyz"

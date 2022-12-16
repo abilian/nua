@@ -31,7 +31,6 @@ restart_policy.name = "always"
 # DB_HOST for the resource "mariadb" will be found in the env variable NUA_MARIADB_HOST
 USER_DB = "flask_db"
 USER_NAME = "bob"
-# USER_PASSWORD = "bob_pwd"
 
 [port.web]
 # publication port of the app inside the container
@@ -58,26 +57,18 @@ key = "MARIADB_ROOT_PASSWORD"
 nua_internal = true
 
 [resource.run]
-    detach = true  # default value
-    restart_policy.name = "always"
-
-
-[[resource.ports]]
-    # no port declaration: port declaration is required. The resource does not need to
-    # expose ports on the locahost network, the main container will directly connect
-    # using hostname:port of the resource through the bridge network declared as
-    # ' network = "flask-mariadb-1" '
+restart_policy.name = "always"
 
 [[resource.volume]]
-    # here we declare a mounted volume (ie: managed by Docker daemon)
+# here we declare a mounted volume (ie: managed by Docker daemon)
 
-    # The mount type (bind / volume / tmpfs / npipe). Default: volume :
-    type = "volume"
-    # Name of the driver used to create the volume: (for type == "volume")
-    driver = "local"
-    # Mount source (e.g. a volume name or a host path):
-    source = "mariadb_data_1"
-    # Container path:
-    target = "/var/lib/mysql"
-    # mode (default to 'rw'
-    mode = "rw"
+# The mount type (bind / volume / tmpfs / npipe). Default: volume :
+type = "volume"
+# Name of the driver used to create the volume: (for type == "volume")
+driver = "local"
+# Mount source (e.g. a volume name or a host path):
+source = "mariadb_data_1"
+# Container path:
+target = "/var/lib/mysql"
+# mode (default to 'rw'
+mode = "rw"

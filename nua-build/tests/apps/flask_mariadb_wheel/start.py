@@ -21,12 +21,12 @@ def setup_db():
     orchestrator was installed, it must have setup mariadb package on
     the host.
     """
-    manager = MariaDbManager(DB_HOST, "", "", "")
-    manager.setup_db_user(DB_NAME, DB_USER, DB_USER_PWD)
+    manager = MariaDbManager(host=DB_HOST)
+    manager.setup_db_user(dbname=DB_NAME, user=DB_USER, password=DB_USER_PWD)
 
 
 def init_db_content():
-    manager = MariaDbManager(DB_HOST, "", "", "")
+    manager = MariaDbManager(host=DB_HOST)
     if not manager.db_table_exist(DB_NAME, DB_USER, DB_USER_PWD, "books"):
         add_content()
 

@@ -36,17 +36,9 @@ nua_dir = "nua_files"
 # container = "docker"  # default
 document_root = "/nua/app/html"
 
-[instance]
-# instance contains values suited to be changed at deploy time for
-# multi-instance deployment. Values here are used by default, i.e. for a single
-# deployment of the app
-
 [run]
 # parameters passed as a dict to docker run
 auto_remove = true
-# detach = true mandatory
-[run.env]
-# parameters passed as a dict to docker run: environment dict
 
 [port.web]
 container = 80

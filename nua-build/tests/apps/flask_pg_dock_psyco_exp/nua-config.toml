@@ -13,37 +13,33 @@ release = 3
 [build]
 document_root = "/nua/app/html"
 
-[instance.postgres_password]
+[[assign]]
 key = "POSTGRES_PASSWORD"
 nua_internal = true
-# nua_internal = "POSTGRES_PASSWORD" maybe this syntax ?
-[instance.db_host]
+
+[[assign]]
 key = "DB_HOST"
-resource_property = "database.container"
-[instance.user_db]
+resource_host = "database"
+
+[[assign]]
 key = "USER_DB"
-persistent = true
 random_str = true
-[instance.user_name]
+
+[[assign]]
 key = "USER_NAME"
-persistent = true
 random_str = true
-[instance.user_passwd]
+
+[[assign]]
 key = "USER_PASSWORD"
-persistent = true
 random_str = true
 
 [run]
 restart_policy.name = "always"
+
 [run.env]
 # using default port of postgres, directly addressing the postgres docker container.
 # DB_HOST for the resource "database" will be found in the env variable NUA_DATABASE_HOST
 DB_PORT = "5432"
-# Postgres password of the "remote" resource DB:
-# USER_DB = "bob_db"
-# USER_NAME = "bob"
-# USER_PASSWORD = "bob_pwd"
-
 
 [port.web]
 # publication port of the app inside the container
@@ -67,27 +63,16 @@ type = "docker"
 image = "docker.io/library/postgres:14.5"
 
 [resource.run]
-    detach = true
-    restart_policy.name="always"
-
-[resource.run_env]
-
-
-# [resource.port.web]
-    # no port declaration: port declaration is required. The resource does not need to
-    # expose ports on the locahost network, the main container will directly connect
-    # using hostname:port of the resource through the bridge network declared as
-    # ' network = "flask-pg-1" '
+restart_policy.name = "always"
 
 [[resource.volume]]
     # here we declare a mounted volume (ie: managed by Docker daemon)
-
     # The mount type (bind / volume / tmpfs / npipe). Default: volume :
     type = "volume"
     # Name of the driver used to create the volume: (for type == "volume")
     driver = "local"
     # Mount source (e.g. a volume name or a host path):
-    source = "postgres_data_pg_exp_3"
+    source_prefix = "postgres_data_pg_exp"
     # Container path:
     target = "/var/lib/postgresql/data"
     # mode (default to 'rw'

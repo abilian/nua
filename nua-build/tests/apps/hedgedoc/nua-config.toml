@@ -13,32 +13,22 @@ release = 4
 [build]
 # use a base docker image containing nodejs:
 nua_base = "nua-builder-nodejs16"
-# document_root = "/nua/app/html"
 
-[instance]
-# for postgres:
-# network = "hedgedoc-1"
-# secrets = "POSTGRES_PASSWORD"
-
-
-[instance.postgres_password]
+[[assign]]
 key = "POSTGRES_PASSWORD"
 nua_internal = true
-# nua_internal = "POSTGRES_PASSWORD" maybe this syntax ?
 
-[instance.db_host]
+[[assign]]
 key = "CMD_DB_HOST"
-resource_property = "database.container"
+resource_host = "database"
 
-[instance.user_passwd]
+[[assign]]
 key = "CMD_DB_PASSWORD"
-persistent = true
 random_str = true
 
 [run]
 # parameters passed as a dict to docker run
 auto_remove = false
-# detach = true mandatory
 
 [run.env]
 NODE_ENV = "production"
@@ -91,15 +81,16 @@ container = 3000
 
 [[volume]]
 # declare a local volume for plublic uploads
-type = "bind"
+# bind example: type = "bind"
+type = "volume"
 # Name of the driver used to create the volume: (for type == "volume")
-# driver = "local"
+# driver = "local"  # default for "volume" type
 # Mount source (e.g. a volume name or a host path):
-source = "/var/tmp"
+source_prefix = "hedgedoc_uploads"
 # Container path:
 target = "/hedgedoc/public/uploads"
 # mode (default to 'rw'
-mode = "rw"
+# mode = "rw"
 
 [[resource]]
 # A resource is another container required by the main app container, its
@@ -114,16 +105,10 @@ mode = "rw"
 name = "database"
 type = "docker"
 image = "docker.io/library/postgres:14.5"
-[resource.run]
-    detach = true
-    restart_policy.name = "always"
-[resource.run_env]
 
-# [resource.port.web]
-    # no port declaration: port declaration is required. The resource does not need to
-    # expose ports on the locahost network, the main container will directly connect
-    # using hostname:port of the resource through the bridge network declared as
-    # ' network = "hedgedoc-1" '
+[resource.run]
+detach = true
+restart_policy.name = "always"
 
 [[resource.volume]]
     # here we declare a mounted volume (ie: managed by Docker daemon)
@@ -132,12 +117,11 @@ image = "docker.io/library/postgres:14.5"
     # Name of the driver used to create the volume: (for type == "volume")
     driver = "local"
     # Mount source (e.g. a volume name or a host path):
-    source = "postgres_hedgedoc_1"
+    source = "postgres_hedgedoc"
     # Container path:
     target = "/var/lib/postgresql/data"
     # mode (default to 'rw'
     mode = "rw"
-
 
 
 # For sqlite:
