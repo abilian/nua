@@ -9,7 +9,7 @@ from .domain_split import DomainSplit
 from .port_normalization import normalize_ports, ports_as_dict
 from .resource import Resource
 from .utils import sanitized_name
-from .volume_normalization import update_volume_name
+from .volume import Volume
 
 HEALTHCHECK_DEFAULT = {
     "command": "true",  # shell true -> no command, always ok, for test
@@ -108,11 +108,11 @@ class Site(Resource):
 
     def set_volumes_names(self):
         suffix = DomainSplit(self.domain).container_suffix()
-        for volume in self.volume:
-            update_volume_name(volume, suffix)
+        self.volume = [Volume.update_name_dict(v, suffix) for v in self.volume]
         for resource in self.resources:
-            for volume in resource.volume:
-                update_volume_name(volume, suffix)
+            resource.volume = [
+                Volume.update_name_dict(v, suffix) for v in resource.volume
+            ]
 
     def set_network_name(self):
         self.detect_required_network()

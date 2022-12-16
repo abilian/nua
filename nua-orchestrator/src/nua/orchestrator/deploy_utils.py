@@ -25,6 +25,7 @@ from .resource import Resource
 from .server_utils.net_utils import check_port_available
 from .site import Site
 from .utils import size_to_bytes
+from .volume import Volume
 
 
 def load_install_image(image_path: str | Path) -> tuple:
@@ -98,17 +99,6 @@ def extra_host_gateway() -> dict:
     return {"host.docker.internal": docker_host_gateway_ip()}
 
 
-def volume_print(volume: dict):
-    lst = ["  "]
-    lst.append("type={type}, ".format(**volume))
-    if "driver" in volume:
-        lst.append("driver={driver}, ".format(**volume))
-    lst.append("source={source}, target={target}".format(**volume))
-    if "-> domains" in volume:
-        lst.append("\n  domains: " + ", ".join(volume["domains"]))
-    print("".join(lst))
-
-
 def unused_volumes(orig_mounted_volumes: list) -> list:
     current_mounted = store.list_instances_container_active_volumes()
     current_sources = {vol["source"] for vol in current_mounted}
@@ -121,29 +111,22 @@ def create_docker_volumes(volumes_config: list):
 
 
 def new_docker_mount(volume_params: dict) -> docker.types.Mount:
-    tpe = volume_params.get("type", "volume")  # either "volume", "bind", "tmpfs""
-    # Container path.
-    target = volume_params.get("target") or volume_params.get("destination")
-    # Mount source (e.g. a volume name or a host path).
-    source = volume_params.get("source")  # for "volume" or "bind" types
-
-    if tpe == "volume":
-        driver_config = new_docker_driver_config(volume_params)
+    volume = Volume.parse(volume_params)
+    if volume.type == "volume":
+        driver_config = new_docker_driver_config(volume)
     else:
         driver_config = None
-
-    read_only = bool(volume_params.get("read_only", False))
-
-    if tpe == "tmpfs":
-        tmpfs_size = size_to_bytes(volume_params.get("tmpfs_size")) or None
-        tmpfs_mode = volume_params.get("tmpfs_mode") or None
+    read_only = bool(volume.options.get("read_only", False))
+    if volume.type == "tmpfs":
+        tmpfs_size = size_to_bytes(volume.options.get("tmpfs_size")) or None
+        tmpfs_mode = volume.options.get("tmpfs_mode") or None
     else:
         tmpfs_size, tmpfs_mode = None, None
 
     return docker.types.Mount(
-        target,
-        source,
-        type=tpe,
+        volume.target,
+        volume.source or None,
+        volume.type,
         driver_config=driver_config,
         read_only=read_only,
         tmpfs_size=tmpfs_size,
@@ -151,16 +134,15 @@ def new_docker_mount(volume_params: dict) -> docker.types.Mount:
     )
 
 
-def new_docker_driver_config(volume_params: dict) -> docker.types.DriverConfig | None:
-    """Volume driver configuration.
+def new_docker_driver_config(volume: Volume) -> docker.types.DriverConfig | None:
+    """Volume driver configuration for Docker.
 
     Only valid for the 'volume' type.
     """
-    driver = volume_params.get("driver")
-    if not driver or driver == "local":
+    if not volume.driver or volume.driver == "local":
         return None
     # to be completed
-    return docker.types.DriverConfig(driver)
+    return docker.types.DriverConfig(volume.driver)
 
 
 def unmount_unused_volumes(orig_mounted_volumes: list):

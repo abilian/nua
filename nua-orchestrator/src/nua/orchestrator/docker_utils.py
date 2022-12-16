@@ -23,6 +23,7 @@ from . import config
 from .db import store
 from .resource import Resource
 from .utils import image_size_repr
+from .volume import Volume
 
 
 @cache
@@ -281,24 +282,23 @@ def docker_volume_list(name: str) -> list:
     return [vol for vol in lst if vol.name == name]
 
 
-def docker_volume_create(volume_opt: dict):
-    found = docker_volume_list(volume_opt["source"])
+def docker_volume_create(volume: Volume):
+    found = docker_volume_list(volume.source)
     if not found:
-        docker_volume_create_new(volume_opt)
+        docker_volume_create_new(volume)
 
 
-def docker_volume_create_new(volume_opt: dict):
+def docker_volume_create_new(volume: Volume):
     """Create a new volume of type "volume"."""
-    driver = volume_opt.get("driver", "local")
-    if driver != "local" and not install_plugin(driver):
+    if volume.driver != "local" and not install_plugin(volume.driver):
         # assuming it is the name of a plugin
-        error(f"Install of Docker's plugin '{driver}' failed.")
+        error(f"Install of Docker's plugin '{volume.driver}' failed.")
     client = from_env()
     client.volumes.create(
-        name=volume_opt["source"],
-        driver=driver,
+        name=volume.source,
+        driver=volume.driver,
         # driver's options, using format of python-docker:
-        driver_opts=volume_opt.get("options", {}),
+        driver_opts=volume.options,
     )
 
 
@@ -314,13 +314,15 @@ def docker_volume_create_new(volume_opt: dict):
 #     )
 
 
-def docker_volume_create_or_use(volume_opt: dict):
+def docker_volume_create_or_use(volume_params: dict):
     """Return a useabla/mountable docker volume.
 
     Strategy depends of volume type: "bind", "volume", or "tmpfs".
     """
-    if volume_opt.get("type") == "volume":
-        docker_volume_create(volume_opt)
+    volume = Volume.parse(volume_params)
+
+    if volume.type == "volume":
+        docker_volume_create(volume)
     else:
         # for "bind" or "tmpfs", volumes do not need to be created before
         # container loading
@@ -332,22 +334,23 @@ def docker_volume_prune(volume_opt: dict):
 
     Beware: deleting data !
     """
-    if volume_opt.get("type") != "volume" or volume_opt.get("driver") != "local":
+    volume = Volume.parse(volume_opt)
+    if volume.type != "volume" or volume.driver != "local":
         # todo: later, manage bind volumes
         return
-    name = volume_opt["source"]
+    name = volume.source
     try:
         client = from_env()
         lst = client.volumes.list(filters={"name": name})
-        # filter match is not equality
+        # beware: filter match is not equality
         found = [vol for vol in lst if vol.name == name]
         if found:
             # shoud be only one.
-            volume = found[0]
-            volume.remove(force=True)
+            docker_volume = found[0]
+            docker_volume.remove(force=True)
     except APIError as e:
         print("Error while unmounting volume:")
-        print("volume_opt")
+        print(pformat(volume_opt))
         print(e)
 
 

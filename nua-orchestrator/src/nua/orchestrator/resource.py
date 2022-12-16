@@ -6,7 +6,7 @@ from nua.lib.tool.state import verbosity
 
 from .port_normalization import normalize_ports, ports_as_dict
 from .utils import sanitized_name
-from .volume_normalization import normalize_volumes
+from .volume import Volume
 
 
 class Resource(dict):
@@ -259,31 +259,30 @@ class Resource(dict):
             return
         if not isinstance(self.volume, list):
             error("Site['volume'] must be a list")
-        self.volume = [v for v in self.volume if v]
-        normalize_volumes(self.volume)
+        # filter empty elements
+        volume_list = [v for v in self.volume if v]
+        self.volume = Volume.normalize_list(volume_list)
 
     def rebased_volumes_upon_package_conf(self, package_dict: dict) -> list:
         """warning: here, no update of self data"""
-        return self._merge_volumes_lists(package_dict, reverse=False)
+        base_list = package_dict.get("volume") or []
+        return self._merge_volumes_lists(base_list, self.volume)
 
-    def _merge_volumes_lists(self, other_dict: dict, reverse: bool) -> list:
-        base = other_dict.get("volume") or []
-        base = [v for v in base if v]
+    def _merge_volumes_lists(
+        self, base_list: list[dict], update_list: list[dict]
+    ) -> list[dict]:
+        # filter empty elements
+        base = [v for v in base_list if v]
         if not base:
             # if volumes are not configured in the package nua-config, there
-            # is no point to add volumes in the site configuration
+            # is no point to add volumes in the instance configuration
             return []
-        merge_dict = {}
-        merge_list = base + self.volume
-        if reverse:
-            merge_list.reverse()
-        for vol in merge_list:
-            # 1) merging instance site / package config:
-            #    unicity key here is 'target', to replace package target by instance
-            #    definition
-            # 2) at host level and between several instances, it should be taken care
-            #    higher level to have different 'source' vales on the host
-            merge_dict[vol["target"]] = vol
+        # 1) merging instance site upon package config:
+        #    unicity key here is 'target', to replace package target by instance
+        #    definition
+        # 2) at host level and between several instances, it should be taken care
+        #    higher level to have different 'source' values on the host
+        merge_dict = {vol["target"]: vol for vol in (base + update_list)}
         return list(merge_dict.values())
 
     def update_instance_from_site(self, resource_updates: dict):

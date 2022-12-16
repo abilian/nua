@@ -24,7 +24,6 @@ from .deploy_utils import (
     port_allocator,
     start_one_container,
     unused_volumes,
-    volume_print,
 )
 from .docker_utils import (
     docker_network_create_bridge,
@@ -43,6 +42,7 @@ from .resource import Resource
 from .search_cmd import search_nua
 from .service_loader import Services
 from .site import Site
+from .volume import Volume
 
 # parameters passed as a dict to docker run
 RUN_BASE = {}  # see also nua_config
@@ -620,7 +620,7 @@ class SitesDeployment:
             return
         print_green("Volumes used by current Nua configuration:")
         for volume in current_mounted:
-            volume_print(volume)
+            print(Volume.string(volume))
 
     def display_unused_volumes(self):
         if not verbosity(1):
@@ -632,7 +632,7 @@ class SitesDeployment:
             "Some volumes are mounted but not used by current Nua configuration:"
         )
         for volume in unused:
-            volume_print(volume)
+            print(Volume.string(volume))
 
     def print_host_list(self):
         print("'host_list':\n", pformat(self.host_list))
