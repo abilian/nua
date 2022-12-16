@@ -260,10 +260,10 @@ class Site(Resource):
             return 0
 
     def run_parameters_healthcheck(self) -> dict:
-        if not self.healthcheck:
-            return {}
-        self._complete_healthcheck_default()
         params = {}
+        if not self.healthcheck:
+            return params
+        self._complete_healthcheck_default()
         # expecting a str -> the command wil be used as CMD-SHELL by py-docker:
         params["test"] = self.healthcheck["command"]
         params["start_period"] = self.second_to_nano(self.healthcheck["start-period"])
