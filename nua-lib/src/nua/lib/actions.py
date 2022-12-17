@@ -21,11 +21,9 @@ from .shell import sh
 #
 def is_python_project(path: str | Path = "") -> bool:
     root = Path(path).expanduser().resolve()
-    if any(
+    return any(
         (root / f).exists() for f in ("requirements.txt", "setup.py", "pyproject.toml")
-    ):
-        return True
-    return False
+    )
 
 
 def build_python(path: str | Path = ""):
