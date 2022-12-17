@@ -26,9 +26,9 @@ def _install(session):
         "export",
         "--output=requirements.txt",
         "--without-hashes",
+        "--with=dev",
         external=True,
     )
-    session.install("-r", "requirements.txt")
-    session.install(*DEPS)
+    session.install("-r", "requirements.txt", ".", *DEPS)
     session.run("pip", "check")
     session.run("poetry", "check", external=True)

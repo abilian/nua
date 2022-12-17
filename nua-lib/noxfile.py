@@ -6,6 +6,7 @@ PYTHON_VERSIONS = ["3.10"]
 
 nox.options.reuse_existing_virtualenvs = True
 
+DEPS = []
 
 @session
 def lint(session: nox.Session) -> None:
@@ -25,8 +26,9 @@ def _install(session: nox.Session):
         "export",
         "--output=requirements.txt",
         "--without-hashes",
+        "--with=dev",
         external=True,
     )
-    session.install("-r", "requirements.txt")
+    session.install("-r", "requirements.txt", ".", *DEPS)
     session.run("pip", "check")
     session.run("poetry", "check", external=True)
