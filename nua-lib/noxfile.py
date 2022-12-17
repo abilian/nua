@@ -8,6 +8,7 @@ nox.options.reuse_existing_virtualenvs = True
 
 DEPS = []
 
+
 @session
 def lint(session: nox.Session) -> None:
     _install(session)

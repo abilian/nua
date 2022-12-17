@@ -26,9 +26,8 @@ CHECKED_KEYS = {
 
 
 class Volume:
-    """Representation of a volume attached to a container, either main container or
-    Resource container.
-    """
+    """Representation of a volume attached to a container, either main
+    container or Resource container."""
 
     def __init__(self):
         self._dict = {}
@@ -40,7 +39,8 @@ class Volume:
     def parse(cls, data: dict) -> "Volume":
         """Parse a dict to obtain a Volume.
 
-        Apply sanity checks if _checked_ is not present."""
+        Apply sanity checks if _checked_ is not present.
+        """
         if not isinstance(data, dict):
             raise ValueError("'volume._dict' must be a dict")
         volume = Volume()
