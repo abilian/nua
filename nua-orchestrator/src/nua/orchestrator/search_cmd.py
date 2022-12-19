@@ -16,6 +16,9 @@ def search_nua(app_name: str) -> list:
     """Search Nua image from the registries.
 
     (local registry for now).
+
+    Return:
+        list of path of local Nua archives sorted by version.
     """
     app, tag = parse_app_name(app_name)
     return search_docker_tar_local(app, tag)

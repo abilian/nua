@@ -5,7 +5,7 @@ from pprint import pformat
 
 import docker
 import docker.types
-from nua.autobuild.docker_build_utils import display_one_docker_img
+from nua.autobuild.docker_build_utils import display_one_docker_img, docker_require
 from nua.lib.console import print_green, print_magenta
 from nua.lib.panic import error, info, warning
 from nua.lib.tool.state import verbosity
@@ -14,9 +14,11 @@ from .archive_search import ArchiveSearch
 from .db import store
 from .docker_utils import (
     docker_host_gateway_ip,
+    docker_network_create_bridge,
     docker_network_prune,
     docker_remove_container_previous,
     docker_run,
+    docker_service_start_if_needed,
     docker_volume_create_or_use,
     docker_volume_prune,
 )
@@ -210,3 +212,39 @@ def deactivate_all_instances():
         deactivate_containers(container_names)
 
     docker_network_prune()
+
+
+def start_container_engine():
+    """Ensure the containr system is running.
+
+    Currrently: only checking that Docker daemon is up.
+    """
+    docker_service_start_if_needed()
+
+
+def create_container_private_network(network_name: str):
+    """Create a private network for the container (and it's surb containers).
+
+    Currrently: only managing Docker bridge network.
+    """
+    docker_network_create_bridge(network_name)
+
+
+def pull_resource_container(resource: Resource) -> bool:
+    """Retrieve a resource container.
+
+    Currrently: only managing Docker bridge network.
+    """
+    if resource.type != "docker":
+        warning(f"Unknown resource type: {resource.type}")
+        return True
+    if verbosity(1):
+        info(f"Pulling image '{resource.image}'")
+    docker_image = docker_require(resource.image)
+    if not docker_image:
+        warning(f"No image found for '{resource.image}'")
+        return False
+    if verbosity(1):
+        display_one_docker_img(docker_image)
+    resource.image_id = docker_image.id
+    return True

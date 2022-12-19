@@ -8,6 +8,7 @@ from nua.lib.tool.state import verbosity
 from .domain_split import DomainSplit
 from .port_normalization import normalize_ports, ports_as_dict
 from .resource import Resource
+from .search_cmd import search_nua
 from .utils import sanitized_name
 from .volume import Volume
 
@@ -113,6 +114,14 @@ class Site(Resource):
             resource.volume = [
                 Volume.update_name_dict(v, suffix) for v in resource.volume
             ]
+
+    @property
+    def registry_path(self) -> str:
+        return self.get("registry_path") or ""
+
+    @registry_path.setter
+    def registry_path(self, registry_path: str):
+        self["registry_path"] = registry_path
 
     def set_network_name(self):
         self.detect_required_network()
@@ -271,3 +280,20 @@ class Site(Resource):
         params["timeout"] = self.second_to_nano(self.healthcheck["timeout"])
         params["retries"] = self.force_int(self.healthcheck["retries"])
         return params
+
+    def find_registry_path(self, cached: bool = False) -> bool:
+        # list of images sorted by version:
+        if cached and self.registry_path:
+            return True
+        results = self._search_nua_registry()
+        if results:
+            # results are sorted by version, take higher:
+            self.registry_path = results[-1]
+        else:
+            self.registry_path = ""
+        return bool(self.registry_path)
+
+    def _search_nua_registry(self) -> list:
+        if self.type != "docker":
+            raise ValueError(f"Unsupported type of container '{self.type}'")
+        return search_nua(self.image)

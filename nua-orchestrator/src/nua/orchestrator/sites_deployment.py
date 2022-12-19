@@ -6,7 +6,6 @@ from pathlib import Path
 from pprint import pformat
 
 import tomli
-from nua.autobuild.docker_build_utils import display_one_docker_img, docker_require
 from nua.lib.console import print_green, print_magenta, print_red
 from nua.lib.panic import error, info, warning
 from nua.lib.tool.state import verbosity
@@ -16,19 +15,17 @@ from .certbot import protocol_prefix, register_certbot_domains
 from .db import store
 from .db.model.instance import RUNNING
 from .deploy_utils import (
+    create_container_private_network,
     deactivate_all_instances,
     deactivate_site,
     extra_host_gateway,
     load_install_image,
     mount_resource_volumes,
     port_allocator,
+    pull_resource_container,
+    start_container_engine,
     start_one_container,
     unused_volumes,
-)
-from .docker_utils import (
-    docker_network_create_bridge,
-    docker_remove_container_previous,
-    docker_service_start_if_needed,
 )
 from .domain_split import DomainSplit
 from .nginx_util import (
@@ -39,7 +36,6 @@ from .nginx_util import (
 )
 from .requirement_evaluator import instance_key_evaluator
 from .resource import Resource
-from .search_cmd import search_nua
 from .service_loader import Services
 from .site import Site
 from .volume import Volume
@@ -208,35 +204,31 @@ class SitesDeployment:
         self.install_images()
 
     def find_all_images(self) -> bool:
-        images_found = set()
         for site in self.deploy_sites:
-            if site.image in images_found:
-                continue
-            results = search_nua(site.image)
-            if not results:
-                print_red(f"No image found for '{site.image}'.")
+            if not site.find_registry_path():
+                print_red(f"No image found for '{site.image}'")
                 return False
-            images_found.add(site.image)
-            if verbosity(1):
-                print_red(f"image found: '{site.image}'.")
+        if verbosity(1):
+            seen = set()
+            for site in self.deploy_sites:
+                if site.image not in seen:
+                    seen.add(site.image)
+                    info(f"image found: '{site.image}'")
         return True
 
     def install_images(self):
-        # ensure docker is running
-        docker_service_start_if_needed()
+        start_container_engine()
         installed = {}
         for site in self.deploy_sites:
-            results = search_nua(site.image)
-            if not results:
+            if not site.find_registry_path(site.image, cached=True):
                 error(f"No image found for '{site.image}'")
-            # results are sorted by version, take higher:
-            img_path = results[-1]
-            if img_path in installed:
-                image_id = installed[img_path][0]
-                image_nua_config = deepcopy(installed[img_path][1])
+            registry_path = site.registry_path
+            if registry_path in installed:
+                image_id = installed[registry_path][0]
+                image_nua_config = deepcopy(installed[registry_path][1])
             else:
-                image_id, image_nua_config = load_install_image(img_path)
-                installed[img_path] = (image_id, image_nua_config)
+                image_id, image_nua_config = load_install_image(registry_path)
+                installed[registry_path] = (image_id, image_nua_config)
             site.image_id = image_id
             site.image_nua_config = image_nua_config
 
@@ -253,27 +245,10 @@ class SitesDeployment:
         )
 
     def _pull_resource(self, resource: Resource) -> bool:
-        if resource.type == "docker":
-            return self._pull_resource_docker(resource)
         if resource.type == "local":
             # will check later in the process
             return True
-        warning(f"Unknown resource type: {resource.type}")
-        return True
-
-    @staticmethod
-    def _pull_resource_docker(resource: Resource) -> bool:
-        if verbosity(1):
-            info(f"Pulling image '{resource.image}'")
-        docker_image = docker_require(resource.image)
-        if docker_image:
-            if verbosity(1):
-                display_one_docker_img(docker_image)
-            # print_magenta(f"    -> {docker_image}")
-            resource.image_id = docker_image.id
-            return True
-        warning(f"no image found for '{resource.image}'")
-        return False
+        return pull_resource_container(resource)
 
     def deactivate_all_sites(self):
         """Find all instance in DB.
@@ -473,9 +448,8 @@ class SitesDeployment:
         site.persistent = previous
 
     def start_network(self, site: Site):
-        if not site.network_name:
-            return
-        docker_network_create_bridge(site.network_name)
+        if site.network_name:
+            create_container_private_network(site.network_name)
 
     def start_resources_containers(self, site: Site):
         for resource in site.resources:
