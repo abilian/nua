@@ -64,12 +64,11 @@ class SitesDeployment:
     """
 
     def __init__(self):
-        self.deploy_sites = {}
-        self.host_list = []
+        self.sites = []
+        self.sites_per_domain = []
         self.required_services = set()
         self.available_services = {}
         self.orig_mounted_volumes = []
-        self.sites = []
 
     def load_available_services(self):
         # deprecated
@@ -88,11 +87,14 @@ class SitesDeployment:
         if verbosity(1):
             info(f"Deploy sites from: {config_path}")
         deploy_sites_config = tomli.loads(config_path.read_text())
-        self.deploy_sites = self.parse_deploy_sites(deploy_sites_config)
-        self.host_list = self.build_host_list()
+        self.parse_deploy_sites(deploy_sites_config)
+        self.sort_sites_per_domain()
 
     def parse_deploy_sites(self, deploy_sites_config: dict):
-        """Check config syntax, replace missing informations by defaults."""
+        """Make the list of Sites.
+
+        Check config syntax, replace missing informations by defaults.
+        """
         sites = []
         for site_dict in deploy_sites_config["site"]:
             if not isinstance(site_dict, dict):
@@ -104,14 +106,18 @@ class SitesDeployment:
             site.check_valid()
             site.set_ports_as_dict()
             sites.append(site)
-        return sites
+        self.sites = sites
 
-    def build_host_list(self) -> list:
-        host_list = self._make_host_list()
-        _classify_located_sites(host_list)
-        return host_list
+    def sort_sites_per_domain(self):
+        """Classify the sites per domain, filtering out miss declared sites.
 
-    def _make_host_list(self) -> list:
+        The sites per domain are available in self.sites_per_domain
+        """
+        self._make_sites_per_domain()
+        self._filter_miss_located_sites()
+        self._update_sites_list()
+
+    def _make_sites_per_domain(self):
         """Convert dict(hostname:[sites,..]) to list({hostname, sites}).
 
         ouput format:
@@ -128,13 +134,13 @@ class SitesDeployment:
                      'image': 'nua-flask-upload-one:1.0-1',
                      }]}]
         """
-        sites_per_host = self._sites_per_host()
-        return [
+        sites_per_domain = self._sites_per_domain()
+        self.sites_per_domain = [
             {"hostname": hostname, "sites": sites_list}
-            for hostname, sites_list in sites_per_host.items()
+            for hostname, sites_list in sites_per_domain.items()
         ]
 
-    def _sites_per_host(self) -> dict:
+    def _sites_per_domain(self) -> dict:
         """Return a dict of sites per host.
 
         key : hostname (full name)
@@ -160,42 +166,44 @@ class SitesDeployment:
                              },
                              ...
         """
-        hostnames = {}
-        for site in self.deploy_sites:
+        sites_per_domain = {}
+        for site in self.sites:
             dom = DomainSplit(site.domain)
-            if dom.hostname not in hostnames:
-                hostnames[dom.hostname] = []
-            hostnames[dom.hostname].append(site)
-        return hostnames
+            if dom.hostname not in sites_per_domain:
+                sites_per_domain[dom.hostname] = []
+            sites_per_domain[dom.hostname].append(site)
+        return sites_per_domain
 
-    def host_list_to_sites(self) -> list:
-        """Convert to list of sites format.
+    def _filter_miss_located_sites(self):
+        """Return sites classified for location use.
 
-        output format:
-        [{'host_use': 8100,
-          'hostname': 'test.example.com',
-          'domain': 'test.example.com/instance1',
-          'location': 'instance1',
-          'image': 'flask-one:1.2-1',
-          'port': {...},
-         {'host_use': 8101,
-          'hostname': 'test.example.com',
-          'domain': 'test.example.com/instance2',
-          'image': 'flask-one:1.2-1',
-          'port': {...},
-          },
-          ...
-         {'host_use': 8108,
-          'domain': 'sloop.example.com',
-          'image': 'nua-flask-upload-one:1.0-1',
-          'port': {...}]
+        For a domain:
+            - either only one site:
+                www.example.com -> site
+            - either all sites must have a location (path):
+                www.example.com/path1 -> site1
+                www.example.com/path2 -> site2
+
+        So, if not located, check it is the only one site of the domain.
+        The method checks the coherence and add a located 'flag'
         """
+        for host in self.sites_per_domain:
+            sites_list = host["sites"]
+            first = sites_list[0]  # by construction, there is at least 1 element
+            dom = DomainSplit(first.domain)
+            if dom.location:
+                _verify_located(host)
+            else:
+                _verify_not_located(host)
+
+    def _update_sites_list(self):
+        """Rebuild the list of Site from filtered sites per domain."""
         sites_list = []
-        for host in self.host_list:
+        for host in self.sites_per_domain:
             for site in host["sites"]:
                 site.hostname = host["hostname"]
                 sites_list.append(site)
-        return sites_list
+        self.sites = sites_list
 
     def install_required_images(self):
         # first: check that all Nua images are available:
@@ -204,13 +212,13 @@ class SitesDeployment:
         self.install_images()
 
     def find_all_images(self) -> bool:
-        for site in self.deploy_sites:
+        for site in self.sites:
             if not site.find_registry_path():
                 print_red(f"No image found for '{site.image}'")
                 return False
         if verbosity(1):
             seen = set()
-            for site in self.deploy_sites:
+            for site in self.sites:
                 if site.image not in seen:
                     seen.add(site.image)
                     info(f"image found: '{site.image}'")
@@ -219,8 +227,8 @@ class SitesDeployment:
     def install_images(self):
         start_container_engine()
         installed = {}
-        for site in self.deploy_sites:
-            if not site.find_registry_path(site.image, cached=True):
+        for site in self.sites:
+            if not site.find_registry_path(cached=True):
                 error(f"No image found for '{site.image}'")
             registry_path = site.registry_path
             if registry_path in installed:
@@ -233,7 +241,7 @@ class SitesDeployment:
             site.image_nua_config = image_nua_config
 
     def install_required_resources(self):
-        for site in self.deploy_sites:
+        for site in self.sites:
             site.parse_resources()
         if not self.pull_all_resource_images():
             error("Missing Docker images")
@@ -241,7 +249,7 @@ class SitesDeployment:
     def pull_all_resource_images(self) -> bool:
         return all(
             all(self._pull_resource(resource) for resource in site.resources)
-            for site in self.deploy_sites
+            for site in self.sites
         )
 
     def _pull_resource(self, resource: Resource) -> bool:
@@ -260,7 +268,6 @@ class SitesDeployment:
         deactivate_all_instances()
 
     def configure_deployment_phase_1(self):
-        self.sites = self.host_list_to_sites()
         self.set_network_names()
         self.merge_instances_to_resources()
         self.set_volumes_names()
@@ -271,18 +278,16 @@ class SitesDeployment:
             self.retrieve_persistent(site)
 
     def check_required_local_resources(self):
-        required_services = {s for site in self.sites for s in site.local_services}
+        self.required_services = {s for site in self.sites for s in site.local_services}
         if verbosity(3):
-            print("required services:", required_services)
+            print("required services:", self.required_services)
         available_services = set(self.available_services.keys())
-        for service in required_services:
+        for service in self.required_services:
             if service not in available_services:
                 error(f"Required service '{service}' is not available")
-        self.required_services = required_services
 
     def check_required_local_resources_configuration(self, site: Site):
-        required_services = site.local_services
-        for service in required_services:
+        for service in site.local_services:
             handler = self.available_services[service]
             if not handler.check_site_configuration(site):
                 error(
@@ -325,7 +330,7 @@ class SitesDeployment:
 
     def configure_nginx(self):
         clean_nua_nginx_default_site()
-        for host in self.host_list:
+        for host in self.sites_per_domain:
             if verbosity(1):
                 info(f"Configure Nginx for hostname '{host['hostname']}'")
             configure_nginx_hostname(host)
@@ -609,31 +614,7 @@ class SitesDeployment:
             print(Volume.string(volume))
 
     def print_host_list(self):
-        print("'host_list':\n", pformat(self.host_list))
-
-
-def _classify_located_sites(host_list: list):
-    """Return sites classified for location use.
-
-    For a domain:
-        - either only one site:
-            www.example.com -> site
-        - either all sites must have a location (path):
-            www.example.com/path1 -> site1
-            www.example.com/path2 -> site2
-
-    So, if not located, check it is the only one site of the domain.
-    The method checks the cohereence and add a located 'flag'
-    """
-
-    for host in host_list:
-        sites_list = host["sites"]
-        first = sites_list[0]  # by construction, there is at least 1 element
-        dom = DomainSplit(first.domain)
-        if dom.location:
-            _verify_located(host)
-        else:
-            _verify_not_located(host)
+        print("sites per domain:\n", pformat(self.sites_per_domain))
 
 
 def _verify_located(host: dict):
@@ -660,7 +641,7 @@ def _verify_located(host: dict):
                  ...
     """
     known_location = set()
-    valid = []
+    valid_sites = []
     hostname = host["hostname"]
     for site in host["sites"]:
         dom = DomainSplit(site.domain)
@@ -681,8 +662,8 @@ def _verify_located(host: dict):
             continue
         known_location.add(dom.location)
         site["location"] = dom.location
-        valid.append(site)
-    host["sites"] = valid
+        valid_sites.append(site)
+    host["sites"] = valid_sites
     host["located"] = True
 
 
@@ -703,15 +684,15 @@ def _verify_not_located(host: dict):
     # we know that the first of the list is not located. We expect the list
     # has only one site.
     if len(host["sites"]) == 1:
-        valid = host["sites"]
+        valid_sites = host["sites"]
     else:
         hostname = host["hostname"]
         warning(f"too many sites for {hostname=}, site discarded:")
         site = host["sites"].pop(0)
-        valid = [site]
+        valid_sites = [site]
         for site in host["sites"]:
             image = site.image
             print_red(f"    {image=} / {site['domain']}")
 
-    host["sites"] = valid
+    host["sites"] = valid_sites
     host["located"] = False

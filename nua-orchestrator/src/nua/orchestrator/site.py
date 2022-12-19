@@ -1,4 +1,5 @@
 from copy import deepcopy
+from pathlib import Path
 from pprint import pformat
 from typing import Any
 
@@ -120,8 +121,8 @@ class Site(Resource):
         return self.get("registry_path") or ""
 
     @registry_path.setter
-    def registry_path(self, registry_path: str):
-        self["registry_path"] = registry_path
+    def registry_path(self, registry_path: str | Path):
+        self["registry_path"] = str(registry_path)
 
     def set_network_name(self):
         self.detect_required_network()
@@ -294,6 +295,6 @@ class Site(Resource):
         return bool(self.registry_path)
 
     def _search_nua_registry(self) -> list:
-        if self.type != "docker":
+        if self.type not in {"nua-site", "docker"}:
             raise ValueError(f"Unsupported type of container '{self.type}'")
         return search_nua(self.image)
