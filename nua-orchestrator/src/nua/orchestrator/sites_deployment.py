@@ -50,15 +50,12 @@ class SitesDeployment:
 
     example of use:
         deployer = SitesDeployment()
-        deployer.load_available_services()
+        deployer.local_services_inventory()
         deployer.load_deploy_config(deploy_config)
-        deployer.install_required_images()
-        if verbosity(3):
-            deployer.print_host_list()
-        deployer.install_required_resources()
-        deployer.configure_deployment_phase_1()
-        deployer.deactivate_all_sites()
-        deployer.configure_deployment_phase_2()
+        deployer.gather_requirements()
+        deployer.configure()
+        deployer.deactivate_previous_sites()
+        deployer.apply_configuration()
         deployer.start_sites()
         deployer.display_final()
     """
@@ -70,8 +67,8 @@ class SitesDeployment:
         self.available_services = {}
         self.orig_mounted_volumes = []
 
-    def load_available_services(self):
-        # deprecated
+    def local_services_inventory(self):
+        # See later ?
         return
         # assuming db_setup was run at initialization of the command
         services = Services()
@@ -89,6 +86,59 @@ class SitesDeployment:
         deploy_sites_config = tomli.loads(config_path.read_text())
         self.parse_deploy_sites(deploy_sites_config)
         self.sort_sites_per_domain()
+        if verbosity(3):
+            self.print_host_list()
+
+    def gather_requirements(self):
+        self.install_required_images()
+        self.install_required_resources()
+
+    def configure(self):
+        self.set_network_names()
+        self.merge_instances_to_resources()
+        self.set_volumes_names()
+        self.check_required_local_resources()
+        for site in self.sites:
+            self.check_required_local_resources_configuration(site)
+        for site in self.sites:
+            self.retrieve_persistent(site)
+        # We now allocate ports *before* stopping services, thus this may induce
+        # a flip/flop balance when reinstalling same config
+        self.generate_ports()
+
+    def deactivate_previous_sites(self):
+        """Find all instance in DB.
+
+        - remove container if exists
+        - remove site from DB
+        """
+        self.orig_mounted_volumes = store.list_instances_container_active_volumes()
+        deactivate_all_instances()
+
+    def apply_configuration(self):
+        """Apply configuration, especially configurations that can not be
+        deployed before all previous sites are stopped."""
+        self.configure_nginx()
+        # registering https sites with certbot requires that the base nginx config is
+        # deployed.
+        register_certbot_domains(self.sites)
+        if verbosity(2):
+            print("'sites':\n", pformat(self.sites))
+
+    def start_sites(self):
+        """Start all sites to deploy."""
+        # restarting local services:
+        self.restart_local_services()
+        for site in self.sites:
+            deactivate_site(site)
+            self.start_network(site)
+            self.set_container_names(site)
+            self.evaluate_container_params(site)
+            self.start_resources_containers(site)
+            self.start_main_site_container(site)
+            self.store_container_instance(site)
+        chown_r_nua_nginx()
+        nginx_restart()
 
     def parse_deploy_sites(self, deploy_sites_config: dict):
         """Make the list of Sites.
@@ -258,25 +308,6 @@ class SitesDeployment:
             return True
         return pull_resource_container(resource)
 
-    def deactivate_all_sites(self):
-        """Find all instance in DB.
-
-        - remove container if exists
-        - remove site from DB
-        """
-        self.orig_mounted_volumes = store.list_instances_container_active_volumes()
-        deactivate_all_instances()
-
-    def configure_deployment_phase_1(self):
-        self.set_network_names()
-        self.merge_instances_to_resources()
-        self.set_volumes_names()
-        self.check_required_local_resources()
-        for site in self.sites:
-            self.check_required_local_resources_configuration(site)
-        for site in self.sites:
-            self.retrieve_persistent(site)
-
     def check_required_local_resources(self):
         self.required_services = {s for site in self.sites for s in site.local_services}
         if verbosity(3):
@@ -294,13 +325,13 @@ class SitesDeployment:
                     f"Required service '{service}' not configured for site {site.domain}"
                 )
 
-    def configure_deployment_phase_2(self):
-        self.generate_ports()
-        self.configure_nginx()
-        if verbosity(2):
-            print("'sites':\n", pformat(self.sites))
-        register_certbot_domains(self.sites)
-        self.restart_services()
+    # def configure_deployment_phase_2(self):
+    #     self.generate_ports()
+    #     self.configure_nginx()
+    #     if verbosity(2):
+    #         print("'sites':\n", pformat(self.sites))
+    #     register_certbot_domains(self.sites)
+    #     self.restart_services()
 
     def set_network_names(self):
         for site in self.sites:
@@ -318,7 +349,7 @@ class SitesDeployment:
         for site in self.sites:
             site.set_volumes_names()
 
-    def restart_services(self):
+    def restart_local_services(self):
         if verbosity(2):
             if self.required_services:
                 info("Services to restart:", pformat(self.required_services))
@@ -404,18 +435,6 @@ class SitesDeployment:
         for site in self.sites:
             site.rebase_ports_upon_nua_config()
 
-    def start_sites(self):
-        for site in self.sites:
-            deactivate_site(site)
-            self.start_network(site)
-            self.set_container_names(site)
-            self.evaluate_site_params(site)
-            self.start_resources_containers(site)
-            self.start_main_site_container(site)
-            self.store_container_instance(site)
-        chown_r_nua_nginx()
-        nginx_restart()
-
     def set_container_names(self, site: Site):
         """Set first container names of resources to permit early host
         assignment to variables.
@@ -430,7 +449,7 @@ class SitesDeployment:
                 #   (or emit a warning if pb)
                 resource.container = name
 
-    def evaluate_site_params(self, site: Site):
+    def evaluate_container_params(self, site: Site):
         """Compute site run envronment parameters except those requiring late
         evaluation (i.e. host names of started containers).
 
