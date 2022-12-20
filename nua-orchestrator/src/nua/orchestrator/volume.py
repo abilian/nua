@@ -215,6 +215,9 @@ class Volume:
 
     def _parse_options(self, data: dict):
         self.options = {k: v for k, v in data.items() if k not in CHECKED_KEYS}
+        # mode = 'rw' is only at mount time
+        if "mode" in self.options:
+            del self.options["mode"]
 
 
 ######################
