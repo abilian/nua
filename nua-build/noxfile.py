@@ -21,7 +21,7 @@ def pytest(session: nox.Session):
 
 
 def _install(session: nox.Session):
-    session.run("bash", "./uninstall.sh", external=True)
+    session.run("bash", "../uninstall-nua.sh", external=True)
     session.run("poetry", "install", "--quiet", external=True)
     session.run("nua-build", "--version")
     session.run("pip", "check", external=True)
