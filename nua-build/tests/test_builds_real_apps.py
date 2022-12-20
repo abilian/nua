@@ -5,7 +5,6 @@ import pytest
 from .build_image import build_test_image
 from .common import get_apps_root_dir
 
-
 app_dirs = [
     "hedgedoc",
 ]
