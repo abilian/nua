@@ -34,11 +34,11 @@ typer = {extras = ["all"], version = "^0.7.0"}
 
 # Docker client
 docker = "^6.0"
-# Useful for docker over ssh
+# Used by docker over ssh
 paramiko = "^2.12.0"
 
 
-#[tool.poetry.group.dev.dependencies]
+[tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
 nox = "*"
 types-setuptools = "*"
@@ -48,9 +48,9 @@ types-setuptools = "*"
 filterwarnings = ["ignore:.*distutils package:DeprecationWarning", "ignore::DeprecationWarning"]
 
 
-#[build-system]
-#requires = ["poetry-core>=1.0.0"]
-#build-backend = "poetry.core.masonry.api"
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
 
 
 [tool.ruff]

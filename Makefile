@@ -5,7 +5,7 @@
 PKG=nua
 
 
-all: test lint
+all: lint
 
 #
 # Setup
@@ -29,7 +29,7 @@ configure-git:
 #
 # testing & checking
 #
-test-all: test test-readme
+test-all: test
 
 test:
 	@echo "--> Running Python tests"
@@ -46,46 +46,48 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr .pytest_cache
 
 
+#
+# Linting
+#
+lint: lint/ruff lint/flake8 lint/mypy lint/black lint/isort ## check style
+
 lint/ruff: ## check style with ruff
 	ruff .
 
 lint/flake8: ## check style with flake8
-	#flake8 nua-*/src nua-*/tests
+	# flake8 nua-*/src nua-*/tests
 
 lint/black: ## check style with black
 	black --check nua-*/src nua-*/tests
 
 lint/mypy: ## typecheck with mypy
-	mypy nua-lib
-	mypy nua-runtime
-	mypy nua-autobuild
-	mypy nua-build
-	mypy nua-orchestrator
-	mypy nua-cli
-	# mypy nua
+	mypy nua-lib/src
+	mypy nua-runtime/src
+	mypy nua-autobuild/src
+	mypy nua-build/src
+	# mypy nua-orchestrator/src
+	# mypy nua-cli/src
 
 lint/isort:  ## check imports are properly sorted
-	isort -c nua-*/**/*.py
+	# isort -c nua-*/**/*.py
 
-lint: lint/ruff lint/flake8 lint/mypy lint/black lint/isort ## check style
-
-test: ## run tests quickly with the default Python
-	pytest
-	@echo ""
-
-test-with-coverage:
-	@echo "--> Running Python tests"
-	py.test --cov $(PKG)
-	@echo ""
-
-test-with-typeguard:
-	@echo "--> Running Python tests with typeguard"
-	pytest --typeguard-packages=${PKG}
-	@echo ""
-
-vagrant-tests:
-	vagrant up
-	vagrant ssh -c /vagrant/deploy/vagrant_test.sh
+#test: ## run tests quickly with the default Python
+#	pytest
+#	@echo ""
+#
+#test-with-coverage:
+#	@echo "--> Running Python tests"
+#	py.test --cov $(PKG)
+#	@echo ""
+#
+#test-with-typeguard:
+#	@echo "--> Running Python tests with typeguard"
+#	pytest --typeguard-packages=${PKG}
+#	@echo ""
+#
+#vagrant-tests:
+#	vagrant up
+#	vagrant ssh -c /vagrant/deploy/vagrant_test.sh
 
 
 #

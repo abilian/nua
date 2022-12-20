@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "nua"
+name = "nua-master"
 version = "0.1.0"
 description = ""
 authors = ["Stefane Fermigier <sf@abilian.com>"]
@@ -9,17 +9,23 @@ license = "AGPL"
 [tool.poetry.dependencies]
 python = "^3.10"
 
-# nua-lib = { path = "nua-lib" }
-# nua-runtime = { path = "nua-runtime" }
-# nua-selfbuilder = { path = "nua-selfbuilder" }
-# nua-build = { path = "nua-build" }
+nua-lib = { path = "nua-lib", develop = true }
+nua-runtime = { path = "nua-runtime", develop = true }
+nua-autobuild = { path = "nua-autobuild", develop = true }
+nua-build = { path = "nua-build", develop = true }
+nua-orchestrator = { path = "nua-orchestrator", develop = true }
 
 
 [tool.poetry.dev-dependencies]
 # Testing / checking
 nox = "*"
-nox-poetry = "*"
+abilian-devtools = "*"
 ruff = "*"
+
+# Typing
+types-setuptools = "*"
+types-paramiko = "*"
+types-requests = "*"
 
 # Formatting
 isort = "^5.10.1"
