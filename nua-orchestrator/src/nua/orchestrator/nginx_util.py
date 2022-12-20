@@ -1,9 +1,10 @@
 """Nginx utils to install nginx config and adapt with app using nginx."""
 import os
+from importlib import resources as rso
 from pathlib import Path
 from time import sleep
 
-from nua.lib.actions import jinja2_render_file
+from nua.lib.actions import jinja2_render_from_str_template
 from nua.lib.console import print_magenta
 from nua.lib.panic import warning
 from nua.lib.shell import chown_r, mkdir_p, rm_fr, sh
@@ -11,7 +12,8 @@ from nua.lib.tool.state import verbosity
 
 from . import config, nua_env
 
-CONF_NGINX = Path(__file__).parent.resolve() / "config" / "nginx"
+CONF_TEMPLATE = "nua.orchestrator.templates.nginx.template"
+CONF_HTML = "nua.orchestrator.templates.nginx.html"
 
 
 def install_nginx():
@@ -28,14 +30,16 @@ def replace_nginx_conf():
     # assume standard linux distribution path:
     host_nginx_conf = Path("/etc/nginx/nginx.conf")
     back_nginx_conf = host_nginx_conf.parent / "nginx_conf.orig"
-    orch_nginx_conf = CONF_NGINX / "template" / "nginx.conf"
+    orch_nginx_conf = (
+        rso.files(CONF_TEMPLATE).joinpath("nginx.conf").read_text(encoding="utf8")
+    )
     if host_nginx_conf.is_file():
         if not back_nginx_conf.is_file():
             # do no overwrite prior backup
             host_nginx_conf.rename(back_nginx_conf)
     else:
         warning("the default host nginx.conf file was not found")
-    jinja2_render_file(orch_nginx_conf, host_nginx_conf, nua_env.as_dict())
+    jinja2_render_from_str_template(orch_nginx_conf, host_nginx_conf, nua_env.as_dict())
     os.chmod(host_nginx_conf, 0o644)
 
 
@@ -57,8 +61,10 @@ def make_nua_nginx_folders():
 
 def install_nua_nginx_default_site():
     default = nua_env.nginx_path() / "sites" / "default"
-    default_template = CONF_NGINX / "template" / "default_site"
-    jinja2_render_file(default_template, default, nua_env.as_dict())
+    default_template = (
+        rso.files(CONF_TEMPLATE).joinpath("default_site").read_text(encoding="utf8")
+    )
+    jinja2_render_from_str_template(default_template, default, nua_env.as_dict())
     os.chmod(default, 0o644)
 
 
@@ -112,14 +118,22 @@ def configure_nginx_hostname(host: dict):
     # later: see for port on other :port interfaces
     nua_nginx = nua_env.nginx_path()
     if host["located"]:
-        template = CONF_NGINX / "template" / "domain_located_template"
+        template = (
+            rso.files(CONF_TEMPLATE)
+            .joinpath("domain_located_template")
+            .read_text(encoding="utf8")
+        )
     else:
-        template = CONF_NGINX / "template" / "domain_not_located_template"
+        template = (
+            rso.files(CONF_TEMPLATE)
+            .joinpath("domain_not_located_template")
+            .read_text(encoding="utf8")
+        )
     dest_path = nua_nginx / "sites" / host["hostname"]
     if verbosity(2):
         print(host["hostname"], "template:", template)
         print(host["hostname"], "target  :", dest_path)
-    jinja2_render_file(template, dest_path, host)
+    jinja2_render_from_str_template(template, dest_path, host)
     if verbosity(2):
         if not dest_path.exists():
             warning(f"host '{host['hostname']}', target not created")
@@ -137,8 +151,8 @@ def chown_r_nua_nginx():
 
 def install_nua_nginx_default_index_html():
     page = nua_env.nginx_path() / "www" / "html" / "index.html"
-    page_src = CONF_NGINX / "html" / "index.html"
-    jinja2_render_file(page_src, page, nua_env.as_dict())
+    page_src = rso.files(CONF_HTML).joinpath("index.html").read_text(encoding="utf8")
+    jinja2_render_from_str_template(page_src, page, nua_env.as_dict())
     os.chmod(page, 0o644)
     chown_r(page, "www-data", "www-data")
 

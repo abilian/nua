@@ -8,6 +8,7 @@ Environment variables:
         for SQLite.
 """
 import os
+from importlib import resources as rso
 from pathlib import Path
 
 import tomli
@@ -28,10 +29,9 @@ def setup_db():
 
 
 def default_config() -> dict:
-    path = Path(__file__).parent.resolve() / "nua_defaults_settings.toml"
-    with open(path, mode="rb") as rfile:
-        settings = tomli.load(rfile)
-    return settings
+    return tomli.loads(
+        rso.read_text("nua.orchestrator.default_conf", "nua_defaults_settings.toml")
+    )
 
 
 def update_default_settings(settings):

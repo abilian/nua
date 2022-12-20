@@ -7,6 +7,7 @@ import tarfile
 import tempfile
 from contextlib import contextmanager
 from glob import glob
+from importlib import resources as rso
 from pathlib import Path
 from urllib.request import urlopen
 
@@ -389,6 +390,15 @@ def jinja2_render_file(template: str | Path, dest: str | Path, data: dict) -> bo
     return True
 
 
+def jinja2_render_from_str_template(
+    template: str, dest: str | Path, data: dict
+) -> bool:
+    dest_path = Path(dest)
+    j2_template = Template(template, keep_trailing_newline=True)
+    dest_path.write_text(j2_template.render(data), encoding="utf8")
+    return True
+
+
 def check_python_version() -> bool:
     """Check that curent python is >=3.10."""
     if sys.version_info.major < 3:
@@ -404,3 +414,9 @@ def snake_format(name: str) -> str:
 
 def camel_format(name: str) -> str:
     return "".join(word.title() for word in name.replace("-", "_").split("_"))
+
+
+def copy_from_package(package: str, filename: str, destdir: Path):
+    content = rso.files(package).joinpath(filename).read_text(encoding="utf8")
+    target = destdir / filename
+    target.write_text(content)

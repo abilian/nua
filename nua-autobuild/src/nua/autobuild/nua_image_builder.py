@@ -2,9 +2,9 @@
 import tempfile
 from os import chdir
 from pathlib import Path
-from shutil import copy2
 
 import docker
+from nua.lib.actions import copy_from_package
 from nua.lib.panic import error, show, title
 from nua.lib.shell import mkdir_p
 from nua.lib.tool.state import verbosity
@@ -81,7 +81,9 @@ class NUAImageBuilder:
             build_path = Path(build_dir)
             if verbosity(3):
                 show(f"build directory: {build_path}")
-            copy2(DOCKERFILE_PYTHON, build_path)
+            copy_from_package(
+                "nua.autobuild.dockerfiles", DOCKERFILE_PYTHON, build_path
+            )
             chdir(build_path)
             docker_build_python()
 
@@ -91,7 +93,9 @@ class NUAImageBuilder:
             build_path = Path(build_dir)
             if verbosity(3):
                 show(f"build directory: {build_path}")
-            copy2(DOCKERFILE_BUILDER, build_path)
+            copy_from_package(
+                "nua.autobuild.dockerfiles", DOCKERFILE_BUILDER, build_path
+            )
             self.copy_wheels(build_path)
             chdir(build_path)
             docker_build_builder()
@@ -103,7 +107,9 @@ class NUAImageBuilder:
             if verbosity(3):
                 show(f"build directory: {build_path}")
             # Fixme: later do a dedicated dockerfile for nodejs, now using base image
-            copy2(DOCKERFILE_BUILDER_NODE, build_path)
+            copy_from_package(
+                "nua.autobuild.dockerfiles", DOCKERFILE_BUILDER_NODE, build_path
+            )
             self.copy_wheels(build_path)
             chdir(build_path)
             docker_build_builder_node()
@@ -122,7 +128,7 @@ def docker_build_python():
     client = docker.from_env()
     image, tee = client.images.build(
         path=".",
-        dockerfile=Path(DOCKERFILE_PYTHON).name,
+        dockerfile=DOCKERFILE_PYTHON,
         buildargs={"nua_linux_base": NUA_LINUX_BASE},
         tag=NUA_PYTHON_TAG,
         labels={
@@ -140,7 +146,7 @@ def docker_build_builder():
     client = docker.from_env()
     image, tee = client.images.build(
         path=".",
-        dockerfile=Path(DOCKERFILE_BUILDER).name,
+        dockerfile=DOCKERFILE_BUILDER,
         buildargs={"nua_python_tag": NUA_PYTHON_TAG, "nua_version": nua_version},
         tag=NUA_BUILDER_TAG,
         labels={
@@ -158,7 +164,7 @@ def docker_build_builder_node():
     client = docker.from_env()
     image, tee = client.images.build(
         path=".",
-        dockerfile=Path(DOCKERFILE_BUILDER_NODE).name,
+        dockerfile=DOCKERFILE_BUILDER_NODE,
         buildargs={"nua_builder_tag": NUA_BUILDER_TAG, "nua_version": nua_version},
         tag=NUA_BUILDER_NODE_TAG,
         labels={

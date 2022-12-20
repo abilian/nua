@@ -10,11 +10,11 @@ from os import chdir
 from pathlib import Path
 from shutil import copy2
 
+from nua.lib.actions import copy_from_package
 from nua.lib.panic import error
 from nua.lib.shell import mkdir_p, sh
 
 from ..constants import (
-    DEFAULTS_DIR,
     NUA_APP_PATH,
     NUA_BUILD_PATH,
     NUA_CONFIG,
@@ -102,7 +102,7 @@ class BuilderApp:
         if orig.is_file():
             copy2(orig, script_dir)
         else:
-            copy2(DEFAULTS_DIR / "start.py", script_dir)
+            copy_from_package("nua.runtime.defaults", "start.py", script_dir)
 
     def run_build_script(self):
         # assuming it is a python script

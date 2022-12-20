@@ -1,6 +1,3 @@
-from pathlib import Path
-
-DEFAULTS_DIR = Path(__file__).parent / "defaults"
 NUA_CONFIG = "nua-config.toml"
 
 # in docker:

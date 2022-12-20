@@ -1,7 +1,6 @@
 """configuration of the nua_build instance."""
-from pathlib import Path
+from importlib import resources as rso
 
 import tomli
 
-with open(Path(__file__).parent / "config.toml", mode="rb") as rfile:
-    config = tomli.load(rfile)
+config = tomli.loads(rso.read_text("nua.build.default_conf", "config.toml"))

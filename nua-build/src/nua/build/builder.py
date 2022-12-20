@@ -10,6 +10,7 @@ import logging
 import re
 import tempfile
 from contextlib import suppress
+from importlib import resources as rso
 from os import chdir
 from pathlib import Path
 from shutil import copy2, copytree
@@ -32,7 +33,7 @@ from nua.runtime.constants import NUA_BUILDER_NODE_TAG, NUA_BUILDER_TAG
 from nua.runtime.nua_config import NuaConfig
 
 from . import __version__, config
-from .constants import DEFAULTS_DIR, NUA_CONFIG
+from .constants import NUA_CONFIG
 
 logging.basicConfig(level=logging.INFO)
 
@@ -176,24 +177,22 @@ class Builder:
 
     def complete_with_default_files(self):
         """Complete missing files from defaults (Dockerfile, start.py, ...)."""
-        for default_file in DEFAULTS_DIR.glob("*"):
-            if (default_file.name).startswith("."):
+        for item in rso.files("nua.build.defaults").iterdir():
+            if (
+                not item.is_file()
+                or item.name.startswith("__")
+                or item.name.startswith(".")
+            ):
                 continue
-            if not default_file.is_file():
+            dest = self.nua_dir / item.name
+            print(dest, type(dest))
+            if dest.is_file():
                 continue
-            # The __init__.py in default is only cosmetics:
-            if default_file.name == "__init__.py":
-                continue
-            self._complete_with_file(default_file)
-
-    def _complete_with_file(self, default_file: Path):
-        dest = self.nua_dir / default_file.name
-        if dest.is_file():
-            return
-        if verbosity(1):
-            info("Copying Nua default file:", default_file.name)
-
-        copy2(default_file, self.build_dir / self.nua_dir_relative)
+            if verbosity(1):
+                info("Copying Nua default file:", item.name)
+            content = item.read_text(encoding="utf8")
+            target = self.build_dir / self.nua_dir_relative / item.name
+            target.write_text(content)
 
     def copy_build_files(self):
         """Each file of the defaults folder can be replaced by a version

@@ -1,8 +1,4 @@
-from pathlib import Path
-
 from .version import __version__
-
-DEFAULTS_DIR = Path(__file__).parent / "defaults"
 
 NUA_PYTHON_TAG = f"nua-python:{__version__}"
 NUA_BUILDER_TAG = f"nua-builder:{__version__}"
