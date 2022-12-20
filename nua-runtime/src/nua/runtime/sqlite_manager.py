@@ -63,8 +63,9 @@ class SQLiteManager(DbManager):
         connection = sqlite3.connect(dbname)
         cursor = connection.cursor()
         table_list = cursor.execute(
-            """SELECT name FROM sqlite_master WHERE type='table'
-           AND name='{tale}'; """
+            """
+            SELECT name FROM sqlite_master WHERE type='table' AND name='{tale}'; 
+            """
         ).fetchall()
         connection.commit()
         connection.close()

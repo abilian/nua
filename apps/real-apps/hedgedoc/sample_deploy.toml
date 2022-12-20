@@ -1,6 +1,7 @@
 [[site]]
 image = "hedgedoc:1.9.6-4"
 domain = "test1.yerom.xyz"
+
 [site.run.env]
 # CMD_SESSION_LIFE = 60  # for test
 CMD_DOMAIN = "test1.yerom.xyz"

@@ -83,10 +83,12 @@ container = 3000
 # declare a local volume for plublic uploads
 # bind example: type = "bind"
 type = "volume"
+
 # Name of the driver used to create the volume: (for type == "volume")
 # driver = "local"  # default for "volume" type
 # Mount source (e.g. a volume name or a host path):
 source_prefix = "hedgedoc_uploads"
+
 # Container path:
 target = "/hedgedoc/public/uploads"
 # mode (default to 'rw'
@@ -111,17 +113,21 @@ detach = true
 restart_policy.name = "always"
 
 [[resource.volume]]
-    # here we declare a mounted volume (ie: managed by Docker daemon)
-    # The mount type (bind / volume / tmpfs / npipe). Default: volume :
-    type = "volume"
-    # Name of the driver used to create the volume: (for type == "volume")
-    driver = "local"
-    # Mount source (e.g. a volume name or a host path):
-    source = "postgres_hedgedoc"
-    # Container path:
-    target = "/var/lib/postgresql/data"
-    # mode (default to 'rw'
-    mode = "rw"
+# here we declare a mounted volume (ie: managed by Docker daemon)
+# The mount type (bind / volume / tmpfs / npipe). Default: volume :
+type = "volume"
+
+# Name of the driver used to create the volume: (for type == "volume")
+driver = "local"
+
+# Mount source (e.g. a volume name or a host path):
+source = "postgres_hedgedoc"
+
+# Container path:
+target = "/var/lib/postgresql/data"
+
+# mode (default to 'rw'
+mode = "rw"
 
 
 # For sqlite:
