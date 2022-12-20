@@ -3,7 +3,7 @@ from nox import session
 
 # PYTHON_VERSIONS = ["3.10", "3.11"]
 PYTHON_VERSIONS = ["3.10"]
-DEPS = ["../nua-lib", "../nua-runtime", "../nua-autobuild"]
+# DEPS = ["../nua-lib", "../nua-runtime", "../nua-autobuild"]
 
 nox.options.reuse_existing_virtualenvs = True
 
@@ -21,14 +21,7 @@ def pytest(session: nox.Session) -> None:
 
 
 def _install(session):
-    session.run(
-        "poetry",
-        "export",
-        "--output=requirements.txt",
-        "--without-hashes",
-        "--with=dev",
-        external=True,
-    )
-    session.install("-r", "requirements.txt", ".", *DEPS)
-    session.run("pip", "check")
+    session.run("bash", "./uninstall.sh", external=True)
+    session.run("poetry", "install", "--quiet", external=True)
+    session.run("pip", "check", external=True)
     session.run("poetry", "check", external=True)
