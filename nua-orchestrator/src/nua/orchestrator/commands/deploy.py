@@ -16,4 +16,4 @@ def deploy_nua_sites(deploy_config: str) -> int:
     deployer.deactivate_previous_sites()
     deployer.apply_configuration()
     deployer.start_sites()
-    deployer.display_final()
+    deployer.post_deployment()

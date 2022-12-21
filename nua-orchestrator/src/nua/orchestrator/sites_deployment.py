@@ -13,6 +13,7 @@ from nua.lib.tool.state import verbosity
 from . import config
 from .certbot import protocol_prefix, register_certbot_domains
 from .db import store
+from .db.model.deployconfig import ACTIVE, INACTIVE, PREVIOUS
 from .db.model.instance import RUNNING
 from .deploy_utils import (
     create_container_private_network,
@@ -57,15 +58,38 @@ class SitesDeployment:
         deployer.deactivate_previous_sites()
         deployer.apply_configuration()
         deployer.start_sites()
-        deployer.display_final()
+        deployer.post_deployment()
     """
 
     def __init__(self):
+        self.loaded_config = {}
         self.sites = []
         self.sites_per_domain = []
         self.required_services = set()
         self.available_services = {}
         self.orig_mounted_volumes = []
+        self.previous_config_id = {}
+        self.future_config_id = 0
+
+    def store_deploy_configs_before_swap(self):
+        """Fetch previous configuration before installing the new one."""
+        previous_active_config = store.deploy_config_current_active()
+        self.previous_config_id = previous_active_config.get("id", 0)
+        if self.previous_config_id:
+            store.deploy_config_update_state(self.previous_config_id, PREVIOUS)
+        deploy_config = {
+            "requested": self.loaded_config,
+            "deployed": deepcopy(self.sites),
+        }
+        self.future_config_id = store.deploy_config_add_config(deploy_config, INACTIVE)
+
+    def store_deploy_configs_after_swap(self):
+        """Store configurations' status if the new configuration is successfully
+        installed.
+        """
+        # previous config stay INACTIVE
+        store.deploy_config_update_state(self.previous_config_id, INACTIVE)
+        store.deploy_config_update_state(self.future_config_id, ACTIVE)
 
     def local_services_inventory(self):
         # See later ?
@@ -83,8 +107,8 @@ class SitesDeployment:
         config_path = Path(deploy_config).expanduser().resolve()
         if verbosity(1):
             info(f"Deploy sites from: {config_path}")
-        deploy_sites_config = tomli.loads(config_path.read_text())
-        self.parse_deploy_sites(deploy_sites_config)
+        self.loaded_config = tomli.loads(config_path.read_text())
+        self.parse_deploy_sites(self.loaded_config)
         self.sort_sites_per_domain()
         if verbosity(3):
             self.print_host_list()
@@ -112,6 +136,7 @@ class SitesDeployment:
         - remove container if exists
         - remove site from DB
         """
+        self.store_deploy_configs_before_swap()
         self.orig_mounted_volumes = store.list_instances_container_active_volumes()
         deactivate_all_instances()
 
@@ -591,6 +616,10 @@ class SitesDeployment:
         for resource in site.resources:
             run_env.update(resource.environment_ports())
         return run_env
+
+    def post_deployment(self):
+        self.store_deploy_configs_after_swap()
+        self.display_final()
 
     def display_final(self):
         self.display_deployed()

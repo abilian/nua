@@ -6,12 +6,15 @@ the application.
 from copy import deepcopy
 from datetime import datetime, timezone
 
+from nua.lib.panic import warning
+
 from .. import __version__ as nua_version
 from .. import config
 from ..constants import NUA_ORCH_ID, NUA_ORCHESTRATOR_TAG
 from ..site import Site
 from ..utils import image_size_repr, size_unit
 from .model.auth import User
+from .model.deployconfig import ACTIVE, FAILED, INACTIVE, PREVIOUS, DeployConfig
 from .model.image import Image
 from .model.instance import RUNNING, STOPPED, Instance
 from .model.setting import Setting
@@ -415,3 +418,55 @@ def instance_persistent(domain: str, app_id: str) -> dict:
             site_config = existing.site_config
             persistent = site_config.get("persistent", {})
     return persistent
+
+
+def valid_deploy_config_state(state: str) -> str:
+    if state in {FAILED, ACTIVE, INACTIVE, PREVIOUS}:
+        return state
+    warning(f"invalid state for DeployConfig '{state}' replaced by 'INACTIVE'")
+    return INACTIVE
+
+
+def deploy_config_add_config(
+    deploy_config: dict,
+    state: str = INACTIVE,
+) -> int:
+    """Store a Nua deployment configuration in local DB (table 'deployconfig').
+
+    Return:
+        int: the id of the newly created record"""
+    state = valid_deploy_config_state(state)
+    now = now_iso()
+    record = DeployConfig(
+        state=state,
+        created=now,
+        modified=now,
+        deployed=deploy_config,
+    )
+    with Session() as session:
+        session.add(record)
+        session.commit()
+        return record.id
+
+
+def deploy_config_update_state(record_id: int, new_state: str):
+    state = valid_deploy_config_state(new_state)
+    now = now_iso()
+    with Session() as session:
+        existing = session.query(DeployConfig).filter_by(id=record_id).first()
+        if existing:
+            existing.state = state
+            existing.modified = now
+            session.commit()
+
+
+def deploy_config_current_active() -> dict:
+    """retrieve the config with "active" state.
+
+    It should be only one.
+    """
+    with Session() as session:
+        record = session.query(DeployConfig).filter_by(state=ACTIVE).first()
+        if record:
+            return record.to_dict()
+        return {}
