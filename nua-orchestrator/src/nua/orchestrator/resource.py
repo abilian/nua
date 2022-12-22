@@ -15,6 +15,14 @@ class Resource(dict):
         if "requested_secrets" not in self:
             self.requested_secrets = []
 
+    @classmethod
+    def from_dict(cls, resource_dict: dict) -> "Resource":
+        resource = cls({})
+        for key, val in resource_dict.items():
+            resource[key] = val
+        resource["port"] = resource.get("port") or {}
+        return resource
+
     def check_valid(self):
         self._check_mandatory()
         self._parse_run_env()
@@ -188,8 +196,11 @@ class Resource(dict):
 
         (use str key because later conversion to json)
         """
-        ports_dict = ports_as_dict(self.port)
-        self.port = ports_dict
+        if not isinstance(self.port, dict):
+            ports_dict = ports_as_dict(self.port)
+            self.port = ports_dict
+        for resource in self.resources:
+            resource.set_ports_as_dict()
 
     def _check_mandatory(self):
         self._check_missing("type")
@@ -215,7 +226,7 @@ class Resource(dict):
 
     def _normalize_ports(self, default_proxy: str = "none"):
         if "port" not in self:
-            self.port = []
+            self.port = {}
             return
         if not isinstance(self.port, dict):
             error("Site['port'] must be a dict")
@@ -286,10 +297,6 @@ class Resource(dict):
         return list(merge_dict.values())
 
     def update_instance_from_site(self, resource_updates: dict):
-        # print("update_instance_from_site()")
-        # print(pformat(resource_updates))
-        # print("--------")
-        # print(pformat(self))
         for key, value in resource_updates.items():
             # brutal replacement, TODO make special cases for volumes
             # less brutal:

@@ -68,27 +68,45 @@ class SitesDeployment:
         self.required_services = set()
         self.available_services = {}
         self.orig_mounted_volumes = []
-        self.previous_config_id = {}
+        self.previous_config_id = 0
         self.future_config_id = 0
+
+    @staticmethod
+    def previous_success_deployment_record() -> dict:
+        previous_config = store.deploy_config_active()
+        if previous_config:
+            return previous_config
+        else:
+            # either
+            # - first run or
+            # - last deployment did crash with a PREVIOUS status somewhere
+            # - or rare situation (active->inactive)
+            previous_config = store.deploy_config_previous()
+            if previous_config:
+                return previous_config
+        return store.deploy_config_last_inactive()
 
     def store_deploy_configs_before_swap(self):
         """Fetch previous configuration before installing the new one."""
-        previous_active_config = store.deploy_config_current_active()
-        self.previous_config_id = previous_active_config.get("id", 0)
-        if self.previous_config_id:
+        previous_config = self.previous_success_deployment_record()
+        self.previous_config_id = previous_config.get("id", 0)
+        if previous_config and previous_config["state"] != PREVIOUS:
             store.deploy_config_update_state(self.previous_config_id, PREVIOUS)
         deploy_config = {
             "requested": self.loaded_config,
-            "deployed": deepcopy(self.sites),
+            "sites": deepcopy(self.sites),
         }
-        self.future_config_id = store.deploy_config_add_config(deploy_config, INACTIVE)
+        self.future_config_id = store.deploy_config_add_config(
+            deploy_config, self.previous_config_id, INACTIVE
+        )
 
     def store_deploy_configs_after_swap(self):
         """Store configurations' status if the new configuration is successfully
         installed.
         """
         # previous config stay INACTIVE
-        store.deploy_config_update_state(self.previous_config_id, INACTIVE)
+        if self.previous_config_id:
+            store.deploy_config_update_state(self.previous_config_id, INACTIVE)
         store.deploy_config_update_state(self.future_config_id, ACTIVE)
 
     def local_services_inventory(self):
@@ -113,6 +131,20 @@ class SitesDeployment:
         if verbosity(3):
             self.print_host_list()
 
+    def restore_load_deploy_config(self):
+        """Retrieve last successful deployment configuration"""
+        if verbosity(1):
+            info(f"Deploy sites from previous deployment.")
+        previous_config = self.previous_success_deployment_record()
+        if not previous_config:
+            error("Impossible to find a previous deployment.")
+        self.loaded_config = previous_config["deployed"]["requested"]
+        self.sites = []
+        for site_dict in previous_config["deployed"]["sites"]:
+            self.sites.append(Site.from_dict(site_dict))
+        self.future_config_id = previous_config.get("id")
+        self.sort_sites_per_domain()
+
     def gather_requirements(self):
         self.install_required_images()
         self.install_required_resources()
@@ -123,12 +155,20 @@ class SitesDeployment:
         self.set_volumes_names()
         self.check_required_local_resources()
         for site in self.sites:
+            site.set_ports_as_dict()
+        for site in self.sites:
             self.check_required_local_resources_configuration(site)
         for site in self.sites:
             self.retrieve_persistent(site)
         # We now allocate ports *before* stopping services, thus this may induce
         # a flip/flop balance when reinstalling same config
         self.generate_ports()
+
+    def restore_configure(self):
+        """Try to reuse the previous configuration with no change."""
+        self.check_required_local_resources()
+        for site in self.sites:
+            self.check_required_local_resources_configuration(site)
 
     def deactivate_previous_sites(self):
         """Find all instance in DB.
@@ -137,6 +177,15 @@ class SitesDeployment:
         - remove site from DB
         """
         self.store_deploy_configs_before_swap()
+        self.orig_mounted_volumes = store.list_instances_container_active_volumes()
+        deactivate_all_instances()
+
+    def restore_deactivate_previous_sites(self):
+        """For restore situation, find all instance in DB.
+
+        - remove container if exists
+        - remove site from DB
+        """
         self.orig_mounted_volumes = store.list_instances_container_active_volumes()
         deactivate_all_instances()
 
@@ -179,7 +228,7 @@ class SitesDeployment:
                 )
             site = Site(site_dict)
             site.check_valid()
-            site.set_ports_as_dict()
+            # site.set_ports_as_dict()
             sites.append(site)
         self.sites = sites
 
@@ -318,6 +367,7 @@ class SitesDeployment:
     def install_required_resources(self):
         for site in self.sites:
             site.parse_resources()
+            site.set_ports_as_dict()
         if not self.pull_all_resource_images():
             error("Missing Docker images")
 
@@ -349,14 +399,6 @@ class SitesDeployment:
                 error(
                     f"Required service '{service}' not configured for site {site.domain}"
                 )
-
-    # def configure_deployment_phase_2(self):
-    #     self.generate_ports()
-    #     self.configure_nginx()
-    #     if verbosity(2):
-    #         print("'sites':\n", pformat(self.sites))
-    #     register_certbot_domains(self.sites)
-    #     self.restart_services()
 
     def set_network_names(self):
         for site in self.sites:

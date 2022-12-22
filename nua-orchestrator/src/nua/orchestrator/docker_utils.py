@@ -58,11 +58,14 @@ def docker_service_start_if_needed():
 def docker_container_of_name(name: str) -> list[Container]:
     """Send a list of 0 or 1 Container of the given name."""
     client = from_env()
-    return [
-        cont
-        for cont in client.containers.list(all=True, filters={"name": name})
-        if cont.name == name
-    ]
+    try:
+        return [
+            cont
+            for cont in client.containers.list(all=True, filters={"name": name})
+            if cont.name == name
+        ]
+    except NotFound:
+        return []
 
 
 def _docker_wait_empty_container_list(name: str, timeout: int) -> bool:
@@ -202,7 +205,7 @@ def docker_remove_container_previous(name: str):
             print(f"Removing container '{container.name}'")
         try:
             container.remove(v=False, force=True)
-        except NotFound:
+        except (NotFound, APIError):
             # container was "autoremoved" after stop
             pass
     else:

@@ -14,7 +14,13 @@ from ..constants import NUA_ORCH_ID, NUA_ORCHESTRATOR_TAG
 from ..site import Site
 from ..utils import image_size_repr, size_unit
 from .model.auth import User
-from .model.deployconfig import ACTIVE, FAILED, INACTIVE, PREVIOUS, DeployConfig
+from .model.deployconfig import (
+    ACTIVE,
+    INACTIVE,
+    PREVIOUS,
+    DEPlOY_VALID_STATUS,
+    DeployConfig,
+)
 from .model.image import Image
 from .model.instance import RUNNING, STOPPED, Instance
 from .model.setting import Setting
@@ -421,16 +427,13 @@ def instance_persistent(domain: str, app_id: str) -> dict:
 
 
 def valid_deploy_config_state(state: str) -> str:
-    if state in {FAILED, ACTIVE, INACTIVE, PREVIOUS}:
+    if state in DEPlOY_VALID_STATUS:
         return state
     warning(f"invalid state for DeployConfig '{state}' replaced by 'INACTIVE'")
     return INACTIVE
 
 
-def deploy_config_add_config(
-    deploy_config: dict,
-    state: str = INACTIVE,
-) -> int:
+def deploy_config_add_config(deploy_config: dict, previous_id: int, state: str) -> int:
     """Store a Nua deployment configuration in local DB (table 'deployconfig').
 
     Return:
@@ -438,6 +441,7 @@ def deploy_config_add_config(
     state = valid_deploy_config_state(state)
     now = now_iso()
     record = DeployConfig(
+        previous=previous_id,
         state=state,
         created=now,
         modified=now,
@@ -460,13 +464,73 @@ def deploy_config_update_state(record_id: int, new_state: str):
             session.commit()
 
 
-def deploy_config_current_active() -> dict:
+def deploy_config_last_status(status: str, limit: int = 2) -> []:
     """retrieve the config with "active" state.
 
     It should be only one.
     """
+    if status and status in DEPlOY_VALID_STATUS:
+        return _deploy_config_last_status(status, limit)
+    else:
+        return _deploy_config_last_any(limit)
+
+
+def _deploy_config_last_status(status: str, limit: int) -> []:
     with Session() as session:
-        record = session.query(DeployConfig).filter_by(state=ACTIVE).first()
-        if record:
-            return record.to_dict()
-        return {}
+        records = (
+            session.query(DeployConfig)
+            .filter_by(state=status)
+            .order_by(DeployConfig.id.desc())
+            .limit(limit)
+        )
+        if records:
+            return [rec.to_dict() for rec in records]
+        return []
+
+
+def _deploy_config_last_any(limit: int) -> []:
+    with Session() as session:
+        records = (
+            session.query(DeployConfig).order_by(DeployConfig.id.desc()).limit(limit)
+        )
+        if records:
+            return [rec.to_dict() for rec in records]
+        return []
+
+
+def deploy_config_active() -> dict:
+    """retrieve the config with "active" state.
+
+    It should be only one.
+    """
+    items = deploy_config_last_status(ACTIVE, 1)
+    if items:
+        return items[0]
+    return {}
+
+
+def deploy_config_previous() -> dict:
+    """retrieve the config with "previous" state.
+
+    It should be zero, or sometimes only one.
+    """
+    items = deploy_config_last_status(PREVIOUS, 1)
+    if items:
+        return items[0]
+    return {}
+
+
+def deploy_config_last_inactive() -> dict:
+    """retrieve the last config with "inactive" state."""
+    items = deploy_config_last_status(INACTIVE, 1)
+    if items:
+        return items[0]
+    return {}
+
+
+def deploy_config_last_one() -> {}:
+    """retrieve the last deployment config"""
+    items = _deploy_config_last_any(1)
+    if items:
+        return items[0]
+    return {}

@@ -9,6 +9,7 @@ FAILED = "failed"
 PREVIOUS = "previous"
 ACTIVE = "active"
 INACTIVE = "inactive"
+DEPlOY_VALID_STATUS = {FAILED, ACTIVE, INACTIVE, PREVIOUS}
 
 
 class DeployConfig(Base, SerializerMixin):
@@ -18,6 +19,7 @@ class DeployConfig(Base, SerializerMixin):
     and status.
 
     - id: system generated colum for indexes
+    - previous: id of previous deployment (or zero)
     - state: one of "failed", "active", "inactive", "previous". "previous" is an
       inactive state fro last running config.
     - created, modified: status date
@@ -58,6 +60,7 @@ class DeployConfig(Base, SerializerMixin):
     __tablename__ = "deployconfig"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    previous = Column(Integer)
     state = Column(String(16), default=INACTIVE)
     created = Column(String(40))
     modified = Column(String(40))
@@ -66,5 +69,6 @@ class DeployConfig(Base, SerializerMixin):
     def __repr__(self):
         return (
             f"DeployConfig(state={self.state}, "
+            f"id={self.id}), previous={self.iprevious}),"
             f"created={self.created}, modified={self.modified})"
         )

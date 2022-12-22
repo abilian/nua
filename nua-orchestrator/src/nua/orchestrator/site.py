@@ -29,6 +29,20 @@ class Site(Resource):
         super().__init__(site_dict)
         self.type = "nua-site"
 
+    @classmethod
+    def from_dict(cls, site_dict: dict) -> "Site":
+        site = cls({})
+        resources = []
+        for res in site_dict.get("resources", []):
+            resources.append(Resource.from_dict(res))
+        for key, val in site_dict.items():
+            if key == "resources":
+                continue
+            site[key] = val
+        site["resources"] = resources
+        site["port"] = site.get("port") or {}
+        return site
+
     def check_valid(self):
         self._check_mandatory()
         self._parse_run_env()
@@ -234,8 +248,6 @@ class Site(Resource):
             print(f"rebase_ports_upon_nua_config(): ports={pformat(ports)}")
         ports.update(self.port)
         self.port = ports
-        for resource in self.resources:
-            resource.port = ports_as_dict(resource.port)
 
     def _complete_healthcheck_default(self):
         conf = self.healthcheck

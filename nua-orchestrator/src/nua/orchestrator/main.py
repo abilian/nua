@@ -14,6 +14,7 @@ from nua.lib.tool.state import set_color, set_verbose
 from . import __version__
 from .commands.deploy import deploy_nua_sites
 from .commands.deploy_nua import deploy_nua
+from .commands.restore import restore_nua_sites
 from .db.store import installed_nua_settings, list_all_settings
 
 # setup_db() does create the db if needed and also populate the configuration
@@ -112,6 +113,18 @@ def deploy_local(
     else:
         initialization()
         deploy_nua(app_name)
+
+
+@app.command("restore")
+def restore_local(
+    verbose: int = opt_verbose,
+    colorize: bool = option_color,
+):
+    """Restore last successful deployment."""
+    set_verbose(verbose)
+    set_color(colorize)
+    initialization()
+    restore_nua_sites()
 
 
 @app.command("show_db_settings")
