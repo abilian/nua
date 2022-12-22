@@ -134,7 +134,7 @@ class SitesDeployment:
     def restore_load_deploy_config(self):
         """Retrieve last successful deployment configuration"""
         if verbosity(1):
-            info(f"Deploy sites from previous deployment.")
+            info("Deploy sites from previous deployment.")
         previous_config = self.previous_success_deployment_record()
         if not previous_config:
             error("Impossible to find a previous deployment.")
