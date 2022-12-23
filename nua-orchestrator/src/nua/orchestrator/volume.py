@@ -87,7 +87,7 @@ class Volume:
             lst.append(f"driver={volume.driver}")
         lst.append(f"source={volume.source}")
         if volume.domains:
-            lst.append("\n  domains: " + ", ".join(volume.domains))
+            lst.append("\n   domains: " + ", ".join(volume.domains))
         return " ".join(lst)
 
     def as_dict(self) -> dict:

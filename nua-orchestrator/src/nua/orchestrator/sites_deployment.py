@@ -690,7 +690,7 @@ class SitesDeployment:
         protocol = protocol_prefix()
         for site in self.sites:
             msg = f"image '{site.image}' deployed as {protocol}{site.domain}"
-            print_green(msg)
+            info(msg)
             self.display_persistent_data(site)
 
     def display_persistent_data(self, site: Site):
