@@ -30,7 +30,7 @@ repos:
     - id: check-yaml
     # Security
     - id: detect-private-key
-    - id: detect-aws-credentials
+    # - id: detect-aws-credentials
     # Whitespace
     - id: end-of-file-fixer
     - id: mixed-line-ending
