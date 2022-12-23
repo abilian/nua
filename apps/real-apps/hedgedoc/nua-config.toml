@@ -8,7 +8,7 @@ website = "https://nua.rocks/"
 tags = ["test", "html", "web", "Hedgedoc"]
 licence = "MIT"
 profile = ["test"]
-release = 4
+release = 5
 
 [build]
 # use a base docker image containing nodejs:

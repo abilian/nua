@@ -1,6 +1,7 @@
 import os
 
 import psycopg2
+
 from nua.lib.exec import exec_as_nua, exec_as_root
 
 # Nua shortcuts to manage postgres operations
@@ -19,7 +20,8 @@ def setup_db():
 
     In this example The DB is on remote docker container.
     """
-    manager = PostgresManager(CMD_DB_HOST, os.environ.get("CMD_DB_PORT"), "", "")
+    manager = PostgresManager(CMD_DB_HOST, os.environ.get("CMD_DB_PORT"))
+    manager.wait_for_db()
     manager.setup_db_user(
         os.environ.get("CMD_DB_DATABASE"),
         os.environ.get("CMD_DB_USERNAME"),

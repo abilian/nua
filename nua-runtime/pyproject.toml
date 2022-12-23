@@ -1,12 +1,15 @@
 [tool.poetry]
 name = "nua-runtime"
-version = "0.4.70"
+version = "0.4.72"
 description = "Nua runtime"
-authors = ["Stefane Fermigier <sf@abilian.com>", "Jerome Dumonteil <jd@abilian.com>"]
+authors = [
+    "Stefane Fermigier <sf@abilian.com>",
+    "Jerome Dumonteil <jd@abilian.com>",
+]
 license = "AGPL"
 readme = "README.md"
 packages = [
-  { include = "nua", from = "src" }
+    { include = "nua", from = "src" },
 ]
 
 [tool.poetry.scripts]
@@ -17,9 +20,6 @@ python = "^3.10"
 setuptools = "^65.5.0"
 packaging = "^22.0"
 nua-lib = { path = "../nua-lib/", develop = false }
-
-# psycopg2-binary = "^2.9.4"  # fixme: need until refactoring
-# mariadb  # same
 tomli = "^2.0.1"
 
 [tool.poetry.group.dev.dependencies]
@@ -27,33 +27,28 @@ abilian-devtools = "*"
 nox = "*"
 types-setuptools = "^65.5.0.3"
 
-
 [tool.pytest.ini_options]
-filterwarnings = ["ignore:.*distutils package:DeprecationWarning", "ignore::DeprecationWarning"]
-
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
-
+filterwarnings = [
+    "ignore:.*distutils package:DeprecationWarning",
+    "ignore::DeprecationWarning",
+]
 
 [tool.ruff]
 extend-ignore = [
-    "F401", # `...` imported but unused
-    "E501", # Line too long
-    # TODO: fix these
-    'F841', # Local variable assigned to but never used
+    "F401",
+    "E501",
+    "F841",
 ]
 
 [tool.deptry]
 exclude = [
-    '.tox',
-    '.nox',
-    'tests',
-    'sandbox',
-    'doc',
-    'scripts',
-    "noxfile.py"
+    ".tox",
+    ".nox",
+    "tests",
+    "sandbox",
+    "doc",
+    "scripts",
+    "noxfile.py",
 ]
 ignore_obsolete = [
     "setuptools",
@@ -62,17 +57,21 @@ ignore_missing = [
     "mariadb",
     "psycopg2",
 ]
-ignore_transitive = [
-]
-
+ignore_transitive = []
 
 [tool.pyright]
 exclude = [
-    '.tox',
-    '.nox',
-    'tests',
-    'sandbox',
-    'doc',
-    'scripts',
-    'noxfile.py',
+    ".tox",
+    ".nox",
+    "tests",
+    "sandbox",
+    "doc",
+    "scripts",
+    "noxfile.py",
 ]
+
+[build-system]
+requires = [
+    "poetry-core>=1.0.0",
+]
+build-backend = "poetry.core.masonry.api"

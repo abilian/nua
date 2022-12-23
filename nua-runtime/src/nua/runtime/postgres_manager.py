@@ -59,13 +59,14 @@ class PostgresManager(DbManager):
     def __str__(self):
         return f"{self.user}@{self.host}:{self.port}"
 
-    def root_connect(self):
+    def root_connect(self, connect_timeout: int = 5):
         return psycopg2.connect(
             host=self.host,
             port=self.port,
             dbname="postgres",
             user=self.user,
             password=self.password,
+            connect_timeout=connect_timeout,
         )
 
     def postgres_pwd(self) -> str:
@@ -122,6 +123,18 @@ class PostgresManager(DbManager):
         options = kwargs.get("options", "")
         cmd = f"pg_dump {dbname} {options}"
         mp_exec_as_postgres(cmd)
+
+    def wait_for_db(self, timeout: int = 60):
+        """Wait for the DB beeing up."""
+        count = timeout
+        while count > 0:
+            try:
+                self.root_connect(connect_timeout=2)
+                return
+            except psycopg2.OperationalError:
+                print(f"Connection failed ({count}s)")
+                count -= 2
+        raise RuntimeError(f"DB no aailable after {timeout} seconds.")
 
     def user_drop(self, user: str) -> bool:
         """Drop user (wip, not enough)."""
