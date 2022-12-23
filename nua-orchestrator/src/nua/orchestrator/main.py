@@ -14,7 +14,7 @@ from nua.lib.tool.state import set_color, set_verbose
 from . import __version__
 from .commands.deploy import deploy_nua_sites
 from .commands.deploy_nua import deploy_nua
-from .commands.restore import restore_nua_sites
+from .commands.restore import restore_nua_sites_replay, restore_nua_sites_strict
 from .db.store import installed_nua_settings, list_all_settings
 
 # setup_db() does create the db if needed and also populate the configuration
@@ -46,9 +46,12 @@ opt_version = typer.Option(
     is_eager=True,
 )
 opt_verbose = typer.Option(
-    0, "--verbose", "-v", help="Show more informations, until -vvv. ", count=True
+    0, "--verbose", "-v", help="Show more informations, until -vvv.", count=True
 )
-option_color = typer.Option(True, "--color/--no-color", help="Colorize messages. ")
+option_color = typer.Option(True, "--color/--no-color", help="Colorize messages.")
+option_restore_strict = typer.Option(
+    False, "--strict/--replay", help="Use strict restore mode."
+)
 
 
 def _version_string():
@@ -119,12 +122,16 @@ def deploy_local(
 def restore_local(
     verbose: int = opt_verbose,
     colorize: bool = option_color,
+    strict: bool = option_restore_strict,
 ):
     """Restore last successful deployment."""
     set_verbose(verbose)
     set_color(colorize)
     initialization()
-    restore_nua_sites()
+    if strict:
+        restore_nua_sites_strict()
+    else:
+        restore_nua_sites_replay()
 
 
 @app.command("show_db_settings")

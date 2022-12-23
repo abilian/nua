@@ -49,6 +49,9 @@ RUN_BASE_RESOURCE = {"restart_policy": {"name": "always"}}
 class SitesDeployment:
     """Deployment of a list of site/nua-image.
 
+    Devel notes: will be refactored into base class and sub classes for various
+    deployment strategies (restoring previous configuration, ...).
+
     example of use:
         deployer = SitesDeployment()
         deployer.local_services_inventory()
@@ -101,16 +104,17 @@ class SitesDeployment:
         )
 
     def store_deploy_configs_after_swap(self):
-        """Store configurations' status if the new configuration is successfully
-        installed.
-        """
+        """Store configurations' status if the new configuration is
+        successfully installed."""
         # previous config stay INACTIVE
         if self.previous_config_id:
             store.deploy_config_update_state(self.previous_config_id, INACTIVE)
         store.deploy_config_update_state(self.future_config_id, ACTIVE)
 
     def local_services_inventory(self):
-        # See later ?
+        """Initialization step: inventory of available resources available on
+        the host, like local databases."""
+        # See later
         return
         # assuming db_setup was run at initialization of the command
         services = Services()
@@ -126,15 +130,15 @@ class SitesDeployment:
         if verbosity(1):
             info(f"Deploy sites from: {config_path}")
         self.loaded_config = tomli.loads(config_path.read_text())
-        self.parse_deploy_sites(self.loaded_config)
+        self.parse_deploy_sites()
         self.sort_sites_per_domain()
         if verbosity(3):
             self.print_host_list()
 
-    def restore_load_deploy_config(self):
-        """Retrieve last successful deployment configuration"""
+    def restore_previous_deploy_config_strict(self):
+        """Retrieve last successful deployment configuration (strict mode)."""
         if verbosity(1):
-            info("Deploy sites from previous deployment.")
+            info("Deploy sites from previous deployment (strict mode).")
         previous_config = self.previous_success_deployment_record()
         if not previous_config:
             error("Impossible to find a previous deployment.")
@@ -144,6 +148,20 @@ class SitesDeployment:
             self.sites.append(Site.from_dict(site_dict))
         self.future_config_id = previous_config.get("id")
         self.sort_sites_per_domain()
+
+    def restore_previous_deploy_config_replay(self):
+        """Retrieve last successful deployment configuration (replay mode)."""
+        if verbosity(1):
+            info("Deploy sites from previous deployment (replay deployment).")
+        previous_config = self.previous_success_deployment_record()
+        if not previous_config:
+            error("Impossible to find a previous deployment.")
+        self.loaded_config = previous_config["deployed"]["requested"]
+        self.future_config_id = previous_config.get("id")
+        self.parse_deploy_sites()
+        self.sort_sites_per_domain()
+        if verbosity(3):
+            self.print_host_list()
 
     def gather_requirements(self):
         self.install_required_images()
@@ -174,7 +192,7 @@ class SitesDeployment:
         """Find all instance in DB.
 
         - remove container if exists
-        - remove site from DB
+        - remove site from Nua DB
         """
         self.store_deploy_configs_before_swap()
         self.orig_mounted_volumes = store.list_instances_container_active_volumes()
@@ -184,7 +202,7 @@ class SitesDeployment:
         """For restore situation, find all instance in DB.
 
         - remove container if exists
-        - remove site from DB
+        - remove site from Nua DB
         """
         self.orig_mounted_volumes = store.list_instances_container_active_volumes()
         deactivate_all_instances()
@@ -214,13 +232,13 @@ class SitesDeployment:
         chown_r_nua_nginx()
         nginx_restart()
 
-    def parse_deploy_sites(self, deploy_sites_config: dict):
+    def parse_deploy_sites(self):
         """Make the list of Sites.
 
         Check config syntax, replace missing informations by defaults.
         """
         sites = []
-        for site_dict in deploy_sites_config["site"]:
+        for site_dict in self.loaded_config["site"]:
             if not isinstance(site_dict, dict):
                 error(
                     "Site configuration must be a dict",
