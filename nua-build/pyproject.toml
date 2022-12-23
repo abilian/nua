@@ -19,9 +19,9 @@ nua_test_replace_domain = "nua.build.scripts.test_replace_domain:main"
 python = "^3.10"
 
 # Internal deps "poor man's monorepo"
-nua-lib = { path = "../nua-lib/", develop = false }
-nua-runtime = { path = "../nua-runtime/", develop = false }
-nua-autobuild = { path = "../nua-autobuild/", develop = false }
+nua-lib = { path = "../nua-lib/", develop = true }
+nua-runtime = { path = "../nua-runtime/", develop = true }
+nua-autobuild = { path = "../nua-autobuild/", develop = true }
 
 setuptools = "^65.5.0"
 tomli = "^2.0.1"

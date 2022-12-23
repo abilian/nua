@@ -19,7 +19,7 @@ nua_build_setup_app = "nua.runtime.scripts.nua_build_setup_app:main"
 python = "^3.10"
 setuptools = "^65.5.0"
 packaging = "^22.0"
-nua-lib = { path = "../nua-lib/", develop = false }
+nua-lib = "==0.4.72"
 tomli = "^2.0.1"
 
 [tool.poetry.group.dev.dependencies]

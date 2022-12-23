@@ -15,8 +15,8 @@ nua-self-build = "nua.autobuild.main:app"
 [tool.poetry.dependencies]
 python = "^3.10"
 setuptools = "^65.5.0"
-nua-lib = { path = "../nua-lib/", develop = false }
-nua-runtime = { path = "../nua-runtime/", develop = false }
+nua-lib = { path = "../nua-lib/", develop = true }
+nua-runtime = { path = "../nua-runtime/", develop = true }
 tomli = "^2.0.1"
 tomli-w = "^1.0.0"
 typer = {extras = ["all"], version = "^0.7.0"}
