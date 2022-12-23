@@ -8,4 +8,3 @@ It will provide the following features (TBC):
 - Application licycle management
 - Smoke tests and health checks
 - Logging and monitoring
-

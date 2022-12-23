@@ -1,7 +1,7 @@
 Nua CLI
 =======
 
-Command-line interface for Nua. 
+Command-line interface for Nua.
 
 Used by developers and devops people to deploy and manage applications.
 

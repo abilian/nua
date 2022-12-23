@@ -69,4 +69,3 @@ Result of the `reuse lint` command invocation:
 > * Files with license information: 284 / 284
 
 > Congratulations! Your project is compliant with version 3.0 of the REUSE Specification :-)
-
