@@ -15,11 +15,30 @@ from nua.orchestrator.scripts.test_replace_domain import replace_file
 runner = CliRunner()
 
 DEPLOY_CONFIGS = Path(__file__).parent / "deploy_configs"
-DEPLOY_AUTO_FILES = sorted((Path(__file__).parent / "deploy_auto_check").glob("*.toml"))
+DEPLOY_AUTO_FILES = [
+    str(p) for p in sorted((Path(__file__).parent / "deploy_auto_check").glob("*.toml"))
+]
 REPLACE_DOMAIN = Path(__file__).parent / "REPLACE_DOMAIN"
 
 os.environ["NUA_CERTBOT_TEST"] = "1"
 os.environ["NUA_CERTBOT_VERBOSE"] = "1"
+
+
+@pytest.mark.parametrize("deploy_file", DEPLOY_AUTO_FILES)
+def test_deploy_sites(deploy_file: str):
+    print("\n" + "-" * 40)
+    print(f"test config: {deploy_file}")
+    with tempfile.TemporaryDirectory(dir="/tmp") as tmp_dir:
+        new_file = replace_file(REPLACE_DOMAIN, deploy_file, tmp_dir)
+
+        result = runner.invoke(app, f"deploy -vv {new_file}")
+        print(result.stdout)
+
+        assert result.exit_code == 0
+        assert "Installing App" in result.stdout
+        assert "deployed as" in result.stdout
+
+        _check_sites(new_file)
 
 
 def _assert_expect_status(expected: int | str | None, response: requests.Response):
@@ -116,20 +135,3 @@ def _check_sites(toml: Path):
             continue
         for test in site["test"]:
             _make_check_test(test)
-
-
-@pytest.mark.parametrize("deploy_file", DEPLOY_AUTO_FILES)
-def test_deploy_sites(deploy_file: Path):
-    print("\n" + "-" * 40)
-    print(f"test config: {deploy_file.name}")
-    with tempfile.TemporaryDirectory(dir="/tmp") as tmp_dir:
-        new_file = replace_file(REPLACE_DOMAIN, deploy_file, tmp_dir)
-
-        result = runner.invoke(app, f"deploy -vv {new_file}")
-        print(result.stdout)
-
-        assert result.exit_code == 0
-        assert "Installing App" in result.stdout
-        assert "deployed as" in result.stdout
-
-        _check_sites(new_file)
