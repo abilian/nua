@@ -8,7 +8,9 @@ Todo: separate part for local/remote instance
 import importlib
 import os
 import re
+from datetime import datetime, timezone
 from pathlib import Path
+from time import sleep, time
 
 from nua.lib.exec import mp_exec_as_postgres
 
@@ -124,17 +126,23 @@ class PostgresManager(DbManager):
         cmd = f"pg_dump {dbname} {options}"
         mp_exec_as_postgres(cmd)
 
-    def wait_for_db(self, timeout: int = 60):
+    def wait_for_db(self, timeout: int = 120):
         """Wait for the DB beeing up."""
-        count = timeout
-        while count > 0:
+        when = time()
+        limit = when + timeout
+        while time() < limit:
+            while time() < when:
+                sleep(0.1)
             try:
-                self.root_connect(connect_timeout=2)
+                self.root_connect(connect_timeout=5)
+                now = datetime.now(timezone.utc).isoformat(" ")
+                print(f"{now} - Connection ok")
                 return
             except psycopg2.OperationalError:
-                print(f"Connection failed ({count}s)")
-                count -= 2
-        raise RuntimeError(f"DB no aailable after {timeout} seconds.")
+                now = datetime.now(timezone.utc).isoformat(" ")
+                print(f"{now} - Connection failed")
+                when += 5.0
+        raise RuntimeError(f"DB not available after {timeout} seconds.")
 
     def user_drop(self, user: str) -> bool:
         """Drop user (wip, not enough)."""
