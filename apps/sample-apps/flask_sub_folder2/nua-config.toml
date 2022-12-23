@@ -28,6 +28,7 @@ release = 1
 # optional folder containing nua build files if present:
 # nua_dir = "nua"  # default to "nua"
 nua_dir = "nua_files"
+
 # optional Dockerfile, default is "{nua_dir}/Dockerfile" or "./Dockerfile" if found
 # optional build script, default is "{nua_dir}/build.py" or "./build.py" if found
 # build_script = ""
