@@ -101,8 +101,12 @@ ignore_obsolete = [
 	"abilian-devtools",
 	"nox",
 	"types-setuptools",
+    "nua-autobuild",
+    "nua-lib",
+    "nua-runtime",
 ]
 ignore_missing = [
+    "nua",
     "mariadb",
     "psycopg2",
 ]
