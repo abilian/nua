@@ -14,27 +14,34 @@ repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v4.4.0
   hooks:
+    # Generic
     - id: check-added-large-files
-    - id: check-ast
     - id: check-byte-order-marker
     - id: check-case-conflict
-    - id: check-docstring-first
     - id: check-executables-have-shebangs
-    - id: check-json
+    # - id: check-shebang-scripts-are-executable
     - id: check-merge-conflict
     - id: check-symlinks
+    # Basic syntax checks
+    - id: check-ast
+    - id: check-json
     - id: check-toml
     - id: check-xml
     - id: check-yaml
-    - id: debug-statements
+    # Security
     - id: detect-private-key
+    - id: detect-aws-credentials
+    # Whitespace
     - id: end-of-file-fixer
-    - id: forbid-new-submodules
     - id: mixed-line-ending
     - id: trailing-whitespace
-    - id: detect-aws-credentials
+    # Misc Python
+    - id: debug-statements
+    - id: check-docstring-first
+    - id: forbid-new-submodules
       args: ['--allow-missing-credentials']
     - id: fix-encoding-pragma
       args: ['--remove']
+    # - id: name-tests-test
     # - id: no-commit-to-branch
     # - id: requirements-txt-fixer

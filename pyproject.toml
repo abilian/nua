@@ -20,7 +20,6 @@ nua-orchestrator = { path = "nua-orchestrator", develop = true }
 # Testing / checking
 nox = "*"
 abilian-devtools = "*"
-ruff = "*"
 
 # Typing
 types-setuptools = "*"
