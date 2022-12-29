@@ -1,14 +1,13 @@
 [[site]]
-image = "hedgedoc:1.9.6-5"
+image = "hedgedoc:1.9.6-6"
 domain = "test1.example.com"
-
 [site.run.env]
-# CMD_SESSION_LIFE = 60  # for test
 CMD_DOMAIN = "test1.example.com"
-CMD_EMAIL = "true"
-CMD_ALLOW_EMAIL_REGISTER = "true"
-CMD_ALLOW_ANONYMOUS = "true"
 CMD_ALLOW_ORIGIN=["localhost", "test1.example.com"]
-# sqlite:
-# CMD_DB_URL = "sqlite:///nua/data/sqlite.db"
-# CMD_DB_PASSWORD = "azerty"
+
+[[site]]
+image = "hedgedoc:1.9.6-6"
+domain = "test2.example.com"
+[site.run.env]
+CMD_DOMAIN = "test2.example.com"
+CMD_ALLOW_ORIGIN=["localhost", "test2.example.com"]

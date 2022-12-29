@@ -82,6 +82,9 @@ def resource_property(site: Site, requirement: dict) -> dict:
 
 
 def resource_host(site: Site, requirement: dict) -> dict:
+    """Return a dict whose key is a environment variable name and value the the
+    hostname of a resource (a container).
+    """
     resource_name = requirement[RESOURCE_HOST] or ""
     for resource in site.resources:
         if resource.resource_name != resource_name:

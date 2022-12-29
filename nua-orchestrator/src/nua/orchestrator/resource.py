@@ -214,12 +214,12 @@ class Resource(dict):
             error(f"Site or Resource configuration missing '{key}' key")
 
     def _parse_run_env(self):
-        old_format = self.run_env
-        run_env = self.get("run", {}).get("env", {})
-        if not isinstance(run_env, dict):
+        run_env = self.run_env  # may contain dict of deprecated syntax
+        env = self.get("run", {}).get("env", {})
+        if not isinstance(env, dict):
             error("[run.env] must be a dict")
-        old_format.update(run_env)
-        self.run_env = old_format
+        run_env.update(env)
+        self.run_env = run_env
         run = self.get("run", {})
         if "env" in run:
             del self["run"]["env"]

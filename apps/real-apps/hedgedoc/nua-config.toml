@@ -6,12 +6,12 @@ author = "Nua testers"
 tagline = "Nua test with Hedgedoc"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "Hedgedoc"]
-licence = "MIT"
+licence = "AGPL-3.0 license"
 profile = ["test"]
-release = 5
+release = 6
 
 [build]
-# use a base docker image containing nodejs:
+# use a specific docker image containing nodejs:
 nua_base = "nua-builder-nodejs16"
 
 [[assign]]
@@ -31,6 +31,9 @@ random_str = true
 auto_remove = false
 
 [run.env]
+# IMPORTANT:to be set at the actual domain deployed:
+CMD_DOMAIN = "localhost"
+
 NODE_ENV = "production"
 DEBUG = "true"
 UPLOADS_MODE = "0700"
@@ -41,9 +44,6 @@ UPLOADS_MODE = "0700"
 # DB_PASS=<secret password>
 # DB_NAME=hedgedoc
 TZ = "Europe/Paris"
-
-# IMPORTANT:to be set at the actual domain deployed:
-CMD_DOMAIN = "localhost"
 
 # CMD_URL_PATH # if sub directory
 # CMD_DB_URL = "postgres://hedgedoc:password@database:5432/hedgedoc"
@@ -116,31 +116,9 @@ restart_policy.name = "always"
 # here we declare a mounted volume (ie: managed by Docker daemon)
 # The mount type (bind / volume / tmpfs / npipe). Default: volume :
 type = "volume"
-
 # Name of the driver used to create the volume: (for type == "volume")
 driver = "local"
-
 # Mount source (e.g. a volume name or a host path):
-source = "postgres_hedgedoc"
-
+source_prefix = "hedgedoc_postgres"
 # Container path:
 target = "/var/lib/postgresql/data"
-
-# mode (default to 'rw'
-mode = "rw"
-
-
-# For sqlite:
-# [[volume]]
-# # uploads:/hedgedoc/public/uploads
-# # The mount type (bind / volume / tmpfs / npipe). Default: volume :
-# type = "bind"
-# # Name of the driver used to create the volume: (for type == "volume")
-# # driver = "local"
-# # Mount source (e.g. a volume name or a host path):
-# source = "/var/tmp"
-# # Container path:
-# target = "/nua/data"
-# #
-# mode = "rw"
-# # dst = "/var/tmp/uploads"

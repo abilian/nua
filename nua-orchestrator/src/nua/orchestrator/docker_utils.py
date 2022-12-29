@@ -239,7 +239,8 @@ def erase_previous_container(client: DockerClient, name: str):
         pass
 
 
-def params_with_secrets(params: dict, secrets: dict):
+def params_with_secrets(params: dict, secrets: dict) -> dict:
+    """Complete the docker run() environment parameter with secrets."""
     result = deepcopy(params)
     env = result.get("environment", {})
     env.update(secrets)
@@ -248,6 +249,11 @@ def params_with_secrets(params: dict, secrets: dict):
 
 
 def docker_run(rsite: Resource, secrets: dict) -> Container:
+    """Wrapper on top of the pydocker run() command.
+
+    Returns:
+        The new started container.
+    """
     params = deepcopy(rsite.run_params)
     # the actual key is 'environment'
     if "env" in params:
@@ -269,9 +275,7 @@ def docker_run(rsite: Resource, secrets: dict) -> Container:
     actual_params = params_with_secrets(params, secrets)
     container = client.containers.run(rsite.image_id, **actual_params)
     if verbosity(3):
-        name = params["name"]
         print("docker secrets:", secrets)
-        print("run done:", docker_container_of_name(name))
     if not docker_check_container_listed(container.name):
         error(f"Failed starting container {container.name}")
     rsite.container = container.name
