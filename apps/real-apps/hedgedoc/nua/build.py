@@ -1,7 +1,7 @@
 from os import chdir
 from shutil import copy2
 
-from nua.lib.actions import (  # installed_packages,
+from nua.lib.actions import (
     download_extract,
     install_package_list,
     install_psycopg2_python,
@@ -38,14 +38,13 @@ def main():
         chdir(hedge_src)
         cmd = "bin/setup"
         sh(cmd)
-        cmd = "yarn add node-fetch"
-        sh(cmd)
+        # cmd = "yarn add node-fetch"
+        # sh(cmd)
         cmd = "yarn cache clean; rm -fr /tmp/*"
         sh(cmd)
 
-    # install_package_list("netcat libsqlite3-dev")
-    # chdir("/nua/build")
     copy2("/nua/build/nua/config.json", "/nua/build/hedgedoc/")
+    copy2("/nua/build/nua/healthcheck.mjs", "/nua/build/hedgedoc/")
 
 
 if __name__ == "__main__":

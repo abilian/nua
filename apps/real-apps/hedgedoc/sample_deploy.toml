@@ -1,12 +1,12 @@
 [[site]]
-image = "hedgedoc:1.9.6-7"
+image = "hedgedoc:1.9.6-9"
 domain = "test1.example.com"
 [site.run.env]
 CMD_DOMAIN = "test1.example.com"
 CMD_ALLOW_ORIGIN=["localhost", "test1.example.com"]
 
 [[site]]
-image = "hedgedoc:1.9.6-7"
+image = "hedgedoc:1.9.6-9"
 domain = "test2.example.com"
 [site.run.env]
 CMD_DOMAIN = "test2.example.com"
