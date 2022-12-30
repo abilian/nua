@@ -29,6 +29,7 @@ from .deploy_utils import (
     unused_volumes,
 )
 from .domain_split import DomainSplit
+from .healthcheck import HealthCheck
 from .nginx_util import (
     chown_r_nua_nginx,
     clean_nua_nginx_default_site,
@@ -174,6 +175,8 @@ class SitesDeployment:
         self.check_required_local_resources()
         for site in self.sites:
             site.set_ports_as_dict()
+        for site in self.sites:
+            site.parse_healthcheck()
         for site in self.sites:
             self.check_required_local_resources_configuration(site)
         for site in self.sites:
@@ -612,7 +615,8 @@ class SitesDeployment:
         run_params["name"] = site.container_name
         run_params["ports"] = site.ports_as_docker_params()
         run_params["environment"] = self.run_parameters_environment(site)
-        run_params["healthcheck"] = site.run_parameters_healthcheck()
+        if site.healthcheck:
+            run_params["healthcheck"] = HealthCheck(site.healthcheck).as_docker_params()
         self.sanitize_run_params(run_params)
         site.run_params = run_params
 
@@ -629,6 +633,10 @@ class SitesDeployment:
         run_params["environment"] = self.run_parameters_resource_environment(
             resource, site_env
         )
+        if resource.healthcheck:
+            run_params["healthcheck"] = HealthCheck(
+                resource.healthcheck
+            ).as_docker_params()
         self.sanitize_run_params(run_params)
         resource.run_params = run_params
 
@@ -674,9 +682,6 @@ class SitesDeployment:
         """Docker constraint: 2 docker options not compatible."""
         if "restart_policy" in run_params:
             run_params["auto_remove"] = False
-        # do not pass an incorrect dict for healthcheck to py-docker:
-        if "healthcheck" in run_params and not run_params["healthcheck"]:
-            del run_params["healthcheck"]
 
     def services_environment(self, site: Site) -> dict:
         run_env = {}

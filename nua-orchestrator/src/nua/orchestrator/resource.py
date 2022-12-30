@@ -4,6 +4,7 @@ from copy import deepcopy
 from nua.lib.panic import error, warning
 from nua.lib.tool.state import verbosity
 
+from .healthcheck import HealthCheck
 from .port_normalization import normalize_ports, ports_as_dict
 from .utils import sanitized_name
 from .volume import Volume
@@ -26,6 +27,7 @@ class Resource(dict):
     def check_valid(self):
         self._check_mandatory()
         self._parse_run_env()
+        self._parse_healthcheck()
         self._normalize_ports()
         self._normalize_volumes()
 
@@ -191,6 +193,16 @@ class Resource(dict):
     def persistent(self, persist: dict):
         self["persistent"] = deepcopy(persist)
 
+    @property
+    def healthcheck(self) -> dict:
+        if "healthcheck" not in self:
+            self["healthcheck"] = {}
+        return self["healthcheck"]
+
+    @healthcheck.setter
+    def healthcheck(self, healthcheck: dict):
+        self["healthcheck"] = healthcheck
+
     def set_ports_as_dict(self):
         """replace ports list by a dict with container port as key.
 
@@ -223,6 +235,12 @@ class Resource(dict):
         run = self.get("run", {})
         if "env" in run:
             del self["run"]["env"]
+
+    def _parse_healthcheck(self, config: dict | None = None):
+        if config:
+            self["healthcheck"] = HealthCheck(config).as_dict()
+        else:
+            self["healthcheck"] = {}
 
     def _normalize_ports(self, default_proxy: str = "none"):
         if "port" not in self:

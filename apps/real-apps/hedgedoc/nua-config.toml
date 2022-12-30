@@ -79,6 +79,10 @@ CMD_DB_DATABASE = "hedgedoc"
 [port.web]
 container = 3000
 
+[healthcheck]
+command = "node /nua/build/healthcheck.mjs"
+interval = 5
+
 [[volume]]
 # declare a local volume for plublic uploads
 # bind example: type = "bind"

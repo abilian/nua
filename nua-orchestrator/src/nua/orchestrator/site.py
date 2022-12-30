@@ -13,14 +13,6 @@ from .search_cmd import search_nua
 from .utils import sanitized_name
 from .volume import Volume
 
-HEALTHCHECK_DEFAULT = {
-    "command": "true",  # shell true -> no command, always ok, for test
-    "start-period": 900,
-    "interval": 30,
-    "timeout": 30,
-    "retries": 3,
-}
-
 
 class Site(Resource):
     MANDATORY_KEYS = ("image", "domain")
@@ -79,16 +71,6 @@ class Site(Resource):
         self.image_nua_config["assign"] = assign_list
 
     @property
-    def healthcheck(self) -> dict:
-        if "healthcheck" not in self:
-            self["healthcheck"] = self.image_nua_config.get("healthcheck", {})
-        return self["healthcheck"]
-
-    @healthcheck.setter
-    def healthcheck(self, healthcheck: dict):
-        self["healthcheck"] = healthcheck
-
-    @property
     def local_services(self) -> list:
         return [
             resource.service for resource in self.resources if resource.type == "local"
@@ -121,6 +103,9 @@ class Site(Resource):
         suffix = DomainSplit(self.domain).container_suffix()
         name_base = f"{self.nua_long_name}-{suffix}"
         return sanitized_name(name_base)
+
+    def parse_healthcheck(self):
+        self._parse_healthcheck(self.image_nua_config.get("healthcheck", {}))
 
     def set_volumes_names(self):
         suffix = DomainSplit(self.domain).container_suffix()
@@ -161,12 +146,7 @@ class Site(Resource):
                 return resource
         return None
 
-    def merge_instance_healthcheck(self):
-        # maybe useless, to test (already merged by default ?)
-        pass
-
     def merge_instance_to_resources(self):
-        self.merge_instance_healthcheck()
         self.rebase_volumes_upon_nua_conf()
         resource_declarations = self.get("resource", [])
         if not resource_declarations:
@@ -248,51 +228,6 @@ class Site(Resource):
             print(f"rebase_ports_upon_nua_config(): ports={pformat(ports)}")
         ports.update(self.port)
         self.port = ports
-
-    def _complete_healthcheck_default(self):
-        conf = self.healthcheck
-        if "cmd" in conf and "command" not in conf:
-            conf["command"] = conf["cmd"]
-        if "start_period" in conf and "start-period" not in conf:
-            conf["start-period"] = conf["start_period"]
-        for key, val in HEALTHCHECK_DEFAULT.items():
-            if key not in conf:
-                conf[key] = val
-        self.healthcheck = conf
-
-    @staticmethod
-    def second_to_nano(sec: Any) -> int:
-        if not sec:
-            return 0
-        try:
-            nano = int(float(sec) * 10**9)
-            if nano < 10**6:
-                nano = 0
-            return nano
-        except ValueError:
-            return 0
-
-    @staticmethod
-    def force_int(value: Any) -> int:
-        if not value:
-            return 0
-        try:
-            return max(0, int(value))
-        except ValueError:
-            return 0
-
-    def run_parameters_healthcheck(self) -> dict:
-        params = {}
-        if not self.healthcheck:
-            return params
-        self._complete_healthcheck_default()
-        # expecting a str -> the command wil be used as CMD-SHELL by py-docker:
-        params["test"] = self.healthcheck["command"]
-        params["start_period"] = self.second_to_nano(self.healthcheck["start-period"])
-        params["interval"] = self.second_to_nano(self.healthcheck["interval"])
-        params["timeout"] = self.second_to_nano(self.healthcheck["timeout"])
-        params["retries"] = self.force_int(self.healthcheck["retries"])
-        return params
 
     def find_registry_path(self, cached: bool = False) -> bool:
         # list of images sorted by version:
