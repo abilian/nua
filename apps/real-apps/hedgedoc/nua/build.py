@@ -38,6 +38,8 @@ def main():
         chdir(hedge_src)
         cmd = "bin/setup"
         sh(cmd)
+        cmd = "yarn add node-fetch"
+        sh(cmd)
         cmd = "yarn cache clean; rm -fr /tmp/*"
         sh(cmd)
 

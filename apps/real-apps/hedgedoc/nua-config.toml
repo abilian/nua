@@ -8,7 +8,7 @@ website = "https://nua.rocks/"
 tags = ["test", "html", "web", "Hedgedoc"]
 licence = "AGPL-3.0 license"
 profile = ["test"]
-release = 6
+release = 7
 
 [build]
 # use a specific docker image containing nodejs:
@@ -80,7 +80,7 @@ CMD_DB_DATABASE = "hedgedoc"
 container = 3000
 
 [healthcheck]
-command = "node /nua/build/healthcheck.mjs"
+command = "node /nua/build/nua/healthcheck.mjs"
 interval = 5
 
 [[volume]]

@@ -29,6 +29,8 @@ from .site import Site
 from .utils import size_to_bytes
 from .volume import Volume
 
+PULLED_IMAGES = {}
+
 
 def load_install_image(image_path: str | Path) -> tuple:
     """Install docker image (tar file) in local docker daeon.
@@ -231,20 +233,28 @@ def create_container_private_network(network_name: str):
 
 
 def pull_resource_container(resource: Resource) -> bool:
-    """Retrieve a resource container.
+    """Retrieve a resource container or get reference from from cache.
 
     Currrently: only managing Docker bridge network.
     """
     if resource.type != "docker":
         warning(f"Unknown resource type: {resource.type}")
         return True
+    if resource.image not in PULLED_IMAGES:
+        _actual_pull_container(resource)
+    if resource.image not in PULLED_IMAGES:
+        warning(f"No image found for '{resource.image}'")
+        return False
+    resource.image_id = PULLED_IMAGES[resource.image]
+    return True
+
+
+def _actual_pull_container(resource: Resource):
+    """Retrieve a resource container."""
     if verbosity(1):
         info(f"Pulling image '{resource.image}'")
     docker_image = docker_require(resource.image)
-    if not docker_image:
-        warning(f"No image found for '{resource.image}'")
-        return False
-    if verbosity(1):
-        display_one_docker_img(docker_image)
-    resource.image_id = docker_image.id
-    return True
+    if docker_image:
+        PULLED_IMAGES[resource.image] = docker_image.id
+        if verbosity(1):
+            display_one_docker_img(docker_image)
