@@ -112,6 +112,11 @@ name = "database"
 type = "docker"
 image = "docker.io/library/postgres:14.5"
 
+[resource.backup]
+method = "pg_dumpall"
+destination = "local"
+frequency = "24h"
+
 [resource.run]
 detach = true
 restart_policy.name = "always"

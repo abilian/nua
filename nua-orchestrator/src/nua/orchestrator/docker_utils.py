@@ -1,7 +1,9 @@
 """Docker utils."""
+import io
 import json
 from copy import deepcopy
 from functools import cache
+from pathlib import Path
 from pprint import pformat
 from subprocess import run  # noqa: S404
 from time import sleep
@@ -249,7 +251,7 @@ def params_with_secrets(params: dict, secrets: dict) -> dict:
 
 
 def docker_run(rsite: Resource, secrets: dict) -> Container:
-    """Wrapper on top of the pydocker run() command.
+    """Wrapper on top of the py-docker run() command.
 
     Returns:
         The new started container.
@@ -279,7 +281,45 @@ def docker_run(rsite: Resource, secrets: dict) -> Container:
     if not docker_check_container_listed(container.name):
         error(f"Failed starting container {container.name}")
     rsite.container = container.name
+    test_docker_exec(container)
     return container
+
+
+def docker_exec_stdout(
+    container: Container, params: dict, output: io.BufferedWriter
+) -> bool:
+    """Wrapper on top of the py-docker exec_run() command, capturing the output.
+
+
+    Defaults are:
+    cmd, stdout=True, stderr=True, stdin=False, tty=False, privileged=False,
+    user='', detach=False, stream=False, socket=False, environment=None,
+    workdir=None, demux=False
+
+    Returns:
+    """
+    cmd = params["cmd"]
+    user = params.get("user", "")
+    workdir = params.get("workdir")
+    _, stream = container.exec_run(
+        cmd=cmd,
+        user=user,
+        workdir=workdir,
+        stream=True,
+        stdout=True,
+        stderr=False,
+        demux=True,
+    )
+    for data in stream:
+        output.write(data[0])
+
+
+def test_docker_exec(container: Container):
+    path = Path(f"/var/tmp/test_{container.name}.txt")
+    print(f"test_docker_exec() for {path}")
+    params = {"cmd": "find /nua"}
+    with open(path, "wb") as output:
+        docker_exec_stdout(container, params, output)
 
 
 def docker_volume_list(name: str) -> list:
