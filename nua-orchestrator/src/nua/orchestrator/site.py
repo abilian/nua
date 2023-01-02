@@ -1,7 +1,6 @@
 from copy import deepcopy
 from pathlib import Path
 from pprint import pformat
-from typing import Any
 
 from nua.lib.panic import error, warning
 from nua.lib.tool.state import verbosity
