@@ -1,7 +1,8 @@
 """Script main entry point for Nua local."""
+import json
 import os
 from pathlib import Path
-from pprint import pformat
+from pprint import pformat, pprint
 from typing import Optional
 
 import typer
@@ -16,6 +17,7 @@ from .commands.backup import backup_all, deployed_config
 from .commands.deploy import deploy_nua_sites
 from .commands.deploy_nua import deploy_nua
 from .commands.restore import restore_nua_sites_replay, restore_nua_sites_strict
+from .db import store
 from .db.store import installed_nua_settings, list_all_settings
 
 # setup_db() does create the db if needed and also populate the configuration
@@ -52,6 +54,9 @@ opt_verbose = typer.Option(
 option_color = typer.Option(True, "--color/--no-color", help="Colorize messages.")
 option_restore_strict = typer.Option(
     False, "--strict/--replay", help="Use strict restore mode."
+)
+option_json = typer.Option(
+    False, "--json", help="Output result as JSON."
 )
 
 
@@ -111,11 +116,10 @@ def deploy_local(
     """Search, install and launch Nua image."""
     set_verbose(verbose)
     set_color(colorize)
+    initialization()
     if app_name.endswith(".toml") and Path(app_name).is_file():
-        initialization()
         deploy_nua_sites(app_name)
     else:
-        initialization()
         deploy_nua(app_name)
 
 
@@ -171,6 +175,35 @@ def show_nua_settings():
     """Debug: show Nua orchestrator settings in db."""
     initialization()
     print(pformat(installed_nua_settings()))
+
+
+#
+# Added by SF, used by the nua-cli
+#
+@app.command("list-instances")
+def list_instances(_json: bool = option_json):
+    """List all instances."""
+    initialization()
+    instances = store.list_instances_all()
+    result = [
+        instance.to_dict()
+        for instance in instances
+    ]
+    if _json:
+        print(json.dumps(result, indent=2))
+    else:
+        pprint(result)
+
+
+@app.command("settings")
+def settings(_json: bool = option_json):
+    """Debug: show settings in db."""
+    initialization()
+    result = list_all_settings()
+    if _json:
+        print(json.dumps(result, indent=2))
+    else:
+        pprint(result)
 
 
 @app.callback(invoke_without_command=True)
