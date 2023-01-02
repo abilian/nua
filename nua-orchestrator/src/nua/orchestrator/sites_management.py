@@ -4,48 +4,12 @@ General use:
     - load active configuration
     - loop over sites to perform an action (example: backup)
 """
-import time
-from collections.abc import Callable
-from copy import deepcopy
-from pathlib import Path
-from pprint import pformat
 
-import tomli
-from nua.lib.console import print_green, print_magenta, print_red
-from nua.lib.panic import error, info, warning
-from nua.lib.tool.state import verbosity
+from nua.lib.panic import warning
 
-from . import config
-from .certbot import protocol_prefix, register_certbot_domains
 from .db import store
-from .db.model.deployconfig import ACTIVE, INACTIVE, PREVIOUS
-from .db.model.instance import RUNNING
-from .deploy_utils import (
-    create_container_private_network,
-    deactivate_all_instances,
-    deactivate_site,
-    extra_host_gateway,
-    load_install_image,
-    mount_resource_volumes,
-    port_allocator,
-    pull_resource_container,
-    start_container_engine,
-    start_one_container,
-    unused_volumes,
-)
 from .domain_split import DomainSplit
-from .healthcheck import HealthCheck
-from .nginx_util import (
-    chown_r_nua_nginx,
-    clean_nua_nginx_default_site,
-    configure_nginx_hostname,
-    nginx_restart,
-)
-from .requirement_evaluator import instance_key_evaluator
-from .resource import Resource
-from .service_loader import Services
 from .site import Site
-from .volume import Volume
 
 
 class SitesManagement:
