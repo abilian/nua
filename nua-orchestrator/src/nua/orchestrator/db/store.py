@@ -437,7 +437,8 @@ def deploy_config_add_config(deploy_config: dict, previous_id: int, state: str) 
     """Store a Nua deployment configuration in local DB (table 'deployconfig').
 
     Return:
-        int: the id of the newly created record"""
+        int: the id of the newly created record
+    """
     state = valid_deploy_config_state(state)
     now = now_iso()
     record = DeployConfig(
@@ -529,7 +530,7 @@ def deploy_config_last_inactive() -> dict:
 
 
 def deploy_config_last_one() -> {}:
-    """retrieve the last deployment config"""
+    """Retrieve the last deployment config."""
     items = _deploy_config_last_any(1)
     if items:
         return items[0]

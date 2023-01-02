@@ -647,9 +647,8 @@ class SitesDeployment:
         run_params["extra_hosts"] = extra_hosts
 
     def run_parameters_environment(self, site: Site) -> dict:
-        """Return a dict with all environment parameters for the main container to
-        run (the Site container).
-        """
+        """Return a dict with all environment parameters for the main container
+        to run (the Site container)."""
         run_env = site.image_nua_config.get("run_env", {})  # deprecated syntax
         # first the run.env section of nua config file:
         run_env.update(site.image_nua_config.get("run", {}).get("env", {}))
@@ -665,9 +664,8 @@ class SitesDeployment:
     def run_parameters_resource_environment(
         self, resource: Resource, site_env: dict
     ) -> dict:
-        """Return a dict with all environment parameters for a resource container
-        (a Resource container).
-        """
+        """Return a dict with all environment parameters for a resource
+        container (a Resource container)."""
         # resource has access to environment of main container:
         run_env = deepcopy(site_env)
         # update with result of "assign" dynamic evaluations :

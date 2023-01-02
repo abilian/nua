@@ -288,8 +288,8 @@ def docker_run(rsite: Resource, secrets: dict) -> Container:
 def docker_exec_stdout(
     container: Container, params: dict, output: io.BufferedWriter
 ) -> bool:
-    """Wrapper on top of the py-docker exec_run() command, capturing the output.
-
+    """Wrapper on top of the py-docker exec_run() command, capturing the
+    output.
 
     Defaults are:
     cmd, stdout=True, stderr=True, stdin=False, tty=False, privileged=False,

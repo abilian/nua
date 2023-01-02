@@ -26,11 +26,8 @@ def size_unit(as_mib: bool) -> str:
 def size_to_bytes(input: str) -> int:
     """Convert string representing size to bytes value.
 
-    It uses basic regex to get results like:
-    size_to_bytes("2k")
-    2048
-    size_to_bytes("1MB")
-    1048576
+    It uses basic regex to get results like: size_to_bytes("2k") 2048
+    size_to_bytes("1MB") 1048576
     """
     if not input:
         return 0
@@ -45,11 +42,8 @@ def size_to_bytes(input: str) -> int:
 def period_to_seconds(input: str) -> int:
     """Convert human-like time period to seconds value.
 
-    It uses basic regex to get results like:
-    period_to_seconds("1h")
-    3600
-    period_to_seconds("24h")
-    86400
+    It uses basic regex to get results like: period_to_seconds("1h")
+    3600 period_to_seconds("24h") 86400
     """
     if not input:
         return 0

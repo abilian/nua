@@ -1,5 +1,4 @@
-"""Restore previous successful deployed configuration.
-"""
+"""Restore previous successful deployed configuration."""
 from nua.lib.tool.state import verbosity
 
 from ..sites_deployment import SitesDeployment

@@ -1,5 +1,4 @@
-"""Nua main scripts.
-"""
+"""Nua main scripts."""
 from nua.lib.tool.state import verbosity
 
 from ..sites_deployment import SitesDeployment

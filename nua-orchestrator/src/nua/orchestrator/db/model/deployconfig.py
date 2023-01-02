@@ -54,7 +54,6 @@ class DeployConfig(Base, SerializerMixin):
           }
         ]
       }
-
     """
 
     __tablename__ = "deployconfig"

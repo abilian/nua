@@ -412,7 +412,8 @@ class Resource(dict):
         2 - site
         for each:
         a) backup tag of each volume
-        b) backup tag of main resource"""
+        b) backup tag of main resource
+        """
         for resource in self.resources:
             resource.do_backup()
         self.do_backup()

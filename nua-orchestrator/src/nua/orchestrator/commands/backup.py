@@ -1,12 +1,12 @@
-"""Execute backup commands.
-"""
+"""Execute backup commands."""
 from nua.lib.tool.state import verbosity
 
 from ..sites_management import SitesManagement
 
 
 def backup_all():
-    """Execute a one-time backup for all site instance having a backup declaration."""
+    """Execute a one-time backup for all site instance having a backup
+    declaration."""
     deployer = SitesManagement()
     deployer.backup_sites()
 
