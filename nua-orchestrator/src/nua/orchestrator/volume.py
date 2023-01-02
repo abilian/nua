@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 from copy import deepcopy
 from pprint import pformat
-from typing import Any
 
 from nua.lib.console import print_red
 from nua.lib.panic import error
@@ -36,7 +37,7 @@ class Volume:
         return pformat(self._dict)
 
     @classmethod
-    def parse(cls, data: dict) -> "Volume":
+    def parse(cls, data: dict) -> Volume:
         """Parse a dict to obtain a Volume.
 
         Apply sanity checks if _checked_ is not present.
