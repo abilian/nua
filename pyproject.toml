@@ -16,7 +16,7 @@ nua-build = { path = "nua-build", develop = true }
 nua-orchestrator = { path = "nua-orchestrator", develop = true }
 
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 # Testing / checking
 nox = "*"
 abilian-devtools = "*"
@@ -45,6 +45,7 @@ pygments = "^2.12.0"
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+# ------------------------------------------------------------------------------
 
 [tool.ruff]
 select = [
