@@ -1,7 +1,6 @@
 from collections.abc import Callable
 from copy import deepcopy
 
-from backup_engine import backup_resource, backup_volume
 from nua.lib.panic import error, warning
 from nua.lib.tool.state import verbosity
 
@@ -419,6 +418,10 @@ class Resource(dict):
         self.do_backup()
 
     def do_backup(self):
+        """Execute a backup."""
+        # FIXME: break this circular import
+        from .backup_engine import backup_resource, backup_volume
+
         for volume_dict in self.volume:
             volume = Volume.from_dict(volume_dict)
             backup_volume(volume)
