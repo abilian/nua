@@ -1,0 +1,56 @@
+[tool.poetry]
+name = "nua-cli"
+version = "0.1.0"
+description = ""
+authors = ["Stefane Fermigier <sf@abilian.com>"]
+readme = "README.md"
+packages = [
+  { include = "nua", from = "src" }
+]
+
+[tool.poetry.scripts]
+nua = "nua.cli.main:app"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fabric = "^2.7.1"
+typer = "^0.7.0"
+patchwork = "^1.0.1"
+
+[tool.poetry.group.dev.dependencies]
+abilian-devtools = "^0.1.6"
+devtools = "^0.10.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+# ------------------------------------------------------------------------------
+
+[tool.deptry]
+exclude = [
+    '.tox', '.nox', 'noxfile.py', 'tests', 'sandbox', 'doc', 'scripts'
+]
+ignore_obsolete = [
+    "setuptools",
+    "wheel",
+]
+ignore_missing = [
+    "nua",
+]
+ignore_transitive = [
+    "packaging",
+    "requests",
+]
+
+# ------------------------------------------------------------------------------
+
+[tool.pyright]
+exclude = [
+    '.tox',
+    '.nox',
+    'tests',
+    'sandbox',
+    'doc',
+    'noxfile.py',
+]
