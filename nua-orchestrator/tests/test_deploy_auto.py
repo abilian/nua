@@ -16,7 +16,7 @@ runner = CliRunner()
 
 DEPLOY_CONFIGS = Path(__file__).parent / "deploy_configs"
 DEPLOY_AUTO_FILES = [
-    str(p) for p in sorted((Path(__file__).parent / "deploy_auto_check").glob("*.toml"))
+    str(p) for p in sorted((Path(__file__).parent / "configs_ok").glob("*.toml"))
 ]
 REPLACE_DOMAIN = Path(__file__).parent / "REPLACE_DOMAIN"
 
