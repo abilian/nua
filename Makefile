@@ -65,8 +65,8 @@ lint/mypy: ## typecheck with mypy
 	mypy nua-runtime/src
 	mypy nua-autobuild/src
 	mypy nua-build/src
+	mypy nua-cli/src
 	# mypy nua-orchestrator/src
-	# mypy nua-cli/src
 
 lint/isort:  ## check imports are properly sorted
 	# isort -c nua-*/**/*.py

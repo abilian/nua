@@ -4,7 +4,7 @@ from typer.testing import CliRunner
 from nua.cli.main import app
 
 
-@pytest.fixture
+@pytest.fixture()
 def runner():
     return CliRunner()
 

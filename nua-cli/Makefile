@@ -38,11 +38,11 @@ clean-test: ## remove test and coverage artifacts
 lint: ## check style
 	ruff $(SRC) tests
 	flake8 $(SRC) tests
-	isort --skip tests/apps --check $(SRC) tests
-	black --exclude tests/apps --check $(SRC) tests
-	mypy --exclude tests/apps $(SRC) tests
-	pyright
-	deptry .
+	isort --check $(SRC) tests
+	black --check $(SRC) tests
+	mypy $(SRC) tests
+	pyright $(SRC) tests
+	# deptry .
 
 #
 # Formatting

@@ -6,7 +6,7 @@ from fabric import Connection
 class Client:
     connection: Connection
 
-    def __init__(self, host: str="", user: str=""):
+    def __init__(self, host: str = "", user: str = ""):
         if not host:
             host = os.environ.get("NUA_HOST", "localhost")
         if not user:

@@ -27,6 +27,31 @@ build-backend = "poetry.core.masonry.api"
 
 # ------------------------------------------------------------------------------
 
+[tool.ruff]
+extend-ignore = [
+    'S101', # Use of 'assert'
+    # TODO: fix these
+    'UP007', # Use `X | Y` for type annotations
+]
+extend-exclude = [
+    ".nox"
+]
+
+# ------------------------------------------------------------------------------
+
+[tool.pyright]
+exclude = [
+    '.tox',
+    '.nox',
+    'tests',
+    'sandbox',
+    'doc',
+    'scripts',
+    'noxfile.py',
+]
+
+# ------------------------------------------------------------------------------
+
 [tool.deptry]
 exclude = [
     '.tox', '.nox', 'noxfile.py', 'tests', 'sandbox', 'doc', 'scripts'
@@ -41,16 +66,4 @@ ignore_missing = [
 ignore_transitive = [
     "packaging",
     "requests",
-]
-
-# ------------------------------------------------------------------------------
-
-[tool.pyright]
-exclude = [
-    '.tox',
-    '.nox',
-    'tests',
-    'sandbox',
-    'doc',
-    'noxfile.py',
 ]

@@ -34,7 +34,7 @@ def help():
 def status():
     """Show Nua status."""
     client = Client()
-    r = client.run('bin/nua status')
+    r = client.run("bin/nua status")
     msg = f"Ran {r.command!r} on {r.connection.host}, got stdout:\n\n{r.stdout}"
     print(msg)
 
