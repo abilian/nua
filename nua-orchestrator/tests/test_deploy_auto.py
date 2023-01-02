@@ -128,8 +128,8 @@ def _make_check_test(test: dict):
     _apply_check_suite(test, response)
 
 
-def _check_sites(toml: Path):
-    content = tomli.loads(toml.read_text(encoding="utf8"))
+def _check_sites(deploy_file: Path):
+    content = tomli.loads(deploy_file.read_text(encoding="utf8"))
     for site in content["site"]:
         if "test" not in site:
             continue

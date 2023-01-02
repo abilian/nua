@@ -3,8 +3,6 @@ from typer.testing import CliRunner
 from nua.orchestrator import __version__
 from nua.orchestrator.main import app
 
-# runner = CliRunner()
-
 
 def test_version_string():  # noqa
     # AAA01 no Act block found in test

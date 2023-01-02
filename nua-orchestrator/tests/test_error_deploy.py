@@ -1,6 +1,5 @@
 import os
 
-# import tempfile
 from pathlib import Path
 
 from typer.testing import CliRunner
