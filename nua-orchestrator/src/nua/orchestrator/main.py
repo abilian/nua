@@ -55,9 +55,7 @@ option_color = typer.Option(True, "--color/--no-color", help="Colorize messages.
 option_restore_strict = typer.Option(
     False, "--strict/--replay", help="Use strict restore mode."
 )
-option_json = typer.Option(
-    False, "--json", help="Output result as JSON."
-)
+option_json = typer.Option(False, "--json", help="Output result as JSON.")
 
 
 def _print_version():
@@ -185,10 +183,7 @@ def list_instances(_json: bool = option_json):
     """List all instances."""
     initialization()
     instances = store.list_instances_all()
-    result = [
-        instance.to_dict()
-        for instance in instances
-    ]
+    result = [instance.to_dict() for instance in instances]
     if _json:
         print(json.dumps(result, indent=2))
     else:
