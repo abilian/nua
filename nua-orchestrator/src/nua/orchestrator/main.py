@@ -12,6 +12,7 @@ from nua.lib.panic import error
 from nua.lib.tool.state import set_color, set_verbose
 
 from . import __version__
+from .commands.backup import backup_all, deployed_config
 from .commands.deploy import deploy_nua_sites
 from .commands.deploy_nua import deploy_nua
 from .commands.restore import restore_nua_sites_replay, restore_nua_sites_strict
@@ -132,6 +133,30 @@ def restore_local(
         restore_nua_sites_strict()
     else:
         restore_nua_sites_replay()
+
+
+@app.command("backup")
+def backup_all_cmd(
+    verbose: int = opt_verbose,
+    colorize: bool = option_color,
+):
+    """Backup now all instance having a backup rules."""
+    set_verbose(verbose)
+    set_color(colorize)
+    initialization()
+    backup_all()
+
+
+@app.command("show_deployed_config")
+def deployed_config_cmd(
+    verbose: int = opt_verbose,
+    colorize: bool = option_color,
+):
+    """Debug: show current active configuration."""
+    set_verbose(verbose)
+    set_color(colorize)
+    initialization()
+    print(pformat(deployed_config()))
 
 
 @app.command("show_db_settings")

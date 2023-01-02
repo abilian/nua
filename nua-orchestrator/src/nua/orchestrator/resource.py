@@ -1,6 +1,7 @@
 from collections.abc import Callable
 from copy import deepcopy
 
+from backup_engine import backup_resource, backup_volume
 from nua.lib.panic import error, warning
 from nua.lib.tool.state import verbosity
 
@@ -402,3 +403,22 @@ class Resource(dict):
         self.requested_secrets.append(key)
         for resource in self.resources:
             resource.add_requested_secrets(key)
+
+    def do_full_backup(self):
+        """Execute a full backup.
+
+         backup order:
+        1 - resources
+        2 - site
+        for each:
+        a) backup tag of each volume
+        b) backup tag of main resource"""
+        for resource in self.resources:
+            resource.do_backup()
+        self.do_backup()
+
+    def do_backup(self):
+        for volume_dict in self.volume:
+            volume = Volume.from_dict(volume_dict)
+            backup_volume(volume)
+        backup_resource(self)

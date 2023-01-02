@@ -90,6 +90,12 @@ class Volume:
             lst.append("\n   domains: " + ", ".join(volume.domains))
         return " ".join(lst)
 
+    @classmethod
+    def from_dict(cls, data: dict) -> "Volume":
+        volume = cls()
+        volume._dict = data
+        return volume
+
     def as_dict(self) -> dict:
         return deepcopy(self._dict)
 
