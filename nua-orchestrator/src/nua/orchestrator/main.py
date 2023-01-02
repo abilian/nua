@@ -34,7 +34,7 @@ arg_deploy_app = typer.Argument(
 
 def version_callback(value: bool) -> None:
     if value:
-        _version_string()
+        _print_version()
         raise typer.Exit(0)
 
 
@@ -55,12 +55,12 @@ option_restore_strict = typer.Option(
 )
 
 
-def _version_string():
+def _print_version():
     typer.echo(f"Nua orchestrator local version: {__version__}")
 
 
 def usage():
-    _version_string()
+    _print_version()
     typer.echo("Usage(wip): nua status\n" "Try 'nua --help' for help.")
     raise typer.Exit(0)
 
