@@ -76,7 +76,7 @@ class NUAImageBuilder:
             display_docker_img(NUA_BUILDER_NODE_TAG)
 
     def build_nua_python(self):
-        title(f"Build of the docker image {NUA_PYTHON_TAG}")
+        title(f"Building the docker image {NUA_PYTHON_TAG}")
         with tempfile.TemporaryDirectory() as build_dir:
             build_path = Path(build_dir)
             if verbosity(3):
@@ -88,7 +88,7 @@ class NUAImageBuilder:
             docker_build_python()
 
     def build_nua_builder(self):
-        title(f"Build of the docker image {NUA_BUILDER_TAG}")
+        title(f"Building the docker image {NUA_BUILDER_TAG}")
         with tempfile.TemporaryDirectory() as build_dir:
             build_path = Path(build_dir)
             if verbosity(3):
@@ -101,7 +101,7 @@ class NUAImageBuilder:
             docker_build_builder()
 
     def build_nua_builder_node(self):
-        title(f"Build of the docker image {NUA_BUILDER_NODE_TAG}")
+        title(f"Building the docker image {NUA_BUILDER_NODE_TAG}")
         with tempfile.TemporaryDirectory() as build_dir:
             build_path = Path(build_dir)
             if verbosity(3):
