@@ -1,6 +1,6 @@
 [[site]]
 image = "nua-flask-mariadb-docker-wheel"
-domain = "test1.example.xyz"
+domain = "test1.example.com"
 
 [site.run]
 # basically do nothing, no start.py

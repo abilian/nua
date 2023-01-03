@@ -1,5 +1,6 @@
 import os
 import shlex
+import socket
 import subprocess as sp
 import tempfile
 from pathlib import Path
@@ -10,15 +11,14 @@ import tomli
 from typer.testing import CliRunner
 
 from nua.orchestrator.main import app
-from nua.orchestrator.scripts.test_replace_domain import replace_file
 
 runner = CliRunner()
 
-DEPLOY_CONFIGS = Path(__file__).parent / "deploy_configs"
+this_dir = Path(__file__).parent
+DEPLOY_CONFIGS = this_dir / "deploy_configs"
 DEPLOY_AUTO_FILES = [
-    str(p) for p in sorted((Path(__file__).parent / "configs_ok").glob("*.toml"))
+    str(p) for p in sorted((this_dir / "configs_ok").glob("*.toml"))
 ]
-REPLACE_DOMAIN = Path(__file__).parent / "REPLACE_DOMAIN"
 
 os.environ["NUA_CERTBOT_TEST"] = "1"
 os.environ["NUA_CERTBOT_VERBOSE"] = "1"
@@ -28,17 +28,27 @@ os.environ["NUA_CERTBOT_VERBOSE"] = "1"
 def test_deploy_sites(deploy_file: str):
     print("\n" + "-" * 40)
     print(f"test config: {deploy_file}")
-    with tempfile.TemporaryDirectory(dir="/tmp") as tmp_dir:
-        new_file = replace_file(REPLACE_DOMAIN, deploy_file, tmp_dir)
 
-        result = runner.invoke(app, f"deploy -vv {new_file}")
+    domain_name = os.environ.get("NUA_DOMAIN_NAME", "")
+    if not domain_name:
+        domain_name = socket.gethostname()
+
+    with tempfile.NamedTemporaryFile("w", suffix=".toml", delete=False) as new_file:
+        with open(deploy_file) as old_file:
+            data = old_file.read()
+            data = data.replace("example.com", domain_name)
+            new_file.write(data)
+            new_file.flush()
+
+        cmd = f"deploy -vv {new_file.name}"
+        result = runner.invoke(app, cmd)
         print(result.stdout)
 
         assert result.exit_code == 0
         assert "Installing App" in result.stdout
         assert "deployed as" in result.stdout
 
-        _check_sites(new_file)
+        _check_sites(Path(new_file.name))
 
 
 def _assert_expect_status(expected: int | str | None, response: requests.Response):

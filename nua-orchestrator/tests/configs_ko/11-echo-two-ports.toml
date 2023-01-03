@@ -1,6 +1,6 @@
 [[site]]
 image = "nua-echo-two-ports"
-domain = "test1.yerom.xyz"
+domain = "test1.example.com"
 
 [[site.test]]
 url = "https://test1.example.com/test"
