@@ -9,8 +9,8 @@ from .constants import NUA_BUILDER_TAG, NUA_CONFIG
 from .version import __version__
 
 REQUIRED_BLOCKS = ["metadata", "build"]
-REQUIRED = ["id", "version", "title", "author", "licence"]
-OPTIONAL = ["tagline", "website", "tags", "profile", "release", "changelog"]
+REQUIRED_METADATA = ["id", "version", "title", "author", "licence"]
+OPTIONAL_METADATA = ["tagline", "website", "tags", "profile", "release", "changelog"]
 
 
 class NuaConfig:
@@ -18,6 +18,7 @@ class NuaConfig:
 
     path: Path
     root_dir: Path
+    _data: dict
 
     def __init__(self, filename: str | Path | None = None):
         if not filename:
@@ -27,21 +28,22 @@ class NuaConfig:
             self.path = self.path / NUA_CONFIG
         if not self.path.is_file():
             abort(f"File not found '{self.path}'")
-        with open(self.path, mode="rb") as config_file:
+
+        with self.path.open(mode="rb") as config_file:
             self._data = tomli.load(config_file)
+        self._check()
         self.root_dir = self.path.parent
-        self.assert_format()
 
     def as_dict(self) -> dict:
         return self._data
 
-    def assert_format(self):
+    def _check(self):
         for block in REQUIRED_BLOCKS:
             if block not in self._data:
-                abort(f"missing mandatory '{block}' block in {NUA_CONFIG}")
-        for key in REQUIRED:
+                abort(f"Missing mandatory block in {NUA_CONFIG}: '{block}'")
+        for key in REQUIRED_METADATA:
             if key not in self._data["metadata"]:
-                abort(f"missing mandatory metadata in {NUA_CONFIG}: '{key}'")
+                abort(f"Missing mandatory metadata in {NUA_CONFIG}: '{key}'")
 
     def __getitem__(self, key: str) -> Any:
         """will return {} is key not found, assuming some parts are not
