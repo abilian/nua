@@ -448,7 +448,7 @@ test = ["flake8 (==3.7.8)", "hypothesis (==3.55.3)"]
 
 [[package]]
 name = "coverage"
-version = "7.0.1"
+version = "7.0.2"
 description = "Code coverage measurement for Python"
 category = "dev"
 optional = false
@@ -1498,7 +1498,7 @@ tox-to-nox = ["jinja2", "tox"]
 
 [[package]]
 name = "nua-lib"
-version = "0.4.72"
+version = "0.4.74"
 description = "Nua common library"
 category = "main"
 optional = false
@@ -1516,7 +1516,7 @@ url = "../nua-lib"
 
 [[package]]
 name = "nua-runtime"
-version = "0.4.72"
+version = "0.4.74"
 description = "Nua runtime"
 category = "main"
 optional = false
@@ -2172,7 +2172,7 @@ files = [
 
 [[package]]
 name = "ruff"
-version = "0.0.206"
+version = "0.0.208"
 description = "An extremely fast Python linter, written in Rust."
 category = "dev"
 optional = false
@@ -2239,15 +2239,11 @@ testing-integration = ["build[virtualenv]", "filelock (>=3.4.0)", "jaraco.envs (
 
 [[package]]
 name = "shellingham"
-version = "1.5.0"
+version = "1.5.0.post1"
 description = "Tool to Detect Surrounding Shell"
 category = "main"
 optional = false
-python-versions = ">=3.4"
-files = [
-    {file = "shellingham-1.5.0-py2.py3-none-any.whl", hash = "sha256:a8f02ba61b69baaa13facdba62908ca8690a94b8119b69f5ec5873ea85f7391b"},
-    {file = "shellingham-1.5.0.tar.gz", hash = "sha256:72fb7f5c63103ca2cb91b23dee0c71fe8ad6fbfd46418ef17dbe40db51592dad"},
-]
+python-versions = ">=3.7"
 
 [[package]]
 name = "six"
