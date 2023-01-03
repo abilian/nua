@@ -14,8 +14,8 @@ from time import sleep, time
 
 from nua.lib.exec import mp_exec_as_postgres
 
+from ..utils import is_package_installed
 from .db_manager import DbManager
-from .utils import is_package_installed
 
 if is_package_installed("psycopg2") or is_package_installed("psycopg2-binary"):
     psycopg2 = importlib.import_module("psycopg2")

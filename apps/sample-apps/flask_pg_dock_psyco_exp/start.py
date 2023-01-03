@@ -19,7 +19,7 @@ from flask_pg_dock_psyco_exp.constants import (
 from nua.lib.exec import exec_as_root
 
 # Nua shortcuts to manage postgres operations
-from nua.runtime.postgres_manager import PostgresManager
+from nua.runtime.db.postgres_manager import PostgresManager
 
 
 def setup_db():

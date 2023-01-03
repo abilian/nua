@@ -11,7 +11,7 @@ from flask_mariadb_wheel.constants import DB_HOST, DB_NAME, DB_USER, DB_USER_PWD
 from nua.lib.exec import exec_as_root
 
 # Nua shortcuts to manage mariadb:
-from nua.runtime.mariadb_manager import MariaDbManager
+from nua.runtime.db.mariadb_manager import MariaDbManager
 
 
 def setup_db():
