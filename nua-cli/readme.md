@@ -8,6 +8,8 @@ Used by developers and devops people to deploy and manage applications.
 ## Usage
 
 ```bash
+nua --help
+# or
 nua [command] [options]
 ```
 
@@ -34,7 +36,6 @@ nua [command] [options]
 
 ```bash
 nua deploy --help
-nua deploy --version
 nua deploy --name my-app --image my-image
 nua deploy --name my-app --image my-image --port 80
 nua deploy --name my-app --image my-image --port 80 --env NODE_ENV=production

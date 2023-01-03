@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from typing import Optional
 
 import typer
@@ -47,6 +48,10 @@ def deploy():
 @app.command()
 def list():
     """List applications."""
+    client = Client()
+    r = client.run("bin/nua list-instances --json")
+    for instance in json.loads(r.stdout):
+        typer.echo(instance["app_id"])
 
 
 @app.command()
