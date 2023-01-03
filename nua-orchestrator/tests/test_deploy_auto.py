@@ -31,7 +31,7 @@ def test_deploy_sites(deploy_file: str):
     if not domain_name:
         domain_name = socket.gethostname()
 
-    with tempfile.NamedTemporaryFile("w", suffix=".toml", delete=False) as new_file:
+    with tempfile.NamedTemporaryFile("w", suffix=".toml") as new_file:
         with open(deploy_file) as old_file:
             data = old_file.read()
             data = data.replace("example.com", domain_name)
