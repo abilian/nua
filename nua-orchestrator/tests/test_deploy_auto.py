@@ -16,9 +16,7 @@ runner = CliRunner()
 
 this_dir = Path(__file__).parent
 DEPLOY_CONFIGS = this_dir / "deploy_configs"
-DEPLOY_AUTO_FILES = [
-    str(p) for p in sorted((this_dir / "configs_ok").glob("*.toml"))
-]
+DEPLOY_AUTO_FILES = [str(p) for p in sorted((this_dir / "configs_ok").glob("*.toml"))]
 
 os.environ["NUA_CERTBOT_TEST"] = "1"
 os.environ["NUA_CERTBOT_VERBOSE"] = "1"

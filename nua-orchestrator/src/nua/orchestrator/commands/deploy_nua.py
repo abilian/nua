@@ -23,8 +23,10 @@ def deploy_nua(app_name: str) -> int:
     results = search_nua(app_name)
     if not results:
         error(f"No image found for '{app_name}'.")
+
     # ensure docker is running
     docker_service_start_if_needed()
+
     # images are sorted by version, take the last one:
     image_id, image_nua_config = load_install_image(results[-1])
     deploy_image(image_id, image_nua_config)

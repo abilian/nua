@@ -115,6 +115,7 @@ def deploy_local(
     set_verbose(verbose)
     set_color(colorize)
     initialization()
+
     if app_name.endswith(".toml") and Path(app_name).is_file():
         deploy_nua_sites(app_name)
     else:
