@@ -24,7 +24,6 @@ from nua.lib.tool.state import verbosity
 from . import config
 from .db import store
 from .resource import Resource
-from .utils import image_size_repr
 from .volume import Volume
 
 

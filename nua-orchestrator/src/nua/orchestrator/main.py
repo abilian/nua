@@ -28,6 +28,7 @@ from .search_cmd import search_nua_print
 
 app = typer.Typer()
 is_initialized = False
+
 arg_search_app = typer.Argument(..., help="App id or image name.")
 arg_deploy_app = typer.Argument(
     ..., metavar="APP", help="App id or image name (or toml file)."

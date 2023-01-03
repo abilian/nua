@@ -1,6 +1,4 @@
-from sqlalchemy import JSON, TIMESTAMP, Boolean, Column, Index, Integer, String, text
-from sqlalchemy.ext.indexable import index_property
-from sqlalchemy.orm import relationship
+from sqlalchemy import JSON, Column, Integer, String
 from sqlalchemy_serializer import SerializerMixin
 
 from .base import Base

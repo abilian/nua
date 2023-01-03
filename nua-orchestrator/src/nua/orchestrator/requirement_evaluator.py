@@ -14,7 +14,6 @@ from .evaluators import (
     site_environment,
 )
 from .resource import Resource
-from .site import Site
 
 EVALUATOR_FCT = {
     "random_str": random_str,

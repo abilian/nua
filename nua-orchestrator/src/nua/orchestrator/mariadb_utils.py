@@ -81,6 +81,7 @@ def set_mariadb_pwd(password: str, any_ip=True) -> bool:
     exec_as_root("systemctl stop mariadb")
     exec_as_root_daemon("mariadbd-safe --skip-grant-tables --skip-networking")
     sleep(1)
+
     if any_ip:
         cmd = (
             'mariadb -u root  -e "FLUSH PRIVILEGES; '
@@ -95,11 +96,13 @@ def set_mariadb_pwd(password: str, any_ip=True) -> bool:
         )
     exec_as_root(cmd, show_cmd=False)
     sleep(1)
+
     pid = sh(
         "sudo cat /run/mysqld/mysqld.pid", show_cmd=False, capture_output=True
     ).strip()
     exec_as_root(f"kill {pid}")
     sleep(1)
+
     exec_as_root("systemctl start mariadb")
     _store_mariadb_password(password)
     print(mariadb_status(password))

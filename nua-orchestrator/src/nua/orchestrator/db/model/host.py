@@ -1,17 +1,7 @@
-from sqlalchemy import (
-    TIMESTAMP,
-    Column,
-    ForeignKey,
-    Index,
-    Integer,
-    String,
-    Table,
-    text,
-)
-from sqlalchemy.orm import relationship
+from sqlalchemy import TIMESTAMP, Column, Integer, String, text
 from sqlalchemy_serializer import SerializerMixin
 
-from .base import Base, metadata
+from .base import Base
 
 
 class Host(Base, SerializerMixin):

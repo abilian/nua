@@ -1,4 +1,4 @@
-from sqlalchemy import JSON, TIMESTAMP, Column, Integer, String
+from sqlalchemy import JSON, Column, Integer, String
 from sqlalchemy_serializer import SerializerMixin
 
 from .base import Base

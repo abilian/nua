@@ -1,5 +1,4 @@
 """Execute backup commands."""
-from nua.lib.tool.state import verbosity
 
 from ..sites_management import SitesManagement
 

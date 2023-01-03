@@ -3,14 +3,12 @@ import os
 import re
 from pathlib import Path
 
-import psycopg2
 from nua.lib.actions import install_package_list, installed_packages
 from nua.lib.console import print_magenta, print_red
 from nua.lib.exec import mp_exec_as_postgres
 from nua.lib.shell import chown_r, sh
 from nua.runtime.gen_password import gen_password
 from nua.runtime.postgres_manager import NUA_PG_PWD_FILE
-from psycopg2.sql import SQL, Identifier
 
 from .docker_utils import docker_host_gateway_ip
 
@@ -65,7 +63,7 @@ def set_postgres_pwd(password: str) -> bool:
 
     The password is stored in clear in Nua home. In future version, it
     could be replaced by SSL key, thus gaining the ability to have
-    encyption of streams and expiration date. Basically we need clear
+    encryption of streams and expiration date. Basically we need clear
     password somewhere. Since this password is only used by Nua scripts
     (if Nua is the only user of local postgres DB), it could also be
     generated / erased at each invocation. Passord could be stored in
@@ -73,7 +71,6 @@ def set_postgres_pwd(password: str) -> bool:
     min password length in this function.
     """
     r_pwd = repr(password)
-    # query = SQL("ALTER USER postgres PASSWORD {}".format(i_pwd))
     query = f"ALTER USER postgres PASSWORD {r_pwd}"
     cmd = f'/usr/bin/psql -c "{query}"'
     mp_exec_as_postgres(cmd, cwd="/tmp", show_cmd=False)  # noqa S108

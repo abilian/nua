@@ -3,7 +3,7 @@
 (Later: replace by flask ui access).
 """
 import typer
-from nua.lib.console import print_green, print_red
+from nua.lib.console import print_green
 
 from ..mariadb_utils import set_random_mariadb_pwd
 

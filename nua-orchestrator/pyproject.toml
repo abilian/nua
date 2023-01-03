@@ -59,13 +59,14 @@ filterwarnings = ["ignore:.*distutils package:DeprecationWarning", "ignore::Depr
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+# ------------------------------------------------------------------------------
 
 [tool.ruff]
 extend-ignore = [
-    "F401", # `...` imported but unused
     "E501", # Line too long
-    "I001", # isort found an import in the wrong position
 ]
+
+# ------------------------------------------------------------------------------
 
 [tool.deptry]
 exclude = [
@@ -77,6 +78,7 @@ ignore_obsolete = [
     "nua-autobuild",
     "setuptools",
     "wheel",
+    "psycopg2-binary",
 ]
 ignore_missing = [
     "nua",
@@ -86,6 +88,7 @@ ignore_transitive = [
     "requests",
 ]
 
+# ------------------------------------------------------------------------------
 
 [tool.pyright]
 exclude = [
