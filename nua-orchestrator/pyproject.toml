@@ -20,7 +20,6 @@ nua-print-ports = "nua.orchestrator.scripts.print_used_ports:main"
 nua-deactivate-all = "nua.orchestrator.scripts.deactivate_all_instances:main"
 nua-docker-list-all = "nua.orchestrator.scripts.docker_list_all:main"
 nua-docker-rm-all = "nua.orchestrator.scripts.docker_remove_all:main"
-nua_test_replace_domain = "nua.orchestrator.scripts.test_replace_domain:main"
 nua_test_services = "nua.orchestrator.service:test"
 
 [tool.poetry.dependencies]
