@@ -62,11 +62,11 @@ class Builder:
         self.detect_container_type()
         self.check_allowed_base_image()
         self.ensure_base_image_availability()
-        title(f"Build of the image for {self.config.app_id}")
+        title(f"Building the image for {self.config.app_id}")
         self.detect_nua_dir()
         self.nua_dir_relative = self.nua_dir.relative_to(self.config.root_dir)
         if self.container_type == "docker":
-            self.make_docker_image()
+            self.build_docker_image()
 
     def detect_container_type(self):
         """Placeholder for future container technology detection.
@@ -92,7 +92,7 @@ class Builder:
         image_builder = NUAImageBuilder()
         image_builder.build(all=True)
 
-    def make_docker_image(self):
+    def build_docker_image(self):
         self.make_build_dir()
         self.copy_build_files()
         # self.copy_myself()
