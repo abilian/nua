@@ -126,6 +126,7 @@ install:
 
 clean:
 	cd nua-lib && make clean
+	cd nua-cli && make clean
 	cd nua-runtime && make clean
 	cd nua-autobuild && make clean
 	cd nua-build && make clean

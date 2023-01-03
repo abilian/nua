@@ -1,3 +1,5 @@
+import sys
+
 import nox
 
 PYTHON_VERSIONS = ["3.10"]  # + "3.11", "3.12"...
@@ -25,6 +27,9 @@ SUB_REPOS = [
 @nox.session(python=PYTHON_VERSIONS)
 @nox.parametrize("sub_repo", SUB_REPOS)
 def pytest(session: nox.Session, sub_repo: str):
+    if sub_repo == "nua-orchestrator" and sys.platform != "linux":
+        session.skip("nua-orchestrator only runs on Linux")
+
     run_subsession(session, sub_repo)
 
 

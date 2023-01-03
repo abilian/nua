@@ -10,6 +10,7 @@ license = "AGPL"
 python = "^3.10"
 
 nua-lib = { path = "nua-lib", develop = true }
+nua-cli = { path = "nua-cli", develop = true }
 nua-runtime = { path = "nua-runtime", develop = true }
 nua-autobuild = { path = "nua-autobuild", develop = true }
 nua-build = { path = "nua-build", develop = true }
@@ -71,14 +72,8 @@ select = [
 ]
 # Add later: "ANN", "ERA"...
 
-ignore = [
-    # FIXME: this is easy to test
-    "E501",  # line too long
-    "F401",  # 'module' imported but unused
-    "I001",  # Import block is un-sorted or un-formatted
-    'E711', # comparison to None should be 'if cond is not None:'
-]
 extend-exclude = [
+    ".nox",
     # XXX: check later
     "apps",
     "demo",
