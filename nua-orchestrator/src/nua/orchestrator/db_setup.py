@@ -35,8 +35,6 @@ def default_config() -> dict:
 
 
 def update_default_settings(settings):
-    global config  # required if changing config content
-
     current_db_url = config.read("nua", "db", "url")
     current_db_local_dir = config.read("nua", "db", "local_dir")
     existing_nua_config = DeepAccessDict(settings)
@@ -55,8 +53,6 @@ def update_default_settings(settings):
 
 
 def set_default_settings():
-    global config  # required if changing config content
-
     current_db_url = config.read("nua", "db", "url")
     current_db_local_dir = config.read("nua", "db", "local_dir")
     config.set("nua", default_config())
@@ -69,8 +65,6 @@ def set_default_settings():
 
 
 def set_db_url_in_settings(settings):
-    global config  # required if changing config content
-
     current_db_url = config.read("nua", "db", "url")
     current_db_local_dir = config.read("nua", "db", "local_dir")
     existing_nua_config = DeepAccessDict(settings)
@@ -83,8 +77,6 @@ def set_db_url_in_settings(settings):
 
 
 def setup_first_launch():
-    # global config
-
     settings = store.installed_nua_settings()
     if not settings:
         print_green(
@@ -127,7 +119,6 @@ def _url_from_defaults():
 
 
 def find_db_url() -> None:
-    global config  # required if changing config content
     # environment:
     url = os.environ.get("NUA_DB_URL", "")
     local_dir = os.environ.get("NUA_DB_LOCAL_DIR", "")
