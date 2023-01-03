@@ -26,7 +26,7 @@ from nua.autobuild.docker_build_utils import (
 )
 from nua.autobuild.nua_image_builder import NUAImageBuilder
 from nua.lib.console import print_stream_blue
-from nua.lib.panic import error, info, show, title, warning
+from nua.lib.panic import error, info, show, title
 from nua.lib.shell import rm_fr
 from nua.lib.tool.state import verbosity
 from nua.runtime.constants import NUA_BUILDER_NODE_TAG, NUA_BUILDER_TAG
@@ -75,7 +75,7 @@ class Builder:
         """
         container = self.config.build.get("container") or "docker"
         if container != "docker":
-            error(f"Unknown container type : '{container}'")
+            error(f"Unknown container type: '{container}'")
         self.container_type = container
 
     def check_allowed_base_image(self):
@@ -85,7 +85,7 @@ class Builder:
     def ensure_base_image_availability(self):
         if docker_get_locally(self.config.nua_base):
             return
-        warning(
+        info(
             f"Required Nua base image '{self.config.nua_base}' not found, "
             "image build required."
         )
@@ -127,11 +127,13 @@ class Builder:
                 # Use the root folder (where is the nua-config.toml file)
                 self.nua_dir = self.config.root_dir
             return
+
         # Check if provided path does exists
         path = self.config.root_dir / nua_dir
         if path.is_dir():
             self.nua_dir = path
             return
+
         error(f"Path not found (nua_dir) : '{nua_dir}'")
 
     def copy_from_manifest(self):
