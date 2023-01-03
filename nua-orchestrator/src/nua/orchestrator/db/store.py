@@ -137,7 +137,7 @@ def images_id_per_app_id(app_id):
         return [img.id_sha for img in images]
 
 
-def installed_nua_settings():
+def installed_nua_settings() -> dict:
     """Return the dictionnary of settings of the nua-orchestrator.
 
     nua-orchestrator is not actually an app, but we use the settings
@@ -148,9 +148,7 @@ def installed_nua_settings():
         setting = (
             session.query(Setting).filter_by(app_id=NUA_ORCH_ID, instance="").first()
         )
-        if not setting:
-            return None
-        return setting.data
+        return setting.data or {}
 
 
 def set_nua_settings(setting_dict):

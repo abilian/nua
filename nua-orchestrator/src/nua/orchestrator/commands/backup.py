@@ -7,7 +7,8 @@ def backup_all():
     """Execute a one-time backup for all site instance having a backup
     declaration."""
     deployer = SitesManagement()
-    deployer.backup_sites()
+    result = deployer.backup_sites()
+    print(result)
 
 
 def deployed_config() -> dict:

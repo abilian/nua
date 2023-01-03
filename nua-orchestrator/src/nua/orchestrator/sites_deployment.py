@@ -73,7 +73,7 @@ class SitesDeployment:
         self.available_services = {}
         self.orig_mounted_volumes = []
         self.previous_config_id = 0
-        self.future_config_id = 0
+        # self.future_config_id = 0
 
     @staticmethod
     def previous_success_deployment_record() -> dict:
@@ -96,13 +96,13 @@ class SitesDeployment:
         self.previous_config_id = previous_config.get("id", 0)
         if previous_config and previous_config["state"] != PREVIOUS:
             store.deploy_config_update_state(self.previous_config_id, PREVIOUS)
-        deploy_config = {
-            "requested": self.loaded_config,
-            "sites": deepcopy(self.sites),
-        }
-        self.future_config_id = store.deploy_config_add_config(
-            deploy_config, self.previous_config_id, INACTIVE
-        )
+        # deploy_config = {
+        #     "requested": self.loaded_config,
+        #     "sites": deepcopy(self.sites),
+        # }
+        # self.future_config_id = store.deploy_config_add_config(
+        #     deploy_config, self.previous_config_id, INACTIVE
+        # )
 
     def store_deploy_configs_after_swap(self):
         """Store configurations' status if the new configuration is
@@ -110,7 +110,14 @@ class SitesDeployment:
         # previous config stay INACTIVE
         if self.previous_config_id:
             store.deploy_config_update_state(self.previous_config_id, INACTIVE)
-        store.deploy_config_update_state(self.future_config_id, ACTIVE)
+        # store.deploy_config_update_state(self.future_config_id, ACTIVE)
+        deploy_config = {
+            "requested": self.loaded_config,
+            "sites": deepcopy(self.sites),
+        }
+        self.future_config_id = store.deploy_config_add_config(
+            deploy_config, self.previous_config_id, ACTIVE
+        )
 
     def local_services_inventory(self):
         """Initialization step: inventory of available resources available on
@@ -147,7 +154,7 @@ class SitesDeployment:
         self.sites = []
         for site_dict in previous_config["deployed"]["sites"]:
             self.sites.append(Site.from_dict(site_dict))
-        self.future_config_id = previous_config.get("id")
+        # self.future_config_id = previous_config.get("id")
         self.sort_sites_per_domain()
 
     def restore_previous_deploy_config_replay(self):
@@ -158,7 +165,7 @@ class SitesDeployment:
         if not previous_config:
             error("Impossible to find a previous deployment.")
         self.loaded_config = previous_config["deployed"]["requested"]
-        self.future_config_id = previous_config.get("id")
+        # self.future_config_id = previous_config.get("id")
         self.parse_deploy_sites()
         self.sort_sites_per_domain()
         if verbosity(3):

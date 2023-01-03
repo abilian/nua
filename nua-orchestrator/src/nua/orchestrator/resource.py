@@ -4,6 +4,8 @@ from copy import deepcopy
 from nua.lib.panic import error, warning
 from nua.lib.tool.state import verbosity
 
+from .backup_engine import backup_resource, backup_volume
+from .backup_report import global_backup_report
 from .healthcheck import HealthCheck
 from .port_normalization import normalize_ports, ports_as_dict
 from .utils import sanitized_name
@@ -403,7 +405,7 @@ class Resource(dict):
         for resource in self.resources:
             resource.add_requested_secrets(key)
 
-    def do_full_backup(self):
+    def do_full_backup(self) -> str:
         """Execute a full backup.
 
          backup order:
@@ -413,16 +415,16 @@ class Resource(dict):
         a) backup tag of each volume
         b) backup tag of main resource
         """
+        reports = []
         for resource in self.resources:
-            resource.do_backup()
-        self.do_backup()
+            reports.extend(resource.do_backup())
+        reports.extend(self.do_backup())
+        return global_backup_report(reports)
 
-    def do_backup(self):
-        """Execute a backup."""
-        # FIXME: break this circular import
-        from .backup_engine import backup_resource, backup_volume
-
+    def do_backup(self) -> list:
+        reports = []
         for volume_dict in self.volume:
             volume = Volume.from_dict(volume_dict)
-            backup_volume(volume)
-        backup_resource(self)
+            reports.append(backup_volume(volume))
+        reports.append(backup_resource(self))
+        return reports

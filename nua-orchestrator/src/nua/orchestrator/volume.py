@@ -33,8 +33,20 @@ class Volume:
     def __init__(self):
         self._dict = {}
 
-    def __str__(self):
+    def __str__(self) -> str:
         return pformat(self._dict)
+
+    def __setitem__(self, key: int | str, item: Any):
+        self._dict[key] = item
+
+    def __getitem__(self, key: int | str) -> Any:
+        return self._dict[key]
+
+    def has_key(self, key: int | str) -> bool:
+        return key in self._dict
+
+    def get(self, key: int | str, default=None) -> Any:
+        return self._dict.get(key, default)
 
     @classmethod
     def parse(cls, data: dict) -> Volume:

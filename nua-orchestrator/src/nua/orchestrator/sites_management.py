@@ -44,9 +44,11 @@ class SitesManagement:
             for hostname, sites_list in domains.items()
         ]
 
-    def backup_sites(self):
+    def backup_sites(self) -> str:
         """Execute a one-time backup for all site instance having a backup
         declaration."""
         self.load_active_config()
+        result = []
         for site in self.sites:
-            site.do_full_backup()
+            result.append(site.do_full_backup())
+        return "\n".join(result)

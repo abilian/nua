@@ -1,16 +1,55 @@
-from .resource import Resource
-from .volume import Volume
+from pprint import pformat
+
+from nua.lib.panic import warning
+from nua.lib.tool.state import verbosity
+
+from .backup_functions import bck_pg_dumpall
+from .backup_report import BackupReport
+
+# from .resource import Resource
+# from .volume import Volume
+
+BCK_FUNCTION = {"pg_dumpall": bck_pg_dumpall}
 
 
-def backup_resource(resource: Resource):
+# fixme will use resource as protocol or abstract
+def backup_resource(resource: dict) -> BackupReport:
+    """Execute a backup from main 'backup' configuration of a Resource."""
+    backup_conf = resource.get("backup")
+    if not backup_conf or not isinstance(backup_conf, dict):
+        return BackupReport(
+            node=resource.container,
+            message="No backup configuration",
+        )
+    method = backup_conf.get("method", "")
+    function = BCK_FUNCTION.get(method)
+    if not function:
+        return BackupReport(
+            node=resource.container,
+            task=True,
+            success=False,
+            message=f"Unknown backup method '{method}'",
+        )
+    return function(resource)
+
+
+def backup_volume(volume) -> BackupReport:
     """Execute a backup from mais backup tag of a Resource."""
-    if not (_backup_conf := resource.get("backup")):
-        assert _backup_conf  # FIXME: remove this line once the function in implemented
-        return
-
-
-def backup_volume(volume: Volume):
-    """Execute a backup from mais backup tag of a Resource."""
-    if not (_backup_conf := volume.get("backup")):
-        assert _backup_conf  # FIXME: remove this line once the function in implemented
-        return
+    backup_conf = volume.get("backup")
+    if not backup_conf or not isinstance(backup_conf, dict):
+        return BackupReport(
+            node=volume.source,
+            task=False,
+            success=False,
+            message="No backup configuration",
+        )
+    method = backup_conf.get("method", "sync")
+    function = BCK_FUNCTION.get(method)
+    if not function:
+        return BackupReport(
+            node=volume.source,
+            task=True,
+            success=False,
+            message=f"Unknown backup method '{method}'",
+        )
+    return function(volume)
