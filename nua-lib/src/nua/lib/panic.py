@@ -10,7 +10,7 @@ from .console import (
 )
 
 
-def error(msg: str, status: int = 1, explanation: str = ""):
+def abort(msg: str, status: int = 1, explanation: str = ""):
     if not msg:
         msg = "unknown error"
     _print("Error", msg, explanation)

@@ -5,7 +5,7 @@ from pprint import pformat
 from typing import Any
 
 from nua.lib.console import print_red
-from nua.lib.panic import error
+from nua.lib.panic import abort
 
 from .utils import sanitized_name
 
@@ -76,7 +76,7 @@ class Volume:
         except ValueError as e:
             print_red(str(e))
             print_red(pformat(data))
-            error("Volume configuration has errors")
+            abort("Volume configuration has errors")
 
     @classmethod
     def normalize_list(cls, volume_list: list[dict]) -> list[dict]:

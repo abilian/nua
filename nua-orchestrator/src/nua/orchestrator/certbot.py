@@ -13,7 +13,7 @@ Test ENV variables:
 import os
 
 from nua.lib.console import print_red
-from nua.lib.panic import error
+from nua.lib.panic import abort
 from nua.lib.tool.state import verbosity
 
 from . import config
@@ -67,4 +67,4 @@ def assert_valid_certbot_strategy(strategy: str):
     if strategy not in ALLOWED_STRATEGY:
         print_red("Allowed values for certbot_strategy are:")
         print_red(f"{ALLOWED_STRATEGY}")
-        error(f"Unknown certbot_strategy: {strategy}")
+        abort(f"Unknown certbot_strategy: {strategy}")

@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Any
 
 import tomli
-from nua.lib.panic import error
+from nua.lib.panic import abort
 
 from .constants import NUA_BUILDER_TAG, NUA_CONFIG
 from .version import __version__
@@ -26,7 +26,7 @@ class NuaConfig:
         if self.path.is_dir():
             self.path = self.path / NUA_CONFIG
         if not self.path.is_file():
-            error(f"File not found '{self.path}'")
+            abort(f"File not found '{self.path}'")
         with open(self.path, mode="rb") as config_file:
             self._data = tomli.load(config_file)
         self.root_dir = self.path.parent
@@ -38,10 +38,10 @@ class NuaConfig:
     def assert_format(self):
         for block in REQUIRED_BLOCKS:
             if block not in self._data:
-                error(f"missing mandatory '{block}' block in {NUA_CONFIG}")
+                abort(f"missing mandatory '{block}' block in {NUA_CONFIG}")
         for key in REQUIRED:
             if key not in self._data["metadata"]:
-                error(f"missing mandatory metadata in {NUA_CONFIG}: '{key}'")
+                abort(f"missing mandatory metadata in {NUA_CONFIG}: '{key}'")
 
     def __getitem__(self, key: str) -> Any:
         """will return {} is key not found, assuming some parts are not

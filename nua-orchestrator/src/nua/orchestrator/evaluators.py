@@ -4,7 +4,7 @@ from copy import deepcopy
 from functools import wraps
 from typing import Any
 
-from nua.lib.panic import error, warning
+from nua.lib.panic import abort, warning
 from nua.runtime.gen_password import gen_password
 
 from .resource import Resource
@@ -60,7 +60,7 @@ def random_str(site: Site, requirement: dict) -> dict:
 def resource_property(site: Site, requirement: dict) -> dict:
     values = requirement[RESOURCE_PROPERTY].split(".")
     if len(values) != 2:
-        error(f"Bad content for resource_property: {requirement}")
+        abort(f"Bad content for resource_property: {requirement}")
     resource_name, prop = values
     for resource in site.resources:
         if resource.resource_name != resource_name:
@@ -75,7 +75,7 @@ def resource_property(site: Site, requirement: dict) -> dict:
             else:
                 value = str(attr)
         else:
-            error(f"Unknown property for resource_property: {requirement}")
+            abort(f"Unknown property for resource_property: {requirement}")
         return {requirement[KEY]: value}
     warning(f"Unknown resource for {requirement}")
     return {}

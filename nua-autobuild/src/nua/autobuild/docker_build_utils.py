@@ -6,7 +6,7 @@ from docker import from_env
 from docker.errors import APIError, BuildError, ImageNotFound
 from docker.models.images import Image
 from nua.lib.console import print_magenta, print_red
-from nua.lib.panic import error
+from nua.lib.panic import abort
 from nua.lib.tool.state import verbosity
 
 LOCAL_CONFIG = {"size_unit_MiB": False}
@@ -29,7 +29,7 @@ def docker_build_log_error(func):
             print_red(str(e))
             print("=" * 60)
             print_log_stream(e.build_log)
-            error("Exiting.")
+            abort("Exiting.")
 
     return build_log_error_wrapper
 

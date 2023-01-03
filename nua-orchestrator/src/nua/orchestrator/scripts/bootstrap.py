@@ -17,7 +17,7 @@ from nua.lib.actions import (
 )
 from nua.lib.console import print_green, print_magenta, print_red
 from nua.lib.exec import exec_as_nua, mp_exec_as_nua
-from nua.lib.panic import error, warning
+from nua.lib.panic import abort, warning
 from nua.lib.shell import chown_r, mkdir_p, rm_fr, sh, user_exists
 
 from .. import nua_env
@@ -42,7 +42,7 @@ HOST_PACKAGES = [
 def main():
     print_magenta("Installing Nua bootstrap on local host.")
     if not check_python_version():
-        error("Python 3.10+ is required for Nua installation.")
+        abort("Python 3.10+ is required for Nua installation.")
     if user_exists(NUA):
         warning("Nua was already installed.")
     if os.geteuid() != 0:

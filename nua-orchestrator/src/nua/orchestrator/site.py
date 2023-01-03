@@ -4,7 +4,7 @@ from copy import deepcopy
 from pathlib import Path
 from pprint import pformat
 
-from nua.lib.panic import error, warning
+from nua.lib.panic import abort, warning
 from nua.lib.tool.state import verbosity
 
 from .domain_split import DomainSplit
@@ -217,7 +217,7 @@ class Site(Resource):
     def rebase_ports_upon_nua_config(self):
         config_ports = deepcopy(self.image_nua_config.get("port", {}))
         if not isinstance(config_ports, dict):
-            error("nua_config['port'] must be a dict")
+            abort("nua_config['port'] must be a dict")
 
         keys = list(config_ports.keys())
         for key in keys:

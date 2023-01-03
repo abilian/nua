@@ -2,9 +2,9 @@
 import pwd
 import shutil
 from pathlib import Path
-from subprocess import run  # noqa: S404
+from subprocess import CompletedProcess, run  # noqa: S404
 
-from .panic import error, show
+from .panic import abort, show
 
 
 def cat(filename: str | Path):
@@ -76,7 +76,7 @@ def _base_sh(
     env: dict | None,
     capture_output: bool,
     cwd: str | Path | None,
-):
+) -> CompletedProcess:
     if capture_output:
         return run(
             cmd,
@@ -122,15 +122,15 @@ def sh(
                 f"Child was terminated by signal {-status},\n"
                 f"shell command was: '{cmd}'\n"
             )
-            error(msg, status)
+            abort(msg, status)
         elif status > 0:
             msg = (
                 f"Something went wrong (exit code: {status}), \n"
                 f"shell command was: '{cmd}'\n"
             )
-            error(msg, status)
+            abort(msg, status)
     except OSError as e:
-        error(f"Execution failed: {e}\nshell command was: '{cmd}'\n")
+        abort(f"Execution failed: {e}\nshell command was: '{cmd}'\n")
         # Not used, actually, but silences warnings.
         raise SystemExit(1)
     if capture_output:

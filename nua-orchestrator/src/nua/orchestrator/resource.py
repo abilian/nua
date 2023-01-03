@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from copy import deepcopy
 
-from nua.lib.panic import error, warning
+from nua.lib.panic import abort, warning
 from nua.lib.tool.state import verbosity
 
 from .backup_engine import backup_resource, backup_volume
@@ -227,13 +227,13 @@ class Resource(dict):
 
     def _check_missing(self, key: str):
         if key not in self:
-            error(f"Site or Resource configuration missing '{key}' key")
+            abort(f"Site or Resource configuration missing '{key}' key")
 
     def _parse_run_env(self):
         run_env = self.run_env  # may contain dict of deprecated syntax
         env = self.get("run", {}).get("env", {})
         if not isinstance(env, dict):
-            error("[run.env] must be a dict")
+            abort("[run.env] must be a dict")
         run_env.update(env)
         self.run_env = run_env
         run = self.get("run", {})
@@ -251,7 +251,7 @@ class Resource(dict):
             self.port = {}
             return
         if not isinstance(self.port, dict):
-            error("Site['port'] must be a dict")
+            abort("Site['port'] must be a dict")
         keys = list(self.port.keys())
         for key in keys:
             self.port[key]["name"] = key
@@ -291,7 +291,7 @@ class Resource(dict):
             self.volume = []
             return
         if not isinstance(self.volume, list):
-            error("Site['volume'] must be a list")
+            abort("Site['volume'] must be a list")
         # filter empty elements
         volume_list = [v for v in self.volume if v]
         self.volume = Volume.normalize_list(volume_list)
@@ -333,7 +333,7 @@ class Resource(dict):
         orig = self[key]
         if isinstance(orig, dict):
             if not isinstance(value, dict):
-                error(
+                abort(
                     "Updated value in deploy config must be a dict.",
                     explanation=f"{orig=}\n{value=}",
                 )
@@ -348,7 +348,7 @@ class Resource(dict):
 
     def _update_instance_from_site_deep_volume(self, value):
         if not isinstance(value, list):
-            error(
+            abort(
                 "Updated volumes in deploy config must be a list.",
                 explanation=f"{value=}",
             )
@@ -361,7 +361,7 @@ class Resource(dict):
 
     def _update_instance_from_site_deep_assign(self, value):
         if not isinstance(value, list):
-            error(
+            abort(
                 "Updated assignment in deploy config must be a list.",
                 explanation=f"{value=}",
             )

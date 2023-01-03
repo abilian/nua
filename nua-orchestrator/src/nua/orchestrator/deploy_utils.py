@@ -7,7 +7,7 @@ import docker
 import docker.types
 from nua.autobuild.docker_build_utils import display_one_docker_img, docker_require
 from nua.lib.console import print_green, print_magenta
-from nua.lib.panic import error, info, warning
+from nua.lib.panic import abort, info, warning
 from nua.lib.tool.state import verbosity
 
 from .archive_search import ArchiveSearch
@@ -45,7 +45,7 @@ def load_install_image(image_path: str | Path) -> tuple:
     arch_search = ArchiveSearch(path)
     image_nua_config = arch_search.nua_config_dict()
     if not image_nua_config:
-        error(f"image non compatible Nua: {path}.", explanation="No Nua config found")
+        abort(f"image non compatible Nua: {path}.", explanation="No Nua config found")
     metadata = image_nua_config["metadata"]
     msg = "Installing App: {id} {version}, {title}".format(**metadata)
     print_magenta(msg)
@@ -73,7 +73,7 @@ def port_allocator(start_ports: int, end_ports: int, allocated_ports: set) -> Ca
             ):
                 allocated_ports.add(port)
                 return port
-        error("Not enough available ports")
+        abort("Not enough available ports")
 
     return allocator
 

@@ -9,7 +9,7 @@ import typer
 from nua.lib.actions import check_python_version
 from nua.lib.console import print_red
 from nua.lib.exec import is_current_user, set_nua_user
-from nua.lib.panic import error
+from nua.lib.panic import abort
 from nua.lib.tool.state import set_color, set_verbose
 
 from . import __version__
@@ -73,7 +73,7 @@ def initialization():
     global is_initialized
 
     if not check_python_version():
-        error("Python 3.10+ is required for Nua orchestrator.")
+        abort("Python 3.10+ is required for Nua orchestrator.")
     if os.getuid() == 0 or is_current_user("nua"):
         set_nua_user()
     else:

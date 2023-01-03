@@ -5,7 +5,7 @@ import os
 # from contextlib import suppress
 from operator import itemgetter
 
-from nua.lib.panic import error
+from nua.lib.panic import abort
 
 from . import __version__, config
 
@@ -35,7 +35,7 @@ def verify_private_host_key_defined():
         )
         log_me(msg)
         print(msg)
-        error("No RSA host key found")
+        abort("No RSA host key found")
 
 
 def display_configured_registries():

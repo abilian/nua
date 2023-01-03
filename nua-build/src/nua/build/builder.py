@@ -26,7 +26,7 @@ from nua.autobuild.docker_build_utils import (
 )
 from nua.autobuild.nua_image_builder import NUAImageBuilder
 from nua.lib.console import print_stream_blue
-from nua.lib.panic import error, info, show, title
+from nua.lib.panic import abort, info, show, title
 from nua.lib.shell import rm_fr
 from nua.lib.tool.state import verbosity
 from nua.runtime.constants import NUA_BUILDER_NODE_TAG, NUA_BUILDER_TAG
@@ -75,12 +75,12 @@ class Builder:
         """
         container = self.config.build.get("container") or "docker"
         if container != "docker":
-            error(f"Unknown container type: '{container}'")
+            abort(f"Unknown container type: '{container}'")
         self.container_type = container
 
     def check_allowed_base_image(self):
         if self.config.nua_base not in ALLOWED_BASE_IMAGE:
-            error(f"Nua base must be one of:\n{', '.join(ALLOWED_BASE_IMAGE)}")
+            abort(f"Nua base must be one of:\n{', '.join(ALLOWED_BASE_IMAGE)}")
 
     def ensure_base_image_availability(self):
         if docker_get_locally(self.config.nua_base):
@@ -107,7 +107,7 @@ class Builder:
             config.get("build", {}).get("build_dir", "/var/tmp")  # noqa S108
         )
         if not build_dir_parent.is_dir():
-            error(f"Build directory parent not found: '{build_dir_parent}'")
+            abort(f"Build directory parent not found: '{build_dir_parent}'")
         self.build_dir = Path(tempfile.mkdtemp(dir=build_dir_parent))
         if verbosity(1):
             info(f"Build directory: {self.build_dir}")
@@ -134,7 +134,7 @@ class Builder:
             self.nua_dir = path
             return
 
-        error(f"Path not found (nua_dir) : '{nua_dir}'")
+        abort(f"Path not found (nua_dir) : '{nua_dir}'")
 
     def copy_from_manifest(self):
         for name in self.config.manifest:
@@ -151,7 +151,7 @@ class Builder:
                 info("Copying manifest directory:", user_file.name)
             copytree(user_file, self.build_dir / name)
         else:
-            error(f"File from manifest not found: {repr(name)}")
+            abort(f"File from manifest not found: {repr(name)}")
 
     def copy_file_or_dir(self, user_file):
         if user_file.is_file():

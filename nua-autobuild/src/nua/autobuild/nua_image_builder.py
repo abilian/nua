@@ -5,7 +5,7 @@ from pathlib import Path
 
 import docker
 from nua.lib.actions import copy_from_package
-from nua.lib.panic import error, show, title
+from nua.lib.panic import abort, show, title
 from nua.lib.shell import mkdir_p
 from nua.lib.tool.state import verbosity
 from nua.runtime.constants import NUA_BUILDER_NODE_TAG, NUA_BUILDER_TAG, NUA_PYTHON_TAG
@@ -119,7 +119,7 @@ class NUAImageBuilder:
         mkdir_p(wheel_path)
         wheel_builder = NuaWheelBuilder(wheel_path, self.download)
         if not wheel_builder.make_wheels():
-            error("Build of required Nua wheels failed")
+            abort("Build of required Nua wheels failed")
 
 
 @docker_build_log_error

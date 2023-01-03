@@ -9,7 +9,7 @@ from urllib.request import urlopen
 
 import tomli
 import tomli_w
-from nua.lib.panic import error, warning
+from nua.lib.panic import abort, warning
 from nua.lib.shell import rm_fr, sh
 from nua.lib.tool.state import verbosity
 
@@ -78,7 +78,7 @@ class NuaWheelBuilder:
 
     def build_from(self, top_git: Path) -> bool:
         if not (top_git.is_dir()):
-            error(f"Directory not found '{top_git}'")
+            abort(f"Directory not found '{top_git}'")
             return False  # for the qa
         if verbosity(3):
             print([f.name for f in top_git.iterdir()])

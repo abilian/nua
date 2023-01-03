@@ -3,7 +3,7 @@
 WIP
 """
 from nua.lib.console import print_magenta
-from nua.lib.panic import error
+from nua.lib.panic import abort
 from nua.lib.tool.state import verbosity
 
 from ..deploy_utils import load_install_image
@@ -22,7 +22,7 @@ def deploy_nua(app_name: str) -> int:
         print_magenta(f"image: '{app_name}'")
     results = search_nua(app_name)
     if not results:
-        error(f"No image found for '{app_name}'.")
+        abort(f"No image found for '{app_name}'.")
 
     # ensure docker is running
     docker_service_start_if_needed()

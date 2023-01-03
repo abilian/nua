@@ -11,7 +11,7 @@ from pathlib import Path
 from shutil import copy2
 
 from nua.lib.actions import copy_from_package
-from nua.lib.panic import error
+from nua.lib.panic import abort
 from nua.lib.shell import mkdir_p, sh
 
 from ..constants import (
@@ -36,7 +36,7 @@ class BuilderApp:
         # self.root_dir = Path.cwd()
         self.build_dir = Path(NUA_BUILD_PATH)
         if not self.build_dir.is_dir():
-            error(f"Build directory does not exist: '{self.build_dir}'")
+            abort(f"Build directory does not exist: '{self.build_dir}'")
         chdir(self.build_dir)
         self.config = NuaConfig(self.build_dir)
         self.build_script_path = None

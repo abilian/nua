@@ -18,7 +18,7 @@ from nua.autobuild.docker_build_utils import docker_require
 from nua.lib.console import print_red
 
 # from .db.model.instance import RUNNING
-from nua.lib.panic import error, info, warning
+from nua.lib.panic import abort, info, warning
 from nua.lib.tool.state import verbosity
 
 from . import config
@@ -278,7 +278,7 @@ def docker_run(rsite: Resource, secrets: dict) -> Container:
     if verbosity(3):
         print("docker secrets:", secrets)
     if not docker_check_container_listed(container.name):
-        error(f"Failed starting container {container.name}")
+        abort(f"Failed starting container {container.name}")
     rsite.container = container.name
     test_docker_exec(container)
     return container
@@ -338,7 +338,7 @@ def docker_volume_create_new(volume: Volume):
     """Create a new volume of type "volume"."""
     if volume.driver != "local" and not install_plugin(volume.driver):
         # assuming it is the name of a plugin
-        error(f"Install of Docker's plugin '{volume.driver}' failed.")
+        abort(f"Install of Docker's plugin '{volume.driver}' failed.")
     client = from_env()
     client.volumes.create(
         name=volume.source,

@@ -7,7 +7,7 @@ from pprint import pformat
 
 import tomli
 from nua.lib.console import print_green, print_magenta, print_red
-from nua.lib.panic import error, info, warning
+from nua.lib.panic import abort, info, warning
 from nua.lib.tool.state import verbosity
 
 from . import config
@@ -149,7 +149,7 @@ class SitesDeployment:
             info("Deploy sites from previous deployment (strict mode).")
         previous_config = self.previous_success_deployment_record()
         if not previous_config:
-            error("Impossible to find a previous deployment.")
+            abort("Impossible to find a previous deployment.")
         self.loaded_config = previous_config["deployed"]["requested"]
         self.sites = []
         for site_dict in previous_config["deployed"]["sites"]:
@@ -163,7 +163,7 @@ class SitesDeployment:
             info("Deploy sites from previous deployment (replay deployment).")
         previous_config = self.previous_success_deployment_record()
         if not previous_config:
-            error("Impossible to find a previous deployment.")
+            abort("Impossible to find a previous deployment.")
         self.loaded_config = previous_config["deployed"]["requested"]
         # self.future_config_id = previous_config.get("id")
         self.parse_deploy_sites()
@@ -250,7 +250,7 @@ class SitesDeployment:
         sites = []
         for site_dict in self.loaded_config["site"]:
             if not isinstance(site_dict, dict):
-                error(
+                abort(
                     "Site configuration must be a dict",
                     explanation=f"{pformat(site_dict)}",
                 )
@@ -360,7 +360,7 @@ class SitesDeployment:
     def install_required_images(self):
         # first: check that all Nua images are available:
         if not self.find_all_images():
-            error("Missing Nua images")
+            abort("Missing Nua images")
         self.install_images()
 
     def find_all_images(self) -> bool:
@@ -381,7 +381,7 @@ class SitesDeployment:
         installed = {}
         for site in self.sites:
             if not site.find_registry_path(cached=True):
-                error(f"No image found for '{site.image}'")
+                abort(f"No image found for '{site.image}'")
             registry_path = site.registry_path
             if registry_path in installed:
                 image_id = installed[registry_path][0]
@@ -397,7 +397,7 @@ class SitesDeployment:
             site.parse_resources()
             site.set_ports_as_dict()
         if not self.pull_all_resource_images():
-            error("Missing Docker images")
+            abort("Missing Docker images")
 
     def pull_all_resource_images(self) -> bool:
         return all(
@@ -418,13 +418,13 @@ class SitesDeployment:
         available_services = set(self.available_services.keys())
         for service in self.required_services:
             if service not in available_services:
-                error(f"Required service '{service}' is not available")
+                abort(f"Required service '{service}' is not available")
 
     def check_required_local_resources_configuration(self, site: Site):
         for service in site.local_services:
             handler = self.available_services[service]
             if not handler.check_site_configuration(site):
-                error(
+                abort(
                     f"Required service '{service}' not configured for site {site.domain}"
                 )
 
