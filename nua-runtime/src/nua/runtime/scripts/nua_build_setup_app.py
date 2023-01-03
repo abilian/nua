@@ -1,6 +1,6 @@
 """Script to build a nua package (experimental)
 
-- informations come from a mandatory local file: "nua-config.toml"
+- information come from a mandatory local file: "nua-config.toml"
 - origin may be a source tar.gz or a git repository
 - build locally if source is python package
 """

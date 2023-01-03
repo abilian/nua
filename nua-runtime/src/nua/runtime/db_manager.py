@@ -1,6 +1,7 @@
 """Common interface for databases managers (WIP).
 
-This could make it more uniform to use different databases (and easier to add additional databases).
+This could make it more uniform to use different databases
+(and easier to add additional databases).
 
 Ex:
 
