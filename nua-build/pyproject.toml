@@ -2,7 +2,10 @@
 name = "nua-build"
 version = "0.4.74"
 description = "Nua build package (currently: build, core build, runtime)"
-authors = ["Stefane Fermigier <sf@abilian.com>", "Jerome Dumonteil <jd@abilian.com>"]
+authors = [
+    "Stefane Fermigier <sf@abilian.com>",
+    "Jerome Dumonteil <jd@abilian.com>",
+]
 license = "AGPL"
 readme = "README.md"
 packages = [
@@ -18,7 +21,7 @@ nua_test_replace_domain = "nua.build.scripts.test_replace_domain:main"
 [tool.poetry.dependencies]
 python = "^3.10"
 
-# Internal deps "poor man's monorepo"
+# Internal deps = "poor man's monorepo"
 nua-lib = { path = "../nua-lib/", develop = true }
 nua-runtime = { path = "../nua-runtime/", develop = true }
 nua-autobuild = { path = "../nua-autobuild/", develop = true }
@@ -27,10 +30,7 @@ setuptools = "^65.5.0"
 tomli = "^2.0.1"
 
 # CLI and text ui
-typer = {extras = ["all"], version = "^0.7.0"}
-
-# DB drivers
-# psycopg2-binary = "^2.9.4"
+typer = {version = "^0.7.0", extras = ["all"]}
 
 # Docker client
 docker = "^6.0"
@@ -52,38 +52,12 @@ filterwarnings = ["ignore:.*distutils package:DeprecationWarning", "ignore::Depr
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+# ------------------------------------------------------------------------------
 
 [tool.ruff]
-extend-ignore = [
-    'E711', # comparison to None should be 'if cond is not None:'
-    # TODO: fix these
-    'E501', # Line too long
-    'F401', # "..." imported but unused
-]
+# Do not remove
 
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "dist",
-    "node_modules",
-    "venv",
-    # specific:
-    "tests/apps",
-]
-
+# ------------------------------------------------------------------------------
 
 [tool.deptry]
 exclude = [
@@ -98,9 +72,8 @@ exclude = [
 ignore_obsolete = [
     "setuptools",
     "paramiko",
-	"abilian-devtools",
-	"nox",
-	"types-setuptools",
+    "nox",
+    "types-setuptools",
     "nua-autobuild",
     "nua-lib",
     "nua-runtime",
@@ -113,6 +86,7 @@ ignore_missing = [
 ignore_transitive = [
 ]
 
+# ------------------------------------------------------------------------------
 
 [tool.pyright]
 exclude = [
