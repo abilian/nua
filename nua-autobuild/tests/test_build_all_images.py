@@ -1,10 +1,8 @@
-import re
 import shlex
 from contextlib import suppress
 from subprocess import run
 
 import docker
-import pytest
 from nua.runtime.constants import NUA_BUILDER_NODE_TAG, NUA_BUILDER_TAG, NUA_PYTHON_TAG
 
 

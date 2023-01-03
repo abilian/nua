@@ -1,6 +1,3 @@
-import pytest
-
-
 def test_version_string():  # noqa
     from nua.autobuild import __version__
 
