@@ -3,7 +3,7 @@ name = "nua-cli"
 version = "0.1.0"
 description = ""
 authors = ["Stefane Fermigier <sf@abilian.com>"]
-readme = "README.md"
+readme = "readme.md"
 packages = [
   { include = "nua", from = "src" }
 ]
