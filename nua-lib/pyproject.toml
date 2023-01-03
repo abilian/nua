@@ -26,19 +26,7 @@ filterwarnings = ["ignore:.*distutils package:DeprecationWarning", "ignore::Depr
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-
-[tool.ruff]
-extend-ignore = [
-    'E711', # comparison to None should be 'if cond is not None:'
-    # TODO: fix these
-    'E501', # Line too long
-    'F401', # "..." imported but unused
-    'F841', # Local variable assigned to but never used
-]
-extend-exclude = [
-    ".nox"
-]
-
+# ------------------------------------------------------------------------------
 
 [tool.deptry]
 exclude = [
@@ -63,6 +51,7 @@ ignore_missing = [
 ignore_transitive = [
 ]
 
+# ------------------------------------------------------------------------------
 
 [tool.pyright]
 exclude = [

@@ -16,15 +16,16 @@ from jinja2 import Template
 from .panic import warning
 from .shell import sh
 
+TIMEOUT = 600
+
 
 #
 # Builder for Python projects
 #
 def is_python_project(path: str | Path = "") -> bool:
     root = Path(path).expanduser().resolve()
-    return any(
-        (root / f).exists() for f in ("requirements.txt", "setup.py", "pyproject.toml")
-    )
+    deps_files = ("requirements.txt", "setup.py", "pyproject.toml")
+    return any((root / f).exists() for f in deps_files)
 
 
 def build_python(path: str | Path = ""):
@@ -42,30 +43,30 @@ def build_python(path: str | Path = ""):
 #
 def apt_remove_lists():
     environ = os.environ.copy()
-    sh("rm -rf /var/lib/apt/lists/*", env=environ, timeout=600)
+    sh("rm -rf /var/lib/apt/lists/*", env=environ, timeout=TIMEOUT)
 
 
 def apt_update():
     environ = os.environ.copy()
     environ["DEBIAN_FRONTEND"] = "noninteractive"
     cmd = "apt-get update --fix-missing"
-    sh(cmd, env=environ, timeout=600, show_cmd=False)
+    sh(cmd, env=environ, timeout=TIMEOUT, show_cmd=False)
 
 
 def apt_final_clean():
     environ = os.environ.copy()
     environ["DEBIAN_FRONTEND"] = "noninteractive"
     cmd = "apt-get autoremove -y; apt-get clean"
-    sh(cmd, env=environ, timeout=600)
+    sh(cmd, env=environ, timeout=TIMEOUT)
 
 
 def _install_packages(packages: list, update: bool):
     if packages:
         environ = os.environ.copy()
         environ["DEBIAN_FRONTEND"] = "noninteractive"
-        update_cmd = "apt-get update --fix-missing; " if update else ""
-        cmd = f"{update_cmd}apt-get install --no-install-recommends -y {' '.join(packages)}"
-        sh(cmd, env=environ, timeout=600)
+        cmd = "apt-get update --fix-missing; " if update else ""
+        cmd += f"apt-get install --no-install-recommends -y {' '.join(packages)}"
+        sh(cmd, env=environ, timeout=TIMEOUT)
     else:
         warning("install_package(): nothing to install")
 
@@ -78,7 +79,7 @@ def _purge_packages(packages: list):
     environ["DEBIAN_FRONTEND"] = "noninteractive"
     for package in packages:
         cmd = f"apt-get purge -y {package} || true"
-        sh(cmd, env=environ, timeout=600, show_cmd=False)
+        sh(cmd, env=environ, timeout=TIMEOUT, show_cmd=False)
 
 
 def install_package_list(
@@ -123,7 +124,7 @@ def tmp_install_package_list(
 
 def installed_packages() -> list:
     cmd = "apt list --installed"
-    result = sh(cmd, timeout=600, capture_output=True, show_cmd=False)
+    result = sh(cmd, timeout=TIMEOUT, capture_output=True, show_cmd=False)
     return result.splitlines()
 
 
