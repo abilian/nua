@@ -8,7 +8,7 @@ website = "https://nua.rocks/"
 tags = ["test", "html", "web", "Hedgedoc"]
 licence = "AGPL-3.0 license"
 profile = ["test"]
-release = 9
+release = 10
 
 [build]
 # use a specific docker image containing nodejs:
@@ -97,6 +97,12 @@ source_prefix = "hedgedoc_uploads"
 target = "/hedgedoc/public/uploads"
 # mode (default to 'rw'
 # mode = "rw"
+
+[volume.backup]
+method = "sync"
+destination = "local"
+frequency = "24h"
+
 
 [[resource]]
 # A resource is another container required by the main app container, its
