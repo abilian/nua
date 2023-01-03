@@ -28,6 +28,11 @@ build-backend = "poetry.core.masonry.api"
 
 # ------------------------------------------------------------------------------
 
+[tool.ruff]
+# Don't remove (needed to inherit from abilian-devtools?)
+
+# ------------------------------------------------------------------------------
+
 [tool.deptry]
 exclude = [
     '.tox',
