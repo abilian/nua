@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Callable
 from copy import deepcopy
 
@@ -19,7 +21,7 @@ class Resource(dict):
             self.requested_secrets = []
 
     @classmethod
-    def from_dict(cls, resource_dict: dict) -> "Resource":
+    def from_dict(cls, resource_dict: dict) -> Resource:
         resource = cls({})
         for key, val in resource_dict.items():
             resource[key] = val

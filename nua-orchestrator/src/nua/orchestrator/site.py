@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from copy import deepcopy
 from pathlib import Path
 from pprint import pformat
@@ -21,7 +23,7 @@ class Site(Resource):
         self.type = "nua-site"
 
     @classmethod
-    def from_dict(cls, site_dict: dict) -> "Site":
+    def from_dict(cls, site_dict: dict) -> Site:
         site = cls({})
         resources = []
         for res in site_dict.get("resources", []):

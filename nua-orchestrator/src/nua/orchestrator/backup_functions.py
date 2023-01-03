@@ -1,10 +1,4 @@
-from pprint import pformat
-
-from nua.lib.panic import warning
-from nua.lib.tool.state import verbosity
-
 from .backup_report import BackupReport
-from .db import store
 
 # from .resource import Resource
 

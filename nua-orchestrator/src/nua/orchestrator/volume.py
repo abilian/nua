@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from pprint import pformat
+from typing import Any
 
 from nua.lib.console import print_red
 from nua.lib.panic import error
@@ -104,7 +105,7 @@ class Volume:
         return " ".join(lst)
 
     @classmethod
-    def from_dict(cls, data: dict) -> "Volume":
+    def from_dict(cls, data: dict) -> Volume:
         volume = cls()
         volume._dict = data
         return volume

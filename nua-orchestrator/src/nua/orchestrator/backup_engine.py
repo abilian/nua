@@ -1,8 +1,3 @@
-from pprint import pformat
-
-from nua.lib.panic import warning
-from nua.lib.tool.state import verbosity
-
 from .backup_functions import bck_pg_dumpall
 from .backup_report import BackupReport
 
