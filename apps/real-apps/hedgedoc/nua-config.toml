@@ -1,18 +1,37 @@
 [metadata]
 id = "hedgedoc"
 version = "1.9.6"
-title = "Nua test with Hedgedoc"
-author = "Nua testers"
+title = "Hedgedoc"
+author = "Hedgedoc developers"
 tagline = "Nua test with Hedgedoc"
 website = "https://nua.rocks/"
-tags = ["test", "html", "web", "Hedgedoc"]
+tags = ["Markdown", "Documentation", "Collaboration"]
 licence = "AGPL-3.0 license"
-profile = ["test"]
+profile = ["node"]
 release = 10
+src_url = "https://github.com/hedgedoc/hedgedoc/releases/download/{version}/hedgedoc-{version}.tar.gz"
+
 
 [build]
 # use a specific docker image containing nodejs:
 nua_base = "nua-builder-nodejs16"
+# NB: Nua should be smart enough to use the right base image given it's a nodejs app.
+
+packages = [
+    "fontconfig",
+    "fonts-noto"
+]
+
+build-packages = [
+    "build-essential",
+    "python3-dev",
+    "libsqlite3-dev",
+    "netcat",
+    "libicu-dev",
+    "libssl-dev",
+    "git",
+]
+
 
 [[assign]]
 key = "POSTGRES_PASSWORD"
