@@ -15,11 +15,13 @@ nua-self-build = "nua.autobuild.main:app"
 [tool.poetry.dependencies]
 python = "^3.10"
 setuptools = "^65.5.0"
+
 nua-lib = { path = "../nua-lib/", develop = true }
 nua-runtime = { path = "../nua-runtime/", develop = true }
+
 tomli = "^2.0.1"
 tomli-w = "^1.0.0"
-typer = {extras = ["all"], version = "^0.7.0"}
+typer = {version = "^0.7.0", extras = ["all"]}
 docker = "^6.0"
 paramiko = "*"
 
@@ -27,25 +29,21 @@ paramiko = "*"
 abilian-devtools = "*"
 nox = "*"
 
-[tool.pytest.ini_options]
-filterwarnings = ["ignore:.*distutils package:DeprecationWarning", "ignore::DeprecationWarning"]
-
-
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+# -----------------------------------------------------------------------------
+
+[tool.pytest.ini_options]
+filterwarnings = ["ignore:.*distutils package:DeprecationWarning", "ignore::DeprecationWarning"]
+
+# -----------------------------------------------------------------------------
 
 [tool.ruff]
-extend-ignore = [
-    'E711', # comparison to None should be 'if cond is not None:'
-    # TODO: fix these
-    'E501', # Line too long
-    'F401', # "..." imported but unused
-    'F841', # Local variable assigned to but never used
-    'I001',  # Import block is un-sorted or un-formatted
-]
+# Don't remove
 
+# -----------------------------------------------------------------------------
 
 [tool.deptry]
 exclude = [
@@ -67,6 +65,7 @@ ignore_missing = [
 ignore_transitive = [
 ]
 
+# -----------------------------------------------------------------------------
 
 [tool.pyright]
 exclude = [
