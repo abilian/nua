@@ -14,7 +14,7 @@ from pathlib import Path
 import tomli
 from nua.lib.console import print_green, print_red
 
-from . import __version__
+from . import __version__, config
 from .db import store
 from .db.create import create_base
 from .db.session import configure_session
