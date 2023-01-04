@@ -1,5 +1,4 @@
 import os
-import shlex
 import subprocess as sp  # noqa, required.
 import tempfile
 from datetime import datetime, timezone
@@ -9,16 +8,20 @@ from time import perf_counter
 
 import docker
 import tomli
+from typer.testing import CliRunner
+
+from nua.build.main import app
+
+runner = CliRunner(mix_stderr=False)
 
 
 def build_test_image(src_dir: Path | str):
     """Build an image and assert success."""
+    orig_path = Path.cwd()
     src_path = Path(src_dir)
     if not src_path.is_dir():
         raise ValueError(f"No such folder: {src_path}")
-
     actual_path = _apply_makefile(src_path)
-
     with open(actual_path / "nua-config.toml", mode="rb") as rfile:
         conf = tomli.load(rfile)
     meta = conf["metadata"]
@@ -33,6 +36,7 @@ def build_test_image(src_dir: Path | str):
         print("created temporary directory", tmpdirname)
         _build_test(tmpdirname, actual_path, name)
 
+    os.chdir(orig_path)
     _apply_makefile_clean(src_path)
 
 
@@ -69,16 +73,17 @@ def _build_test(tmpdirname, src_path, name):
     print(f"Build {name}")
     print("Time now:", datetime.now(timezone.utc).isoformat(" "))
     print(os.environ)
-    cmd = shlex.split(f"nua-build {build_dir}")
+    # cmd = shlex.split(f"nua-build {build_dir}")
     t0 = perf_counter()
-    result = sp.run(cmd, capture_output=True)  # noqa
+    result = runner.invoke(app, [str(build_dir)])
+    # result = sp.run(cmd, capture_output=True)  # noqa
     print("Time now:", datetime.now(timezone.utc).isoformat(" "))
     print("elapsed (s):", perf_counter() - t0)
     print(" ========= result.stdout ===========")
-    print(result.stdout.decode("utf8"))
-    print(result.stderr.decode("utf8"))
+    print(result.stdout)
+    print(result.stderr)
     print(" ===================================")
-    assert result.returncode == 0
+    assert result.exit_code == 0
     assert dock.images.list(name)
     print("In the container:")
     # clean previous run if any
