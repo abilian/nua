@@ -1,4 +1,4 @@
-PKG := nua-build
+PKG := nua.autobuild
 SRC := src/nua
 
 .PHONY: all

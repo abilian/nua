@@ -1,4 +1,4 @@
-PKG := nua-lib
+PKG := nua.lib
 SRC := src/nua
 
 .PHONY: all

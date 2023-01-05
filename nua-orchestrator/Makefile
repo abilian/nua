@@ -1,4 +1,4 @@
-PKG := nua-orchestrator
+PKG := nua.orchestrator
 SRC := src/nua
 
 .PHONY: all
