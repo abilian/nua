@@ -48,8 +48,12 @@ class ArchiveSearch:
                         result["member"] = tinfo.name
                     yield result
 
+    def read(self, path: str | Path) -> str:
+        """Return the content of a file on the archive."""
+        result = self.find_one(str(path))
+        return result[0]["content"].decode("utf8")
+
     def nua_config_dict(self) -> dict:
         """Return the nua-config.toml of the archive as a dict."""
-        result = self.find_one("/nua/metadata/nua-config.toml")
-        content = result[0]["content"].decode("utf8")
+        content = self.read("/nua/metadata/nua-config.toml")
         return tomli.loads(content)
