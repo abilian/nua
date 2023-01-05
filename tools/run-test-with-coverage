@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+import os
+from contextlib import contextmanager
+from pathlib import Path
+
+sub_packages = [
+    "nua-lib",
+    "nua-cli",
+    "nua-runtime",
+    "nua-autobuild",
+    "nua-build",
+    # "nua-orchestrator",
+]
+
+
+@contextmanager
+def chdir(path: str | Path):
+    origin = Path().absolute()
+    try:
+        os.chdir(path)
+        yield
+    finally:
+        os.chdir(origin)
+
+
+def sh(cmd):
+    print(cmd)
+    result = os.system(cmd)
+    assert result == 0  # noqa: S101
+
+
+def main():
+    for sub_package in sub_packages:
+        with chdir(sub_package):
+           sh("poetry install")
+           sh("poetry run pytest --cov nua")
+
+    sh("poetry run codecov")
+
+
+if __name__ == "__main__":
+    main()
