@@ -2,11 +2,15 @@
 
 <img src="./doc/assets/logo.png" alt="logo nua">
 
+[![codecov](https://codecov.io/github/abilian/nua/branch/main/graph/badge.svg?token=0PCZNVDRE8)](https://codecov.io/github/abilian/nua)
+
 > **Warning**
-> This code is currently highly experimental, and not meant for public consumption. We hope to have a usable, alpha or beta quality, release, by the end of Q4 2022 (this depends on the funding we can get for the development).
+> This code is currently highly experimental, and not meant for public consumption.
+> We hope to have a usable, alpha or beta quality, release, by the end of Q1 2023.
 
+## What is Nua?
 
-## Vision
+### Vision
 
 Nua streamlines the development, selection, installation and resilient operation of web applications in a self-hosted cloud environment.
 
@@ -14,50 +18,80 @@ It is primarily aimed at users (SMEs, associations, public services, etc.) who w
 
 Its watchwords are: simplicity, resilience and equity.
 
-## Concept Map
+### Concept Map
 
 <img src="./doc/src/diagrams/mindmaps/Nua Concept Map.png" alt="concept map">
 
-## Use cases
+### Use cases
 
 <img src="./doc/src/diagrams/others/Nua use cases.png" alt="use cases">
 
-## Technical Architecture
+### Presentation
+
+See: <https://speakerdeck.com/sfermigier/nua-a-self-hosted-resilient-paas>
+
+----
+
+## Hacking on Nua
+
+### Technical Architecture
 
 <img src="./doc/src/diagrams/c4/level1.png" alt="architecture">
 
-## Roadmap and current status
+### Subpackages
+
+The Nua project is a monorepo, split into several subpackages:
+
+- `nua-lib`: common code for all Nua packages.
+- `nua-cli`: command-line interface for Nua.
+- `nua-autobuild`: build Docker images used by Nua.
+- `nua-build`: build system for Nua packages.
+- `nua-orchestrator`: orchestrator for Nua applications.
+
+### Roadmap and current status
 
 The roadmap for the projet is kept up to date on [this kanban board](https://github.com/abilian/nua/projects/1).
 
-As of 2022/06/20, we have a "builder" CLI that can build and manage container images:
+As of 2023/01/05, we have a:
+
+- The "builder" CLI that can build container images.
+- The "orchestrator" CLI that can deploy and manage container images.
+- We have started packaging some applications.
+- Work has started on a common `nua` CLI:
 
 ```
-fermigier@c17 ~/nua (main)> nuad --help
-Usage: nuad [OPTIONS] COMMAND [ARGS]...
+$ nua --help
 
-  Nua build CLI inferface.
+ Usage: nua [OPTIONS] COMMAND [ARGS]...
 
-Options:
-  -V, --version         Show Nua version and exit.
-  -v, --verbose         Write verbose output.
-  --install-completion  Install completion for the current shell.
-  --show-completion     Show completion for the current shell, to copy it or
-                        customize the installation.
-  --help                Show this message and exit.
+ Nua local CLI.
 
-Commands:
-  build     Build Nua package from some 'nua-config.toml' file.
-  delete    Delete the docker build of an app.
-  list      List local docker images of Nua packages.
-  settings  Settings management (show or load settings).
-
+╭─ Options ────────────────────────────────────────────────────────────────────╮
+│ --version             -V        Show Nua version and exit.                   │
+│ --install-completion            Install completion for the current shell.    │
+│ --show-completion               Show completion for the current shell, to    │
+│                                 copy it or customize the installation.       │
+│ --help                          Show this message and exit.                  │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ───────────────────────────────────────────────────────────────────╮
+│ config           Show application config.                                    │
+│ deploy           Deploy an application.                                      │
+│ destroy          Destroy an application.                                     │
+│ help             Show help.                                                  │
+│ init             Initialize a new application.                               │
+│ list             List applications.                                          │
+│ logs             Show application logs.                                      │
+│ status           Show Nua status.                                            │
+│ version          Show Nua version and exit.                                  │
+╰──────────────────────────────────────────────────────────────────────────────╯
 ```
 
-## REUSE (licensing compliance)
+### REUSE (licensing compliance)
 
 Result of the `reuse lint` command invocation:
 
+```
+$ reuse lint
 > * Bad licenses:
 > * Deprecated licenses:
 > * Licenses without file extension:
@@ -69,3 +103,4 @@ Result of the `reuse lint` command invocation:
 > * Files with license information: 284 / 284
 
 > Congratulations! Your project is compliant with version 3.0 of the REUSE Specification :-)
+```
