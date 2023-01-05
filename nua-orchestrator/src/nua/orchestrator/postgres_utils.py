@@ -30,15 +30,15 @@ def postgres_pwd() -> str:
     For orchestrator context, assuming this function can only be used *after* password
     was generated (or its another bug).
 
-    Rem.: No cache. Rarely used function and pwd can be changed.
+    Rem.: No cache. Rarely used function and password can be changed.
     """
-    pwd = os.environ.get("NUA_POSTGRES_PASSWORD")
-    if pwd:
-        return pwd
+    password = os.environ.get("NUA_POSTGRES_PASSWORD")
+    if password:
+        return password
     file_path = Path("~nua").expanduser() / NUA_PG_PWD_FILE
-    with open(file_path, "r", encoding="utf8") as rfile:
-        pwd = rfile.read().strip()
-    return pwd
+    with open(file_path, encoding="utf8") as rfile:
+        password = rfile.read().strip()
+    return password
 
 
 def set_random_postgres_pwd() -> bool:
@@ -148,7 +148,7 @@ def _pg_check_std_port() -> bool:
     if not path.is_file():
         print_red(f"Postgres config file not found: {path}")
         return False
-    with open(path, "r", encoding="utf8") as rfile:
+    with open(path, encoding="utf8") as rfile:
         for line in rfile:
             if RE_5432.match(line):
                 return True
@@ -172,7 +172,7 @@ def pg_check_listening(_unused_site: dict | None = None) -> bool:
 
 
 def _actual_check_listening(gateway: str, path: Path) -> bool:
-    with open(path, "r", encoding="utf8") as rfile:
+    with open(path, encoding="utf8") as rfile:
         for line in rfile:
             if RE_COMMENT.match(line):
                 continue
@@ -196,7 +196,7 @@ def allow_docker_connection():
     if not path.is_file():
         print_red(f"Postgres config file not found: {path}")
         return False
-    with open(path, "r", encoding="utf8") as rfile:
+    with open(path, encoding="utf8") as rfile:
         content = rfile.read()
     if auth_line in content:
         return
@@ -210,10 +210,13 @@ def _save_config_gateway_address(content: str):
     with open(src_path, "w", encoding="utf8") as wfile:
         wfile.write(content)
     dest_path = POSTGRES_CONF_PATH / "conf.d" / "nua_listening_docker.conf"
+
     cmd = f"sudo mv -f {src_path} {dest_path}"
     sh(cmd, show_cmd=False)
+
     cmd = f"sudo chown postgres:postgres {dest_path}"
     sh(cmd, show_cmd=False)
+
     cmd = f"sudo chmod 644 {dest_path}"
     sh(cmd, show_cmd=False)
 
@@ -225,12 +228,14 @@ def _add_gateway_address(listening: str, gateway: str) -> bool:
         return True
     if gateway in listening or "*" in listening:
         return True
+
     if listening.endswith("'"):
         value = f"{listening[:-1]}, {gateway}'"
     elif listening.endswith('"'):
         value = f'{listening[:-1]}, {gateway}"'
     else:  # dubious
         value = f"'{listening}, {gateway}'"
+
     content = f"listen_addresses = {value}'\n"
     _save_config_gateway_address(content)
     return True
@@ -241,6 +246,3 @@ def pg_restart_service():
     # cmd = "sudo service postgresql restart"
     cmd = "sudo systemctl restart postgresql"
     sh(cmd)
-
-
-##
