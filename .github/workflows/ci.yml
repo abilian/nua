@@ -24,13 +24,15 @@ jobs:
     env:
         nox_action: ${{ matrix.action }}
         nox_sub_repo: ${{ matrix.sub_repo }}
+
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - run: pip install -U pip setuptools wheel nox poetry
+      - run: pip install -U pip setuptools wheel nox poetry codecov
       - run: nox -e "${{ matrix.action }}(sub_repo='${{ matrix.sub_repo }}')"
+      - run: codecov
       - name: Notify slack fail
         if: failure()
         env:
@@ -41,3 +43,15 @@ jobs:
           # channel: code
           status: FAILED
           color: danger
+
+  coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - run: pip install -U pip setuptools wheel poetry codecov
+      - run: ./tools/run-test-with-coverage
+      - run: codecov
