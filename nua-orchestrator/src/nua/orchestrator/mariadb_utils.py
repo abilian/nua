@@ -188,7 +188,7 @@ def _mariadb_check_installed_version() -> bool:
 
 
 def _mariadb_check_config_port(path: Path) -> str:
-    with open(path, "r", encoding="utf8") as rfile:
+    with open(path, encoding="utf8") as rfile:
         for line in rfile:
             if RE_COMMENT.match(line):
                 continue

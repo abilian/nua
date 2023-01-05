@@ -139,7 +139,7 @@ def configure_nginx_hostname(host: dict):
             warning(f"host '{host['hostname']}', target not created")
         else:
             print(host["hostname"], "content:")
-            with open(dest_path, "r", encoding="utf8") as rfile:
+            with open(dest_path, encoding="utf8") as rfile:
                 print(rfile.read())
     os.chmod(dest_path, 0o644)
 
