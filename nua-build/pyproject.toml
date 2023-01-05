@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-build"
-version = "0.4.74"
+version = "0.4.75"
 description = "Nua build package (currently: build, core build, runtime)"
 authors = [
     "Stefane Fermigier <sf@abilian.com>",

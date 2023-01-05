@@ -29,7 +29,7 @@ from nua.lib.console import print_stream_blue
 from nua.lib.panic import abort, info, show, title
 from nua.lib.shell import rm_fr
 from nua.lib.tool.state import verbosity
-from nua.runtime.constants import NUA_BUILDER_NODE_TAG, NUA_BUILDER_TAG
+from nua.runtime.constants import NUA_BUILDER_NODE_TAG16, NUA_BUILDER_TAG
 from nua.runtime.nua_config import NuaConfig
 
 from . import __version__, config
@@ -40,7 +40,7 @@ logging.basicConfig(level=logging.INFO)
 RE_SUCCESS = re.compile(r"(^Successfully built |sha256:)([0-9a-f]+)$")
 # beyond base image NUA_BUILDER_TAG, permit other build base. Currently tested with
 # a Nodejs base image:
-ALLOWED_BASE_IMAGE = {NUA_BUILDER_TAG, NUA_BUILDER_NODE_TAG}
+ALLOWED_BASE_IMAGE = {NUA_BUILDER_TAG, NUA_BUILDER_NODE_TAG16}
 
 
 class Builder:

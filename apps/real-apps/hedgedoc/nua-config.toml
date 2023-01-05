@@ -1,16 +1,19 @@
 [metadata]
 id = "hedgedoc"
 version = "1.9.6"
+release = 10
 title = "Hedgedoc"
 author = "Hedgedoc developers"
 tagline = "Nua test with Hedgedoc"
 website = "https://nua.rocks/"
 tags = ["Markdown", "Documentation", "Collaboration"]
 licence = "AGPL-3.0 license"
-profile = ["node"]
-release = 10
+# profile = ["node"]
 src_url = "https://github.com/hedgedoc/hedgedoc/releases/download/{version}/hedgedoc-{version}.tar.gz"
 
+
+[profile]
+node = ">=14.13.1,<17"
 
 [build]
 # use a specific docker image containing nodejs:

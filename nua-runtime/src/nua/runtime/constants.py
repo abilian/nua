@@ -2,7 +2,7 @@ from .version import __version__
 
 NUA_PYTHON_TAG = f"nua-python:{__version__}"
 NUA_BUILDER_TAG = f"nua-builder:{__version__}"
-NUA_BUILDER_NODE_TAG = f"nua-builder-nodejs16:{__version__}"
+NUA_BUILDER_NODE_TAG16 = f"nua-builder-nodejs16:{__version__}"
 
 NUA_CONFIG = "nua-config.toml"
 # in docker:

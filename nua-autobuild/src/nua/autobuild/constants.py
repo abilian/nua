@@ -10,4 +10,4 @@ NUA_PYTHON_TAG = f"nua-python:{__version__}"
 
 DOCKERFILE_PYTHON = "Dockerfile_nua_python_slim"
 DOCKERFILE_BUILDER = "Dockerfile_nua_builder_slim"
-DOCKERFILE_BUILDER_NODE = "Dockerfile_nua_builder_node"
+DOCKERFILE_BUILDER_NODE16 = "Dockerfile_nua_builder_node16"

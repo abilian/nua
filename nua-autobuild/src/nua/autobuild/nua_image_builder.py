@@ -8,12 +8,16 @@ from nua.lib.actions import copy_from_package
 from nua.lib.panic import abort, show, title
 from nua.lib.shell import mkdir_p
 from nua.lib.tool.state import verbosity
-from nua.runtime.constants import NUA_BUILDER_NODE_TAG, NUA_BUILDER_TAG, NUA_PYTHON_TAG
+from nua.runtime.constants import (
+    NUA_BUILDER_NODE_TAG16,
+    NUA_BUILDER_TAG,
+    NUA_PYTHON_TAG,
+)
 
 from . import __version__ as nua_version
 from .constants import (
     DOCKERFILE_BUILDER,
-    DOCKERFILE_BUILDER_NODE,
+    DOCKERFILE_BUILDER_NODE16,
     DOCKERFILE_PYTHON,
     NUA_LINUX_BASE,
 )
@@ -68,12 +72,12 @@ class NUAImageBuilder:
             display_docker_img(NUA_BUILDER_TAG)
 
     def ensure_nua_builder_node(self):
-        if self.force or not docker_require(NUA_BUILDER_NODE_TAG):
+        if self.force or not docker_require(NUA_BUILDER_NODE_TAG16):
             if self.force:
-                docker_remove_locally(NUA_BUILDER_NODE_TAG)
+                docker_remove_locally(NUA_BUILDER_NODE_TAG16)
             self.build_nua_builder_node()
         if verbosity(1):
-            display_docker_img(NUA_BUILDER_NODE_TAG)
+            display_docker_img(NUA_BUILDER_NODE_TAG16)
 
     def build_nua_python(self):
         title(f"Building the docker image {NUA_PYTHON_TAG}")
@@ -101,14 +105,14 @@ class NUAImageBuilder:
             docker_build_builder()
 
     def build_nua_builder_node(self):
-        title(f"Building the docker image {NUA_BUILDER_NODE_TAG}")
+        title(f"Building the docker image {NUA_BUILDER_NODE_TAG16}")
         with tempfile.TemporaryDirectory() as build_dir:
             build_path = Path(build_dir)
             if verbosity(3):
                 show(f"build directory: {build_path}")
             # Fixme: later do a dedicated dockerfile for nodejs, now using base image
             copy_from_package(
-                "nua.autobuild.dockerfiles", DOCKERFILE_BUILDER_NODE, build_path
+                "nua.autobuild.dockerfiles", DOCKERFILE_BUILDER_NODE16, build_path
             )
             self.copy_wheels(build_path)
             chdir(build_path)
@@ -164,9 +168,9 @@ def docker_build_builder_node():
     client = docker.from_env()
     image, tee = client.images.build(
         path=".",
-        dockerfile=DOCKERFILE_BUILDER_NODE,
+        dockerfile=DOCKERFILE_BUILDER_NODE16,
         buildargs={"nua_builder_tag": NUA_BUILDER_TAG, "nua_version": nua_version},
-        tag=NUA_BUILDER_NODE_TAG,
+        tag=NUA_BUILDER_NODE_TAG16,
         labels={
             "APP_ID": app_id,
             "NUA_TAG": NUA_BUILDER_TAG,
