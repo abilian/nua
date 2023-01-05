@@ -5,8 +5,7 @@ from typing import Any
 import tomli
 from nua.lib.panic import abort
 
-from .constants import NUA_BUILDER_TAG, NUA_CONFIG
-from .version import __version__
+from .constants import NUA_CONFIG
 
 REQUIRED_BLOCKS = ["metadata", "build"]
 REQUIRED_METADATA = ["id", "version", "title", "author", "licence"]
@@ -77,8 +76,13 @@ class NuaConfig:
         return source_url
 
     @property
-    def nua_base(self) -> str:
-        base = self.build.get("nua_base") or NUA_BUILDER_TAG
-        if ":" not in base:
-            base = f"{base}:{__version__}"
-        return base
+    def profile(self) -> str:
+        """Profile of image and required version.
+
+        Example or returned value:
+            for standard:
+                {}
+            for nodejs:
+                {"node": ">=14.13.1,<17"}
+        """
+        return self["profile"]

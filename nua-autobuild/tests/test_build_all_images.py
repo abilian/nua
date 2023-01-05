@@ -4,6 +4,7 @@ from subprocess import run
 
 import docker
 from nua.runtime.constants import (
+    NUA_BUILDER_NODE_TAG14,
     NUA_BUILDER_NODE_TAG16,
     NUA_BUILDER_TAG,
     NUA_PYTHON_TAG,
@@ -16,7 +17,12 @@ def test_force_build():  # noqa
     client = docker.from_env()
 
     # empty docker cache
-    for image in (NUA_BUILDER_NODE_TAG16, NUA_BUILDER_TAG, NUA_PYTHON_TAG):
+    for image in (
+        NUA_BUILDER_NODE_TAG14,
+        NUA_BUILDER_NODE_TAG16,
+        NUA_BUILDER_TAG,
+        NUA_PYTHON_TAG,
+    ):
         with suppress(docker.errors.ImageNotFound):
             client.images.remove(image, force=True, noprune=False)
         assert not client.images.list(image)
@@ -24,7 +30,12 @@ def test_force_build():  # noqa
     image_builder = NUAImageBuilder()
     image_builder.build(force=True, download=True, all=True)
 
-    for image in (NUA_BUILDER_NODE_TAG16, NUA_BUILDER_TAG, NUA_PYTHON_TAG):
+    for image in (
+        NUA_BUILDER_NODE_TAG14,
+        NUA_BUILDER_NODE_TAG16,
+        NUA_BUILDER_TAG,
+        NUA_PYTHON_TAG,
+    ):
         assert client.images.list(image)
 
 
@@ -36,7 +47,12 @@ def test_quick_build():  # noqa
     image_builder = NUAImageBuilder()
     image_builder.build(all=True)
 
-    for image in (NUA_BUILDER_NODE_TAG16, NUA_BUILDER_TAG, NUA_PYTHON_TAG):
+    for image in (
+        NUA_BUILDER_NODE_TAG14,
+        NUA_BUILDER_NODE_TAG16,
+        NUA_BUILDER_TAG,
+        NUA_PYTHON_TAG,
+    ):
         assert client.images.list(image)
 
 

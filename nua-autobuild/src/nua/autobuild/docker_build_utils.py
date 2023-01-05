@@ -52,6 +52,11 @@ def size_unit():
     return "MiB" if LOCAL_CONFIG.get("size_unit_MiB") else "MB"
 
 
+def image_labels(reference: str) -> dict:
+    image = docker_require(reference)
+    return image.labels
+
+
 def display_docker_img(iname: str):
     print_magenta(f"Docker image for '{iname}':")
     client = from_env()
