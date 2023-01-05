@@ -54,4 +54,5 @@ jobs:
           python-version: "3.11"
       - run: pip install -U pip setuptools wheel poetry codecov
       - run: ./tools/run-test-with-coverage
-      - run: codecov
+      # Not needed
+      # - run: codecov

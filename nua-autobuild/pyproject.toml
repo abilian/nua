@@ -47,12 +47,8 @@ filterwarnings = ["ignore:.*distutils package:DeprecationWarning", "ignore::Depr
 
 [tool.deptry]
 exclude = [
-    '.tox',
     '.nox',
     'tests',
-    'sandbox',
-    'doc',
-    'scripts',
     "noxfile.py"
 ]
 ignore_obsolete = [
@@ -69,11 +65,7 @@ ignore_transitive = [
 
 [tool.pyright]
 exclude = [
-    '.tox',
     '.nox',
     'tests',
-    'sandbox',
-    'doc',
-    'scripts',
     'noxfile.py',
 ]

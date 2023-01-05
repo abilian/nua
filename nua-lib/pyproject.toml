@@ -35,12 +35,8 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.deptry]
 exclude = [
-    '.tox',
     '.nox',
     'tests',
-    'sandbox',
-    'doc',
-    'scripts',
     "noxfile.py"
 ]
 ignore_obsolete = [
@@ -60,11 +56,7 @@ ignore_transitive = [
 
 [tool.pyright]
 exclude = [
-    '.tox',
     '.nox',
     'tests',
-    'sandbox',
-    'doc',
-    'scripts',
     'noxfile.py',
 ]

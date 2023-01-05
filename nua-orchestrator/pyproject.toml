@@ -70,7 +70,7 @@ extend-ignore = [
 
 [tool.deptry]
 exclude = [
-    '.tox', '.nox', 'noxfile.py', 'tests', 'sandbox', 'doc', 'scripts'
+    '.nox', 'noxfile.py', 'tests',
 ]
 ignore_obsolete = [
     "nua-lib",
@@ -92,10 +92,7 @@ ignore_transitive = [
 
 [tool.pyright]
 exclude = [
-    '.tox',
     '.nox',
     'tests',
-    'sandbox',
-    'doc',
     'noxfile.py',
 ]

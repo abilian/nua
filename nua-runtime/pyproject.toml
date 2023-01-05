@@ -27,22 +27,31 @@ abilian-devtools = "*"
 nox = "*"
 types-setuptools = "^65.5.0.3"
 
+[build-system]
+requires = [
+    "poetry-core>=1.0.0",
+]
+build-backend = "poetry.core.masonry.api"
+
+# ------------------------------------------------------------------------------
+
 [tool.pytest.ini_options]
 filterwarnings = [
     "ignore:.*distutils package:DeprecationWarning",
     "ignore::DeprecationWarning",
 ]
 
+# ------------------------------------------------------------------------------
+
 [tool.ruff]
+# Don't remove
+
+# ------------------------------------------------------------------------------
 
 [tool.deptry]
 exclude = [
-    ".tox",
     ".nox",
     "tests",
-    "sandbox",
-    "doc",
-    "scripts",
     "noxfile.py",
 ]
 ignore_obsolete = [
@@ -54,19 +63,11 @@ ignore_missing = [
 ]
 ignore_transitive = []
 
+# ------------------------------------------------------------------------------
+
 [tool.pyright]
 exclude = [
-    ".tox",
     ".nox",
     "tests",
-    "sandbox",
-    "doc",
-    "scripts",
     "noxfile.py",
 ]
-
-[build-system]
-requires = [
-    "poetry-core>=1.0.0",
-]
-build-backend = "poetry.core.masonry.api"

@@ -52,7 +52,7 @@ select = [
     "F",
     "E",
     "C90",
-    # "I", <- too many false positives for some reason(s)
+    "I",
     "UP",
     "N",
     "YTT",

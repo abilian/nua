@@ -41,12 +41,8 @@ extend-exclude = [
 
 [tool.pyright]
 exclude = [
-    '.tox',
     '.nox',
     'tests',
-    'sandbox',
-    'doc',
-    'scripts',
     'noxfile.py',
 ]
 
@@ -54,7 +50,7 @@ exclude = [
 
 [tool.deptry]
 exclude = [
-    '.tox', '.nox', 'noxfile.py', 'tests', 'sandbox', 'doc', 'scripts'
+    '.nox', 'noxfile.py', 'tests',
 ]
 ignore_obsolete = [
     "setuptools",
