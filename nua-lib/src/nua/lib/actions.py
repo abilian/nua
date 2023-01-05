@@ -41,6 +41,36 @@ def build_python(path: str | Path = ""):
 #
 # Other stuff
 #
+def install_meta_packages(packages: list):
+    if "psycopg2" in packages:
+        install_psycopg2_python()
+
+
+def install_packages(packages: list):
+    if packages:
+        install_package_list(packages, keep_lists=True)
+
+
+@contextmanager
+def install_build_packages(
+    packages: list | str,
+    update: bool = True,
+    keep_lists: bool = False,
+):
+    if isinstance(packages, str):
+        packages = packages.strip().split()
+    if packages:
+        _install_packages(packages, update)
+    try:
+        yield
+    finally:
+        if packages:
+            _purge_packages(packages)
+        apt_final_clean()
+        if not keep_lists:
+            apt_remove_lists()
+
+
 def apt_remove_lists():
     environ = os.environ.copy()
     sh("rm -rf /var/lib/apt/lists/*", env=environ, timeout=TIMEOUT)

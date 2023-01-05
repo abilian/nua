@@ -59,6 +59,12 @@ class NuaConfig:
         return self.metadata.get("version", "")
 
     @property
+    def src_url(self) -> str:
+        if base := self.metadata.get("src_url"):
+            return base.format(**self.metadata)
+        return ""
+
+    @property
     def app_id(self) -> str:
         return self.metadata.get("id", "")
 
@@ -70,10 +76,22 @@ class NuaConfig:
     def manifest(self) -> list:
         return self.build.get("manifest", [])
 
+    # @property
+    # def source_url(self) -> str:
+    #     source_url = self.build.get("source_url") or ""
+    #     return source_url
+
     @property
-    def source_url(self) -> str:
-        source_url = self.build.get("source_url") or ""
-        return source_url
+    def meta_packages(self) -> list:
+        return self.build.get("meta-packages", [])
+
+    @property
+    def packages(self) -> list:
+        return self.build.get("packages", [])
+
+    @property
+    def build_packages(self) -> list:
+        return self.build.get("build-packages", [])
 
     @property
     def profile(self) -> str:

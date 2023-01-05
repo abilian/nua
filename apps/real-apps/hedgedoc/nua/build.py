@@ -3,36 +3,24 @@ from shutil import copy2
 
 from nua.lib.actions import (
     download_extract,
-    install_package_list,
-    install_psycopg2_python,
+    install_build_packages,
+    install_meta_packages,
+    install_packages,
     npm_install,
-    tmp_install_package_list,
 )
 from nua.lib.shell import sh
+from nua.runtime.nua_config import NuaConfig
 
 
 def main():
-    version = "1.9.6"
-    src_url = (
-        "https://github.com/hedgedoc/hedgedoc/releases/"
-        f"download/{version}/hedgedoc-{version}.tar.gz"
-    )
-    packages = ["fontconfig", "fonts-noto"]
-    tmp_packages = [
-        "build-essential",
-        "python3-dev",
-        "libsqlite3-dev",
-        "netcat",
-        "libicu-dev",
-        "libssl-dev",
-        "git",
-    ]
+    chdir("/nua/build")
+    config = NuaConfig(".")
+    src_url = config.src_url
 
-    install_psycopg2_python()
+    install_meta_packages(config.meta_packages)
+    install_packages(config.packages)
 
-    install_package_list(packages, keep_lists=True)
-
-    with tmp_install_package_list(tmp_packages):
+    with install_build_packages(config.build_packages):
         npm_install("node-gyp", force=True)
         hedge_src = download_extract(src_url, "/nua/build")
         chdir(hedge_src)

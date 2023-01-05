@@ -11,14 +11,13 @@ licence = "AGPL-3.0 license"
 # profile = ["node"]
 src_url = "https://github.com/hedgedoc/hedgedoc/releases/download/{version}/hedgedoc-{version}.tar.gz"
 
-
 [profile]
+# use a specific docker image containing nodejs:
 node = ">=14.13.1,<17"
 
 [build]
-# use a specific docker image containing nodejs:
-nua_base = "nua-builder-nodejs16"
-# NB: Nua should be smart enough to use the right base image given it's a nodejs app.
+
+meta-packages = ["psycopg2"]
 
 packages = [
     "fontconfig",
