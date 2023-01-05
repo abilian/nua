@@ -21,7 +21,6 @@ from docker.utils.json_stream import json_stream
 from nua.autobuild.docker_build_utils import (
     display_docker_img,
     docker_build_log_error,
-    docker_get_locally,
     image_labels,
     print_log_stream,
 )
@@ -30,7 +29,7 @@ from nua.lib.console import print_stream_blue
 from nua.lib.panic import abort, info, show, title
 from nua.lib.shell import rm_fr
 from nua.lib.tool.state import verbosity
-from nua.runtime.constants import NUA_BUILDER_NODE_TAG14, NUA_BUILDER_NODE_TAG16
+from nua.runtime.constants import NUA_BUILDER_NODE_TAG14, NUA_BUILDER_NODE_TAG16, NUA_BUILDER_TAG
 from nua.runtime.nua_config import NuaConfig
 from packaging.specifiers import SpecifierSet
 from packaging.version import Version

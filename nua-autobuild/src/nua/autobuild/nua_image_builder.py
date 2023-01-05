@@ -100,6 +100,8 @@ class NUAImageBuilder:
             method = self.builder_methods.get(key)
             if not method:
                 abort(f"No method to build '{key}'")
+                # Please the typechecker
+                raise SystemExit
             method()
 
     def build_nua_python(self):

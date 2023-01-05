@@ -54,6 +54,8 @@ def size_unit():
 
 def image_labels(reference: str) -> dict:
     image = docker_require(reference)
+    if not image:
+        return {}
     return image.labels
 
 
