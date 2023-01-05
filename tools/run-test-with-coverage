@@ -37,8 +37,8 @@ def main():
 
     for sub_package in sub_packages:
         with chdir(sub_package):
-           sh("poetry install")
-           sh("poetry run pytest --cov nua")
+            sh("poetry install")
+            sh("poetry run pytest --cov nua")
 
     sh("poetry install")
     # sh("poetry run codecov --file */.coverage")
