@@ -3,7 +3,11 @@ from contextlib import suppress
 from subprocess import run
 
 import docker
-from nua.runtime.constants import NUA_BUILDER_NODE_TAG16, NUA_BUILDER_TAG, NUA_PYTHON_TAG
+from nua.runtime.constants import (
+    NUA_BUILDER_NODE_TAG16,
+    NUA_BUILDER_TAG,
+    NUA_PYTHON_TAG,
+)
 
 
 def test_force_build():  # noqa
