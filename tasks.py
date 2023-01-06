@@ -15,12 +15,17 @@ def lint(c):
     # c.run("ruff .")
     # c.run("pre-commit run --all-files")
 
-    run_make_in_subrepos(c, "lint")
+    run_in_subrepos(c, "make lint")
 
 
 @task
 def format(c):  # noqa: A001
-    run_make_in_subrepos(c, "format")
+    run_in_subrepos(c, "make format")
+
+
+@task
+def update(c):
+    run_in_subrepos(c, "poetry update && poetry install")
 
 
 #
@@ -35,8 +40,8 @@ def h1(msg):
     print()
 
 
-def run_make_in_subrepos(c, target):
+def run_in_subrepos(c, cmd):
     for sub_repo in SUB_REPOS:
-        h1(f"Running {target} in subrepos: {sub_repo}")
+        h1(f"Running '{cmd}' in subrepos: {sub_repo}")
         with c.cd(sub_repo):
-            c.run(f"make {target}")
+            c.run(cmd)
