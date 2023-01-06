@@ -20,6 +20,7 @@ patchwork = "^1.0.1"
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "^0.1.6"
 devtools = "^0.10.0"
+types-setuptools = "*"
 
 [build-system]
 requires = ["poetry-core"]

@@ -1035,7 +1035,7 @@ requirements-deprecated-finder = ["pip-api", "pipreqs"]
 name = "jinja2"
 version = "3.1.2"
 description = "A very fast and expressive template engine."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -1084,7 +1084,7 @@ files = [
 name = "markupsafe"
 version = "2.1.1"
 description = "Safely add untrusted strings to HTML/XML markup."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -1326,9 +1326,13 @@ version = "0.4.78"
 description = "Nua common library"
 category = "main"
 optional = false
-python-versions = "*"
+python-versions = "^3.10"
 files = []
-develop = true
+develop = false
+
+[package.dependencies]
+jinja2 = "^3.1.2"
+setuptools = "^65.5.0"
 
 [package.source]
 type = "directory"
@@ -2179,4 +2183,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "2582be427df642a1a8b967203303d1c8e2b268781971b243196180c9e14df2f3"
+content-hash = "4b92ec6ef704389cd9a09e127967903eb40b6a7c9e3a43fa91d6cbe35e0d379b"
