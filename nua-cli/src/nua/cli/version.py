@@ -1,5 +1,5 @@
 import importlib.metadata
 
 
-def get_version():
+def get_version() -> str:
     return importlib.metadata.version("nua.cli")

@@ -27,5 +27,5 @@ OPTS = {
 }
 
 
-def _print_version():
+def _print_version() -> None:
     typer.echo(f"Nua CLI version: {get_version()}")

@@ -44,7 +44,7 @@ option_verbose = typer.Option(
 option_color = typer.Option(True, "--color/--no-color", help="Colorize messages. ")
 
 
-def _version_string():
+def _version_string() -> None:
     typer.echo(f"nua-build version: {__version__}")
 
 
@@ -57,7 +57,7 @@ def _version_string():
 #     raise typer.Exit(0)
 
 
-def initialization():
+def initialization() -> None:
     pass
 
 
@@ -69,7 +69,7 @@ def main(
     version: Optional[bool] = option_version,
     verbose: int = option_verbose,
     colorize: bool = option_color,
-):
+) -> None:
     """Nua-build CLI inferface."""
     set_verbose(verbose)
     set_color(colorize)
