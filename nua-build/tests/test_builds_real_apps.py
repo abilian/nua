@@ -5,7 +5,7 @@ from .common import get_apps_root_dir
 
 app_dirs = [
     "hedgedoc",
-    "dolibarr",
+    # "dolibarr",
 ]
 
 
