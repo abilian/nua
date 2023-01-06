@@ -7,7 +7,7 @@ from nua.lib.panic import abort
 
 from .constants import NUA_CONFIG
 
-REQUIRED_BLOCKS = ["metadata", "build"]
+REQUIRED_BLOCKS = ["metadata"]
 REQUIRED_METADATA = ["id", "version", "title", "author", "licence"]
 OPTIONAL_METADATA = ["tagline", "website", "tags", "profile", "release", "changelog"]
 
@@ -40,6 +40,8 @@ class NuaConfig:
         for block in REQUIRED_BLOCKS:
             if block not in self._data:
                 abort(f"Missing mandatory block in {NUA_CONFIG}: '{block}'")
+        if "build" not in self._data:
+            self._data["build"] = {}
         for key in REQUIRED_METADATA:
             if key not in self._data["metadata"]:
                 abort(f"Missing mandatory metadata in {NUA_CONFIG}: '{key}'")
