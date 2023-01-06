@@ -1,7 +1,7 @@
 [metadata]
 id = "hedgedoc"
 version = "1.9.6"
-release = 10
+release = 11
 title = "Hedgedoc"
 author = "Hedgedoc developers"
 tagline = "Nua test with Hedgedoc"
@@ -37,7 +37,7 @@ build-packages = [
 
 [[assign]]
 key = "POSTGRES_PASSWORD"
-nua_internal = true
+random_str = true
 
 [[assign]]
 key = "CMD_DB_HOST"

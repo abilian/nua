@@ -1,7 +1,7 @@
 [metadata]
 id = "dolibarr-mariadb"
 version = "16.0"
-release = 10
+release = 11
 title = "Dolibarr (for mariadb), based on tuxgazy dockerfile"
 author = "Dolibarr developers"
 tagline = "Nua test with Dolibarr"
@@ -10,12 +10,12 @@ tags = ["test", "php", "web", "Dolibarr"]
 licence = "GPLv3"
 
 [build]
-manifest = ["Dockerfile", "docker-run.sh"]
+manifest = ["nua/Dockerfile", "nua/docker-run.sh"]
 default_files = false
 
 [[assign]]
 key = "MYSQL_ROOT_PASSWORD"
-nua_internal = true
+random_str = true
 
 [[assign]]
 key = "DOLI_DB_HOST"

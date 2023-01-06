@@ -31,8 +31,8 @@ def main():
         cmd = "yarn cache clean; rm -fr /tmp/*"
         sh(cmd)
 
-    copy2("/nua/build/config.json", "/nua/build/hedgedoc/")
-    copy2("/nua/build/healthcheck.mjs", "/nua/build/hedgedoc/")
+    copy2("/nua/build/nua/config.json", "/nua/build/hedgedoc/")
+    copy2("/nua/build/nua/healthcheck.mjs", "/nua/build/hedgedoc/")
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 top=$(git rev-parse --show-toplevel)
-VERS=0.4.77
+VERS=0.4.78
 
 perl -pi -e '!$x && s/(\s*version\s*=\s*)\"(.+)\"/\1\"'${VERS}'\"/ && ($x=1)' ${top}/nua-lib/pyproject.toml
 
