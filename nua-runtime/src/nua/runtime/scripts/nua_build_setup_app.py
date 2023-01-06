@@ -114,7 +114,7 @@ class BuilderApp:
         sh(cmd, env=env)
 
         cmd = f"python {self.build_script_path}"
-        sh(cmd, env=env)
+        sh(cmd, env=env, timeout=1800)
 
 
 def main() -> None:
