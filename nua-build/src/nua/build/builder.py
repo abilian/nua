@@ -26,7 +26,7 @@ from nua.autobuild.docker_build_utils import (
 )
 from nua.autobuild.nua_image_builder import NUAImageBuilder
 from nua.lib.console import print_stream_blue
-from nua.lib.panic import abort, info, show, title
+from nua.lib.panic import abort, info, show, title, warning
 from nua.lib.shell import rm_fr
 from nua.lib.tool.state import verbosity
 from nua.runtime.constants import (
@@ -52,10 +52,11 @@ ALLOWED_PROFILE = {"node": [NUA_BUILDER_NODE_TAG14, NUA_BUILDER_NODE_TAG16]}
 class Builder:
     """Class to hold config and other state information during build."""
 
-    container_type = ""
+    container_type: str
     build_dir: Path
     nua_dir: Path
-    nua_dir_relative: Path
+    nua_base: str
+    config: NuaConfig
 
     def __init__(self, config_file):
         self.config = NuaConfig(config_file)
@@ -68,7 +69,6 @@ class Builder:
         self.select_base_image()
         title(f"Building the image for {self.config.app_id}")
         self.detect_nua_dir()
-        self.nua_dir_relative = self.nua_dir.relative_to(self.config.root_dir)
         if self.container_type == "docker":
             self.build_docker_image()
 
@@ -155,10 +155,7 @@ class Builder:
             info(f"Build directory: {self.build_dir}")
 
     def detect_nua_dir(self):
-        """Detect dir containing nua files (start.py, build.py, Dockerfile,
-
-        ...).
-        """
+        """Detect dir containing nua files (start.py, build.py, Dockerfile, ...)."""
         nua_dir = self.config.build.get("nua_dir")
         if not nua_dir:
             # Check if default 'nua' dir exists
@@ -183,7 +180,7 @@ class Builder:
             self._copy_file_from_manifest(name)
 
     def _copy_file_from_manifest(self, name: str):
-        user_file = self.config.root_dir / name
+        user_file = self.nua_dir / name
         if user_file.is_file():
             if verbosity(1):
                 info("Copying manifest file:", user_file.name)
@@ -193,7 +190,7 @@ class Builder:
                 info("Copying manifest directory:", user_file.name)
             copytree(user_file, self.build_dir / name)
         else:
-            abort(f"File from manifest not found: {repr(name)}")
+            abort(f"File from manifest not found: '{name}'")
 
     def copy_file_or_dir(self, user_file):
         if user_file.is_file():
@@ -205,14 +202,15 @@ class Builder:
                 info("Copying local directory:", user_file.name)
             copytree(user_file, self.build_dir / user_file.name)
         else:
-            pass
+            warning("Not copying:", user_file.name)
 
-    def copy_from_local_dir(self):
-        """Copy content form local dir: either: root_dir or nua_dir if defined.
+    def copy_from_local_nua_dir(self):
+        """Copy content from local nua_dir.
 
-        To be fixed for /nua subdir.
+        - do not copy dot files
+        - do not copy nua config file or __pycache__
         """
-        for user_file in self.config.root_dir.glob("*"):
+        for user_file in self.nua_dir.glob("*"):
             if (user_file.name).startswith("."):
                 continue
             if user_file.name in {NUA_CONFIG, "__pycache__"}:
@@ -234,7 +232,7 @@ class Builder:
             if verbosity(1):
                 info("Copying Nua default file:", item.name)
             content = item.read_text(encoding="utf8")
-            target = self.build_dir / self.nua_dir_relative / item.name
+            target = self.build_dir / item.name
             target.write_text(content)
 
     def copy_build_files(self):
@@ -248,8 +246,9 @@ class Builder:
         if self.config.manifest:
             self.copy_from_manifest()
         else:
-            self.copy_from_local_dir()
-        self.complete_with_default_files()
+            self.copy_from_local_nua_dir()
+        if self.config.build.get("default_files", True):
+            self.complete_with_default_files()
 
     @docker_build_log_error
     def build_with_docker(self, save=True):
@@ -257,7 +256,7 @@ class Builder:
             info("Starting build_with_docker()")
         chdir(self.build_dir)
         with suppress(IOError):
-            copy2(self.build_dir / self.nua_dir_relative / "Dockerfile", self.build_dir)
+            copy2(self.build_dir / "Dockerfile", self.build_dir)
         release = self.config.metadata.get("release", "")
         if release:
             rel_tag = f"-{release}"
@@ -294,8 +293,6 @@ class Builder:
         # if verbosity(2):
         #     info("Starting build_with_docker()")
         chdir(self.build_dir)
-        with suppress(IOError):
-            copy2(self.build_dir / self.nua_dir_relative / "Dockerfile", self.build_dir)
         release = self.config.metadata.get("release", "")
         if release:
             rel_tag = f"-{release}"
