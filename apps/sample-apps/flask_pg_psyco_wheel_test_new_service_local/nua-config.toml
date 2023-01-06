@@ -1,14 +1,13 @@
 [metadata]
 id = "flask-pg-psyco"
 version = "5.0"
+release = 3
 title = "Flask/PostgreSQL/psycopg2 test wheel"
 author = "Nua testers"
 tagline = "Nua test with Flask/PostgreSQL/psycopg2"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static", "plugin", "PostgreSQL", "psycopg2"]
 licence = "MIT"
-profile = ["test"]
-release = 2
 
 [build]
 # optional manifest.
@@ -30,6 +29,7 @@ release = 2
 # optional start script, default is "start.py" if found
 # start_script = ""
 document_root = "/nua/app/html"
+meta-packages = ["psycopg2"]
 
 [instance]
 # instance contains values suited to be chaned at deploy time for
@@ -39,7 +39,8 @@ document_root = "/nua/app/html"
 # thus requiring --add-host=host.docker.internal:host-gateway
 [instance.postgres_password]
 key = "POSTGRES_PASSWORD"
-nua_internal = true
+random_str = true
+
 # nua_internal = "POSTGRES_PASSWORD" maybe this syntax ?
 [instance.user_passwd]
 key = "DB_USER_PWD"

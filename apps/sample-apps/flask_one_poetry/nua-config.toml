@@ -1,14 +1,13 @@
 [metadata]
 id = "flask-one-poetry"
 version = "1.2"
+release = 2
 title = "Flask test one p"
 author = "Nua testers"
 tagline = "Nua test with Flask - one - p"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static"]
 licence = "MIT"
-profile = ["test"]
-release = 1
 
 [build]
 document_root = "/nua/app/html"

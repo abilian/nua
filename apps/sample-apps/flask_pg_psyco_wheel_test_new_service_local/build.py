@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from nua.lib.actions import install_psycopg2_python, pip_install_glob
+from nua.lib.actions import install_meta_packages, pip_install_glob
 from nua.lib.shell import chmod_r, mkdir_p, rm_fr
 from nua.runtime.nua_config import NuaConfig
 
@@ -10,7 +10,7 @@ def main():
     os.chdir("/nua/build")
     config = NuaConfig(".")
 
-    install_psycopg2_python()
+    install_meta_packages(config.meta_packages)
     # install from a wheel
     pip_install_glob("*.whl")
 

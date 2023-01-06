@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from nua.lib.actions import install_package_list, pip_install_glob
+from nua.lib.actions import install_packages, pip_install_glob
 from nua.lib.shell import chmod_r, mkdir_p, rm_fr
 from nua.runtime.nua_config import NuaConfig
 
@@ -10,8 +10,7 @@ def main():
     os.chdir("/nua/build")
     config = NuaConfig(".")
 
-    # this app requires some packages (for pg_config):
-    install_package_list(["libpq-dev"])
+    install_packages(config.packages)
 
     # install from a wheel
     pip_install_glob("*.whl")

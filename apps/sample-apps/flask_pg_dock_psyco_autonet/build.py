@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from nua.lib.actions import install_psycopg2_python, pip_install_glob
+from nua.lib.actions import install_meta_packages, pip_install_glob
 from nua.lib.shell import chmod_r, mkdir_p, rm_fr
 from nua.runtime.nua_config import NuaConfig
 
@@ -13,7 +13,7 @@ def main():
     # this app requires some packages (for pg_config):
     # install_package_list(["python3-dev", "libpq-dev"])
     # install from a wheel
-    install_psycopg2_python()
+    install_meta_packages(config.meta_packages)
     pip_install_glob("*.whl")
 
     # This app requires a postges DB. The DB is created by the start.py script at

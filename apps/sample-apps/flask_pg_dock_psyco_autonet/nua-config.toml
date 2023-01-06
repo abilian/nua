@@ -1,21 +1,21 @@
 [metadata]
 id = "flask-pg-dock-psyco-autonet"
 version = "1.0"
+release = 3
 title = "Flask/PostgreSQL/docker/psycopg2 test auto net wheel"
 author = "Nua testers"
 tagline = "Nua test with Flask/PostgreSQL/docker/psycopg2"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static", "plugin", "PostgreSQL", "docker", "psycopg2"]
 licence = "MIT"
-profile = ["test"]
-release = 2
 
 [build]
+meta-packages = ["psycopg2"]
 document_root = "/nua/app/html"
 
 [[assign]]
 key = "POSTGRES_PASSWORD"
-nua_internal = true
+random_str = true
 
 [[assign]]
 key = "USER_PASSWORD"

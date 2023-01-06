@@ -1,21 +1,21 @@
 [metadata]
 id = "flask-pg-psyco"
 version = "5.0"
+release = 3
 title = "Flask/PostgreSQL/psycopg2 test wheel"
 author = "Nua testers"
 tagline = "Nua test with Flask/PostgreSQL/psycopg2"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static", "plugin", "PostgreSQL", "psycopg2"]
 licence = "MIT"
-profile = ["test"]
-release = 2
 
 [build]
 document_root = "/nua/app/html"
+packages = ["libpq-dev"]
 
 [[assign]]
 key = "POSTGRES_PASSWORD"
-nua_internal = true
+random_str = true
 
 [[assign]]
 key = "DB_USER_PWD"

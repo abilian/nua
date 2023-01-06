@@ -1,17 +1,17 @@
 [metadata]
 id = "flask-sqla"
 version = "1.0"
+release = 2
 title = "Flask test with sqlalchemy"
 author = "Nua testers"
 tagline = "Nua test with sqlalchemy"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static", "plugin", "sqlalchemy"]
 licence = "MIT"
-profile = ["test"]
-release = 1
 
 [build]
 document_root = "/nua/app/html"
+packages = ["libpq-dev"]
 
 [run]
 # parameters passed as a dict to docker run
