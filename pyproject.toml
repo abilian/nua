@@ -22,6 +22,9 @@ nua-orchestrator = { path = "nua-orchestrator", develop = true }
 nox = "*"
 abilian-devtools = "*"
 
+# Helper for monorepo
+invoke = "^1.7.3"
+
 # Code coverage (reporting)
 codecov = "*"
 

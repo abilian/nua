@@ -49,45 +49,8 @@ clean-test: ## remove test and coverage artifacts
 #
 # Linting
 #
-lint: lint/ruff lint/flake8 lint/mypy lint/black lint/isort ## check style
-
-lint/ruff: ## check style with ruff
-	ruff .
-
-lint/flake8: ## check style with flake8
-	# flake8 nua-*/src nua-*/tests
-
-lint/black: ## check style with black
-	black --check nua-*/src nua-*/tests
-
-lint/mypy: ## typecheck with mypy
-	mypy nua-lib/src
-	mypy nua-runtime/src
-	mypy nua-autobuild/src
-	mypy nua-build/src
-	mypy nua-cli/src
-	# mypy nua-orchestrator/src
-
-lint/isort:  ## check imports are properly sorted
-	# isort -c nua-*/**/*.py
-
-#test: ## run tests quickly with the default Python
-#	pytest
-#	@echo ""
-#
-#test-with-coverage:
-#	@echo "--> Running Python tests"
-#	py.test --cov $(PKG)
-#	@echo ""
-#
-#test-with-typeguard:
-#	@echo "--> Running Python tests with typeguard"
-#	pytest --typeguard-packages=${PKG}
-#	@echo ""
-#
-#vagrant-tests:
-#	vagrant up
-#	vagrant ssh -c /vagrant/deploy/vagrant_test.sh
+lint:
+	invoke lint
 
 
 #
@@ -99,9 +62,6 @@ format-py:
 	docformatter -i -r nua-*
 	black nua-*/
 	isort nua-*/
-
-format-js:
-	echo "TODO"
 
 
 #
