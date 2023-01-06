@@ -10,7 +10,7 @@ tags = ["test", "php", "web", "Dolibarr"]
 licence = "GPLv3"
 
 [build]
-manifest = ["nua/Dockerfile", "nua/docker-run.sh"]
+manifest = ["nua"]
 default_files = false
 
 [[assign]]
