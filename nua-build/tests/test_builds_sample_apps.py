@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import pytest
 
 from .build_image import build_test_image
