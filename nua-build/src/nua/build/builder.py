@@ -208,7 +208,7 @@ class Builder:
 
     def complete_with_default_files(self):
         """Complete missing files from defaults (Dockerfile, start.py, ...)."""
-        if not self.config.build.get("default_file", True):
+        if not self.config.build.get("default_files", True):
             return
         for file in rso.files("nua.build.defaults").iterdir():
             if (
