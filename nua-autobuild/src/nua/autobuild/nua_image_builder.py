@@ -39,9 +39,15 @@ class NUAImageBuilder:
         self.force = False
         self.download = False
         self.builder_methods = {
-            NUA_BUILDER_NODE_TAG14: self.ensure_nua_builder_node,
-            NUA_BUILDER_NODE_TAG16: self.ensure_nua_builder_node,
+            NUA_BUILDER_NODE_TAG14: self.ensure_nua_builder_node14,
+            NUA_BUILDER_NODE_TAG16: self.ensure_nua_builder_node16,
         }
+        self.displayed = set()
+
+    def display_once_docker_img(self, image_tag: str):
+        if image_tag not in self.displayed:
+            display_docker_img(image_tag)
+            self.displayed.add(image_tag)
 
     def build(
         self, force: bool = False, download: bool = False, all: bool = True
@@ -58,7 +64,7 @@ class NUAImageBuilder:
         self.ensure_nua_builder()
         if all:
             # build all base images
-            self.ensure_nua_builder_node()
+            self.ensure_all_nua_builders()
         chdir(self.orig_wd)
         return self.images_path
 
@@ -68,7 +74,7 @@ class NUAImageBuilder:
                 docker_remove_locally(NUA_PYTHON_TAG)
             self.build_nua_python()
         if verbosity(1):
-            display_docker_img(NUA_PYTHON_TAG)
+            self.display_once_docker_img(NUA_PYTHON_TAG)
 
     def ensure_nua_builder(self):
         if self.force or not docker_require(NUA_BUILDER_TAG):
@@ -76,11 +82,17 @@ class NUAImageBuilder:
                 docker_remove_locally(NUA_BUILDER_TAG)
             self.build_nua_builder()
         if verbosity(1):
-            display_docker_img(NUA_BUILDER_TAG)
+            self.display_once_docker_img(NUA_BUILDER_TAG)
 
-    def ensure_nua_builder_node(self):
-        """Build the (several) build images providing nodejs environment."""
+    def ensure_all_nua_builders(self):
+        """Build the (several) build images providing various environments."""
+        self.ensure_nua_builder_node14()
+        self.ensure_nua_builder_node16()
+
+    def ensure_nua_builder_node14(self):
         self._ensure_nua_builder_node_x(NUA_BUILDER_NODE_TAG14)
+
+    def ensure_nua_builder_node16(self):
         self._ensure_nua_builder_node_x(NUA_BUILDER_NODE_TAG16)
 
     def _ensure_nua_builder_node_x(self, image_tag: str):
@@ -89,7 +101,7 @@ class NUAImageBuilder:
                 docker_remove_locally(image_tag)
             self.build_nua_builder_node(image_tag)
         if verbosity(1):
-            display_docker_img(image_tag)
+            self.display_once_docker_img(image_tag)
 
     def ensure_images(self, required: list):
         if verbosity(3):

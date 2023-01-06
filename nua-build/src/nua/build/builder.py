@@ -252,7 +252,7 @@ class Builder:
 
     @docker_build_log_error
     def build_with_docker(self, save=True):
-        if verbosity(2):
+        if verbosity(3):
             info("Starting build_with_docker()")
         chdir(self.build_dir)
         with suppress(IOError):
