@@ -76,11 +76,6 @@ class NuaConfig:
     def manifest(self) -> list:
         return self.build.get("manifest", [])
 
-    # @property
-    # def source_url(self) -> str:
-    #     source_url = self.build.get("source_url") or ""
-    #     return source_url
-
     @property
     def meta_packages(self) -> list:
         return self.build.get("meta-packages", [])
