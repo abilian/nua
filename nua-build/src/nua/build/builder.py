@@ -104,8 +104,8 @@ class Builder:
     def select_base_image(self):
         """Select a base image among possible choices.
 
-        It may append that we have 2 images for Nodejs v14 and v16, and an app
-        allowing both version.
+        It may append that we have 2 images for Nodejs v14 and v16, and
+        an app allowing both version.
         """
         for key, required_version in self.config.profile.items():
             if key == "node":
@@ -128,7 +128,8 @@ class Builder:
                 return
 
     def detect_nua_dir(self):
-        """Detect dir containing nua files (start.py, build.py, Dockerfile, ...)."""
+        """Detect dir containing nua files (start.py, build.py, Dockerfile,
+        etc.)."""
         nua_dir = self.config.build.get("nua_dir")
         if not nua_dir:
             # Check if default 'nua' dir exists
@@ -138,7 +139,7 @@ class Builder:
             else:
                 # Use the root folder (where is the nua-config.toml file)
                 nua_dir = "."
-        # Check if provided path does exists:
+        # Check if provided path does exist:
         path = self.config.root_dir / nua_dir
         if path.is_dir():
             self.nua_dir = path

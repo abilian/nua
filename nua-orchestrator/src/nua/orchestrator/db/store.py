@@ -463,7 +463,7 @@ def deploy_config_update_state(record_id: int, new_state: str):
             session.commit()
 
 
-def deploy_config_last_status(status: str, limit: int = 2) -> []:
+def deploy_config_last_status(status: str, limit: int = 2) -> list:
     """retrieve the config with "active" state.
 
     It should be only one.
@@ -474,7 +474,7 @@ def deploy_config_last_status(status: str, limit: int = 2) -> []:
         return _deploy_config_last_any(limit)
 
 
-def _deploy_config_last_status(status: str, limit: int) -> []:
+def _deploy_config_last_status(status: str, limit: int) -> list:
     with Session() as session:
         records = (
             session.query(DeployConfig)
@@ -487,7 +487,7 @@ def _deploy_config_last_status(status: str, limit: int) -> []:
         return []
 
 
-def _deploy_config_last_any(limit: int) -> []:
+def _deploy_config_last_any(limit: int) -> list:
     with Session() as session:
         records = (
             session.query(DeployConfig).order_by(DeployConfig.id.desc()).limit(limit)

@@ -164,6 +164,7 @@ class DockerCommand:
         if "key_filename" in kwargs:
             path = Path(kwargs["key_filename"]).expanduser()
             kwargs["key_filename"] = str(path)
+
         with tempfile.TemporaryDirectory(
             prefix="nua_inst_", dir="/var/tmp", ignore_cleanup_errors=True
         ) as tmpdirname:

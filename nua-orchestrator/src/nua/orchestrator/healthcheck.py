@@ -77,7 +77,7 @@ class HealthCheck:
         return self._dict
 
     def as_docker_params(self) -> dict:
-        params = {}
+        params: dict[str, Any] = {}
         if not self._dict["command"]:
             return params
         # expecting a str -> the command wil be used as CMD-SHELL by py-docker:

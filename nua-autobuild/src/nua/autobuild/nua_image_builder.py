@@ -144,7 +144,8 @@ class NUAImageBuilder:
     def build_nua_builder_node(self, image_tag: str):
         """Build images of profile family 'node'.
 
-        Currently, image_tag can be: NUA_BUILDER_NODE_TAG16 or 14"""
+        Currently, image_tag can be: NUA_BUILDER_NODE_TAG16 or 14
+        """
         title(f"Building the docker image {image_tag}")
         with tempfile.TemporaryDirectory() as build_dir:
             build_path = Path(build_dir)
