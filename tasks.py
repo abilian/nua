@@ -10,6 +10,11 @@ SUB_REPOS = [
 ]
 
 
+#
+# Tasks
+#
+
+
 @task
 def lint(c):
     # c.run("ruff .")
@@ -21,6 +26,21 @@ def lint(c):
 @task
 def format(c):  # noqa: A001
     run_in_subrepos(c, "make format")
+
+
+@task
+def test(c):
+    run_in_subrepos(c, "make test")
+
+
+@task
+def mypy(c):
+    run_in_subrepos(c, "mypy src")
+
+
+@task
+def pyright(c):
+    run_in_subrepos(c, "pyright src")
 
 
 @task
