@@ -1,9 +1,6 @@
 .PHONY: all develop test lint clean doc format
 .PHONY: clean clean-build clean-pyc clean-test coverage dist doc install lint lint/flake8
 
-# The package name
-PKG=nua
-
 
 all: lint
 
@@ -36,15 +33,6 @@ test:
 	pytest --ff -x -p no:randomly
 	@echo ""
 
-test-randomly:
-	@echo "--> Running Python tests in random order"
-
-clean-test: ## remove test and coverage artifacts
-	rm -fr .tox/
-	rm -f .coverage
-	rm -fr htmlcov/
-	rm -fr .pytest_cache
-
 
 #
 # Linting
@@ -56,12 +44,11 @@ lint:
 #
 # Formatting
 #
-format: format-py format-js
-
-format-py:
+format:
+	invoke format
 	docformatter -i -r nua-*
-	black nua-*/
-	isort nua-*/
+	black *.py
+	isort *.py
 
 
 #
@@ -85,7 +72,7 @@ install:
 	poetry install
 
 clean:
-	inv clean
+	invoke clean
 	find . -name __pycache__ -print0 | xargs -0 rm -rf
 	find . -type d -empty -delete
 	rm -rf .mypy_cache .pytest_cache .ruff_cache
@@ -104,9 +91,8 @@ tidy: clean
 update-deps:
 	pip install -U pip setuptools wheel
 	poetry update
-	poetry export -o requirements.txt
 
-publish: clean
-	git push --tags
-	poetry build
-	twine upload dist/*
+#publish: clean
+#	git push --tags
+#	poetry build
+#	twine upload dist/*

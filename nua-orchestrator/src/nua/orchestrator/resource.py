@@ -6,8 +6,8 @@ from copy import deepcopy
 from nua.lib.panic import abort, warning
 from nua.lib.tool.state import verbosity
 
-from .backup_engine import backup_resource, backup_volume
-from .backup_report import global_backup_report
+from .backup.backup_engine import backup_resource, backup_volume
+from .backup.backup_report import global_backup_report
 from .healthcheck import HealthCheck
 from .port_normalization import normalize_ports, ports_as_dict
 from .utils import sanitized_name

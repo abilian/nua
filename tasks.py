@@ -45,7 +45,7 @@ def pyright(c):
 
 @task
 def clean(c):
-    run_in_subrepos(c, "clean")
+    run_in_subrepos(c, "make clean")
 
 
 @task
