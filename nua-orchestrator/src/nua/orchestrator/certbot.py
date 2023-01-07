@@ -2,7 +2,7 @@
 
 host.certbot_strategy (or ENV NUA_CERTBOT_STRATEGY) can be (for now):
     - auto: all domains are declared to certbot to use HTTPS
-    - none: no HTTPS domain, all is converted to HTTP only (ie. tests or local server)
+    - none: no HTTPS domain, all is converted to HTTP only (i.e. tests or local server)
     - Default is "auto"
 
 Test ENV variables:

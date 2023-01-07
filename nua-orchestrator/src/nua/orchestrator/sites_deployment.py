@@ -245,7 +245,7 @@ class SitesDeployment:
     def parse_deploy_sites(self):
         """Make the list of Sites.
 
-        Check config syntax, replace missing informations by defaults.
+        Check config syntax, replace missing information by defaults.
         """
         sites = []
         for site_dict in self.loaded_config["site"]:
@@ -296,7 +296,7 @@ class SitesDeployment:
         """Return a dict of sites per host.
 
         key : hostname (full name)
-        value : list of web sites of hostname
+        value : list of websites of hostname
 
         input format: dict contains a list of sites
 
@@ -534,12 +534,12 @@ class SitesDeployment:
         """Set first container names of resources to permit early host
         assignment to variables.
 
-        Site.container_name is always available)
+        Site.container_name is always available.
         """
         for resource in site.resources:
             if resource.type == "docker":
                 name = f"{site.container_name}-{resource.base_name}"
-                # - code will be rename to container_name
+                # - code will be renamed to container_name
                 # - See if we tryst Docker to overwrite this variable
                 #   (or emit a warning if pb)
                 resource.container = name

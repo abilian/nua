@@ -26,7 +26,7 @@ def _postgres_pwd() -> str:
 
     Read the password from local file.
 
-    Assuming this function can only be used *after* password was generated (or its a bug).
+    Assuming this function can only be used *after* password was generated (or it's a bug).
     """
     # pwd = os.environ.get("NUA_POSTGRES_PASSWORD")
     # if pwd:
@@ -40,8 +40,7 @@ def _mariadb_pwd() -> str:
 
     Read the password from local file.
 
-    Assuming this function can only be used *after* password
-    was generated (or its a bug).
+    Assuming this function can only be used *after* password was generated (or it's a bug).
     """
     # pwd = os.environ.get("NUA_MARIADB_PASSWORD")
     # if pwd:

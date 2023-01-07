@@ -233,7 +233,7 @@ def create_container_private_network(network_name: str):
 
 
 def pull_resource_container(resource: Resource) -> bool:
-    """Retrieve a resource container or get reference from from cache.
+    """Retrieve a resource container or get reference from cache.
 
     Currrently: only managing Docker bridge network.
     """

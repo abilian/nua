@@ -15,7 +15,7 @@ class Setting(Base, SerializerMixin):
       runnning/installed nua-build software. User choice for others.
     - activation: "docker" or "system" for the moment. How this app service
       is installed
-    # bad idea - active: bool, wether this settings are applied on a currently running
+    # bad idea - active: bool, wether these settings are applied on a currently running
       instance (either local or dockerised or other)
     # - container: for "docker" installation app, "" or the id of the active
       container.

@@ -8,9 +8,9 @@ Principle for fetching a new built package:
  - the 'rload' commands:
     - connects to development host
     - "docker save" the image
-    - fetch the image .tar file
-    - install it locally an load the image in the local registry of the Nua
-    orchestrator.
+    - fetches the image .tar file
+    - installs it locally and loads the image in the local registry of the Nua
+      orchestrator.
 """
 import json
 import tempfile

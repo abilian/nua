@@ -5,7 +5,7 @@
 """
 import os
 
-# import venv -> this induce bugs (venv from venv...), prefer direct /usr/bin/python3
+# import venv -> this induces bugs (venv from venv...), prefer direct /usr/bin/python3
 from pathlib import Path
 
 from nua.lib.actions import (

@@ -361,9 +361,10 @@ def docker_volume_create_new(volume: Volume):
 
 
 def docker_volume_create_or_use(volume_params: dict):
-    """Return a useabla/mountable docker volume.
+    """Return an useable/mountable docker volume.
 
-    Strategy depends of volume type: "bind", "volume", or "tmpfs".
+    The strategy depends on the volume type: "bind", "volume", or
+    "tmpfs".
     """
     volume = Volume.parse(volume_params)
 

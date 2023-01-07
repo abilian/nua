@@ -1,4 +1,4 @@
-"""Managing os.environ for Nua variables.
+"""Managing `os.environ` for Nua variables.
 
 Basically a wrapper for the NUA_ENV dict as a singleton, no class
 needed.

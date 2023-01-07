@@ -21,7 +21,7 @@ class DeployConfig(Base, SerializerMixin):
     - id: system generated colum for indexes
     - previous: id of previous deployment (or zero)
     - state: one of "failed", "active", "inactive", "previous". "previous" is an
-      inactive state fro last running config.
+      inactive state for last running config.
     - created, modified: status date
     - deploy_config: JSON data representation of deployment config, ex:
     {
