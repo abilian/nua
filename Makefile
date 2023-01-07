@@ -85,18 +85,14 @@ install:
 	poetry install
 
 clean:
-	cd nua-lib && make clean
-	cd nua-cli && make clean
-	cd nua-runtime && make clean
-	cd nua-autobuild && make clean
-	cd nua-build && make clean
-	cd nua-orchestrator && make clean
+	inv clean
 	find . -name __pycache__ -print0 | xargs -0 rm -rf
 	find . -type d -empty -delete
 	rm -rf .mypy_cache .pytest_cache .ruff_cache
 	rm -rf */.mypy_cache */.pytest_cache */.ruff_cache
 	rm -f .coverage */.coverage
 	rm -rf dist nua-*/dist
+	rm -rf apps/*/*/build_dir
 	# Remove more cruft
 	rm -rf *.egg-info *.egg .eggs .cache .mypy_cache .pyre \
 		.pytest_cache .pytest .DS_Store  docs/_build docs/cache docs/tmp \

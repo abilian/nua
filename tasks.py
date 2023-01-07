@@ -44,6 +44,11 @@ def pyright(c):
 
 
 @task
+def clean(c):
+    run_in_subrepos(c, "clean")
+
+
+@task
 def update(c):
     run_in_subrepos(c, "poetry update && poetry install")
 
