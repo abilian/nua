@@ -2764,6 +2764,21 @@ files = [
 ]
 
 [[package]]
+name = "pydeps"
+version = "1.11.0"
+description = "Display module dependencies"
+category = "dev"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pydeps-1.11.0-py3-none-any.whl", hash = "sha256:9d7ee72c4e8a038adeddc20783fd3d68b52a015490f1909a957e05daf1dea2a4"},
+    {file = "pydeps-1.11.0.tar.gz", hash = "sha256:cc6b2428f2628cdd1a27ab85b74b7997f04bcb1c4171f2e1a01d07780e056064"},
+]
+
+[package.dependencies]
+stdlib-list = "*"
+
+[[package]]
 name = "pydyf"
 version = "0.5.0"
 description = "A low-level PDF generator."
@@ -3957,4 +3972,4 @@ test = ["pytest"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "d416dbdb89bd20270fd90a38c2a9f6cf8f4ff11fc48fbd712a38f6e7ee0bfa42"
+content-hash = "cdbb11bc148790430b29e7b8158cf0148448aee817f8a6c718f333a0c0a9f094"
