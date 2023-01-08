@@ -49,7 +49,7 @@ The Nua project is a monorepo, split into several subpackages:
 - `nua-build`: build system for Nua packages  ([details](./nua-build/README.md)).
 - `nua-orchestrator`: orchestrator for Nua applications  ([details](./nua-orchestrator/README.md)).
 
-It also comprises several example applications, as well as a few real-world applications: `[apps](./apps)`.
+It also comprises several example applications, as well as a few real-world applications: [`apps`](./apps).
 
 ### Roadmap and current status
 
