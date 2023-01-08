@@ -3,7 +3,7 @@ from importlib import import_module
 from nua.lib.actions import camel_format, snake_format
 from nua.lib.console import print_red
 
-from .db import store
+from ..db import store
 
 # def test():
 #     from .db_setup import setup_db

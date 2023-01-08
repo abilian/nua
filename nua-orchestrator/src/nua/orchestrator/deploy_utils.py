@@ -29,7 +29,7 @@ from .site import Site
 from .utils import size_to_bytes
 from .volume import Volume
 
-PULLED_IMAGES = {}
+PULLED_IMAGES: dict[str, str] = {}
 
 
 def load_install_image(image_path: str | Path) -> tuple:
@@ -74,6 +74,7 @@ def port_allocator(start_ports: int, end_ports: int, allocated_ports: set) -> Ca
                 allocated_ports.add(port)
                 return port
         abort("Not enough available ports")
+        raise SystemExit(1)  # Please mypy
 
     return allocator
 

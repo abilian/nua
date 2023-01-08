@@ -4,6 +4,7 @@ from collections.abc import Callable
 from copy import deepcopy
 from pathlib import Path
 from pprint import pformat
+from typing import Any
 
 import tomli
 from nua.lib.console import print_green, print_magenta, print_red
@@ -38,12 +39,12 @@ from .nginx_util import (
 )
 from .requirement_evaluator import instance_key_evaluator
 from .resource import Resource
-from .service_loader import Services
+from .services import Services
 from .site import Site
 from .volume import Volume
 
 # parameters passed as a dict to docker run
-RUN_BASE = {}  # see also nua_config
+RUN_BASE: dict[str, Any] = {}  # see also nua_config
 RUN_BASE_RESOURCE = {"restart_policy": {"name": "always"}}
 
 
