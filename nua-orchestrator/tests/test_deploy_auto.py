@@ -10,7 +10,7 @@ import requests
 import tomli
 from typer.testing import CliRunner
 
-from nua.orchestrator.main import app
+from nua.orchestrator.cli.main import app
 
 runner = CliRunner()
 

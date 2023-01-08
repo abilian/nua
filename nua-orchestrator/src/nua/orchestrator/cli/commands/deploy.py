@@ -1,6 +1,5 @@
 """Nua main scripts."""
-
-from ..sites_deployment import SitesDeployment
+from nua.orchestrator.sites_deployment import SitesDeployment
 
 
 def deploy_nua_sites(deploy_config: str):

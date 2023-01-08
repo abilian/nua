@@ -1,6 +1,6 @@
 """Restore previous successful deployed configuration."""
 
-from ..sites_deployment import SitesDeployment
+from nua.orchestrator.sites_deployment import SitesDeployment
 
 
 def restore_nua_sites_strict():

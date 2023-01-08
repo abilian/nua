@@ -10,7 +10,7 @@ packages = [
 ]
 
 [tool.poetry.scripts]
-nua = "nua.orchestrator.main:app"
+nua-orchestrator = "nua.orchestrator.cli.main:app"
 nua-bootstrap = "nua.orchestrator.scripts.bootstrap:main"
 nua-pg-pwd = "nua.orchestrator.scripts.set_pg_pwd:app"
 nua-mariadb-init = "nua.orchestrator.scripts.mariadb_restore:app"

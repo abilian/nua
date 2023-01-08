@@ -3,7 +3,7 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from nua.orchestrator.main import app
+from nua.orchestrator.cli.main import app
 
 # from nua.orchestrator.scripts.test_replace_domain import replace_file
 

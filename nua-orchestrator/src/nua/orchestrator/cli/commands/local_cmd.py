@@ -7,11 +7,11 @@ from operator import itemgetter
 
 from nua.lib.panic import abort
 
-from . import __version__, config
+from ... import __version__, config
 
 # from .registry import start_registry_container  # to remove
 # from .server_utils.mini_log import log, log_me, log_sentinel
-from .server_utils.mini_log import log_me
+from ...server_utils.mini_log import log_me
 
 # import psutil
 

@@ -1,6 +1,6 @@
 """Execute backup commands."""
 
-from ..sites_management import SitesManagement
+from nua.orchestrator.sites_management import SitesManagement
 
 
 def backup_all():

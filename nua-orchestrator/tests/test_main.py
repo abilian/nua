@@ -1,7 +1,7 @@
 from typer.testing import CliRunner
 
 from nua.orchestrator import __version__
-from nua.orchestrator.main import app
+from nua.orchestrator.cli.main import app
 
 
 def test_version_string():  # noqa
