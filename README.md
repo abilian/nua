@@ -42,8 +42,9 @@ See: <https://speakerdeck.com/sfermigier/nua-a-self-hosted-resilient-paas>
 
 The Nua project is a monorepo, split into several subpackages:
 
-- `nua-lib`: common code for all Nua packages.
+- `nua-lib`: common code for all Nua packages ([details](./nua-lib/README.md))).
 - `nua-cli`: command-line interface for Nua.
+- `nua-runtime`: runtime for Nua apps.
 - `nua-autobuild`: build Docker images used by Nua.
 - `nua-build`: build system for Nua packages.
 - `nua-orchestrator`: orchestrator for Nua applications.
