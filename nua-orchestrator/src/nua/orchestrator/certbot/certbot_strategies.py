@@ -16,7 +16,7 @@ from nua.lib.console import print_magenta
 from nua.lib.shell import sh
 from nua.lib.tool.state import verbosity
 
-from . import config
+from nua.orchestrator import config
 
 
 def certbot_run_args(domains: list) -> str:

@@ -16,7 +16,8 @@ from nua.lib.console import print_red
 from nua.lib.panic import abort
 from nua.lib.tool.state import verbosity
 
-from . import config
+from nua.orchestrator import config
+
 from .certbot_strategies import apply_auto_strategy, apply_none_strategy
 
 ALLOWED_STRATEGY = {"auto": apply_auto_strategy, "none": apply_none_strategy}

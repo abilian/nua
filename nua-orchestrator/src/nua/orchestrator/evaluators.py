@@ -77,6 +77,7 @@ def resource_property(site: Site, requirement: dict) -> dict:
         else:
             abort(f"Unknown property for resource_property: {requirement}")
         return {requirement[KEY]: value}
+
     warning(f"Unknown resource for {requirement}")
     return {}
 

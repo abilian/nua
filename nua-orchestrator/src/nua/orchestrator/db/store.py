@@ -527,7 +527,7 @@ def deploy_config_last_inactive() -> dict:
     return {}
 
 
-def deploy_config_last_one() -> {}:
+def deploy_config_last_one() -> dict:
     """Retrieve the last deployment config."""
     items = _deploy_config_last_any(1)
     if items:

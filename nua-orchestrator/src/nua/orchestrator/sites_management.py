@@ -23,7 +23,7 @@ class SitesManagement:
         # self.available_services = {}
 
     def load_active_config(self) -> dict:
-        "Return the current deployed configuration."
+        """Return the current deployed configuration."""
         self.active_config = store.deploy_config_active()
         if not self.active_config:
             warning("The current deployed config is empty.")

@@ -20,7 +20,7 @@ def generate_rsa_host_key(bits=4096) -> RSAKey:
     return key
 
 
-def private_key_blob_from_key(key: RSAKey, password: str = None) -> str:
+def private_key_blob_from_key(key: RSAKey, password: str | None = None) -> str:
     """Write an SSH2-format private key file in a form that can be read by
     paramiko or openssh.
 
