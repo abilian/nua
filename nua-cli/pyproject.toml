@@ -18,8 +18,8 @@ typer = "^0.7.0"
 patchwork = "^1.0.1"
 
 [tool.poetry.group.dev.dependencies]
-abilian-devtools = "^0.1.6"
-devtools = "^0.10.0"
+abilian-devtools = "*"
+devtools = "*"
 types-setuptools = "*"
 
 [build-system]

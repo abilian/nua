@@ -15,7 +15,7 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.10"
 setuptools = "^65.5.0"
-packaging = "^22.0"
+packaging = "*"
 nua-lib = { path = "../nua-lib/", develop = false }
 tomli = "^2.0.1"
 
