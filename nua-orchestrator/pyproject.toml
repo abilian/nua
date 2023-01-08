@@ -14,7 +14,7 @@ nua-orchestrator = "nua.orchestrator.cli.main:app"
 
 # TODO: all of these scripts should be subsumed by nua-orchestrator
 # (If they are still really needed)
-nua-bootstrap = "nua.orchestrator.scripts.bootstrap:main"
+# nua-bootstrap = "nua.orchestrator.scripts.bootstrap:main"
 nua-pg-pwd = "nua.orchestrator.scripts.set_pg_pwd:app"
 nua-mariadb-init = "nua.orchestrator.scripts.mariadb_restore:app"
 nua-print-instances = "nua.orchestrator.scripts.print_instances:main"

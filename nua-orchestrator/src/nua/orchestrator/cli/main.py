@@ -22,6 +22,7 @@ from .commands.deploy import deploy_nua_sites
 from .commands.deploy_nua import deploy_nua
 from .commands.local_cmd import reload_servers, status
 from .commands.restore import restore_nua_sites_replay, restore_nua_sites_strict
+from .commands.bootstrap import main as bootstrap_cmd
 
 app = typer.Typer()
 is_initialized = False
@@ -80,6 +81,12 @@ def initialization():
         return
     setup_db()
     is_initialized = True
+
+
+@app.command()
+def bootstrap():
+    """Bootstrap Nua orchestrator."""
+    bootstrap_cmd()
 
 
 @app.command("status")
