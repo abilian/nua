@@ -4,20 +4,22 @@ import tempfile
 from pathlib import Path
 from shutil import copytree
 
-import pytest
+import tomli
 from docker import DockerClient
+from typer.testing import CliRunner
 
 from nua.build.archive_search import ArchiveSearch
+from nua.build.main import app as nua_build
 
 from .common import get_apps_root_dir
 
+runner = CliRunner(mix_stderr=False)
 
-@pytest.mark.skip("TODO: fix")
+
 def test_archive_search():
     app_id = "flask-one-wheel"
-    image_target = "nua-flask-one-wheel:1.2-1"
     src_path = get_apps_root_dir("sample-apps") / app_id.replace("-", "_")
-
+    image_target = image_name(src_path)
     with tempfile.TemporaryDirectory(dir="/tmp") as tmpdirname:
         _build_test_search(tmpdirname, src_path, image_target, app_id)
 
@@ -27,14 +29,32 @@ def _build_test_search(tmpdirname, src_path, image_target, app_id):
     copytree(src_path, build_dir)
     docker = DockerClient.from_env()
 
-    cmd = shlex.split(f"nua-build {build_dir}")
-    result = sp.run(cmd, capture_output=True)
-    assert result.returncode == 0
+    # build the app "flask-one-wheel"
+    build_app(build_dir)
+
+    print("image:", image_target)
+    print(docker.images.list(image_target))
     assert docker.images.list(image_target)
 
+    # actual test of the ArchiveSearch() class
     archive = Path(tmpdirname) / "test.tar"
     cmd = shlex.split(f"docker save {image_target} -o {archive}")
-    sp.run(cmd)
+    sp.run(cmd)  # noqa S603
     arch_search = ArchiveSearch(archive)
     internal_config = arch_search.nua_config_dict()
     assert internal_config["metadata"]["id"] == app_id
+
+
+def build_app(build_dir: Path) -> None:
+    """Quick build the application with nua-build."""
+    result = runner.invoke(nua_build, ["-v", str(build_dir)])
+    print(result.stdout)
+    print(result.stderr)
+    assert result.exit_code == 0
+
+
+def image_name(src_path: Path) -> str:
+    """Open nua-config file and return the expected image target name."""
+    file = src_path / "nua-config.toml"
+    content = tomli.loads(file.read_text(encoding="utf8"))
+    return "nua-{id}:{version}-{release}".format(**content["metadata"])
