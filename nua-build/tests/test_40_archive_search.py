@@ -1,5 +1,5 @@
 import shlex
-import subprocess as sp  # noqa, required.
+import subprocess as sp
 import tempfile
 from pathlib import Path
 from shutil import copytree

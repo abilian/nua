@@ -11,7 +11,6 @@ import re
 import tempfile
 from contextlib import suppress
 from importlib import resources as rso
-from os import chdir
 from pathlib import Path
 from shutil import copy2, copytree
 
@@ -39,6 +38,7 @@ from packaging.specifiers import SpecifierSet
 from packaging.version import Version
 
 from . import __version__, config
+from .backports import chdir
 from .constants import NUA_CONFIG
 
 logging.basicConfig(level=logging.INFO)
@@ -243,65 +243,65 @@ class Builder:
     def build_with_docker(self, save=True):
         if verbosity(3):
             info("Starting build_with_docker()")
-        chdir(self.build_dir)
-        with suppress(IOError):
-            copy2(self.build_dir / "Dockerfile", self.build_dir)
-        release = self.config.metadata.get("release", "")
-        if release:
-            rel_tag = f"-{release}"
-        else:
-            rel_tag = ""
-        nua_tag = f"nua-{self.config.app_id}:{self.config.version}{rel_tag}"
-        info(f"Building image {nua_tag}")
-        client = docker.from_env()
-        image, tee = client.images.build(
-            path=".",
-            tag=nua_tag,
-            rm=True,
-            forcerm=True,
-            buildargs={"nua_builder_tag": self.nua_base},
-            labels={
-                "APP_ID": self.config.app_id,
-                "NUA_TAG": nua_tag,
-                "NUA_BUILD_VERSION": __version__,
-            },
-            nocache=True,
-        )
-        if verbosity(1):
-            display_docker_img(nua_tag)
-        if save:
-            self.save(image, nua_tag)
-        if verbosity(3):
-            print("-" * 60)
-            print("Build log:")
-            print_log_stream(tee)
-            print("-" * 60)
+        with chdir(self.build_dir):
+            with suppress(IOError):
+                copy2(self.build_dir / "Dockerfile", self.build_dir)
+            release = self.config.metadata.get("release", "")
+            if release:
+                rel_tag = f"-{release}"
+            else:
+                rel_tag = ""
+            nua_tag = f"nua-{self.config.app_id}:{self.config.version}{rel_tag}"
+            info(f"Building image {nua_tag}")
+            client = docker.from_env()
+            image, tee = client.images.build(
+                path=".",
+                tag=nua_tag,
+                rm=True,
+                forcerm=True,
+                buildargs={"nua_builder_tag": self.nua_base},
+                labels={
+                    "APP_ID": self.config.app_id,
+                    "NUA_TAG": nua_tag,
+                    "NUA_BUILD_VERSION": __version__,
+                },
+                nocache=True,
+            )
+            if verbosity(1):
+                display_docker_img(nua_tag)
+            if save:
+                self.save(image, nua_tag)
+            if verbosity(3):
+                print("-" * 60)
+                print("Build log:")
+                print_log_stream(tee)
+                print("-" * 60)
 
     @docker_build_log_error
     def build_with_docker_stream(self, save=True):
-        chdir(self.build_dir)
-        with suppress(IOError):
-            copy2(self.build_dir / self.nua_dir_relative / "Dockerfile", self.build_dir)
-        release = self.config.metadata.get("release", "")
-        if release:
-            rel_tag = f"-{release}"
-        else:
-            rel_tag = ""
-        nua_tag = f"nua-{self.config.app_id}:{self.config.version}{rel_tag}"
-        buildargs = {"nua_builder_tag": self.nua_base}
-        labels = {
-            "APP_ID": self.config.app_id,
-            "NUA_TAG": nua_tag,
-            "NUA_BUILD_VERSION": __version__,
-        }
-        info(f"Building image {nua_tag}")
-        image_id = _docker_stream_build(".", nua_tag, buildargs, labels)
-        if verbosity(1):
-            display_docker_img(nua_tag)
-        if save:
-            client = docker.from_env()
-            image = client.images.get(image_id)
-            self.save(image, nua_tag)
+        with chdir(self.build_dir):
+            with suppress(IOError):
+                copy2(self.build_dir / self.nua_dir_relative / "Dockerfile", self.build_dir)
+            release = self.config.metadata.get("release", "")
+            if release:
+                rel_tag = f"-{release}"
+            else:
+                rel_tag = ""
+            nua_tag = f"nua-{self.config.app_id}:{self.config.version}{rel_tag}"
+            buildargs = {"nua_builder_tag": self.nua_base}
+            labels = {
+                "APP_ID": self.config.app_id,
+                "NUA_TAG": nua_tag,
+                "NUA_BUILD_VERSION": __version__,
+            }
+            info(f"Building image {nua_tag}")
+            image_id = _docker_stream_build(".", nua_tag, buildargs, labels)
+            if verbosity(1):
+                display_docker_img(nua_tag)
+            if save:
+                client = docker.from_env()
+                image = client.images.get(image_id)
+                self.save(image, nua_tag)
 
     def save(self, image, nua_tag):
         dest = f"/var/tmp/{nua_tag}.tar"  # noqa S108

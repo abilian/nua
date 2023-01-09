@@ -10,9 +10,8 @@ import docker
 import tomli
 from typer.testing import CliRunner
 
+from nua.build.backports import chdir
 from nua.build.main import app
-
-from .common import chdir
 
 runner = CliRunner(mix_stderr=False)
 

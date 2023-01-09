@@ -22,8 +22,8 @@ from .util.deep_access_dict import DeepAccessDict
 
 
 def setup_db():
-    """Create the db if needed and also populate the configuration
-    from both db values and default parameters."""
+    """Create the db if needed and also populate the configuration from both db
+    values and default parameters."""
     find_db_url()
     create_base()
     configure_session()
