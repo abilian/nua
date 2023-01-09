@@ -1,5 +1,5 @@
 import os
-import subprocess as sp  # noqa, required.
+import subprocess as sp
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
@@ -12,17 +12,30 @@ from typer.testing import CliRunner
 
 from nua.build.main import app
 
+from .common import chdir
+
 runner = CliRunner(mix_stderr=False)
 
 
 def build_test_image(src_dir: Path | str):
     """Build an image and assert success."""
     src_path = Path(src_dir)
-    if not src_path.is_dir():
-        raise ValueError(f"No such folder: {src_path}")
-    actual_path = _apply_makefile(src_path)
-    with open(actual_path / "nua-config.toml", mode="rb") as rfile:
-        conf = tomli.load(rfile)
+    assert src_path.is_dir()
+
+    with chdir(src_path):
+        with open("nua-config.toml", mode="rb") as rfile:
+            conf = tomli.load(rfile)
+
+        name = _make_image_name(conf)
+
+        with tempfile.TemporaryDirectory(dir="/tmp") as tmpdirname:
+            print("Building in temporary directory", tmpdirname)
+            _build_test(tmpdirname, name)
+
+        _run_make("clean")
+
+
+def _make_image_name(conf: dict) -> str:
     meta = conf["metadata"]
     name = meta["id"]
     if not name.startswith("nua-"):
@@ -30,48 +43,29 @@ def build_test_image(src_dir: Path | str):
     name = f"{name}:{meta['version']}"
     if "release" in meta:
         name = f"{name}-{meta['release']}"
-
-    with tempfile.TemporaryDirectory(dir="/tmp") as tmpdirname:  # noqa
-        print("created temporary directory", tmpdirname)
-        _build_test(tmpdirname, actual_path, name)
-
-    _apply_makefile_clean(src_path)
-    os.chdir(src_path)
+    return name
 
 
-def _apply_makefile(src_path: Path) -> Path:
-    if not (src_path / "Makefile").is_file():
-        return src_path
-    os.chdir(src_path)
-    result = sp.run(["make", "build"], capture_output=True)  # noqa
-    print(" ========= make build ===========")
-    print(result.stdout.decode("utf8"))
-    print(" ================================")
-    return src_path / "build_dir"
-
-
-def _apply_makefile_clean(src_path: Path):
-    if not (src_path / "Makefile").is_file():
+def _run_make(target: str) -> None:
+    if not Path("Makefile").is_file():
         return
-    os.chdir(src_path)
-    result = sp.run(["make", "clean"], capture_output=True)  # noqa
-    print(" ========= make clean ===========")
+
+    print(" ========= make build ===========")
+    result = sp.run(["make", target], capture_output=True)
     print(result.stdout.decode("utf8"))
     print(" ================================")
 
 
-def _build_test(tmpdirname, src_path, name):
+def _build_test(tmpdirname: str, name: str):
     build_dir = Path(tmpdirname) / "build"
-    copytree(src_path, build_dir)
+    copytree(".", build_dir)
     dock = docker.from_env()
     print("----------------------------------------------")
     print(f"Build {name}")
     print("Time now:", datetime.now(timezone.utc).isoformat(" "))
     print(os.environ)
-    # cmd = shlex.split(f"nua-build {build_dir}")
     t0 = perf_counter()
     result = runner.invoke(app, [str(build_dir)])
-    # result = sp.run(cmd, capture_output=True)  # noqa
     print("Time now:", datetime.now(timezone.utc).isoformat(" "))
     print("elapsed (s):", perf_counter() - t0)
     print(" ========= result.stdout ===========")
@@ -80,6 +74,7 @@ def _build_test(tmpdirname, src_path, name):
     print(" ===================================")
     assert result.exit_code == 0
     assert dock.images.list(name)
+
     print("In the container:")
     # clean previous run if any
     for previous in dock.containers.list(filters={"ancestor": name}):
