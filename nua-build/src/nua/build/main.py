@@ -13,7 +13,7 @@ import typer
 from nua.lib.tool.state import set_color, set_verbose
 
 from . import __version__
-from .builder import Builder
+from .builder import Builder, BuilderError
 
 app = typer.Typer()
 
@@ -75,4 +75,8 @@ def main(
     set_color(colorize)
     initialization()
     builder = Builder(config_file)
-    builder.run()
+    try:
+        builder.run()
+    except BuilderError as e:
+        typer.echo(f"Error: {e}")
+        raise typer.Exit(1)

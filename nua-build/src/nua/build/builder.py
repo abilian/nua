@@ -26,7 +26,7 @@ from nua.autobuild.docker_build_utils import (
 )
 from nua.autobuild.nua_image_builder import NUAImageBuilder
 from nua.lib.console import print_stream_blue
-from nua.lib.panic import abort, info, show, title
+from nua.lib.panic import info, show, title
 from nua.lib.shell import rm_fr
 from nua.lib.tool.state import verbosity
 from nua.runtime.constants import (
@@ -47,6 +47,10 @@ RE_SUCCESS = re.compile(r"(^Successfully built |sha256:)([0-9a-f]+)$")
 # beyond base image NUA_BUILDER_TAG, permit other build base. Currently tested with
 # a Nodejs16 base image:
 ALLOWED_PROFILE = {"node": [NUA_BUILDER_NODE_TAG14, NUA_BUILDER_NODE_TAG16]}
+
+
+class BuilderError(Exception):
+    """Builder error."""
 
 
 class Builder:
@@ -70,10 +74,13 @@ class Builder:
         self.check_allowed_base_image()
         self.ensure_base_image_profile_availability()
         self.select_base_image()
+
         title(f"Building the image for {self.config.app_id}")
         self.detect_nua_dir()
         if self.container_type == "docker":
             self.build_docker_image()
+        else:
+            raise NotImplementedError(f"Container type '{self.container_type}'")
 
     def detect_container_type(self):
         """Placeholder for future container technology detection.
@@ -82,13 +89,13 @@ class Builder:
         """
         container = self.config.build.get("container") or "docker"
         if container != "docker":
-            abort(f"Unknown container type: '{container}'")
+            raise BuilderError(f"Unknown container type: '{container}'")
         self.container_type = container
 
     def check_allowed_base_image(self):
         for key in self.config.profile:
             if key not in ALLOWED_PROFILE:
-                abort(
+                raise BuilderError(
                     f"Nua profile must be one of:\n{', '.join(ALLOWED_PROFILE.keys())}"
                 )
 
@@ -141,13 +148,14 @@ class Builder:
                 nua_dir = "."
         # Check if provided path does exist:
         path = self.config.root_dir / nua_dir
-        if path.is_dir():
-            self.nua_dir = path
-            self.nua_dir_relative = self.nua_dir.relative_to(self.config.root_dir)
-            if verbosity(3):
-                print(f"self.nua_dir: {self.nua_dir}")
-            return
-        abort(f"Path not found (nua_dir) : '{nua_dir}'")
+        if not path.is_dir():
+            raise BuilderError(f"Path not found (nua_dir) : '{nua_dir}'")
+
+        self.nua_dir = path
+        self.nua_dir_relative = self.nua_dir.relative_to(self.config.root_dir)
+        if verbosity(3):
+            print(f"self.nua_dir: {self.nua_dir}")
+        return
 
     def build_docker_image(self):
         self.make_build_dir()
@@ -165,7 +173,8 @@ class Builder:
             config.get("build", {}).get("build_dir", "/var/tmp")  # noqa S108
         )
         if not build_dir_parent.is_dir():
-            abort(f"Build directory parent not found: '{build_dir_parent}'")
+            raise BuilderError(f"Build directory parent not found: '{build_dir_parent}'")
+
         self.build_dir = Path(tempfile.mkdtemp(dir=build_dir_parent))
         if verbosity(1):
             info(f"Build directory: {self.build_dir}")
@@ -205,7 +214,7 @@ class Builder:
                     info("Copying directory:", file.name)
                 copytree(file, self.build_dir / file.name)
             else:
-                abort(f"File not found: {file}")
+                raise BuilderError(f"File not found: {file}")
 
     def complete_with_default_files(self):
         """Complete missing files from defaults (Dockerfile, start.py, ...)."""
