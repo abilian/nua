@@ -1,14 +1,13 @@
 [metadata]
 id = "flask_sqla_sqlite_bind"
 version = "1.0"
+release = 2
 title = "Nua test with sqlalchemy, sqlite on bind volume"
 author = "Nua testers"
 tagline = "Nua test with sqlalchemy, sqlite on bind volume"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "flask", "plugin", "sqlite", "sqlalchemy"]
 licence = "MIT"
-profile = ["test"]
-release = 1
 
 [build]
 document_root = "/nua/app/html"
@@ -34,5 +33,3 @@ type = "bind"
 source = "/var/tmp"
 # Container path:
 target = "/nua/app/dbs"
-#
-mode = "rw"

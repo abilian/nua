@@ -1,10 +1,7 @@
-PACKAGENAME = flask_sqla_sqlite_bind
-
 all: nua
 
 .PHONY: clean
 clean:
-	@rm -fr  $(PACKAGENAME)/dist
 	@rm -fr  build_dir
 
 .PHONY: build

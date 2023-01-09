@@ -1,14 +1,13 @@
 [metadata]
 id = "frappe-bench"
 version = "5.14.4"
+release = 2
 title = "Frappe/bench test"
 author = "Nua testers"
 tagline = "Nua test with Frappe/bench, base image for ErpNext test"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "Frappe/bench", "ERPNext"]
 licence = "MIT"
-profile = ["test"]
-release = 1
 
 [build]
 # optional manifest.

@@ -1,10 +1,7 @@
-PACKAGENAME = flask_upload_tmpfs
-
 all: nua
 
 .PHONY: clean
 clean:
-	@rm -fr  $(PACKAGENAME)/dist
 	@rm -fr  build_dir
 
 .PHONY: build
