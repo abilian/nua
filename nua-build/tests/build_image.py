@@ -17,7 +17,6 @@ runner = CliRunner(mix_stderr=False)
 
 def build_test_image(src_dir: Path | str):
     """Build an image and assert success."""
-    orig_path = Path.cwd()
     src_path = Path(src_dir)
     if not src_path.is_dir():
         raise ValueError(f"No such folder: {src_path}")
@@ -36,33 +35,29 @@ def build_test_image(src_dir: Path | str):
         print("created temporary directory", tmpdirname)
         _build_test(tmpdirname, actual_path, name)
 
-    os.chdir(orig_path)
     _apply_makefile_clean(src_path)
+    os.chdir(src_path)
 
 
 def _apply_makefile(src_path: Path) -> Path:
     if not (src_path / "Makefile").is_file():
         return src_path
-    previous_path = Path.cwd()
     os.chdir(src_path)
     result = sp.run(["make", "build"], capture_output=True)  # noqa
     print(" ========= make build ===========")
     print(result.stdout.decode("utf8"))
     print(" ================================")
-    os.chdir(previous_path)
     return src_path / "build_dir"
 
 
 def _apply_makefile_clean(src_path: Path):
     if not (src_path / "Makefile").is_file():
         return
-    previous_path = Path.cwd()
     os.chdir(src_path)
     result = sp.run(["make", "clean"], capture_output=True)  # noqa
     print(" ========= make clean ===========")
     print(result.stdout.decode("utf8"))
     print(" ================================")
-    os.chdir(previous_path)
 
 
 def _build_test(tmpdirname, src_path, name):
