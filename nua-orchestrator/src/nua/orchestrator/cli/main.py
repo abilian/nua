@@ -18,11 +18,11 @@ from ..db.store import installed_nua_settings, list_all_settings
 from ..db_setup import setup_db
 from ..search_cmd import search_nua_print
 from .commands.backup import backup_all, deployed_config
+from .commands.bootstrap import main as bootstrap_cmd
 from .commands.deploy import deploy_nua_sites
 from .commands.deploy_nua import deploy_nua
 from .commands.local_cmd import reload_servers, status
 from .commands.restore import restore_nua_sites_replay, restore_nua_sites_strict
-from .commands.bootstrap import main as bootstrap_cmd
 
 app = typer.Typer()
 is_initialized = False
