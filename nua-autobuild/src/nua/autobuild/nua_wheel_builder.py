@@ -2,13 +2,13 @@
 import re
 import tempfile
 import zipfile
-from os import chdir
 from pathlib import Path
 from shutil import copy2
 from urllib.request import urlopen
 
 import tomli
 import tomli_w
+from nua.lib.backports import chdir
 from nua.lib.panic import abort, warning
 from nua.lib.shell import rm_fr, sh
 from nua.lib.tool.state import verbosity
@@ -108,16 +108,16 @@ class NuaWheelBuilder:
     def poetry_build(self, path: Path) -> bool:
         if verbosity(3):
             print(f"Poetry build in '{path}'")
-        chdir(path)
-        rm_fr(path / "dist")
-        cmd = "poetry build -f wheel"
-        result = sh(cmd, capture_output=True, show_cmd=False)
-        if not (done := re.search("- Built(.*)\n", result)):
-            warning(f"Wheel not found for '{path}'")
-            return False
-        built = done.group(1).strip()
-        wheel = path / "dist" / built
-        copy2(wheel, self.wheel_path)
-        if verbosity(2):
-            print(f"Wheel copied: '{built}'")
-        return True
+        with chdir(path):
+            rm_fr(path / "dist")
+            cmd = "poetry build -f wheel"
+            result = sh(cmd, capture_output=True, show_cmd=False)
+            if not (done := re.search("- Built(.*)\n", result)):
+                warning(f"Wheel not found for '{path}'")
+                return False
+            built = done.group(1).strip()
+            wheel = path / "dist" / built
+            copy2(wheel, self.wheel_path)
+            if verbosity(2):
+                print(f"Wheel copied: '{built}'")
+            return True
