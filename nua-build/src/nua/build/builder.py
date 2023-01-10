@@ -24,6 +24,7 @@ from nua.autobuild.docker_build_utils import (
     print_log_stream,
 )
 from nua.autobuild.nua_image_builder import NUAImageBuilder
+from nua.lib.backports import chdir
 from nua.lib.console import print_stream_blue
 from nua.lib.panic import info, show, title
 from nua.lib.shell import rm_fr
@@ -38,7 +39,6 @@ from packaging.specifiers import SpecifierSet
 from packaging.version import Version
 
 from . import __version__, config
-from .backports import chdir
 from .constants import NUA_CONFIG
 
 logging.basicConfig(level=logging.INFO)

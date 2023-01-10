@@ -8,9 +8,9 @@ from time import perf_counter
 
 import docker
 import tomli
+from nua.lib.backports import chdir
 from typer.testing import CliRunner
 
-from nua.build.backports import chdir
 from nua.build.main import app
 
 runner = CliRunner(mix_stderr=False)
@@ -64,7 +64,7 @@ def _build_test(tmpdirname: str, name: str):
     print("Time now:", datetime.now(timezone.utc).isoformat(" "))
     print(os.environ)
     t0 = perf_counter()
-    result = runner.invoke(app, [str(build_dir)])
+    result = runner.invoke(app, ["-vv", str(build_dir)])
     print("Time now:", datetime.now(timezone.utc).isoformat(" "))
     print("elapsed (s):", perf_counter() - t0)
     print(" ========= result.stdout ===========")
