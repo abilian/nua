@@ -104,6 +104,9 @@ class Builder:
 
         If empty, the standard Nua base image is used.
         """
+        # the default base image needs to exist first is all profile situations
+        image_builder = NUAImageBuilder()
+        image_builder.ensure_base_image()
         for key in self.config.profile:
             image_builder = NUAImageBuilder()
             image_builder.ensure_images(ALLOWED_PROFILE[key])
@@ -173,7 +176,9 @@ class Builder:
             config.get("build", {}).get("build_dir", "/var/tmp")  # noqa S108
         )
         if not build_dir_parent.is_dir():
-            raise BuilderError(f"Build directory parent not found: '{build_dir_parent}'")
+            raise BuilderError(
+                f"Build directory parent not found: '{build_dir_parent}'"
+            )
 
         self.build_dir = Path(tempfile.mkdtemp(dir=build_dir_parent))
         if verbosity(1):
@@ -281,7 +286,10 @@ class Builder:
     def build_with_docker_stream(self, save=True):
         with chdir(self.build_dir):
             with suppress(IOError):
-                copy2(self.build_dir / self.nua_dir_relative / "Dockerfile", self.build_dir)
+                copy2(
+                    self.build_dir / self.nua_dir_relative / "Dockerfile",
+                    self.build_dir,
+                )
             release = self.config.metadata.get("release", "")
             if release:
                 rel_tag = f"-{release}"

@@ -107,7 +107,7 @@ class NUAImageBuilder:
         if verbosity(3):
             print("ensure_images:", required)
         # ensure base images
-        self.build(force=False)
+        self.ensure_base_image()
         for key in required:
             method = self.builder_methods.get(key)
             if not method:
@@ -115,6 +115,11 @@ class NUAImageBuilder:
                 # Please the typechecker
                 raise SystemExit
             method()
+
+    def ensure_base_image(self):
+        if verbosity(3):
+            print("ensure_base_image()")
+        self.build(force=False, all=False)
 
     def build_nua_python(self):
         title(f"Building the docker image {NUA_PYTHON_TAG}")
