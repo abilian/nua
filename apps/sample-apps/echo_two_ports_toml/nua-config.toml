@@ -2,8 +2,8 @@
 id = "echo-two-ports"
 version = "1.0"
 release = 2
-title = ""
-author = "Nua test server 2 ports"
+title = "Nua test server 2 ports - toml config"
+author = "Jerome Dumonteil <jd@abilian.com>"
 tagline = "Nua test server 2 ports"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static"]
@@ -13,10 +13,8 @@ licence = "MIT"
 container = 8765
 host = "auto" # default
 protocol = "tcp" # default
-# proxy = "auto" # default: "auto" for first port, "None" for next ones, or a port value (int).
 
 [ports.abcd]
 container = 8764
-host = 8764 # default
+host = 8764
 protocol = "tcp" # default
-# proxy = "none" # default: "auto" for first port, "None" for next ones, or a port value (int).

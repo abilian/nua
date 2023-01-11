@@ -77,8 +77,4 @@ def _build_test(tmpdirname: str, name: str):
     # clean previous run if any
     for previous in dock.containers.list(filters={"ancestor": name}):
         previous.kill()
-    print(
-        dock.containers.run(name, command="head -12 /nua/metadata/nua-config.*").decode(
-            "utf8"
-        )
-    )
+    print(dock.containers.run(name, command="ls -l /nua/metadata/").decode("utf8"))

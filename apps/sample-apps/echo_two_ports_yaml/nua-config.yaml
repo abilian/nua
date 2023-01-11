@@ -1,0 +1,24 @@
+metadata:
+  author: Jerome Dumonteil <jd@abilian.com>
+  id: echo-two-ports-yaml
+  licence: MIT
+  release: 2
+  tagline: Nua test server 2 ports
+  tags:
+  - test
+  - html
+  - web
+  - static
+  title: Nua test server 2 ports - yaml config
+  version: '1.0'
+  website: https://nua.rocks/
+port:
+  web:
+    container: 8765
+    host: auto
+    protocol: tcp
+ports:
+  abcd:
+    container: 8764
+    host: 8764
+    protocol: tcp
