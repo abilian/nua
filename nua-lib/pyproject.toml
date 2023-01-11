@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-lib"
-version = "0.4.78"
+version = "0.4.79"
 description = "Nua common library"
 authors = ["Stefane Fermigier <sf@abilian.com>", "Jerome Dumonteil <jd@abilian.com>"]
 license = "AGPL"
