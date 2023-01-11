@@ -68,7 +68,7 @@ class ArchiveSearch:
         for name in nua_config_names():
             found = self.find_one(f"{NUA_METADATA_PATH}/{name}")
             if found:
-                content = found[0]["content"].decode("utf8")
+                content = found[0]["content"]
                 if name.endswith("toml"):
                     return tomli.loads(content)
                 return yaml.safe_load(content)
