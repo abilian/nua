@@ -43,7 +43,6 @@ wheel = "^0.38"
 tomli = "^2.0.1"
 paramiko = "^2.11.0"
 docker = "^6.0"
-fabric = "^2.7.0"
 typer = {extras = ["all"], version = "^0.7.0"}
 python-dotenv = "^0.21"
 

@@ -23,8 +23,8 @@ from .docker_utils import (
     docker_volume_prune,
 )
 from .internal_secrets import secrets_dict
+from .net_utils.ports import check_port_available
 from .resource import Resource
-from .server_utils.net_utils import check_port_available
 from .site import Site
 from .utils import size_to_bytes
 from .volume import Volume
