@@ -9,7 +9,7 @@ class chdir(AbstractContextManager):  # noqa: N801
     directory."""
 
     def __init__(self, path: Path | str):
-        self.path: Path | str = path
+        self.path = path
         self._old_cwd: list[str] = []
 
     def __enter__(self):
