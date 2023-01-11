@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Any
 
 import tomli
+import yaml
 from nua.lib.panic import abort
 
 from .constants import NUA_CONFIG
@@ -27,11 +28,17 @@ class NuaConfig:
             self.path = self.path / NUA_CONFIG
         if not self.path.is_file():
             abort(f"File not found '{self.path}'")
-
-        with self.path.open(mode="rb") as config_file:
-            self._data = tomli.load(config_file)
+        self._loads_config()
         self._check()
         self.root_dir = self.path.parent
+
+    def _loads_config(self):
+        if self.path.suffix == ".toml":
+            self._data = tomli.loads(self.path.read_text(encoding="utf8"))
+        elif self.path.suffix in {".json", ".yaml", ".yml"}:
+            self._data = yaml.safe_load(self.path.read_text(encoding="utf8"))
+        else:
+            abort(f"Unknown file extension for '{self.path}'")
 
     def as_dict(self) -> dict:
         return self._data
