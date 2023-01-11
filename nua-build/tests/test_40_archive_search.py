@@ -4,8 +4,8 @@ import tempfile
 from pathlib import Path
 from shutil import copytree
 
-import tomli
 from docker import DockerClient
+from nua.runtime.nua_config import NuaConfig
 from typer.testing import CliRunner
 
 from nua.build.archive_search import ArchiveSearch
@@ -55,6 +55,5 @@ def build_app(build_dir: Path) -> None:
 
 def image_name(src_path: Path) -> str:
     """Open nua-config file and return the expected image target name."""
-    file = src_path / "nua-config.toml"
-    content = tomli.loads(file.read_text(encoding="utf8"))
+    content = NuaConfig(src_path).as_dict()
     return "nua-{id}:{version}-{release}".format(**content["metadata"])

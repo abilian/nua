@@ -25,7 +25,7 @@ def version_callback(value: bool) -> None:
 
 
 argument_config = typer.Argument(
-    None, metavar="config", help="Path to the package dir or 'nua-config.toml' file."
+    None, metavar="config", help="Path to the package dir or 'nua-config' file."
 )
 
 option_version = typer.Option(

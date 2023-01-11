@@ -34,12 +34,11 @@ from nua.runtime.constants import (
     NUA_BUILDER_NODE_TAG16,
     NUA_BUILDER_TAG,
 )
-from nua.runtime.nua_config import NuaConfig
+from nua.runtime.nua_config import NuaConfig, nua_config_names
 from packaging.specifiers import SpecifierSet
 from packaging.version import Version
 
 from . import __version__, config
-from .constants import NUA_CONFIG
 
 logging.basicConfig(level=logging.INFO)
 
@@ -205,7 +204,8 @@ class Builder:
             file
             for file in folder.glob("*")
             if not file.name.startswith(".")
-            and file.name not in {NUA_CONFIG, "__pycache__"}
+            and file.name != "__pycache__"
+            and file.name not in list(nua_config_names())
         ]
 
     def copy_manifest_files(self):

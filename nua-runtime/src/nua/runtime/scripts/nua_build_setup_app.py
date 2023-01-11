@@ -1,6 +1,6 @@
 """Script to build a nua package (experimental)
 
-- information come from a mandatory local file: "nua-config.toml"
+- information come from a mandatory local file: "nua-config.toml|json|yaml|yml"
 - origin may be a source tar.gz or a git repository
 - build locally if source is python package
 """
@@ -17,7 +17,6 @@ from nua.lib.shell import mkdir_p, sh
 from ..constants import (
     NUA_APP_PATH,
     NUA_BUILD_PATH,
-    NUA_CONFIG,
     NUA_METADATA_PATH,
     NUA_SCRIPTS_PATH,
 )
@@ -58,10 +57,7 @@ class BuilderApp:
         #     print("No src_url or src_git content to fetch.")
 
     def detect_nua_dir(self):
-        """Detect dir containing nua files (start.py, build.py, Dockerfile,
-
-        ...).
-        """
+        """Detect dir containing nua files (start.py, build.py, Dockerfile)."""
         nua_dir = self.config.build.get("nua_dir")
         if not nua_dir:
             # Check if default 'nua' dir exists
@@ -92,7 +88,8 @@ class BuilderApp:
         mkdir_p(NUA_METADATA_PATH)
 
     def copy_metadata(self):
-        copy2(self.build_dir / NUA_CONFIG, Path(NUA_METADATA_PATH))
+        """Dump the content of the nua-config file in /nua/metadata/nua-config.json."""
+        self.config.dump_json(NUA_METADATA_PATH)
 
     def make_start_script(self):
         script_dir = Path(NUA_SCRIPTS_PATH)

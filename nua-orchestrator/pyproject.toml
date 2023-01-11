@@ -30,6 +30,7 @@ python = "^3.10"
 
 nua-lib = { path = "../nua-lib/", develop = false }
 nua-runtime = { path = "../nua-runtime/", develop = false }
+nua-build = { path = "../nua-build/", develop = false }
 nua-autobuild = { path = "../nua-autobuild/", develop = false }
 
 # Databases

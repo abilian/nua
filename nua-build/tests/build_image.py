@@ -7,8 +7,8 @@ from shutil import copytree
 from time import perf_counter
 
 import docker
-import tomli
 from nua.lib.backports import chdir
+from nua.runtime.nua_config import NuaConfig
 from typer.testing import CliRunner
 
 from nua.build.main import app
@@ -22,8 +22,7 @@ def build_test_image(src_dir: Path | str):
     assert src_path.is_dir()
 
     with chdir(src_path):
-        with open("nua-config.toml", mode="rb") as rfile:
-            conf = tomli.load(rfile)
+        conf = NuaConfig(".").as_dict()
 
         name = _make_image_name(conf)
 
@@ -79,7 +78,7 @@ def _build_test(tmpdirname: str, name: str):
     for previous in dock.containers.list(filters={"ancestor": name}):
         previous.kill()
     print(
-        dock.containers.run(
-            name, command="head -12 /nua/metadata/nua-config.toml"
-        ).decode("utf8")
+        dock.containers.run(name, command="head -12 /nua/metadata/nua-config.*").decode(
+            "utf8"
+        )
     )
