@@ -37,4 +37,4 @@ done
 
 poetry install
 
-nua --version
+nua-orchestrator --version
