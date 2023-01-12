@@ -19,4 +19,7 @@ STR_INT = (
 def test_size_to_bytes(param):
     input = param[0]
     expected = param[1]
-    assert period_to_seconds(input) == expected
+
+    result = period_to_seconds(input)
+
+    assert result == expected

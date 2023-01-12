@@ -21,4 +21,7 @@ STR_INT = (
 def test_size_to_bytes(param):
     input = param[0]
     expected = param[1]
-    assert size_to_bytes(input) == expected
+
+    result = size_to_bytes(input)
+
+    assert result == expected

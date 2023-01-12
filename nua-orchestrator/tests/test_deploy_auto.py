@@ -26,26 +26,22 @@ os.environ["NUA_CERTBOT_VERBOSE"] = "1"
 def test_deploy_sites(deploy_file: str):
     print("\n" + "-" * 40)
     print(f"test config: {deploy_file}")
-
     domain_name = os.environ.get("NUA_DOMAIN_NAME", "")
     if not domain_name:
         domain_name = socket.gethostname()
-
     with tempfile.NamedTemporaryFile("w", suffix=".toml") as new_file:
         with open(deploy_file) as old_file:
             data = old_file.read()
             data = data.replace("example.com", domain_name)
             new_file.write(data)
             new_file.flush()
-
         cmd = f"deploy -vv {new_file.name}"
+
         result = runner.invoke(app, cmd)
-        print(result.stdout)
 
         assert result.exit_code == 0
         assert "Installing App" in result.stdout
         assert "deployed as" in result.stdout
-
         _check_sites(Path(new_file.name))
 
 
