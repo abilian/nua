@@ -63,15 +63,18 @@ def _run_make(target: str):
 
 def _build_test(tmpdirname: str, name: str):
     build_dir = Path(tmpdirname) / "build"
+    # print("in _build_test()")
+    # print(f"cwd: {Path.cwd()}")
+    # print(os.listdir("."))
     copytree(".", build_dir)
     dock = docker.from_env()
     print("----------------------------------------------")
     print(f"Build {name}")
-    print("Time now:", datetime.now(timezone.utc).isoformat(" "))
-    print(os.environ)
+    # print("Time now:", datetime.now(timezone.utc).isoformat(" "))
+    # print(os.environ)
     t0 = perf_counter()
     result = runner.invoke(app, ["-vv", str(build_dir)])
-    print("Time now:", datetime.now(timezone.utc).isoformat(" "))
+    # print("Time now:", datetime.now(timezone.utc).isoformat(" "))
     print("elapsed (s):", perf_counter() - t0)
     print(" ========= result.stdout ===========")
     print(result.stdout)
