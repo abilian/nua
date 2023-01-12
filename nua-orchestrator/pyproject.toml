@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-orchestrator"
-version = "0.4.79"
+version = "0.4.80"
 description = "Nua orchestrator local implementation for Nua v0."
 authors = ["Jerome Dumonteil <jd@abilian.com>"]
 license = "AGPL"
@@ -79,6 +79,7 @@ ignore_obsolete = [
     "nua-lib",
     "nua-runtime",
     "nua-autobuild",
+    "nua-build",
     "setuptools",
     "wheel",
     "psycopg2-binary",
