@@ -49,6 +49,11 @@ def clean(c):
 
 
 @task
+def fix(c):
+    run_in_subrepos(c, "ruff --fix src tests")
+
+
+@task
 def update(c):
     run_in_subrepos(c, "poetry update && poetry install")
 
