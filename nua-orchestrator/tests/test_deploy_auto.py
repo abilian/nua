@@ -12,18 +12,28 @@ from typer.testing import CliRunner
 
 from nua.orchestrator.cli.main import app
 
-runner = CliRunner()
+runner = CliRunner(mix_stderr=False)
 
 this_dir = Path(__file__).parent
 DEPLOY_CONFIGS = this_dir / "deploy_configs"
 DEPLOY_AUTO_FILES = [str(p) for p in sorted((this_dir / "configs_ok").glob("*.toml"))]
+DEPLOY_MINIMAL = [str(p) for p in sorted((this_dir / "configs_minimal").glob("*.toml"))]
 
 os.environ["NUA_CERTBOT_TEST"] = "1"
 os.environ["NUA_CERTBOT_VERBOSE"] = "1"
 
 
-@pytest.mark.parametrize("deploy_file", DEPLOY_AUTO_FILES)
-def test_deploy_sites(deploy_file: str):
+@pytest.mark.parametrize("deploy_file", DEPLOY_MINIMAL)  # noqa AAA01
+def test_configs_minimal(deploy_file: str):
+    _test_deploy_sites(deploy_file)
+
+
+@pytest.mark.parametrize("deploy_file", DEPLOY_AUTO_FILES)  # noqa AAA01
+def test_configs_ok(deploy_file: str):
+    _test_deploy_sites(deploy_file)
+
+
+def _test_deploy_sites(deploy_file: str):
     print("\n" + "-" * 40)
     print(f"test config: {deploy_file}")
     domain_name = os.environ.get("NUA_DOMAIN_NAME", "")
@@ -39,9 +49,17 @@ def test_deploy_sites(deploy_file: str):
 
         result = runner.invoke(app, cmd)
 
+        if result.stdout:
+            print(" ========= result.stdout ===========")
+            print(result.stdout)
+        if result.stderr:
+            print(" ========= result.stderr ===========")
+            print(result.stderr)
+
         assert result.exit_code == 0
         assert "Installing App" in result.stdout
         assert "deployed as" in result.stdout
+
         _check_sites(Path(new_file.name))
 
 

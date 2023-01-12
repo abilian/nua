@@ -1,0 +1,8 @@
+[[site]]
+image = "nua-echo-two-ports"
+domain = "test1.example.com"
+
+[[site.test]]
+url = "https://test1.example.com/test"
+expect_status = 200
+expect_str = "path: /test"
