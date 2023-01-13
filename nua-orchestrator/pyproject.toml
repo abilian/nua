@@ -33,6 +33,7 @@ nua-lib = { path = "../nua-lib/", develop = false }
 nua-runtime = { path = "../nua-runtime/", develop = false }
 nua-build = { path = "../nua-build/", develop = false }
 nua-autobuild = { path = "../nua-autobuild/", develop = false }
+nua-cli = { path = "../nua-cli/", develop = false }
 
 # Databases
 SQLAlchemy-serializer = "^1.4.1"
@@ -81,6 +82,7 @@ ignore_obsolete = [
     "nua-runtime",
     "nua-autobuild",
     "nua-build",
+    "nua-cli",
     "setuptools",
     "wheel",
     "psycopg2-binary",
