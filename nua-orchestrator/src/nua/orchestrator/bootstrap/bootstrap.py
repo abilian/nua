@@ -1,7 +1,10 @@
-"""Bootstrap Nua config on the local host.
+"""Bootstrap Nua orchestrator on the local host.
 
-- Create Nua account with admin rights
-- install base packages and configuration
+Use this script for installing the orchestrator on a new host.
+- Create Nua account with admin rights,
+- install base packages and configuration.
+
+In future versions, change this to a standalone script.
 """
 import os
 
@@ -20,11 +23,11 @@ from nua.lib.exec import exec_as_nua, mp_exec_as_nua
 from nua.lib.panic import abort, warning
 from nua.lib.shell import chown_r, mkdir_p, rm_fr, sh, user_exists
 
-from ... import nua_env
-from ...bash import bash_as_nua
-from ...mariadb_utils import bootstrap_install_mariadb, set_random_mariadb_pwd
-from ...nginx_util import install_nginx
-from ...postgres_utils import bootstrap_install_postgres, set_random_postgres_pwd
+from .. import nua_env
+from ..bash import bash_as_nua
+from ..mariadb_utils import bootstrap_install_mariadb, set_random_mariadb_pwd
+from ..nginx_util import install_nginx
+from ..postgres_utils import bootstrap_install_postgres, set_random_postgres_pwd
 
 NUA = "nua"
 HOST_PACKAGES = [
@@ -57,9 +60,9 @@ def main():
     bootstrap()
     apt_final_clean()
     print_green("\nNua installation done for user 'nua' on this host.")
-    cmd = "nua --help"
+    cmd = "nua-orchestrator --help"
     print(f"Command '{cmd}':")
-    bash_as_nua("nua --help")
+    bash_as_nua(cmd)
 
 
 def detect_myself():
@@ -186,7 +189,7 @@ def install_local_orchestrator():
     cwd = gits / "nua" / "nua-orchestrator"
     cmd = "./build.sh"
     bash_as_nua(cmd, cwd)
-    cmd = "nua status"
+    cmd = "nua-orchestrator status"
     bash_as_nua(cmd)
 
 

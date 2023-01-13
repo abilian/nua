@@ -18,7 +18,6 @@ from ..db.store import installed_nua_settings, list_all_settings
 from ..db_setup import setup_db
 from ..search_cmd import search_nua_print
 from .commands.backup import backup_all, deployed_config
-from .commands.bootstrap import main as bootstrap_cmd
 from .commands.deploy import deploy_nua_sites
 from .commands.deploy_nua import deploy_nua
 from .commands.local_cmd import reload_servers, status
@@ -81,12 +80,6 @@ def initialization():
         return
     setup_db()
     is_initialized = True
-
-
-@app.command()
-def bootstrap():
-    """Bootstrap Nua orchestrator."""
-    bootstrap_cmd()
 
 
 @app.command("status")

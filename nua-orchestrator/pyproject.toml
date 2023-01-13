@@ -11,8 +11,8 @@ packages = [
 
 [tool.poetry.scripts]
 nua-orchestrator = "nua.orchestrator.cli.main:app"
-# bootstrap Nua account and configuration for orchestrator host:
-nua-bootstrap = "nua.orchestrator.cli.commands.bootstrap:main"
+# Install Nua account and configure orchestrator on local host:
+nua-bootstrap = "nua.orchestrator.bootstrap.bootstrap:main"
 
 # TODO: all of these scripts should be subsumed by nua-orchestrator
 # (If they are still really needed)
