@@ -22,7 +22,7 @@ def deploy_nua(app_name: str) -> int:
         print_magenta(f"image: '{app_name}'")
     results = search_nua(app_name)
     if not results:
-        abort(f"No image found for '{app_name}'.")
+        abort(f"No image found for the app id '{app_name}'.")
 
     # ensure docker is running
     docker_service_start_if_needed()

@@ -23,6 +23,8 @@ from .commands.deploy_nua import deploy_nua
 from .commands.local_cmd import reload_servers, status
 from .commands.restore import restore_nua_sites_replay, restore_nua_sites_strict
 
+ALLOW_SUFFIX = {".json", ".toml", ".yaml", ".yml"}
+
 app = typer.Typer()
 is_initialized = False
 
@@ -114,7 +116,8 @@ def deploy_local(
     set_color(colorize)
     initialization()
 
-    if app_name.endswith(".toml") and Path(app_name).is_file():
+    path = Path(app_name)
+    if path.suffix in ALLOW_SUFFIX and path.is_file():
         deploy_nua_sites(app_name)
     else:
         deploy_nua(app_name)

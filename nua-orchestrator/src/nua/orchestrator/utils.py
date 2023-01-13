@@ -1,6 +1,9 @@
 import re
 import string
+from pathlib import Path
 
+import tomli
+import yaml
 from nua.lib.panic import abort
 
 RE_NB_UNIT = re.compile(r"(\d+\.?\d*)\s*(\S*)")
@@ -63,3 +66,14 @@ def sanitized_name(name: str, length=255) -> str:
     if name[0] not in ALLOW_FIRST:
         abort(f"Name first character not valid: '{name}'")
     return name
+
+
+def parse_any_format(path: Path) -> dict:
+    """Parse the content of a file of type toml / json / yaml."""
+    content = path.read_text(encoding="utf8")
+    if path.suffix == ".toml":
+        return tomli.loads(content)
+    elif path.suffix in {".json", ".yaml", ".yml"}:
+        return yaml.safe_load(content)
+    else:
+        raise ValueError(f"Unknown file extension for '{path}'")

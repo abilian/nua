@@ -6,7 +6,6 @@ from pathlib import Path
 from pprint import pformat
 from typing import Any
 
-import tomli
 from nua.lib.console import print_green, print_magenta, print_red
 from nua.lib.panic import abort, info, warning
 from nua.lib.tool.state import verbosity
@@ -41,6 +40,7 @@ from .requirement_evaluator import instance_key_evaluator
 from .resource import Resource
 from .services import Services
 from .site import Site
+from .utils import parse_any_format
 from .volume import Volume
 
 # parameters passed as a dict to docker run
@@ -138,7 +138,7 @@ class SitesDeployment:
         config_path = Path(deploy_config).expanduser().resolve()
         if verbosity(1):
             info(f"Deploy sites from: {config_path}")
-        self.loaded_config = tomli.loads(config_path.read_text())
+        self.loaded_config = parse_any_format(config_path)
         self.parse_deploy_sites()
         self.sort_sites_per_domain()
         if verbosity(3):

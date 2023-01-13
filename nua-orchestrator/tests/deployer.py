@@ -5,41 +5,24 @@ import subprocess as sp
 import tempfile
 from pathlib import Path
 
-import pytest
 import requests
-import tomli
 from typer.testing import CliRunner
 
 from nua.orchestrator.cli.main import app
+from nua.orchestrator.utils import parse_any_format
 
 runner = CliRunner(mix_stderr=False)
 
-this_dir = Path(__file__).parent
-DEPLOY_CONFIGS = this_dir / "deploy_configs"
-DEPLOY_AUTO_FILES = [str(p) for p in sorted((this_dir / "configs_ok").glob("*.toml"))]
-DEPLOY_MINIMAL = [str(p) for p in sorted((this_dir / "configs_minimal").glob("*.toml"))]
 
-os.environ["NUA_CERTBOT_TEST"] = "1"
-os.environ["NUA_CERTBOT_VERBOSE"] = "1"
-
-
-@pytest.mark.parametrize("deploy_file", DEPLOY_MINIMAL)  # noqa AAA01
-def test_configs_minimal(deploy_file: str):
-    _test_deploy_sites(deploy_file)
-
-
-@pytest.mark.parametrize("deploy_file", DEPLOY_AUTO_FILES)  # noqa AAA01
-def test_configs_ok(deploy_file: str):
-    _test_deploy_sites(deploy_file)
-
-
-def _test_deploy_sites(deploy_file: str):
+def deploy_one_site(deploy_file: str):
     print("\n" + "-" * 40)
     print(f"test config: {deploy_file}")
     domain_name = os.environ.get("NUA_DOMAIN_NAME", "")
     if not domain_name:
         domain_name = socket.gethostname()
-    with tempfile.NamedTemporaryFile("w", suffix=".toml") as new_file:
+    print(f"replacing 'example.com' by: '{domain_name}'")
+    suffix = Path(deploy_file).suffix
+    with tempfile.NamedTemporaryFile("w", suffix=suffix) as new_file:
         with open(deploy_file) as old_file:
             data = old_file.read()
             data = data.replace("example.com", domain_name)
@@ -151,7 +134,7 @@ def _make_check_test(test: dict):
 
 
 def _check_sites(deploy_file: Path):
-    content = tomli.loads(deploy_file.read_text(encoding="utf8"))
+    content = parse_any_format(deploy_file)
     for site in content["site"]:
         if "test" not in site:
             continue

@@ -5,8 +5,6 @@ from typer.testing import CliRunner
 
 from nua.orchestrator.cli.main import app
 
-# from nua.orchestrator.scripts.test_replace_domain import replace_file
-
 runner = CliRunner()
 
 DEPLOY_CONFIGS = Path(__file__).parent / "deploy_configs"
@@ -17,6 +15,7 @@ os.environ["NUA_CERTBOT_VERBOSE"] = "1"
 
 
 def test_no_exist():
+    """Test the situation when the file passed as argument does not exists."""
     no_file = DEPLOY_CONFIGS / "no_such_file.toml"
 
     result = runner.invoke(app, f"deploy {no_file}")
@@ -25,16 +24,14 @@ def test_no_exist():
     assert result.exit_code == 1
 
 
-# XXX: not sure what this is supposed to do. Deactivating for now.
-# def test_no_image():
-#     orig_file = DEPLOY_CONFIGS / "no_image.toml"
-#     with tempfile.TemporaryDirectory(dir="/tmp") as tmp_dir:
-#         # XXX: not used, why ?
-#         # toml = replace_file(REPLACE_DOMAIN, orig_file, tmp_dir)
-#
-#         result = runner.invoke(app, f"deploy {orig_file}")
-#
-#         assert ("No image found" in result.stdout) or (
-#             "Something went wrong" in result.stdout
-#         )
-#         assert result.exit_code == 1
+def test_no_image():
+    """Test the situation when the configuration file declare a non existing image
+    file."""
+    deploy_file = DEPLOY_CONFIGS / "no_image.toml"
+
+    result = runner.invoke(app, f"deploy {deploy_file}")
+
+    assert ("No image found" in result.stdout) or (
+        "Something went wrong" in result.stdout
+    )
+    assert result.exit_code == 1
