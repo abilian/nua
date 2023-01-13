@@ -3,8 +3,7 @@ Nua CLI
 
 Command-line interface for Nua.
 
-Used by developers and devops people to deploy and manage applications on local nua
-installation.
+Used by developers and devops people to deploy and manage applications.
 
 ## Usage
 
@@ -21,11 +20,12 @@ nua [command] [options]
 - `destroy` - Destroy a deployed application
 - `start` - Start an application
 - `stop` - Stop an application
-- `update` - Update an application
-- `logs` - Show logs for an application
 - `help` - Show help
 - `version` - Show version
+- `status` - Show Nua status
+- `logs` - Show logs for an application
 - `config` - Show configuration of a deployed application
+- `update` - Update an application
 - `backup` - Backup a deployed application
 - `restore` - Restore backup data of a deployed application
 
@@ -38,9 +38,9 @@ nua [command] [options]
 
 ```bash
 nua deploy --help
-nua deploy --image my-image --domain fqdn
-nua deploy --image my-image --domain fqdn
-nua deploy --image my-image --domain fqdn --env NODE_ENV=production
-nua deploy --image my-image --domain fqdn --env NODE_ENV=production --env-file .env
-nua deploy --image my-image --domain fqdn --env NODE_ENV=production --env-file .env --config deploy-config
+nua deploy --app-id appid --domain fqdn
+nua deploy --app-id appid --domain fqdn --env SOMEVAR=value
+nua deploy --app-id appid --domain fqdn --env SOMEVAR=value --env-file .env
+nua deploy --app-id appid --domain fqdn --env SOMEVAR=value --env-file .env --config config-path
+nua deploy --app-id hedgedoc-1.9.6-10 --domain hdoc.example.com --env NODE_ENV=production
 ```

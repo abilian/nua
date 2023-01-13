@@ -7,7 +7,7 @@ from nua.cli.version import get_version
 
 def _version_callback(value: bool) -> None:
     if value:
-        _print_version()
+        print_version()
         raise typer.Exit(0)
 
 
@@ -27,5 +27,5 @@ OPTS = {
 }
 
 
-def _print_version() -> None:
+def print_version() -> None:
     typer.echo(f"Nua CLI version: {get_version()}")

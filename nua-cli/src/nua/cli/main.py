@@ -6,38 +6,17 @@ from typing import Optional
 import typer
 
 from nua.cli.client import Client
-from nua.cli.common import OPTS, _print_version
+from nua.cli.common import OPTS, print_version
 
-NUA_CMD = "./bin/nua"
+# NUA_CMD = "./bin/nua"
 
 app = typer.Typer()
 
 
 def _usage():
-    _print_version()
+    print_version()
     typer.echo("Usage(wip): nua status\n" "Try 'nua --help' for help.")
     raise typer.Exit(0)
-
-
-@app.command()
-def version():
-    """Show Nua version and exit."""
-    _print_version()
-
-
-@app.command()
-def help():
-    """Show help."""
-    _usage()
-
-
-@app.command()
-def status():
-    """Show Nua status."""
-    client = Client()
-    r = client.run("bin/nua status")
-    msg = f"Ran {r.command!r} on {r.connection.host}, got stdout:\n\n{r.stdout}"
-    print(msg)
 
 
 @app.command()
@@ -49,7 +28,7 @@ def deploy():
 def list():
     """List applications."""
     client = Client()
-    r = client.run("bin/nua list-instances --json")
+    r = client.run("nua list-instances --json")
     for instance in json.loads(r.stdout):
         typer.echo(instance["app_id"])
 
@@ -57,6 +36,37 @@ def list():
 @app.command()
 def destroy():
     """Destroy an application."""
+
+
+@app.command()
+def start():
+    """Start an application."""
+
+
+@app.command()
+def stop():
+    """Stop an application."""
+
+
+@app.command()
+def help():
+    """Show help."""
+    _usage()
+
+
+@app.command()
+def version():
+    """Show version."""
+    print_version()
+
+
+@app.command()
+def status():
+    """Show Nua status."""
+    client = Client()
+    r = client.run("nua status")
+    msg = f"Ran {r.command!r} on {r.connection.host}, got stdout:\n\n{r.stdout}"
+    print(msg)
 
 
 @app.command()
@@ -70,8 +80,18 @@ def config():
 
 
 @app.command()
-def init():
-    """Initialize a new application."""
+def update():
+    """Update an application."""
+
+
+@app.command()
+def backup():
+    """Backup a deployed application."""
+
+
+@app.command()
+def restore():
+    """Restore backup data of a deployed application."""
 
 
 @app.callback(invoke_without_command=True)
