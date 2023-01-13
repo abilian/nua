@@ -8,7 +8,8 @@ import typer
 from nua.cli.client import Client
 from nua.cli.common import OPTS, print_version
 
-# NUA_CMD = "./bin/nua"
+# FIXME: this assume a particular layout of ~nua account on the server,
+NUA_CMD = "./nua310/bin/nua-orchestrator"
 
 app = typer.Typer()
 
@@ -28,7 +29,7 @@ def deploy():
 def list():
     """List applications."""
     client = Client()
-    r = client.run("nua list-instances --json")
+    r = client.run(f"{NUA_CMD} list-instances --json")
     for instance in json.loads(r.stdout):
         typer.echo(instance["app_id"])
 
@@ -64,7 +65,7 @@ def version():
 def status():
     """Show Nua status."""
     client = Client()
-    r = client.run("nua status")
+    r = client.run(f"{NUA_CMD} status")
     msg = f"Ran {r.command!r} on {r.connection.host}, got stdout:\n\n{r.stdout}"
     print(msg)
 
