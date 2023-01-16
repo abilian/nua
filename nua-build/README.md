@@ -1,35 +1,77 @@
-# Work in progress:
+# Nua-build
 
-Content will be split between modules for:
-
-- actual build of a package (with framework example for the setup of a package)
-
-- runtime included in the Dockerfile
-
-Taille des images de base:
-
-slim:
-nua-flask-one-poetry   1.2-1            097e7b1780e6   17 minutes ago      172MB
-nua-flask-one-wheel    1.2-1            fd8b958add07   17 minutes ago      163MB
-nua-builder            0.4.9            763945edb777   20 minutes ago      160MB
-nua-python             0.4.9            14cc9ae796d7   20 minutes ago      126MB
-ubuntu                 jammy-20220801   df5de72bdb3b   2 months ago         77.8MB
+Build system for Nua packages.
 
 
-nua-flask-one-poetry   1.2-1            e5331262a074   25 seconds ago       289MB
-nua-flask-one-wheel    1.2-1            b94e20a23368   About a minute ago   238MB
-nua-builder            0.4.5            d78fcdc07706   About a minute ago   235MB
-nua-python             0.4.5            00296ed4767f   About a minute ago   202MB
-ubuntu                 jammy-20220801   df5de72bdb3b   8 weeks ago          77.8MB
+## Purpose
+
+The `nua-build` package is used to build packages deployable by the the Nua orchestrator.
+
+The current version of nua-build builds Docker images for an amd64 Linux environment. There are plans to extend the system to other container and isolation architectures in future releases.
 
 
+`nua-build` relies on a `nua-config` configuration file containing application build directives. This configuration can reference other local or remote resources and is supplemented by default values. The file can be formattted as TOML, JSON or YAML.
 
-v1:
-nua-flask-one-poetry   1.2-1            c2fab51a9804   16 seconds ago   402MB
-nua-flask-one          1.2-1            fe5de90ed912   14 minutes ago   351MB
-nua-builder            0.4.5            b307f6a6108c   14 minutes ago   348MB
-nua-python             0.4.5            a61c5b492441   15 minutes ago   315MB
-ubuntu                 jammy-20220801   df5de72bdb3b   8 weeks ago      77.8MB
+## Build sequence:
 
-v2:
-> 750 MB
+The main steps to build a Nua image:
+
+- Analysis of the `nua-config` file,
+- detection of the required base images,
+- build or pull base images if needed,
+- collect files (Dockerfile, configuration files),
+- build a Docker container using the `nua-runtime`,
+- store locally the resulting images as a `tar` file.
+
+
+### About Dockerfile
+
+`nua-build` allows 2 approaches for image generation:
+
+- The package can use a generic Dockerfile provided by `nua-build`, in which case most of the containerization work is done by a python script (*build.py*) executed in the container being built. This permits a build with a single `RUN` command in the docker file, but requires to specify the build through the `nua-config` config file and some python script.
+
+- The package can use a dedicated (potentially pre-existing) Dockerfile. Then this Dockerfile must be modified slightly to add the metadata to the image:
+
+```
+RUN mkdir -p /nua/metadata
+COPY nua-config.toml /nua/metadata/
+```
+
+### Containerization layers
+
+Standard Nua images are images build from `nua-build`'s default Dockefile.
+
+Standard Nua images contain three layers:
+
+- A Linux image (Ubuntu 22.04 LTS Jammy, amd64),
+- `nua-python`, addition of python 3.10,
+- `nua-builder`, addition of `nua-runtime` and `nua-lib`.
+
+All standard Nua packages have a Python environment.
+
+Some other base images are available to facilitate builds in other programming environments: `nua-builder-nodejs14`, `nua-builder-nodejs16`.
+
+## Dependencies on other Nua Python packages
+
+`nua-build` uses the following packages:
+
+- `nua-lib`: common code for all Nua packages.
+
+    `nua-lib` provides:
+
+  - `shell`: shell shortcuts (mostly wrappers above `subprocess` and `shutil`)
+  - `exec`: shortcuts to execute sub commands like `exec_as_root()`, `exec_as_root()`
+  - `action`: higher level commands, related to the installation of packages and dependencies (wrappers above `apt`, `pip`, ...)
+
+- `nua-runtime`: runtime for Nua apps.
+
+    `nua-runtime` provides:
+
+  - `nua_config`: library to read the embeded `nua-config` file (introspection),
+  - `nua_build_setup_app`: actual builder of the application inside the Docker image.
+
+- `nua-autobuild`: build Docker images used by Nua.
+
+    `nua-autobuild` provides:
+
+    - `nua_image_builder`:  tool to build locally the Nua standard base images if needed
