@@ -25,8 +25,8 @@ def test_no_exist():
 
 
 def test_no_image():
-    """Test the situation when the configuration file declare a non existing image
-    file."""
+    """Test the situation when the configuration file declare a non existing
+    image file."""
     deploy_file = DEPLOY_CONFIGS / "no_image.toml"
 
     result = runner.invoke(app, f"deploy {deploy_file}")

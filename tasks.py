@@ -41,6 +41,14 @@ def test(c):
 
 
 @task
+def test_with_coverage(c):
+    """Run tests with coverage (and combine results)."""
+    run_in_subrepos(c, "pytest --cov nua")
+    c.run("coverage combine */.coverage")
+    # c.run("codecov --file .coverage")
+
+
+@task
 def mypy(c):
     """Run mypy (in each subrepo)."""
     run_in_subrepos(c, "mypy src")
@@ -67,6 +75,7 @@ def fix(c):
 @task
 def update(c):
     """Update dependencies the whole project."""
+    c.run("poetry update")
     run_in_subrepos(c, "poetry update && poetry install")
 
 

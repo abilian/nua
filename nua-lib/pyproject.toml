@@ -11,13 +11,13 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.10"
-setuptools = "^65.5.0"
+setuptools = "*"
 jinja2 = "^3.1.2"
 
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
 nox = "*"
-types-setuptools = "^65.5.0.3"
+types-setuptools = "*"
 
 [tool.pytest.ini_options]
 filterwarnings = ["ignore:.*distutils package:DeprecationWarning", "ignore::DeprecationWarning"]

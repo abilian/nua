@@ -443,7 +443,8 @@ def check_python_version() -> bool:
 def python_package_installed(pkg_name: str) -> bool:
     """Utility to test if some python package is installed.
 
-    Nota: replaced by some function using importlib."""
+    Nota: replaced by some function using importlib.
+    """
     # return pkg_name in {pkg.key for pkg in pkg_resources.working_set}
     return bool(importlib.util.find_spec("pkg_name"))
 

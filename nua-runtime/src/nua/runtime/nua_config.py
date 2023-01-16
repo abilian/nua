@@ -22,7 +22,8 @@ def nua_config_names():
 class NuaConfig:
     """Wrapper for the "nua-config.toml" file.
 
-    The config file can be any of nua-config.[toml|json|yaml|yml]"""
+    The config file can be any of nua-config.[toml|json|yaml|yml]
+    """
 
     path: Path
     root_dir: Path

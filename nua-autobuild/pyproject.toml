@@ -14,7 +14,7 @@ nua-self-build = "nua.autobuild.main:app"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-setuptools = "^65.5.0"
+setuptools = "*"
 
 nua-lib = { path = "../nua-lib/", develop = true }
 nua-runtime = { path = "../nua-runtime/", develop = true }

@@ -88,7 +88,8 @@ class BuilderApp:
         mkdir_p(NUA_METADATA_PATH)
 
     def copy_metadata(self):
-        """Dump the content of the nua-config file in /nua/metadata/nua-config.json."""
+        """Dump the content of the nua-config file in /nua/metadata/nua-
+        config.json."""
         self.config.dump_json(NUA_METADATA_PATH)
 
     def make_start_script(self):
