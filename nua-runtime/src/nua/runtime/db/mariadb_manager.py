@@ -7,12 +7,12 @@ import importlib
 import os
 from pathlib import Path
 
+from nua.lib.actions import python_package_installed
 from nua.lib.exec import exec_as_root
 
-from ..utils import is_package_installed
 from .db_manager import DbManager
 
-if is_package_installed("mariadb"):
+if python_package_installed("mariadb"):
     mariadb = importlib.import_module("mariadb")
 else:
     mariadb = None  # type:ignore
