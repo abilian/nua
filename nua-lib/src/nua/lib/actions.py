@@ -1,4 +1,5 @@
 """Nua scripting: action commands."""
+import importlib.util
 import mmap
 import os
 import re
@@ -11,7 +12,6 @@ from importlib import resources as rso
 from pathlib import Path
 from urllib.request import urlopen
 
-import pkg_resources
 from jinja2 import Template
 
 from .panic import warning
@@ -443,8 +443,9 @@ def check_python_version() -> bool:
 def python_package_installed(pkg_name: str) -> bool:
     """Utility to test if some python package is installed.
 
-    Nota: will be replaced by some function using importlib."""
-    return pkg_name in {pkg.key for pkg in pkg_resources.working_set}
+    Nota: replaced by some function using importlib."""
+    # return pkg_name in {pkg.key for pkg in pkg_resources.working_set}
+    return bool(importlib.util.find_spec("pkg_name"))
 
 
 def snake_format(name: str) -> str:
