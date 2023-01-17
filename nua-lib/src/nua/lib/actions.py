@@ -251,7 +251,7 @@ def pip_list():
 def poetry_install(nodev: bool = True) -> None:
     pip_install("poetry pip-autoremove")
     if nodev:
-        sh("poetry install --no-dev")
+        sh("poetry install --only main")
     else:
         sh("poetry install")
     cmd = "pip-autoremove -y poetry"
