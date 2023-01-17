@@ -17,6 +17,7 @@ CHECKED_KEYS = {
     "destination",
     "domains",
     "driver",
+    "backup",
     "options",
     "source_prefix",
     "source",
@@ -169,6 +170,14 @@ class Volume:
     def options(self, options: dict):
         self._dict["options"] = options
 
+    @property
+    def backup(self) -> dict:
+        return self._dict.get("backup", {})
+
+    @backup.setter
+    def backup(self, backup: dict):
+        self._dict["backup"] = backup
+
     def update_name(self, suffix: str):
         if not (prefix := self.prefix):
             return
@@ -232,6 +241,9 @@ class Volume:
 
     def _parse_domains(self, data: dict):
         self.domains = data.get("domains", [])
+
+    def _parse_backup(self, data: dict):
+        self.backup = data.get("backup", {})
 
     def _parse_options(self, data: dict):
         self.options = {k: v for k, v in data.items() if k not in CHECKED_KEYS}
