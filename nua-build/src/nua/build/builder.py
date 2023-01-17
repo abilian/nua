@@ -331,6 +331,7 @@ def _docker_stream_build(path: str, tag: str, buildargs: dict, labels: dict) -> 
         buildargs=buildargs,
         labels=labels,
         nocache=True,
+        timeout=1800,
     )
     last_event = None
     image_id = None
