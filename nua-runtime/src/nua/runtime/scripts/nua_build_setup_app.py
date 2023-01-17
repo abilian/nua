@@ -68,7 +68,7 @@ class BuilderApp:
                 # Use the root folder (where is the nua-config.toml file)
                 self.nua_dir = self.build_dir
             return
-        # Provided path must exists (or should have failed earlier)
+        # Provided path must exist (or should have failed earlier)
         self.nua_dir = self.build_dir / nua_dir
 
     def build(self):
