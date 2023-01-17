@@ -1,0 +1,12 @@
+{
+    "site": [
+        {
+            "image": "nua-dolibarr-mariadb:16.0-11",
+            "domain": "test1.yerom.xyz"
+        },
+        {
+            "image": "nua-dolibarr-mariadb:16.0-11",
+            "domain": "test2.yerom.xyz"
+        }
+    ]
+}
