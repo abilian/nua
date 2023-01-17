@@ -72,6 +72,26 @@ def install_build_packages(
             apt_remove_lists()
 
 
+def install_pip_packages(packages: list | str | None = None):
+    if not packages:
+        return
+    if isinstance(packages, str):
+        packages = packages.strip().split()
+    pip_install(_glob_extended(packages))
+
+
+def _glob_extended(packages: list):
+    extended = []
+    for package in packages:
+        if not package:
+            continue
+        if "*" not in package:
+            extended.append(package)
+            continue
+        extended.extend([str(f) for f in Path.cwd().glob(package)])
+    return extended
+
+
 def apt_remove_lists():
     environ = os.environ.copy()
     sh("rm -rf /var/lib/apt/lists/*", env=environ, timeout=TIMEOUT)

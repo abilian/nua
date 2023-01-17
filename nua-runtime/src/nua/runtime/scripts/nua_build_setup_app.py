@@ -15,6 +15,7 @@ from nua.lib.actions import (
     install_build_packages,
     install_meta_packages,
     install_packages,
+    install_pip_packages,
 )
 from nua.lib.backports import chdir
 from nua.lib.panic import abort
@@ -86,6 +87,7 @@ class BuilderApp:
         """Process installation of packages prior to unning install script."""
         install_meta_packages(self.config.meta_packages, keep_lists=True)
         install_packages(self.config.packages, keep_lists=True)
+        install_pip_packages(self.config.pip_install)
 
     def make_dirs(self):
         mkdir_p(NUA_APP_PATH)

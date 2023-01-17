@@ -12,6 +12,9 @@ metadata:
   title: Nua test server 2 ports - yaml config
   version: '1.0'
   website: https://nua.rocks/
+build:
+  pip-install:
+  - "*.whl"
 port:
   web:
     container: 8765

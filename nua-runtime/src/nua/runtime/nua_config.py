@@ -128,6 +128,12 @@ class NuaConfig:
         return self.build.get("build-packages", [])
 
     @property
+    def pip_install(self) -> list:
+        if "pip-install" not in self.build and "pip_install" in self.build:
+            return self.build.get("pip_install", [])
+        return self.build.get("pip-install", [])
+
+    @property
     def profile(self) -> str:
         """Profile of image and required version.
 

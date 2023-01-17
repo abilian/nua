@@ -9,6 +9,9 @@ website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static"]
 licence = "MIT"
 
+[build]
+pip-install = ["*.whl"]
+
 [port.web]
 container = 8765
 host = "auto" # default
