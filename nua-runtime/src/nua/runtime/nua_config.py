@@ -31,7 +31,7 @@ class NuaConfig:
 
     def __init__(self, path: str | Path | None = None):
         if not path:
-            path = ""
+            path = "."
         self._find_config_file(path)
         self._loads_config()
         self._check()
@@ -113,6 +113,8 @@ class NuaConfig:
 
     @property
     def meta_packages(self) -> list:
+        if "meta-packages" not in self.build and "meta_packages" in self.build:
+            return self.build.get("meta_packages", [])
         return self.build.get("meta-packages", [])
 
     @property
@@ -121,6 +123,8 @@ class NuaConfig:
 
     @property
     def build_packages(self) -> list:
+        if "build-packages" not in self.build and "build_packages" in self.build:
+            return self.build.get("build_packages", [])
         return self.build.get("build-packages", [])
 
     @property

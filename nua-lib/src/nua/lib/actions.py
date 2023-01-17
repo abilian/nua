@@ -42,14 +42,14 @@ def build_python(path: str | Path = ""):
 #
 # Other stuff
 #
-def install_meta_packages(packages: list):
+def install_meta_packages(packages: list, keep_lists: bool = False):
     if "psycopg2" in packages:
-        install_psycopg2_python()
+        install_psycopg2_python(keep_lists=keep_lists)
 
 
-def install_packages(packages: list):
+def install_packages(packages: list, keep_lists: bool = False):
     if packages:
-        install_package_list(packages, keep_lists=True)
+        install_package_list(packages, keep_lists=keep_lists)
 
 
 @contextmanager
@@ -299,9 +299,9 @@ def install_mariadb_1_1_5():
         pip_install("mariadb")
 
 
-def install_psycopg2_python():
+def install_psycopg2_python(keep_lists: bool = False):
     """Connector for PostgreSQL."""
-    install_package_list("libpq-dev")
+    install_package_list(["libpq-dev"], keep_lists=keep_lists)
     pip_install("psycopg2-binary")
 
 

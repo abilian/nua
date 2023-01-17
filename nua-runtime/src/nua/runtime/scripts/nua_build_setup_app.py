@@ -6,11 +6,17 @@
 """
 import logging
 import os
-from os import chdir
 from pathlib import Path
 from shutil import copy2
 
-from nua.lib.actions import copy_from_package
+from nua.lib.actions import (
+    apt_remove_lists,
+    copy_from_package,
+    install_build_packages,
+    install_meta_packages,
+    install_packages,
+)
+from nua.lib.backports import chdir
 from nua.lib.panic import abort
 from nua.lib.shell import mkdir_p, sh
 
@@ -38,8 +44,6 @@ class BuilderApp:
             abort(f"Build directory does not exist: '{self.build_dir}'")
         chdir(self.build_dir)
         self.config = NuaConfig(self.build_dir)
-        self.build_script_path = None
-        # self.nua_dir = None
 
     def fetch(self):
         pass
@@ -74,18 +78,23 @@ class BuilderApp:
     def build(self):
         self.detect_nua_dir()
         self.make_dirs()
-        build_script = self.config.build.get("build_script") or "build.py"
-        self.build_script_path = self.nua_dir / build_script
-        if self.build_script_path.is_file():
-            self.run_build_script()
-        else:
-            print(f"No build script. Not found: {self.build_script_path}")
-        self.copy_metadata()
-        self.make_start_script()
+        self.pre_build()
+        self.run_build_script()
+        self.post_build()
+
+    def pre_build(self):
+        """Process installation of packages prior to unning install script."""
+        install_meta_packages(self.config.meta_packages, keep_lists=True)
+        install_packages(self.config.packages, keep_lists=True)
 
     def make_dirs(self):
         mkdir_p(NUA_APP_PATH)
         mkdir_p(NUA_METADATA_PATH)
+
+    def post_build(self):
+        apt_remove_lists()
+        self.copy_metadata()
+        self.make_start_script()
 
     def copy_metadata(self):
         """Dump the content of the nua-config file in /nua/metadata/nua-
@@ -102,17 +111,35 @@ class BuilderApp:
         else:
             copy_from_package("nua.runtime.defaults", "start.py", script_dir)
 
+    def find_build_script(self) -> Path | None:
+        build_script = self.config.build.get("build_script") or "build.py"
+        script_path = self.nua_dir / build_script
+        script_path = script_path.absolute().resolve()
+        if script_path.is_file():
+            print(f"run build script: {script_path}")
+            return script_path
+        else:
+            print("No build script found")
+            return None
+
     def run_build_script(self):
+        """Process the 'build.py' script if exists.
+
+        The script is run from the directory of the nua-config.toml file.
+        """
+        script_path = self.find_build_script()
+        if not script_path:
+            return
         # assuming it is a python script
-        print(f"run build script: {self.build_script_path}")
-        chdir(self.build_dir)
-        env = dict(os.environ)
+        with install_build_packages(self.config.build_packages), chdir(
+            self.config.root_dir
+        ):
+            env = dict(os.environ)
+            cmd = "python --version"
+            sh(cmd, env=env)
 
-        cmd = "python --version"
-        sh(cmd, env=env)
-
-        cmd = f"python {self.build_script_path}"
-        sh(cmd, env=env, timeout=1800)
+            cmd = f"python {script_path}"
+            sh(cmd, env=env, timeout=1800)
 
 
 def main() -> None:
