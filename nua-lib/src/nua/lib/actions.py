@@ -319,9 +319,7 @@ def download_extract(url: str, dest: str | Path) -> Path | None:
         return extract_all(target, dest, url)
 
 
-def extract_all(
-    archive: str | Path, dest: str | Path, url: str = ""
-) -> Path | None:  # noqa: CCR001
+def extract_all(archive: str | Path, dest: str | Path, url: str = "") -> Path | None:
     with tarfile.open(archive) as tar:
         tar.extractall(dest)
     name = Path(archive).stem
@@ -330,16 +328,14 @@ def extract_all(
 
     possible = [name]
 
-    # FIXME: this regular expression looks fishy
-    name2 = re.sub(r"-[0-9\.post]*$", "", name)
+    name2 = re.sub(r"-[0-9.post]*$", "", name)
     if name2:
         possible.append(name2)
 
     if url:
         if match := re.search(".*/(.*)/archive/.*", url):
             possible.append(match.group(1))
-        # FIXME: this regular expression looks fishy
-        version = re.sub(r".*-([0-9\.post]*$)", "", name)
+        version = re.sub(r".*-([0-9.post]*$)", "", name)
         if version:
             possible.extend([f"{n}-{version}" for n in possible])
             possible.append(version)
@@ -433,20 +429,15 @@ def jinja2_render_from_str_template(
 
 def check_python_version() -> bool:
     """Check that curent python is >=3.10."""
-    if sys.version_info.major < 3:
-        return False
-    if sys.version_info.minor < 10:
-        return False
-    return True
+    return sys.version_info >= (3, 10)
 
 
 def python_package_installed(pkg_name: str) -> bool:
-    """Utility to test if some python package is installed.
+    """Utility to test if a python package is installed.
 
     Nota: replaced by some function using importlib.
     """
-    # return pkg_name in {pkg.key for pkg in pkg_resources.working_set}
-    return bool(importlib.util.find_spec("pkg_name"))
+    return bool(importlib.util.find_spec(pkg_name))
 
 
 def snake_format(name: str) -> str:
