@@ -10,7 +10,7 @@ tags = ["test", "html", "web", "MariaDB-docker"]
 licence = "MIT"
 
 [build]
-# no need of build.py for this test, all should be here:
+# no need of build.py for this test, all should be
 meta-packages = ["mariadb-client"]
 pip-install = ["*.whl"]
 document-root = "/nua/app/html"
@@ -56,10 +56,6 @@ name = "mariadb"
 type = "docker"
 image = "docker.io/library/mariadb:10.6.10"
 
-[[resource.assign]]
-key = "MARIADB_ROOT_PASSWORD"
-nua_internal = true
-
 [resource.run]
 restart_policy.name = "always"
 
@@ -71,8 +67,6 @@ type = "volume"
 # Name of the driver used to create the volume: (for type == "volume")
 driver = "local"
 # Mount source (e.g. a volume name or a host path):
-source = "mariadb_data_1"
+source_prefix = "mariadb_db"
 # Container path:
 target = "/var/lib/mysql"
-# mode (default to 'rw'
-mode = "rw"
