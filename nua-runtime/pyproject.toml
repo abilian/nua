@@ -59,8 +59,6 @@ ignore_obsolete = [
     "setuptools",
 ]
 ignore_missing = [
-    "mariadb",
-    "psycopg2",
 ]
 ignore_transitive = []
 

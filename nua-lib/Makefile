@@ -42,7 +42,7 @@ lint: ## check style
 	black --exclude tests/apps --check $(SRC) tests
 	mypy --exclude tests/apps $(SRC) tests
 	pyright
-	# deptry .
+	deptry .
 
 #
 # Formatting

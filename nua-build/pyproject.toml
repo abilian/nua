@@ -72,8 +72,6 @@ ignore_obsolete = [
 ]
 ignore_missing = [
     "nua",
-    "mariadb",
-    "psycopg2",
 ]
 ignore_transitive = [
 ]

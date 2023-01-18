@@ -42,13 +42,8 @@ exclude = [
 ]
 ignore_obsolete = [
     "setuptools",
-    "abilian-devtools",
-    "nox",
-    "types-setuptools",
 ]
 ignore_missing = [
-    "mariadb",
-    "psycopg2",
 ]
 ignore_transitive = [
 ]

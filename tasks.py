@@ -73,6 +73,12 @@ def fix(c):
 
 
 @task
+def run(c, cmd):
+    """Run given command in all subrepos."""
+    run_in_subrepos(c, cmd)
+
+
+@task
 def update(c):
     """Update dependencies the whole project."""
     c.run("poetry update")

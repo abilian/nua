@@ -53,10 +53,12 @@ exclude = [
 ]
 ignore_obsolete = [
     "setuptools",
+    "paramiko",
+    "nua-lib",
+    "nua-runtime",
 ]
 ignore_missing = [
-    "mariadb",
-    "psycopg2",
+    "nua",
 ]
 ignore_transitive = [
 ]

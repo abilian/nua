@@ -13,9 +13,9 @@ nua = "nua.cli.main:app"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-fabric = "^2.7.1"
 typer = "^0.7.0"
-patchwork = "^1.0.1"
+fabric = "^2.7.1"
+# patchwork = "^1.0.1"
 
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
