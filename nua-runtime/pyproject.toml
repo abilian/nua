@@ -57,8 +57,10 @@ exclude = [
 ]
 ignore_obsolete = [
     "setuptools",
+    "nua-lib",
 ]
 ignore_missing = [
+     "nua",
 ]
 ignore_transitive = []
 
