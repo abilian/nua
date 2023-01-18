@@ -49,9 +49,11 @@ def build_python(path: str | Path = ""):
 #
 def install_meta_packages(packages: list, keep_lists: bool = False):
     if "psycopg2" in packages:
-        if verbosity(2):
-            info("install meta package: psycopg2")
+        info("install meta package: psycopg2")
         install_psycopg2_python(keep_lists=keep_lists)
+    if "mariadb-client" in packages:
+        info("install meta package: mariadb-client")
+        install_mariadb_1_1_5(keep_lists=keep_lists)
 
 
 def install_packages(packages: list, keep_lists: bool = False):
@@ -330,10 +332,12 @@ def install_mariadb_python(version: str = "1.1.4"):
     purge_package_list("build-essential unzip")
 
 
-def install_mariadb_1_1_5():
+def install_mariadb_1_1_5(keep_lists=True):
     """Connector for MariaDB, since version 1.1.5post3."""
-    install_package_list("libmariadb3 mariadb-client", keep_lists=True)
-    with tmp_install_package_list("libmariadb-dev python3-dev build-essential"):
+    install_package_list("libmariadb3 mariadb-client", keep_lists=keep_lists)
+    with tmp_install_package_list(
+        "libmariadb-dev python3-dev build-essential", keep_lists=True
+    ):
         pip_install("mariadb")
 
 

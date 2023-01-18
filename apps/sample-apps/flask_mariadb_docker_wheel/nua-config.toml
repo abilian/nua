@@ -1,7 +1,7 @@
 [metadata]
 id = "flask-mariadb-docker-wheel"
 version = "1.0"
-release = 2
+release = 3
 title = "Flask/MariaDB-docker test wheel"
 author = "Nua testers"
 tagline = "Nua test with Flask/MariaDB-docker"
@@ -10,7 +10,11 @@ tags = ["test", "html", "web", "MariaDB-docker"]
 licence = "MIT"
 
 [build]
-document_root = "/nua/app/html"
+# no need of build.py for this test, all should be here:
+meta-packages = ["mariadb-client"]
+pip-install = ["*.whl"]
+document-root = "/nua/app/html"
+test-cmd = "python -c 'import flask_mariadb_docker_wheel'"
 
 [[assign]]
 key = "MARIADB_ROOT_PASSWORD"
@@ -18,6 +22,7 @@ random_str = true
 
 [[assign]]
 key = "USER_PASSWORD"
+# persistent is the default:
 persistent = true
 random_str = true
 

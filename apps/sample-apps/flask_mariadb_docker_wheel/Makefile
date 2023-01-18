@@ -12,7 +12,7 @@ build:
 	@mkdir build_dir
 	poetry build -f wheel
 	@mv dist/*.whl build_dir
-	@cp nua-config.toml build.py start.py build_dir
+	@cp nua-config.toml start.py build_dir
 
 .PHONY: nua
 nua: build

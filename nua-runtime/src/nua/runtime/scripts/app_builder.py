@@ -19,7 +19,7 @@ from nua.lib.actions import (
 )
 from nua.lib.backports import chdir
 from nua.lib.panic import abort, show
-from nua.lib.shell import mkdir_p, sh
+from nua.lib.shell import chmod_r, mkdir_p, rm_fr, sh
 
 from ..constants import (
     NUA_APP_PATH,
@@ -94,6 +94,19 @@ class BuilderApp:
     def make_dirs(self):
         mkdir_p(NUA_APP_PATH)
         mkdir_p(NUA_METADATA_PATH)
+        self.make_custom_document_root()
+
+    def make_custom_document_root(self):
+        """If the app defines a specific document root  (i.e. /var/www/html)."""
+        document_root = self.config.build.get(
+            "document-root", self.config.build.get("document_root")
+        )
+        if not document_root:
+            return
+        path = Path(document_root)
+        rm_fr(path)
+        mkdir_p(path)
+        chmod_r(path, 0o644, 0o755)
 
     def post_build(self):
         apt_remove_lists()
