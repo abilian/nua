@@ -90,8 +90,6 @@ def install_pip_packages(packages: list | str | None = None):
         return
     if isinstance(packages, str):
         packages = packages.strip().split()
-    if verbosity(2):
-        show("install python packages with pip")
     pip_install(_glob_extended(packages))
 
 
@@ -104,9 +102,10 @@ def _glob_extended(packages: list):
             extended.append(package)
             continue
         glob_result = [str(f) for f in Path.cwd().glob(package)]
-        if verbosity(2):
+        if not glob_result:
+            info("glob() got empty result")
+            info("glob() path:", Path.cwd())
             info("glob() pattern:", package)
-            info("glob() result:", glob_result)
         extended.extend(glob_result)
     return extended
 
@@ -384,7 +383,7 @@ def extract_all(archive: str | Path, dest: str | Path, url: str = "") -> Path | 
     return _detect_archive_path(dest, possible)
 
 
-def _detect_archive_path(dest: str, possible: list) -> Path | None:
+def _detect_archive_path(dest: str | Path, possible: list) -> Path | None:
     for name in possible:
         result = Path(dest) / name
         if result.exists():

@@ -79,9 +79,10 @@ class BuilderApp:
     def build(self):
         self.detect_nua_dir()
         self.make_dirs()
-        self.pre_build()
-        self.run_build_script()
-        self.post_build()
+        with chdir(self.config.root_dir):
+            self.pre_build()
+            self.run_build_script()
+            self.post_build()
 
     def pre_build(self):
         """Process installation of packages prior to unning install script."""
@@ -137,9 +138,7 @@ class BuilderApp:
         if not script_path:
             return
         # assuming it is a python script
-        with install_build_packages(self.config.build_packages), chdir(
-            self.config.root_dir
-        ):
+        with install_build_packages(self.config.build_packages):
             env = dict(os.environ)
             cmd = "python --version"
             sh(cmd, env=env)
