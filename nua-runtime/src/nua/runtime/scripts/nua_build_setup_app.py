@@ -106,7 +106,7 @@ class BuilderApp:
     def make_start_script(self):
         script_dir = Path(NUA_SCRIPTS_PATH)
         script_dir.mkdir(mode=0o755, parents=True, exist_ok=True)
-        start_script = self.config.build.get("start_script") or "start.py"
+        start_script = self.config.build.get("start_script", "start.py")
         orig = self.nua_dir / start_script
         if orig.is_file():
             copy2(orig, script_dir)
@@ -114,7 +114,7 @@ class BuilderApp:
             copy_from_package("nua.runtime.defaults", "start.py", script_dir)
 
     def find_build_script(self) -> Path | None:
-        build_script = self.config.build.get("build_script") or "build.py"
+        build_script = self.config.build.get("build_script", "build.py")
         script_path = self.nua_dir / build_script
         script_path = script_path.absolute().resolve()
         if script_path.is_file():
