@@ -14,8 +14,9 @@ from urllib.request import urlopen
 
 from jinja2 import Template
 
-from .panic import warning
+from .panic import info, show, warning
 from .shell import sh
+from .tool.state import verbosity
 
 LONG_TIMEOUT = 1800
 SHORT_TIMEOUT = 300
@@ -27,7 +28,10 @@ SHORT_TIMEOUT = 300
 def is_python_project(path: str | Path = "") -> bool:
     root = Path(path).expanduser().resolve()
     deps_files = ("requirements.txt", "setup.py", "pyproject.toml")
-    return any((root / f).exists() for f in deps_files)
+    result = any((root / f).exists() for f in deps_files)
+    if verbosity(2):
+        info("is_python_project:", result)
+    return result
 
 
 def build_python(path: str | Path = ""):
@@ -45,11 +49,15 @@ def build_python(path: str | Path = ""):
 #
 def install_meta_packages(packages: list, keep_lists: bool = False):
     if "psycopg2" in packages:
+        if verbosity(2):
+            info("install meta package: psycopg2")
         install_psycopg2_python(keep_lists=keep_lists)
 
 
 def install_packages(packages: list, keep_lists: bool = False):
     if packages:
+        if verbosity(2):
+            show("install packages")
         install_package_list(packages, keep_lists=keep_lists)
 
 
@@ -62,11 +70,15 @@ def install_build_packages(
     if isinstance(packages, str):
         packages = packages.strip().split()
     if packages:
+        if verbosity(2):
+            show("install temporary build packages")
         _install_packages(packages, update)
     try:
         yield
     finally:
         if packages:
+            if verbosity(2):
+                show("remove temporary build packages")
             _purge_packages(packages)
         apt_final_clean()
         if not keep_lists:
@@ -78,6 +90,8 @@ def install_pip_packages(packages: list | str | None = None):
         return
     if isinstance(packages, str):
         packages = packages.strip().split()
+    if verbosity(2):
+        show("install python packages with pip")
     pip_install(_glob_extended(packages))
 
 
@@ -89,7 +103,11 @@ def _glob_extended(packages: list):
         if "*" not in package:
             extended.append(package)
             continue
-        extended.extend([str(f) for f in Path.cwd().glob(package)])
+        glob_result = [str(f) for f in Path.cwd().glob(package)]
+        if verbosity(2):
+            info("glob() pattern:", package)
+            info("glob() result:", glob_result)
+        extended.extend(glob_result)
     return extended
 
 
@@ -330,7 +348,8 @@ def download_extract(url: str, dest: str | Path) -> Path | None:
     name = Path(url).name
     if not any(name.endswith(suf) for suf in (".zip", ".tar", ".tar.gz", ".tgz")):
         raise ValueError(f"Unknown archive format for '{name}'")
-
+    if verbosity(2):
+        info("download URL:", url)
     with tempfile.TemporaryDirectory() as tmp:
         target = Path(tmp) / name
         with urlopen(url) as remote:  # noqa S310
@@ -341,6 +360,8 @@ def download_extract(url: str, dest: str | Path) -> Path | None:
 
 
 def extract_all(archive: str | Path, dest: str | Path, url: str = "") -> Path | None:
+    if verbosity(2):
+        info("extract archive:", archive)
     with tarfile.open(archive) as tar:
         tar.extractall(dest)
     name = Path(archive).stem
@@ -360,12 +381,18 @@ def extract_all(archive: str | Path, dest: str | Path, url: str = "") -> Path | 
         if version:
             possible.extend([f"{n}-{version}" for n in possible])
             possible.append(version)
+    return _detect_archive_path(dest, possible)
 
+
+def _detect_archive_path(dest: str, possible: list) -> Path | None:
     for name in possible:
         result = Path(dest) / name
         if result.exists():
+            if verbosity(2):
+                info("detected path:", result)
             return result
-
+    if verbosity(2):
+        info("detected path: no path detected")
     return None
 
 
@@ -381,6 +408,9 @@ def set_php_ini_keys(replacements: dict, path: str | Path):
 
 
 def replace_in(file_pattern: str, string_pattern: str, replacement: str):
+    if verbosity(2):
+        show(f"replace_in() '{string_pattern}' by '{replacement}'")
+    counter = 0
     for file_name in glob(file_pattern, recursive=True):
         path = Path(file_name)
         if not path.is_file():
@@ -388,6 +418,9 @@ def replace_in(file_pattern: str, string_pattern: str, replacement: str):
         # assuming it's an utf8 world
         content = path.read_text(encoding="utf8")
         path.write_text(content.replace(string_pattern, replacement), encoding="utf8")
+        counter += 1
+    if verbosity(2):
+        show(f"replace_in() done in {counter} files")
 
 
 def string_in(file_pattern: str, string_pattern: str) -> list:
@@ -436,6 +469,8 @@ def jinja2_render_file(template: str | Path, dest: str | Path, data: dict) -> bo
         template_path.read_text(encoding="utf8"), keep_trailing_newline=True
     )
     dest_path.write_text(j2_template.render(data), encoding="utf8")
+    if verbosity(2):
+        show("jinja2 render:", template)
     return True
 
 
@@ -445,6 +480,8 @@ def jinja2_render_from_str_template(
     dest_path = Path(dest)
     j2_template = Template(template, keep_trailing_newline=True)
     dest_path.write_text(j2_template.render(data), encoding="utf8")
+    if verbosity(2):
+        show("jinja2 render from string")
     return True
 
 
