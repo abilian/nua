@@ -17,7 +17,8 @@ from jinja2 import Template
 from .panic import warning
 from .shell import sh
 
-TIMEOUT = 600
+LONG_TIMEOUT = 1800
+SHORT_TIMEOUT = 300
 
 
 #
@@ -94,21 +95,21 @@ def _glob_extended(packages: list):
 
 def apt_remove_lists():
     environ = os.environ.copy()
-    sh("rm -rf /var/lib/apt/lists/*", env=environ, timeout=TIMEOUT)
+    sh("rm -rf /var/lib/apt/lists/*", env=environ, timeout=SHORT_TIMEOUT)
 
 
 def apt_update():
     environ = os.environ.copy()
     environ["DEBIAN_FRONTEND"] = "noninteractive"
     cmd = "apt-get update --fix-missing"
-    sh(cmd, env=environ, timeout=TIMEOUT, show_cmd=False)
+    sh(cmd, env=environ, timeout=LONG_TIMEOUT, show_cmd=False)
 
 
 def apt_final_clean():
     environ = os.environ.copy()
     environ["DEBIAN_FRONTEND"] = "noninteractive"
     cmd = "apt-get autoremove -y; apt-get clean"
-    sh(cmd, env=environ, timeout=TIMEOUT)
+    sh(cmd, env=environ, timeout=SHORT_TIMEOUT)
 
 
 def _install_packages(packages: list, update: bool):
@@ -117,7 +118,7 @@ def _install_packages(packages: list, update: bool):
         environ["DEBIAN_FRONTEND"] = "noninteractive"
         cmd = "apt-get update --fix-missing; " if update else ""
         cmd += f"apt-get install --no-install-recommends -y {' '.join(packages)}"
-        sh(cmd, env=environ, timeout=TIMEOUT)
+        sh(cmd, env=environ, timeout=LONG_TIMEOUT)
     else:
         warning("install_package(): nothing to install")
 
@@ -130,7 +131,7 @@ def _purge_packages(packages: list):
     environ["DEBIAN_FRONTEND"] = "noninteractive"
     for package in packages:
         cmd = f"apt-get purge -y {package} || true"
-        sh(cmd, env=environ, timeout=TIMEOUT, show_cmd=False)
+        sh(cmd, env=environ, timeout=SHORT_TIMEOUT, show_cmd=False)
 
 
 def install_package_list(
@@ -175,7 +176,7 @@ def tmp_install_package_list(
 
 def installed_packages() -> list:
     cmd = "apt list --installed"
-    result = sh(cmd, timeout=TIMEOUT, capture_output=True, show_cmd=False)
+    result = sh(cmd, timeout=SHORT_TIMEOUT, capture_output=True, show_cmd=False)
     return result.splitlines()
 
 
