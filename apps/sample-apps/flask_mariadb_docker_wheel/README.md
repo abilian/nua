@@ -9,8 +9,8 @@ Note: we use the feature of no build.py, only a declaration of a python `wheel`
 This example to test
 - a flask basic app
 - using the mariadb connector and Nua runtime
-- declrare requirement of mariadb connector vie 'meta-packages' in config
-- declrare requirement of creation of document-root via config
+- declare requirement of mariadb connector vie 'meta-packages' in config
+- declare requirement of creation of document-root via config
 - connection to a mariadb DB running on an official docker image of Mariadb
 
 Warning:
