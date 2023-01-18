@@ -68,7 +68,7 @@ Some other base images are available to facilitate builds in other programming e
     `nua-runtime` provides:
 
   - `nua_config`: library to read the embeded `nua-config` file (introspection),
-  - `nua_build_setup_app`: actual builder of the application inside the Docker image.
+  - `app_builder`: actual builder of the application inside the Docker image.
 
 - `nua-autobuild`: build Docker images used by Nua.
 

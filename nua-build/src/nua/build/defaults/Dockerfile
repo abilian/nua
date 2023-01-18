@@ -3,6 +3,6 @@ FROM ${nua_builder_tag}
 
 # app build:
 COPY . /nua/build
-RUN nua_build_setup_app
+RUN app_builder
 
 CMD ["python", "/nua/scripts/start.py"]

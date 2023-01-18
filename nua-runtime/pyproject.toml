@@ -27,7 +27,7 @@ types-setuptools = "*"
 types-pyyaml = "*"
 
 [tool.poetry.scripts]
-nua_build_setup_app = "nua.runtime.scripts.nua_build_setup_app:main"
+app_builder = "nua.runtime.scripts.app_builder:main"
 
 [build-system]
 requires = [

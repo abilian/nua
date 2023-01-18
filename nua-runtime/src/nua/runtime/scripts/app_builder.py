@@ -1,7 +1,7 @@
-"""Script to build a nua package (experimental)
+"""Install the configured application inside the container.
 
 - information come from a mandatory local file: "nua-config.toml|json|yaml|yml"
-- origin may be a source tar.gz or a git repository
+- origin may be a source tar.gz or a git repository, python wheel
 - build locally if source is python package
 """
 import logging
@@ -18,7 +18,7 @@ from nua.lib.actions import (
     install_pip_packages,
 )
 from nua.lib.backports import chdir
-from nua.lib.panic import abort, info, show
+from nua.lib.panic import abort, show
 from nua.lib.shell import mkdir_p, sh
 
 from ..constants import (

@@ -13,5 +13,5 @@ It will provide the following features (TBC):
 `nua-runtime` provides:
 
 -   `nua_config`: library to read the embeded `nua-config` file (introspection),
--   `nua_build_setup_app`: actual builder of the application inside the Docker image.
+-   `app_builder`: actual builder of the application inside the Docker image.
 -   `db`: collection of tools to manage databases
