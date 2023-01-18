@@ -103,9 +103,9 @@ def _glob_extended(packages: list):
             continue
         glob_result = [str(f) for f in Path.cwd().glob(package)]
         if not glob_result:
-            info("glob() got empty result")
-            info("glob() path:", Path.cwd())
-            info("glob() pattern:", package)
+            warning("glob() got empty result:")
+            info("    glob path:", Path.cwd())
+            info("    glob pattern:", package)
         extended.extend(glob_result)
     return extended
 

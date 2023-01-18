@@ -18,7 +18,7 @@ from nua.lib.actions import (
     install_pip_packages,
 )
 from nua.lib.backports import chdir
-from nua.lib.panic import abort
+from nua.lib.panic import abort, info, show
 from nua.lib.shell import mkdir_p, sh
 
 from ..constants import (
@@ -83,6 +83,7 @@ class BuilderApp:
             self.pre_build()
             self.run_build_script()
             self.post_build()
+        self.test_build()
 
     def pre_build(self):
         """Process installation of packages prior to unning install script."""
@@ -98,6 +99,14 @@ class BuilderApp:
         apt_remove_lists()
         self.copy_metadata()
         self.make_start_script()
+
+    def test_build(self):
+        """Execute a configured shell command to check build is successful."""
+        command = self.config.build.get("test-cmd", self.config.build.get("test_cmd"))
+        if not command:
+            return
+        show("build test command:", command)
+        sh(command, show_cmd=False)
 
     def copy_metadata(self):
         """Dump the content of the nua-config file in /nua/metadata/nua-

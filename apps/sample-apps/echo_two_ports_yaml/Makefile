@@ -10,8 +10,8 @@ build:
 	@mkdir -p build_dir
 	poetry build -f wheel
 	@mv dist/*.whl build_dir
-	@cp nua-config.yaml build.py start.py build_dir
+	@cp nua-config.yaml start.py build_dir
 
 .PHONY: nua
 nua: build
-	nua-build --verbose build_dir
+	nua-build -vv build_dir

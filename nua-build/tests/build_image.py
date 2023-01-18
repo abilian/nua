@@ -28,6 +28,20 @@ def build_test_image(src_dir: Path | str):
             _build_test_tmpdir(name)
 
 
+def build_test_image_expect_fail(src_dir: Path | str):
+    """Build an image and assert failure."""
+    src_path = Path(src_dir)
+    assert src_path.is_dir()
+
+    with chdir(src_path):
+        conf = NuaConfig(".").as_dict()
+        name = _make_image_name(conf)
+        if Path("Makefile").is_file():
+            _makefile_build_test_failure(name)
+        else:
+            _build_test_tmpdir_failure(name)
+
+
 def _makefile_build_test(name):
     _run_make("build")
     with chdir("build_dir"):
@@ -35,10 +49,23 @@ def _makefile_build_test(name):
     _run_make("clean")
 
 
+def _makefile_build_test_failure(name):
+    _run_make("build")
+    with chdir("build_dir"):
+        _build_test_tmpdir_failure(name)
+    _run_make("clean")
+
+
 def _build_test_tmpdir(name: str):
     with tempfile.TemporaryDirectory(dir="/tmp") as tmpdirname:
         print("Building in temporary directory", tmpdirname)
         _build_test(tmpdirname, name)
+
+
+def _build_test_tmpdir_failure(name: str):
+    with tempfile.TemporaryDirectory(dir="/tmp") as tmpdirname:
+        print("Building in temporary directory", tmpdirname)
+        _build_test(tmpdirname, name, expect_failure=True)
 
 
 def _make_image_name(conf: dict) -> str:
@@ -59,7 +86,7 @@ def _run_make(target: str):
     print(" ================================")
 
 
-def _build_test(tmpdirname: str, name: str):
+def _build_test(tmpdirname: str, name: str, expect_failure: bool = False):
     build_dir = Path(tmpdirname) / "build"
     # print("in _build_test()")
     # print(f"cwd: {Path.cwd()}")
@@ -78,6 +105,11 @@ def _build_test(tmpdirname: str, name: str):
     print(result.stdout)
     print(result.stderr)
     print(" ===================================")
+
+    if expect_failure:
+        assert result.exit_code != 0
+        return
+
     assert result.exit_code == 0
     assert dock.images.list(name)
 

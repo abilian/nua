@@ -1,8 +1,8 @@
 [metadata]
-id = "echo-two-ports"
+id = "echo-two-ports-with-fail"
 version = "1.0"
 release = 2
-title = "Nua test server 2 ports - toml config"
+title = "Nua test server 2 ports - toml config (fail test version)"
 author = "Jerome Dumonteil <jd@abilian.com>"
 tagline = "Nua test server 2 ports"
 website = "https://nua.rocks/"
@@ -11,7 +11,7 @@ licence = "MIT"
 
 [build]
 pip-install = ["*.whl"]
-test-cmd = "python -c 'import echo_two_ports'"
+test-cmd = "python -c 'import non_existing_module'"
 
 [port.web]
 container = 8765

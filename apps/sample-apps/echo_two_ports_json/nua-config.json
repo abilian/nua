@@ -13,7 +13,8 @@
         "licence": "MIT"
     },
     "build": {
-        "pip-install": ["*.whl"]
+        "pip-install": ["*.whl"],
+        "test-cmd": "python -c 'import echo_two_ports'"
     },
     "port": {
         "web": {
