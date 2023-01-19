@@ -14,7 +14,7 @@ meta-packages = ["postgres-client"]
 document-root = "/nua/app/html"
 # See later if "src_url" is the same concept.
 project = "."
-test-cmd = "python -c 'import flask_one_wheel'"
+test-cmd = "python -c 'import flask_pg_dock_psyco_autonet'"
 
 [[assign]]
 key = "POSTGRES_PASSWORD"
