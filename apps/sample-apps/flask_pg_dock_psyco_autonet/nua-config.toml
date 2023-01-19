@@ -1,7 +1,7 @@
 [metadata]
 id = "flask-pg-dock-psyco-autonet"
 version = "1.0"
-release = 3
+release = 4
 title = "Flask/PostgreSQL/docker/psycopg2 test auto net wheel"
 author = "Nua testers"
 tagline = "Nua test with Flask/PostgreSQL/docker/psycopg2"
@@ -10,8 +10,11 @@ tags = ["test", "html", "web", "static", "plugin", "PostgreSQL", "docker", "psyc
 licence = "MIT"
 
 [build]
-meta-packages = ["psycopg2"]
-document_root = "/nua/app/html"
+meta-packages = ["postgres-client"]
+document-root = "/nua/app/html"
+# See later if "src_url" is the same concept.
+project = "."
+test-cmd = "python -c 'import flask_one_wheel'"
 
 [[assign]]
 key = "POSTGRES_PASSWORD"
