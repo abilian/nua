@@ -10,10 +10,12 @@ from contextlib import contextmanager
 from glob import glob
 from importlib import resources as rso
 from pathlib import Path
+from urllib.parse import urlparse
 from urllib.request import urlopen
 
 from jinja2 import Template
 
+from .backports import chdir
 from .panic import info, show, warning
 from .shell import sh
 from .tool.state import verbosity
@@ -37,11 +39,14 @@ def is_python_project(path: str | Path = "") -> bool:
 def build_python(path: str | Path = ""):
     root = Path(path).expanduser().resolve()
     requirements = root / "requirements.txt"
+    pyproject = root / "pyproject.toml"
     setup_py = root / "setup.py"
     if requirements.is_file():
-        sh(f"python -m pip install -r {requirements}", cwd=root)
-    elif setup_py.is_file():
-        sh("python -m pip install", cwd=root)
+        sh(f"python -m pip install -r {requirements} .", cwd=root)
+    elif setup_py.is_file() or pyproject.is_file():
+        sh("python -m pip install .", cwd=root)
+    else:
+        warning(f"No method found to build the python project in '{root}'")
 
 
 #
@@ -395,8 +400,55 @@ def _detect_archive_path(dest: str | Path, possible: list) -> Path | None:
                 info("detected path:", result)
             return result
     if verbosity(2):
-        info("detected path: no path detected")
+        show("detected path: no path detected")
     return None
+
+
+def is_local_dir(project: str) -> bool:
+    """Analysis of some ptoject string and guess wether local path or URL.
+    (WIP)
+    """
+    parsed = urlparse(project)
+    if parsed.scheme:
+        # guess it is a download URL
+        result = False
+    else:
+        abs_path = Path(project).absolute().resolve()
+        result = abs_path.is_dir()
+    if verbosity(2):
+        info("is_local_dir", abs_path, result)
+    return result
+
+
+def project_path(project: str) -> Path | None:
+    """Guess meaning of project string and send back local path of the project.
+    (WIP)
+    """
+    if is_local_dir(project):
+        return Path(project)
+    return download_extract(project, "/nua/build")
+
+
+def project_install(project: str) -> None:
+    path = project_path(project)
+    if not path:
+        warning(f"No path found for project '{project}'")
+        return
+    detect_and_install(path)
+
+
+def detect_and_install(directory: str | Path | None) -> None:
+    if directory:
+        path = Path(directory)
+    else:
+        path = Path(".")
+    if verbosity(2):
+        info("detect_and_install", path)
+    with chdir(path):
+        if is_python_project():
+            build_python()
+            return
+        warning(f"Not a known project type in '{path}'")
 
 
 #

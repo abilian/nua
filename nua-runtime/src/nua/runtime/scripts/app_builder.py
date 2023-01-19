@@ -9,7 +9,6 @@ import os
 from pathlib import Path
 from shutil import copy2
 
-from fromnua.lib.tool.state import set_verbosity, verbosity, verbosity_level
 from nua.lib.actions import (
     apt_remove_lists,
     copy_from_package,
@@ -17,10 +16,12 @@ from nua.lib.actions import (
     install_meta_packages,
     install_packages,
     install_pip_packages,
+    project_install,
 )
 from nua.lib.backports import chdir
 from nua.lib.panic import abort, info, show, warning
 from nua.lib.shell import chmod_r, mkdir_p, rm_fr, sh
+from nua.lib.tool.state import set_verbosity, verbosity, verbosity_level
 
 from ..constants import (
     NUA_APP_PATH,
@@ -86,7 +87,7 @@ class BuilderApp:
         self.make_dirs()
         with chdir(self.config.root_dir):
             self.pre_build()
-            self.run_build_script()
+            self.detect_and_run_build()
             self.post_build()
         self.test_build()
 
@@ -150,10 +151,10 @@ class BuilderApp:
         script_path = self.nua_dir / build_script
         script_path = script_path.absolute().resolve()
         if script_path.is_file():
-            print(f"run build script: {script_path}")
+            info(f"run build script: {script_path}")
             return script_path
         else:
-            print("No build script found")
+            show("No build script found")
             return None
 
     def run_build_script(self):
@@ -172,6 +173,20 @@ class BuilderApp:
 
             cmd = f"python {script_path}"
             sh(cmd, env=env, timeout=1800)
+
+    def detect_and_run_build(self):
+        """Detect the build method and apply.
+        (WIP)
+
+        Current guess:
+            - "build.py"
+            - "project" directory
+        """
+        if self.find_build_script():
+            return self.run_build_script()
+        elif self.config.project:
+            return project_install(self.config.project)
+        warning("No build method found")
 
 
 def main() -> None:

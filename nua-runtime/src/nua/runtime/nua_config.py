@@ -122,6 +122,11 @@ class NuaConfig:
         return self.build.get("packages", [])
 
     @property
+    def project(self) -> str:
+        """The project URL to build with autodetection."""
+        return self.build.get("project", "")
+
+    @property
     def build_packages(self) -> list:
         if "build-packages" not in self.build and "build_packages" in self.build:
             return self.build.get("build_packages", [])

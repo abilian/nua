@@ -1,16 +1,21 @@
 [metadata]
 id = "flask-one-poetry"
 version = "1.2"
-release = 2
-title = "Flask test one p"
+release = 3
+title = "Flask test one poetry auto-detect"
 author = "Nua testers"
-tagline = "Nua test with Flask - one - p"
+tagline = "Nua test with Flask - one - poetry auto-detect"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static"]
 licence = "MIT"
 
 [build]
-document_root = "/nua/app/html"
+document-root = "/nua/app/html"
+
+# See later if "src_url" is the same concept.
+project = "."
+
+test-cmd = "python -c 'import flask_one_poetry'"
 
 [run]
 # parameters passed as a dict to docker run
