@@ -1,4 +1,0 @@
-- requirements on DBs (psychopg2, ...) to be set in nua core ?
-- enforce a dedicated PG ?
-- use postgres user ?
-- use encyption (scran_256 ?)

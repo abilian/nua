@@ -1,7 +1,7 @@
 [metadata]
 id = "flask-sqla"
 version = "1.0"
-release = 2
+release = 3
 title = "Flask test with sqlalchemy"
 author = "Nua testers"
 tagline = "Nua test with sqlalchemy"
@@ -11,7 +11,9 @@ licence = "MIT"
 
 [build]
 document_root = "/nua/app/html"
-packages = ["libpq-dev"]
+meta-packages = ["psycopg2"]
+project = "."
+test-cmd = "python -c 'import flask_sqla'"
 
 [run]
 # parameters passed as a dict to docker run
