@@ -97,6 +97,7 @@ def install_pip_packages(packages: list | str | None = None):
         return
     if isinstance(packages, str):
         packages = packages.strip().split()
+    show("Installing pip packages declared in nua-config")
     pip_install(_glob_extended(packages))
 
 

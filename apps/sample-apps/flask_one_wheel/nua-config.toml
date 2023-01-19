@@ -1,7 +1,7 @@
 [metadata]
 id = "flask-one-wheel"
 version = "1.2"
-release = 2
+release = 3
 title = "Flask test one wheel"
 author = "Nua testers"
 tagline = "Nua test with Flask - one"
@@ -10,7 +10,9 @@ tags = ["test", "html", "web", "static"]
 licence = "MIT"
 
 [build]
-document_root = "/nua/app/html"
+pip-install = ["*.whl"]
+document-root = "/nua/app/html"
+test-cmd = "python -c 'import flask_one_wheel'"
 
 [port.web]
 container = 80

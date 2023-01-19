@@ -124,7 +124,7 @@ class BuilderApp:
         command = self.config.build.get("test-cmd", self.config.build.get("test_cmd"))
         if not command:
             return
-        show("build test command:", command)
+        show("Execution of build test command:", command)
         sh(command, show_cmd=False)
 
     def copy_metadata(self):
@@ -186,7 +186,7 @@ class BuilderApp:
             return self.run_build_script()
         elif self.config.project:
             return project_install(self.config.project)
-        warning("No build method found")
+        warning("No build method detected")
 
 
 def main() -> None:
