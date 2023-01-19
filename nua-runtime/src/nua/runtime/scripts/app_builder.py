@@ -95,7 +95,6 @@ class BuilderApp:
         """Process installation of packages prior to unning install script."""
         install_meta_packages(self.config.meta_packages, keep_lists=True)
         install_packages(self.config.packages, keep_lists=True)
-        install_pip_packages(self.config.pip_install)
 
     def make_dirs(self):
         mkdir_p(NUA_APP_PATH)
@@ -182,11 +181,17 @@ class BuilderApp:
             - "build.py"
             - "project" directory
         """
+        installed = install_pip_packages(self.config.pip_install)
         if self.find_build_script():
             return self.run_build_script()
         elif self.config.project:
             return project_install(self.config.project)
-        warning("No build method detected")
+        if not installed:
+            # no package installed through install_pip_packages and
+            # no other way. Let's assume there is a local project.
+            show("Try install from some local project")
+            project_install(".")
+        # warning("No build method detected")
 
 
 def main() -> None:

@@ -92,13 +92,13 @@ def install_build_packages(
             apt_remove_lists()
 
 
-def install_pip_packages(packages: list | str | None = None):
+def install_pip_packages(packages: list | str | None = None) -> bool:
     if not packages:
         return
     if isinstance(packages, str):
         packages = packages.strip().split()
     show("Installing pip packages declared in nua-config")
-    pip_install(_glob_extended(packages))
+    return pip_install(_glob_extended(packages))
 
 
 def _glob_extended(packages: list):
@@ -270,15 +270,16 @@ def install_nodejs_via_nvm(home: Path | str = "/nua"):
     sh(cmd, env=environ)
 
 
-def pip_install(packages: list | str, update: bool = False) -> None:
+def pip_install(packages: list | str, update: bool = False) -> bool:
     if isinstance(packages, str):
         packages = packages.strip().split()
     if not packages:
         warning("pip_install(): nothing to install")
-        return
+        return False
     option = "-U " if update else " "
     cmd = f"python -m pip install {option}{' '.join(packages)}"
     sh(cmd)
+    return True
 
 
 def pip_install_glob(pattern: str) -> None:
