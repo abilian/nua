@@ -1,7 +1,7 @@
 [metadata]
 id = "flask_sqla_sqlite_bind"
 version = "1.0"
-release = 2
+release = 3
 title = "Nua test with sqlalchemy, sqlite on bind volume"
 author = "Nua testers"
 tagline = "Nua test with sqlalchemy, sqlite on bind volume"
@@ -10,8 +10,9 @@ tags = ["test", "html", "web", "flask", "plugin", "sqlite", "sqlalchemy"]
 licence = "MIT"
 
 [build]
-document_root = "/nua/app/html"
-
+document-root = "/nua/app/html"
+project = "."
+test-cmd = "python -c 'import flask_sqla_sqlite_bind'"
 [run]
 # parameters passed as a dict to docker run
 auto_remove = true
