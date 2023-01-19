@@ -1,7 +1,7 @@
 [metadata]
 id = "flask-sub-folder2"
 version = "1.2"
-release = 2
+release = 3
 title = "Flask test nua in sub folder"
 author = "Nua testers"
 tagline = "Nua test with Flask - sub"
@@ -27,14 +27,9 @@ licence = "MIT"
 # optional folder containing nua build files if present:
 # nua_dir = "nua"  # default to "nua"
 nua_dir = "nua_files"
-
-# optional Dockerfile, default is "{nua_dir}/Dockerfile" or "./Dockerfile" if found
-# optional build script, default is "{nua_dir}/build.py" or "./build.py" if found
-# build_script = ""
-# optional start script, default is "{nua_dir}/start.py" or "./start.py" if found
-# start_script = ""
-# container = "docker"  # default
-document_root = "/nua/app/html"
+document-root = "/nua/app/html"
+project = "."
+test-cmd = "python -c 'import flask_sub_folder2'"
 
 [run]
 # parameters passed as a dict to docker run
