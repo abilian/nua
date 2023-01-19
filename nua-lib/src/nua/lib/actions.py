@@ -53,7 +53,7 @@ def build_python(path: str | Path = ""):
 # Other stuff
 #
 def install_meta_packages(packages: list, keep_lists: bool = False):
-    if "psycopg2" or "postgres-client" in packages:
+    if "psycopg2" in packages or "postgres-client" in packages:
         info("install meta package: psycopg2")
         install_psycopg2_python(keep_lists=keep_lists)
     if "mariadb-client" in packages:

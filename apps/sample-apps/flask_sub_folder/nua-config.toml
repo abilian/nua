@@ -32,7 +32,9 @@ licence = "MIT"
 # optional start script, default is "{nua_dir}/start.py" or "./start.py" if found
 # start_script = ""
 # container = "docker"  # default
-document_root = "/nua/app/html"
+document-root = "/nua/app/html"
+project = "."
+test-cmd = "python -c 'import flask_sub_folder'"
 
 [run]
 # parameters passed as a dict to docker run
