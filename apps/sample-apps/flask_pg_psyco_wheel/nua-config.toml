@@ -11,7 +11,9 @@ licence = "MIT"
 
 [build]
 document_root = "/nua/app/html"
-packages = ["libpq-dev"]
+meta-packages = ["postgres-client"]
+project = "."
+test-cmd = "python -c 'import flask_pg_psyco'"
 
 [[assign]]
 key = "POSTGRES_PASSWORD"
