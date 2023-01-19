@@ -94,7 +94,7 @@ def install_build_packages(
 
 def install_pip_packages(packages: list | str | None = None) -> bool:
     if not packages:
-        return
+        return False
     if isinstance(packages, str):
         packages = packages.strip().split()
     show("Installing pip packages declared in nua-config")
@@ -414,11 +414,13 @@ def is_local_dir(project: str) -> bool:
     if parsed.scheme:
         # guess it is a download URL
         result = False
+        abs_path_s = ""
     else:
         abs_path = Path(project).absolute().resolve()
         result = abs_path.is_dir()
+        abs_path_s = str(abs_path)
     if verbosity(2):
-        info("is_local_dir", abs_path, result)
+        info(f"is_local_dir '{abs_path_s}'", result)
     return result
 
 

@@ -19,7 +19,7 @@ from nua.lib.actions import (
     project_install,
 )
 from nua.lib.backports import chdir
-from nua.lib.panic import abort, info, show, warning
+from nua.lib.panic import abort, info, show
 from nua.lib.shell import chmod_r, mkdir_p, rm_fr, sh
 from nua.lib.tool.state import set_verbosity, verbosity, verbosity_level
 
