@@ -19,6 +19,7 @@ CHECKED_KEYS = {
     "driver",
     "backup",
     "options",
+    "source-prefix",
     "source_prefix",
     "source",
     "src_prefix",
@@ -132,11 +133,13 @@ class Volume:
 
     @property
     def prefix(self) -> str:
-        return self._dict.get("source_prefix", "")
+        if "source-prefix" not in self._dict and "source_prefix" in self._dict:
+            return self._dict.get("source_prefix", "")
+        return self._dict.get("source-prefix", "")
 
     @prefix.setter
     def prefix(self, source_prefix: str):
-        self._dict["source_prefix"] = source_prefix
+        self._dict["source-prefix"] = source_prefix
 
     @property
     def source(self) -> str:
@@ -196,7 +199,7 @@ class Volume:
             # no source defined for "tmpfs" type
             return
         src_key = None
-        for alias in ("source_prefix", "src_prefix"):
+        for alias in ("source-prefix", "source_prefix", "src_prefix"):
             if alias in data:
                 src_key = alias
                 break
@@ -204,7 +207,7 @@ class Volume:
             return
         value = data[src_key]
         if not value or not isinstance(value, str):
-            raise ValueError("Invalid value for 'volume.source_prefix'")
+            raise ValueError("Invalid value for 'volume.source-prefix'")
         self.prefix = value
 
     def _check_source(self, data: dict):

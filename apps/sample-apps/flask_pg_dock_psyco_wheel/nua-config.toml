@@ -1,7 +1,7 @@
 [metadata]
 id = "flask-pg-dock-psyco"
 version = "1.0"
-release = 2
+release = 3
 title = "Flask/PostgreSQL/docker/psycopg2 test wheel"
 author = "Nua testers"
 tagline = "Nua test with Flask/PostgreSQL/docker/psycopg2"
@@ -10,8 +10,10 @@ tags = ["test", "html", "web", "static", "plugin", "PostgreSQL", "docker", "psyc
 licence = "MIT"
 
 [build]
-document_root = "/nua/app/html"
-meta-packages = ["psycopg2"]
+document-root = "/nua/app/html"
+meta-packages = ["postgres-client"]
+project = "."
+test-cmd = "python -c 'import flask_pg_dock_psyco'"
 
 [instance]
 # name of the bridge network used by this container and related resources.
@@ -72,8 +74,6 @@ image = "docker.io/library/postgres:14.5"
     # Name of the driver used to create the volume: (for type == "volume")
     driver = "local"
     # Mount source (e.g. a volume name or a host path):
-    source = "postgres_data_pg_1"
+    source-prefix = "postgres_data_pg_1"
     # Container path:
     target = "/var/lib/postgresql/data"
-    # mode (default to 'rw'
-    mode = "rw"
