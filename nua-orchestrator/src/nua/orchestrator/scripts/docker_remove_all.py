@@ -1,7 +1,7 @@
 """For debug, remove all docker containers."""
 from docker import from_env
 from docker.errors import APIError, NotFound
-from nua.lib.tool.state import set_verbose
+from nua.lib.tool.state import set_verbosity
 
 from ..docker_utils import docker_network_prune, list_containers
 
@@ -29,7 +29,7 @@ def remove_containers():
 
 
 def main():
-    set_verbose(2)
+    set_verbosity(2)
     print("Docker containers:")
     list_containers()
     stop_containers()

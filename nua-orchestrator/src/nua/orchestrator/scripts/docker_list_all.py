@@ -1,11 +1,11 @@
 """For debug, list all docker containers."""
-from nua.lib.tool.state import set_verbose
+from nua.lib.tool.state import set_verbosity
 
 from ..docker_utils import list_containers
 
 
 def main():
-    set_verbose(2)
+    set_verbosity(2)
     print("Docker containers:")
     list_containers()
 

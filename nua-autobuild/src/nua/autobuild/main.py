@@ -2,7 +2,7 @@
 from typing import Optional
 
 import typer
-from nua.lib.tool.state import set_color, set_verbose
+from nua.lib.tool.state import set_color, set_verbosity
 
 from . import __version__
 from .nua_image_builder import NUAImageBuilder
@@ -68,7 +68,7 @@ def main(
     version: Optional[bool] = option_version,
 ):
     """Nua-self-build CLI inferface."""
-    set_verbose(verbose)
+    set_verbosity(verbose)
     set_color(colorize)
     image_builder = NUAImageBuilder()
     image_builder.build(force=force, download=download, all=all)

@@ -3,7 +3,7 @@
 # STATE = {"verbose": 0}
 #
 #
-# def set_verbose(value: int):
+# def set_verbosity(value: int):
 #     STATE["verbose"] = value
 #
 #

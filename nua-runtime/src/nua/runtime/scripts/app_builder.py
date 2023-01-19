@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 from shutil import copy2
 
+from fromnua.lib.tool.state import set_verbosity, verbosity, verbosity_level
 from nua.lib.actions import (
     apt_remove_lists,
     copy_from_package,
@@ -18,7 +19,7 @@ from nua.lib.actions import (
     install_pip_packages,
 )
 from nua.lib.backports import chdir
-from nua.lib.panic import abort, show
+from nua.lib.panic import abort, info, show, warning
 from nua.lib.shell import chmod_r, mkdir_p, rm_fr, sh
 
 from ..constants import (
@@ -40,6 +41,10 @@ class BuilderApp:
     def __init__(self):
         # we are supposed to launch "nua buld" from cwd, but we'll see later
         # self.root_dir = Path.cwd()
+        if "nua_verbosity" in os.environ:
+            set_verbosity(int(os.environ["nua_verbosity"]))
+            if verbosity():
+                info("verbosity:", verbosity_level())
         self.build_dir = Path(NUA_BUILD_PATH)
         if not self.build_dir.is_dir():
             abort(f"Build directory does not exist: '{self.build_dir}'")

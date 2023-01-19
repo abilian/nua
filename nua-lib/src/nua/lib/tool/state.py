@@ -3,8 +3,12 @@ import os
 STATE = {"verbose": 0, "colorize": True}
 
 
-def set_verbose(value: int):
+def set_verbosity(value: int):
     STATE["verbose"] = value
+
+
+def verbosity_level() -> int:
+    return STATE["verbose"]
 
 
 def set_color(flag: bool):

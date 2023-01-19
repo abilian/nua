@@ -28,7 +28,7 @@ from nua.lib.backports import chdir
 from nua.lib.console import print_stream_blue
 from nua.lib.panic import info, show, title
 from nua.lib.shell import rm_fr
-from nua.lib.tool.state import verbosity
+from nua.lib.tool.state import verbosity, verbosity_level
 from nua.runtime.constants import (
     NUA_BUILDER_NODE_TAG14,
     NUA_BUILDER_NODE_TAG16,
@@ -296,7 +296,10 @@ class Builder:
             else:
                 rel_tag = ""
             nua_tag = f"nua-{self.config.app_id}:{self.config.version}{rel_tag}"
-            buildargs = {"nua_builder_tag": self.nua_base}
+            buildargs = {
+                "nua_builder_tag": self.nua_base,
+                "nua_verbosity": str(verbosity_level()),
+            }
             labels = {
                 "APP_ID": self.config.app_id,
                 "NUA_TAG": nua_tag,

@@ -10,7 +10,7 @@ from nua.lib.actions import check_python_version
 from nua.lib.console import print_red
 from nua.lib.exec import is_current_user, set_nua_user
 from nua.lib.panic import abort
-from nua.lib.tool.state import set_color, set_verbose
+from nua.lib.tool.state import set_color, set_verbosity
 
 from .. import __version__
 from ..db import store
@@ -112,7 +112,7 @@ def deploy_local(
     colorize: bool = option_color,
 ):
     """Search, install and launch Nua image."""
-    set_verbose(verbose)
+    set_verbosity(verbose)
     set_color(colorize)
     initialization()
 
@@ -130,7 +130,7 @@ def restore_local(
     strict: bool = option_restore_strict,
 ):
     """Restore last successful deployment."""
-    set_verbose(verbose)
+    set_verbosity(verbose)
     set_color(colorize)
     initialization()
     if strict:
@@ -145,7 +145,7 @@ def backup_all_cmd(
     colorize: bool = option_color,
 ):
     """Backup now all instance having a backup rules."""
-    set_verbose(verbose)
+    set_verbosity(verbose)
     set_color(colorize)
     initialization()
     backup_all()
@@ -157,7 +157,7 @@ def deployed_config_cmd(
     colorize: bool = option_color,
 ):
     """Debug: show current active configuration."""
-    set_verbose(verbose)
+    set_verbosity(verbose)
     set_color(colorize)
     initialization()
     print(pformat(deployed_config()))

@@ -10,7 +10,7 @@ See later if move this to "nua ...".
 from typing import Optional
 
 import typer
-from nua.lib.tool.state import set_color, set_verbose
+from nua.lib.tool.state import set_color, set_verbosity
 
 from . import __version__
 from .builder import Builder, BuilderError
@@ -71,7 +71,7 @@ def main(
     colorize: bool = option_color,
 ) -> None:
     """Nua-build CLI inferface."""
-    set_verbose(verbose)
+    set_verbosity(verbose)
     set_color(colorize)
     initialization()
     builder = Builder(config_file)
