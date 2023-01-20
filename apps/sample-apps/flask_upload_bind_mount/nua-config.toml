@@ -1,37 +1,22 @@
 [metadata]
 id = "flask-upload-bind-mount"
 version = "1.0"
-release = 2
-title = "Flask test upload with host local dir (-v)"
+release = 3
+title = "Flask test upload with host local dir (Docker option -v)"
 author = "Nua testers"
-tagline = "Flask test upload with host local dir (-v)"
+tagline = "Flask test upload with host local dir (Docker option -v)"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static", "bind", "--volume"]
 licence = "MIT"
 
 [build]
-# optional manifest.
-# if no manifest, use files in the repository (except dot files)
-# - if manifest is not empty, *only* files from manifest are copied
-# - "nua-config.toml" is always copied, wether local or not
-# manifest = [
-# # if no Dockerfile provided => use Nua default Dockerfile:
-# "Dockerfile",
-# "www",
-# "build.py"
-# ]
+document-root = "/nua/app/html"
+# - should auto detect local python project
+# - should create automatically the source volume if needed
 
-# src_url = "https://github.com/moinwiki/moin/archive/refs/heads/master.tar.gz"
-# src_git = "https://github.com/moinwiki/moin.git"
-
-# optional build script, default is "build.py" if found
-# build_script = ""
-# optional start script, default is "start.py" if found
-# start_script = ""
-document_root = "/nua/app/html"
+test-cmd = "python -c 'import flask_upload_bind_mount'"
 
 [run]
-
 [run.env]
 # parameters passed as a dict to docker run: environment dict
 UPLOAD_DIRNAME = "uploads_local"
@@ -45,8 +30,8 @@ type = "bind"
 # Name of the driver used to create the volume: (for type == "volume")
 # driver = "local"
 # Mount source (e.g. a volume name or a host path):
-# the directory must exits
-source = "/var/tmp"
+# the directory must exits or will be created
+source = "/var/tmp/nua_test"
 # Container path:
 target = "/var/tmp/mount_point"
 #[[mount.opt]]
