@@ -1,7 +1,7 @@
 [metadata]
 id = "flask-upload-one"
 version = "1.0"
-release = 2
+release = 3
 title = "Flask test upload one"
 author = "Nua testers"
 tagline = "Nua test with Flask and mount - one"
@@ -10,25 +10,11 @@ tags = ["test", "html", "web", "static", "mount"]
 licence = "MIT"
 
 [build]
-# optional manifest.
-# if no manifest, use files in the repository (except dot files)
-# - if manifest is not empty, *only* files from manifest are copied
-# - "nua-config.toml" is always copied, wether local or not
-# manifest = [
-# # if no Dockerfile provided => use Nua default Dockerfile:
-# "Dockerfile",
-# "www",
-# "build.py"
-# ]
+document-root = "/nua/app/html"
+# - should auto detect local python project
 
-# src_url = "https://github.com/moinwiki/moin/archive/refs/heads/master.tar.gz"
-# src_git = "https://github.com/moinwiki/moin.git"
+test-cmd = "python -c 'import flask_upload_one'"
 
-# optional build script, default is "build.py" if found
-# build_script = ""
-# optional start script, default is "start.py" if found
-# start_script = ""
-document_root = "/nua/app/html"
 
 [run]
 # parameters passed as a dict to docker run
@@ -43,7 +29,7 @@ type = "volume"
 # Name of the driver used to create the volume: (for type == "volume")
 driver = "local"
 # Mount source (e.g. a volume name or a host path):
-source = "flask_uploads"
+source-prefix = "flask_uploads"
 # Container path:
 target = "/var/tmp/uploads"
 #[[mount.opt]]

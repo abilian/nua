@@ -1,0 +1,8 @@
+{
+    "site": [
+        {
+            "domain": "test.example.com",
+            "image": "nua-flask-upload-one:1.0-3"
+        }
+    ]
+}
