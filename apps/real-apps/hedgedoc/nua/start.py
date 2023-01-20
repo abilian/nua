@@ -1,6 +1,7 @@
 import os
 
 from nua.lib.exec import exec_as_nua
+
 # Nua shortcuts to manage postgres operations
 from nua.runtime.db.postgres_manager import PostgresManager
 

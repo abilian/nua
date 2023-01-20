@@ -12,11 +12,11 @@ import psycopg2
 from flask_pg_dock_psyco.constants import (
     DB_HOST,
     DB_PORT,
-    POSTGRES_PASSWORD,
     USER_DB,
     USER_NAME,
     USER_PASSWORD,
 )
+
 from nua.lib.exec import exec_as_root
 
 # Nua shortcuts to manage postgres operations
@@ -29,7 +29,7 @@ def setup_db():
     In this example The DB is on remote docker container.
     """
     manager = PostgresManager(DB_HOST, DB_PORT, "", "")
-    postgres.setup_db_user(
+    manager.setup_db_user(
         USER_DB,
         USER_NAME,
         USER_PASSWORD,

@@ -5,7 +5,6 @@ from psycopg2.sql import SQL
 from .constants import (
     DB_HOST,
     DB_PORT,
-    POSTGRES_PASSWORD,
     USER_DB,
     USER_NAME,
     USER_PASSWORD,

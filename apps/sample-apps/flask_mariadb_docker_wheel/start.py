@@ -3,7 +3,6 @@
 https://www.digitalocean.com/community/tutorials/
     how-to-use-a-postgresql-database-in-a-flask-application
 """
-
 import os
 
 import mariadb
@@ -14,6 +13,7 @@ from flask_mariadb_docker_wheel.constants import (
     USER_NAME,
     USER_PASSWORD,
 )
+
 from nua.lib.exec import exec_as_root
 
 # Nua shortcuts to manage mariadb:
@@ -79,7 +79,10 @@ def add_content():
 setup_db()
 init_db_content()
 
-cmd = "gunicorn --worker-tmp-dir /dev/shm --workers 2 -b :80 flask_mariadb_docker_wheel.wsgi:app"
+cmd = (
+    "gunicorn --worker-tmp-dir /dev/shm --workers 2 -b :80 "
+    "flask_mariadb_docker_wheel.wsgi:app"
+)
 # exec_as_nua(cmd, env)
 # We need to exec as root to be able to write files in the docker volume.
 exec_as_root(cmd, env=os.environ)

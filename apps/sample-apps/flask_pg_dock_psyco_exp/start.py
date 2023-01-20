@@ -16,6 +16,7 @@ from flask_pg_dock_psyco_exp.constants import (
     USER_NAME,
     USER_PASSWORD,
 )
+
 from nua.lib.exec import exec_as_root
 
 # Nua shortcuts to manage postgres operations
@@ -99,7 +100,10 @@ def add_content():
 setup_db()
 init_db_content()
 
-cmd = "gunicorn --worker-tmp-dir /dev/shm --workers 2 -b :80 flask_pg_dock_psyco_exp.wsgi:app"
+cmd = (
+    "gunicorn --worker-tmp-dir /dev/shm --workers 2 -b :80 "
+    "flask_pg_dock_psyco_exp.wsgi:app"
+)
 # exec_as_nua(cmd, env)
 # We need to exec as root to be able to write files in the docker volume.
 exec_as_root(cmd, env=os.environ)

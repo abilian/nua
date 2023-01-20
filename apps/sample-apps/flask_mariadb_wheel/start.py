@@ -8,6 +8,7 @@ import os
 
 import mariadb
 from flask_mariadb_wheel.constants import DB_HOST, DB_NAME, DB_USER, DB_USER_PWD
+
 from nua.lib.exec import exec_as_root
 
 # Nua shortcuts to manage mariadb:
@@ -71,7 +72,8 @@ setup_db()
 init_db_content()
 
 cmd = (
-    "gunicorn --worker-tmp-dir /dev/shm --workers 2 -b :80 flask_mariadb_wheel.wsgi:app"
+    "gunicorn --worker-tmp-dir /dev/shm --workers 2 -b :80 "
+    "flask_mariadb_wheel.wsgi:app"
 )
 # exec_as_nua(cmd, env)
 # We need to exec as root to be able to write files in the docker volume.

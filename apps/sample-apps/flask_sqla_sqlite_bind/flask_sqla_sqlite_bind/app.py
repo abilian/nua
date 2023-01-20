@@ -15,7 +15,7 @@ db = SQLAlchemy(app)
 
 
 class Student(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    idt = db.Column(db.Integer, primary_key=True)
     firstname = db.Column(db.String(100), nullable=False)
     lastname = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(80), unique=True, nullable=False)
@@ -24,7 +24,7 @@ class Student(db.Model):
     bio = db.Column(db.Text)
 
     def __repr__(self):
-        return f"<Student {self.id} {self.firstname} {self.firstname} {self.age}>"
+        return f"<Student {self.idt} {self.firstname} {self.firstname} {self.age}>"
 
 
 def setup_db():
