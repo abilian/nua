@@ -19,6 +19,7 @@ from nua.lib.console import print_red
 
 # from .db.model.instance import RUNNING
 from nua.lib.panic import abort, info, warning
+from nua.lib.shell import chmod_r, mkdir_p
 from nua.lib.tool.state import verbosity
 
 from . import config
@@ -348,6 +349,16 @@ def docker_volume_create_new(volume: Volume):
     )
 
 
+def docker_volume_create_local_dir(volume: Volume):
+    """For volumes of type "bind", create a local directory on the host if needed.
+
+    This my use more options in future versions."""
+    if Path(volume.source).exists():
+        return
+    mkdir_p(volume.source)
+    chmod_r(volume.source, 0o644, 0o755)
+
+
 # def docker_tmpfs_create(volume_opt: dict):
 #     """Create a new volume of type "tmpfs"."""
 #
@@ -367,13 +378,12 @@ def docker_volume_create_or_use(volume_params: dict):
     "tmpfs".
     """
     volume = Volume.parse(volume_params)
-
     if volume.type == "volume":
-        docker_volume_create(volume)
-    else:
-        # for "bind" or "tmpfs", volumes do not need to be created before
-        # container loading
-        pass
+        return docker_volume_create(volume)
+    if volume.type == "bind":
+        return docker_volume_create_local_dir(volume)
+    # for "tmpfs", volumes do not need to be created before
+    # container loading
 
 
 def docker_volume_prune(volume_opt: dict):
