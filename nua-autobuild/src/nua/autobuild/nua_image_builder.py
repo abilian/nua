@@ -241,7 +241,7 @@ def docker_build_builder_node_tag14(build_path: Path):
 @docker_build_log_error
 def docker_build_builder_node_tag16(build_path: Path):
     with chdir(build_path):
-        # Fixme: there is no way to retrive the precise version before installation...
+        # Fixme: there is no way to retrieve the precise version before installation...
         node_version = "16"
         copy_from_package(
             "nua.autobuild.dockerfiles", DOCKERFILE_BUILDER_NODE16, build_path

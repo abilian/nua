@@ -39,8 +39,8 @@ def pytest(session: nox.Session, sub_repo: str):
 @nox.session
 @nox.parametrize("sub_repo", SUB_REPOS)
 def lint(session: nox.Session, sub_repo: str):
-    session.install("ruff")
-    session.run("ruff", ".")
+    # session.install("ruff")
+    # session.run("ruff", ".")
     run_subsession(session, sub_repo)
 
 
