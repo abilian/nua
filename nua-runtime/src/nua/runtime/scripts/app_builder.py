@@ -78,6 +78,8 @@ class BuilderApp:
             else:
                 # Use the root folder (where is the nua-config.toml file)
                 self.nua_dir = self.build_dir
+            if verbosity(2):
+                print("self.nua_dir:", self.nua_dir)
             return
         # Provided path must exist (or should have failed earlier)
         self.nua_dir = self.build_dir / nua_dir
@@ -87,7 +89,7 @@ class BuilderApp:
         self.make_dirs()
         with chdir(self.config.root_dir):
             self.pre_build()
-            self.detect_and_run_build()
+            self.detect_and_build_project()
             self.post_build()
         self.test_build()
 
@@ -134,13 +136,19 @@ class BuilderApp:
     def make_start_script(self):
         script_dir = Path(NUA_SCRIPTS_PATH)
         script_dir.mkdir(mode=0o755, parents=True, exist_ok=True)
-        start_script = self.config.build.get("start_script", "start.py")
+        start_script = self.config.build.get("start_script")
         if not start_script:
             start_script = "start.py"
-        orig = self.nua_dir / start_script
-        if orig.is_file():
-            copy2(orig, script_dir)
+        expected = self.nua_dir / start_script
+        if verbosity(3):
+            print("find start_script path:", expected)
+        if expected.is_file():
+            if verbosity(2):
+                print("Copying start script:", expected)
+            copy2(expected, script_dir)
         else:
+            if verbosity(2):
+                print("Copying default start script")
             copy_from_package("nua.runtime.defaults", "start.py", script_dir)
 
     def find_build_script(self) -> Path | None:
@@ -173,7 +181,7 @@ class BuilderApp:
             cmd = f"python {script_path}"
             sh(cmd, env=env, timeout=1800)
 
-    def detect_and_run_build(self):
+    def detect_and_build_project(self):
         """Detect the build method and apply.
         (WIP)
 
@@ -184,14 +192,15 @@ class BuilderApp:
         installed = install_pip_packages(self.config.pip_install)
         if self.find_build_script():
             return self.run_build_script()
-        elif self.config.project:
+        if self.config.project:
             return project_install(self.config.project)
+        if self.config.src_url:
+            return project_install(self.config.src_url)
         if not installed:
             # no package installed through install_pip_packages and
             # no other way. Let's assume there is a local project.
             show("Try install from some local project")
             project_install(".")
-        # warning("No build method detected")
 
 
 def main() -> None:

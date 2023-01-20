@@ -10,7 +10,7 @@ from nua.lib.panic import abort
 from .constants import NUA_CONFIG_EXT, NUA_CONFIG_STEM
 
 REQUIRED_BLOCKS = ["metadata"]
-REQUIRED_METADATA = ["id", "version", "title", "author", "licence"]
+REQUIRED_METADATA = ["id", "version", "title", "author", "license"]
 OPTIONAL_METADATA = ["tagline", "website", "tags", "profile", "release", "changelog"]
 
 
@@ -75,6 +75,8 @@ class NuaConfig:
                 abort(f"Missing mandatory block in {self.path}: '{block}'")
         if "build" not in self._data:
             self._data["build"] = {}
+        if "license" not in self.metadata and "licence" in self.metadata:
+            self.metadata["license"] = self.metadata["licence"]
         for key in REQUIRED_METADATA:
             if key not in self._data["metadata"]:
                 abort(f"Missing mandatory metadata in {self.path}: '{key}'")
@@ -95,7 +97,11 @@ class NuaConfig:
 
     @property
     def src_url(self) -> str:
-        if base := self.metadata.get("src_url"):
+        if "src-url" not in self.metadata and "src_url" in self.metadata:
+            base = self.metadata.get("src_url")
+        else:
+            base = self.metadata.get("src-url")
+        if base:
             return base.format(**self.metadata)
         return ""
 
@@ -124,7 +130,9 @@ class NuaConfig:
     @property
     def project(self) -> str:
         """The project URL to build with autodetection."""
-        return self.build.get("project", "")
+        if base := self.build.get("project"):
+            return base.format(**self.metadata)
+        return ""
 
     @property
     def build_packages(self) -> list:

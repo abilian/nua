@@ -193,16 +193,21 @@ class Builder:
         if self.config.src_url:
             # We have some src_rul defined, so only copy local files from nua_dir
             # (if not defined, it still will be the full local directory)
-            self.manifest = [self.nua_dir]
+            if self.nua_dir == self.config.root_dir:
+                self.manifest_from_root_dir()
+            else:
+                self.manifest = [self.nua_dir]
             return
         # Finally, consider that local directory is the source directory: copy all.
-        self.manifest_from(self.config.root_dir)
+        self.manifest_from_root_dir()
 
-    def manifest_from(self, folder: Path):
+    def manifest_from_root_dir(self):
         """Get the list of files and directory without invalid hidden files."""
+        if verbosity(3):
+            print("manifest from:", self.config.root_dir)
         self.manifest = [
             file
-            for file in folder.glob("*")
+            for file in self.config.root_dir.glob("*")
             if not file.name.startswith(".")
             and file.name != "__pycache__"
             and file.name not in list(nua_config_names())
