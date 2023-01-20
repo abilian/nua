@@ -1,7 +1,7 @@
 [metadata]
 id = "hedgedoc"
 version = "1.9.6"
-release = 11
+release = 12
 title = "Hedgedoc"
 author = "Hedgedoc developers"
 tagline = "Nua test with Hedgedoc"
@@ -17,7 +17,7 @@ node = ">=14.13.1,<17"
 
 [build]
 
-meta-packages = ["psycopg2"]
+meta-packages = ["postgres-client"]
 
 packages = [
     "fontconfig",
@@ -34,6 +34,7 @@ build-packages = [
     "git",
 ]
 
+test-cmd = "test -f /nua/build/hedgedoc/healthcheck.mjs"
 
 [[assign]]
 key = "POSTGRES_PASSWORD"
