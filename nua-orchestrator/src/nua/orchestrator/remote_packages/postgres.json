@@ -1,0 +1,25 @@
+{
+    "postgres": [
+        {
+            "version": "15.1",
+            "arch": "amd64",
+            "link": "docker.io/library/postgres:15.1"
+        }, {
+            "version": "14.6",
+            "arch": "amd64",
+            "link": "docker.io/library/postgres:14.6"
+        }, {
+            "version": "13.9",
+            "arch": "amd64",
+            "link": "docker.io/library/postgres:13.9"
+        }, {
+            "version": "12.13",
+            "arch": "amd64",
+            "link": "docker.io/library/postgres:12.13"
+        }, {
+            "version": "11.18",
+            "arch": "amd64",
+            "link": "docker.io/library/postgres:11.18"
+        }
+    ]
+}
