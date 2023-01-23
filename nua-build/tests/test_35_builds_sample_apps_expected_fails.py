@@ -6,7 +6,7 @@ from nua.runtime.nua_config import NuaConfig
 
 from .build_image import build_test_image_expect_fail
 
-root_dir = Path(__file__).parent / "sample-apps-expected-fail"
+root_dir = Path(__file__).parent / "data" / "sample-apps-expected-fail"
 app_dirs = [dir.name for dir in root_dir.iterdir() if dir.is_dir()]
 
 
@@ -19,6 +19,6 @@ def test_build_app(dir_name: str):
 
 
 def test_missing_license():
-    config_path = Path(__file__).parent / "config_missing_licence"
+    config_path = Path(__file__).parent / "data" / "config_missing_licence"
     with pytest.raises(SystemExit):
         _config = NuaConfig(config_path)  # noqa F841

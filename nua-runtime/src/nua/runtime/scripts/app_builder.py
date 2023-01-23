@@ -136,33 +136,39 @@ class BuilderApp:
     def make_start_script(self):
         script_dir = Path(NUA_SCRIPTS_PATH)
         script_dir.mkdir(mode=0o755, parents=True, exist_ok=True)
-        start_script = self.config.build.get("start_script")
-        if not start_script:
-            start_script = "start.py"
-        expected = self.nua_dir / start_script
-        if verbosity(3):
-            print("find start_script path:", expected)
-        if expected.is_file():
+        path = self.find_start_script()
+        if path:
             if verbosity(2):
-                print("Copying start script:", expected)
-            copy2(expected, script_dir)
+                print("Copying start script:", path)
+            copy2(path, script_dir)
         else:
             if verbosity(2):
                 print("Copying default start script")
             copy_from_package("nua.runtime.defaults", "start.py", script_dir)
 
+    def find_start_script(self) -> Path | None:
+        name = self.config.build.get("start_script")
+        if not name:
+            name = "start.py"
+        path = self.nua_dir / name
+        path = path.absolute().resolve()
+        if path.is_file():
+            if verbosity(3):
+                print("found start_script path:", path)
+            return path
+        return None
+
     def find_build_script(self) -> Path | None:
-        build_script = self.config.build.get("build_script", "build.py")
-        if not build_script:
-            build_script = "build.py"
-        script_path = self.nua_dir / build_script
-        script_path = script_path.absolute().resolve()
-        if script_path.is_file():
-            info(f"run build script: {script_path}")
-            return script_path
-        else:
-            show("No build script found")
-            return None
+        name = self.config.build.get("build_script")
+        if not name:
+            name = "build.py"
+        path = self.nua_dir / name
+        path = path.absolute().resolve()
+        if path.is_file():
+            if verbosity(3):
+                info(f"found build script: {path}")
+            return path
+        return None
 
     def run_build_script(self):
         """Process the 'build.py' script if exists.

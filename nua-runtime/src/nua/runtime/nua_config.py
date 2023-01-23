@@ -34,7 +34,9 @@ class NuaConfig:
             path = "."
         self._find_config_file(path)
         self._loads_config()
-        self._check()
+        self._check_required_blocks()
+        self._fix_spelling()
+        self._check_required_metadata()
         self.root_dir = self.path.parent
 
     def _find_config_file(self, path: Path | str) -> None:
@@ -69,14 +71,18 @@ class NuaConfig:
             encoding="utf8",
         )
 
-    def _check(self):
+    def _check_required_blocks(self):
         for block in REQUIRED_BLOCKS:
             if block not in self._data:
                 abort(f"Missing mandatory block in {self.path}: '{block}'")
         if "build" not in self._data:
             self._data["build"] = {}
+
+    def _fix_spelling(self):
         if "license" not in self.metadata and "licence" in self.metadata:
             self.metadata["license"] = self.metadata["licence"]
+
+    def _check_required_metadata(self):
         for key in REQUIRED_METADATA:
             if key not in self._data["metadata"]:
                 abort(f"Missing mandatory metadata in {self.path}: '{key}'")

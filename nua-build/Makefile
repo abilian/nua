@@ -40,7 +40,7 @@ lint: ## check style
 	flake8 $(SRC) tests
 	isort --check $(SRC) tests
 	black --check $(SRC) tests
-	mypy $(SRC) tests
+	mypy $(SRC) tests --exclude /tests/data/
 	pyright
 	deptry .
 
