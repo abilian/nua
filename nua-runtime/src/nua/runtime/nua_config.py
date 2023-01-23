@@ -141,6 +141,11 @@ class NuaConfig:
         return ""
 
     @property
+    def resource(self) -> list:
+        """The list of resources (tag 'resource')."""
+        return self._data.get("resource", [])
+
+    @property
     def build_packages(self) -> list:
         if "build-packages" not in self.build and "build_packages" in self.build:
             return self.build.get("build_packages", [])

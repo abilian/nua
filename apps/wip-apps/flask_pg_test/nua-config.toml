@@ -1,0 +1,46 @@
+[metadata]
+id = "flask-pg-test"
+version = "1.0"
+release = 1
+title = "test feature"
+author = "Nua testers"
+tagline = "test feature"
+website = "https://nua.rocks/"
+tags = ["test", "html", "web", "static", "plugin", "PostgreSQL", "docker", "psycopg2"]
+licence = "MIT"
+
+[build]
+document_root = "/nua/app/html"
+project = "."
+test-cmd = "python -c 'import flask_pg_test'"
+
+[[assign]]
+key = "POSTGRES_PASSWORD"
+random_str = true
+
+[[assign]]
+key = "USER_PASSWORD"
+random_str = true
+
+[run]
+restart_policy.name = "always"
+
+[run.env]
+# using default port of postgres, directly addressing the postgres docker container.
+# DB_HOST for the resource "database" will be found in the env variable NUA_DATABASE_HOST
+DB_PORT = "5432"
+# Postgres password of the "remote" resource DB:
+USER_DB = "bob_db"
+USER_NAME = "bob"
+
+
+[port.web]
+# publication port of the app inside the container
+container = 80
+
+[[resource]]
+# declaration of the required image for the resource, here the official Postgres
+# Docker image
+name = "database"
+type = "postgres"
+version = ">=14, <15"

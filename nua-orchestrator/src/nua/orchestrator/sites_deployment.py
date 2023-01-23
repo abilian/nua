@@ -179,6 +179,7 @@ class SitesDeployment:
     def configure(self):
         self.set_network_names()
         self.merge_instances_to_resources()
+        self.configure_requested_db()
         self.set_volumes_names()
         self.check_required_local_resources()
         for site in self.sites:
@@ -440,6 +441,11 @@ class SitesDeployment:
             site.merge_instance_to_resources()
         if verbosity(3):
             print("merge_instances_to_resources() done")
+
+    def configure_requested_db(self):
+        for site in self.sites:
+            for resource in site.resources:
+                resource.configure_requested_db()
 
     def set_volumes_names(self):
         for site in self.sites:

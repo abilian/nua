@@ -77,3 +77,18 @@ def parse_any_format(path: Path) -> dict:
         return yaml.safe_load(content)
     else:
         raise ValueError(f"Unknown file extension for '{path}'")
+
+
+def base20(value: int) -> str:
+    """Display integer as base N."""
+    chars = "bcdfghjklmnpqrstvwxz"
+    if value < 0:
+        raise ValueError("Value must be positive")
+    b20 = []
+    while True:
+        value, remain = divmod(value, len(chars))
+        b20.append(remain)
+        if not value:
+            break
+    b20.reverse()
+    return "".join(chars[x] for x in b20)

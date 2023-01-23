@@ -22,6 +22,7 @@ from .docker_utils import (
     docker_volume_create_or_use,
     docker_volume_prune,
 )
+from .higher_package import higher_package
 from .internal_secrets import secrets_dict
 from .net_utils.ports import check_port_available
 from .resource import Resource
@@ -238,9 +239,30 @@ def pull_resource_container(resource: Resource) -> bool:
 
     Currrently: only managing Docker bridge network.
     """
-    if resource.type != "docker":
-        warning(f"Unknown resource type: {resource.type}")
-        return True
+    if resource.type == "docker":
+        return _pull_resource_docker(resource)
+    if resource.type == "postgres":
+        return _pull_resource_postgres(resource)
+    warning(f"Unknown resource type: {resource.type}")
+    return True
+
+
+def _pull_resource_postgres(resource: Resource) -> bool:
+    """Define the required postgres image and pull it."""
+    package_name = "postgres"
+    pull_link = higher_package(package_name, resource.version)
+    if not pull_link:
+        warning(
+            "Impossible to find a resource link for "
+            f"'{package_name} version {resource.version}'"
+        )
+        return False
+    resource.image = pull_link["link"]
+    return _pull_resource_docker(resource)
+
+
+def _pull_resource_docker(resource: Resource) -> bool:
+    """Retrieve a resource container or get reference from cache."""
     if resource.image not in PULLED_IMAGES:
         _actual_pull_container(resource)
     if resource.image not in PULLED_IMAGES:

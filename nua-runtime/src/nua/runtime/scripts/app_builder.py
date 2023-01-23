@@ -93,8 +93,19 @@ class BuilderApp:
             self.post_build()
         self.test_build()
 
+    def infer_meta_packages(self) -> list:
+        """Return packages inferred from the nua-config requirements."""
+        inferred = []
+        for resource in self.config.resource:
+            if resource.get("type", "") == "postgres":
+                inferred.append("postgres-client")
+        if inferred and verbosity(2):
+            print(f"Inferred meta packages: {inferred}")
+        return inferred
+
     def pre_build(self):
-        """Process installation of packages prior to unning install script."""
+        """Process installation of packages prior to running install script."""
+        install_meta_packages(self.infer_meta_packages(), keep_lists=True)
         install_meta_packages(self.config.meta_packages, keep_lists=True)
         install_packages(self.config.packages, keep_lists=True)
 

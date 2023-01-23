@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "flask_pg_dock_create_db"
+name = "flask_pg_test"
 version = "1.0"
-description = "Flask test with postgres docker image"
+description = "test features"
 authors = ["Jerome Dumonteil <jd@abilian.com>"]
 license = "MIT"
 

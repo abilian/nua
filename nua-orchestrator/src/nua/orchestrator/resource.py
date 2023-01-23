@@ -58,11 +58,19 @@ class Resource(dict):
 
     @property
     def image(self) -> str:
-        return self["image"]
+        return self.get("image") or ""
 
     @image.setter
     def image(self, image: str):
         self["image"] = image
+
+    @property
+    def version(self) -> str:
+        return self.get("version") or ">0"
+
+    @version.setter
+    def version(self, version: str):
+        self["version"] = version
 
     @property
     def service(self) -> str:
@@ -379,9 +387,7 @@ class Resource(dict):
 
         Basic: using a docker container as resource probably implies need of network.
         """
-        if self.type == "docker":
-            return True
-        return False
+        return self.type in {"docker", "postgres"}
 
     def environment_ports(self) -> dict:
         """Return exposed ports and resource host (container name) as env
@@ -430,3 +436,19 @@ class Resource(dict):
             reports.append(backup_volume(volume))
         reports.append(backup_resource(self))
         return reports
+
+    def configure_requested_db(self):
+        """Automatic configuration of containers for DB resources.
+        (WIP)"""
+        if self.type == "postgres":
+            self._configure_requested_postgres()
+
+    def _configure_requested_postgres(self):
+        print("=========== _configure_requested_postgres   ===============")
+        print(self)
+        print("==========================")
+        # create volume
+        volume = Volume()
+        volume.type = "volume"
+        volume.driver = "local"
+        volume.source_prefix = "todo"

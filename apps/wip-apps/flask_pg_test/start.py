@@ -9,7 +9,7 @@ https://www.digitalocean.com/community/tutorials/how-to-use-a-postgresql-databas
 import os
 
 import psycopg2
-from flask_pg_dock_create_db.constants import (
+from flask_pg_test.constants import (
     DB_HOST,
     DB_PORT,
     POSTGRES_PASSWORD,
@@ -17,7 +17,6 @@ from flask_pg_dock_create_db.constants import (
     USER_NAME,
     USER_PASSWORD,
 )
-
 from nua.lib.exec import exec_as_root
 
 # Nua shortcuts to manage postgres operations

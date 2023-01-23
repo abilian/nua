@@ -314,12 +314,42 @@ def docker_exec_stdout(
         output.write(data[0])
 
 
+def docker_exec(container: Container, params: dict) -> bool:
+    """Wrapper on top of the py-docker exec_run() command, without capturing the
+    output.
+
+    Defaults are:
+    cmd, stdout=False, stderr=False, stdin=False, tty=False, privileged=False,
+    user='', detach=False, stream=False, socket=False, environment=None,
+    workdir=None, demux=False
+
+    Returns:
+    """
+    cmd = params["cmd"]
+    user = params.get("user", "")
+    workdir = params.get("workdir")
+    _, stream = container.exec_run(
+        cmd=cmd,
+        user=user,
+        workdir=workdir,
+        stream=False,
+        stdout=False,
+        stderr=False,
+        demux=True,
+    )
+
+
 def test_docker_exec(container: Container):
-    path = Path(f"/var/tmp/test_{container.name}.txt")
-    print(f"test_docker_exec() for {path}")
+    # path = Path(f"/var/tmp/test_{container.name}.txt")
+    # print(f"test_docker_exec() for {path}")
     params = {"cmd": "find /nua"}
-    with open(path, "wb") as output:
-        docker_exec_stdout(container, params, output)
+    try:
+        # with open(path, "wb") as output:
+        # docker_exec_stdout(container, params, output)
+        docker_exec(container, params)
+    except APIError as e:
+        print(e)
+        raise RuntimeError(f"Test of container failed:\ndocker logs {container.id}")
 
 
 def docker_volume_list(name: str) -> list:
