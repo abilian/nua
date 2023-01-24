@@ -37,7 +37,7 @@ from .nginx_util import (
     configure_nginx_hostname,
     nginx_restart,
 )
-from .resource import Resource
+from .resource import DOCKER_TYPE, Resource
 from .services import Services
 from .site import Site
 from .utils import load_module_function, parse_any_format
@@ -553,7 +553,7 @@ class SitesDeployment:
         Site.container_name is always available.
         """
         for resource in site.resources:
-            if resource.type == "docker":
+            if resource.type in DOCKER_TYPE:
                 name = f"{site.container_name}-{resource.base_name}"
                 # - code will be renamed to container_name
                 # - See if we tryst Docker to overwrite this variable
@@ -588,7 +588,7 @@ class SitesDeployment:
 
     def start_resources_containers(self, site: Site):
         for resource in site.resources:
-            if resource.type == "docker":
+            if resource.type in DOCKER_TYPE:
                 mounted_volumes = mount_resource_volumes(resource)
                 start_one_container(resource, mounted_volumes)
                 # until we check startup of container or set value in parameters...
