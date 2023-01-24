@@ -149,6 +149,8 @@ def installed_nua_settings() -> dict:
         setting = (
             session.query(Setting).filter_by(app_id=NUA_ORCH_ID, instance="").first()
         )
+        if not setting:
+            return {}
         return setting.data or {}
 
 
