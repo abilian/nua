@@ -59,7 +59,7 @@ class SitesDeployment:
         deployer.local_services_inventory()
         deployer.load_deploy_config(deploy_config)
         deployer.gather_requirements()
-        deployer.configure()
+        deployer.configure_sites()
         deployer.deactivate_previous_sites()
         deployer.apply_configuration()
         deployer.start_sites()
@@ -176,7 +176,7 @@ class SitesDeployment:
         self.install_required_images()
         self.install_required_resources()
 
-    def configure(self):
+    def configure_sites(self):
         self.set_network_names()
         self.merge_instances_to_resources()
         self.configure_requested_db()

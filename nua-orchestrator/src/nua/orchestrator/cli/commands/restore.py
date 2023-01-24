@@ -32,7 +32,7 @@ def restore_nua_sites_replay():
     deployer.local_services_inventory()
     deployer.restore_previous_deploy_config_replay()
     deployer.gather_requirements()
-    deployer.configure()
+    deployer.configure_sites()
     deployer.restore_deactivate_previous_sites()
     deployer.apply_configuration()
     deployer.start_sites()
