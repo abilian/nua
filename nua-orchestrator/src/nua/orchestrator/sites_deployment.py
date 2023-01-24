@@ -741,8 +741,7 @@ class SitesDeployment:
             content = site.persistent_full_dict()
             if content:
                 print_green("Persistent generated variables:")
-                for key, val in content.items():
-                    info(f"    {key}: {val}")
+                print(pformat(content))
 
     def display_used_volumes(self):
         if not verbosity(1):
