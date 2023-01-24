@@ -109,7 +109,7 @@ class Site(Resource):
     def persistent(self, name: str) -> Persistent:
         """Return Persistent instance for resource of name 'name'.
 
-        Use name = '' for main site
+        Use name = '' for main site.
         """
         if "persistent" not in self:
             self["persistent"] = {}
@@ -119,7 +119,7 @@ class Site(Resource):
     def set_persistent(self, persistent: Persistent):
         if "persistent" not in self:
             self["persistent"] = {}
-        self["persistent"][persistent.name] = persistent.as_dict()
+        self["persistent"].update(persistent.as_dict())
 
     def persistent_full_dict(self) -> dict:
         if "persistent" not in self:
