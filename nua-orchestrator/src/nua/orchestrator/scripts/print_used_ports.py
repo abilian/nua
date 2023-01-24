@@ -2,11 +2,11 @@
 from pprint import pprint
 
 from ..db import store
-from ..db_setup import setup_db
+from ..nua_db_setup import setup_nua_db
 
 
 def main():
-    setup_db()
+    setup_nua_db()
     used_domain_ports = store.ports_instances_domains()
     pprint(used_domain_ports)
 

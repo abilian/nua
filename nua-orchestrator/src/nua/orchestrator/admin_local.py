@@ -7,7 +7,7 @@ from nua.lib.panic import abort
 from paramiko import RSAKey
 
 from nua.orchestrator.db import store
-from nua.orchestrator.db_setup import setup_db
+from nua.orchestrator.nua_db_setup import setup_nua_db
 
 
 def generate_rsa_host_key(bits=4096) -> RSAKey:
@@ -36,7 +36,7 @@ def private_key_blob_from_key(key: RSAKey, password: str | None = None) -> str:
 
 
 def print_local_nua_config():
-    setup_db()
+    setup_nua_db()
     settings = store.installed_nua_settings()
     print(pformat(settings))
 
@@ -47,7 +47,7 @@ def set_new_host_key():
     print("Generating RSA key (4096 bits) for Nua host...")
     new_key = generate_rsa_host_key()
     blob = private_key_blob_from_key(new_key)
-    setup_db()
+    setup_nua_db()
     settings = store.installed_nua_settings()
     settings["host"]["host_priv_key_blob"] = blob
     store.set_nua_settings(settings)
@@ -63,7 +63,7 @@ def set_new_host_key_from_file():
         abort(f"File not found (or not access granted): {str(path)}")
     key = RSAKey(filename=path)
     blob = private_key_blob_from_key(key)
-    setup_db()
+    setup_nua_db()
     settings = store.installed_nua_settings()
     settings["host"]["host_priv_key_blob"] = blob
     store.set_nua_settings(settings)

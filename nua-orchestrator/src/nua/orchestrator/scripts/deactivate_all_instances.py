@@ -1,12 +1,12 @@
 """For debug, remove all sites instances."""
 from nua.lib.tool.state import set_verbosity
 
-from ..db_setup import setup_db
 from ..deploy_utils import deactivate_all_instances
+from ..nua_db_setup import setup_nua_db
 
 
 def main():
-    setup_db()
+    setup_nua_db()
     set_verbosity(2)
     deactivate_all_instances()
 

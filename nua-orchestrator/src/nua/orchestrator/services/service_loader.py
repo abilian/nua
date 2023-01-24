@@ -6,9 +6,9 @@ from nua.lib.console import print_red
 from ..db import store
 
 # def test():
-#     from .db_setup import setup_db
+#     from .nua_db_setup import setup_nua_db
 #
-#     setup_db()
+#     setup_nua_db()
 #     s = Services()
 #     s.load()
 #     s.list()

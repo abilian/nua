@@ -125,7 +125,7 @@ class SitesDeployment:
         the host, like local databases."""
         # See later
         return
-        # assuming db_setup was run at initialization of the command
+        # assuming nua_db_setup was run at initialization of the command
         services = Services()
         services.load()
         self.available_services = services.loaded

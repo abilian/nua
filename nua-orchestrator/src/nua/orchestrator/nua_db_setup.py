@@ -21,7 +21,7 @@ from .db.session import configure_session
 from .util.deep_access_dict import DeepAccessDict
 
 
-def setup_db():
+def setup_nua_db():
     """Create the db if needed and also populate the configuration from both db
     values and default parameters."""
     find_db_url()

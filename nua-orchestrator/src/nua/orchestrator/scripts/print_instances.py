@@ -2,11 +2,11 @@
 from pprint import pprint
 
 from ..db import store
-from ..db_setup import setup_db
+from ..nua_db_setup import setup_nua_db
 
 
 def main():
-    setup_db()
+    setup_nua_db()
     instances = store.list_instances_all()
     for instance in instances:
         pprint(instance.to_dict())

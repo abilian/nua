@@ -15,7 +15,7 @@ from nua.lib.tool.state import set_color, set_verbosity
 from .. import __version__
 from ..db import store
 from ..db.store import installed_nua_settings, list_all_settings
-from ..db_setup import setup_db
+from ..nua_db_setup import setup_nua_db
 from ..search_cmd import search_nua_print
 from .commands.backup import backup_all, deployed_config
 from .commands.deploy import deploy_nua_sites
@@ -80,7 +80,7 @@ def initialization():
         raise typer.Exit(1)
     if is_initialized:
         return
-    setup_db()
+    setup_nua_db()
     is_initialized = True
 
 

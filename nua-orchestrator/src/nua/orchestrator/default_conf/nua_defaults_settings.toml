@@ -14,12 +14,14 @@
     docker_kill_timeout = 5
     docker_run_timeout = 10
     nginx_wait_after_restart = 1
+[counter]
+    user = 0
 [backup]
     location = "/home/nua/backups"
 [ports]
     # todo: use a list of ranges
     start = 8100
-    end = 8200
+    end = 9000
 [server]
     log_file = "//home/nua/log/nua_orchestrator.log"
 [[container]]
