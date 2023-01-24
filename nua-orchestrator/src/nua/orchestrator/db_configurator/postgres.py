@@ -12,7 +12,7 @@ def configure(resource: Resource):
     # docker params:
     resource.run = {"detach": True, "restart_policy": {"name": "always"}}
     # env
-    resource.run_env = {"DB_PORT": "5432"}
+    resource.run_env = {"POSTGRES_PORT": "5432"}
     # assign keys in (env) for create or retrieve persistent values
     # Note: POSTGRES_DB could be same as POSTGRES_USER, but prefer to assign both
     # to let the using app retrieving the both values if needed.
@@ -20,6 +20,7 @@ def configure(resource: Resource):
         {"key": "POSTGRES_PASSWORD", "random_str": True, "persist": True},
         {"key": "POSTGRES_USER", "unique_user": True, "persist": True},
         {"key": "POSTGRES_DB", "unique_db": True, "persist": True},
+        {"key": "USER_PASSWORD", "random_str": True, "persist": True},
     ]
 
 

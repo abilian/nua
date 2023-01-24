@@ -16,23 +16,35 @@ test-cmd = "python -c 'import flask_pg_test'"
 
 [[assign]]
 key = "POSTGRES_PASSWORD"
-random_str = true
+resource_property = "database.POSTGRES_PASSWORD"
+
+[[assign]]
+key = "DB_PORT"
+resource_property = "database.POSTGRES_PORT"
+
+[[assign]]
+key = "USER_DB"
+resource_property = "database.POSTGRES_USER"
+
+[[assign]]
+key = "USER_NAME"
+resource_property = "database.POSTGRES_DB"
 
 [[assign]]
 key = "USER_PASSWORD"
-random_str = true
+resource_property = "database.USER_PASSWORD"
 
 [run]
 restart_policy.name = "always"
-
-[run.env]
-# using default port of postgres, directly addressing the postgres docker container.
-# DB_HOST for the resource "database" will be found in the env variable NUA_DATABASE_HOST
-DB_PORT = "5432"
-# Postgres password of the "remote" resource DB:
-USER_DB = "bob_db"
-USER_NAME = "bob"
-
+#
+# [run.env]
+# # using default port of postgres, directly addressing the postgres docker container.
+# # DB_HOST for the resource "database" will be found in the env variable NUA_DATABASE_HOST
+# DB_PORT = "5432"
+# # Postgres password of the "remote" resource DB:
+# USER_DB = "bob_db"
+# USER_NAME = "bob"
+#
 
 [port.web]
 # publication port of the app inside the container
