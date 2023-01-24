@@ -9,9 +9,10 @@ def configure(resource: Resource):
     # create volume:
     resource.volume = [_make_volume(resource)]
     # other options
-    resource.run_env["detach"] = True
-    resource.run_env["restart_policy"] = {}
-    resource.run_env["restart_policy"]["name"] = "always"
+    # docker params:
+    resource.run = {"detach": True, "restart_policy": {"name": "always"}}
+    # env
+    resource.run_env = {"DB_PORT": "5432"}
     # assign keys in (env) for create or retrieve persistent values
     # Note: POSTGRES_DB could be same as POSTGRES_USER, but prefer to assign both
     # to let the using app retrieving the both values if needed.

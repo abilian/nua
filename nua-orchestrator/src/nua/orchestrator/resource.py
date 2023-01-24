@@ -125,6 +125,14 @@ class Resource(dict):
         self["hostname"] = hostname
 
     @property
+    def run(self) -> dict:
+        return self.get("run", {})
+
+    @run.setter
+    def run(self, run: dict):
+        self["run"] = run
+
+    @property
     def run_params(self) -> dict:
         return self.get("run_params", {})
 
