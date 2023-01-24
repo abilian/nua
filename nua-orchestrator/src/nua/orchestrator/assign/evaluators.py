@@ -48,6 +48,16 @@ def persistent_value(func):
     return wrapper
 
 
+def no_persistent_value(func):
+    """Dummy wrapper to remove thirf argument."""
+
+    @wraps(func)
+    def wrapper(resource: Resource, requirement: dict, _persistent: Persistent) -> Any:
+        return func(resource, requirement)
+
+    return wrapper
+
+
 @persistent_value
 def random_str(resource: Resource, requirement: dict) -> dict:
     """Send a password.
@@ -81,6 +91,7 @@ def unique_db(resource: Resource, requirement: dict) -> dict:
     return {requirement[KEY]: generate_new_db_id()}
 
 
+@no_persistent_value
 def resource_property(rsite: Resource, requirement: dict) -> dict:
     values = requirement[RESOURCE_PROPERTY].split(".")
     if len(values) != 2:
@@ -90,6 +101,8 @@ def resource_property(rsite: Resource, requirement: dict) -> dict:
         if resource.resource_name != resource_name:
             continue
         # first try in environ variables of differnt kinds
+        print(prop)
+        print(resource.run_env)
         if prop in resource.run_env:
             value = resource.run_env[prop]
         elif hasattr(resource, prop):
@@ -106,6 +119,7 @@ def resource_property(rsite: Resource, requirement: dict) -> dict:
     return {}
 
 
+@no_persistent_value
 def resource_host(rsite: Resource, requirement: dict) -> dict:
     """Return a dict whose key is an environment variable name and value the
     hostname of a resource (a container)."""
@@ -118,6 +132,7 @@ def resource_host(rsite: Resource, requirement: dict) -> dict:
     return {}
 
 
+@no_persistent_value
 def site_environment(rsite: Resource, requirement: dict) -> dict:
     variable = requirement[SITE_ENVIRONMENT] or ""
     # The resource environment was juste completed wth Site's environment:
@@ -128,6 +143,7 @@ def site_environment(rsite: Resource, requirement: dict) -> dict:
     return {}
 
 
+@no_persistent_value
 def nua_internal(rsite: Resource, requirement: dict) -> dict:
     """Retrieve key from nua_internal values, do not store the value in
     instance configuration.

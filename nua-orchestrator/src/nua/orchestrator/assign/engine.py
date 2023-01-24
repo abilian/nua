@@ -49,7 +49,7 @@ def instance_key_evaluator(
         destination_key = requirement["key"]
         function = required_function(requirement, late_evaluation)
         if function:
-            result = function(resource, requirement)
+            result = function(resource, requirement, persistent)
             if verbosity(2):
                 info(f"generated value: {result}")
         else:

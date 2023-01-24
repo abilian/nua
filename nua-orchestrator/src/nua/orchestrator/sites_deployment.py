@@ -569,10 +569,20 @@ class SitesDeployment:
         - Resource assignement (they have access to site ENV)
         - late evaluation (hostnames)
         """
+        env = {}
+        for resource in site.resources:
+            if (
+                resource.is_assignable()
+                and resource.assign_priority < site.assign_priority
+            ):
+                self.generate_resource_container_run_parameters(site, resource, env)
         self.generate_site_container_run_parameters(site)
         env = site.run_params["environment"]
         for resource in site.resources:
-            if resource.is_assignable():
+            if (
+                resource.is_assignable()
+                and resource.assign_priority >= site.assign_priority
+            ):
                 self.generate_resource_container_run_parameters(site, resource, env)
 
     def retrieve_persistent(self, site: Site):

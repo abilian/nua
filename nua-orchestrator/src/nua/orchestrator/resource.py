@@ -94,6 +94,14 @@ class Resource(dict):
         self["assign"] = assign_list
 
     @property
+    def assign_priority(self) -> int:
+        return self.get("assign_priority", 10)
+
+    @assign_priority.setter
+    def assign_priority(self, assign_priority: int):
+        self["assign_priority"] = assign_priority
+
+    @property
     def domain(self) -> str:
         return self.get("domain", "")
 
