@@ -1,14 +1,18 @@
-"""Functions to respond to requirement from instance declarations."""
+"""Functions to respond to requirement from instance declarations.
 
-from copy import deepcopy
+All evaluation function must have same 2 arguments:
+    function(resource, requirement)
+but call through wrapper uses a third argument: 'persistent'
+
+"""
 from functools import wraps
 from typing import Any
 
 from nua.lib.panic import abort, warning
 from nua.runtime.gen_password import gen_password
 
+from ..persistent import Persistent
 from ..resource import Resource
-from ..site import Site
 from .db_utils import generate_new_db_id, generate_new_user_id
 
 # keys of nua-config file:
@@ -28,27 +32,24 @@ def persistent_value(func):
     """
 
     @wraps(func)
-    def wrapper(site: Site, requirement: dict) -> Any:
+    def wrapper(resource: Resource, requirement: dict, persistent: Persistent) -> Any:
         if requirement.get(PERSISTENT, True):
-            value = site.persistent.get(requirement[KEY])
+            value = persistent.get(requirement[KEY])
             if value is None:
-                result = func(site, requirement)
-                site.persistent[requirement[KEY]] = result[requirement[KEY]]
+                result = func(resource, requirement)
+                persistent[requirement[KEY]] = result[requirement[KEY]]
             else:
                 result = {requirement[KEY]: value}
             return result
-        # persistent is False: erase past value if needed
-        if requirement[KEY] in site.persistent:
-            persist = deepcopy(site.persistent)
-            del persist[requirement[KEY]]
-            site.persistent = persist
-        return func(site, requirement)
+        # persistent is False: erase past value if needed then return computed value
+        persistent.delete(requirement[KEY])
+        return func(resource, requirement)
 
     return wrapper
 
 
 @persistent_value
-def random_str(site: Site, requirement: dict) -> dict:
+def random_str(resource: Resource, requirement: dict) -> dict:
     """Send a password.
 
     - ramdom generated,
@@ -59,7 +60,7 @@ def random_str(site: Site, requirement: dict) -> dict:
 
 
 @persistent_value
-def unique_user(site: Site, requirement: dict) -> dict:
+def unique_user(resource: Resource, requirement: dict) -> dict:
     """Send a unique user id (for DB creation).
 
     - sequential generated,
@@ -70,7 +71,7 @@ def unique_user(site: Site, requirement: dict) -> dict:
 
 
 @persistent_value
-def unique_db(site: Site, requirement: dict) -> dict:
+def unique_db(resource: Resource, requirement: dict) -> dict:
     """Send a unique DB id (for DB creation).
 
     - sequential generated,
@@ -80,12 +81,12 @@ def unique_db(site: Site, requirement: dict) -> dict:
     return {requirement[KEY]: generate_new_db_id()}
 
 
-def resource_property(site: Site, requirement: dict) -> dict:
+def resource_property(rsite: Resource, requirement: dict) -> dict:
     values = requirement[RESOURCE_PROPERTY].split(".")
     if len(values) != 2:
         abort(f"Bad content for resource_property: {requirement}")
     resource_name, prop = values
-    for resource in site.resources:
+    for resource in rsite.resources:
         if resource.resource_name != resource_name:
             continue
         # first try in environ variables of differnt kinds
@@ -105,11 +106,11 @@ def resource_property(site: Site, requirement: dict) -> dict:
     return {}
 
 
-def resource_host(site: Site, requirement: dict) -> dict:
+def resource_host(rsite: Resource, requirement: dict) -> dict:
     """Return a dict whose key is an environment variable name and value the
     hostname of a resource (a container)."""
     resource_name = requirement[RESOURCE_HOST] or ""
-    for resource in site.resources:
+    for resource in rsite.resources:
         if resource.resource_name != resource_name:
             continue
         return {requirement[KEY]: resource.container}
@@ -127,7 +128,7 @@ def site_environment(rsite: Resource, requirement: dict) -> dict:
     return {}
 
 
-def nua_internal(site: Site, requirement: dict) -> dict:
+def nua_internal(rsite: Resource, requirement: dict) -> dict:
     """Retrieve key from nua_internal values, do not store the value in
     instance configuration.
 
@@ -136,5 +137,5 @@ def nua_internal(site: Site, requirement: dict) -> dict:
     """
     if requirement.get(NUA_INTERNAL, False):
         # add the key to the list of secrets to pass at run() time
-        site.add_requested_secrets(requirement[KEY])
+        rsite.add_requested_secrets(requirement[KEY])
     return {}

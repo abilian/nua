@@ -6,6 +6,7 @@ from nua.lib.panic import info, warning
 from nua.lib.tool.state import verbosity
 
 from ..resource import Resource
+from ..site import Site
 
 # from . import config
 from .evaluators import (
@@ -30,15 +31,25 @@ EVALUATOR_FCT = {
 EVALUATOR_LATE_FCT = {}
 
 
-def instance_key_evaluator(resource: Resource, late_evaluation: bool = False) -> dict:
+def instance_key_evaluator(
+    site: Site, resource: Resource | None = None, late_evaluation: bool = False
+) -> dict:
+    """Evaluate value for an 'assign' key, through retrieving persistent value or
+    compute value from 'assign' defined function.
+    """
     env = {}
+    if resource is None:
+        resource = site
+        persistent = site.persistent("")
+    else:
+        persistent = site.persistent(resource.resource_name)
     if verbosity(3):
         info(f"resource.assign ({late_evaluation=}):\n    {pformat(resource.assign)}")
     for requirement in resource.assign:
         destination_key = requirement["key"]
         function = required_function(requirement, late_evaluation)
         if function:
-            result = function(resource, requirement)
+            result = function(resource, requirement, persistent)
             if verbosity(2):
                 info(f"generated value: {result}")
         else:
@@ -47,6 +58,7 @@ def instance_key_evaluator(resource: Resource, late_evaluation: bool = False) ->
             )
             result = {destination_key: ""}
         env.update(result)
+    site.set_persistent(persistent)
     return env
 
 

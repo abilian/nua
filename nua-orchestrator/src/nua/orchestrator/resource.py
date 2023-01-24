@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from copy import deepcopy
 
 from nua.lib.panic import abort, warning
 from nua.lib.tool.state import verbosity
@@ -201,16 +200,6 @@ class Resource(dict):
             self["network_name"] = ""
 
     @property
-    def persistent(self) -> dict:
-        if "persistent" not in self:
-            self["persistent"] = {}
-        return self["persistent"]
-
-    @persistent.setter
-    def persistent(self, persist: dict):
-        self["persistent"] = deepcopy(persist)
-
-    @property
     def healthcheck(self) -> dict:
         if "healthcheck" not in self:
             self["healthcheck"] = {}
@@ -221,8 +210,10 @@ class Resource(dict):
         self["healthcheck"] = healthcheck
 
     def is_assignable(self) -> bool:
-        """Resource type permits rn.env persistent parameters
+        """Resource type allow run.env persistent parameters
         ("assign" key word).
+
+        Persistent data is stored at site level (not resource level).
         """
         return self.type in ASSIGNABLE_TYPE
 

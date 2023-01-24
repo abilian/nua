@@ -8,6 +8,7 @@ from nua.lib.panic import abort, warning
 from nua.lib.tool.state import verbosity
 
 from .domain_split import DomainSplit
+from .persistent import Persistent
 from .port_normalization import normalize_ports, ports_as_dict
 from .resource import Resource
 from .search_cmd import search_nua
@@ -104,6 +105,29 @@ class Site(Resource):
         suffix = DomainSplit(self.domain).container_suffix()
         name_base = f"{self.nua_long_name}-{suffix}"
         return sanitized_name(name_base)
+
+    def persistent(self, name: str) -> Persistent:
+        """Return Persistent instance for resource of name 'name'.
+
+        Use name = '' for main site
+        """
+        if "persistent" not in self:
+            self["persistent"] = {}
+        content = self["persistent"].get(name, {})
+        return Persistent.from_name_dict(name, content)
+
+    def set_persistent(self, persistent: Persistent):
+        if "persistent" not in self:
+            self["persistent"] = {}
+        self["persistent"][persistent.name] = persistent.as_dict()
+
+    def persistent_full_dict(self) -> dict:
+        if "persistent" not in self:
+            self["persistent"] = {}
+        return self["persistent"]
+
+    def set_persistent_full_dict(self, persist_dict: dict):
+        self["persistent"] = persist_dict
 
     def parse_healthcheck(self):
         self._parse_healthcheck(self.image_nua_config.get("healthcheck", {}))

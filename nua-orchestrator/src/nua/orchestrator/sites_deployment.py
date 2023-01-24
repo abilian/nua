@@ -579,8 +579,8 @@ class SitesDeployment:
         previous = store.instance_persistent(site.domain, site.app_id)
         if verbosity(4):
             print(f"persistent previous: {previous=}")
-        previous.update(site.persistent)
-        site.persistent = previous
+        previous.update(site.persistent_full_dict())
+        site.set_persistent_full_dict(previous)
 
     def start_network(self, site: Site):
         if site.network_name:
@@ -654,7 +654,7 @@ class SitesDeployment:
         run_params["name"] = f"{site.container_name}-{resource.base_name}"
         run_params["ports"] = resource.ports_as_docker_params()
         run_params["environment"] = self.run_parameters_resource_environment(
-            resource, site_env
+            site, resource, site_env
         )
         if resource.healthcheck:
             run_params["healthcheck"] = HealthCheck(
@@ -685,14 +685,16 @@ class SitesDeployment:
         return run_env
 
     def run_parameters_resource_environment(
-        self, resource: Resource, site_env: dict
+        self, site: Site, resource: Resource, site_env: dict
     ) -> dict:
         """Return a dict with all environment parameters for a resource
         container (a Resource container)."""
         # resource has access to environment of main container:
         run_env = deepcopy(site_env)
         # update with result of "assign" dynamic evaluations :
-        run_env.update(instance_key_evaluator(resource, late_evaluation=False))
+        run_env.update(
+            instance_key_evaluator(site, resource=resource, late_evaluation=False)
+        )
         # variables declared in run.env can replace any other source:
         run_env.update(resource.run_env)
         resource.run_env = run_env
@@ -735,10 +737,12 @@ class SitesDeployment:
             self.display_persistent_data(site)
 
     def display_persistent_data(self, site: Site):
-        if verbosity(1) and site.persistent:
-            print_green("Persistent generated variables:")
-            for key, val in site.persistent.items():
-                info(f"    {key}: {val}")
+        if verbosity(1):
+            content = site.persistent_full_dict()
+            if content:
+                print_green("Persistent generated variables:")
+                for key, val in content.items():
+                    info(f"    {key}: {val}")
 
     def display_used_volumes(self):
         if not verbosity(1):
