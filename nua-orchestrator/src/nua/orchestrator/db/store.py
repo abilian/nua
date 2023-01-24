@@ -24,6 +24,7 @@ from .model.deployconfig import (
 from .model.image import Image
 from .model.instance import RUNNING, STOPPED, Instance
 from .model.setting import Setting
+from .model.user_count import UserCount
 from .session import Session
 
 # from pprint import pformat
@@ -533,3 +534,17 @@ def deploy_config_last_one() -> dict:
     if items:
         return items[0]
     return {}
+
+
+def new_user_number() -> int:
+    """Return incremented value of UserCount."""
+    with Session() as session:
+        ucount = session.query(UserCount).first()
+        if ucount:
+            ucount.counter += 1
+        else:
+            ucount = UserCount()
+            ucount.counter = 1
+            session.add(ucount)
+        session.commit()
+        return ucount.counter

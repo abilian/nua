@@ -447,8 +447,18 @@ class Resource(dict):
         print("=========== _configure_requested_postgres   ===============")
         print(self)
         print("==========================")
-        # create volume
+        # resource.image was set earlier at detect requirement stage
+        # create volume:
         volume = Volume()
         volume.type = "volume"
         volume.driver = "local"
-        volume.source_prefix = "todo"
+        # at this stage, network_name is defined
+        volume.source = f"{self.name}_{self.network_name}"
+        # target of Postgres images default configuration
+        volume.target = "/var/lib/postgresql/data"
+        self.volume = [volume.as_dict()]
+        # other options
+        self.run_env["detach"] = True
+        self.run_env["restart_policy"] = {}
+        self.run_env["restart_policy"]["name"] = "always"
+        # now: assign keys in (env) for retrieving existing values...
