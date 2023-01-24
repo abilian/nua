@@ -1,5 +1,7 @@
+import importlib.util
 import re
 import string
+from collections.abc import Callable
 from pathlib import Path
 
 import tomli
@@ -92,3 +94,13 @@ def base20(value: int) -> str:
             break
     b20.reverse()
     return "".join(chars[x] for x in b20)
+
+
+def load_module_function(package: str, module: str, function: str) -> Callable | None:
+    spec = importlib.util.find_spec(f".{module}", package)
+    if not spec:
+        return None
+    mod = spec.loader.load_module()
+    if hasattr(mod, function):
+        return getattr(mod, function)
+    return None

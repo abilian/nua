@@ -11,6 +11,7 @@ from nua.lib.panic import abort, info, warning
 from nua.lib.tool.state import verbosity
 
 from . import config
+from .assign.engine import instance_key_evaluator
 from .certbot import protocol_prefix, register_certbot_domains
 from .db import store
 from .db.model.deployconfig import ACTIVE, INACTIVE, PREVIOUS
@@ -36,11 +37,10 @@ from .nginx_util import (
     configure_nginx_hostname,
     nginx_restart,
 )
-from .requirement_evaluator import instance_key_evaluator
 from .resource import Resource
 from .services import Services
 from .site import Site
-from .utils import parse_any_format
+from .utils import load_module_function, parse_any_format
 from .volume import Volume
 
 # parameters passed as a dict to docker run
@@ -361,11 +361,11 @@ class SitesDeployment:
 
     def install_required_images(self):
         # first: check that all Nua images are available:
-        if not self.find_all_images():
+        if not self.find_all_site_images():
             abort("Missing Nua images")
         self.install_images()
 
-    def find_all_images(self) -> bool:
+    def find_all_site_images(self) -> bool:
         for site in self.sites:
             if not site.find_registry_path():
                 print_red(f"No image found for '{site.image}'")
@@ -445,7 +445,16 @@ class SitesDeployment:
     def configure_requested_db(self):
         for site in self.sites:
             for resource in site.resources:
-                resource.configure_requested_db()
+                if configure := load_module_function(
+                    "nua.orchestrator.db_configurator", resource.type, "configure"
+                ):
+                    configure(resource)
+                    if verbosity(2):
+                        info(
+                            f"Configure resource '{resource.resource_name}': {resource.type}"
+                        )
+                    if verbosity(3):
+                        print(pformat(resource))
 
     def set_volumes_names(self):
         for site in self.sites:
@@ -563,7 +572,7 @@ class SitesDeployment:
         self.generate_site_container_run_parameters(site)
         env = site.run_params["environment"]
         for resource in site.resources:
-            if resource.type == "docker":
+            if resource.is_assignable():
                 self.generate_resource_container_run_parameters(site, resource, env)
 
     def retrieve_persistent(self, site: Site):

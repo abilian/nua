@@ -5,6 +5,8 @@ from pprint import pformat
 from nua.lib.panic import info, warning
 from nua.lib.tool.state import verbosity
 
+from ..resource import Resource
+
 # from . import config
 from .evaluators import (
     nua_internal,
@@ -12,15 +14,18 @@ from .evaluators import (
     resource_host,
     resource_property,
     site_environment,
+    unique_db,
+    unique_user,
 )
-from .resource import Resource
 
 EVALUATOR_FCT = {
-    "random_str": random_str,
-    "resource_property": resource_property,
-    "resource_host": resource_host,
     "environment": site_environment,
     "nua_internal": nua_internal,
+    "random_str": random_str,
+    "resource_host": resource_host,
+    "resource_property": resource_property,
+    "unique_db": unique_db,
+    "unique_user": unique_user,
 }
 EVALUATOR_LATE_FCT = {}
 

@@ -7,8 +7,9 @@ from typing import Any
 from nua.lib.panic import abort, warning
 from nua.runtime.gen_password import gen_password
 
-from .resource import Resource
-from .site import Site
+from ..resource import Resource
+from ..site import Site
+from .db_utils import generate_new_db_id, generate_new_user_id
 
 # keys of nua-config file:
 KEY = "key"
@@ -55,6 +56,28 @@ def random_str(site: Site, requirement: dict) -> dict:
     data is found.
     """
     return {requirement[KEY]: gen_password(24)}
+
+
+@persistent_value
+def unique_user(site: Site, requirement: dict) -> dict:
+    """Send a unique user id (for DB creation).
+
+    - sequential generated,
+    - or from previous execution if 'persistent' is true and previous
+    data is found.
+    """
+    return {requirement[KEY]: generate_new_user_id()}
+
+
+@persistent_value
+def unique_db(site: Site, requirement: dict) -> dict:
+    """Send a unique DB id (for DB creation).
+
+    - sequential generated,
+    - or from previous execution if 'persistent' is true and previous
+    data is found.
+    """
+    return {requirement[KEY]: generate_new_db_id()}
 
 
 def resource_property(site: Site, requirement: dict) -> dict:

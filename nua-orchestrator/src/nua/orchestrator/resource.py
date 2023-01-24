@@ -13,6 +13,11 @@ from .port_normalization import normalize_ports, ports_as_dict
 from .utils import sanitized_name
 from .volume import Volume
 
+CONTAINER_TYPE = {"docker"}
+DB_AUTO_TYPE = {"postgres"}
+ASSIGNABLE_TYPE = CONTAINER_TYPE | DB_AUTO_TYPE
+NETWORKED_TYPE = CONTAINER_TYPE | DB_AUTO_TYPE
+
 
 class Resource(dict):
     def __init__(self, declaration: dict):
@@ -215,6 +220,12 @@ class Resource(dict):
     def healthcheck(self, healthcheck: dict):
         self["healthcheck"] = healthcheck
 
+    def is_assignable(self) -> bool:
+        """Resource type permits rn.env persistent parameters
+        ("assign" key word).
+        """
+        return self.type in ASSIGNABLE_TYPE
+
     def set_ports_as_dict(self):
         """replace ports list by a dict with container port as key.
 
@@ -387,7 +398,7 @@ class Resource(dict):
 
         Basic: using a docker container as resource probably implies need of network.
         """
-        return self.type in {"docker", "postgres"}
+        return self.type in NETWORKED_TYPE
 
     def environment_ports(self) -> dict:
         """Return exposed ports and resource host (container name) as env
@@ -436,29 +447,3 @@ class Resource(dict):
             reports.append(backup_volume(volume))
         reports.append(backup_resource(self))
         return reports
-
-    def configure_requested_db(self):
-        """Automatic configuration of containers for DB resources.
-        (WIP)"""
-        if self.type == "postgres":
-            self._configure_requested_postgres()
-
-    def _configure_requested_postgres(self):
-        print("=========== _configure_requested_postgres   ===============")
-        print(self)
-        print("==========================")
-        # resource.image was set earlier at detect requirement stage
-        # create volume:
-        volume = Volume()
-        volume.type = "volume"
-        volume.driver = "local"
-        # at this stage, network_name is defined
-        volume.source = f"{self.name}_{self.network_name}"
-        # target of Postgres images default configuration
-        volume.target = "/var/lib/postgresql/data"
-        self.volume = [volume.as_dict()]
-        # other options
-        self.run_env["detach"] = True
-        self.run_env["restart_policy"] = {}
-        self.run_env["restart_policy"]["name"] = "always"
-        # now: assign keys in (env) for retrieving existing values...
