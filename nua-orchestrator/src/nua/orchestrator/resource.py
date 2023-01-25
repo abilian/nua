@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from pprint import pformat
 
 from nua.lib.panic import abort, warning
 from nua.lib.tool.state import verbosity
@@ -9,7 +10,7 @@ from .backup.backup_engine import backup_resource, backup_volume
 from .backup.backup_report import global_backup_report
 from .healthcheck import HealthCheck
 from .port_normalization import normalize_ports, ports_as_dict
-from .utils import sanitized_name
+from .utils import load_module_function, sanitized_name
 from .volume import Volume
 
 CONTAINER_TYPE = {"docker"}
@@ -408,6 +409,14 @@ class Resource(dict):
         """
         return self.type in NETWORKED_TYPE
 
+    def requires_db_setup(self) -> bool:
+        """Test if resource has a type with automatic setup."""
+        return self.type in DB_AUTO_TYPE
+
+    def is_docker_type(self) -> bool:
+        """Test if resource has a docker-like type."""
+        return self.type in DOCKER_TYPE
+
     def environment_ports(self) -> dict:
         """Return exposed ports and resource host (container name) as env
         variables.
@@ -455,3 +464,27 @@ class Resource(dict):
             reports.append(backup_volume(volume))
         reports.append(backup_resource(self))
         return reports
+
+    def setup_db(self):
+        if not self.requires_db_setup():
+            return
+        if setup_db := load_module_function(
+            "nua.orchestrator.db_configurator", self.type, "setup_db"
+        ):
+            setup_db(self)
+            if verbosity(2):
+                print(f"setup_db() for resource '{self.resource_name}': {self.type}")
+            if verbosity(3):
+                print(pformat(self.run_env))
+
+    def configure_db(self):
+        if not self.requires_db_setup():
+            return
+        if configure_db := load_module_function(
+            "nua.orchestrator.db_configurator", self.type, "configure_db"
+        ):
+            configure_db(self)
+            if verbosity(2):
+                print(f"configure_db() resource '{self.resource_name}': {self.type}")
+            if verbosity(3):
+                print(pformat(self))

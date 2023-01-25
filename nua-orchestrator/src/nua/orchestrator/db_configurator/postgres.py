@@ -1,10 +1,12 @@
 """Function to auto configure a Postgres container DB.
 """
+from nua.runtime.db.postgres_manager import PostgresManager
+
 from ..resource import Resource
 from ..volume import Volume
 
 
-def configure(resource: Resource):
+def configure_db(resource: Resource):
     # resource.image was set earlier at detect requirement stage
     # create volume:
     resource.volume = [_make_volume(resource)]
@@ -34,3 +36,17 @@ def _make_volume(resource: Resource) -> dict:
     # target of Postgres images default configuration
     volume.target = "/var/lib/postgresql/data"
     return volume.as_dict()
+
+
+def setup_db(resource: Resource):
+    """Find or create the required DB for an application user."""
+    manager = PostgresManager(
+        host=resource.container,
+        port="5432",
+    )
+    manager.wait_for_db()
+    manager.setup_db_user(
+        resource.run_env["POSTGRES_DB"],
+        resource.run_env["POSTGRES_USER"],
+        resource.run_env["USER_PASSWORD"],
+    )

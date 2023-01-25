@@ -37,10 +37,10 @@ from .nginx_util import (
     configure_nginx_hostname,
     nginx_restart,
 )
-from .resource import DOCKER_TYPE, Resource
+from .resource import Resource
 from .services import Services
 from .site import Site
-from .utils import load_module_function, parse_any_format
+from .utils import parse_any_format
 from .volume import Volume
 
 # parameters passed as a dict to docker run
@@ -234,6 +234,7 @@ class SitesDeployment:
             self.set_container_names(site)
             self.evaluate_container_params(site)
             self.start_resources_containers(site)
+            self.setup_resources_db(site)
             self.start_main_site_container(site)
             self.store_container_instance(site)
         chown_r_nua_nginx()
@@ -453,17 +454,7 @@ class SitesDeployment:
     def sites_configure_requested_db(self):
         for site in self.sites:
             for resource in site.resources:
-                if configure := load_module_function(
-                    "nua.orchestrator.db_configurator", resource.type, "configure"
-                ):
-                    configure(resource)
-                    if verbosity(2):
-                        info(
-                            f"Configure resource '{resource.resource_name}':"
-                            f" {resource.type}"
-                        )
-                    if verbosity(3):
-                        print(pformat(resource))
+                resource.configure_db()
 
     def sites_set_volumes_names(self):
         for site in self.sites:
@@ -560,7 +551,7 @@ class SitesDeployment:
         Site.container_name is always available.
         """
         for resource in site.resources:
-            if resource.type in DOCKER_TYPE:
+            if resource.is_docker_type():
                 name = f"{site.container_name}-{resource.base_name}"
                 # - code will be renamed to container_name
                 # - See if we tryst Docker to overwrite this variable
@@ -609,11 +600,15 @@ class SitesDeployment:
 
     def start_resources_containers(self, site: Site):
         for resource in site.resources:
-            if resource.type in DOCKER_TYPE:
+            if resource.is_docker_type():
                 mounted_volumes = mount_resource_volumes(resource)
                 start_one_container(resource, mounted_volumes)
                 # until we check startup of container or set value in parameters...
                 time.sleep(2)
+
+    def setup_resources_db(self, site: Site):
+        for resource in site.resources:
+            resource.setup_db()
 
     def start_main_site_container(self, site: Site):
         # volumes need to be mounted before beeing passed as arguments to
