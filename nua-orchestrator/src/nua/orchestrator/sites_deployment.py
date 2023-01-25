@@ -177,28 +177,23 @@ class SitesDeployment:
         self.install_required_resources()
 
     def configure_sites(self):
-        self.set_network_names()
-        self.merge_instances_to_resources()
-        self.configure_requested_db()
-        self.set_volumes_names()
-        self.check_required_local_resources()
-        for site in self.sites:
-            site.set_ports_as_dict()
-        for site in self.sites:
-            site.parse_healthcheck()
-        for site in self.sites:
-            self.check_required_local_resources_configuration(site)
-        for site in self.sites:
-            self.retrieve_persistent(site)
+        self.sites_set_network_name()
+        self.sites_merge_instances_to_resources()
+        self.sites_configure_requested_db()
+        self.sites_set_volumes_names()
+        self.sites_check_local_service_available()
+        self.sites_set_ports_as_dict()
+        self.sites_parse_healthcheck()
+        self.sites_check_host_services_configuration()
+        self.sites_retrieve_persistent()
         # We now allocate ports *before* stopping services, thus this may induce
         # a flip/flop balance when reinstalling same config
-        self.generate_ports()
+        self.sites_generate_ports()
 
     def restore_configure(self):
         """Try to reuse the previous configuration with no change."""
-        self.check_required_local_resources()
-        for site in self.sites:
-            self.check_required_local_resources_configuration(site)
+        self.sites_check_local_service_available()
+        self.sites_check_host_services_configuration()
 
     def deactivate_previous_sites(self):
         """Find all instance in DB.
@@ -395,13 +390,12 @@ class SitesDeployment:
             site.image_nua_config = image_nua_config
 
     def install_required_resources(self):
-        for site in self.sites:
-            site.parse_resources()
-            site.set_ports_as_dict()
-        if not self.pull_all_resource_images():
+        self.sites_parse_resources()
+        self.sites_set_ports_as_dict()
+        if not self.pull_all_resources_images():
             abort("Missing Docker images")
 
-    def pull_all_resource_images(self) -> bool:
+    def pull_all_resources_images(self) -> bool:
         return all(
             all(self._pull_resource(resource) for resource in site.resources)
             for site in self.sites
@@ -413,7 +407,7 @@ class SitesDeployment:
             return True
         return pull_resource_container(resource)
 
-    def check_required_local_resources(self):
+    def sites_check_local_service_available(self):
         self.required_services = {s for site in self.sites for s in site.local_services}
         if verbosity(3):
             print("required services:", self.required_services)
@@ -422,27 +416,41 @@ class SitesDeployment:
             if service not in available_services:
                 abort(f"Required service '{service}' is not available")
 
-    def check_required_local_resources_configuration(self, site: Site):
-        for service in site.local_services:
-            handler = self.available_services[service]
-            if not handler.check_site_configuration(site):
-                abort(
-                    f"Required service '{service}' not configured for site {site.domain}"
-                )
+    def sites_check_host_services_configuration(self):
+        for site in self.sites:
+            for service in site.local_services:
+                handler = self.available_services[service]
+                if not handler.check_site_configuration(site):
+                    abort(
+                        f"Required service '{service}' not configured for "
+                        f"site {site.domain}"
+                    )
 
-    def set_network_names(self):
+    def sites_parse_resources(self):
+        for site in self.sites:
+            site.parse_resources()
+
+    def sites_set_ports_as_dict(self):
+        for site in self.sites:
+            site.set_ports_as_dict()
+
+    def sites_parse_healthcheck(self):
+        for site in self.sites:
+            site.parse_healthcheck()
+
+    def sites_set_network_name(self):
         for site in self.sites:
             site.set_network_name()
         if verbosity(3):
-            print("set_network_names() done")
+            print("sites_set_network_name() done")
 
-    def merge_instances_to_resources(self):
+    def sites_merge_instances_to_resources(self):
         for site in self.sites:
             site.merge_instance_to_resources()
         if verbosity(3):
-            print("merge_instances_to_resources() done")
+            print("sites_merge_instances_to_resources() done")
 
-    def configure_requested_db(self):
+    def sites_configure_requested_db(self):
         for site in self.sites:
             for resource in site.resources:
                 if configure := load_module_function(
@@ -451,12 +459,13 @@ class SitesDeployment:
                     configure(resource)
                     if verbosity(2):
                         info(
-                            f"Configure resource '{resource.resource_name}': {resource.type}"
+                            f"Configure resource '{resource.resource_name}':"
+                            f" {resource.type}"
                         )
                     if verbosity(3):
                         print(pformat(resource))
 
-    def set_volumes_names(self):
+    def sites_set_volumes_names(self):
         for site in self.sites:
             site.set_volumes_names()
 
@@ -477,29 +486,27 @@ class SitesDeployment:
                 info(f"Configure Nginx for hostname '{host['hostname']}'")
             configure_nginx_hostname(host)
 
-    def generate_ports(self):
+    def sites_generate_ports(self):
         start_ports = config.read("nua", "ports", "start") or 8100
         end_ports = config.read("nua", "ports", "end") or 9000
         if verbosity(4):
-            print(
-                f"generate_ports(): addresses in interval {start_ports} to {end_ports}"
-            )
+            print(f"sites_generate_ports(): interval {start_ports} to {end_ports}")
         self.update_ports_from_nua_config()
         allocated_ports = self._configured_ports()
         if verbosity(4):
-            print(f"generate_ports(): {allocated_ports=}")
+            print(f"sites_generate_ports(): {allocated_ports=}")
         # list of ports used for domains / sites, trying to keep them unchanged
         ports_instances_domains = store.ports_instances_domains()
         if verbosity(4):
-            print(f"generate_ports(): {ports_instances_domains=}")
+            print(f"sites_generate_ports(): {ports_instances_domains=}")
         allocated_ports.update(ports_instances_domains)
         if verbosity(3):
-            print(f"generate_ports() used ports:\n {allocated_ports=}")
-        self.generate_ports_for_sites(
+            print(f"sites_generate_ports() used ports:\n {allocated_ports=}")
+        self.sites_allocate_ports(
             port_allocator(start_ports, end_ports, allocated_ports)
         )
         if verbosity(3):
-            print("generate_ports() done")
+            print("sites_generate_ports() done")
 
     def _configured_ports(self) -> set[int]:
         """Return set of required host ports (aka non auto ports) from
@@ -529,7 +536,7 @@ class SitesDeployment:
                 raise
         return used
 
-    def generate_ports_for_sites(self, allocator: Callable):
+    def sites_allocate_ports(self, allocator: Callable):
         """Update site dict with auto generated ports."""
         for site in self.sites:
             site.allocate_auto_ports(allocator)
@@ -584,6 +591,10 @@ class SitesDeployment:
                 and resource.assign_priority >= site.assign_priority
             ):
                 self.generate_resource_container_run_parameters(site, resource, env)
+
+    def sites_retrieve_persistent(self):
+        for site in self.sites:
+            self.retrieve_persistent(site)
 
     def retrieve_persistent(self, site: Site):
         previous = store.instance_persistent(site.domain, site.app_id)

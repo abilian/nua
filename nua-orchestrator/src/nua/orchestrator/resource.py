@@ -235,7 +235,7 @@ class Resource(dict):
         return self.type in ASSIGNABLE_TYPE
 
     def set_ports_as_dict(self):
-        """replace ports list by a dict with container port as key.
+        """Replace ports list by a dict with container port as key.
 
         (use str key because later conversion to json)
         """
