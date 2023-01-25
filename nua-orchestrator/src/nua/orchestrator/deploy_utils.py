@@ -169,7 +169,7 @@ def start_one_container(rsite: Resource, mounted_volumes: list):
     if mounted_volumes:
         rsite.run_params["mounts"] = True
     if verbosity(1):
-        info(f"    -> container of name: {rsite.container}")
+        info(f"    -> container of name: {rsite.container_name}")
         info(f"            container id: {rsite.container_id_short}")
         if rsite.network_name:
             info(f"    connected to network: {rsite.network_name}")
@@ -190,8 +190,8 @@ def deactivate_containers(container_names: list[str]):
 def deactivate_site(site: Site):
     """Deactive containers of Site and all sub Resources (updating orchestrator
     DB)."""
-    container_names = [res.container for res in site.resources]
-    container_names.append(site.container)
+    container_names = [res.container_name for res in site.resources]
+    container_names.append(site.container_name)
     deactivate_containers(container_names)
 
 
@@ -209,9 +209,9 @@ def deactivate_all_instances():
             )
         site_config = instance.site_config
         container_names = [
-            res.get("container", "") for res in site_config.get("resources", [])
+            res.get("container_name", "") for res in site_config.get("resources", [])
         ]
-        container_names.append(site_config["container"])
+        container_names.append(site_config.get("container_name", ""))
         container_names = [name for name in container_names if name]
         deactivate_containers(container_names)
 

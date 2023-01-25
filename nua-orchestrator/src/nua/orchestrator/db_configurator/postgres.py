@@ -1,6 +1,6 @@
 """Function to auto configure a Postgres container DB.
 """
-from nua.runtime.db.postgres_manager import PostgresManager
+# from nua.runtime.db.postgres_manager import PostgresManager
 
 from ..resource import Resource
 from ..volume import Volume
@@ -22,7 +22,6 @@ def configure_db(resource: Resource):
         {"key": "POSTGRES_PASSWORD", "random_str": True, "persist": True},
         {"key": "POSTGRES_USER", "unique_user": True, "persist": True},
         {"key": "POSTGRES_DB", "unique_db": True, "persist": True},
-        {"key": "USER_PASSWORD", "random_str": True, "persist": True},
     ]
     resource.assign_priority = 0
 
@@ -38,15 +37,6 @@ def _make_volume(resource: Resource) -> dict:
     return volume.as_dict()
 
 
-def setup_db(resource: Resource):
-    """Find or create the required DB for an application user."""
-    manager = PostgresManager(
-        host=resource.container,
-        port="5432",
-    )
-    manager.wait_for_db()
-    manager.setup_db_user(
-        resource.run_env["POSTGRES_DB"],
-        resource.run_env["POSTGRES_USER"],
-        resource.run_env["USER_PASSWORD"],
-    )
+# def setup_db(resource: Resource):
+#     """Find or create the required DB for an application user."""
+#     # nothing to do here: the postgres container should have created a DB at start.

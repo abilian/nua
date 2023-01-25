@@ -7,12 +7,12 @@ from nua.lib.tool.state import verbosity
 
 from ..resource import Resource
 from ..site import Site
+from ..utils import dehyphen
 
 # from . import config
 from .evaluators import (
     nua_internal,
     random_str,
-    resource_host,
     resource_property,
     site_environment,
     unique_db,
@@ -23,7 +23,6 @@ EVALUATOR_FCT = {
     "environment": site_environment,
     "nua_internal": nua_internal,
     "random_str": random_str,
-    "resource_host": resource_host,
     "resource_property": resource_property,
     "unique_db": unique_db,
     "unique_user": unique_user,
@@ -68,6 +67,6 @@ def required_function(requirement: dict, late: bool = False) -> Callable | None:
     else:
         evaluator_fct = EVALUATOR_FCT
     for name, function in evaluator_fct.items():
-        if name in requirement:
+        if dehyphen(name) in requirement:
             return function
     return None

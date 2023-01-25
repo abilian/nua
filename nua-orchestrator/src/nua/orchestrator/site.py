@@ -102,9 +102,11 @@ class Site(Resource):
 
     @property
     def container_name(self) -> str:
+        # override the method of Resource
         suffix = DomainSplit(self.domain).container_suffix()
-        name_base = f"{self.nua_long_name}-{suffix}"
-        return sanitized_name(name_base)
+        name = sanitized_name(f"{self.nua_long_name}-{suffix}")
+        self["container_name"] = name
+        return name
 
     def persistent(self, name: str) -> Persistent:
         """Return Persistent instance for resource of name 'name'.
@@ -266,3 +268,19 @@ class Site(Resource):
         if self.type not in {"nua-site", "docker"}:
             raise ValueError(f"Unsupported type of container '{self.type}'")
         return search_nua(self.image)
+
+    def set_resources_names(
+        self,
+    ):
+        """Set first container names of resources to permit early host
+        assignment to variables.
+
+        Site.container_name is always available.
+        """
+        for resource in self.resources:
+            if resource.is_docker_type():
+                name = f"{self.container_name}-{resource.base_name}"
+                resource.container_name = name
+                # docker resources are only visible from bridge network, so use
+                # the container name as hostname
+                resource.hostname = name

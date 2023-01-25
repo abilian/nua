@@ -104,3 +104,8 @@ def load_module_function(package: str, module: str, function: str) -> Callable |
     if hasattr(mod, function):
         return getattr(mod, function)
     return None
+
+
+def dehyphen(name: str) -> str:
+    """Return stripped string with "-" changed to "_"."""
+    return name.strip().replace("-", "_")

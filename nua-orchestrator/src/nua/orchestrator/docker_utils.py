@@ -154,7 +154,7 @@ def docker_remove_container(name: str, force=False):
 
 
 def _docker_wait_container_listed(name: str) -> bool:
-    timeout = config.read("host", "docker_run_timeout") or 5
+    timeout = config.read("host", "docker_run_timeout") or 30
     count = timeout * 10
     while not docker_container_of_name(name):
         if count <= 0:
@@ -272,17 +272,28 @@ def docker_run(rsite: Resource, secrets: dict) -> Container:
         params["network"] = rsite.network_name
         if verbosity(2) and rsite.network_name:
             info("network:", rsite.network_name)
+    container = _docker_run(rsite, secrets, params)
+    if verbosity(3):
+        print("docker secrets:", secrets)
+    _check_run_container(container, rsite.container_name)
+    return container
+
+
+def _docker_run(rsite: Resource, secrets: dict, params: dict) -> Container:
     client = from_env()
     erase_previous_container(client, params["name"])
     actual_params = params_with_secrets(params, secrets)
-    container = client.containers.run(rsite.image_id, **actual_params)
-    if verbosity(3):
-        print("docker secrets:", secrets)
+    return client.containers.run(rsite.image_id, **actual_params)
+
+
+def _check_run_container(container: Container, name: str):
     if not docker_check_container_listed(container.name):
         abort(f"Failed starting container {container.name}")
-    rsite.container = container.name
+    if name != container.name:
+        warning("rsite.container_name != container.name")
+        warning(f"rsite.container_name = {name}")
+        warning(f"container.name = {container.name}")
     test_docker_exec(container)
-    return container
 
 
 def docker_exec_stdout(

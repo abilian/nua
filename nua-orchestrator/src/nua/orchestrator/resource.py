@@ -176,13 +176,21 @@ class Resource(dict):
             return self.image_id[7:19]
         return self.image_id[:12]
 
-    @property
-    def container(self) -> str:
-        return self.get("container", "")
+    # @property
+    # def container(self) -> str:
+    #     return self.get("container", "")
+    #
+    # @container.setter
+    # def container(self, name: str):
+    #     self["container"] = name
 
-    @container.setter
-    def container(self, name: str):
-        self["container"] = name
+    @property
+    def container_name(self) -> str:
+        return self.get("container_name", "")
+
+    @container_name.setter
+    def container_name(self, container_name: str):
+        self["container_name"] = container_name
 
     @property
     def container_id(self) -> str:
@@ -429,8 +437,8 @@ class Resource(dict):
             variable = f"NUA_{self.resource_name.upper()}_PORT_{port['container']}"
             value = str(port["host_use"])
             run_env[variable] = value
-        variable = f"NUA_{self.resource_name.upper()}_HOST"
-        run_env[variable] = self.container
+        # variable = f"NUA_{self.resource_name.upper()}_HOST"
+        # run_env[variable] = self.container
         return run_env
 
     def add_requested_secrets(self, key: str):

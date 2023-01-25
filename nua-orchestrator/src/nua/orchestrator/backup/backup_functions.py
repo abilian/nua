@@ -7,7 +7,7 @@ def bck_pg_dumpall(resource: dict) -> BackupReport:
     backup_conf = resource.get("backup")
     if backup_conf.get("destination", "local") != "local":
         return BackupReport(
-            node=resource.container,
+            node=resource.container_name,
             task=True,
             success=False,
             message="Only local backup is implemented",
@@ -15,5 +15,5 @@ def bck_pg_dumpall(resource: dict) -> BackupReport:
     # _backup_dir = store.installed_nua_settings()["backup"]["location"]
     print("doing backup...")
     return BackupReport(
-        node=resource.container, task=True, success=False, message="test"
+        node=resource.container_name, task=True, success=False, message="test"
     )

@@ -10,9 +10,9 @@
     host_admin_mail = "jd@abilian.com"
     # choices for certbot_strategy: "auto", "none", ENV: NUA_CERTBOT_STRATEGY
     certbot_strategy = "auto"
-    docker_remove_timeout = 5
-    docker_kill_timeout = 5
-    docker_run_timeout = 10
+    docker_remove_timeout = 10
+    docker_kill_timeout = 10
+    docker_run_timeout = 30
     nginx_wait_after_restart = 1
 [backup]
     location = "/home/nua/backups"

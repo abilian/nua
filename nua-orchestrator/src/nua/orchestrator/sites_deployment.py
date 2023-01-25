@@ -178,6 +178,7 @@ class SitesDeployment:
 
     def configure_sites(self):
         self.sites_set_network_name()
+        self.sites_set_resources_names()
         self.sites_merge_instances_to_resources()
         self.sites_configure_requested_db()
         self.sites_set_volumes_names()
@@ -231,7 +232,6 @@ class SitesDeployment:
         for site in self.sites:
             deactivate_site(site)
             self.start_network(site)
-            self.set_container_names(site)
             self.evaluate_container_params(site)
             self.start_resources_containers(site)
             self.setup_resources_db(site)
@@ -445,6 +445,12 @@ class SitesDeployment:
         if verbosity(3):
             print("sites_set_network_name() done")
 
+    def sites_set_resources_names(self):
+        for site in self.sites:
+            site.set_resources_names()
+        if verbosity(3):
+            print("sites_set_resources_names() done")
+
     def sites_merge_instances_to_resources(self):
         for site in self.sites:
             site.merge_instance_to_resources()
@@ -544,20 +550,6 @@ class SitesDeployment:
         for site in self.sites:
             site.rebase_ports_upon_nua_config()
 
-    def set_container_names(self, site: Site):
-        """Set first container names of resources to permit early host
-        assignment to variables.
-
-        Site.container_name is always available.
-        """
-        for resource in site.resources:
-            if resource.is_docker_type():
-                name = f"{site.container_name}-{resource.base_name}"
-                # - code will be renamed to container_name
-                # - See if we tryst Docker to overwrite this variable
-                #   (or emit a warning if pb)
-                resource.container = name
-
     def evaluate_container_params(self, site: Site):
         """Compute site run envronment parameters except those requiring late
         evaluation (i.e. host names of started containers).
@@ -624,7 +616,7 @@ class SitesDeployment:
             app_id=site.app_id,
             nua_tag=store.nua_tag_string(meta),
             domain=site.domain,
-            container=site.container,
+            container=site.container_name,
             image=site.image,
             state=RUNNING,
             site_config=dict(site),
@@ -667,7 +659,7 @@ class SitesDeployment:
         run_params = deepcopy(RUN_BASE_RESOURCE)
         run_params.update(resource.get("run", {}))
         self.add_host_gateway_to_extra_hosts(run_params)
-        run_params["name"] = f"{site.container_name}-{resource.base_name}"
+        run_params["name"] = resource.container_name
         run_params["ports"] = resource.ports_as_docker_params()
         run_params["environment"] = self.run_parameters_resource_environment(
             site, resource, site_env

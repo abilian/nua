@@ -20,7 +20,6 @@ KEY = "key"
 SITE_ENVIRONMENT = "environment"
 PERSISTENT = "persistent"
 RESOURCE_PROPERTY = "resource_property"
-RESOURCE_HOST = "resource_host"
 NUA_INTERNAL = "nua_internal"
 
 
@@ -116,19 +115,6 @@ def resource_property(rsite: Resource, requirement: dict) -> dict:
         return {requirement[KEY]: value}
 
     warning(f"Unknown resource for {requirement}")
-    return {}
-
-
-@no_persistent_value
-def resource_host(rsite: Resource, requirement: dict) -> dict:
-    """Return a dict whose key is an environment variable name and value the
-    hostname of a resource (a container)."""
-    resource_name = requirement[RESOURCE_HOST] or ""
-    for resource in rsite.resources:
-        if resource.resource_name != resource_name:
-            continue
-        return {requirement[KEY]: resource.container}
-    warning(f"Unknown resource for resource_host: {requirement}")
     return {}
 
 

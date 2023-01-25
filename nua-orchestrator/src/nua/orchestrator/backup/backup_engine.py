@@ -13,14 +13,14 @@ def backup_resource(resource: dict) -> BackupReport:
     backup_conf = resource.get("backup")
     if not backup_conf or not isinstance(backup_conf, dict):
         return BackupReport(
-            node=resource.container,
+            node=resource.container_name,
             message="No backup configuration",
         )
     method = backup_conf.get("method", "")
     function = BCK_FUNCTION.get(method)
     if not function:
         return BackupReport(
-            node=resource.container,
+            node=resource.container_name,
             task=True,
             success=False,
             message=f"Unknown backup method '{method}'",
