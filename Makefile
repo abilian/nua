@@ -38,6 +38,9 @@ test:
 # Linting
 #
 lint:
+	# first a quick ruff pass
+	ruff nua*/src/ nua*/tests/
+	# This takes longer
 	invoke lint
 
 
