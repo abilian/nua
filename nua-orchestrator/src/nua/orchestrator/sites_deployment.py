@@ -1,4 +1,4 @@
-"""class to manage the deployment of a group os sites."""
+"""Class to manage the deployment of a group of sites."""
 import time
 from collections.abc import Callable
 from copy import deepcopy

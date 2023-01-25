@@ -401,7 +401,7 @@ class Resource(dict):
                 assign_dic[orig["key"]] = update
         self.assign = list(assign_dic.values())
 
-    def require_network(self) -> bool:
+    def requires_network(self) -> bool:
         """Heuristic to evaluate the need of docker private network.
 
         Basic: using a docker container as resource probably implies need of network.

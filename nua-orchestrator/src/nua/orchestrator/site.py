@@ -149,19 +149,15 @@ class Site(Resource):
         self["registry_path"] = str(registry_path)
 
     def set_network_name(self):
-        self.detect_required_network()
-        if self.network_name:
-            for resource in self.resources:
-                resource.network_name = self.network_name
-
-    def detect_required_network(self):
         """Evaluate the need of a bridge private network.
 
-        If needed, stet a relevant network name.
+        If needed, set a relevant network name.
         """
         self.network_name = ""
-        if any(resource.require_network() for resource in self.resources):
+        if any(resource.requires_network() for resource in self.resources):
             self.network_name = self.container_name
+            for resource in self.resources:
+                resource.network_name = self.network_name
             if verbosity(4):
                 print("detect_required_network() network_name =", self.network_name)
 
