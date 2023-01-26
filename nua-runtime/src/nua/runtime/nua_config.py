@@ -12,6 +12,7 @@ from .constants import NUA_CONFIG_EXT, NUA_CONFIG_STEM
 REQUIRED_BLOCKS = ["metadata"]
 REQUIRED_METADATA = ["id", "version", "title", "author", "license"]
 OPTIONAL_METADATA = ["tagline", "website", "tags", "profile", "release", "changelog"]
+COMPLETE_BLOCKS = ["build", "env"]  # blocks added (empty) if not present in orig file
 
 
 def nua_config_names():
@@ -35,6 +36,7 @@ class NuaConfig:
         self._find_config_file(path)
         self._loads_config()
         self._check_required_blocks()
+        self._complete_missing_blocks()
         self._fix_spelling()
         self._check_required_metadata()
         self.root_dir = self.path.parent
@@ -75,8 +77,11 @@ class NuaConfig:
         for block in REQUIRED_BLOCKS:
             if block not in self._data:
                 abort(f"Missing mandatory block in {self.path}: '{block}'")
-        if "build" not in self._data:
-            self._data["build"] = {}
+
+    def _complete_missing_blocks(self):
+        for block in COMPLETE_BLOCKS:
+            if block not in self._data:
+                self._data[block] = {}
 
     def _fix_spelling(self):
         if "license" not in self.metadata and "licence" in self.metadata:
@@ -91,6 +96,8 @@ class NuaConfig:
         """will return {} is key not found, assuming some parts are not
         mandatory and first level element are usually dict."""
         return self._data.get(key) or {}
+
+    # metadata ######################################################
 
     @property
     def metadata(self) -> dict:
@@ -114,6 +121,8 @@ class NuaConfig:
     @property
     def app_id(self) -> str:
         return self.metadata.get("id", "")
+
+    # build #########################################################
 
     @property
     def build(self) -> dict:
@@ -141,11 +150,6 @@ class NuaConfig:
         return ""
 
     @property
-    def resource(self) -> list:
-        """The list of resources (tag 'resource')."""
-        return self._data.get("resource", [])
-
-    @property
     def build_packages(self) -> list:
         if "build-packages" not in self.build and "build_packages" in self.build:
             return self.build.get("build_packages", [])
@@ -156,6 +160,14 @@ class NuaConfig:
         if "pip-install" not in self.build and "pip_install" in self.build:
             return self.build.get("pip_install", [])
         return self.build.get("pip-install", [])
+
+    # env ###########################################################
+
+    @property
+    def env(self) -> dict:
+        return self["env"]
+
+    # profile #######################################################
 
     @property
     def profile(self) -> str:
@@ -168,3 +180,10 @@ class NuaConfig:
                 {"node": ">=14.13.1,<17"}
         """
         return self["profile"]
+
+    # resource ######################################################
+
+    @property
+    def resource(self) -> list:
+        """The list of resources (tag 'resource')."""
+        return self._data.get("resource", [])
