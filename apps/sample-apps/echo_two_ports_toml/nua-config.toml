@@ -18,7 +18,7 @@ container = 8765
 host = "auto" # default
 protocol = "tcp" # default
 
-[ports.abcd]
+[port.abcd]
 container = 8764
 host = 8764
 protocol = "tcp" # default

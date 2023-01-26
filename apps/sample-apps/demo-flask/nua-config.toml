@@ -16,9 +16,6 @@ project = "https://github.com/abilian/flask-nua-demo/archive/refs/tags/{version}
 
 test-cmd = "python -c 'import app'"
 
-# [env]
-# PORT = 5000
-
 [port.web]
 container = 80
 host = 5000

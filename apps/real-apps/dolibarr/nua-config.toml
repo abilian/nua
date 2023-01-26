@@ -29,17 +29,17 @@ random_str = true
 key = "DOLI_ADMIN_PASSWORD"
 random_str = true
 
-[run]
-# parameters passed as a dict to docker run
-auto_remove = false
-
-[run.env]
+[env]
 DOLI_ADMIN_LOGIN = "admin"
 DOLI_DB_NAME = "dolibarr"
 DOLI_DB_USER = "dolibarr"
 DOLI_URL_ROOT = 'http://0.0.0.0'
 PHP_INI_DATE_TIMEZONE = 'Europe/Paris'
 # DOLI_DB_HOST_PORT = "3306"
+
+[docker]
+# parameters passed as a dict to docker run
+auto_remove = false
 
 [port.web]
 container = 80
@@ -96,10 +96,10 @@ image = "docker.io/library/mariadb:10.6"
 key = "MYSQL_PASSWORD"
 environment = "DOLI_DB_PASSWORD"
 
-[resource.run]
+[resource.docker]
 restart_policy.name = "always"
 
-[resource.run.env]
+[resource.env]
 MYSQL_DATABASE = "dolibarr"
 MYSQL_USER = "dolibarr"
 

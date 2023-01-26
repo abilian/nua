@@ -1,4 +1,4 @@
 Testing:
 
-  - remote application
-  - demo flask
+- remote application
+- demo flask

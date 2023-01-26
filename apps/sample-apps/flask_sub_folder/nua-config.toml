@@ -36,7 +36,7 @@ document-root = "/nua/app/html"
 project = "."
 test-cmd = "python -c 'import flask_sub_folder'"
 
-[run]
+[docker]
 # parameters passed as a dict to docker run
 auto_remove = true
 

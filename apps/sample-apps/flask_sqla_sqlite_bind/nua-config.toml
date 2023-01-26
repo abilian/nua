@@ -13,14 +13,15 @@ licence = "MIT"
 document-root = "/nua/app/html"
 project = "."
 test-cmd = "python -c 'import flask_sqla_sqlite_bind'"
-[run]
-# parameters passed as a dict to docker run
-auto_remove = true
 
-[run.env]
+[env]
 # parameters passed as a dict to docker run: environment dict
 DB_FOLDER = "/nua/app/dbs"
 DB_NAME = "student_test.db"
+
+[docker]
+# parameters passed as a dict to docker run
+auto_remove = true
 
 [port.web]
 container = 80

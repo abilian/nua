@@ -13,7 +13,7 @@ licence = "MIT"
 document-root = "/nua/app/html"
 test-cmd = "python -c 'import flask_two'"
 
-[run]
+[docker]
 # parameters passed as a dict to docker run
 auto_remove = true
 mem_limit = "8G"

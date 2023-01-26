@@ -48,11 +48,7 @@ resource_host = "database"
 key = "CMD_DB_PASSWORD"
 random_str = true
 
-[run]
-# parameters passed as a dict to docker run
-auto_remove = false
-
-[run.env]
+[env]
 # IMPORTANT:to be set at the actual domain deployed:
 CMD_DOMAIN = "localhost"
 
@@ -97,6 +93,10 @@ CMD_DB_USERNAME = "hedgedoc"
 CMD_DB_DATABASE = "hedgedoc"
 # CMD_DB_URL = "postgres://username:password@localhost:5432/hedgedoc"
 # Postgres password of the "remote" resource DB:
+
+[docker]
+# parameters passed as a dict to docker run
+auto_remove = false
 
 [port.web]
 container = 3000
@@ -145,7 +145,7 @@ method = "pg_dumpall"
 destination = "local"
 frequency = "24h"
 
-[resource.run]
+[resource.docker]
 detach = true
 restart_policy.name = "always"
 

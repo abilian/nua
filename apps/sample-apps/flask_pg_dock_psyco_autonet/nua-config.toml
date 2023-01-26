@@ -24,16 +24,16 @@ random_str = true
 key = "USER_PASSWORD"
 random_str = true
 
-[run]
-restart_policy.name="always"
-
-[run.env]
+[env]
 # using default port of postgres, directly addressing the postgres docker container.
 # DB_HOST for the resource "database" will be found in the env variable NUA_DATABASE_HOST
 DB_PORT = "5432"
 # Postgres password of the "remote" resource DB:
 USER_DB = "bob_db"
 USER_NAME = "bob"
+
+[docker]
+restart_policy.name="always"
 
 [port.web]
 # publication port of the app inside the container
@@ -56,7 +56,7 @@ name = "database"
 type = "docker"
 image = "docker.io/library/postgres:14.5"
 
-[resource.run]
+[resource.docker]
 restart_policy.name = "always"
 
 [[resource.volume]]

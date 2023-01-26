@@ -26,15 +26,16 @@ key = "USER_PASSWORD"
 persistent = true
 random_str = true
 
-[run]
-restart_policy.name = "always"
 
-[run.env]
+[env]
 # using default port of mariadb (3306), directly addressing the mariadb docker
 # container.
 # DB_HOST for the resource "mariadb" will be found in the env variable NUA_MARIADB_HOST
 USER_DB = "flask_db"
 USER_NAME = "bob"
+
+[docker]
+restart_policy.name = "always"
 
 [port.web]
 # publication port of the app inside the container
@@ -56,7 +57,7 @@ name = "mariadb"
 type = "docker"
 image = "docker.io/library/mariadb:10.6.10"
 
-[resource.run]
+[resource.docker]
 restart_policy.name = "always"
 
 [[resource.volume]]

@@ -16,8 +16,7 @@ document-root = "/nua/app/html"
 
 test-cmd = "python -c 'import flask_upload_bind_mount'"
 
-[run]
-[run.env]
+[env]
 # parameters passed as a dict to docker run: environment dict
 UPLOAD_DIRNAME = "uploads_local"
 

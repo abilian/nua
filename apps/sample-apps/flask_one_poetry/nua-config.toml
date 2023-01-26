@@ -17,8 +17,8 @@ project = "."
 
 test-cmd = "python -c 'import flask_one_poetry'"
 
-[run]
-# parameters passed as a dict to docker run
+[docker]
+# parameters passed as a dict to docker.run()
 auto_remove = true
 
 [port.web]

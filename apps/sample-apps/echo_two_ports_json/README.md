@@ -1,3 +1,6 @@
 Warning: use makefile, build from buld_dir
 
-Note: we use the feature of no build.py, only a declaration of a python `wheel`
+Testing:
+
+-   use the feature of no build.py, only a declaration of a python `wheel`
+-   'pip-install' from local wheel

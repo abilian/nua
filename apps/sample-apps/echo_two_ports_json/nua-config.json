@@ -21,9 +21,7 @@
             "container": 8765,
             "host": "auto",
             "protocol": "tcp"
-        }
-    },
-    "ports": {
+        },
         "abcd": {
             "container": 8764,
             "host": 8764,
