@@ -1,8 +1,0 @@
-{
-    "site": [
-        {
-            "image": "nua-flask-pg-dock-psyco-exp:1.0-5",
-            "domain": "test1.example.com"
-        }
-    ]
-}

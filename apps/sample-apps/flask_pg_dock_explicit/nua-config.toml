@@ -11,7 +11,8 @@ license = "MIT"
 
 [build]
 document-root = "/nua/app/html"
-meta-packages = ["postgres-client"]
+# erroneous double declaration of aliases for same package:
+meta-packages = ["psycopg2", "postgres-client"]
 project = "."
 test-cmd = "python -c 'import flask_pg_dock_psyco'"
 
