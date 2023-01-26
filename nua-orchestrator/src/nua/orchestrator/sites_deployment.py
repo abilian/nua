@@ -635,12 +635,12 @@ class SitesDeployment:
         run_params.update(nua_docker_default_run)
         # run parameters defined in the image configuration, without the "env"
         # sections:
-        run_nua_conf = deepcopy(site.image_nua_config.get("run", {}))
+        run_nua_conf = deepcopy(site.image_nua_config.get("docker", {}))
         if "env" in run_nua_conf:
             del run_nua_conf["env"]
         run_params.update(run_nua_conf)
         # update with parameters that could be added to Site configuration :
-        run_params.update(site.get("run", {}))
+        run_params.update(site.get("docker", {}))
         # Add the hostname/IP of local Docker hub (Docker feature) :
         self.add_host_gateway_to_extra_hosts(run_params)
         run_params["name"] = site.container_name
@@ -657,7 +657,7 @@ class SitesDeployment:
         """Return suitable parameters for the docker.run() command (for
         Resource)."""
         run_params = deepcopy(RUN_BASE_RESOURCE)
-        run_params.update(resource.get("run", {}))
+        run_params.update(resource.get("docker", {}))
         self.add_host_gateway_to_extra_hosts(run_params)
         run_params["name"] = resource.container_name
         run_params["ports"] = resource.ports_as_docker_params()
@@ -680,16 +680,14 @@ class SitesDeployment:
     def run_parameters_environment(self, site: Site) -> dict:
         """Return a dict with all environment parameters for the main container
         to run (the Site container)."""
-        run_env = site.image_nua_config.get("run_env", {})  # deprecated syntax
-        # first the run.env section of nua config file:
-        run_env.update(site.image_nua_config.get("run", {}).get("env", {}))
+        run_env = site.image_nua_config.get("env", {})
         # update with local services environment (if any):
         run_env.update(self.services_environment(site))
         # update with result of "assign" dynamic evaluations :
         run_env.update(instance_key_evaluator(site, late_evaluation=False))
-        # variables declared in the run.env section of the ochestrator deployment
+        # variables declared in the env section of the ochestrator deployment
         # configurationcan replace any other source:
-        run_env.update(site.run_env)
+        run_env.update(site.env)
         return run_env
 
     def run_parameters_resource_environment(
@@ -703,9 +701,9 @@ class SitesDeployment:
         run_env.update(
             instance_key_evaluator(site, resource=resource, late_evaluation=False)
         )
-        # variables declared in run.env can replace any other source:
-        run_env.update(resource.run_env)
-        resource.run_env = run_env
+        # variables declared in env can replace any other source:
+        run_env.update(resource.env)
+        resource.env = run_env
         return run_env
 
     @staticmethod

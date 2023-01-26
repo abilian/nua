@@ -101,9 +101,9 @@ def resource_property(rsite: Resource, requirement: dict) -> dict:
             continue
         # first try in environ variables of differnt kinds
         print(prop)
-        print(resource.run_env)
-        if prop in resource.run_env:
-            value = resource.run_env[prop]
+        print(resource.env)
+        if prop in resource.env:
+            value = resource.env[prop]
         elif hasattr(resource, prop):
             attr = getattr(resource, prop)
             if callable(attr):
@@ -122,7 +122,7 @@ def resource_property(rsite: Resource, requirement: dict) -> dict:
 def site_environment(rsite: Resource, requirement: dict) -> dict:
     variable = requirement[SITE_ENVIRONMENT] or ""
     # The resource environment was juste completed wth Site's environment:
-    env = rsite.run_env
+    env = rsite.env
     if variable in env:
         return {requirement[KEY]: env.get(variable)}
     warning(f"Unknown variable in environment: {variable}")

@@ -1,7 +1,7 @@
 [[site]]
 image = "flask-pg-psyco:5.0-1"
 domain = "test1.example.com"
-[site.run.env]
+[site.env]
 DB_NAME = "flask_db_1"
 
 [[site.test]]
@@ -17,7 +17,7 @@ expect_str = "Add a New Book"
 [[site]]
 image = "flask-pg-psyco:5.0-1"
 domain = "test2.example.com"
-[site.run.env]
+[site.env]
 DB_NAME = "flask_db_2"
 DB_USER = "bob2"
 DB_USER_PWD = "bob_pwd_2"

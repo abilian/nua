@@ -1,7 +1,7 @@
 [[site]]
 image = "flask_sqla_sqlite_bind"
 domain = "test1.example.com"
-[site.run.env]
+[site.env]
 DB_NAME = "first_student_test.db"
 
 [[site.test]]
@@ -20,7 +20,7 @@ expect_str = "Add a New Student"
 [[site]]
 image = "flask_sqla_sqlite_bind"
 domain = "test2.example.com"
-[site.run.env]
+[site.env]
 DB_NAME = "second_student_test.db"
 
 [[site.test]]

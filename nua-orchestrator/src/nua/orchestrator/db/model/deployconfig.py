@@ -29,19 +29,15 @@ class DeployConfig(Base, SerializerMixin):
              {
                "image": "hedgedoc:1.9.6-4",
                "domain": "test1.example.com",
-               "run": {
-                 "env": {
+               "env": {
                    "CMD_DOMAIN": "test1.example.com"
-                 }
                }
              },
              {
                "image": "hedgedoc:1.9.6-4",
                "domain": "test2.example.com",
-               "run": {
-                 "env": {
+               "env": {
                    "CMD_DOMAIN": "test2.example.com"
-                 }
                }
              }
            ]

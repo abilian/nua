@@ -12,7 +12,7 @@ expect_host_volume = "flask_uploads"
 [[site]]
 image = "flask-upload-one"
 domain = "test2.example.com"
-[site.run.env]
+[site.env]
 UPLOAD_PATH = "/var/tmp/uploads_t2"
 [[site.volume]]
 type = "volume"

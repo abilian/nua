@@ -12,9 +12,9 @@ def configure_db(resource: Resource):
     resource.volume = [_make_volume(resource)]
     # other options
     # docker params:
-    resource.run = {"detach": True, "restart_policy": {"name": "always"}}
+    resource.docker = {"detach": True, "restart_policy": {"name": "always"}}
     # env
-    resource.run_env = {"POSTGRES_PORT": "5432"}
+    resource.env = {"POSTGRES_PORT": "5432"}
     # assign keys in (env) for create or retrieve persistent values
     # Note: POSTGRES_DB could be same as POSTGRES_USER, but prefer to assign both
     # to let the using app retrieving the both values if needed.

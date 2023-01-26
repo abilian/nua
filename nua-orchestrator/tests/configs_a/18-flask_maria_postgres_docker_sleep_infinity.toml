@@ -2,6 +2,6 @@
 image = "nua-flask-mariadb-docker-wheel"
 domain = "test1.example.com"
 
-[site.run]
+[site.docker]
 # basically do nothing, no start.py
 command = "sleep infinity"

@@ -26,7 +26,7 @@ expect_str = "/var/tmp/mount_point/uploads_local"
 [[site]]
 image = "flask-upload-bind-mount"
 domain = "test.example.com"
-[site.run.env]
+[site.env]
 UPLOAD_DIRNAME = "uploads_test"
 
 [[site.test]]

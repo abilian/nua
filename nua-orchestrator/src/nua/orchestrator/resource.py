@@ -36,7 +36,6 @@ class Resource(dict):
 
     def check_valid(self):
         self._check_mandatory()
-        self._parse_run_env()
         self._parse_healthcheck()
         self._normalize_ports()
         self._normalize_volumes()
@@ -135,12 +134,12 @@ class Resource(dict):
         self["hostname"] = hostname
 
     @property
-    def run(self) -> dict:
-        return self.get("run", {})
+    def docker(self) -> dict:
+        return self.get("docker", {})
 
-    @run.setter
-    def run(self, run: dict):
-        self["run"] = run
+    @docker.setter
+    def docker(self, docker: dict):
+        self["docker"] = docker
 
     @property
     def run_params(self) -> dict:
@@ -151,12 +150,12 @@ class Resource(dict):
         self["run_params"] = run_params
 
     @property
-    def run_env(self) -> dict:
-        return self.get("run_env", {})
+    def env(self) -> dict:
+        return self.get("env", {})
 
-    @run_env.setter
-    def run_env(self, run_env: dict):
-        self["run_env"] = run_env
+    @env.setter
+    def env(self, env: dict):
+        self["env"] = env
 
     @property
     def base_name(self) -> str:
@@ -175,14 +174,6 @@ class Resource(dict):
         if self.image_id.startswith("sha256:"):
             return self.image_id[7:19]
         return self.image_id[:12]
-
-    # @property
-    # def container(self) -> str:
-    #     return self.get("container", "")
-    #
-    # @container.setter
-    # def container(self, name: str):
-    #     self["container"] = name
 
     @property
     def container_name(self) -> str:
@@ -236,8 +227,7 @@ class Resource(dict):
         self["healthcheck"] = healthcheck
 
     def is_assignable(self) -> bool:
-        """Resource type allow run.env persistent parameters
-        ("assign" key word).
+        """Resource type allow env persistent parameters ("assign" key word).
 
         Persistent data is stored at site level (not resource level).
         """
@@ -264,17 +254,6 @@ class Resource(dict):
     def _check_missing(self, key: str):
         if key not in self:
             abort(f"Site or Resource configuration missing '{key}' key")
-
-    def _parse_run_env(self):
-        run_env = self.run_env  # may contain dict of deprecated syntax
-        env = self.get("run", {}).get("env", {})
-        if not isinstance(env, dict):
-            abort("[run.env] must be a dict")
-        run_env.update(env)
-        self.run_env = run_env
-        run = self.get("run", {})
-        if "env" in run:
-            del self["run"]["env"]
 
     def _parse_healthcheck(self, config: dict | None = None):
         if config:
@@ -358,7 +337,7 @@ class Resource(dict):
         for key, value in resource_updates.items():
             # brutal replacement, TODO make special cases for volumes
             # less brutal:
-            if key not in {"port", "run", "volume", "name", "assign"}:
+            if key not in {"port", "env", "docker", "volume", "name", "assign"}:
                 warning(f"maybe updating an unknown key in the configuration '{key}'")
             if key not in self:
                 self[key] = value
@@ -432,14 +411,12 @@ class Resource(dict):
         To be used by remote container from same bridge network to
         connect to the resource container port.
         """
-        run_env = {}
+        env = {}
         for port in self.port.values():
             variable = f"NUA_{self.resource_name.upper()}_PORT_{port['container']}"
             value = str(port["host_use"])
-            run_env[variable] = value
-        # variable = f"NUA_{self.resource_name.upper()}_HOST"
-        # run_env[variable] = self.container
-        return run_env
+            env[variable] = value
+        return env
 
     def add_requested_secrets(self, key: str):
         if verbosity(3):
@@ -483,7 +460,7 @@ class Resource(dict):
             if verbosity(2):
                 print(f"setup_db() for resource '{self.resource_name}': {self.type}")
             if verbosity(3):
-                print(pformat(self.run_env))
+                print(pformat(self.env))
 
     def configure_db(self):
         if not self.requires_db_setup():

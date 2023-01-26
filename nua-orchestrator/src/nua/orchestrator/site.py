@@ -39,7 +39,6 @@ class Site(Resource):
 
     def check_valid(self):
         self._check_mandatory()
-        self._parse_run_env()
         self._normalize_ports(default_proxy="auto")
         self._normalize_domain()
 
