@@ -36,9 +36,6 @@ build-packages = [
 
 test-cmd = "test -f /nua/build/hedgedoc/healthcheck.mjs"
 
-# [[assign]]
-# key = "POSTGRES_PASSWORD"
-# random_str = true
 
 [[assign]]
 key = "CMD_DB_HOST"

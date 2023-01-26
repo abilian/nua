@@ -743,7 +743,7 @@ class SitesDeployment:
             self.display_persistent_data(site)
 
     def display_persistent_data(self, site: Site):
-        if verbosity(1):
+        if verbosity(3):
             content = site.persistent_full_dict()
             if content:
                 print_green("Persistent generated variables:")

@@ -100,8 +100,6 @@ def resource_property(rsite: Resource, requirement: dict) -> dict:
         if resource.resource_name != resource_name:
             continue
         # first try in environ variables of differnt kinds
-        print(prop)
-        print(resource.env)
         if prop in resource.env:
             value = resource.env[prop]
         elif hasattr(resource, prop):

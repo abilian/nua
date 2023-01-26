@@ -60,7 +60,7 @@ def load_install_image(image_path: str | Path) -> tuple:
     # images_after = {img.id for img in client.images.list()}
     # new = images_after - images_before
     if verbosity(1):
-        print_green("Intalled image:")
+        print_green("Installing image:")
         display_one_docker_img(loaded_img)
     return loaded_img.id, image_nua_config
 

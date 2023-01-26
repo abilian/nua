@@ -187,7 +187,7 @@ def docker_remove_prior_container_db(rsite: Resource):
         info(f"    -> remove previous container: {previous_name}")
     docker_stop_container_name(previous_name)
     docker_remove_container(previous_name)
-    if verbosity(3):
+    if verbosity(4):
         containers = docker_container_of_name(previous_name)
         print("docker_remove_container after", containers)
     store.instance_delete_by_domain(rsite.domain)
@@ -211,7 +211,8 @@ def docker_remove_container_previous(name: str):
             # container was "autoremoved" after stop
             pass
     else:
-        warning(f"while removing container: no container of name '{name}'")
+        if verbosity(2):
+            warning(f"no previous container to stop '{name}'")
 
 
 def docker_remove_prior_container_live(rsite: Resource):
