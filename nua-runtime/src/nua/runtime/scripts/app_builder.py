@@ -31,6 +31,11 @@ from ..constants import (
 )
 from ..nua_config import NuaConfig
 
+INFERRED_META_PACKAGES = {
+    "postgres": ["postgres-client"],
+    "mariadb": ["mariadb-client"],
+}
+
 logging.basicConfig(level=logging.INFO)
 
 
@@ -97,8 +102,7 @@ class BuilderApp:
         """Return packages inferred from the nua-config requirements."""
         inferred = []
         for resource in self.config.resource:
-            if resource.get("type", "") == "postgres":
-                inferred.append("postgres-client")
+            inferred.extend(INFERRED_META_PACKAGES.get(resource.get("type", ""), []))
         if inferred and verbosity(2):
             print(f"Inferred meta packages: {inferred}")
         return inferred

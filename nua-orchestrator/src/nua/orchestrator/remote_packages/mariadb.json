@@ -1,0 +1,37 @@
+{
+    "mariadb": [
+        {
+            "version": "10.3",
+            "arch": "amd64",
+            "link": "docker.io/library/mariadb:10.3"
+        }, {
+            "version": "10.4",
+            "arch": "amd64",
+            "link": "docker.io/library/mariadb:10.4"
+        }, {
+            "version": "10.5",
+            "arch": "amd64",
+            "link": "docker.io/library/mariadb:10.5"
+        }, {
+            "version": "10.6",
+            "arch": "amd64",
+            "link": "docker.io/library/mariadb:10.6"
+        }, {
+            "version": "10.7",
+            "arch": "amd64",
+            "link": "docker.io/library/mariadb:10.7"
+        }, {
+            "version": "10.8",
+            "arch": "amd64",
+            "link": "docker.io/library/mariadb:10.8"
+        }, {
+            "version": "10.9",
+            "arch": "amd64",
+            "link": "docker.io/library/mariadb:10.9"
+        }, {
+            "version": "10.10",
+            "arch": "amd64",
+            "link": "docker.io/library/mariadb:10.10"
+        }
+    ]
+}

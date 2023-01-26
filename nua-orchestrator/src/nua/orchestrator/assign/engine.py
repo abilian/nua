@@ -2,9 +2,10 @@
 from collections.abc import Callable
 from pprint import pformat
 
-from nua.lib.panic import info, warning
+from nua.lib.panic import info, show, warning
 from nua.lib.tool.state import verbosity
 
+from ..persistent import Persistent
 from ..resource import Resource
 from ..site import Site
 from ..utils import dehyphen
@@ -31,7 +32,9 @@ EVALUATOR_LATE_FCT = {}
 
 
 def instance_key_evaluator(
-    site: Site, resource: Resource | None = None, late_evaluation: bool = False
+    site: Site,
+    resource: Resource | None = None,
+    late_evaluation: bool = False,
 ) -> dict:
     """Evaluate value for an 'assign' key, through retrieving persistent value or
     compute value from 'assign' defined function.
@@ -45,20 +48,35 @@ def instance_key_evaluator(
     if verbosity(3):
         info(f"resource.assign ({late_evaluation=}):\n    {pformat(resource.assign)}")
     for requirement in resource.assign:
-        destination_key = requirement["key"]
-        function = required_function(requirement, late_evaluation)
-        if function:
-            result = function(resource, requirement, persistent)
-            if verbosity(2):
-                info(f"generated value: {result}")
-        else:
-            warning(
-                f"Requirement maybe not valid for {destination_key}, key set to empty"
-            )
-            result = {destination_key: ""}
-        env.update(result)
+        evaluate_requirement(resource, requirement, persistent, env, late_evaluation)
     site.set_persistent(persistent)
     return env
+
+
+def evaluate_requirement(
+    resource: Resource,
+    requirement: dict,
+    persistent: Persistent,
+    env: dict,
+    late_evaluation: bool,
+) -> None:
+    destination_key = requirement["key"]
+    function = required_function(requirement, late_evaluation)
+    if function:
+        result = function(resource, requirement, persistent)
+        if verbosity(3):
+            info(f"generated value: {result}")
+    else:
+        warning(f"Requirement maybe not valid for {destination_key}, key set to empty")
+        result = {destination_key: ""}
+    env.update(result)
+    maybe_display_value(requirement, result)
+
+
+def maybe_display_value(requirement: dict, result: dict):
+    if requirement.get("display", False):
+        for key, val in result.items():
+            show(f"Assigned value: '{key}' = '{val}'")
 
 
 def required_function(requirement: dict, late: bool = False) -> Callable | None:

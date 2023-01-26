@@ -1,4 +1,5 @@
-"""class to manage the deployment of a group os sites."""
+"""Class to manage the deployment of a group os sites.
+"""
 from collections.abc import Callable
 from pathlib import Path
 from pprint import pformat
@@ -31,6 +32,7 @@ from .utils import size_to_bytes
 from .volume import Volume
 
 PULLED_IMAGES: dict[str, str] = {}
+REMOTE_DOCKER_RESOURCES = {"postgres", "mariadb"}
 
 
 def load_install_image(image_path: str | Path) -> tuple:
@@ -241,15 +243,15 @@ def pull_resource_container(resource: Resource) -> bool:
     """
     if resource.type == "docker":
         return _pull_resource_docker(resource)
-    if resource.type == "postgres":
-        return _pull_resource_postgres(resource)
+    if resource.type in REMOTE_DOCKER_RESOURCES:
+        return _pull_resource_remote(resource)
     warning(f"Unknown resource type: {resource.type}")
     return True
 
 
-def _pull_resource_postgres(resource: Resource) -> bool:
+def _pull_resource_remote(resource: Resource) -> bool:
     """Define the required postgres image and pull it."""
-    package_name = "postgres"
+    package_name = resource.type
     pull_link = higher_package(package_name, resource.version)
     if not pull_link:
         warning(

@@ -14,7 +14,7 @@ from .utils import load_module_function, sanitized_name
 from .volume import Volume
 
 CONTAINER_TYPE = {"docker"}
-DB_AUTO_TYPE = {"postgres"}
+DB_AUTO_TYPE = {"postgres", "mariadb"}
 DOCKER_TYPE = CONTAINER_TYPE | DB_AUTO_TYPE
 ASSIGNABLE_TYPE = CONTAINER_TYPE | DB_AUTO_TYPE
 NETWORKED_TYPE = CONTAINER_TYPE | DB_AUTO_TYPE
