@@ -7,7 +7,7 @@ author = "Nua testers"
 tagline = "test feature"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static", "plugin", "PostgreSQL", "docker", "psycopg2"]
-licence = "MIT"
+license = "MIT"
 
 [build]
 document_root = "/nua/app/html"

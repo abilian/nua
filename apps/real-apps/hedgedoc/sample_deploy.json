@@ -1,7 +1,7 @@
 {
     "site": [
         {
-            "image": "hedgedoc:1.9.6-12",
+            "image": "hedgedoc:1.9.6-13",
             "domain": "test1.example.com",
             "run": {
                 "env": {
@@ -14,7 +14,7 @@
             }
         },
         {
-            "image": "hedgedoc:1.9.6-12",
+            "image": "hedgedoc:1.9.6-13",
             "domain": "test2.example.com",
             "run": {
                 "env": {

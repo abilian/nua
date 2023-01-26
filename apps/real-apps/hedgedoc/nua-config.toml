@@ -1,13 +1,13 @@
 [metadata]
 id = "hedgedoc"
 version = "1.9.6"
-release = 12
+release = 13
 title = "Hedgedoc"
 author = "Hedgedoc developers"
 tagline = "Nua test with Hedgedoc"
 website = "https://nua.rocks/"
 tags = ["Markdown", "Documentation", "Collaboration"]
-licence = "AGPL-3.0 license"
+license = "AGPL-3.0 license"
 # profile = ["node"]
 src_url = "https://github.com/hedgedoc/hedgedoc/releases/download/{version}/hedgedoc-{version}.tar.gz"
 
@@ -36,17 +36,23 @@ build-packages = [
 
 test-cmd = "test -f /nua/build/hedgedoc/healthcheck.mjs"
 
-[[assign]]
-key = "POSTGRES_PASSWORD"
-random_str = true
+# [[assign]]
+# key = "POSTGRES_PASSWORD"
+# random_str = true
 
 [[assign]]
 key = "CMD_DB_HOST"
-resource_host = "database"
-
+resource_property = "database.hostname"
+[[assign]]
+key = "CMD_DB_DATABASE"
+resource_property = "database.POSTGRES_DB"
+[[assign]]
+key = "CMD_DB_USERNAME"
+resource_property = "database.POSTGRES_USER"
 [[assign]]
 key = "CMD_DB_PASSWORD"
-random_str = true
+resource_property = "database.POSTGRES_PASSWORD"
+
 
 [env]
 # IMPORTANT:to be set at the actual domain deployed:
@@ -56,11 +62,6 @@ NODE_ENV = "production"
 DEBUG = "true"
 UPLOADS_MODE = "0700"
 
-# DB_HOST=<hostname or ip>
-# DB_PORT= 5432
-# DB_USER=hedgedoc
-# DB_PASS=<secret password>
-# DB_NAME=hedgedoc
 TZ = "Europe/Paris"
 
 # CMD_URL_PATH # if sub directory
@@ -85,14 +86,9 @@ CMD_EMAIL = "true"
 CMD_ALLOW_EMAIL_REGISTER = "true"
 
 # postgres:
-# CMD_DB_HOST = ""  # will be replaced by actual local network configuration of docker
 CMD_DB_PORT = "5432"
 CMD_DB_DIALECT = "postgres"
-CMD_DB_USERNAME = "hedgedoc"
-# CMD_DB_PASSWORD = "some_secret"
-CMD_DB_DATABASE = "hedgedoc"
 # CMD_DB_URL = "postgres://username:password@localhost:5432/hedgedoc"
-# Postgres password of the "remote" resource DB:
 
 [docker]
 # parameters passed as a dict to docker run
@@ -130,32 +126,14 @@ frequency = "24h"
 # A resource is another container required by the main app container, its
 # configuration is described below, under the key of name of the resource. Several
 # resources can be declared. The resource host will appear in the local network
-# with a hostname equal to the container name. The name of the resource hostname
-# is available in the environment variable NUA_${name_of_the_resource}_HOST, ie in
-# this example: NUA_DATABASE_HOST
+# with a hostname equal to the container name.
 
-# declaration of the required image for the resurce, here the official Postgres
-# Docker image
+# Declaration of the required image for the resurce, here the official Postgres.
 name = "database"
-type = "docker"
-image = "docker.io/library/postgres:14.5"
+type = "postgres"
+version = ">=14, <15"
 
 [resource.backup]
 method = "pg_dumpall"
 destination = "local"
 frequency = "24h"
-
-[resource.docker]
-detach = true
-restart_policy.name = "always"
-
-[[resource.volume]]
-# here we declare a mounted volume (ie: managed by Docker daemon)
-# The mount type (bind / volume / tmpfs / npipe). Default: volume :
-type = "volume"
-# Name of the driver used to create the volume: (for type == "volume")
-driver = "local"
-# Mount source (e.g. a volume name or a host path):
-source_prefix = "hedgedoc_postgres"
-# Container path:
-target = "/var/lib/postgresql/data"
