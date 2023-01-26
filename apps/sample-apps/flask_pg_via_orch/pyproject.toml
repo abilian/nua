@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "flask_pg_test"
+name = "flask_pg_via_orch"
 version = "1.0"
-description = "test features"
+description = "postgres docker configured via orchestrator"
 authors = ["Jerome Dumonteil <jd@abilian.com>"]
 license = "MIT"
 

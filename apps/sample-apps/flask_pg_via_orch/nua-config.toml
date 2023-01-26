@@ -1,10 +1,10 @@
 [metadata]
-id = "flask-pg-test"
+id = "flask-pg-via-orch"
 version = "1.0"
 release = 1
-title = "test feature"
+title = "postgres docker configured via orchestrator"
 author = "Nua testers"
-tagline = "test feature"
+tagline = "postgres docker configured via orchestrator"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static", "plugin", "PostgreSQL", "docker", "psycopg2"]
 license = "MIT"
@@ -12,7 +12,7 @@ license = "MIT"
 [build]
 document_root = "/nua/app/html"
 project = "."
-test-cmd = "python -c 'import flask_pg_test'"
+test-cmd = "python -c 'import flask_pg_via_orch'"
 
 
 [[assign]]
