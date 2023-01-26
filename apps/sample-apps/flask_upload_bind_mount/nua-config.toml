@@ -7,7 +7,7 @@ author = "Nua testers"
 tagline = "Flask test upload with host local dir (Docker option -v)"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static", "bind", "--volume"]
-licence = "MIT"
+license = "MIT"
 
 [build]
 document-root = "/nua/app/html"

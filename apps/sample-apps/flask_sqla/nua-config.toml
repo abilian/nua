@@ -7,7 +7,7 @@ author = "Nua testers"
 tagline = "Nua test with sqlalchemy"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static", "plugin", "sqlalchemy"]
-licence = "MIT"
+license = "MIT"
 
 [build]
 document_root = "/nua/app/html"

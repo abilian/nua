@@ -7,7 +7,7 @@ author = "Nua testers"
 tagline = "Nua test with Flask - one - poetry auto-detect"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static"]
-licence = "MIT"
+license = "MIT"
 
 [build]
 document-root = "/nua/app/html"

@@ -6,7 +6,7 @@ author = "Nua testers"
 tagline = "Nua test with Flask - one - setup"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static"]
-licence = "MIT"
+license = "MIT"
 profile = ["test"]
 release = 3
 

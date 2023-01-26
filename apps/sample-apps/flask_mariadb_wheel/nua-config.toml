@@ -7,7 +7,7 @@ author = "Nua testers"
 tagline = "Nua test with Flask/MariaDB"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "MariaDB"]
-licence = "MIT"
+license = "MIT"
 
 [build]
 # no need of build.py for this test, all should be

@@ -7,7 +7,7 @@ author = "Nua testers"
 tagline = "Nua test with Flask/PostgreSQL/docker/psycopg2"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static", "plugin", "PostgreSQL", "docker", "psycopg2"]
-licence = "MIT"
+license = "MIT"
 
 [build]
 document-root = "/nua/app/html"

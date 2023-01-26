@@ -7,7 +7,7 @@ author = "Nua testers"
 tagline = "Flask test upload with with container tmpfs"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static", "tmpfs"]
-licence = "MIT"
+license = "MIT"
 
 [build]
 ocument-root = "/nua/app/html"
