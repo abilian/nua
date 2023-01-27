@@ -1,7 +1,7 @@
 [metadata]
 id = "dolibarr-mariadb"
 version = "16.0"
-release = 12
+release = 13
 title = "Dolibarr (for mariadb), based on tuxgazy dockerfile"
 author = "Dolibarr developers"
 tagline = "Nua test with Dolibarr"
@@ -54,9 +54,9 @@ retries = 3
 [[volume]]
 # declare a local volume for plublic uploads
 # type = "bind"
-type = "volume"
+# type = "volume" -> the default
 # Name of the driver used to create the volume: (for type == "volume")
-driver = "local"
+# driver = "local" -> the default
 # Mount source (e.g. a volume name or a host path):
 prefix = "dolibarr_custom"
 # Container path:
@@ -65,9 +65,9 @@ target = "/var/www/html/custom"
 [[volume]]
 # declare a local volume for plublic uploads
 # type = "bind"
-type = "volume"
+# type = "volume" -> the default
 # Name of the driver used to create the volume: (for type == "volume")
-driver = "local"
+# driver = "local" -> the default
 # Mount source (e.g. a volume name or a host path):
 prefix = "dolibarr_documents"
 # Container path:
@@ -84,5 +84,5 @@ target = "/var/www/documents"
 name = "database"
 type = "mariadb"
 version = ">=10.6, <10.7"
-create_user = true
-create_db = true  # Dolibarr will create it ?
+# create_user = true -> the default
+# create_db = true   -> the default
