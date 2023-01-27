@@ -24,7 +24,7 @@ EVALUATOR_FCT = {
     "environment": site_environment,
     "nua_internal": nua_internal,
     "random_str": random_str,
-    "resource_property": resource_property,
+    "property": resource_property,
     "unique_db": unique_db,
     "unique_user": unique_user,
 }

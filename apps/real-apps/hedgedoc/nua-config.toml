@@ -39,16 +39,16 @@ test-cmd = "test -f /nua/build/hedgedoc/healthcheck.mjs"
 
 [[assign]]
 key = "CMD_DB_HOST"
-resource_property = "database.hostname"
+property = "database.hostname"
 [[assign]]
 key = "CMD_DB_DATABASE"
-resource_property = "database.POSTGRES_DB"
+property = "database.POSTGRES_DB"
 [[assign]]
 key = "CMD_DB_USERNAME"
-resource_property = "database.POSTGRES_USER"
+property = "database.POSTGRES_USER"
 [[assign]]
 key = "CMD_DB_PASSWORD"
-resource_property = "database.POSTGRES_PASSWORD"
+property = "database.POSTGRES_PASSWORD"
 
 
 [env]

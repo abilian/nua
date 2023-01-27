@@ -19,7 +19,7 @@ from .db_utils import generate_new_db_id, generate_new_user_id
 KEY = "key"
 SITE_ENVIRONMENT = "environment"
 PERSISTENT = "persistent"
-RESOURCE_PROPERTY = "resource_property"
+PROPERTY = "property"
 NUA_INTERNAL = "nua_internal"
 
 
@@ -92,9 +92,9 @@ def unique_db(resource: Resource, requirement: dict) -> dict:
 
 @no_persistent_value
 def resource_property(rsite: Resource, requirement: dict) -> dict:
-    values = requirement[RESOURCE_PROPERTY].split(".")
+    values = requirement[PROPERTY].split(".")
     if len(values) != 2:
-        abort(f"Bad content for resource_property: {requirement}")
+        abort(f"Bad content for property: {requirement}")
     resource_name, prop = values
     for resource in rsite.resources:
         if resource.resource_name != resource_name:
@@ -109,7 +109,7 @@ def resource_property(rsite: Resource, requirement: dict) -> dict:
             else:
                 value = str(attr)
         else:
-            abort(f"Unknown property for resource_property: {requirement}")
+            abort(f"Unknown property for: {requirement}")
         return {requirement[KEY]: value}
 
     warning(f"Unknown resource for {requirement}")

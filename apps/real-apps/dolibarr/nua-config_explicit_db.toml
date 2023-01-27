@@ -19,7 +19,7 @@ random_str = true
 
 [[assign]]
 key = "DOLI_DB_HOST"
-resource_property = "database.hostname"
+property = "database.hostname"
 
 [[assign]]
 key = "DOLI_DB_PASSWORD"

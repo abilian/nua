@@ -17,23 +17,23 @@ test-cmd = "python -c 'import flask_pg_via_orch'"
 
 [[assign]]
 key = "DB_HOST"
-resource_property = "database.hostname"
+property = "database.hostname"
 
 [[assign]]
 key = "DB_PORT"
-resource_property = "database.POSTGRES_PORT"
+property = "database.POSTGRES_PORT"
 
 [[assign]]
 key = "USER_DB"
-resource_property = "database.POSTGRES_DB"
+property = "database.POSTGRES_DB"
 
 [[assign]]
 key = "USER_NAME"
-resource_property = "database.POSTGRES_USER"
+property = "database.POSTGRES_USER"
 
 [[assign]]
 key = "USER_PASSWORD"
-resource_property = "database.POSTGRES_PASSWORD"
+property = "database.POSTGRES_PASSWORD"
 
 [docker]
 restart_policy.name = "always"

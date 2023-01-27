@@ -15,19 +15,19 @@ default_files = false
 
 [[assign]]
 key = "DOLI_DB_HOST"
-resource_property = "database.hostname"
+property = "database.hostname"
 
 [[assign]]
 key = "DOLI_DB_USER"
-resource_property = "database.MARIADB_USER"
+property = "database.MARIADB_USER"
 
 [[assign]]
 key = "DOLI_DB_PASSWORD"
-resource_property = "database.MARIADB_PASSWORD"
+property = "database.MARIADB_PASSWORD"
 
 [[assign]]
 key = "DOLI_DB_NAME"
-resource_property = "database.MARIADB_DATABASE"
+property = "database.MARIADB_DATABASE"
 
 [[assign]]
 key = "DOLI_ADMIN_PASSWORD"
