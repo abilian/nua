@@ -29,7 +29,7 @@ license = "MIT"
 nua_dir = "nua_files"
 document-root = "/nua/app/html"
 project = "."
-test-cmd = "python -c 'import flask_sub_folder2'"
+test = "python -c 'import flask_sub_folder2'"
 
 [docker]
 # parameters passed as a dict to docker run

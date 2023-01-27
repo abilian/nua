@@ -15,7 +15,7 @@ document-root = "/nua/app/html"
 # See later if "src_url" is the same concept.
 project = "."
 
-test-cmd = "python -c 'import flask_one_poetry'"
+test = "python -c 'import flask_one_poetry'"
 
 [docker]
 # parameters passed as a dict to docker.run()

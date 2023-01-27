@@ -135,14 +135,6 @@ class BuilderApp:
         self.copy_metadata()
         self.make_start_script()
 
-    def test_build(self):
-        """Execute a configured shell command to check build is successful."""
-        command = self.config.build.get("test-cmd", self.config.build.get("test_cmd"))
-        if not command:
-            return
-        show("Execution of build test command:", command)
-        sh(command, show_cmd=False)
-
     def copy_metadata(self):
         """Dump the content of the nua-config file in /nua/metadata/nua-
         config.json."""
@@ -222,6 +214,15 @@ class BuilderApp:
             # no other way. Let's assume there is a local project.
             show("Try install from some local project")
             project_install(".")
+
+    def test_build(self):
+        """Execute a configured shell command to check build is successful."""
+        default = "test -f /nua/metadata/nua-config.json"
+        command = self.config.build.get("test", default)
+        if not command:
+            return
+        show("Execution of build test command:", command)
+        sh(command, show_cmd=False)
 
 
 def main() -> None:

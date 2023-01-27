@@ -12,7 +12,7 @@ license = "MIT"
 [build]
 document_root = "/nua/app/html"
 project = "."
-test-cmd = "python -c 'import flask_pg_via_orch'"
+test = "python -c 'import flask_pg_via_orch'"
 
 
 [[assign]]

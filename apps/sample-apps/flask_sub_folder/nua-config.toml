@@ -34,7 +34,7 @@ license = "MIT"
 # container = "docker"  # default
 document-root = "/nua/app/html"
 project = "."
-test-cmd = "python -c 'import flask_sub_folder'"
+test = "python -c 'import flask_sub_folder'"
 
 [docker]
 # parameters passed as a dict to docker run

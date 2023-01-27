@@ -34,7 +34,7 @@ build-packages = [
     "git",
 ]
 
-test-cmd = "test -f /nua/build/hedgedoc/healthcheck.mjs"
+test = "test -f /nua/build/hedgedoc/healthcheck.mjs"
 
 
 [[assign]]

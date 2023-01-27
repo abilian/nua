@@ -12,7 +12,7 @@ license = "MIT"
 [build]
 pip-install = ["*.whl"]
 document-root = "/nua/app/html"
-test-cmd = "python -c 'import flask_one_wheel'"
+test = "python -c 'import flask_one_wheel'"
 
 [port.web]
 container = 80

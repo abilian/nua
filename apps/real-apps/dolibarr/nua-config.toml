@@ -12,6 +12,7 @@ licence = "GPLv3"
 [build]
 manifest = ["nua"]
 default_files = false
+# test = "test -f /nua/metadata/nua-config.json" -> default test
 
 [[assign]]
 key = "DOLI_DB_HOST"

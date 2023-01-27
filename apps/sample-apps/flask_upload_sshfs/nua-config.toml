@@ -13,7 +13,7 @@ license = "MIT"
 document-root = "/nua/app/html"
 # - should auto detect local python project
 
-test-cmd = "python -c 'import flask_upload_sshfs'"
+test = "python -c 'import flask_upload_sshfs'"
 
 
 [docker]

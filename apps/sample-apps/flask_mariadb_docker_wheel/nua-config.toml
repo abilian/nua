@@ -14,7 +14,7 @@ license = "MIT"
 meta-packages = ["mariadb-client"]
 pip-install = ["*.whl"]
 document-root = "/nua/app/html"
-test-cmd = "python -c 'import flask_mariadb_docker_wheel'"
+test = "python -c 'import flask_mariadb_docker_wheel'"
 
 [[assign]]
 key = "MARIADB_ROOT_PASSWORD"

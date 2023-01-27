@@ -13,7 +13,7 @@ license = "MIT"
 document_root = "/nua/app/html"
 meta-packages = ["psycopg2"]
 project = "."
-test-cmd = "python -c 'import flask_sqla'"
+test = "python -c 'import flask_sqla'"
 
 [docker]
 # parameters passed as a dict to docker run

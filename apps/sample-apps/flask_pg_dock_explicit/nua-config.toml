@@ -14,7 +14,7 @@ document-root = "/nua/app/html"
 # erroneous double declaration of aliases for same package:
 meta-packages = ["psycopg2", "postgres-client"]
 project = "."
-test-cmd = "python -c 'import flask_pg_dock_psyco'"
+test = "python -c 'import flask_pg_dock_psyco'"
 
 [instance]
 # name of the bridge network used by this container and related resources.

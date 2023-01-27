@@ -12,7 +12,7 @@ license = "MIT"
 [build]
 document-root = "/nua/app/html"
 project = "."
-test-cmd = "python -c 'import flask_sqla_sqlite_bind'"
+test = "python -c 'import flask_sqla_sqlite_bind'"
 
 [env]
 # parameters passed as a dict to docker run: environment dict

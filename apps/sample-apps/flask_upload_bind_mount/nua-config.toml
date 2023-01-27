@@ -14,7 +14,7 @@ document-root = "/nua/app/html"
 # - should auto detect local python project
 # - should create automatically the source volume if needed
 
-test-cmd = "python -c 'import flask_upload_bind_mount'"
+test = "python -c 'import flask_upload_bind_mount'"
 
 [env]
 # parameters passed as a dict to docker run: environment dict

@@ -13,7 +13,7 @@ license = "MIT"
 document_root = "/nua/app/html"
 meta-packages = ["postgres-client"]
 project = "."
-test-cmd = "python -c 'import flask_pg_psyco'"
+test = "python -c 'import flask_pg_psyco'"
 
 [[assign]]
 key = "POSTGRES_PASSWORD"
