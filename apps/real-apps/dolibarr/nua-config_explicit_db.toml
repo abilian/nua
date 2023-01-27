@@ -58,7 +58,7 @@ type = "volume"
 # Name of the driver used to create the volume: (for type == "volume")
 driver = "local"
 # Mount source (e.g. a volume name or a host path):
-source_prefix = "dolibarr_custom"
+prefix = "dolibarr_custom"
 # Container path:
 target = "/var/www/html/custom"
 # mode (default to 'rw'
@@ -71,7 +71,7 @@ type = "volume"
 # Name of the driver used to create the volume: (for type == "volume")
 driver = "local"
 # Mount source (e.g. a volume name or a host path):
-source_prefix = "dolibarr_documents"
+prefix = "dolibarr_documents"
 # Container path:
 target = "/var/www/documents"
 # mode (default to 'rw'
@@ -112,7 +112,7 @@ MYSQL_USER = "dolibarr"
     # Name of the driver used to create the volume: (for type == "volume")
     driver = "local"
     # Mount source (e.g. a volume name or a host path):
-    source_prefix = "dolibarr_db"
+    prefix = "dolibarr_db"
     # Container path:
     target = "/var/lib/mysql"
     # mode (default to 'rw'

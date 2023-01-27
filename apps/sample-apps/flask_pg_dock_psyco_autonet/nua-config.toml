@@ -66,7 +66,7 @@ restart_policy.name = "always"
     # Name of the driver used to create the volume: (for type == "volume")
     driver = "local"
     # Mount source (e.g. a volume name or a host path):
-    source_prefix = "postgres_data_pg"
+    prefix = "postgres_data_pg"
     # Container path:
     target = "/var/lib/postgresql/data"
     # mode (default to 'rw'

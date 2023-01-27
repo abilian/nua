@@ -7,7 +7,7 @@ from typing import Any
 from nua.lib.console import print_red
 from nua.lib.panic import abort
 
-from .utils import sanitized_name
+from .utils import get_alias, hyphenized_set, sanitized_name
 
 # later, add 'npipe' when managed:
 ALLOWED_TYPE = {"volume", "bind", "tmpfs"}
@@ -19,11 +19,11 @@ CHECKED_KEYS = {
     "driver",
     "backup",
     "options",
-    "source-prefix",
-    "source_prefix",
     "source",
-    "src_prefix",
     "src",
+    "prefix",
+    "source-prefix",
+    "src-prefix",
     "target",
     "type",
 }
@@ -69,7 +69,7 @@ class Volume:
     def check_load(self, data: dict):
         try:
             self._check_type(data)
-            self._check_source_prefix(data)
+            self._check_prefix(data)
             self._check_source(data)
             self._check_target(data)
             self._parse_domains(data)
@@ -133,13 +133,11 @@ class Volume:
 
     @property
     def prefix(self) -> str:
-        if "source-prefix" not in self._dict and "source_prefix" in self._dict:
-            return self._dict.get("source_prefix", "")
-        return self._dict.get("source-prefix", "")
+        return self._dict.get("prefix", "")
 
     @prefix.setter
-    def prefix(self, source_prefix: str):
-        self._dict["source-prefix"] = source_prefix
+    def prefix(self, prefix: str):
+        self._dict["prefix"] = prefix
 
     @property
     def source(self) -> str:
@@ -187,59 +185,40 @@ class Volume:
         self.source = sanitized_name(f"{prefix}-{suffix}")
 
     def _check_type(self, data: dict):
-        tpe = data.get("type", "")
+        tpe = data.get("type", "volume")
         if tpe not in ALLOWED_TYPE:
             raise ValueError("unknown value for 'volume.type'")
         self.type = tpe
         if tpe == "volume":
             self.driver = data.get("driver", "local")
 
-    def _check_source_prefix(self, data: dict):
+    def _check_prefix(self, data: dict):
         if self.type == "tmpfs":
             # no source defined for "tmpfs" type
             return
-        src_key = None
-        for alias in ("source-prefix", "source_prefix", "src_prefix"):
-            if alias in data:
-                src_key = alias
-                break
-        if not src_key:
-            return
-        value = data[src_key]
-        if not value or not isinstance(value, str):
-            raise ValueError("Invalid value for 'volume.source-prefix'")
-        self.prefix = value
+        aliases = ("prefix", "source-prefix", "src-prefix")
+        value = get_alias(data, aliases)
+        if value:
+            self.prefix = value
 
     def _check_source(self, data: dict):
         if self.type == "tmpfs":
             # no source for tmpfs
+            self.prefix = ""
+            self.source = ""
             return
-        src_key = None
-        for alias in ("source", "src"):
-            if alias in data:
-                src_key = alias
-                break
-        if src_key:
-            value = data[src_key]
-        else:
-            if not self.prefix:
-                raise ValueError("missing key 'volume.source'")
-            value = ""
-        if not (isinstance(value, str) and (value or self.prefix)):
-            raise ValueError("Invalid value for 'volume.source'")
-        self.source = value
+        aliases = ("source", "src")
+        value = get_alias(data, aliases)
+        if value:
+            self.source = value
+        elif not self.prefix:
+            raise ValueError("missing key 'volume.source' or 'volume.prefix'")
 
     def _check_target(self, data: dict):
-        dest_key = None
-        for alias in ("target", "dest", "destination"):
-            if alias in data:
-                dest_key = alias
-                break
-        if not dest_key:
+        aliases = ("target", "dest", "destination")
+        value = get_alias(data, aliases)
+        if not value:
             raise ValueError("Missing key 'volume.target'")
-        value = data[dest_key]
-        if not value or not isinstance(value, str):
-            raise ValueError("Invalid value for 'volume.target'")
         self.target = value
 
     def _parse_domains(self, data: dict):
@@ -249,7 +228,9 @@ class Volume:
         self.backup = data.get("backup", {})
 
     def _parse_options(self, data: dict):
-        self.options = {k: v for k, v in data.items() if k not in CHECKED_KEYS}
+        self.options = {
+            k: v for k, v in data.items() if k not in hyphenized_set(CHECKED_KEYS)
+        }
         # mode = 'rw' is only at mount time
         if "mode" in self.options:
             del self.options["mode"]

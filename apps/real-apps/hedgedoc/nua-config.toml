@@ -106,7 +106,7 @@ type = "volume"
 # Name of the driver used to create the volume: (for type == "volume")
 # driver = "local"  # default for "volume" type
 # Mount source (e.g. a volume name or a host path):
-source_prefix = "hedgedoc_uploads"
+prefix = "hedgedoc_uploads"
 
 # Container path:
 target = "/hedgedoc/public/uploads"

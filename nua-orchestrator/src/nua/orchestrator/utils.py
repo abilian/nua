@@ -1,7 +1,7 @@
 import importlib.util
 import re
 import string
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from pathlib import Path
 
 import tomli
@@ -109,3 +109,21 @@ def load_module_function(package: str, module: str, function: str) -> Callable |
 def dehyphen(name: str) -> str:
     """Return stripped string with "-" changed to "_"."""
     return name.strip().replace("-", "_")
+
+
+def hyphen(name: str) -> str:
+    """Return stripped string with "_" changed to "-"."""
+    return name.strip().replace("_", "-")
+
+
+def hyphenized_set(data: Iterable[str]) -> set:
+    return set([hyphen(x) for x in data]) | (set([dehyphen(x) for x in data]))
+
+
+def get_alias(data: dict, aliases: Iterable) -> str | None:
+    for alias in aliases:
+        if hyphen(alias) in data:
+            return str(data[hyphen(alias)])
+        if dehyphen(alias) in data:
+            return str(data[dehyphen(alias)])
+    return None
