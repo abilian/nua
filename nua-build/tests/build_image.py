@@ -20,8 +20,8 @@ def build_test_image(src_dir: Path | str):
     assert src_path.is_dir()
 
     with chdir(src_path):
-        conf = NuaConfig(".").as_dict()
-        name = _make_image_name(conf)
+        conf = NuaConfig()
+        name = conf.nua_tag
         if Path("Makefile").is_file():
             _makefile_build_test(name)
         else:
@@ -34,8 +34,8 @@ def build_test_image_expect_fail(src_dir: Path | str):
     assert src_path.is_dir()
 
     with chdir(src_path):
-        conf = NuaConfig(".").as_dict()
-        name = _make_image_name(conf)
+        conf = NuaConfig()
+        name = conf.nua_tag
         if Path("Makefile").is_file():
             _makefile_build_test_failure(name)
         else:
@@ -66,17 +66,6 @@ def _build_test_tmpdir_failure(name: str):
     with tempfile.TemporaryDirectory(dir="/tmp") as tmpdirname:
         print("Building in temporary directory", tmpdirname)
         _build_test(tmpdirname, name, expect_failure=True)
-
-
-def _make_image_name(conf: dict) -> str:
-    meta = conf["metadata"]
-    name = meta["id"]
-    if not name.startswith("nua-"):
-        name = f"nua-{name}"
-    name = f"{name}:{meta['version']}"
-    if "release" in meta:
-        name = f"{name}-{meta['release']}"
-    return name
 
 
 def _run_make(target: str):
@@ -117,4 +106,12 @@ def _build_test(tmpdirname: str, name: str, expect_failure: bool = False):
     # clean previous run if any
     for previous in dock.containers.list(filters={"ancestor": name}):
         previous.kill()
-    print(dock.containers.run(name, command="ls -l /nua/metadata/").decode("utf8"))
+    kwargs = {
+        "remove": True,
+        "entrypoint": [],
+    }
+    print(
+        dock.containers.run(name, command="ls -l /nua/metadata/", **kwargs).decode(
+            "utf8"
+        )
+    )

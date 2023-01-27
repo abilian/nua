@@ -40,17 +40,6 @@ def get_image_by_nua_tag(tag):
         return session.query(Image).filter_by(nua_tag=tag).first()
 
 
-def nua_tag_string(metadata):
-    app_id = metadata["id"]
-    version = metadata["version"]
-    release = metadata.get("release", "")
-    if release:
-        rel_tag = f"-{release}"
-    else:
-        rel_tag = ""
-    return f"nua-{app_id}:{version}{rel_tag}"
-
-
 def store_image(
     id_sha="",
     app_id="",

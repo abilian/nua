@@ -256,12 +256,7 @@ class Builder:
         with chdir(self.build_dir):
             with suppress(IOError):
                 copy2(self.build_dir / "Dockerfile", self.build_dir)
-            release = self.config.metadata.get("release", "")
-            if release:
-                rel_tag = f"-{release}"
-            else:
-                rel_tag = ""
-            nua_tag = f"nua-{self.config.app_id}:{self.config.version}{rel_tag}"
+            nua_tag = self.config.nua_tag
             info(f"Building image {nua_tag}")
             client = docker.from_env()
             image, tee = client.images.build(
@@ -295,12 +290,7 @@ class Builder:
                     self.build_dir / self.nua_dir_relative / "Dockerfile",
                     self.build_dir,
                 )
-            release = self.config.metadata.get("release", "")
-            if release:
-                rel_tag = f"-{release}"
-            else:
-                rel_tag = ""
-            nua_tag = f"nua-{self.config.app_id}:{self.config.version}{rel_tag}"
+            nua_tag = self.config.nua_tag
             buildargs = {
                 "nua_builder_tag": self.nua_base,
                 "nua_verbosity": str(verbosity_level()),

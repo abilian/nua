@@ -55,5 +55,5 @@ def build_app(build_dir: Path) -> None:
 
 def image_name(src_path: Path) -> str:
     """Open nua-config file and return the expected image target name."""
-    content = NuaConfig(src_path).as_dict()
-    return "nua-{id}:{version}-{release}".format(**content["metadata"])
+    config = NuaConfig(src_path)
+    return config.nua_tag

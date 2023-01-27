@@ -8,6 +8,7 @@ import yaml
 from nua.lib.panic import abort
 
 from .constants import NUA_CONFIG_EXT, NUA_CONFIG_STEM
+from .nua_tag import nua_tag_string
 
 REQUIRED_BLOCKS = ["metadata"]
 REQUIRED_METADATA = ["id", "version", "title", "author", "license"]
@@ -121,6 +122,10 @@ class NuaConfig:
     @property
     def app_id(self) -> str:
         return self.metadata.get("id", "")
+
+    @property
+    def nua_tag(self) -> str:
+        return nua_tag_string(self.metadata)
 
     # build #########################################################
 

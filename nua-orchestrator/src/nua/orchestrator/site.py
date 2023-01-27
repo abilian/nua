@@ -6,6 +6,7 @@ from pprint import pformat
 
 from nua.lib.panic import abort, warning
 from nua.lib.tool.state import verbosity
+from nua.runtime.nua_tag import nua_tag_string
 
 from .domain_split import DomainSplit
 from .persistent import Persistent
@@ -60,7 +61,7 @@ class Site(Resource):
         return self["image_nua_config"]
 
     @image_nua_config.setter
-    def image_nua_config(self, image_nua_config: str):
+    def image_nua_config(self, image_nua_config: dict):
         self["image_nua_config"] = image_nua_config
 
     @property
@@ -85,25 +86,14 @@ class Site(Resource):
         # return app_id
 
     @property
-    def nua_long_name(self) -> str:
-        meta = self.image_nua_config["metadata"]
-        release = meta.get("release", "")
-        rel_tag = f"-{release}"
-        if release:
-            rel_tag = f"-{release}"
-        else:
-            rel_tag = ""
-        if meta["id"].startswith("nua-"):
-            nua_prefix = ""
-        else:
-            nua_prefix = "nua-"
-        return f"{nua_prefix}{meta['id']}-{meta['version']}{rel_tag}"
+    def nua_tag(self) -> str:
+        return nua_tag_string(self.image_nua_config["metadata"])
 
     @property
     def container_name(self) -> str:
         # override the method of Resource
         suffix = DomainSplit(self.domain).container_suffix()
-        name = sanitized_name(f"{self.nua_long_name}-{suffix}")
+        name = sanitized_name(f"{self.nua_tag}-{suffix}")
         self["container_name"] = name
         return name
 

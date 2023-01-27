@@ -611,10 +611,9 @@ class SitesDeployment:
     def store_container_instance(self, site: Site):
         if verbosity(2):
             print("saving site config in Nua DB")
-        meta = site.image_nua_config["metadata"]
         store.store_instance(
             app_id=site.app_id,
-            nua_tag=store.nua_tag_string(meta),
+            nua_tag=site.nua_tag,
             domain=site.domain,
             container=site.container_name,
             image=site.image,
