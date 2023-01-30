@@ -5,6 +5,14 @@
 from ..resource import Resource
 from ..volume import Volume
 
+NUA_PROPERTIES = {
+    "name": "postgres",  # plugin name
+    "container": "docker",  # container type
+    "family": "db",  # plugin family
+    "assign": True,  # use the "assign" keyword"
+    "network": True,  # require docker bridge network
+}
+
 
 def configure_db(resource: Resource):
     # resource.image was set earlier at detect requirement stage

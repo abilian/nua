@@ -10,14 +10,20 @@ from .backup.backup_engine import backup_resource, backup_volume
 from .backup.backup_report import global_backup_report
 from .healthcheck import HealthCheck
 from .port_normalization import normalize_ports, ports_as_dict
-from .utils import load_module_function, sanitized_name
+from .register_plugin import (
+    is_assignable_plugin,
+    is_db_plugins,
+    is_docker_plugin,
+    is_network_plugin,
+    load_plugin_function,
+)
+from .utils import sanitized_name
 from .volume import Volume
 
 CONTAINER_TYPE = {"docker"}
-DB_AUTO_TYPE = {"postgres", "mariadb"}
-DOCKER_TYPE = CONTAINER_TYPE | DB_AUTO_TYPE
-ASSIGNABLE_TYPE = CONTAINER_TYPE | DB_AUTO_TYPE
-NETWORKED_TYPE = CONTAINER_TYPE | DB_AUTO_TYPE
+DOCKER_TYPE = {"docker"}
+ASSIGNABLE_TYPE = CONTAINER_TYPE
+NETWORKED_TYPE = CONTAINER_TYPE
 
 
 class Resource(dict):
@@ -231,7 +237,7 @@ class Resource(dict):
 
         Persistent data is stored at site level (not resource level).
         """
-        return self.type in ASSIGNABLE_TYPE
+        return self.type in ASSIGNABLE_TYPE or is_assignable_plugin(self.type)
 
     def set_ports_as_dict(self):
         """Replace ports list by a dict with container port as key.
@@ -394,15 +400,11 @@ class Resource(dict):
 
         Basic: using a docker container as resource probably implies need of network.
         """
-        return self.type in NETWORKED_TYPE
-
-    def requires_db_setup(self) -> bool:
-        """Test if resource has a type with automatic setup."""
-        return self.type in DB_AUTO_TYPE
+        return self.type in NETWORKED_TYPE or is_network_plugin(self.type)
 
     def is_docker_type(self) -> bool:
         """Test if resource has a docker-like type."""
-        return self.type in DOCKER_TYPE
+        return self.type in DOCKER_TYPE or is_docker_plugin(self.type)
 
     def environment_ports(self) -> dict:
         """Return exposed ports and resource host (container name) as env
@@ -451,24 +453,20 @@ class Resource(dict):
         return reports
 
     def setup_db(self):
-        if not self.requires_db_setup():
+        if not is_db_plugins(self.type):
             return
-        if setup_db := load_module_function(
-            "nua.orchestrator.db_configurator", self.type, "setup_db"
-        ):
-            setup_db(self)
+        if setup_fct := load_plugin_function(self.type, "setup_db"):
+            setup_fct(self)
             with verbosity(2):
                 vprint(f"setup_db() for resource '{self.resource_name}': {self.type}")
             with verbosity(3):
                 vprint(pformat(self.env))
 
     def configure_db(self):
-        if not self.requires_db_setup():
+        if not is_db_plugins(self.type):
             return
-        if configure_db := load_module_function(
-            "nua.orchestrator.db_configurator", self.type, "configure_db"
-        ):
-            configure_db(self)
+        if configure_fct := load_plugin_function(self.type, "configure_db"):
+            configure_fct(self)
             with verbosity(2):
                 vprint(f"configure_db() resource '{self.resource_name}': {self.type}")
             with verbosity(3):
