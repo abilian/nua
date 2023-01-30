@@ -49,7 +49,7 @@ lint:
 #
 format:
 	invoke format
-	docformatter -i -r nua-*
+	# docformatter -i -r nua-*
 	black *.py
 	isort *.py
 

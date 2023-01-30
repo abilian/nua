@@ -21,7 +21,6 @@ from nua.autobuild.docker_build_utils import (
     display_docker_img,
     docker_build_log_error,
     image_labels,
-    vprint_log_stream,
 )
 from nua.autobuild.nua_image_builder import NUAImageBuilder
 from nua.lib.backports import chdir
