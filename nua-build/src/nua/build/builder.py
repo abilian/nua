@@ -249,39 +249,6 @@ class Builder:
             target.write_text(content)
 
     @docker_build_log_error
-    def build_with_docker(self, save=True):
-        with verbosity(3):
-            info("Starting build_with_docker()")
-        with chdir(self.build_dir):
-            with suppress(IOError):
-                copy2(self.build_dir / "Dockerfile", self.build_dir)
-            nua_tag = self.config.nua_tag
-            info(f"Building image {nua_tag}")
-            client = docker.from_env()
-            image, tee = client.images.build(
-                path=".",
-                tag=nua_tag,
-                rm=True,
-                forcerm=True,
-                buildargs={"nua_builder_tag": self.nua_base},
-                labels={
-                    "APP_ID": self.config.app_id,
-                    "NUA_TAG": nua_tag,
-                    "NUA_BUILD_VERSION": __version__,
-                },
-                nocache=True,
-            )
-            with verbosity(1):
-                display_docker_img(nua_tag)
-            if save:
-                self.save(image, nua_tag)
-            with verbosity(3):
-                vprint("-" * 60)
-                vprint("Build log:")
-                vprint_log_stream(tee)
-                vprint("-" * 60)
-
-    @docker_build_log_error
     def build_with_docker_stream(self, save=True):
         with chdir(self.build_dir):
             with suppress(IOError):
@@ -318,7 +285,13 @@ class Builder:
             info(dest)
 
 
+def _print_buffer_log(messages: list[str]):
+    for message in messages:
+        print(message, end="")
+
+
 def _docker_stream_build(path: str, tag: str, buildargs: dict, labels: dict) -> str:
+    messages_buffer = []
     client = docker.from_env()
     resp = client.api.build(
         path=path,
@@ -335,7 +308,8 @@ def _docker_stream_build(path: str, tag: str, buildargs: dict, labels: dict) -> 
     stream = json_stream(resp)
     for chunk in stream:
         if "error" in chunk:
-            raise BuildError(chunk["error"], stream)
+            _print_buffer_log(messages_buffer)
+            raise BuildError(chunk["error"], "")
         last_event = chunk
         message = chunk.get("stream")
         if not message:
@@ -344,6 +318,10 @@ def _docker_stream_build(path: str, tag: str, buildargs: dict, labels: dict) -> 
             image_id = match.group(2)
         with verbosity(2):
             vprint_blue(message)
+        if verbosity_level() < 2:
+            # store message for printing full log if later an error occurs
+            messages_buffer.append(message)
     if not image_id:
-        raise BuildError(last_event or "Unknown", stream)
+        _print_buffer_log(messages_buffer)
+        raise BuildError(last_event or "Unknown", "")
     return image_id

@@ -24,11 +24,25 @@ def docker_build_log_error(func):
         try:
             return func(*args, **kwargs)
         except BuildError as e:
-            print("=" * 60)
+            print_red("=" * 60)
             print_red("Something went wrong with image build!")
             print_red(str(e))
-            print("=" * 60)
-            vprint_log_stream(e.build_log)
+            print_red("=" * 60)
+            abort("Exiting.")
+
+        except APIError as e:
+            message = ["=" * 60]
+            message.append("Something went wrong with image build!")
+            if e.is_client_error():
+                message.append(f"{e.response.status_code} Client Error")
+            elif e.is_server_error():
+                message.append(f"{e.response.status_code} Server Error")
+            message.append(f"URL: {e.response.url}")
+            message.append(f"Reason: {e.response.reason}")
+            message.append(f"Explanation: {e.explanation}")
+            message.append("=" * 60)
+            for line in message:
+                print_red(line)
             abort("Exiting.")
 
     return build_log_error_wrapper
