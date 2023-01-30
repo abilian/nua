@@ -290,7 +290,7 @@ def _print_buffer_log(messages: list[str]):
 
 
 def _docker_stream_build(path: str, tag: str, buildargs: dict, labels: dict) -> str:
-    messages_buffer = []
+    messages_buffer: list[str] = []
     client = docker.from_env()
     resp = client.api.build(
         path=path,
