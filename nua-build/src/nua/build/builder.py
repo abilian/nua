@@ -21,12 +21,11 @@ from nua.autobuild.docker_build_utils import (
     display_docker_img,
     docker_build_log_error,
     image_labels,
-    print_log_stream,
+    vprint_log_stream,
 )
 from nua.autobuild.nua_image_builder import NUAImageBuilder
 from nua.lib.backports import chdir
-from nua.lib.console import print_stream_blue
-from nua.lib.panic import info, show, title
+from nua.lib.panic import info, show, title, vprint, vprint_blue
 from nua.lib.shell import rm_fr
 from nua.lib.tool.state import verbosity, verbosity_level
 from nua.runtime.constants import (
@@ -121,7 +120,7 @@ class Builder:
                 self._set_base_image_node(required_version)
         if not self.nua_base:
             self.nua_base = NUA_BUILDER_TAG
-        if verbosity(2):
+        with verbosity(2):
             info(f"Nua base image: '{self.nua_base}'")
 
     def _set_base_image_node(self, required_version: str):
@@ -155,8 +154,8 @@ class Builder:
 
         self.nua_dir = path
         self.nua_dir_relative = self.nua_dir.relative_to(self.config.root_dir)
-        if verbosity(3):
-            print(f"self.nua_dir: {self.nua_dir}")
+        with verbosity(3):
+            vprint(f"self.nua_dir: {self.nua_dir}")
         return
 
     def build_docker_image(self):
@@ -164,7 +163,7 @@ class Builder:
         self.list_manifest_files()
         self.copy_manifest_files()
         self.complete_with_default_files()
-        if verbosity(1):
+        with verbosity(1):
             info("Copying Nua config file:", self.config.path.name)
         copy2(self.config.path, self.build_dir)
         self.build_with_docker_stream()
@@ -180,7 +179,7 @@ class Builder:
             )
 
         self.build_dir = Path(tempfile.mkdtemp(dir=build_dir_parent))
-        if verbosity(1):
+        with verbosity(1):
             info(f"Build directory: {self.build_dir}")
 
     def list_manifest_files(self):
@@ -203,8 +202,8 @@ class Builder:
 
     def manifest_from_root_dir(self):
         """Get the list of files and directory without invalid hidden files."""
-        if verbosity(3):
-            print("manifest from:", self.config.root_dir)
+        with verbosity(3):
+            vprint("manifest from:", self.config.root_dir)
         self.manifest = [
             file
             for file in self.config.root_dir.glob("*")
@@ -216,11 +215,11 @@ class Builder:
     def copy_manifest_files(self):
         for file in self.manifest:
             if file.is_file():
-                if verbosity(1):
+                with verbosity(1):
                     info("Copying file:", file.name)
                 copy2(file, self.build_dir)
             elif file.is_dir():
-                if verbosity(1):
+                with verbosity(1):
                     info("Copying directory:", file.name)
                 copytree(file, self.build_dir / file.name)
             else:
@@ -241,17 +240,17 @@ class Builder:
             if dest.is_file():
                 # file already exists, do not replace by default content
                 continue
-            if verbosity(1):
+            with verbosity(1):
                 info("Copying Nua default file:", file.name)
             content = file.read_text(encoding="utf8")
             target = self.build_dir / self.nua_dir_relative / file.name
-            if verbosity(3):
-                print(f"target path: {target}")
+            with verbosity(3):
+                vprint(f"target path: {target}")
             target.write_text(content)
 
     @docker_build_log_error
     def build_with_docker(self, save=True):
-        if verbosity(3):
+        with verbosity(3):
             info("Starting build_with_docker()")
         with chdir(self.build_dir):
             with suppress(IOError):
@@ -272,15 +271,15 @@ class Builder:
                 },
                 nocache=True,
             )
-            if verbosity(1):
+            with verbosity(1):
                 display_docker_img(nua_tag)
             if save:
                 self.save(image, nua_tag)
-            if verbosity(3):
-                print("-" * 60)
-                print("Build log:")
-                print_log_stream(tee)
-                print("-" * 60)
+            with verbosity(3):
+                vprint("-" * 60)
+                vprint("Build log:")
+                vprint_log_stream(tee)
+                vprint("-" * 60)
 
     @docker_build_log_error
     def build_with_docker_stream(self, save=True):
@@ -302,7 +301,7 @@ class Builder:
             }
             info(f"Building image {nua_tag}")
             image_id = _docker_stream_build(".", nua_tag, buildargs, labels)
-            if verbosity(1):
+            with verbosity(1):
                 display_docker_img(nua_tag)
             if save:
                 client = docker.from_env()
@@ -314,7 +313,7 @@ class Builder:
         with open(dest, "wb") as tarfile:
             for chunk in image.save(chunk_size=2**25, named=True):
                 tarfile.write(chunk)
-        if verbosity(1):
+        with verbosity(1):
             show("Docker image saved:")
             info(dest)
 
@@ -343,8 +342,8 @@ def _docker_stream_build(path: str, tag: str, buildargs: dict, labels: dict) -> 
             continue
         if match := RE_SUCCESS.search(message):
             image_id = match.group(2)
-        if verbosity(2):
-            print_stream_blue(message)
+        with verbosity(2):
+            vprint_blue(message)
     if not image_id:
         raise BuildError(last_event or "Unknown", stream)
     return image_id

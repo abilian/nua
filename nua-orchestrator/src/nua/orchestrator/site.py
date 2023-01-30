@@ -4,7 +4,7 @@ from copy import deepcopy
 from pathlib import Path
 from pprint import pformat
 
-from nua.lib.panic import abort, warning
+from nua.lib.panic import abort, vprint, warning
 from nua.lib.tool.state import verbosity
 from nua.runtime.nua_tag import nua_tag_string
 
@@ -149,8 +149,8 @@ class Site(Resource):
             self.network_name = self.container_name
             for resource in self.resources:
                 resource.network_name = self.network_name
-            if verbosity(4):
-                print("detect_required_network() network_name =", self.network_name)
+            with verbosity(4):
+                vprint("detect_required_network() network_name =", self.network_name)
 
     def resource_per_name(self, name: str) -> Resource | None:
         for resource in self.resources:
@@ -194,8 +194,8 @@ class Site(Resource):
             for resource_declaration in self.image_nua_config.get("resource", [])
         ]
         resources = [res for res in resources if res]
-        if verbosity(3):
-            print(f"Image resources: {pformat(resources)}")
+        with verbosity(3):
+            vprint(f"Image resources: {pformat(resources)}")
         self.resources = resources
 
     def _parse_resource(self, declaration: dict) -> Resource | None:
@@ -236,8 +236,8 @@ class Site(Resource):
         config_ports = list(config_ports.values())
         normalize_ports(config_ports, default_proxy="auto")
         ports = ports_as_dict(config_ports)
-        if verbosity(4):
-            print(f"rebase_ports_upon_nua_config(): ports={pformat(ports)}")
+        with verbosity(4):
+            vprint(f"rebase_ports_upon_nua_config(): ports={pformat(ports)}")
         ports.update(self.port)
         self.port = ports
 

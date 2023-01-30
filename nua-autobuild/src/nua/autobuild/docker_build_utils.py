@@ -5,17 +5,17 @@ from functools import wraps
 from docker import from_env
 from docker.errors import APIError, BuildError, ImageNotFound
 from docker.models.images import Image
-from nua.lib.console import print_magenta, print_red
-from nua.lib.panic import abort
+from nua.lib.console import print_red
+from nua.lib.panic import abort, vprint, vprint_magenta
 from nua.lib.tool.state import verbosity
 
 LOCAL_CONFIG = {"size_unit_MiB": False}
 
 
-def print_log_stream(docker_log: list):
+def vprint_log_stream(docker_log: list):
     for line in docker_log:
         if "stream" in line:
-            print("    ", line["stream"].strip())
+            vprint("    ", line["stream"].strip())
 
 
 def docker_build_log_error(func):
@@ -28,7 +28,7 @@ def docker_build_log_error(func):
             print_red("Something went wrong with image build!")
             print_red(str(e))
             print("=" * 60)
-            print_log_stream(e.build_log)
+            vprint_log_stream(e.build_log)
             abort("Exiting.")
 
     return build_log_error_wrapper
@@ -60,11 +60,11 @@ def image_labels(reference: str) -> dict:
 
 
 def display_docker_img(iname: str):
-    print_magenta(f"Docker image for '{iname}':")
+    vprint_magenta(f"Docker image for '{iname}':")
     client = from_env()
     result = client.images.list(filters={"reference": iname})
     if not result:
-        print("No image found")
+        vprint("No image found")
         return
     for img in result:
         display_one_docker_img(img)
@@ -76,10 +76,10 @@ def display_one_docker_img(image: Image):
     crea = datetime.fromisoformat(image_created_as_iso(image)).isoformat(" ")
     # Note on size of image: Docker uses 10**6 for MB, not 2**20
     size = docker_image_size(image)
-    print(f"    tags: {tags}")
-    print(f"    id: {sid}")
-    print(f"    size: {size}{size_unit()}")
-    print(f"    created: {crea}")
+    vprint(f"    tags: {tags}")
+    vprint(f"    id: {sid}")
+    vprint(f"    size: {size}{size_unit()}")
+    vprint(f"    created: {crea}")
 
 
 def docker_require(reference: str) -> Image | None:
@@ -90,8 +90,9 @@ def docker_remove_locally(reference: str):
     client = from_env()
     try:
         image = client.images.get(reference)
-        if image and verbosity(3):
-            print(f"Image '{reference}' found in local Docker instance: remove it")
+        if image:
+            with verbosity(3):
+                vprint(f"Image '{reference}' found in local Docker instance: remove it")
             client.images.remove(image=image.id, force=True, noprune=False)
     except (APIError, ImageNotFound):
         pass
@@ -102,12 +103,13 @@ def docker_get_locally(reference: str) -> Image | None:
     try:
         name = reference.split("/")[-1]
         image = client.images.get(name)
-        if image and verbosity(3):
-            print(f"Image '{reference}' found in local Docker instance")
+        if image:
+            with verbosity(3):
+                vprint(f"Image '{reference}' found in local Docker instance")
         return image
     except (APIError, ImageNotFound):
-        if verbosity(4):
-            print(f"Image '{reference}' not found in local Docker instance")
+        with verbosity(4):
+            vprint(f"Image '{reference}' not found in local Docker instance")
         return None
 
 
@@ -115,10 +117,11 @@ def docker_pull(reference: str) -> Image | None:
     client = from_env()
     try:
         image = client.images.pull(reference)
-        if image and verbosity(3):
-            print(f"Image '{reference}' pulled from Docker hub")
+        if image:
+            with verbosity(3):
+                vprint(f"Image '{reference}' pulled from Docker hub")
         return image
     except (APIError, ImageNotFound):
-        if verbosity(3):
-            print(f"Image '{reference}' not found in Docker hub")
+        with verbosity(3):
+            vprint(f"Image '{reference}' not found in Docker hub")
         return None

@@ -2,8 +2,7 @@
 
 WIP
 """
-from nua.lib.console import print_magenta
-from nua.lib.panic import abort
+from nua.lib.panic import abort, vprint_magenta
 from nua.lib.tool.state import verbosity
 
 from ...deploy_utils import load_install_image
@@ -18,8 +17,8 @@ def deploy_nua(app_name: str) -> int:
     """
     # if app_name.endswith(".toml") and Path(app_name).is_file():
     #     return deploy_nua_sites(app_name)
-    if verbosity(2):
-        print_magenta(f"image: '{app_name}'")
+    with verbosity(2):
+        vprint_magenta(f"image: '{app_name}'")
     results = search_nua(app_name)
     if not results:
         abort(f"No image found for the app id '{app_name}'.")

@@ -12,7 +12,7 @@ Test ENV variables:
 
 import os
 
-from nua.lib.console import print_magenta
+from nua.lib.panic import show, vprint, vprint_magenta
 from nua.lib.shell import sh
 from nua.lib.tool.state import verbosity
 
@@ -52,8 +52,8 @@ def certbot_run_args(domains: list) -> str:
 
 
 def apply_none_strategy(domains: list[str]):
-    if verbosity(1):
-        print_magenta(f"Use HTTP for: {' '.join(domains)}")
+    with verbosity(1):
+        vprint_magenta(f"Use HTTP for: {' '.join(domains)}")
     return
 
 
@@ -68,8 +68,8 @@ def apply_auto_strategy(domains: list[str]):
         - let certbot manage cron,
         - apply "auto" rules and parameters.
     """
-    if verbosity(1):
-        print_magenta(f"Use HTTPS (Certbot) for: {' '.join(domains)}")
+    with verbosity(1):
+        vprint_magenta(f"Use HTTPS (Certbot) for: {' '.join(domains)}")
     cmd = "certbot run " + certbot_run_args(domains)
     if os.getuid():  # aka not root
         cmd = "sudo " + cmd
@@ -78,8 +78,8 @@ def apply_auto_strategy(domains: list[str]):
     # - when "sudo cmd", from nua, we epect to use the host's certbot package
     #   of the host installation (not a venv package)
     # - certbot has been installed on the host from nua-bootstrap
-    if verbosity(3):
-        output = sh(cmd, show_cmd=True, capture_output=True)
-        print(output)
-    else:
-        sh(cmd, show_cmd=verbosity(2))
+    with verbosity(2):
+        show(cmd)
+    output = sh(cmd, show_cmd=False, capture_output=True)
+    with verbosity(3):
+        vprint(output)

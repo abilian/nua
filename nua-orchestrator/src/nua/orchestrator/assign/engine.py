@@ -45,7 +45,7 @@ def instance_key_evaluator(
         persistent = site.persistent("")
     else:
         persistent = site.persistent(resource.resource_name)
-    if verbosity(3):
+    with verbosity(3):
         info(f"resource.assign ({late_evaluation=}):\n    {pformat(resource.assign)}")
     for requirement in resource.assign:
         evaluate_requirement(resource, requirement, persistent, env, late_evaluation)
@@ -64,7 +64,7 @@ def evaluate_requirement(
     function = required_function(requirement, late_evaluation)
     if function:
         result = function(resource, requirement, persistent)
-        if verbosity(3):
+        with verbosity(3):
             info(f"generated value: {result}")
     else:
         warning(f"Requirement maybe not valid for {destination_key}, key set to empty")

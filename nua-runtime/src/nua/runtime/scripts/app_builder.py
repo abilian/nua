@@ -19,7 +19,7 @@ from nua.lib.actions import (
     project_install,
 )
 from nua.lib.backports import chdir
-from nua.lib.panic import abort, info, show
+from nua.lib.panic import abort, info, show, vprint
 from nua.lib.shell import chmod_r, mkdir_p, rm_fr, sh
 from nua.lib.tool.state import set_verbosity, verbosity, verbosity_level
 
@@ -49,7 +49,7 @@ class BuilderApp:
         # self.root_dir = Path.cwd()
         if "nua_verbosity" in os.environ:
             set_verbosity(int(os.environ["nua_verbosity"]))
-            if verbosity():
+            with verbosity(1):
                 info("verbosity:", verbosity_level())
         self.build_dir = Path(NUA_BUILD_PATH)
         if not self.build_dir.is_dir():
@@ -83,8 +83,8 @@ class BuilderApp:
             else:
                 # Use the root folder (where is the nua-config.toml file)
                 self.nua_dir = self.build_dir
-            if verbosity(2):
-                print("self.nua_dir:", self.nua_dir)
+            with verbosity(2):
+                vprint("self.nua_dir:", self.nua_dir)
             return
         # Provided path must exist (or should have failed earlier)
         self.nua_dir = self.build_dir / nua_dir
@@ -103,8 +103,9 @@ class BuilderApp:
         inferred = []
         for resource in self.config.resource:
             inferred.extend(INFERRED_META_PACKAGES.get(resource.get("type", ""), []))
-        if inferred and verbosity(2):
-            print(f"Inferred meta packages: {inferred}")
+        if inferred:
+            with verbosity(2):
+                vprint(f"Inferred meta packages: {inferred}")
         return inferred
 
     def pre_build(self):
@@ -145,12 +146,12 @@ class BuilderApp:
         script_dir.mkdir(mode=0o755, parents=True, exist_ok=True)
         path = self.find_start_script()
         if path:
-            if verbosity(2):
-                print("Copying start script:", path)
+            with verbosity(2):
+                vprint("Copying start script:", path)
             copy2(path, script_dir)
         else:
-            if verbosity(2):
-                print("Copying default start script")
+            with verbosity(2):
+                vprint("Copying default start script")
             copy_from_package("nua.runtime.defaults", "start.py", script_dir)
 
     def find_start_script(self) -> Path | None:
@@ -160,8 +161,8 @@ class BuilderApp:
         path = self.nua_dir / name
         path = path.absolute().resolve()
         if path.is_file():
-            if verbosity(3):
-                print("found start_script path:", path)
+            with verbosity(3):
+                vprint("found start_script path:", path)
             return path
         return None
 
@@ -172,7 +173,7 @@ class BuilderApp:
         path = self.nua_dir / name
         path = path.absolute().resolve()
         if path.is_file():
-            if verbosity(3):
+            with verbosity(3):
                 info(f"found build script: {path}")
             return path
         return None

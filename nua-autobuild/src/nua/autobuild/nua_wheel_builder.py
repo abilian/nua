@@ -9,7 +9,7 @@ from urllib.request import urlopen
 import tomli
 import tomli_w
 from nua.lib.backports import chdir
-from nua.lib.panic import abort, warning
+from nua.lib.panic import abort, vprint, warning
 from nua.lib.shell import rm_fr, sh
 from nua.lib.tool.state import verbosity
 
@@ -28,17 +28,17 @@ class NuaWheelBuilder:
         return self._make_wheels_local()
 
     def _make_wheels_download(self) -> bool:
-        if verbosity(3):
-            print("make_wheels(): download of source code forced")
+        with verbosity(3):
+            vprint("make_wheels(): download of source code forced")
         return self.build_from_download()
 
     def _make_wheels_local(self) -> bool:
         if self.check_devel_mode():
-            if verbosity(3):
-                print("make_wheels(): local git found")
+            with verbosity(3):
+                vprint("make_wheels(): local git found")
             return self.build_from_local()
-        if verbosity(3):
-            print("make_wheels(): local git not found, will download")
+        with verbosity(3):
+            vprint("make_wheels(): local git not found, will download")
         return self.build_from_download()
 
     @staticmethod
@@ -65,11 +65,11 @@ class NuaWheelBuilder:
     def build_from_download(self) -> bool:
         with tempfile.TemporaryDirectory() as build_dir:
             self.build_path = Path(build_dir)
-            if verbosity(3):
-                print(f"build_from_download() directory: {self.build_path}")
+            with verbosity(3):
+                vprint(f"build_from_download() directory: {self.build_path}")
             target = self.build_path / "nua.zip"
-            if verbosity(3):
-                print(f"Dowloading '{CODE_URL}'")
+            with verbosity(3):
+                vprint(f"Dowloading '{CODE_URL}'")
             with urlopen(CODE_URL) as remote:  # noqa S310
                 target.write_bytes(remote.read())
             with zipfile.ZipFile(target, "r") as zfile:
@@ -80,8 +80,8 @@ class NuaWheelBuilder:
         if not (top_git.is_dir()):
             abort(f"Directory not found '{top_git}'")
             return False  # for the qa
-        if verbosity(3):
-            print([f.name for f in top_git.iterdir()])
+        with verbosity(3):
+            vprint([f.name for f in top_git.iterdir()])
         return all((self.build_nua_lib(top_git), self.build_nua_runtime(top_git)))
 
     def build_nua_lib(self, top_git: Path) -> bool:
@@ -106,8 +106,8 @@ class NuaWheelBuilder:
         path.write_text(tomli_w.dumps(pyproject))
 
     def poetry_build(self, path: Path) -> bool:
-        if verbosity(3):
-            print(f"Poetry build in '{path}'")
+        with verbosity(3):
+            vprint(f"Poetry build in '{path}'")
         with chdir(path):
             rm_fr(path / "dist")
             cmd = "poetry build -f wheel"
@@ -118,6 +118,6 @@ class NuaWheelBuilder:
             built = done.group(1).strip()
             wheel = path / "dist" / built
             copy2(wheel, self.wheel_path)
-            if verbosity(2):
-                print(f"Wheel copied: '{built}'")
+            with verbosity(2):
+                vprint(f"Wheel copied: '{built}'")
             return True

@@ -1,4 +1,5 @@
 from nua.autobuild.docker_build_utils import display_one_docker_img
+from nua.lib.panic import vprint
 from nua.lib.tool.state import verbosity
 
 from ..docker_utils import pull_docker_image
@@ -12,11 +13,11 @@ class ServiceBase:
         return []
 
     def _pull_docker_image(self, required_image) -> bool:
-        if verbosity(1):
-            print(f"pulling docker image '{required_image}'")
+        with verbosity(1):
+            vprint(f"pulling docker image '{required_image}'")
         image = pull_docker_image(required_image)
         if image:
-            if verbosity(1):
+            with verbosity(1):
                 display_one_docker_img(image)
             return True
         else:

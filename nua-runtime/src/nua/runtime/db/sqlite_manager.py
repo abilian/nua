@@ -4,6 +4,7 @@ Common interface for databases : SQLite3 interface
 import sqlite3
 from pathlib import Path
 
+from nua.lib.panic import vprint
 from nua.lib.tool.state import verbosity
 
 from .db_manager import DbManager
@@ -53,8 +54,8 @@ class SQLiteManager(DbManager):
 
     def db_create(self, dbname: str, user: str, _password: str | None = None):
         connection = sqlite3.connect(dbname)
-        if verbosity(2):
-            print(f"SQLite DB {dbname} created.")
+        with verbosity(2):
+            vprint(f"SQLite DB {dbname} created.")
         connection.close()
 
     def db_table_exist(self, dbname: str, user: str, password: str, table: str) -> bool:

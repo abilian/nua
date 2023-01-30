@@ -31,7 +31,7 @@ def is_python_project(path: str | Path = "") -> bool:
     root = Path(path).expanduser().resolve()
     deps_files = ("requirements.txt", "setup.py", "pyproject.toml")
     result = any((root / f).exists() for f in deps_files)
-    if verbosity(2):
+    with verbosity(2):
         info("is_python_project:", result)
     return result
 
@@ -63,7 +63,7 @@ def install_meta_packages(packages: list, keep_lists: bool = False):
 
 def install_packages(packages: list, keep_lists: bool = False):
     if packages:
-        if verbosity(2):
+        with verbosity(2):
             show("install packages")
         install_package_list(packages, keep_lists=keep_lists)
 
@@ -77,14 +77,14 @@ def install_build_packages(
     if isinstance(packages, str):
         packages = packages.strip().split()
     if packages:
-        if verbosity(2):
+        with verbosity(2):
             show("install temporary build packages")
         _install_packages(packages, update)
     try:
         yield
     finally:
         if packages:
-            if verbosity(2):
+            with verbosity(2):
                 show("remove temporary build packages")
             _purge_packages(packages)
         apt_final_clean()
@@ -358,7 +358,7 @@ def download_extract(url: str, dest: str | Path) -> Path | None:
     name = Path(url).name
     if not any(name.endswith(suf) for suf in (".zip", ".tar", ".tar.gz", ".tgz")):
         raise ValueError(f"Unknown archive format for '{name}'")
-    if verbosity(2):
+    with verbosity(2):
         info("download URL:", url)
     with tempfile.TemporaryDirectory() as tmp:
         target = Path(tmp) / name
@@ -370,7 +370,7 @@ def download_extract(url: str, dest: str | Path) -> Path | None:
 
 
 def extract_all(archive: str | Path, dest: str | Path, url: str = "") -> Path | None:
-    if verbosity(2):
+    with verbosity(2):
         info("extract archive:", archive)
     with tarfile.open(archive) as tar:
         tar.extractall(dest)
@@ -398,10 +398,10 @@ def _detect_archive_path(dest: str | Path, possible: list) -> Path | None:
     for name in possible:
         result = Path(dest) / name
         if result.exists():
-            if verbosity(2):
+            with verbosity(2):
                 info("detected path:", result)
             return result
-    if verbosity(2):
+    with verbosity(2):
         show("detected path: no path detected")
     return None
 
@@ -419,7 +419,7 @@ def is_local_dir(project: str) -> bool:
         abs_path = Path(project).absolute().resolve()
         result = abs_path.is_dir()
         abs_path_s = str(abs_path)
-    if verbosity(2):
+    with verbosity(2):
         info(f"is_local_dir '{abs_path_s}'", result)
     return result
 
@@ -446,7 +446,7 @@ def detect_and_install(directory: str | Path | None) -> None:
         path = Path(directory)
     else:
         path = Path(".")
-    if verbosity(2):
+    with verbosity(2):
         info("detect_and_install", path)
     with chdir(path):
         if is_python_project():
@@ -467,7 +467,7 @@ def set_php_ini_keys(replacements: dict, path: str | Path):
 
 
 def replace_in(file_pattern: str, string_pattern: str, replacement: str):
-    if verbosity(2):
+    with verbosity(2):
         show(f"replace_in() '{string_pattern}' by '{replacement}'")
     counter = 0
     for file_name in glob(file_pattern, recursive=True):
@@ -478,7 +478,7 @@ def replace_in(file_pattern: str, string_pattern: str, replacement: str):
         content = path.read_text(encoding="utf8")
         path.write_text(content.replace(string_pattern, replacement), encoding="utf8")
         counter += 1
-    if verbosity(2):
+    with verbosity(2):
         show(f"replace_in() done in {counter} files")
 
 
@@ -528,7 +528,7 @@ def jinja2_render_file(template: str | Path, dest: str | Path, data: dict) -> bo
         template_path.read_text(encoding="utf8"), keep_trailing_newline=True
     )
     dest_path.write_text(j2_template.render(data), encoding="utf8")
-    if verbosity(2):
+    with verbosity(2):
         show("jinja2 render:", template)
     return True
 
@@ -539,7 +539,7 @@ def jinja2_render_from_str_template(
     dest_path = Path(dest)
     j2_template = Template(template, keep_trailing_newline=True)
     dest_path.write_text(j2_template.render(data), encoding="utf8")
-    if verbosity(2):
+    with verbosity(2):
         show("jinja2 render from string")
     return True
 

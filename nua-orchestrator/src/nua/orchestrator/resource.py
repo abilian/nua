@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from pprint import pformat
 
-from nua.lib.panic import abort, warning
+from nua.lib.panic import abort, vprint, warning
 from nua.lib.tool.state import verbosity
 
 from .backup.backup_engine import backup_resource, backup_volume
@@ -419,9 +419,9 @@ class Resource(dict):
         return env
 
     def add_requested_secrets(self, key: str):
-        if verbosity(3):
-            print(self)
-            print("add_requested_secrets", key)
+        with verbosity(3):
+            vprint(self)
+            vprint("add_requested_secrets", key)
         self.requested_secrets.append(key)
         for resource in self.resources:
             resource.add_requested_secrets(key)
@@ -457,10 +457,10 @@ class Resource(dict):
             "nua.orchestrator.db_configurator", self.type, "setup_db"
         ):
             setup_db(self)
-            if verbosity(2):
-                print(f"setup_db() for resource '{self.resource_name}': {self.type}")
-            if verbosity(3):
-                print(pformat(self.env))
+            with verbosity(2):
+                vprint(f"setup_db() for resource '{self.resource_name}': {self.type}")
+            with verbosity(3):
+                vprint(pformat(self.env))
 
     def configure_db(self):
         if not self.requires_db_setup():
@@ -469,7 +469,7 @@ class Resource(dict):
             "nua.orchestrator.db_configurator", self.type, "configure_db"
         ):
             configure_db(self)
-            if verbosity(2):
-                print(f"configure_db() resource '{self.resource_name}': {self.type}")
-            if verbosity(3):
-                print(pformat(self))
+            with verbosity(2):
+                vprint(f"configure_db() resource '{self.resource_name}': {self.type}")
+            with verbosity(3):
+                vprint(pformat(self))

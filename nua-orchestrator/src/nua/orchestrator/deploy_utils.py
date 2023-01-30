@@ -8,8 +8,7 @@ import docker
 import docker.types
 from nua.autobuild.docker_build_utils import display_one_docker_img, docker_require
 from nua.build.archive_search import ArchiveSearch
-from nua.lib.console import print_green, print_magenta
-from nua.lib.panic import abort, info, warning
+from nua.lib.panic import abort, info, vprint, vprint_green, vprint_magenta, warning
 from nua.lib.tool.state import verbosity
 
 from .db import store
@@ -36,7 +35,7 @@ REMOTE_DOCKER_RESOURCES = {"postgres", "mariadb"}
 
 
 def load_install_image(image_path: str | Path) -> tuple:
-    """Install docker image (tar file) in local docker daeon.
+    """Install docker image (tar file) in local docker daemon.
 
     Return: tuple(image_id, image_nua_config)
     """
@@ -51,7 +50,8 @@ def load_install_image(image_path: str | Path) -> tuple:
         abort(f"image non compatible Nua: {path}.", explanation="No Nua config found")
     metadata = image_nua_config["metadata"]
     msg = "Installing App: {id} {version}, {title}".format(**metadata)
-    print_magenta(msg)
+    if verbosity(0):
+        vprint_magenta(msg)
     client = docker.from_env()
     # images_before = {img.id for img in client.images.list()}
     with open(path, "rb") as input:  # noqa: S108
@@ -61,8 +61,8 @@ def load_install_image(image_path: str | Path) -> tuple:
     loaded_img = loaded[0]
     # images_after = {img.id for img in client.images.list()}
     # new = images_after - images_before
-    if verbosity(1):
-        print_green("Installing image:")
+    with verbosity(1):
+        vprint_green("Installing image:")
         display_one_docker_img(loaded_img)
     return loaded_img.id, image_nua_config
 
@@ -163,14 +163,14 @@ def start_one_container(rsite: Resource, mounted_volumes: list):
     if mounted_volumes:
         run_params["mounts"] = mounted_volumes
     rsite.run_params = run_params
-    if verbosity(4):
-        print(f"start_one_container() run_params:\n{pformat(run_params)}")
+    with verbosity(4):
+        vprint(f"start_one_container() run_params:\n{pformat(run_params)}")
     secrets = secrets_dict(rsite.requested_secrets)
     new_container = docker_run(rsite, secrets)
     rsite.container_id = new_container.id
     if mounted_volumes:
         rsite.run_params["mounts"] = True
-    if verbosity(1):
+    with verbosity(1):
         info(f"    -> container of name: {rsite.container_name}")
         info(f"            container id: {rsite.container_id_short}")
         if rsite.network_name:
@@ -204,8 +204,8 @@ def deactivate_all_instances():
     - remove site from DB
     """
     for instance in store.list_instances_all():
-        if verbosity(2):
-            print(
+        with verbosity(2):
+            vprint(
                 f"Removing from containers and DB: "
                 f"'{instance.app_id}' instance on '{instance.domain}'"
             )
@@ -276,10 +276,10 @@ def _pull_resource_docker(resource: Resource) -> bool:
 
 def _actual_pull_container(resource: Resource):
     """Retrieve a resource container."""
-    if verbosity(1):
+    with verbosity(1):
         info(f"Pulling image '{resource.image}'")
     docker_image = docker_require(resource.image)
     if docker_image:
         PULLED_IMAGES[resource.image] = docker_image.id
-        if verbosity(1):
+        with verbosity(1):
             display_one_docker_img(docker_image)

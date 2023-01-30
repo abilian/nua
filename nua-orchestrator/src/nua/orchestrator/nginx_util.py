@@ -6,7 +6,7 @@ from time import sleep
 
 from nua.lib.actions import jinja2_render_from_str_template
 from nua.lib.console import print_magenta
-from nua.lib.panic import warning
+from nua.lib.panic import vprint, warning
 from nua.lib.shell import chown_r, mkdir_p, rm_fr, sh
 from nua.lib.tool.state import verbosity
 
@@ -130,17 +130,17 @@ def configure_nginx_hostname(host: dict):
             .read_text(encoding="utf8")
         )
     dest_path = nua_nginx / "sites" / host["hostname"]
-    if verbosity(2):
-        print(host["hostname"], "template:", template)
-        print(host["hostname"], "target  :", dest_path)
+    with verbosity(2):
+        vprint(host["hostname"], "template:", template)
+        vprint(host["hostname"], "target  :", dest_path)
     jinja2_render_from_str_template(template, dest_path, host)
-    if verbosity(2):
+    with verbosity(2):
         if not dest_path.exists():
             warning(f"host '{host['hostname']}', target not created")
         else:
-            print(host["hostname"], "content:")
+            vprint(host["hostname"], "content:")
             with open(dest_path, encoding="utf8") as rfile:
-                print(rfile.read())
+                vprint(rfile.read())
     os.chmod(dest_path, 0o644)
 
 

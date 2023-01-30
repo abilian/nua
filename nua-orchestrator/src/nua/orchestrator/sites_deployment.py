@@ -6,8 +6,8 @@ from pathlib import Path
 from pprint import pformat
 from typing import Any
 
-from nua.lib.console import print_green, print_magenta, print_red
-from nua.lib.panic import abort, info, warning
+from nua.lib.console import print_green, print_red
+from nua.lib.panic import abort, info, vprint, vprint_green, vprint_magenta, warning
 from nua.lib.tool.state import verbosity
 
 from . import config
@@ -129,24 +129,24 @@ class SitesDeployment:
         services = Services()
         services.load()
         self.available_services = services.loaded
-        if verbosity(2):
-            print_magenta(
+        with verbosity(2):
+            vprint_magenta(
                 f"Available local services: {pformat(list(services.loaded.keys()))}"
             )
 
     def load_deploy_config(self, deploy_config: str):
         config_path = Path(deploy_config).expanduser().resolve()
-        if verbosity(1):
+        with verbosity(1):
             info(f"Deploy sites from: {config_path}")
         self.loaded_config = parse_any_format(config_path)
         self.parse_deploy_sites()
         self.sort_sites_per_domain()
-        if verbosity(3):
+        with verbosity(3):
             self.print_host_list()
 
     def restore_previous_deploy_config_strict(self):
         """Retrieve last successful deployment configuration (strict mode)."""
-        if verbosity(1):
+        with verbosity(1):
             info("Deploy sites from previous deployment (strict mode).")
         previous_config = self.previous_success_deployment_record()
         if not previous_config:
@@ -160,7 +160,7 @@ class SitesDeployment:
 
     def restore_previous_deploy_config_replay(self):
         """Retrieve last successful deployment configuration (replay mode)."""
-        if verbosity(1):
+        with verbosity(1):
             info("Deploy sites from previous deployment (replay deployment).")
         previous_config = self.previous_success_deployment_record()
         if not previous_config:
@@ -169,7 +169,7 @@ class SitesDeployment:
         # self.future_config_id = previous_config.get("id")
         self.parse_deploy_sites()
         self.sort_sites_per_domain()
-        if verbosity(3):
+        with verbosity(3):
             self.print_host_list()
 
     def gather_requirements(self):
@@ -222,8 +222,8 @@ class SitesDeployment:
         # registering https sites with certbot requires that the base nginx config is
         # deployed.
         register_certbot_domains(self.sites)
-        if verbosity(2):
-            print("'sites':\n", pformat(self.sites))
+        with verbosity(2):
+            vprint("'sites':\n", pformat(self.sites))
 
     def start_sites(self):
         """Start all sites to deploy."""
@@ -366,7 +366,7 @@ class SitesDeployment:
             if not site.find_registry_path():
                 print_red(f"No image found for '{site.image}'")
                 return False
-        if verbosity(1):
+        with verbosity(1):
             seen = set()
             for site in self.sites:
                 if site.image not in seen:
@@ -410,8 +410,8 @@ class SitesDeployment:
 
     def sites_check_local_service_available(self):
         self.required_services = {s for site in self.sites for s in site.local_services}
-        if verbosity(3):
-            print("required services:", self.required_services)
+        with verbosity(3):
+            vprint("required services:", self.required_services)
         available_services = set(self.available_services.keys())
         for service in self.required_services:
             if service not in available_services:
@@ -442,20 +442,20 @@ class SitesDeployment:
     def sites_set_network_name(self):
         for site in self.sites:
             site.set_network_name()
-        if verbosity(3):
-            print("sites_set_network_name() done")
+        with verbosity(3):
+            vprint("sites_set_network_name() done")
 
     def sites_set_resources_names(self):
         for site in self.sites:
             site.set_resources_names()
-        if verbosity(3):
-            print("sites_set_resources_names() done")
+        with verbosity(3):
+            vprint("sites_set_resources_names() done")
 
     def sites_merge_instances_to_resources(self):
         for site in self.sites:
             site.merge_instance_to_resources()
-        if verbosity(3):
-            print("sites_merge_instances_to_resources() done")
+        with verbosity(3):
+            vprint("sites_merge_instances_to_resources() done")
 
     def sites_configure_requested_db(self):
         for site in self.sites:
@@ -467,7 +467,7 @@ class SitesDeployment:
             site.set_volumes_names()
 
     def restart_local_services(self):
-        if verbosity(2):
+        with verbosity(2):
             if self.required_services:
                 info("Services to restart:", pformat(self.required_services))
             else:
@@ -479,31 +479,31 @@ class SitesDeployment:
     def configure_nginx(self):
         clean_nua_nginx_default_site()
         for host in self.sites_per_domain:
-            if verbosity(1):
+            with verbosity(1):
                 info(f"Configure Nginx for hostname '{host['hostname']}'")
             configure_nginx_hostname(host)
 
     def sites_generate_ports(self):
         start_ports = config.read("nua", "ports", "start") or 8100
         end_ports = config.read("nua", "ports", "end") or 9000
-        if verbosity(4):
-            print(f"sites_generate_ports(): interval {start_ports} to {end_ports}")
+        with verbosity(4):
+            vprint(f"sites_generate_ports(): interval {start_ports} to {end_ports}")
         self.update_ports_from_nua_config()
         allocated_ports = self._configured_ports()
-        if verbosity(4):
-            print(f"sites_generate_ports(): {allocated_ports=}")
+        with verbosity(4):
+            vprint(f"sites_generate_ports(): {allocated_ports=}")
         # list of ports used for domains / sites, trying to keep them unchanged
         ports_instances_domains = store.ports_instances_domains()
-        if verbosity(4):
-            print(f"sites_generate_ports(): {ports_instances_domains=}")
+        with verbosity(4):
+            vprint(f"sites_generate_ports(): {ports_instances_domains=}")
         allocated_ports.update(ports_instances_domains)
-        if verbosity(3):
-            print(f"sites_generate_ports() used ports:\n {allocated_ports=}")
+        with verbosity(3):
+            vprint(f"sites_generate_ports() used ports:\n {allocated_ports=}")
         self.sites_allocate_ports(
             port_allocator(start_ports, end_ports, allocated_ports)
         )
-        if verbosity(3):
-            print("sites_generate_ports() done")
+        with verbosity(3):
+            vprint("sites_generate_ports() done")
 
     def _configured_ports(self) -> set[int]:
         """Return set of required host ports (aka non auto ports) from
@@ -545,8 +545,8 @@ class SitesDeployment:
 
         Merge ports modifications from site config with image config.
         """
-        if verbosity(5):
-            print(f"update_ports_from_nua_config(): len(site_list)= {len(self.sites)}")
+        with verbosity(5):
+            vprint(f"update_ports_from_nua_config(): len(site_list)= {len(self.sites)}")
         for site in self.sites:
             site.rebase_ports_upon_nua_config()
 
@@ -581,8 +581,8 @@ class SitesDeployment:
 
     def retrieve_persistent(self, site: Site):
         previous = store.instance_persistent(site.domain, site.app_id)
-        if verbosity(4):
-            print(f"persistent previous: {previous=}")
+        with verbosity(4):
+            vprint(f"persistent previous: {previous=}")
         previous.update(site.persistent_full_dict())
         site.set_persistent_full_dict(previous)
 
@@ -609,8 +609,8 @@ class SitesDeployment:
         start_one_container(site, mounted_volumes)
 
     def store_container_instance(self, site: Site):
-        if verbosity(2):
-            print("saving site config in Nua DB")
+        with verbosity(2):
+            vprint("saving site config in Nua DB")
         store.store_instance(
             app_id=site.app_id,
             nua_tag=site.nua_tag,
@@ -742,36 +742,34 @@ class SitesDeployment:
             self.display_persistent_data(site)
 
     def display_persistent_data(self, site: Site):
-        if verbosity(3):
+        with verbosity(3):
             content = site.persistent_full_dict()
             if content:
-                print_green("Persistent generated variables:")
-                print(pformat(content))
+                vprint_green("Persistent generated variables:")
+                vprint(pformat(content))
 
     def display_used_volumes(self):
-        if not verbosity(1):
-            return
-        current_mounted = store.list_instances_container_active_volumes()
-        if not current_mounted:
-            return
-        print_green("Volumes used by current Nua configuration:")
-        for volume in current_mounted:
-            print(Volume.string(volume))
+        with verbosity(1):
+            current_mounted = store.list_instances_container_active_volumes()
+            if not current_mounted:
+                return
+            vprint_green("Volumes used by current Nua configuration:")
+            for volume in current_mounted:
+                vprint(Volume.string(volume))
 
     def display_unused_volumes(self):
-        if not verbosity(1):
-            return
-        unused = unused_volumes(self.orig_mounted_volumes)
-        if not unused:
-            return
-        print_green(
-            "Some volumes are mounted but not used by current Nua configuration:"
-        )
-        for volume in unused:
-            print(Volume.string(volume))
+        with verbosity(1):
+            unused = unused_volumes(self.orig_mounted_volumes)
+            if not unused:
+                return
+            print_green(
+                "Some volumes are mounted but not used by current Nua configuration:"
+            )
+            for volume in unused:
+                vprint(Volume.string(volume))
 
     def print_host_list(self):
-        print("sites per domain:\n", pformat(self.sites_per_domain))
+        vprint("sites per domain:\n", pformat(self.sites_per_domain))
 
 
 def _verify_located(host: dict):

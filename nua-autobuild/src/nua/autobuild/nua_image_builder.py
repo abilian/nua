@@ -5,7 +5,7 @@ from pathlib import Path
 import docker
 from nua.lib.actions import copy_from_package
 from nua.lib.backports import chdir
-from nua.lib.panic import abort, show, title
+from nua.lib.panic import abort, show, title, vprint
 from nua.lib.shell import mkdir_p
 from nua.lib.tool.state import verbosity
 from nua.runtime.constants import (
@@ -54,7 +54,7 @@ class NUAImageBuilder:
     ) -> dict:
         self.force = force
         self.download = download
-        if verbosity(2):
+        with verbosity(2):
             if self.force:
                 show("Force rebuild of images")
             if self.download:
@@ -71,7 +71,7 @@ class NUAImageBuilder:
             if self.force:
                 docker_remove_locally(NUA_PYTHON_TAG)
             self.build_nua_python()
-        if verbosity(1):
+        with verbosity(1):
             self.display_once_docker_img(NUA_PYTHON_TAG)
 
     def ensure_nua_builder(self):
@@ -79,7 +79,7 @@ class NUAImageBuilder:
             if self.force:
                 docker_remove_locally(NUA_BUILDER_TAG)
             self.build_nua_builder()
-        if verbosity(1):
+        with verbosity(1):
             self.display_once_docker_img(NUA_BUILDER_TAG)
 
     def ensure_all_nua_builders(self):
@@ -98,12 +98,12 @@ class NUAImageBuilder:
             if self.force:
                 docker_remove_locally(image_tag)
             self.build_nua_builder_node(image_tag)
-        if verbosity(1):
+        with verbosity(1):
             self.display_once_docker_img(image_tag)
 
     def ensure_images(self, required: list):
-        if verbosity(3):
-            print("ensure_images:", required)
+        with verbosity(3):
+            vprint("ensure_images:", required)
         # ensure base images
         self.ensure_base_image()
         for key in required:
@@ -115,15 +115,15 @@ class NUAImageBuilder:
             method()
 
     def ensure_base_image(self):
-        if verbosity(3):
-            print("ensure_base_image()")
+        with verbosity(3):
+            vprint("ensure_base_image()")
         self.build(force=False, all=False)
 
     def build_nua_python(self):
         title(f"Building the docker image {NUA_PYTHON_TAG}")
         with tempfile.TemporaryDirectory() as build_dir:
             build_path = Path(build_dir)
-            if verbosity(3):
+            with verbosity(3):
                 show(f"build directory: {build_path}")
             copy_from_package(
                 "nua.autobuild.dockerfiles", DOCKERFILE_PYTHON, build_path
@@ -135,7 +135,7 @@ class NUAImageBuilder:
         title(f"Building the docker image {NUA_BUILDER_TAG}")
         with tempfile.TemporaryDirectory() as build_dir:
             build_path = Path(build_dir)
-            if verbosity(3):
+            with verbosity(3):
                 show(f"build directory: {build_path}")
             copy_from_package(
                 "nua.autobuild.dockerfiles", DOCKERFILE_BUILDER, build_path
@@ -152,7 +152,7 @@ class NUAImageBuilder:
         title(f"Building the docker image {image_tag}")
         with tempfile.TemporaryDirectory() as build_dir:
             build_path = Path(build_dir)
-            if verbosity(3):
+            with verbosity(3):
                 show(f"build directory: {build_path}")
             self.copy_wheels(build_path)
 

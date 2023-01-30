@@ -13,7 +13,7 @@ Test ENV variables:
 import os
 
 from nua.lib.console import print_red
-from nua.lib.panic import abort
+from nua.lib.panic import abort, vprint
 from nua.lib.tool.state import verbosity
 
 from nua.orchestrator import config
@@ -47,8 +47,8 @@ def register_certbot_domains(sites: list):
     strategy_function = ALLOWED_STRATEGY[strategy]
     for domains in tops.values():
         strategy_function(list(domains))
-    if verbosity(3):
-        print("register_certbot_domains() done")
+    with verbosity(3):
+        vprint("register_certbot_domains() done")
 
 
 def get_certbot_strategy() -> str:

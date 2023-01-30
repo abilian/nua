@@ -1,6 +1,7 @@
 import os
+from contextlib import contextmanager
 
-STATE = {"verbose": 0, "colorize": True}
+STATE = {"verbose": 0, "colorize": True, "verbose_threshold": -1}
 
 
 def set_verbosity(value: int):
@@ -19,11 +20,21 @@ def set_color(flag: bool):
         os.environ["NO_COLOR"] = "1"
 
 
-def verbosity(threshold: int = 1) -> bool:
-    return STATE["verbose"] >= threshold
-
-
 def use_color() -> bool:
     if "NO_COLOR" in os.environ:
         return False
     return bool(STATE["colorize"])  # noqa
+
+
+@contextmanager
+def verbosity(level: int):
+    previous = STATE["verbose_threshold"]
+    STATE["verbose_threshold"] = level
+    try:
+        yield
+    finally:
+        STATE["verbose_threshold"] = previous
+
+
+def check_verbosity() -> bool:
+    return STATE["verbose"] >= STATE["verbose_threshold"]
