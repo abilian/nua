@@ -52,7 +52,7 @@ def load_module(name: str, plugin_dir: str):
     if not hasattr(module, "NUA_PROPERTIES"):
         return
     LOADED_MODULES[name] = module
-    classify_module(name, getattr(module, "NUA_PROPERTIES"))
+    classify_module(name, module.NUA_PROPERTIES)
 
 
 def classify_module(name: str, properties: dict):

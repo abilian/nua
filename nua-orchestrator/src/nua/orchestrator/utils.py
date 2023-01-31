@@ -117,7 +117,7 @@ def hyphen(name: str) -> str:
 
 
 def hyphenized_set(data: Iterable[str]) -> set:
-    return set([hyphen(x) for x in data]) | (set([dehyphen(x) for x in data]))
+    return {hyphen(x) for x in data} | {dehyphen(x) for x in data}
 
 
 def get_alias(data: dict, aliases: Iterable) -> str | None:
