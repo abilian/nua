@@ -19,7 +19,7 @@ node = ">=14.13.1,<17"
 
 meta-packages = ["postgres-client"]
 
-packages = [
+run-packages = [
     "fontconfig",
     "fonts-noto"
 ]

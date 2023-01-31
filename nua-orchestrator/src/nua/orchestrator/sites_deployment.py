@@ -235,6 +235,7 @@ class SitesDeployment:
             self.evaluate_container_params(site)
             self.start_resources_containers(site)
             self.setup_resources_db(site)
+            self.merge_volume_only_resources(site)
             self.start_main_site_container(site)
             self.store_container_instance(site)
         chown_r_nua_nginx()
@@ -406,7 +407,11 @@ class SitesDeployment:
         if resource.type == "local":
             # will check later in the process
             return True
-        return pull_resource_container(resource)
+        if resource.is_docker_type():
+            with verbosity(4):
+                vprint("pull docker resource:", resource)
+            return pull_resource_container(resource)
+        return True
 
     def sites_check_local_service_available(self):
         self.required_services = {s for site in self.sites for s in site.local_services}
@@ -607,6 +612,11 @@ class SitesDeployment:
     def setup_resources_db(self, site: Site):
         for resource in site.resources:
             resource.setup_db()
+
+    def merge_volume_only_resources(self, site: Site):
+        for resource in site.resources:
+            if resource.volume_declaration:
+                site.volume = site.volume + resource.volume_declaration
 
     def start_main_site_container(self, site: Site):
         # volumes need to be mounted before beeing passed as arguments to

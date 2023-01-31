@@ -1,0 +1,52 @@
+[metadata]
+id = "flask-sqla-sqlite-volume"
+version = "1.0"
+release = 3
+title = "Nua test with sqlalchemy, sqlite on docker managed volume"
+author = "Nua testers"
+tagline = "Nua test with sqlalchemy, sqlite on docker managed volume"
+website = "https://nua.rocks/"
+tags = ["test", "html", "web", "flask", "plugin", "sqlite", "sqlalchemy"]
+license = "MIT"
+
+[build]
+document-root = "/nua/app/html"
+project = "."
+test = "python -c 'import flask_sqla_sqlite_volume'"
+
+[[assign]]
+key = "DB_NAME"
+property = "database.SQLITE_DB"
+
+[[assign]]
+key = "DB_FOLDER"
+property = "database.SQLITE_DIR"
+
+[docker]
+# parameters passed as a dict to docker run
+auto_remove = false # default
+
+[port.web]
+container = 5000
+#
+# [[volume]]
+# # The mount type (bind / volume / tmpfs / npipe). Default: volume :
+# type = "bind"
+# # Name of the driver used to create the volume: (for type == "volume")
+# # driver = "local"
+# # Mount source (e.g. a volume name or a host path):
+# source = "/var/tmp"
+# # Container path:
+# target = "/nua/app/dbs"
+
+
+[[resource]]
+# A resource is another container required by the main app container, its
+# configuration is described below, under the key of name of the resource. Several
+# resources can be declared. The resource host will appear in the local network
+# with a hostname equal to the container name.
+
+# Declaration of the required image for the resurce, here the official Postgres.
+name = "database"
+type = "sqlite"
+# version = ">=3"

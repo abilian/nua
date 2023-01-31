@@ -20,7 +20,7 @@ from nua.lib.actions import (
 )
 from nua.lib.backports import chdir
 from nua.lib.panic import abort, info, show, vprint
-from nua.lib.shell import chmod_r, mkdir_p, rm_fr, sh
+from nua.lib.shell import chmod_r, chown_r, mkdir_p, rm_fr, sh
 from nua.lib.tool.state import set_verbosity, verbosity, verbosity_level
 
 from ..constants import (
@@ -29,7 +29,7 @@ from ..constants import (
     NUA_METADATA_PATH,
     NUA_SCRIPTS_PATH,
 )
-from ..nua_config import NuaConfig
+from ..nua_config import NuaConfig, hyphen_get
 
 INFERRED_META_PACKAGES = {
     "postgres": ["postgres-client"],
@@ -74,7 +74,7 @@ class BuilderApp:
 
     def detect_nua_dir(self):
         """Detect dir containing nua files (start.py, build.py, Dockerfile)."""
-        nua_dir = self.config.build.get("nua_dir")
+        nua_dir = hyphen_get(self.config.build, "nua-dir")
         if not nua_dir:
             # Check if default 'nua' dir exists
             path = self.build_dir / "nua"
@@ -115,21 +115,24 @@ class BuilderApp:
         install_packages(self.config.packages, keep_lists=True)
 
     def make_dirs(self):
-        mkdir_p(NUA_APP_PATH)
-        mkdir_p(NUA_METADATA_PATH)
+        self._make_dir_user_nua(NUA_APP_PATH)
+        self._make_dir_user_nua(NUA_METADATA_PATH)
         self.make_custom_document_root()
 
     def make_custom_document_root(self):
         """If the app defines a specific document root  (i.e. /var/www/html)."""
-        document_root = self.config.build.get(
-            "document-root", self.config.build.get("document_root")
-        )
+        document_root = hyphen_get(self.config.build, "document-root")
         if not document_root:
             return
         path = Path(document_root)
         rm_fr(path)
-        mkdir_p(path)
-        chmod_r(path, 0o644, 0o755)
+        self._make_dir_user_nua(path)
+
+    @staticmethod
+    def _make_dir_user_nua(directory: str | Path):
+        mkdir_p(directory)
+        chown_r(directory, "nua")
+        chmod_r(directory, 0o644, 0o755)
 
     def post_build(self):
         apt_remove_lists()
@@ -155,7 +158,7 @@ class BuilderApp:
             copy_from_package("nua.runtime.defaults", "start.py", script_dir)
 
     def find_start_script(self) -> Path | None:
-        name = self.config.build.get("start_script")
+        name = hyphen_get(self.config.build, "start-script")
         if not name:
             name = "start.py"
         path = self.nua_dir / name
@@ -167,7 +170,7 @@ class BuilderApp:
         return None
 
     def find_build_script(self) -> Path | None:
-        name = self.config.build.get("build_script")
+        name = hyphen_get(self.config.build, "build-script")
         if not name:
             name = "build.py"
         path = self.nua_dir / name

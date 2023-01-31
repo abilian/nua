@@ -132,6 +132,18 @@ class Resource(dict):
         self["volume"] = volumes
 
     @property
+    def volume_declaration(self) -> list:
+        """Docker volume declred on a non-container resource.
+
+        Thus this volume need to be started by the upper site.
+        """
+        return self.get("volume_declaration", [])
+
+    @volume_declaration.setter
+    def volume_declaration(self, volume_declaration: list):
+        self["volume_declaration"] = volume_declaration
+
+    @property
     def hostname(self) -> str:
         return self.get("hostname", "")
 

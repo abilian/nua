@@ -21,6 +21,19 @@ def nua_config_names():
         yield f"{NUA_CONFIG_STEM}.{suffix}"
 
 
+def hyphen_get(data: dict, key: str, default: Any = None) -> Any:
+    """Return value from dict for key either hyphen "-" or underscore "_" in it,
+    priority to "-".
+    """
+    if (hypkey := key.replace("_", "-")) in data:
+        result = data.get(hypkey)
+    elif (underkey := key.replace("-", "_")) in data:
+        result = data.get(underkey)
+    else:
+        result = default
+    return result
+
+
 class NuaConfig:
     """Wrapper for the "nua-config.toml" file.
 
@@ -111,11 +124,7 @@ class NuaConfig:
 
     @property
     def src_url(self) -> str:
-        if "src-url" not in self.metadata and "src_url" in self.metadata:
-            base = self.metadata.get("src_url")
-        else:
-            base = self.metadata.get("src-url")
-        if base:
+        if base := hyphen_get(self.metadata, "src-url"):
             return base.format(**self.metadata)
         return ""
 
@@ -134,20 +143,6 @@ class NuaConfig:
         return self["build"]
 
     @property
-    def manifest(self) -> list:
-        return self.build.get("manifest", [])
-
-    @property
-    def meta_packages(self) -> list:
-        if "meta-packages" not in self.build and "meta_packages" in self.build:
-            return self.build.get("meta_packages", [])
-        return self.build.get("meta-packages", [])
-
-    @property
-    def packages(self) -> list:
-        return self.build.get("packages", [])
-
-    @property
     def project(self) -> str:
         """The project URL to build with autodetection."""
         if base := self.build.get("project"):
@@ -155,16 +150,29 @@ class NuaConfig:
         return ""
 
     @property
+    def manifest(self) -> list:
+        return self.build.get("manifest", [])
+
+    @property
+    def meta_packages(self) -> list:
+        return hyphen_get(self.build, "meta-packages", [])
+
+    @property
+    def packages(self) -> list:
+        # use alias for run-packages
+        run_packages = hyphen_get(self.build, "run-packages", [])
+        if not run_packages:
+            # previous name
+            run_packages = self.build.get("packages", [])
+        return run_packages
+
+    @property
     def build_packages(self) -> list:
-        if "build-packages" not in self.build and "build_packages" in self.build:
-            return self.build.get("build_packages", [])
-        return self.build.get("build-packages", [])
+        return hyphen_get(self.build, "build-packages", [])
 
     @property
     def pip_install(self) -> list:
-        if "pip-install" not in self.build and "pip_install" in self.build:
-            return self.build.get("pip_install", [])
-        return self.build.get("pip-install", [])
+        return hyphen_get(self.build, "pip-install", [])
 
     # env ###########################################################
 
