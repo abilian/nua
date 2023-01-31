@@ -8,6 +8,10 @@ import importlib.util
 from collections.abc import Callable
 from importlib import resources as rso
 from pathlib import Path
+from pprint import pformat
+
+from nua.lib.panic import vprint, vprint_magenta
+from nua.lib.tool.state import verbosity
 
 LOADED_MODULES = {}
 DOCKER_MODULES = set()
@@ -20,13 +24,24 @@ FAMILY_SET = {family: set() for family in FAMILIES}
 
 def register_plugins() -> list:
     for dir in PLUGIN_DIRS:
-        if not Path(dir).is_dir():
-            continue
         for file in rso.files(dir).iterdir():
             path = Path(file)
-            if path.suffix != ".py":
+            if path.suffix != ".py" or path.stem.startswith("_"):
                 continue
             load_module(path.stem, dir)
+    with verbosity(3):
+        _show_plugin_info()
+
+
+def _show_plugin_info():
+    vprint_magenta("plugins registered:")
+    vprint("PLUGIN_DIRS:", pformat(PLUGIN_DIRS))
+    vprint("LOADED_MODULES:", pformat(LOADED_MODULES))
+    vprint("DOCKER_MODULES:", pformat(DOCKER_MODULES))
+    vprint("ASSIGN_MODULES:", pformat(ASSIGN_MODULES))
+    vprint("NETWORK_MODULES:", pformat(NETWORK_MODULES))
+    vprint("FAMILIES:", pformat(FAMILIES))
+    vprint("FAMILY_SET:", pformat(FAMILY_SET))
 
 
 def load_module(name: str, plugin_dir: str):
@@ -57,12 +72,12 @@ def _classify_family(name: str, properties: dict):
         target.add(name)
 
 
-def load_plugin_function(name: str, function: str) -> Callable | None:
-    module = LOADED_MODULES.get("name")
+def load_plugin_function(name: str, function_name: str) -> Callable | None:
+    module = LOADED_MODULES.get(name)
     if module is None:
         return None
-    if hasattr(module, function):
-        return getattr(module, function)
+    if hasattr(module, function_name):
+        return getattr(module, function_name)
     return None
 
 

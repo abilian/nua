@@ -463,9 +463,15 @@ class Resource(dict):
                 vprint(pformat(self.env))
 
     def configure_db(self):
+        with verbosity(4):
+            vprint(f"configure_db: {self.type}")
         if not is_db_plugins(self.type):
+            with verbosity(4):
+                vprint(f"not a DB: {self.type}")
             return
         if configure_fct := load_plugin_function(self.type, "configure_db"):
+            with verbosity(4):
+                vprint(f"configure_fct: {configure_fct}")
             configure_fct(self)
             with verbosity(2):
                 vprint(f"configure_db() resource '{self.resource_name}': {self.type}")

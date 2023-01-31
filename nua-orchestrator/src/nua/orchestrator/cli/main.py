@@ -9,13 +9,14 @@ import typer
 from nua.lib.actions import check_python_version
 from nua.lib.console import print_red
 from nua.lib.exec import is_current_user, set_nua_user
-from nua.lib.panic import abort
-from nua.lib.tool.state import set_color, set_verbosity
+from nua.lib.panic import abort, vprint
+from nua.lib.tool.state import set_color, set_verbosity, verbosity
 
 from .. import __version__
 from ..db import store
 from ..db.store import installed_nua_settings, list_all_settings
 from ..nua_db_setup import setup_nua_db
+from ..register_plugins import register_plugins
 from ..search_cmd import search_nua_print
 from .commands.backup import backup_all, deployed_config
 from .commands.deploy import deploy_nua_sites
@@ -80,8 +81,11 @@ def initialization():
         print_red("Nua orchestrator must be run as 'root' or 'nua'.")
         raise typer.Exit(1)
     if is_initialized:
+        with verbosity(3):
+            vprint("already initialized")
         return
     setup_nua_db()
+    register_plugins()
     is_initialized = True
 
 
@@ -214,6 +218,5 @@ def main(
     version: Optional[bool] = opt_version,
 ):
     """Nua orchestrator local."""
-    initialization()
     if ctx.invoked_subcommand is None:
         usage()

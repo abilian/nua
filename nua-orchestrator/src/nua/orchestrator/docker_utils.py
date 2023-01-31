@@ -271,8 +271,9 @@ def docker_run(rsite: Resource, secrets: dict) -> Container:
     docker_remove_prior_container_live(rsite)
     if rsite.network_name:
         params["network"] = rsite.network_name
-        with verbosity(2) and rsite.network_name:
-            info("network:", rsite.network_name)
+        with verbosity(2):
+            if rsite.network_name:
+                info("network:", rsite.network_name)
     container = _docker_run(rsite, secrets, params)
     with verbosity(3):
         vprint("docker secrets:", secrets)

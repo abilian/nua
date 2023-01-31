@@ -438,33 +438,39 @@ class SitesDeployment:
     def sites_parse_healthcheck(self):
         for site in self.sites:
             site.parse_healthcheck()
+        with verbosity(3):
+            info("sites_parse_healthcheck() done")
 
     def sites_set_network_name(self):
         for site in self.sites:
             site.set_network_name()
         with verbosity(3):
-            vprint("sites_set_network_name() done")
+            info("sites_set_network_name() done")
 
     def sites_set_resources_names(self):
         for site in self.sites:
             site.set_resources_names()
         with verbosity(3):
-            vprint("sites_set_resources_names() done")
+            info("sites_set_resources_names() done")
 
     def sites_merge_instances_to_resources(self):
         for site in self.sites:
             site.merge_instance_to_resources()
         with verbosity(3):
-            vprint("sites_merge_instances_to_resources() done")
+            info("sites_merge_instances_to_resources() done")
 
     def sites_configure_requested_db(self):
         for site in self.sites:
             for resource in site.resources:
                 resource.configure_db()
+        with verbosity(3):
+            info("sites_configure_requested_db() done")
 
     def sites_set_volumes_names(self):
         for site in self.sites:
             site.set_volumes_names()
+        with verbosity(3):
+            info("sites_set_volumes_names() done")
 
     def restart_local_services(self):
         with verbosity(2):
