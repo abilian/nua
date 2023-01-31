@@ -9,21 +9,24 @@ from collections.abc import Callable
 from importlib import resources as rso
 from pathlib import Path
 
-DB_PLUGIN_DIR = "nua.orchestrator.db_plugins"
-
 LOADED_MODULES = {}
 DOCKER_MODULES = set()
 ASSIGN_MODULES = set()
 NETWORK_MODULES = set()
-FAMILY_SET = {"db": set()}
+FAMILIES = ("db", "something_else")
+PLUGIN_DIRS = ("nua.orchestrator.db_plugins",)
+FAMILY_SET = {family: set() for family in FAMILIES}
 
 
-def register_db_plugins() -> list:
-    for file in rso.files(DB_PLUGIN_DIR).iterdir():
-        path = Path(file)
-        if path.suffix != ".py":
+def register_plugins() -> list:
+    for dir in PLUGIN_DIRS:
+        if not Path(dir).is_dir():
             continue
-        load_module(path.stem, DB_PLUGIN_DIR)
+        for file in rso.files(dir).iterdir():
+            path = Path(file)
+            if path.suffix != ".py":
+                continue
+            load_module(path.stem, dir)
 
 
 def load_module(name: str, plugin_dir: str):
@@ -63,8 +66,12 @@ def load_plugin_function(name: str, function: str) -> Callable | None:
     return None
 
 
+def _is_family_plugins(name: str, family: str) -> bool:
+    return name in FAMILY_SET.get(family, set())
+
+
 def is_db_plugins(name: str) -> bool:
-    return name in FAMILY_SET("db")
+    return _is_family_plugins(name, "db")
 
 
 def is_docker_plugin(name: str) -> bool:
