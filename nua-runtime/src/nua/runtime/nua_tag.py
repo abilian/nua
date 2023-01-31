@@ -1,4 +1,7 @@
-"""Generate the long nua tag of packages."""
+"""Generate the long nua tag of packages.
+
+For Docker container and network names, the ":" will be replaced by "-".
+"""
 
 
 def nua_tag_string(metadata: dict) -> str:
@@ -10,4 +13,4 @@ def nua_tag_string(metadata: dict) -> str:
         prefix = ""
     else:
         prefix = "nua-"
-    return f"{prefix}{metadata['id']}-{metadata['version']}{suffix}"
+    return f"{prefix}{metadata['id']}:{metadata['version']}{suffix}"

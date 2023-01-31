@@ -90,10 +90,14 @@ class Site(Resource):
         return nua_tag_string(self.image_nua_config["metadata"])
 
     @property
+    def nua_dash_name(self) -> str:
+        return self.nua_tag.replace(":", "-")
+
+    @property
     def container_name(self) -> str:
         # override the method of Resource
         suffix = DomainSplit(self.domain).container_suffix()
-        name = sanitized_name(f"{self.nua_tag}-{suffix}")
+        name = sanitized_name(f"{self.nua_dash_name}-{suffix}")
         self["container_name"] = name
         return name
 
