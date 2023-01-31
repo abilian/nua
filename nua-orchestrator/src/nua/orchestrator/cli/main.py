@@ -56,6 +56,7 @@ option_restore_strict = typer.Option(
     False, "--strict/--replay", help="Use strict restore mode."
 )
 option_json = typer.Option(False, "--json", help="Output result as JSON.")
+option_short = typer.Option(False, help="Show short text result.")
 
 
 def _print_version():
@@ -181,15 +182,19 @@ def show_nua_settings():
 # Added by SF, used by the nua-cli
 #
 @app.command("list-instances")
-def list_instances(_json: bool = option_json):
+def list_instances(_json: bool = option_json, short: bool = option_short):
     """List all instances."""
     initialization()
-    instances = store.list_instances_all()
-    result = [instance.to_dict() for instance in instances]
-    if _json:
-        print(json.dumps(result, indent=2))
+    if short:
+        for info in store.list_instances_all_short():
+            print(info, end="\n\n")
     else:
-        pprint(result)
+        instances = store.list_instances_all()
+        result = [instance.to_dict() for instance in instances]
+        if _json:
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+        else:
+            pprint(result)
 
 
 @app.command("settings")
@@ -198,7 +203,7 @@ def settings(_json: bool = option_json):
     initialization()
     result = list_all_settings()
     if _json:
-        print(json.dumps(result, indent=2))
+        print(json.dumps(result, ensure_ascii=False, indent=2))
     else:
         pprint(result)
 

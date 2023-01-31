@@ -254,6 +254,20 @@ def list_instances_all() -> list:
         return session.query(Instance).all()
 
 
+def list_instances_all_short() -> list[str]:
+    result: list[str] = []
+    for instance in list_instances_all():
+        info = [
+            f"app_id: {instance.app_id}",
+            f"domain: {instance.domain}",
+            f"container: {instance.container}",
+            f"created: {instance.created}",
+            f"state: {instance.state}",
+        ]
+        result.append("\n".join(info))
+    return result
+
+
 def list_instances_all_active() -> list:
     return [
         instance
