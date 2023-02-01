@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-orchestrator"
-version = "0.4.83"
+version = "0.4.84"
 description = "Nua orchestrator local implementation for Nua v0."
 authors = ["Jerome Dumonteil <jd@abilian.com>"]
 license = "AGPL"
