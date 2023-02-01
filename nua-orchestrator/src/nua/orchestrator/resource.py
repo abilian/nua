@@ -416,7 +416,11 @@ class Resource(dict):
 
     def is_docker_type(self) -> bool:
         """Test if resource has a docker-like type."""
-        return self.type in DOCKER_TYPE or is_docker_plugin(self.type)
+        return self.type in DOCKER_TYPE or self.is_docker_plugin()
+
+    def is_docker_plugin(self) -> bool:
+        """Test if resource requires a docker image."""
+        return is_docker_plugin(self.type)
 
     def environment_ports(self) -> dict:
         """Return exposed ports and resource host (container name) as env

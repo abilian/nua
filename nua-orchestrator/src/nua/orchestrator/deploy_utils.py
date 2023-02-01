@@ -243,14 +243,14 @@ def pull_resource_container(resource: Resource) -> bool:
     """
     if resource.type == "docker":
         return _pull_resource_docker(resource)
-    if resource.type in REMOTE_DOCKER_RESOURCES:
+    if resource.is_docker_plugin():
         return _pull_resource_remote(resource)
     warning(f"Unknown resource type: {resource.type}")
     return True
 
 
 def _pull_resource_remote(resource: Resource) -> bool:
-    """Define the required postgres image and pull it."""
+    """Define the required version image and pull it."""
     package_name = resource.type
     pull_link = higher_package(package_name, resource.version)
     if not pull_link:

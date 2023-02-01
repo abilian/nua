@@ -1,6 +1,6 @@
 """Provide a resource matching a version requirement.
 
-Parse the content of "nua.orchestrator.remote_packages" .json files to find the
+Parse the content of nua.orchestrator plugins dir for .json files to find the
 relevant package/version.
 """
 import json
@@ -11,23 +11,24 @@ from pathlib import Path
 from packaging.specifiers import SpecifierSet
 from packaging.version import parse
 
+from .register_plugins import PLUGIN_DIRS
+
 
 @cache
 def package_list(package_name: str, arch: str) -> list:
     packages = []
-    for file in rso.files("nua.orchestrator.remote_packages").iterdir():
-        path = Path(file)
-        if path.suffix != ".json":
-            continue
-        content = json.loads(path.read_text(encoding="utf8"))
-        packages.extend(
-            [
-                package
-                for package in content.get(package_name, [])
-                if package["arch"] == arch
-            ]
-        )
+    for dir in PLUGIN_DIRS:
+        for file in rso.files(dir).iterdir():
+            path = Path(file)
+            if path.suffix != ".json":
+                continue
+            packages.extend(load_packages(package_name, arch, path))
     return packages
+
+
+def load_packages(name: str, arch: str, path: Path) -> list:
+    content = json.loads(path.read_text(encoding="utf8"))
+    return [package for package in content.get(name, []) if package["arch"] == arch]
 
 
 def higher_package(
