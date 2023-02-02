@@ -29,12 +29,10 @@ from ..constants import (
     NUA_METADATA_PATH,
     NUA_SCRIPTS_PATH,
 )
-from ..nua_config import NuaConfig, hyphen_get
 
-INFERRED_META_PACKAGES = {
-    "postgres": ["postgres-client"],
-    "mariadb": ["mariadb-client"],
-}
+# most inferred meta packages will provided by plugins in the future:
+from ..meta_packages import meta_packages_requirements
+from ..nua_config import NuaConfig, hyphen_get
 
 logging.basicConfig(level=logging.INFO)
 
@@ -102,7 +100,7 @@ class BuilderApp:
         """Return packages inferred from the nua-config requirements."""
         inferred = []
         for resource in self.config.resource:
-            inferred.extend(INFERRED_META_PACKAGES.get(resource.get("type", ""), []))
+            inferred.extend(meta_packages_requirements(resource.get("type", "")))
         if inferred:
             with verbosity(2):
                 vprint(f"Inferred meta packages: {inferred}")

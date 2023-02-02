@@ -9,6 +9,7 @@ NUA_PROPERTIES = {
     "family": "db",  # plugin family
     "assign": True,  # use the "assign" keyword"
     "network": True,  # here we require docker bridge network only for volume name
+    "meta-packages": [],  # for app-builder infer packages (for future use)
 }
 
 

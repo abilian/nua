@@ -16,6 +16,7 @@ from .register_plugins import (
     is_docker_plugin,
     is_network_plugin,
     load_plugin_function,
+    load_plugin_meta_packages_requirement,
 )
 from .utils import sanitized_name
 from .volume import Volume
@@ -243,6 +244,17 @@ class Resource(dict):
     @healthcheck.setter
     def healthcheck(self, healthcheck: dict):
         self["healthcheck"] = healthcheck
+
+    @property
+    def meta_packages_requirements(self) -> list:
+        return self.get("meta_packages_requirements", [])
+
+    @meta_packages_requirements.setter
+    def meta_packages_requirements(self, meta_packages_requirements: list | None):
+        if meta_packages_requirements:
+            self["meta_packages_requirements"] = meta_packages_requirements
+        else:
+            self["meta_packages_requirements"] = []
 
     def is_assignable(self) -> bool:
         """Resource type allow env persistent parameters ("assign" key word).
@@ -493,3 +505,16 @@ class Resource(dict):
                 vprint(f"configure_db() resource '{self.resource_name}': {self.type}")
             with verbosity(3):
                 vprint(pformat(self))
+
+    def load_meta_packages_requirements(self):
+        """Some plugin may require some meta-packages requirements for main app.
+
+        For example : postgres DB-> postgres-client -> psycopg2
+        (for future use)
+        """
+        with verbosity(4):
+            vprint(f"load_meta_packages_requirements: {self.type}")
+        if requirements := load_plugin_meta_packages_requirement(self.type):
+            self.meta_packages_requirements = (
+                self.meta_packages_requirements + requirements
+            )

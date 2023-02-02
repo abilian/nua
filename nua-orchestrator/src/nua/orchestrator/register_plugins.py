@@ -14,6 +14,7 @@ from nua.lib.panic import vprint, vprint_magenta
 from nua.lib.tool.state import verbosity
 
 LOADED_MODULES = {}
+MODULES_PROPERTIES = {}
 DOCKER_MODULES = set()
 ASSIGN_MODULES = set()
 NETWORK_MODULES = set()
@@ -56,6 +57,7 @@ def load_module(name: str, plugin_dir: str):
 
 
 def classify_module(name: str, properties: dict):
+    MODULES_PROPERTIES[name] = properties
     _classify_family(name, properties)
     if properties.get("container", "") == "docker":
         DOCKER_MODULES.add(name)
@@ -79,6 +81,12 @@ def load_plugin_function(name: str, function_name: str) -> Callable | None:
     if hasattr(module, function_name):
         return getattr(module, function_name)
     return None
+
+
+def load_plugin_meta_packages_requirement(name: str) -> list:
+    "(for future use)"
+    properties = MODULES_PROPERTIES.get("name", {})
+    return properties.get("meta-packages", [])
 
 
 def _is_family_plugins(name: str, family: str) -> bool:

@@ -1,0 +1,17 @@
+{
+    "redis": [
+        {
+            "version": "7.0.8",
+            "arch": "amd64",
+            "link": "docker.io/amd64/redis:7.0.8"
+        }, {
+            "version": "6.2.10",
+            "arch": "amd64",
+            "link": "docker.io/amd64/redis:6.2.10"
+        }, {
+            "version": "6.0.17",
+            "arch": "amd64",
+            "link": "docker.io/amd64/redis:6.0.17"
+        }
+    ]
+}

@@ -11,6 +11,7 @@ NUA_PROPERTIES = {
     "family": "db",  # plugin family
     "assign": True,  # use the "assign" keyword"
     "network": True,  # require docker bridge network
+    "meta-packages": ["postgres-client"],  # for app-builder (future use))
 }
 
 

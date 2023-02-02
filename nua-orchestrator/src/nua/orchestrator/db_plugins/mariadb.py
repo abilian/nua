@@ -11,6 +11,7 @@ NUA_PROPERTIES = {
     "family": "db",  # plugin family
     "assign": True,  # use the "assign" keyword"
     "network": True,  # require docker bridge network
+    "meta-packages": ["mariadb-client"],  # for app-builder (for future use)
 }
 
 
