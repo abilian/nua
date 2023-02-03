@@ -10,7 +10,7 @@ tags = ["test", "html", "web", "static", "tmpfs"]
 license = "MIT"
 
 [build]
-ocument-root = "/nua/app/html"
+document-root = "/nua/app/html"
 # - should auto detect local python project
 
 test = "python -c 'import flask_upload_tmpfs'"

@@ -1,0 +1,29 @@
+[metadata]
+id = "redis-cache-test"
+version = "1.0"
+release = 1
+title = "Redis cache test"
+author = "Nua testers"
+tagline = "Redis cache test"
+website = "https://nua.rocks/"
+tags = ["test", "redis"]
+license = "MIT"
+
+[build]
+
+test = "python -c 'import redis_cache_test'"
+
+[[assign]]
+key = "REDIS_HOST"
+property = "database.hostname"
+
+[[assign]]
+key = "REDIS_PORT"
+property = "database.REDIS_PORT"
+
+
+[[resource]]
+# declaration of the required image for the resource: official Redis image
+name = "database"
+type = "redis"
+version = ">=7"
