@@ -13,7 +13,8 @@ from .nua_tag import nua_tag_string
 REQUIRED_BLOCKS = ["metadata"]
 REQUIRED_METADATA = ["id", "version", "title", "author", "license"]
 OPTIONAL_METADATA = ["tagline", "website", "tags", "profile", "release", "changelog"]
-COMPLETE_BLOCKS = ["build", "env"]  # blocks added (empty) if not present in orig file
+# blocks added (empty) if not present in orig file:
+COMPLETE_BLOCKS = ["build", "env", "docker"]
 
 
 def nua_config_names():
@@ -179,6 +180,12 @@ class NuaConfig:
     @property
     def env(self) -> dict:
         return self["env"]
+
+    # docker env ####################################################
+
+    @property
+    def docker(self) -> dict:
+        return self["docker"]
 
     # profile #######################################################
 

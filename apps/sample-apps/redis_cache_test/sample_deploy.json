@@ -1,7 +1,7 @@
 {
     "site": [
         {
-            "domain": "test.example.com",
+            "domain": "test1.example.com",
             "image": "redis-cache-test"
         }
     ]

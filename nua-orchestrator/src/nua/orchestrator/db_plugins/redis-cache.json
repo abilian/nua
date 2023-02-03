@@ -1,5 +1,5 @@
 {
-    "redis": [
+    "redis-cache": [
         {
             "version": "7.0.8",
             "arch": "amd64",

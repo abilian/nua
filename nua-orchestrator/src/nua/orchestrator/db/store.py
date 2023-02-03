@@ -293,7 +293,6 @@ def list_instances_container_local_active_volumes() -> list:
     """
     volumes_dict = {}
     for instance in list_instances_all_active():
-
         # for volume in volumes_merge_config(instance.site_config):
         site = Site(instance.site_config)
 

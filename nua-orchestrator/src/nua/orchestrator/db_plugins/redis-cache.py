@@ -5,10 +5,8 @@
 
 from ..resource import Resource
 
-# from ..volume import Volume
-
 NUA_PROPERTIES = {
-    "name": "redis",  # plugin name
+    "name": "redis-cache",  # plugin name
     "container": "docker",  # container type
     "family": "db",  # plugin family
     "assign": True,  # use the "assign" keyword"
@@ -18,17 +16,9 @@ NUA_PROPERTIES = {
 
 
 def configure_db(resource: Resource):
-    # resource.image was set earlier at detect requirement stage
-    # create volume:
-    # resource.volume = [_make_volume(resource)]
-    # other options
-    # docker params:
     resource.docker = {"detach": True, "restart_policy": {"name": "always"}}
-    # env
     resource.env = {"REDIS_PORT": "6379"}
-    # assign keys in (env) for create or retrieve persistent values
-    #
-    # WIP:
+    # WIP for a persistent redis:
     #  - create a docker volume
     #  - put a redis.conf in it
     #  - docker volume like redis.conf:/etc/redis/redis.conf
@@ -38,18 +28,6 @@ def configure_db(resource: Resource):
     #     {"key": "REDIS_PASSWORD", "random_str": True, "persist": True},
     # ]
     resource.assign_priority = 0
-
-
-#
-# def _make_volume(resource: Resource) -> dict:
-#     volume = Volume()
-#     volume.type = "volume"
-#     volume.driver = "local"
-#     # at this stage, network_name is defined
-#     volume.source = f"{resource.resource_name}_{resource.network_name}"
-#     # target of Postgres images default configuration
-#     volume.target = "/var/lib/postgresql/data"
-#     return volume.as_dict()
 
 
 # def setup_db(resource: Resource):

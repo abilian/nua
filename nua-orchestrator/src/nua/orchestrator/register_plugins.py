@@ -12,6 +12,9 @@ from pprint import pformat
 
 from nua.lib.panic import vprint, vprint_magenta
 from nua.lib.tool.state import verbosity
+from nua.runtime.nua_config import hyphen_get
+
+from .utils import dehyphen, hyphen
 
 LOADED_MODULES = {}
 MODULES_PROPERTIES = {}
@@ -75,7 +78,7 @@ def _classify_family(name: str, properties: dict):
 
 
 def load_plugin_function(name: str, function_name: str) -> Callable | None:
-    module = LOADED_MODULES.get(name)
+    module = hyphen_get(LOADED_MODULES, name)
     if module is None:
         return None
     if hasattr(module, function_name):
@@ -85,12 +88,16 @@ def load_plugin_function(name: str, function_name: str) -> Callable | None:
 
 def load_plugin_meta_packages_requirement(name: str) -> list:
     "(for future use)"
-    properties = MODULES_PROPERTIES.get("name", {})
+    properties = hyphen_get(MODULES_PROPERTIES, "name", {})
     return properties.get("meta-packages", [])
 
 
+def any_hyphen_in(some_set: set | list | dict, name: str) -> bool:
+    return hyphen(name) in some_set or dehyphen(name) in some_set
+
+
 def _is_family_plugins(name: str, family: str) -> bool:
-    return name in FAMILY_SET.get(family, set())
+    return any_hyphen_in(FAMILY_SET.get(family, set()), name)
 
 
 def is_db_plugins(name: str) -> bool:
@@ -98,12 +105,12 @@ def is_db_plugins(name: str) -> bool:
 
 
 def is_docker_plugin(name: str) -> bool:
-    return name in DOCKER_MODULES
+    return any_hyphen_in(DOCKER_MODULES, name)
 
 
 def is_assignable_plugin(name: str) -> bool:
-    return name in ASSIGN_MODULES
+    return any_hyphen_in(ASSIGN_MODULES, name)
 
 
 def is_network_plugin(name: str) -> bool:
-    return name in NETWORK_MODULES
+    return any_hyphen_in(NETWORK_MODULES, name)

@@ -572,7 +572,7 @@ class SitesDeployment:
         """
         env = {}
         for resource in site.resources:
-            if (
+            if (not resource.is_assignable()) or (
                 resource.is_assignable()
                 and resource.assign_priority < site.assign_priority
             ):
@@ -672,7 +672,7 @@ class SitesDeployment:
         """Return suitable parameters for the docker.run() command (for
         Resource)."""
         run_params = deepcopy(RUN_BASE_RESOURCE)
-        run_params.update(resource.get("docker", {}))
+        run_params.update(resource.docker)
         self.add_host_gateway_to_extra_hosts(run_params)
         run_params["name"] = resource.container_name
         run_params["ports"] = resource.ports_as_docker_params()

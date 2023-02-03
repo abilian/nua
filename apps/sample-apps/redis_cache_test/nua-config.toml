@@ -21,9 +21,11 @@ property = "database.hostname"
 key = "REDIS_PORT"
 property = "database.REDIS_PORT"
 
+[port.web]
+container = 5000
 
 [[resource]]
 # declaration of the required image for the resource: official Redis image
 name = "database"
-type = "redis"
+type = "redis-cache"
 version = ">=7"
