@@ -6,7 +6,7 @@ from time import sleep
 
 from nua.lib.actions import jinja2_render_from_str_template
 from nua.lib.console import print_magenta
-from nua.lib.panic import vprint, warning
+from nua.lib.panic import vprint, vprint_magenta, warning
 from nua.lib.shell import chown_r, mkdir_p, rm_fr, sh
 from nua.lib.tool.state import verbosity
 
@@ -130,9 +130,23 @@ def configure_nginx_hostname(host: dict):
             .read_text(encoding="utf8")
         )
     dest_path = nua_nginx / "sites" / host["hostname"]
+    if "host_use" in host["sites"][0]:
+        _actual_configure_nginx_hostname(template, dest_path, host)
+    else:
+        warning(f"host '{host['hostname']}': no public HTTP port configured")
+        dest_path.unlink(missing_ok=True)
+
+
+def _actual_configure_nginx_hostname(
+    template: str,
+    dest_path: str | Path,
+    host: dict,
+):
     with verbosity(2):
-        vprint(host["hostname"], "template:", template)
-        vprint(host["hostname"], "target  :", dest_path)
+        vprint_magenta(f"{host['hostname']} template:")
+        vprint(template)
+        vprint_magenta(f"{host['hostname']} target:")
+        vprint(dest_path)
     jinja2_render_from_str_template(template, dest_path, host)
     with verbosity(2):
         if not dest_path.exists():
