@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-runtime"
-version = "0.4.85"
+version = "0.4.86"
 description = "Nua runtime"
 authors = [
     "Stefane Fermigier <sf@abilian.com>",
