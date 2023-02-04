@@ -24,7 +24,7 @@ ALLOWED_STRATEGY = {"auto": apply_auto_strategy, "none": apply_none_strategy}
 STRATEGY_PROTO = {"auto": "https://", "none": "http://"}
 
 
-def register_certbot_domains(sites: list):
+def register_certbot_domains(apps: list):
     """Apply certbot strategy to domains.
 
     Group common domains and execute "certbot run".
@@ -35,7 +35,7 @@ def register_certbot_domains(sites: list):
        - all sub-domains "xxx.exemple.com" share the same key.
     """
     tops = {}
-    for site in sites:
+    for site in apps:
         hostname = site.hostname
         # hostname is "www.exemple.com"
         # -> top domain is "exemple.com"

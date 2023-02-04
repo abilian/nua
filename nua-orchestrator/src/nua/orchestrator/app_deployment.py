@@ -1,4 +1,4 @@
-"""Class to manage the deployment of a group of sites."""
+"""Class to manage the deployment of a group of app instances."""
 import time
 from collections.abc import Callable
 from copy import deepcopy
@@ -11,6 +11,7 @@ from nua.lib.panic import abort, info, vprint, vprint_green, vprint_magenta, war
 from nua.lib.tool.state import verbosity
 
 from . import config
+from .app_instance import AppInstance
 from .assign.engine import instance_key_evaluator
 from .certbot import protocol_prefix, register_certbot_domains
 from .db import store
@@ -19,7 +20,7 @@ from .db.model.instance import RUNNING
 from .deploy_utils import (
     create_container_private_network,
     deactivate_all_instances,
-    deactivate_site,
+    deactivate_app,
     extra_host_gateway,
     load_install_image,
     mount_resource_volumes,
@@ -39,7 +40,6 @@ from .nginx_util import (
 )
 from .resource import Resource
 from .services import Services
-from .site import Site
 from .utils import parse_any_format
 from .volume import Volume
 
@@ -48,28 +48,28 @@ RUN_BASE: dict[str, Any] = {}  # see also nua_config
 RUN_BASE_RESOURCE = {"restart_policy": {"name": "always"}}
 
 
-class SitesDeployment:
-    """Deployment of a list of site/nua-image.
+class AppDeployment:
+    """Deployment of a list of app instance/nua-image.
 
     Devel notes: will be refactored into base class and sub classes for various
     deployment strategies (restoring previous configuration, ...).
 
     example of use:
-        deployer = SitesDeployment()
+        deployer = AppDeployment()
         deployer.local_services_inventory()
         deployer.load_deploy_config(deploy_config)
         deployer.gather_requirements()
-        deployer.configure_sites()
-        deployer.deactivate_previous_sites()
+        deployer.configure_apps()
+        deployer.deactivate_previous_apps()
         deployer.apply_configuration()
-        deployer.start_sites()
+        deployer.start_apps()
         deployer.post_deployment()
     """
 
     def __init__(self):
         self.loaded_config = {}
-        self.sites = []
-        self.sites_per_domain = []
+        self.apps = []
+        self.apps_per_domain = []
         self.required_services = set()
         self.available_services = {}
         self.orig_mounted_volumes = []
@@ -99,7 +99,7 @@ class SitesDeployment:
             store.deploy_config_update_state(self.previous_config_id, PREVIOUS)
         # deploy_config = {
         #     "requested": self.loaded_config,
-        #     "sites": deepcopy(self.sites),
+        #     "apps": deepcopy(self.apps),
         # }
         # self.future_config_id = store.deploy_config_add_config(
         #     deploy_config, self.previous_config_id, INACTIVE
@@ -114,7 +114,7 @@ class SitesDeployment:
         # store.deploy_config_update_state(self.future_config_id, ACTIVE)
         deploy_config = {
             "requested": self.loaded_config,
-            "sites": deepcopy(self.sites),
+            "apps": deepcopy(self.apps),
         }
         self.future_config_id = store.deploy_config_add_config(
             deploy_config, self.previous_config_id, ACTIVE
@@ -137,38 +137,38 @@ class SitesDeployment:
     def load_deploy_config(self, deploy_config: str):
         config_path = Path(deploy_config).expanduser().resolve()
         with verbosity(1):
-            info(f"Deploy sites from: {config_path}")
+            info(f"Deploy apps from: {config_path}")
         self.loaded_config = parse_any_format(config_path)
-        self.parse_deploy_sites()
-        self.sort_sites_per_domain()
+        self.parse_deploy_apps()
+        self.sort_apps_per_domain()
         with verbosity(3):
             self.print_host_list()
 
     def restore_previous_deploy_config_strict(self):
         """Retrieve last successful deployment configuration (strict mode)."""
         with verbosity(1):
-            info("Deploy sites from previous deployment (strict mode).")
+            info("Deploy apps from previous deployment (strict mode).")
         previous_config = self.previous_success_deployment_record()
         if not previous_config:
             abort("Impossible to find a previous deployment.")
         self.loaded_config = previous_config["deployed"]["requested"]
-        self.sites = []
-        for site_dict in previous_config["deployed"]["sites"]:
-            self.sites.append(Site.from_dict(site_dict))
+        self.apps = []
+        for site_dict in previous_config["deployed"]["apps"]:
+            self.apps.append(AppInstance.from_dict(site_dict))
         # self.future_config_id = previous_config.get("id")
-        self.sort_sites_per_domain()
+        self.sort_apps_per_domain()
 
     def restore_previous_deploy_config_replay(self):
         """Retrieve last successful deployment configuration (replay mode)."""
         with verbosity(1):
-            info("Deploy sites from previous deployment (replay deployment).")
+            info("Deploy apps from previous deployment (replay deployment).")
         previous_config = self.previous_success_deployment_record()
         if not previous_config:
             abort("Impossible to find a previous deployment.")
         self.loaded_config = previous_config["deployed"]["requested"]
         # self.future_config_id = previous_config.get("id")
-        self.parse_deploy_sites()
-        self.sort_sites_per_domain()
+        self.parse_deploy_apps()
+        self.sort_apps_per_domain()
         with verbosity(3):
             self.print_host_list()
 
@@ -176,27 +176,27 @@ class SitesDeployment:
         self.install_required_images()
         self.install_required_resources()
 
-    def configure_sites(self):
-        self.sites_set_network_name()
-        self.sites_set_resources_names()
-        self.sites_merge_instances_to_resources()
-        self.sites_configure_requested_db()
-        self.sites_set_volumes_names()
-        self.sites_check_local_service_available()
-        self.sites_set_ports_as_dict()
-        self.sites_parse_healthcheck()
-        self.sites_check_host_services_configuration()
-        self.sites_retrieve_persistent()
+    def configure_apps(self):
+        self.apps_set_network_name()
+        self.apps_set_resources_names()
+        self.apps_merge_instances_to_resources()
+        self.apps_configure_requested_db()
+        self.apps_set_volumes_names()
+        self.apps_check_local_service_available()
+        self.apps_set_ports_as_dict()
+        self.apps_parse_healthcheck()
+        self.apps_check_host_services_configuration()
+        self.apps_retrieve_persistent()
         # We now allocate ports *before* stopping services, thus this may induce
         # a flip/flop balance when reinstalling same config
-        self.sites_generate_ports()
+        self.apps_generate_ports()
 
     def restore_configure(self):
         """Try to reuse the previous configuration with no change."""
-        self.sites_check_local_service_available()
-        self.sites_check_host_services_configuration()
+        self.apps_check_local_service_available()
+        self.apps_check_host_services_configuration()
 
-    def deactivate_previous_sites(self):
+    def deactivate_previous_apps(self):
         """Find all instance in DB.
 
         - remove container if exists
@@ -206,7 +206,7 @@ class SitesDeployment:
         self.orig_mounted_volumes = store.list_instances_container_active_volumes()
         deactivate_all_instances()
 
-    def restore_deactivate_previous_sites(self):
+    def restore_deactivate_previous_apps(self):
         """For restore situation, find all instance in DB.
 
         - remove container if exists
@@ -217,63 +217,63 @@ class SitesDeployment:
 
     def apply_configuration(self):
         """Apply configuration, especially configurations that can not be
-        deployed before all previous sites are stopped."""
+        deployed before all previous apps are stopped."""
         self.configure_nginx()
-        # registering https sites with certbot requires that the base nginx config is
+        # registering https apps with certbot requires that the base nginx config is
         # deployed.
-        register_certbot_domains(self.sites)
+        register_certbot_domains(self.apps)
         with verbosity(2):
-            vprint("'sites':\n", pformat(self.sites))
+            vprint("'apps':\n", pformat(self.apps))
 
-    def start_sites(self):
-        """Start all sites to deploy."""
+    def start_apps(self):
+        """Start all apps to deploy."""
         # restarting local services:
         self.restart_local_services()
-        for site in self.sites:
-            deactivate_site(site)
+        for site in self.apps:
+            deactivate_app(site)
             self.start_network(site)
             self.evaluate_container_params(site)
             self.start_resources_containers(site)
             self.setup_resources_db(site)
             self.merge_volume_only_resources(site)
-            self.start_main_site_container(site)
+            self.start_main_app_container(site)
             self.store_container_instance(site)
         chown_r_nua_nginx()
         nginx_restart()
 
-    def parse_deploy_sites(self):
-        """Make the list of Sites.
+    def parse_deploy_apps(self):
+        """Make the list of AppInstances.
 
         Check config syntax, replace missing information by defaults.
         """
-        sites = []
+        apps = []
         for site_dict in self.loaded_config["site"]:
             if not isinstance(site_dict, dict):
                 abort(
-                    "Site configuration must be a dict",
+                    "AppInstance configuration must be a dict",
                     explanation=f"{pformat(site_dict)}",
                 )
-            site = Site(site_dict)
+            site = AppInstance(site_dict)
             site.check_valid()
             # site.set_ports_as_dict()
-            sites.append(site)
-        self.sites = sites
+            apps.append(site)
+        self.apps = apps
 
-    def sort_sites_per_domain(self):
-        """Classify the sites per domain, filtering out miss declared sites.
+    def sort_apps_per_domain(self):
+        """Classify the apps per domain, filtering out miss declared apps.
 
-        The sites per domain are available in self.sites_per_domain
+        The apps per domain are available in self.apps_per_domain
         """
-        self._make_sites_per_domain()
-        self._filter_miss_located_sites()
-        self._update_sites_list()
+        self._make_apps_per_domain()
+        self._filter_miss_located_apps()
+        self._update_apps_list()
 
-    def _make_sites_per_domain(self):
-        """Convert dict(hostname:[sites,..]) to list({hostname, sites}).
+    def _make_apps_per_domain(self):
+        """Convert dict(hostname:[apps,..]) to list({hostname, apps}).
 
         ouput format:
         [{'hostname': 'test.example.com',
-         'sites': [{'domain': 'test.example.com/instance1',
+         'apps': [{'domain': 'test.example.com/instance1',
                      'image': 'flask-one:1.2-1',
                      },
                     {'domain': 'test.example.com/instance2',
@@ -281,23 +281,23 @@ class SitesDeployment:
                      },
                      ...
          {'hostname': 'sloop.example.com',
-          'sites': [{'domain': 'sloop.example.com',
+          'apps': [{'domain': 'sloop.example.com',
                      'image': 'nua-flask-upload-one:1.0-1',
                      }]}]
         """
-        sites_per_domain = self._sites_per_domain()
-        self.sites_per_domain = [
-            {"hostname": hostname, "sites": sites_list}
-            for hostname, sites_list in sites_per_domain.items()
+        apps_per_domain = self._apps_per_domain()
+        self.apps_per_domain = [
+            {"hostname": hostname, "apps": apps_list}
+            for hostname, apps_list in apps_per_domain.items()
         ]
 
-    def _sites_per_domain(self) -> dict:
-        """Return a dict of sites per host.
+    def _apps_per_domain(self) -> dict:
+        """Return a dict of apps per host.
 
         key : hostname (full name)
-        value : list of websites of hostname
+        value : list of webapps of hostname
 
-        input format: dict contains a list of sites
+        input format: dict contains a list of apps
 
         [[site]]
         domain = "test.example.com/instance1"
@@ -317,59 +317,59 @@ class SitesDeployment:
                              },
                              ...
         """
-        sites_per_domain = {}
-        for site in self.sites:
+        apps_per_domain = {}
+        for site in self.apps:
             dom = DomainSplit(site.domain)
-            if dom.hostname not in sites_per_domain:
-                sites_per_domain[dom.hostname] = []
-            sites_per_domain[dom.hostname].append(site)
-        return sites_per_domain
+            if dom.hostname not in apps_per_domain:
+                apps_per_domain[dom.hostname] = []
+            apps_per_domain[dom.hostname].append(site)
+        return apps_per_domain
 
-    def _filter_miss_located_sites(self):
-        """Return sites classified for location use.
+    def _filter_miss_located_apps(self):
+        """Return apps classified for location use.
 
         For a domain:
             - either only one site:
                 www.example.com -> site
-            - either all sites must have a location (path):
+            - either all apps must have a location (path):
                 www.example.com/path1 -> site1
                 www.example.com/path2 -> site2
 
         So, if not located, check it is the only one site of the domain.
         The method checks the coherence and add a located 'flag'
         """
-        for host in self.sites_per_domain:
-            sites_list = host["sites"]
-            first = sites_list[0]  # by construction, there is at least 1 element
+        for host in self.apps_per_domain:
+            apps_list = host["apps"]
+            first = apps_list[0]  # by construction, there is at least 1 element
             dom = DomainSplit(first.domain)
             if dom.location:
                 _verify_located(host)
             else:
                 _verify_not_located(host)
 
-    def _update_sites_list(self):
-        """Rebuild the list of Site from filtered sites per domain."""
-        sites_list = []
-        for host in self.sites_per_domain:
-            for site in host["sites"]:
+    def _update_apps_list(self):
+        """Rebuild the list of AppInstance from filtered apps per domain."""
+        apps_list = []
+        for host in self.apps_per_domain:
+            for site in host["apps"]:
                 site.hostname = host["hostname"]
-                sites_list.append(site)
-        self.sites = sites_list
+                apps_list.append(site)
+        self.apps = apps_list
 
     def install_required_images(self):
         # first: check that all Nua images are available:
-        if not self.find_all_site_images():
+        if not self.find_all_apps_images():
             abort("Missing Nua images")
         self.install_images()
 
-    def find_all_site_images(self) -> bool:
-        for site in self.sites:
+    def find_all_apps_images(self) -> bool:
+        for site in self.apps:
             if not site.find_registry_path():
                 print_red(f"No image found for '{site.image}'")
                 return False
         with verbosity(1):
             seen = set()
-            for site in self.sites:
+            for site in self.apps:
                 if site.image not in seen:
                     seen.add(site.image)
                     info(f"image found: '{site.image}'")
@@ -378,7 +378,7 @@ class SitesDeployment:
     def install_images(self):
         start_container_engine()
         installed = {}
-        for site in self.sites:
+        for site in self.apps:
             if not site.find_registry_path(cached=True):
                 abort(f"No image found for '{site.image}'")
             registry_path = site.registry_path
@@ -392,15 +392,15 @@ class SitesDeployment:
             site.image_nua_config = image_nua_config
 
     def install_required_resources(self):
-        self.sites_parse_resources()
-        self.sites_set_ports_as_dict()
+        self.apps_parse_resources()
+        self.apps_set_ports_as_dict()
         if not self.pull_all_resources_images():
             abort("Missing Docker images")
 
     def pull_all_resources_images(self) -> bool:
         return all(
             all(self._pull_resource(resource) for resource in site.resources)
-            for site in self.sites
+            for site in self.apps
         )
 
     def _pull_resource(self, resource: Resource) -> bool:
@@ -413,8 +413,8 @@ class SitesDeployment:
             return pull_resource_container(resource)
         return True
 
-    def sites_check_local_service_available(self):
-        self.required_services = {s for site in self.sites for s in site.local_services}
+    def apps_check_local_service_available(self):
+        self.required_services = {s for site in self.apps for s in site.local_services}
         with verbosity(3):
             vprint("required services:", self.required_services)
         available_services = set(self.available_services.keys())
@@ -422,8 +422,8 @@ class SitesDeployment:
             if service not in available_services:
                 abort(f"Required service '{service}' is not available")
 
-    def sites_check_host_services_configuration(self):
-        for site in self.sites:
+    def apps_check_host_services_configuration(self):
+        for site in self.apps:
             for service in site.local_services:
                 handler = self.available_services[service]
                 if not handler.check_site_configuration(site):
@@ -432,50 +432,50 @@ class SitesDeployment:
                         f"site {site.domain}"
                     )
 
-    def sites_parse_resources(self):
-        for site in self.sites:
+    def apps_parse_resources(self):
+        for site in self.apps:
             site.parse_resources()
 
-    def sites_set_ports_as_dict(self):
-        for site in self.sites:
+    def apps_set_ports_as_dict(self):
+        for site in self.apps:
             site.set_ports_as_dict()
 
-    def sites_parse_healthcheck(self):
-        for site in self.sites:
+    def apps_parse_healthcheck(self):
+        for site in self.apps:
             site.parse_healthcheck()
         with verbosity(3):
-            info("sites_parse_healthcheck() done")
+            info("apps_parse_healthcheck() done")
 
-    def sites_set_network_name(self):
-        for site in self.sites:
+    def apps_set_network_name(self):
+        for site in self.apps:
             site.set_network_name()
         with verbosity(3):
-            info("sites_set_network_name() done")
+            info("apps_set_network_name() done")
 
-    def sites_set_resources_names(self):
-        for site in self.sites:
+    def apps_set_resources_names(self):
+        for site in self.apps:
             site.set_resources_names()
         with verbosity(3):
-            info("sites_set_resources_names() done")
+            info("apps_set_resources_names() done")
 
-    def sites_merge_instances_to_resources(self):
-        for site in self.sites:
+    def apps_merge_instances_to_resources(self):
+        for site in self.apps:
             site.merge_instance_to_resources()
         with verbosity(3):
-            info("sites_merge_instances_to_resources() done")
+            info("apps_merge_instances_to_resources() done")
 
-    def sites_configure_requested_db(self):
-        for site in self.sites:
+    def apps_configure_requested_db(self):
+        for site in self.apps:
             for resource in site.resources:
                 resource.configure_db()
         with verbosity(3):
-            info("sites_configure_requested_db() done")
+            info("apps_configure_requested_db() done")
 
-    def sites_set_volumes_names(self):
-        for site in self.sites:
+    def apps_set_volumes_names(self):
+        for site in self.apps:
             site.set_volumes_names()
         with verbosity(3):
-            info("sites_set_volumes_names() done")
+            info("apps_set_volumes_names() done")
 
     def restart_local_services(self):
         with verbosity(2):
@@ -489,32 +489,32 @@ class SitesDeployment:
 
     def configure_nginx(self):
         clean_nua_nginx_default_site()
-        for host in self.sites_per_domain:
+        for host in self.apps_per_domain:
             with verbosity(1):
                 info(f"Configure Nginx for hostname '{host['hostname']}'")
             configure_nginx_hostname(host)
 
-    def sites_generate_ports(self):
+    def apps_generate_ports(self):
         start_ports = config.read("nua", "ports", "start") or 8100
         end_ports = config.read("nua", "ports", "end") or 9000
         with verbosity(4):
-            vprint(f"sites_generate_ports(): interval {start_ports} to {end_ports}")
+            vprint(f"apps_generate_ports(): interval {start_ports} to {end_ports}")
         self.update_ports_from_nua_config()
         allocated_ports = self._configured_ports()
         with verbosity(4):
-            vprint(f"sites_generate_ports(): {allocated_ports=}")
-        # list of ports used for domains / sites, trying to keep them unchanged
+            vprint(f"apps_generate_ports(): {allocated_ports=}")
+        # list of ports used for domains / apps, trying to keep them unchanged
         ports_instances_domains = store.ports_instances_domains()
         with verbosity(4):
-            vprint(f"sites_generate_ports(): {ports_instances_domains=}")
+            vprint(f"apps_generate_ports(): {ports_instances_domains=}")
         allocated_ports.update(ports_instances_domains)
         with verbosity(3):
-            vprint(f"sites_generate_ports() used ports:\n {allocated_ports=}")
-        self.sites_allocate_ports(
+            vprint(f"apps_generate_ports() used ports:\n {allocated_ports=}")
+        self.apps_allocate_ports(
             port_allocator(start_ports, end_ports, allocated_ports)
         )
         with verbosity(3):
-            vprint("sites_generate_ports() done")
+            vprint("apps_generate_ports() done")
 
     def _configured_ports(self) -> set[int]:
         """Return set of required host ports (aka non auto ports) from
@@ -535,7 +535,7 @@ class SitesDeployment:
         }
         """
         used = set()
-        for site in self.sites:
+        for site in self.apps:
             try:
                 used.update(site.used_ports())
             except (ValueError, IndexError) as e:
@@ -544,9 +544,9 @@ class SitesDeployment:
                 raise
         return used
 
-    def sites_allocate_ports(self, allocator: Callable):
+    def apps_allocate_ports(self, allocator: Callable):
         """Update site dict with auto generated ports."""
-        for site in self.sites:
+        for site in self.apps:
             site.allocate_auto_ports(allocator)
             for resource in site.resources:
                 resource.allocate_auto_ports(allocator)
@@ -557,16 +557,16 @@ class SitesDeployment:
         Merge ports modifications from site config with image config.
         """
         with verbosity(5):
-            vprint(f"update_ports_from_nua_config(): len(site_list)= {len(self.sites)}")
-        for site in self.sites:
+            vprint(f"update_ports_from_nua_config(): len(site_list)= {len(self.apps)}")
+        for site in self.apps:
             site.rebase_ports_upon_nua_config()
 
-    def evaluate_container_params(self, site: Site):
+    def evaluate_container_params(self, site: AppInstance):
         """Compute site run envronment parameters except those requiring late
         evaluation (i.e. host names of started containers).
 
         Order of evaluations for Variables:
-        - main Site variable assignment (including hostname of resources)
+        - main AppInstance variable assignment (including hostname of resources)
         - Resource assignement (they have access to site ENV)
         - late evaluation (hostnames)
         """
@@ -577,7 +577,7 @@ class SitesDeployment:
                 and resource.assign_priority < site.assign_priority
             ):
                 self.generate_resource_container_run_parameters(site, resource, env)
-        self.generate_site_container_run_parameters(site)
+        self.generate_app_container_run_parameters(site)
         env = site.run_params["environment"]
         for resource in site.resources:
             if (
@@ -586,22 +586,22 @@ class SitesDeployment:
             ):
                 self.generate_resource_container_run_parameters(site, resource, env)
 
-    def sites_retrieve_persistent(self):
-        for site in self.sites:
+    def apps_retrieve_persistent(self):
+        for site in self.apps:
             self.retrieve_persistent(site)
 
-    def retrieve_persistent(self, site: Site):
+    def retrieve_persistent(self, site: AppInstance):
         previous = store.instance_persistent(site.domain, site.app_id)
         with verbosity(4):
             vprint(f"persistent previous: {previous=}")
         previous.update(site.persistent_full_dict())
         site.set_persistent_full_dict(previous)
 
-    def start_network(self, site: Site):
+    def start_network(self, site: AppInstance):
         if site.network_name:
             create_container_private_network(site.network_name)
 
-    def start_resources_containers(self, site: Site):
+    def start_resources_containers(self, site: AppInstance):
         for resource in site.resources:
             if resource.is_docker_type():
                 mounted_volumes = mount_resource_volumes(resource)
@@ -609,22 +609,22 @@ class SitesDeployment:
                 # until we check startup of container or set value in parameters...
                 time.sleep(2)
 
-    def setup_resources_db(self, site: Site):
+    def setup_resources_db(self, site: AppInstance):
         for resource in site.resources:
             resource.setup_db()
 
-    def merge_volume_only_resources(self, site: Site):
+    def merge_volume_only_resources(self, site: AppInstance):
         for resource in site.resources:
             if resource.volume_declaration:
                 site.volume = site.volume + resource.volume_declaration
 
-    def start_main_site_container(self, site: Site):
+    def start_main_app_container(self, site: AppInstance):
         # volumes need to be mounted before beeing passed as arguments to
         # docker.run()
         mounted_volumes = mount_resource_volumes(site)
         start_one_container(site, mounted_volumes)
 
-    def store_container_instance(self, site: Site):
+    def store_container_instance(self, site: AppInstance):
         with verbosity(2):
             vprint("saving site config in Nua DB")
         store.store_instance(
@@ -637,7 +637,7 @@ class SitesDeployment:
             site_config=dict(site),
         )
 
-    def generate_site_container_run_parameters(self, site: Site):
+    def generate_app_container_run_parameters(self, site: AppInstance):
         """Return suitable parameters for the docker.run() command.
 
         Does not include the internal_secrets, that are passed only at
@@ -654,7 +654,7 @@ class SitesDeployment:
         if "env" in run_nua_conf:
             del run_nua_conf["env"]
         run_params.update(run_nua_conf)
-        # update with parameters that could be added to Site configuration :
+        # update with parameters that could be added to AppInstance configuration :
         run_params.update(site.get("docker", {}))
         # Add the hostname/IP of local Docker hub (Docker feature) :
         self.add_host_gateway_to_extra_hosts(run_params)
@@ -667,7 +667,7 @@ class SitesDeployment:
         site.run_params = run_params
 
     def generate_resource_container_run_parameters(
-        self, site: Site, resource: Resource, site_env: dict
+        self, site: AppInstance, resource: Resource, site_env: dict
     ):
         """Return suitable parameters for the docker.run() command (for
         Resource)."""
@@ -692,9 +692,9 @@ class SitesDeployment:
         extra_hosts.update(extra_host_gateway())
         run_params["extra_hosts"] = extra_hosts
 
-    def run_parameters_environment(self, site: Site) -> dict:
+    def run_parameters_environment(self, site: AppInstance) -> dict:
         """Return a dict with all environment parameters for the main container
-        to run (the Site container)."""
+        to run (the AppInstance container)."""
         run_env = site.image_nua_config.get("env", {})
         # update with local services environment (if any):
         run_env.update(self.services_environment(site))
@@ -706,7 +706,7 @@ class SitesDeployment:
         return run_env
 
     def run_parameters_resource_environment(
-        self, site: Site, resource: Resource, site_env: dict
+        self, site: AppInstance, resource: Resource, site_env: dict
     ) -> dict:
         """Return a dict with all environment parameters for a resource
         container (a Resource container)."""
@@ -727,7 +727,7 @@ class SitesDeployment:
         if "restart_policy" in run_params:
             run_params["auto_remove"] = False
 
-    def services_environment(self, site: Site) -> dict:
+    def services_environment(self, site: AppInstance) -> dict:
         run_env = {}
         for service in site.local_services:
             handler = self.available_services[service]
@@ -735,7 +735,7 @@ class SitesDeployment:
             run_env.update(handler.environment(site))
         return run_env
 
-    def resources_environment(self, site: Site) -> dict:
+    def resources_environment(self, site: AppInstance) -> dict:
         run_env = {}
         for resource in site.resources:
             run_env.update(resource.environment_ports())
@@ -752,12 +752,12 @@ class SitesDeployment:
 
     def display_deployed(self):
         protocol = protocol_prefix()
-        for site in self.sites:
+        for site in self.apps:
             msg = f"image '{site.image}' deployed as {protocol}{site.domain}"
             info(msg)
             self.display_persistent_data(site)
 
-    def display_persistent_data(self, site: Site):
+    def display_persistent_data(self, site: AppInstance):
         with verbosity(3):
             content = site.persistent_full_dict()
             if content:
@@ -785,14 +785,14 @@ class SitesDeployment:
                 vprint(Volume.string(volume))
 
     def print_host_list(self):
-        vprint("sites per domain:\n", pformat(self.sites_per_domain))
+        vprint("apps per domain:\n", pformat(self.apps_per_domain))
 
 
 def _verify_located(host: dict):
     """host format:
 
      {'hostname': 'test.example.com',
-      'sites': [{'domain': 'test.example.com/instance1',
+      'apps': [{'domain': 'test.example.com/instance1',
                   'image': 'flask-one:1.2-1',
                   # 'port': 'auto',
                   },
@@ -802,7 +802,7 @@ def _verify_located(host: dict):
     changed to:
     {'hostname': 'test.example.com',
      'located': True,
-     'sites': [{'domain': 'test.example.com/instance1',
+     'apps': [{'domain': 'test.example.com/instance1',
                  'image': 'flask-one:1.2-1',
                  # 'port': 'auto',
                  'location': 'instance1'
@@ -812,9 +812,9 @@ def _verify_located(host: dict):
                  ...
     """
     known_location = set()
-    valid_sites = []
+    valid_apps = []
     hostname = host["hostname"]
-    for site in host["sites"]:
+    for site in host["apps"]:
         dom = DomainSplit(site.domain)
         if not dom.location:
             image = site.image
@@ -833,8 +833,8 @@ def _verify_located(host: dict):
             continue
         known_location.add(dom.location)
         site["location"] = dom.location
-        valid_sites.append(site)
-    host["sites"] = valid_sites
+        valid_apps.append(site)
+    host["apps"] = valid_apps
     host["located"] = True
 
 
@@ -842,28 +842,28 @@ def _verify_not_located(host: dict):
     """host format:
 
         {'hostname': 'sloop.example.com',
-         'sites': [{'domain': 'sloop.example.com',
+         'apps': [{'domain': 'sloop.example.com',
                     'image': 'nua-flask-upload-one:1.0-1',
                     'port': 'auto'}]}]
     changed to:
         {'hostname': 'sloop.example.com',
          'located': False,
-         'sites': [{'domain': 'sloop.example.com',
+         'apps': [{'domain': 'sloop.example.com',
                     'image': 'nua-flask-upload-one:1.0-1',
                     'port': 'auto'}]}]
     """
     # we know that the first of the list is not located. We expect the list
     # has only one site.
-    if len(host["sites"]) == 1:
-        valid_sites = host["sites"]
+    if len(host["apps"]) == 1:
+        valid_apps = host["apps"]
     else:
         hostname = host["hostname"]
-        warning(f"too many sites for {hostname=}, site discarded:")
-        site = host["sites"].pop(0)
-        valid_sites = [site]
-        for site in host["sites"]:
+        warning(f"too many apps for {hostname=}, site discarded:")
+        site = host["apps"].pop(0)
+        valid_apps = [site]
+        for site in host["apps"]:
             image = site.image
             print_red(f"    {image=} / {site['domain']}")
 
-    host["sites"] = valid_sites
+    host["apps"] = valid_apps
     host["located"] = False

@@ -1,4 +1,4 @@
-"""Class to manage the deployment of a group os sites.
+"""Class to manage the deployment of a group of AppInstance.
 """
 from collections.abc import Callable
 from pathlib import Path
@@ -11,6 +11,7 @@ from nua.build.archive_search import ArchiveSearch
 from nua.lib.panic import abort, info, vprint, vprint_green, vprint_magenta, warning
 from nua.lib.tool.state import verbosity
 
+from .app_instance import AppInstance
 from .db import store
 from .docker_utils import (
     docker_host_gateway_ip,
@@ -26,7 +27,6 @@ from .higher_package import higher_package
 from .internal_secrets import secrets_dict
 from .net_utils.ports import check_port_available
 from .resource import Resource
-from .site import Site
 from .utils import size_to_bytes
 from .volume import Volume
 
@@ -82,7 +82,7 @@ def port_allocator(start_ports: int, end_ports: int, allocated_ports: set) -> Ca
     return allocator
 
 
-# def mount_site_volumes(site: Site) -> list:
+# def mount_site_volumes(site: AppInstance) -> list:
 #     volumes = site.rebased_volumes_upon_nua_conf()
 #     create_docker_volumes(volumes)
 #     mounted_volumes = []
@@ -177,7 +177,7 @@ def start_one_container(rsite: Resource, mounted_volumes: list):
             info(f"    connected to network: {rsite.network_name}")
 
 
-def stop_previous_containers(sites: list):
+def stop_previous_containers(apps: list):
     pass
 
 
@@ -189,8 +189,8 @@ def deactivate_containers(container_names: list[str]):
         store.instance_delete_by_container(name)
 
 
-def deactivate_site(site: Site):
-    """Deactive containers of Site and all sub Resources (updating orchestrator
+def deactivate_app(site: AppInstance):
+    """Deactive containers of AppInstance and all sub Resources (updating orchestrator
     DB)."""
     container_names = [res.container_name for res in site.resources]
     container_names.append(site.container_name)

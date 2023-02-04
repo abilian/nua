@@ -43,7 +43,7 @@ class DeployConfig(Base, SerializerMixin):
            ]
          },
         "deployed": [
-           {   # detailed configuration, 'self.sites' content
+           {   # detailed configuration, 'self.apps' content
             "image": "hedgedoc:1.9.6-4",
             "domain": "test1.example.com",
             ...

@@ -5,9 +5,9 @@ from pprint import pformat
 from nua.lib.panic import info, show, warning
 from nua.lib.tool.state import verbosity
 
+from ..app_instance import AppInstance
 from ..persistent import Persistent
 from ..resource import Resource
-from ..site import Site
 from ..utils import dehyphen
 
 # from . import config
@@ -32,7 +32,7 @@ EVALUATOR_LATE_FCT = {}
 
 
 def instance_key_evaluator(
-    site: Site,
+    site: AppInstance,
     resource: Resource | None = None,
     late_evaluation: bool = False,
 ) -> dict:

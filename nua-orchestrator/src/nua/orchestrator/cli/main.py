@@ -19,10 +19,10 @@ from ..nua_db_setup import setup_nua_db
 from ..register_plugins import register_plugins
 from ..search_cmd import search_nua_print
 from .commands.backup import backup_all, deployed_config
-from .commands.deploy import deploy_nua_sites
+from .commands.deploy import deploy_nua_apps
 from .commands.deploy_nua import deploy_nua
 from .commands.local_cmd import reload_servers, status
-from .commands.restore import restore_nua_sites_replay, restore_nua_sites_strict
+from .commands.restore import restore_nua_apps_replay, restore_nua_apps_strict
 
 ALLOW_SUFFIX = {".json", ".toml", ".yaml", ".yml"}
 
@@ -123,7 +123,7 @@ def deploy_local(
 
     path = Path(app_name)
     if path.suffix in ALLOW_SUFFIX and path.is_file():
-        deploy_nua_sites(app_name)
+        deploy_nua_apps(app_name)
     else:
         deploy_nua(app_name)
 
@@ -139,9 +139,9 @@ def restore_local(
     set_color(colorize)
     initialization()
     if strict:
-        restore_nua_sites_strict()
+        restore_nua_apps_strict()
     else:
-        restore_nua_sites_replay()
+        restore_nua_apps_replay()
 
 
 @app.command("backup")

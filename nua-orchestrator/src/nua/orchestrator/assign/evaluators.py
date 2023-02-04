@@ -119,7 +119,7 @@ def resource_property(rsite: Resource, requirement: dict) -> dict:
 @no_persistent_value
 def site_environment(rsite: Resource, requirement: dict) -> dict:
     variable = requirement[SITE_ENVIRONMENT] or ""
-    # The resource environment was juste completed wth Site's environment:
+    # The resource environment was juste completed wth AppInstance's environment:
     env = rsite.env
     if variable in env:
         return {requirement[KEY]: env.get(variable)}

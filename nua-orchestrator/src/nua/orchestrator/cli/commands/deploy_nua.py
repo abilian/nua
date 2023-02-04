@@ -16,7 +16,7 @@ def deploy_nua(app_name: str) -> int:
     (from local registry for now.)
     """
     # if app_name.endswith(".toml") and Path(app_name).is_file():
-    #     return deploy_nua_sites(app_name)
+    #     return deploy_nua_apps(app_name)
     with verbosity(2):
         vprint_magenta(f"image: '{app_name}'")
     results = search_nua(app_name)

@@ -51,7 +51,7 @@ class Resource(dict):
     def resources(self) -> list:
         """List of sub resources of the object.
 
-        Warning: only Site upper class has an actual use of 'resources'.
+        Warning: only AppInstance upper class has an actual use of 'resources'.
         This sub class Resource will always provide an *empty*list
         """
         return []
@@ -283,7 +283,7 @@ class Resource(dict):
 
     def _check_missing(self, key: str):
         if key not in self:
-            abort(f"Site or Resource configuration missing '{key}' key")
+            abort(f"AppInstance or Resource configuration missing '{key}' key")
 
     def _parse_healthcheck(self, config: dict | None = None):
         if config:
@@ -296,7 +296,7 @@ class Resource(dict):
             self.port = {}
             return
         if not isinstance(self.port, dict):
-            abort("Site['port'] must be a dict")
+            abort("AppInstance['port'] must be a dict")
         keys = list(self.port.keys())
         for key in keys:
             self.port[key]["name"] = key
@@ -336,7 +336,7 @@ class Resource(dict):
             self.volume = []
             return
         if not isinstance(self.volume, list):
-            abort("Site['volume'] must be a list")
+            abort("AppInstance['volume'] must be a list")
         # filter empty elements
         volume_list = [v for v in self.volume if v]
         self.volume = Volume.normalize_list(volume_list)

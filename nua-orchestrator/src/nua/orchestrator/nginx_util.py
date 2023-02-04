@@ -44,19 +44,19 @@ def replace_nginx_conf():
 
 
 def make_nua_nginx_folders():
-    nua_nginx = nua_env.nginx_path()
+    nua_nginx_path = nua_env.nginx_path()
     for path in (
-        nua_nginx,
-        nua_nginx / "conf.d",
-        nua_nginx / "sites",
-        nua_nginx / "www" / "html",
-        nua_nginx / "www" / "html" / "css",
+        nua_nginx_path,
+        nua_nginx_path / "conf.d",
+        nua_nginx_path / "sites",
+        nua_nginx_path / "www" / "html",
+        nua_nginx_path / "www" / "html" / "css",
     ):
         mkdir_p(path)
-        os.chmod(nua_nginx, 0o755)  # noqa:S103
+        os.chmod(nua_nginx_path, 0o755)  # noqa:S103
         # S103=Chmod setting a permissive mask 0o755 on file
-    chown_r(nua_nginx, "nua", "nua")
-    chown_r(nua_nginx / "www", "www-data", "www-data")
+    chown_r(nua_nginx_path, "nua", "nua")
+    chown_r(nua_nginx_path / "www", "www-data", "www-data")
 
 
 def install_nua_nginx_default_site():
@@ -73,17 +73,17 @@ def clean_nua_nginx_default_site():
 
     Warning: only for user 'nua' or 'root'
     """
-    nua_nginx = nua_env.nginx_path()
-    sites = nua_nginx / "sites"
-    rm_fr(sites)
-    mkdir_p(sites)
-    os.chmod(nua_nginx, 0o755)  # noqa:S103
+    nua_nginx_path = nua_env.nginx_path()
+    sites_path = nua_nginx_path / "sites"
+    rm_fr(sites_path)
+    mkdir_p(sites_path)
+    os.chmod(nua_nginx_path, 0o755)  # noqa:S103
     install_nua_nginx_default_site()
 
 
 def _set_instances_proxy_port(host: dict):
     # FIXME: update templates to accept several proxyied ports
-    for site in host["sites"]:
+    for site in host["apps"]:
         ports = site["port"]
         for port in ports.values():
             proxy = port["proxy"]
@@ -98,7 +98,7 @@ def configure_nginx_hostname(host: dict):
     host format:
       {'hostname': 'test.example.com',
        'located': True,
-       'sites': [{'domain': 'test.example.com/instance1',
+       'apps': [{'domain': 'test.example.com/instance1',
                    'image': 'flask-one:1.2-1',
                    'location': 'instance1'
                    'port': {
@@ -116,7 +116,7 @@ def configure_nginx_hostname(host: dict):
     """
     _set_instances_proxy_port(host)
     # later: see for port on other :port interfaces
-    nua_nginx = nua_env.nginx_path()
+    nua_nginx_path = nua_env.nginx_path()
     if host["located"]:
         template = (
             rso.files(CONF_TEMPLATE)
@@ -129,8 +129,8 @@ def configure_nginx_hostname(host: dict):
             .joinpath("domain_not_located_template")
             .read_text(encoding="utf8")
         )
-    dest_path = nua_nginx / "sites" / host["hostname"]
-    if "host_use" in host["sites"][0]:
+    dest_path = nua_nginx_path / "sites" / host["hostname"]
+    if "host_use" in host["apps"][0]:
         _actual_configure_nginx_hostname(template, dest_path, host)
     else:
         warning(f"host '{host['hostname']}': no public HTTP port configured")

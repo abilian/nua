@@ -8,7 +8,7 @@ server {
     server_name {{hostname}};
 
 	location / {
-        proxy_pass         http://localhost:{{sites[0].host_use}};
+        proxy_pass         http://localhost:{{apps[0].host_use}};
         proxy_redirect     off;
         proxy_set_header   Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -17,7 +17,7 @@ server {
 	}
 
     location /socket.io/ {
-                proxy_pass http://localhost:{{sites[0].host_use}};
+                proxy_pass http://localhost:{{apps[0].host_use}};
                 proxy_set_header Host $host;
                 proxy_set_header X-Real-IP $remote_addr;
                 proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

@@ -10,8 +10,8 @@ from nua.lib.panic import warning
 
 from .. import __version__ as nua_version
 from .. import config
+from ..app_instance import AppInstance
 from ..constants import NUA_ORCH_ID, NUA_ORCHESTRATOR_TAG
-from ..site import Site
 from ..utils import image_size_repr, size_unit
 from .model.auth import User
 from .model.deployconfig import (
@@ -294,7 +294,7 @@ def list_instances_container_local_active_volumes() -> list:
     volumes_dict = {}
     for instance in list_instances_all_active():
         # for volume in volumes_merge_config(instance.site_config):
-        site = Site(instance.site_config)
+        site = AppInstance(instance.site_config)
 
         # for volume in site.rebased_volumes_upon_nua_conf():
         for volume in site.volume:
@@ -326,7 +326,7 @@ def list_instances_container_active_volumes() -> list:
     containers_dict = {}
     for instance in list_instances_all_active():
         # for volume in volumes_merge_config(instance.site_config):
-        site = Site(instance.site_config)
+        site = AppInstance(instance.site_config)
         for volume in site.volume:
             if volume["type"] == "tmpfs":
                 continue

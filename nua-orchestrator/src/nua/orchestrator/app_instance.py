@@ -17,7 +17,7 @@ from .utils import sanitized_name
 from .volume import Volume
 
 
-class Site(Resource):
+class AppInstance(Resource):
     MANDATORY_KEYS = ("image", "domain")
 
     def __init__(self, site_dict: dict):
@@ -25,7 +25,7 @@ class Site(Resource):
         self.type = "nua-site"
 
     @classmethod
-    def from_dict(cls, site_dict: dict) -> Site:
+    def from_dict(cls, site_dict: dict) -> AppInstance:
         site = cls({})
         resources = []
         for res in site_dict.get("resources", []):
@@ -45,9 +45,9 @@ class Site(Resource):
 
     @property
     def resources(self) -> list:
-        """List of sub resources of the Site object.
+        """List of sub resources of the AppInstance object.
 
-        Warning: only Site class has an actual use of 'resources'.
+        Warning: only AppInstance class has an actual use of 'resources'.
         The sub class Resource will always provide an *empty* list
         """
         return self.get("resources", [])
@@ -268,7 +268,7 @@ class Site(Resource):
         """Set first container names of resources to permit early host
         assignment to variables.
 
-        Site.container_name is always available.
+        AppInstance.container_name is always available.
         """
         for resource in self.resources:
             if resource.is_docker_type():
