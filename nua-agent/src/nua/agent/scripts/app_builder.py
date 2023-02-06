@@ -153,7 +153,7 @@ class BuilderApp:
         else:
             with verbosity(2):
                 vprint("Copying default start script")
-            copy_from_package("nua.runtime.defaults", "start.py", script_dir)
+            copy_from_package("nua.agent.defaults", "start.py", script_dir)
 
     def find_start_script(self) -> Path | None:
         name = hyphen_get(self.config.build, "start-script")

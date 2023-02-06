@@ -14,10 +14,9 @@ from flask_mariadb_docker_wheel.constants import (
     USER_PASSWORD,
 )
 
-from nua.lib.exec import exec_as_root
-
 # Nua shortcuts to manage mariadb:
-from nua.runtime.db.mariadb_manager import MariaDbManager
+from nua.agent.db.mariadb_manager import MariaDbManager
+from nua.lib.exec import exec_as_root
 
 
 def setup_db():

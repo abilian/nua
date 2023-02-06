@@ -3,12 +3,12 @@ import os
 import re
 from pathlib import Path
 
+from nua.agent.db.postgres_manager import NUA_PG_PWD_FILE
+from nua.agent.gen_password import gen_password
 from nua.lib.actions import install_package_list, installed_packages
 from nua.lib.console import print_magenta, print_red
 from nua.lib.exec import mp_exec_as_postgres
 from nua.lib.shell import chown_r, sh
-from nua.runtime.db.postgres_manager import NUA_PG_PWD_FILE
-from nua.runtime.gen_password import gen_password
 
 from .docker_utils import docker_host_gateway_ip
 

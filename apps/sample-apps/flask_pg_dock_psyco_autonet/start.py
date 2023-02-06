@@ -17,10 +17,9 @@ from flask_pg_dock_psyco_autonet.constants import (
     USER_PASSWORD,
 )
 
-from nua.lib.exec import exec_as_root
-
 # Nua shortcuts to manage postgres operations
-from nua.runtime.db.postgres_manager import PostgresManager
+from nua.agent.db.postgres_manager import PostgresManager
+from nua.lib.exec import exec_as_root
 
 
 def setup_db():

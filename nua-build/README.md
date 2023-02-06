@@ -20,7 +20,7 @@ The main steps to build a Nua image:
 - detection of the required base images,
 - build or pull base images if needed,
 - collect files (Dockerfile, configuration files),
-- build a Docker container using the `nua-runtime`,
+- build a Docker container using the `nua-agent`,
 - store locally the resulting images as a `tar` file.
 
 
@@ -45,7 +45,7 @@ Standard Nua images contain three layers:
 
 - A Linux image (Ubuntu 22.04 LTS Jammy, amd64),
 - `nua-python`, addition of python 3.10,
-- `nua-builder`, addition of `nua-runtime` and `nua-lib`.
+- `nua-builder`, addition of `nua-agent` and `nua-lib`.
 
 All standard Nua packages have a Python environment.
 
@@ -63,9 +63,9 @@ Some other base images are available to facilitate builds in other programming e
   - `exec`: shortcuts to execute sub commands like `exec_as_root()`, `exec_as_root()`
   - `action`: higher level commands, related to the installation of packages and dependencies (wrappers above `apt`, `pip`, ...)
 
-- `nua-runtime`: runtime for Nua apps.
+- `nua-agent`: agent for Nua apps.
 
-    `nua-runtime` provides:
+    `nua-agent` provides:
 
   - `nua_config`: library to read the embeded `nua-config` file (introspection),
   - `app_builder`: actual builder of the application inside the Docker image.

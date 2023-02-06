@@ -24,8 +24,8 @@ done
 #     sed -i "" 's/^nua-lib =.*$/nua-lib = { path = "..\/nua-lib\/", develop = false }/' pyproject.toml;
 # }
 # is_gnu_sed && {
-#     sed -i 's/^nua-runtime =.*$/nua-runtime = { path = "..\/nua-runtime\/", develop = false }/' pyproject.toml; } || {
-#     sed -i "" 's/^nua-runtime =.*$/nua-runtime = { path = "..\/nua-runtime\/", develop = false }/' pyproject.toml;
+#     sed -i 's/^nua-agent =.*$/nua-agent = { path = "..\/nua-agent\/", develop = false }/' pyproject.toml; } || {
+#     sed -i "" 's/^nua-agent =.*$/nua-agent = { path = "..\/nua-agent\/", develop = false }/' pyproject.toml;
 # }
 # is_gnu_sed && {
 #     sed -i 's/^nua-autobuild =.*$/nua-autobuild = { path = "..\/nua-autobuild\/", develop = false }/' pyproject.toml; } || {

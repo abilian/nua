@@ -5,8 +5,8 @@ from tarfile import TarFile, TarInfo
 
 import tomli
 import yaml
-from nua.runtime.constants import NUA_METADATA_PATH
-from nua.runtime.nua_config import nua_config_names
+from nua.agent.constants import NUA_METADATA_PATH
+from nua.agent.nua_config import nua_config_names
 
 
 class ArchiveSearch:

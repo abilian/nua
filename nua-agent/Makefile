@@ -1,4 +1,4 @@
-PKG := nua.runtime
+PKG := nua.agent
 SRC := src/nua
 
 .PHONY: all

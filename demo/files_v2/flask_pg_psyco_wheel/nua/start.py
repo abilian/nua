@@ -1,13 +1,14 @@
 """Example adapted from:
-https://www.digitalocean.com/community/tutorials/how-to-use-a-postgresql-database-in-a-flask-application"""
+https://www.digitalocean.com/community/tutorials/
+how-to-use-a-postgresql-database-in-a-flask-application"""
 
 import os
 
 import psycopg2
 from flask_pg_psyco.constants import DB_HOST, DB_NAME, DB_USER, DB_USER_PWD
 
+from nua.agent.db.postgres_manager import PostgresManager
 from nua.lib.exec import exec_as_root
-from nua.runtime.db.postgres_manager import PostgresManager
 
 
 def setup_db():

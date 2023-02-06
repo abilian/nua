@@ -1,9 +1,9 @@
 from shutil import copy2
 
+from nua.agent.nua_config import NuaConfig
 from nua.lib.actions import download_extract, npm_install
 from nua.lib.backports import chdir
 from nua.lib.shell import sh
-from nua.runtime.nua_config import NuaConfig
 
 
 def main():

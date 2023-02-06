@@ -1,6 +1,6 @@
-# Nua Runtime
+# Nua Agent
 
-The `nua-runtime` package is included in every Nua application image.
+The `nua-agent` package is included in every Nua application image.
 
 It will provide the following features (TBC):
 
@@ -10,7 +10,7 @@ It will provide the following features (TBC):
 
 ## Content
 
-`nua-runtime` provides:
+`nua-agent` provides:
 
 -   `nua_config`: library to read the embeded `nua-config` file (introspection),
 -   `app_builder`: actual builder of the application inside the Docker image.

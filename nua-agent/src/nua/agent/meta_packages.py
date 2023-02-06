@@ -4,7 +4,7 @@ import json
 from functools import cache
 from importlib import resources as rso
 
-DEPS_DIR = "nua.runtime.deps"
+DEPS_DIR = "nua.agent.deps"
 META_PACKAGES_FILE = "meta_packages.json"
 
 

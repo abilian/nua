@@ -27,12 +27,12 @@ from nua.lib.backports import chdir
 from nua.lib.panic import info, show, title, vprint, vprint_blue
 from nua.lib.shell import rm_fr
 from nua.lib.tool.state import verbosity, verbosity_level
-from nua.runtime.constants import (
+from nua.agent.constants import (
     NUA_BUILDER_NODE_TAG14,
     NUA_BUILDER_NODE_TAG16,
     NUA_BUILDER_TAG,
 )
-from nua.runtime.nua_config import NuaConfig, nua_config_names
+from nua.agent.nua_config import NuaConfig, nua_config_names
 from packaging.specifiers import SpecifierSet
 from packaging.version import Version
 

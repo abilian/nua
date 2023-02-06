@@ -1,6 +1,6 @@
 """Function to auto configure a Postgres container DB.
 """
-# from nua.runtime.db.postgres_manager import PostgresManager
+# from nua.agent.db.postgres_manager import PostgresManager
 
 from ..resource import Resource
 from ..volume import Volume

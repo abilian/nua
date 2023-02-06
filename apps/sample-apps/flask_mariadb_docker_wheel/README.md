@@ -6,7 +6,7 @@ Testing:
 
 -   use the feature of no build.py, only a declaration of a python `wheel`
 -   a flask basic app
--   using the mariadb connector and Nua runtime
+-   using the mariadb connector and Nua agent
 -   declare requirement of mariadb connector vie 'meta-packages' in config
 -   declare requirement of creation of document-root via config
 -   connection to a mariadb DB running on an official docker image of Mariadb

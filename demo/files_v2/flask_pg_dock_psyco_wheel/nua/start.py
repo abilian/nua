@@ -1,5 +1,6 @@
 """Example adapted from:
-https://www.digitalocean.com/community/tutorials/how-to-use-a-postgresql-database-in-a-flask-application"""
+https://www.digitalocean.com/community/tutorials/
+how-to-use-a-postgresql-database-in-a-flask-application"""
 #
 # RUN echo "listen_addresses='*'" >> /etc/postgresql/9.3/main/postgresql.conf
 # RUN echo "host all  all    0.0.0.0/0  trust" >> /etc/postgresql/9.3/main/pg_hba.conf
@@ -16,8 +17,8 @@ from flask_pg_dock_psyco.constants import (
     USER_PASSWORD,
 )
 
+from nua.agent.db.postgres_manager import PostgresManager
 from nua.lib.exec import exec_as_root
-from nua.runtime.db.postgres_manager import PostgresManager
 
 
 def setup_db():

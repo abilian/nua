@@ -4,7 +4,7 @@
 cd nua-lib
 poetry update
 poetry install
-cd ../nua-runtime
+cd ../nua-agent
 poetry update
 poetry install
 cd ../nua-autobuild

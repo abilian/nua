@@ -2,13 +2,7 @@ import psycopg2
 from flask import Flask, redirect, render_template, request, url_for
 from psycopg2.sql import SQL
 
-from .constants import (
-    DB_HOST,
-    DB_PORT,
-    USER_DB,
-    USER_NAME,
-    USER_PASSWORD,
-)
+from .constants import DB_HOST, DB_PORT, USER_DB, USER_NAME, USER_PASSWORD
 
 app = Flask(__name__)
 

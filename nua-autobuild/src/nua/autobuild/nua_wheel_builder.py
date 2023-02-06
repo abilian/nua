@@ -53,7 +53,7 @@ class NuaWheelBuilder:
                 (
                     (nua_top / ".git").is_dir(),
                     (nua_top / "nua-lib" / "pyproject.toml").is_file(),
-                    (nua_top / "nua-runtime" / "pyproject.toml").is_file(),
+                    (nua_top / "nua-agent" / "pyproject.toml").is_file(),
                 )
             )
         except (ValueError, OSError):
@@ -82,23 +82,23 @@ class NuaWheelBuilder:
             return False  # for the qa
         with verbosity(3):
             vprint([f.name for f in top_git.iterdir()])
-        return all((self.build_nua_lib(top_git), self.build_nua_runtime(top_git)))
+        return all((self.build_nua_lib(top_git), self.build_nua_agent(top_git)))
 
     def build_nua_lib(self, top_git: Path) -> bool:
         return self.poetry_build(top_git / "nua-lib")
 
-    def build_nua_runtime(self, top_git: Path) -> bool:
-        self.hack_runtime_pyproject(top_git)
-        return self.poetry_build(top_git / "nua-runtime")
+    def build_nua_agent(self, top_git: Path) -> bool:
+        self.hack_agent_pyproject(top_git)
+        return self.poetry_build(top_git / "nua-agent")
 
     @staticmethod
-    def hack_runtime_pyproject(top_git: Path):
+    def hack_agent_pyproject(top_git: Path):
         """Since we use local path dependencies when making wheel, we need to
         force the version deps to something local.
 
         FIXME: to be solved by publishing to Pypi index.
         """
-        path = top_git / "nua-runtime" / "pyproject.toml"
+        path = top_git / "nua-agent" / "pyproject.toml"
         pyproject = tomli.loads(path.read_text(encoding="utf8"))
         version = pyproject["tool"]["poetry"]["version"]
         dep = f"=={version}"

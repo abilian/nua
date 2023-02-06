@@ -11,7 +11,7 @@ due to use of local database of the host.
 
 This example to test
 - a flask basic app
-- using the mariadb connector and Nua runtime
+- using the mariadb connector and Nua agent
 - declare requirement of mariadb connector vie 'meta-packages' in config
 - declare requirement of creation of document-root via config
 - connection to a mariadb DB running on local host

@@ -11,7 +11,7 @@ python = "^3.10"
 
 nua-lib = { path = "nua-lib", develop = true }
 nua-cli = { path = "nua-cli", develop = true }
-nua-runtime = { path = "nua-runtime", develop = true }
+nua-agent = { path = "nua-agent", develop = true }
 nua-autobuild = { path = "nua-autobuild", develop = true }
 nua-build = { path = "nua-build", develop = true }
 nua-orchestrator = { path = "nua-orchestrator", develop = true }

@@ -1,9 +1,9 @@
 import os
 from pathlib import Path
 
+from nua.agent.nua_config import NuaConfig
 from nua.lib.actions import install_package_list, pip_install, pip_install_glob
 from nua.lib.shell import chmod_r, mkdir_p, rm_fr
-from nua.runtime.nua_config import NuaConfig
 
 
 def main():

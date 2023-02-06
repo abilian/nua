@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "nua-runtime"
-version = "0.4.86"
-description = "Nua runtime"
+name = "nua-agent"
+version = "0.4.87"
+description = "Nua agent"
 authors = [
     "Stefane Fermigier <sf@abilian.com>",
     "Jerome Dumonteil <jd@abilian.com>",
@@ -27,7 +27,7 @@ types-setuptools = "*"
 types-pyyaml = "*"
 
 [tool.poetry.scripts]
-app_builder = "nua.runtime.scripts.app_builder:main"
+app_builder = "nua.agent.scripts.app_builder:main"
 
 [build-system]
 requires = [

@@ -43,9 +43,9 @@ Example of a \`nodejs-basic package, containing no real application but only the
 [metadata]
 id = "nodejs-basic"
 version = "1.6"
-title = "Node.js JavaScript runtime"
+title = "Node.js JavaScript agent"
 author = "Nodejs authors"
-tagline = "Node.js JavaScript runtime"
+tagline = "Node.js JavaScript agent"
 website = "https://nodejs.org/"
 tags = ["javascript", "nodejs"]
 licence = "MIT"

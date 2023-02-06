@@ -7,7 +7,7 @@ from pathlib import Path
 SUB_PACKAGES = [
     "nua-lib",
     "nua-cli",
-    "nua-runtime",
+    "nua-agent",
     "nua-autobuild",
     "nua-build",
     # "nua-orchestrator",

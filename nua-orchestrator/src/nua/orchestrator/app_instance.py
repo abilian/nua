@@ -4,9 +4,9 @@ from copy import deepcopy
 from pathlib import Path
 from pprint import pformat
 
+from nua.agent.nua_tag import nua_tag_string
 from nua.lib.panic import abort, vprint, warning
 from nua.lib.tool.state import verbosity
-from nua.runtime.nua_tag import nua_tag_string
 
 from .domain_split import DomainSplit
 from .persistent import Persistent

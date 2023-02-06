@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 import pytest
-from nua.runtime.nua_config import NuaConfig
+from nua.agent.nua_config import NuaConfig
 
 from .build_image import build_test_image_expect_fail
 

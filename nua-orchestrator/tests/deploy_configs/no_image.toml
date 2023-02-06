@@ -1,4 +1,4 @@
-# Bad config, that will generate an error at runtime.
+# Bad config, that will generate an error at agent.
 [[site]]
 domain = "test.example.com"
 image = "unknown:5.0-1"

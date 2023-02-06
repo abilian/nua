@@ -10,9 +10,9 @@ from importlib import resources as rso
 from pathlib import Path
 from pprint import pformat
 
+from nua.agent.nua_config import hyphen_get
 from nua.lib.panic import vprint, vprint_magenta
 from nua.lib.tool.state import verbosity
-from nua.runtime.nua_config import hyphen_get
 
 from .utils import dehyphen, hyphen
 

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-orchestrator"
-version = "0.4.86"
+version = "0.4.87"
 description = "Nua orchestrator local implementation for Nua v0."
 authors = ["Jerome Dumonteil <jd@abilian.com>"]
 license = "AGPL"
@@ -30,7 +30,7 @@ nua_test_services = "nua.orchestrator.service:test"
 python = "^3.10"
 
 nua-lib = { path = "../nua-lib/", develop = false }
-nua-runtime = { path = "../nua-runtime/", develop = false }
+nua-agent = { path = "../nua-agent/", develop = false }
 nua-build = { path = "../nua-build/", develop = false }
 nua-autobuild = { path = "../nua-autobuild/", develop = false }
 
@@ -79,7 +79,7 @@ exclude = [
 ]
 ignore_obsolete = [
     "nua-lib",
-    "nua-runtime",
+    "nua-agent",
     "nua-autobuild",
     "nua-build",
     "setuptools",

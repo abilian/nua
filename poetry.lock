@@ -2312,7 +2312,7 @@ develop = true
 [package.dependencies]
 docker = "^6.0"
 nua-lib = {path = "../nua-lib", develop = true}
-nua-runtime = {path = "../nua-runtime", develop = true}
+nua-agent = {path = "../nua-agent", develop = true}
 paramiko = "*"
 setuptools = "*"
 tomli = "^2.0.1"
@@ -2326,7 +2326,7 @@ url = "nua-autobuild"
 [[package]]
 name = "nua-build"
 version = "0.4.80"
-description = "Nua build package (currently: build, core build, runtime)"
+description = "Nua build package (currently: build, core build, agent)"
 category = "main"
 optional = false
 python-versions = "^3.10"
@@ -2337,7 +2337,7 @@ develop = true
 docker = {version = "^6", extras = ["ssh"]}
 nua-autobuild = {path = "../nua-autobuild", develop = true}
 nua-lib = {path = "../nua-lib", develop = true}
-nua-runtime = {path = "../nua-runtime", develop = true}
+nua-agent = {path = "../nua-agent", develop = true}
 packaging = "*"
 pyyaml = "^6"
 tomli = "^2.0.1"
@@ -2399,7 +2399,7 @@ docker = "^6"
 nua-autobuild = {path = "../nua-autobuild"}
 nua-build = {path = "../nua-build"}
 nua-lib = {path = "../nua-lib"}
-nua-runtime = {path = "../nua-runtime"}
+nua-agent = {path = "../nua-agent"}
 paramiko = "^2.11.0"
 psycopg2-binary = "^2.9.3"
 python-dotenv = "^0.21"
@@ -2416,9 +2416,9 @@ type = "directory"
 url = "nua-orchestrator"
 
 [[package]]
-name = "nua-runtime"
+name = "nua-agent"
 version = "0.4.80"
-description = "Nua runtime"
+description = "Nua agent"
 category = "main"
 optional = false
 python-versions = "^3.10"
@@ -2434,7 +2434,7 @@ tomli = "^2.0.1"
 
 [package.source]
 type = "directory"
-url = "nua-runtime"
+url = "nua-agent"
 
 [[package]]
 name = "packageurl-python"
@@ -3823,7 +3823,7 @@ files = [
 [[package]]
 name = "typing-inspect"
 version = "0.8.0"
-description = "Runtime inspection utilities for typing module."
+description = "Agent inspection utilities for typing module."
 category = "dev"
 optional = false
 python-versions = "*"

@@ -3,7 +3,7 @@ from contextlib import suppress
 from subprocess import run
 
 import docker
-from nua.runtime.constants import (
+from nua.agent.constants import (
     NUA_BUILDER_NODE_TAG14,
     NUA_BUILDER_NODE_TAG16,
     NUA_BUILDER_TAG,

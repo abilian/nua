@@ -7,7 +7,8 @@ https://www.digitalocean.com/community/tutorials/how-to-use-a-postgresql-databas
 # RUN echo "host all  all    0.0.0.0/0  trust" >> /etc/postgresql/9.3/main/pg_hba.conf
 
 import psycopg2
-from nua.runtime.db.postgres_manager import PostgresManager
+
+from nua.agent.db.postgres_manager import PostgresManager
 
 from .constants import DB_HOST, DB_PORT, USER_DB, USER_NAME, USER_PASSWORD
 

@@ -6,6 +6,7 @@ https://www.digitalocean.com/community/tutorials/how-to-use-a-postgresql-databas
 import os
 
 from flask_pg_via_orch.init_db import init_db
+
 from nua.lib.exec import exec_as_nua
 
 init_db()

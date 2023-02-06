@@ -2,7 +2,7 @@
 
 This subproject contains code that is shared between the various Nua subprojects.
 
-The `nua-lib` code beeing used by `nua-runtime`, It should have as little dependencies as possible
+The `nua-lib` code beeing used by `nua-agent`, It should have as little dependencies as possible
 
 ## Content
 

@@ -5,14 +5,14 @@ sudo privileges, but without using sudo or pass --user=USER')
 """
 import os
 
+from nua.agent.nua_config import NuaConfig
 from nua.lib.actions import install_package_list, pip_install, pip_install_glob
 from nua.lib.shell import sh
-from nua.runtime.nua_config import NuaConfig
 
 
 def main():
     os.chdir("/nua/build")
-    config = NuaConfig(".")
+    # config = NuaConfig(".")
 
     # this app requires some packages (for mariadb_config):
     install_package_list(

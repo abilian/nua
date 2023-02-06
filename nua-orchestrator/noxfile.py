@@ -3,7 +3,7 @@ from nox import session
 
 # PYTHON_VERSIONS = ["3.10", "3.11"]
 PYTHON_VERSIONS = ["3.10"]
-# DEPS = ["../nua-lib", "../nua-runtime", "../nua-autobuild"]
+# DEPS = ["../nua-lib", "../nua-agent", "../nua-autobuild"]
 
 nox.options.reuse_existing_virtualenvs = True
 

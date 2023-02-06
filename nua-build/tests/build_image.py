@@ -5,8 +5,8 @@ from shutil import copytree
 from time import perf_counter
 
 import docker
+from nua.agent.nua_config import NuaConfig
 from nua.lib.backports import chdir
-from nua.runtime.nua_config import NuaConfig
 from typer.testing import CliRunner
 
 from nua.build.main import app

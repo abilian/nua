@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "nua-build"
-version = "0.4.86"
-description = "Nua build package (currently: build, core build, runtime)"
+version = "0.4.87"
+description = "Nua build package (currently: build, core build, agent)"
 authors = [
     "Stefane Fermigier <sf@abilian.com>",
     "Jerome Dumonteil <jd@abilian.com>",
@@ -23,7 +23,7 @@ python = "^3.10"
 
 # Internal deps = "poor man's monorepo"
 nua-lib = { path = "../nua-lib/", develop = true }
-nua-runtime = { path = "../nua-runtime/", develop = true }
+nua-agent = { path = "../nua-agent/", develop = true }
 nua-autobuild = { path = "../nua-autobuild/", develop = true }
 
 packaging = "*"
@@ -68,7 +68,7 @@ exclude = [
 ignore_obsolete = [
     "nua-autobuild",
     "nua-lib",
-    "nua-runtime",
+    "nua-agent",
 ]
 ignore_missing = [
     "nua",

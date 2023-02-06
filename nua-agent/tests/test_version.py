@@ -1,5 +1,5 @@
 def test_version_string():  # noqa
-    from nua.runtime import __version__
+    from nua.agent import __version__
 
     version_split = __version__.split(".")
 

@@ -1317,14 +1317,14 @@ reports = ["lxml"]
 
 [[package]]
 name = "mypy-extensions"
-version = "0.4.3"
-description = "Experimental type system extensions for programs checked with the mypy typechecker."
+version = "1.0.0"
+description = "Type system extensions for programs checked with the mypy type checker."
 category = "dev"
 optional = false
-python-versions = "*"
+python-versions = ">=3.5"
 files = [
-    {file = "mypy_extensions-0.4.3-py2.py3-none-any.whl", hash = "sha256:090fedd75945a69ae91ce1303b5824f428daf5a028d2f6ab8a299250a846f15d"},
-    {file = "mypy_extensions-0.4.3.tar.gz", hash = "sha256:2d82818f5bb3e369420cb3c4060a7970edba416647068eb4c5343488a6c604a8"},
+    {file = "mypy_extensions-1.0.0-py3-none-any.whl", hash = "sha256:4392f6c0eb8a5668a69e23d168ffa70f0be9ccfd32b5cc2d26a34ae5b844552d"},
+    {file = "mypy_extensions-1.0.0.tar.gz", hash = "sha256:75dbf8955dc00442a438fc4d0666508a9a97b6bd41aa2f0ffe9d2f2725af0782"},
 ]
 
 [[package]]
@@ -1813,14 +1813,14 @@ test = ["commentjson", "packaging", "pytest"]
 
 [[package]]
 name = "reuse"
-version = "1.1.0"
+version = "1.1.1"
 description = "reuse is a tool for compliance with the REUSE recommendations."
 category = "dev"
 optional = false
 python-versions = ">=3.6.2,<4.0.0"
 files = [
-    {file = "reuse-1.1.0-cp311-cp311-manylinux_2_36_x86_64.whl", hash = "sha256:b0f3fb9091ff513af04b555d14a4c529ab05f6a575ab192dd9b68244f1e0721d"},
-    {file = "reuse-1.1.0.tar.gz", hash = "sha256:7a054f6e372ad02d0b1b07368030fc38746b50ed45f5422a81994e7a88b52f1f"},
+    {file = "reuse-1.1.1-cp311-cp311-manylinux_2_36_x86_64.whl", hash = "sha256:160199707d6e7ac89ecbd60f22eb653d9ba1d6172f72876ee1cdabba319dca50"},
+    {file = "reuse-1.1.1.tar.gz", hash = "sha256:10fa62c52f6b4a913623bf01aa47e104482ef461fe19d4c3e7483e3a2a0bee40"},
 ]
 
 [package.dependencies]

@@ -8,8 +8,8 @@ but call through wrapper uses a third argument: 'persistent'
 from functools import wraps
 from typing import Any
 
+from nua.agent.gen_password import gen_password
 from nua.lib.panic import abort, warning
-from nua.runtime.gen_password import gen_password
 
 from ..persistent import Persistent
 from ..resource import Resource
