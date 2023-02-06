@@ -19,7 +19,7 @@ jobs:
         # python-version: ['3.10', '3.11']
         python-version: ['3.10']
         action: ["pytest-3.10", "lint"]
-        sub_repo: ["nua-lib", "nua-runtime", "nua-autobuild", "nua-build", "nua-cli"] # + "nua-orchestrator"
+        sub_repo: ["nua-lib", "nua-agent", "nua-autobuild", "nua-build", "nua-cli"] # + "nua-orchestrator"
 
     env:
         nox_action: ${{ matrix.action }}
