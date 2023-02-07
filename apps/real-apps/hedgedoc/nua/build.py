@@ -9,7 +9,6 @@ from nua.lib.shell import sh
 def main():
     config = NuaConfig()
     src_url = config.src_url
-    npm_install("node-gyp", force=True)
     hedge_src = download_extract(src_url, "/nua/build")
 
     with chdir(hedge_src):

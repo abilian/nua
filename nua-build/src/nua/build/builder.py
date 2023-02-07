@@ -17,6 +17,12 @@ from shutil import copy2, copytree
 import docker
 from docker.errors import BuildError
 from docker.utils.json_stream import json_stream
+from nua.agent.constants import (
+    NUA_BUILDER_NODE_TAG14,
+    NUA_BUILDER_NODE_TAG16,
+    NUA_BUILDER_TAG,
+)
+from nua.agent.nua_config import NuaConfig, hyphen_get, nua_config_names
 from nua.autobuild.docker_build_utils import (
     display_docker_img,
     docker_build_log_error,
@@ -27,12 +33,6 @@ from nua.lib.backports import chdir
 from nua.lib.panic import info, show, title, vprint, vprint_blue
 from nua.lib.shell import rm_fr
 from nua.lib.tool.state import verbosity, verbosity_level
-from nua.agent.constants import (
-    NUA_BUILDER_NODE_TAG14,
-    NUA_BUILDER_NODE_TAG16,
-    NUA_BUILDER_TAG,
-)
-from nua.agent.nua_config import NuaConfig, nua_config_names
 from packaging.specifiers import SpecifierSet
 from packaging.version import Version
 
@@ -137,7 +137,7 @@ class Builder:
     def detect_nua_dir(self):
         """Detect dir containing nua files (start.py, build.py, Dockerfile,
         etc.)."""
-        nua_dir = self.config.build.get("nua_dir")
+        nua_dir = hyphen_get(self.config.build, "nua_dir")
         if not nua_dir:
             # Check if default 'nua' dir exists
             path = self.config.root_dir / "nua"
@@ -149,8 +149,7 @@ class Builder:
         # Check if provided path does exist:
         path = self.config.root_dir / nua_dir
         if not path.is_dir():
-            raise BuilderError(f"Path not found (nua_dir) : '{nua_dir}'")
-
+            raise BuilderError(f"Path not found for 'nua-dir' : '{nua_dir}'")
         self.nua_dir = path
         self.nua_dir_relative = self.nua_dir.relative_to(self.config.root_dir)
         with verbosity(3):
@@ -226,7 +225,7 @@ class Builder:
 
     def complete_with_default_files(self):
         """Complete missing files from defaults (Dockerfile, start.py, ...)."""
-        if not self.config.build.get("default_files", True):
+        if not hyphen_get(self.config.build, "default_files", True):
             return
         for file in rso.files("nua.build.defaults").iterdir():
             if (
@@ -281,7 +280,7 @@ class Builder:
                 tarfile.write(chunk)
         with verbosity(1):
             show("Docker image saved:")
-            info(dest)
+            show(dest)
 
 
 def _print_buffer_log(messages: list[str]):

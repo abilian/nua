@@ -1,7 +1,7 @@
 [metadata]
 id = "hedgedoc"
 version = "1.9.6"
-release = 13
+release = 14
 title = "Hedgedoc"
 author = "Hedgedoc developers"
 tagline = "Nua test with Hedgedoc"

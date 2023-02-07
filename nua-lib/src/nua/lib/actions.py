@@ -217,14 +217,14 @@ def install_nodejs(version: str = "16.x", keep_lists: bool = False):
     target = Path("/nua") / "install_node.sh"
     with urlopen(url) as remote:  # noqa S310
         target.write_bytes(remote.read())
-    cmd = "bash /nua/install_node.sh"
-    sh(cmd)
-    cmd = "apt-get install -y nodejs"
-    sh(cmd)
-    cmd = "/usr/bin/npm update -g npm"
-    sh(cmd)
-    cmd = "/usr/bin/npm install -g --force yarn"
-    sh(cmd)
+    for cmd in (
+        "bash /nua/install_node.sh",
+        "apt-get install -y nodejs",
+        "/usr/bin/npm update -g npm",
+        "/usr/bin/npm install -g --force yarn",
+        "/usr/bin/npm install -g --force node-gyp",
+    ):
+        sh(cmd)
     if not keep_lists:
         apt_remove_lists()
 

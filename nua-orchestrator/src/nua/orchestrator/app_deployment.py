@@ -372,7 +372,7 @@ class AppDeployment:
             for site in self.apps:
                 if site.image not in seen:
                     seen.add(site.image)
-                    info(f"image found: '{site.image}'")
+                    info(f"Image found: '{site.image}'")
         return True
 
     def install_images(self):
