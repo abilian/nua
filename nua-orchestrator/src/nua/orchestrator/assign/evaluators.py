@@ -15,11 +15,8 @@ from ..persistent import Persistent
 from ..resource import Resource
 from .db_utils import generate_new_db_id, generate_new_user_id
 
-# keys of nua-config file:
-KEY = "key"
 SITE_ENVIRONMENT = "environment"
 PERSISTENT = "persistent"
-PROPERTY = "property"
 NUA_INTERNAL = "nua_internal"
 
 
@@ -31,18 +28,23 @@ def persistent_value(func):
     """
 
     @wraps(func)
-    def wrapper(resource: Resource, requirement: dict, persistent: Persistent) -> Any:
+    def wrapper(
+        resource: Resource,
+        destination_key: str,
+        requirement: dict,
+        persistent: Persistent,
+    ) -> Any:
         if requirement.get(PERSISTENT, True):
-            value = persistent.get(requirement[KEY])
+            value = persistent.get(destination_key)
             if value is None:
-                result = func(resource, requirement)
-                persistent[requirement[KEY]] = result[requirement[KEY]]
+                result = func(resource, destination_key, requirement)
+                persistent[destination_key] = result[destination_key]
             else:
-                result = {requirement[KEY]: value}
+                result = {destination_key: value}
             return result
         # persistent is False: erase past value if needed then return computed value
-        persistent.delete(requirement[KEY])
-        return func(resource, requirement)
+        persistent.delete(destination_key)
+        return func(resource, destination_key, requirement)
 
     return wrapper
 
@@ -51,53 +53,82 @@ def no_persistent_value(func):
     """Dummy wrapper to remove thirf argument."""
 
     @wraps(func)
-    def wrapper(resource: Resource, requirement: dict, _persistent: Persistent) -> Any:
-        return func(resource, requirement)
+    def wrapper(
+        resource: Resource,
+        destination_key: str,
+        requirement: dict,
+        _persistent: Persistent,
+    ) -> Any:
+        return func(resource, destination_key, requirement)
 
     return wrapper
 
 
 @persistent_value
-def random_str(resource: Resource, requirement: dict) -> dict:
+def random_str(
+    resource: Resource,
+    destination_key: str,
+    requirement: dict,
+) -> dict:
     """Send a password.
 
     - ramdom generated,
     - or from previous execution if 'persistent' is true and previous
     data is found.
     """
-    return {requirement[KEY]: gen_password(24)}
+    return {destination_key: gen_password(24)}
 
 
 @persistent_value
-def unique_user(resource: Resource, requirement: dict) -> dict:
+def unique_user(
+    resource: Resource,
+    destination_key: str,
+    requirement: dict,
+) -> dict:
     """Send a unique user id (for DB creation).
 
     - sequential generated,
     - or from previous execution if 'persistent' is true and previous
     data is found.
     """
-    return {requirement[KEY]: generate_new_user_id()}
+    return {destination_key: generate_new_user_id()}
 
 
 @persistent_value
-def unique_db(resource: Resource, requirement: dict) -> dict:
+def unique_db(
+    resource: Resource,
+    destination_key: str,
+    requirement: dict,
+) -> dict:
     """Send a unique DB id (for DB creation).
 
     - sequential generated,
     - or from previous execution if 'persistent' is true and previous
     data is found.
     """
-    return {requirement[KEY]: generate_new_db_id()}
+    return {destination_key: generate_new_db_id()}
 
 
 @no_persistent_value
-def resource_property(rsite: Resource, requirement: dict) -> dict:
-    values = requirement[PROPERTY].split(".")
-    if len(values) != 2:
-        abort(f"Bad content for property: {requirement}")
-    resource_name, prop = values
+def resource_property(
+    rsite: Resource,
+    destination_key: str,
+    requirement: dict,
+) -> dict:
+    """Retrieve value from resource by name.
+
+    Example:
+        CMD_DB_HOST = { from="database", key="hostname" }
+        CMD_DB_DATABASE = { from="database", key="POSTGRES_DB" }
+    """
+    source = requirement.get("from", "").strip()
+    if not source:
+        abort(f"Bad requirement, missing 'from' key : {requirement}")
+    prop = requirement.get("key", "").strip()
+    if not prop:
+        abort(f"Bad requirement, missing 'key' key : {requirement}")
     for resource in rsite.resources:
-        if resource.resource_name != resource_name:
+        if resource.resource_name != source:
             continue
         # first try in environ variables of differnt kinds
         if prop in resource.env:
@@ -110,25 +141,33 @@ def resource_property(rsite: Resource, requirement: dict) -> dict:
                 value = str(attr)
         else:
             abort(f"Unknown property for: {requirement}")
-        return {requirement[KEY]: value}
+        return {destination_key: value}
 
-    warning(f"Unknown resource for {requirement}")
+    warning(f"Unknown resource name for {requirement}")
     return {}
 
 
 @no_persistent_value
-def site_environment(rsite: Resource, requirement: dict) -> dict:
+def site_environment(
+    rsite: Resource,
+    destination_key: str,
+    requirement: dict,
+) -> dict:
     variable = requirement[SITE_ENVIRONMENT] or ""
     # The resource environment was juste completed wth AppInstance's environment:
     env = rsite.env
     if variable in env:
-        return {requirement[KEY]: env.get(variable)}
+        return {destination_key: env.get(variable)}
     warning(f"Unknown variable in environment: {variable}")
     return {}
 
 
 @no_persistent_value
-def nua_internal(rsite: Resource, requirement: dict) -> dict:
+def nua_internal(
+    rsite: Resource,
+    destination_key: str,
+    requirement: dict,
+) -> dict:
     """Retrieve key from nua_internal values, do not store the value in
     instance configuration.
 
@@ -137,5 +176,5 @@ def nua_internal(rsite: Resource, requirement: dict) -> dict:
     """
     if requirement.get(NUA_INTERNAL, False):
         # add the key to the list of secrets to pass at run() time
-        rsite.add_requested_secrets(requirement[KEY])
+        rsite.add_requested_secrets(destination_key)
     return {}

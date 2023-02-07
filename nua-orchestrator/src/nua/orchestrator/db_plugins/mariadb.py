@@ -9,7 +9,7 @@ NUA_PROPERTIES = {
     "name": "mariadb",  # plugin name
     "container": "docker",  # container type
     "family": "db",  # plugin family
-    "assign": True,  # use the "assign" keyword"
+    "assign": True,  # receives dynamic assignment of ENV
     "network": True,  # require docker bridge network
     "meta-packages": ["mariadb-client"],  # for app-builder (for future use)
 }
@@ -23,23 +23,24 @@ def configure_db(resource: Resource):
     # docker params:
     resource.docker = {"detach": True, "restart_policy": {"name": "always"}}
     # env
-    resource.env = {"MARIADB_PORT": "3306"}
-    # assign keys in (env) for create or retrieve persistent values
-    assign = [
-        {"key": "MARIADB_ROOT_PASSWORD", "random_str": True, "persist": True},
-    ]
+    env = {
+        "MARIADB_PORT": "3306",
+        "MARIADB_ROOT_PASSWORD": {"random_str": True, "persist": True},
+    }
     if resource.get("create_user", True):
-        assign.extend(
-            [
-                {"key": "MARIADB_USER", "unique_user": True, "persist": True},
-                {"key": "MARIADB_PASSWORD", "random_str": True, "persist": True},
-            ]
+        env.update(
+            {
+                "MARIADB_USER": {"unique_user": True, "persist": True},
+                "MARIADB_PASSWORD": {"random_str": True, "persist": True},
+            }
         )
     if resource.get("create_db", True):
-        assign.append(
-            {"key": "MARIADB_DATABASE", "unique_db": True, "persist": True},
+        env.update(
+            {
+                "MARIADB_DATABASE": {"unique_db": True, "persist": True},
+            }
         )
-    resource.assign = assign
+    resource.env = env
     resource.assign_priority = 0
 
 

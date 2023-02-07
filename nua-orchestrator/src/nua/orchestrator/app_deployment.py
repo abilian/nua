@@ -179,7 +179,7 @@ class AppDeployment:
     def configure_apps(self):
         self.apps_set_network_name()
         self.apps_set_resources_names()
-        self.apps_merge_instances_to_resources()
+        self.apps_merge_app_instances_to_resources()
         self.apps_configure_requested_db()
         self.apps_set_volumes_names()
         self.apps_check_local_service_available()
@@ -458,7 +458,10 @@ class AppDeployment:
         with verbosity(3):
             info("apps_set_resources_names() done")
 
-    def apps_merge_instances_to_resources(self):
+    def apps_merge_app_instances_to_resources(self):
+        """Merge configuration declared in the AppInstance config to original
+        nua-config declarations.
+        """
         for site in self.apps:
             site.merge_instance_to_resources()
         with verbosity(3):
@@ -670,7 +673,14 @@ class AppDeployment:
         self, site: AppInstance, resource: Resource, site_env: dict
     ):
         """Return suitable parameters for the docker.run() command (for
-        Resource)."""
+        Resource).
+
+        method launched 2 times:
+         - first: assignment before site environment evaluation (site_envv empty) for
+           early resources (most DBs),
+         - second: assignment after site environment evaluation (site_envv empty) for
+           second phase resources.
+        """
         run_params = deepcopy(RUN_BASE_RESOURCE)
         run_params.update(resource.docker)
         self.add_host_gateway_to_extra_hosts(run_params)
@@ -706,11 +716,14 @@ class AppDeployment:
         return run_env
 
     def run_parameters_resource_environment(
-        self, site: AppInstance, resource: Resource, site_env: dict
+        self,
+        site: AppInstance,
+        resource: Resource,
+        site_env: dict,
     ) -> dict:
         """Return a dict with all environment parameters for a resource
         container (a Resource container)."""
-        # resource has access to environment of main container:
+        # late resource has access to environment of main container:
         run_env = deepcopy(site_env)
         # update with result of "assign" dynamic evaluations :
         run_env.update(

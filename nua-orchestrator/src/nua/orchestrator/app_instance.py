@@ -20,23 +20,23 @@ from .volume import Volume
 class AppInstance(Resource):
     MANDATORY_KEYS = ("image", "domain")
 
-    def __init__(self, site_dict: dict):
-        super().__init__(site_dict)
+    def __init__(self, app_instance_dict: dict):
+        super().__init__(app_instance_dict)
         self.type = "nua-site"
 
     @classmethod
-    def from_dict(cls, site_dict: dict) -> AppInstance:
-        site = cls({})
+    def from_dict(cls, app_instance_dict: dict) -> AppInstance:
+        app_instance = cls({})
         resources = []
-        for res in site_dict.get("resources", []):
+        for res in app_instance_dict.get("resources", []):
             resources.append(Resource.from_dict(res))
-        for key, val in site_dict.items():
+        for key, val in app_instance_dict.items():
             if key == "resources":
                 continue
-            site[key] = val
-        site["resources"] = resources
-        site["port"] = site.get("port") or {}
-        return site
+            app_instance[key] = val
+        app_instance["resources"] = resources
+        app_instance["port"] = app_instance.get("port") or {}
+        return app_instance
 
     def check_valid(self):
         self._check_mandatory()
@@ -63,14 +63,6 @@ class AppInstance(Resource):
     @image_nua_config.setter
     def image_nua_config(self, image_nua_config: dict):
         self["image_nua_config"] = image_nua_config
-
-    @property
-    def assign(self) -> list:
-        return self.image_nua_config.get("assign", [])
-
-    @assign.setter
-    def assign(self, assign_list: list):
-        self.image_nua_config["assign"] = assign_list
 
     @property
     def local_services(self) -> list:
@@ -163,12 +155,19 @@ class AppInstance(Resource):
         return None
 
     def merge_instance_to_resources(self):
+        self.rebase_env_upon_nua_conf()
         self.rebase_volumes_upon_nua_conf()
         resource_declarations = self.get("resource", [])
         if not resource_declarations:
             return
         for resource_updates in resource_declarations:
             self._merge_resource_updates_to_resource(resource_updates)
+
+    def rebase_env_upon_nua_conf(self):
+        """Merge AppInstance declared env at deploy time upon base declaration of nua-config."""
+        base_env = deepcopy(self.image_nua_config.get("env", {}))
+        base_env.update(self.env)
+        self.env = base_env
 
     def _merge_resource_updates_to_resource(self, resource_updates):
         if not resource_updates:
@@ -190,7 +189,7 @@ class AppInstance(Resource):
         resource = self.resource_per_name(resource_name)
         if not resource:
             warning(f"ignoring resource update, unknown resource '{resource_name}'")
-        resource.update_instance_from_site(resource_updates)
+        resource.update_from_site_declaration(resource_updates)
 
     def parse_resources(self):
         resources = [

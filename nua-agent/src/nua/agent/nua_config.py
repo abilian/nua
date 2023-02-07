@@ -1,5 +1,6 @@
 """Wrapper for the "nua-config.toml" file."""
 import json
+from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
@@ -35,6 +36,25 @@ def hyphen_get(data: dict, key: str, default: Any = None) -> Any:
     return result
 
 
+def nomalize_env_values(env: dict) -> dict:
+    validated = {}
+    for key, value in env.items():
+        if isinstance(value, dict):
+            validated[key] = {k: normalize_env_leaf(v) for k, v in value.items()}
+        else:
+            validated[key] = normalize_env_leaf(value)
+    return deepcopy(validated)
+
+
+def normalize_env_leaf(value: Any) -> str | dict:
+    if isinstance(value, str):
+        return value
+    if isinstance(value, (int, float)):
+        return str(value)
+    abort(f"ENV value has wrong type: '{value}'")
+    raise SystemExit(1)
+
+
 class NuaConfig:
     """Wrapper for the "nua-config.toml" file.
 
@@ -54,6 +74,7 @@ class NuaConfig:
         self._complete_missing_blocks()
         self._fix_spelling()
         self._check_required_metadata()
+        self._nomalize_env_values()
         self.root_dir = self.path.parent
 
     def _find_config_file(self, path: Path | str) -> None:
@@ -106,6 +127,9 @@ class NuaConfig:
         for key in REQUIRED_METADATA:
             if key not in self._data["metadata"]:
                 abort(f"Missing mandatory metadata in {self.path}: '{key}'")
+
+    def _nomalize_env_values(self):
+        self._data["env"] = nomalize_env_values(self.env)
 
     def __getitem__(self, key: str) -> Any:
         """will return {} is key not found, assuming some parts are not

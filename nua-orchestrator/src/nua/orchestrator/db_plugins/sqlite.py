@@ -7,7 +7,7 @@ NUA_PROPERTIES = {
     "name": "sqlite",  # plugin name
     "container": "local",  # container type
     "family": "db",  # plugin family
-    "assign": True,  # use the "assign" keyword"
+    "assign": True,  # receives dynamic assignment of ENV
     "network": True,  # here we require docker bridge network only for volume name
     "meta-packages": [],  # for app-builder infer packages (for future use)
 }
@@ -21,10 +21,8 @@ def configure_db(resource: Resource):
     resource.env = {
         "SQLITE_DIR": sqlite_volume["target"],
         "SQLITE_SOURCE": sqlite_volume["source"],
+        "SQLITE_DB": {"unique_db": True, "persist": True},
     }
-    resource.assign = [
-        {"key": "SQLITE_DB", "unique_db": True, "persist": True},
-    ]
     resource.assign_priority = 0
 
 

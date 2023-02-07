@@ -9,7 +9,7 @@ NUA_PROPERTIES = {
     "name": "redis-cache",  # plugin name
     "container": "docker",  # container type
     "family": "db",  # plugin family
-    "assign": True,  # use the "assign" keyword"
+    "assign": True,  # receives dynamic assignment of ENV
     "network": True,  # require docker bridge network
     "meta-packages": [],  # for app-builder infer packages (for future use)
 }

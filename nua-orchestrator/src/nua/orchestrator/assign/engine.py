@@ -11,20 +11,20 @@ from ..resource import Resource
 from ..utils import dehyphen
 
 # from . import config
-from .evaluators import (
+from .evaluators import (  # site_environment,
     nua_internal,
     random_str,
     resource_property,
-    site_environment,
     unique_db,
     unique_user,
 )
 
 EVALUATOR_FCT = {
-    "environment": site_environment,
+    "key": resource_property,
+    # "environment": site_environment,
     "nua_internal": nua_internal,
     "random_str": random_str,
-    "property": resource_property,
+    # "property": resource_property,
     "unique_db": unique_db,
     "unique_user": unique_user,
 }
@@ -36,8 +36,8 @@ def instance_key_evaluator(
     resource: Resource | None = None,
     late_evaluation: bool = False,
 ) -> dict:
-    """Evaluate value for an 'assign' key, through retrieving persistent value or
-    compute value from 'assign' defined function.
+    """Evaluate value for 'env' values declared as dict with dynamic parameters,
+    through retrieving persistent value or compute value from specialized functions.
     """
     env = {}
     if resource is None:
@@ -45,25 +45,45 @@ def instance_key_evaluator(
         persistent = site.persistent("")
     else:
         persistent = site.persistent(resource.resource_name)
+    dynamic_env = {k: v for k, v in resource.env.items() if isinstance(v, dict)}
     with verbosity(3):
-        info(f"resource.assign ({late_evaluation=}):\n    {pformat(resource.assign)}")
-    for requirement in resource.assign:
-        evaluate_requirement(resource, requirement, persistent, env, late_evaluation)
+        info(
+            f"instance_key_evaluator ({late_evaluation=}):\n    {pformat(dynamic_env)}"
+        )
+    if not dynamic_env:
+        return {}
+    for destination_key, requirement in dynamic_env.items():
+        evaluate_requirement(
+            resource,
+            destination_key,
+            requirement,
+            persistent,
+            env,
+            late_evaluation,
+        )
     site.set_persistent(persistent)
     return env
 
 
 def evaluate_requirement(
     resource: Resource,
+    destination_key: str,
     requirement: dict,
     persistent: Persistent,
     env: dict,
     late_evaluation: bool,
 ) -> None:
-    destination_key = requirement["key"]
-    function = required_function(requirement, late_evaluation)
+    function = required_function(
+        requirement,
+        late_evaluation,
+    )
     if function:
-        result = function(resource, requirement, persistent)
+        result = function(
+            resource,
+            destination_key,
+            requirement,
+            persistent,
+        )
         with verbosity(3):
             info(f"generated value: {result}")
     else:

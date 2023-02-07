@@ -9,7 +9,7 @@ NUA_PROPERTIES = {
     "name": "postgres",  # plugin name
     "container": "docker",  # container type
     "family": "db",  # plugin family
-    "assign": True,  # use the "assign" keyword"
+    "assign": True,  # receives dynamic assignment of ENV
     "network": True,  # require docker bridge network
     "meta-packages": ["postgres-client"],  # for app-builder (future use))
 }
@@ -21,17 +21,17 @@ def configure_db(resource: Resource):
     resource.volume = [_make_volume(resource)]
     # other options
     # docker params:
-    resource.docker = {"detach": True, "restart_policy": {"name": "always"}}
+    resource.docker = {
+        "detach": True,
+        "restart_policy": {"name": "always"},
+    }
     # env
-    resource.env = {"POSTGRES_PORT": "5432"}
-    # assign keys in (env) for create or retrieve persistent values
-    # Note: POSTGRES_DB could be same as POSTGRES_USER, but prefer to assign both
-    # to let the using app retrieving the both values if needed.
-    resource.assign = [
-        {"key": "POSTGRES_PASSWORD", "random_str": True, "persist": True},
-        {"key": "POSTGRES_USER", "unique_user": True, "persist": True},
-        {"key": "POSTGRES_DB", "unique_db": True, "persist": True},
-    ]
+    resource.env = {
+        "POSTGRES_PORT": "5432",
+        "POSTGRES_PASSWORD": {"random_str": True, "persist": True},
+        "POSTGRES_USER": {"unique_user": True, "persist": True},
+        "POSTGRES_DB": {"unique_db": True, "persist": True},
+    }
     resource.assign_priority = 0
 
 

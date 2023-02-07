@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from copy import deepcopy
 from pprint import pformat
+from typing import Any
 
+from nua.agent.nua_config import hyphen_get, nomalize_env_values
 from nua.lib.panic import abort, vprint, warning
 from nua.lib.tool.state import verbosity
 
@@ -44,6 +47,7 @@ class Resource(dict):
     def check_valid(self):
         self._check_mandatory()
         self._parse_healthcheck()
+        self._nomalize_env_values()
         self._normalize_ports()
         self._normalize_volumes()
 
@@ -93,16 +97,8 @@ class Resource(dict):
         self["service"] = service
 
     @property
-    def assign(self) -> list:
-        return self.get("assign", [])
-
-    @assign.setter
-    def assign(self, assign_list: list):
-        self["assign"] = assign_list
-
-    @property
     def assign_priority(self) -> int:
-        return self.get("assign_priority", 10)
+        return hyphen_get(self, "assign_priority", 10)
 
     @assign_priority.setter
     def assign_priority(self, assign_priority: int):
@@ -257,7 +253,7 @@ class Resource(dict):
             self["meta_packages_requirements"] = []
 
     def is_assignable(self) -> bool:
-        """Resource type allow env persistent parameters ("assign" key word).
+        """Resource type allow env persistent parameters (most of resources).
 
         Persistent data is stored at site level (not resource level).
         """
@@ -290,6 +286,9 @@ class Resource(dict):
             self["healthcheck"] = HealthCheck(config).as_dict()
         else:
             self["healthcheck"] = {}
+
+    def _nomalize_env_values(self):
+        self.env = nomalize_env_values(self.env)
 
     def _normalize_ports(self, default_proxy: str = "none"):
         if "port" not in self:
@@ -363,18 +362,18 @@ class Resource(dict):
         merge_dict = {vol["target"]: vol for vol in (base + update_list)}
         return list(merge_dict.values())
 
-    def update_instance_from_site(self, resource_updates: dict):
+    def update_from_site_declaration(self, resource_updates: dict):
         for key, value in resource_updates.items():
             # brutal replacement, TODO make special cases for volumes
             # less brutal:
-            if key not in {"port", "env", "docker", "volume", "name", "assign"}:
+            if key not in {"port", "env", "docker", "volume", "name"}:
                 warning(f"maybe updating an unknown key in the configuration '{key}'")
             if key not in self:
                 self[key] = value
                 continue
-            self._update_instance_from_site_deep(key, value)
+            self._update_from_site_declaration_case(key, value)
 
-    def _update_instance_from_site_deep(self, key: str, value):
+    def _update_from_site_declaration_case(self, key: str, value: Any):
         orig = self[key]
         if isinstance(orig, dict):
             if not isinstance(value, dict):
@@ -385,13 +384,13 @@ class Resource(dict):
             orig.update(value)
             return
         if key == "volume":
-            return self._update_instance_from_site_deep_volume(value)
-        if key == "assign":
-            return self._update_instance_from_site_deep_assign(value)
-        # unknow, (or ports?) be brutal
+            return self._update_from_site_declaration_volume(value)
+        if key == "env":
+            self._update_from_site_declaration_env(value)
+        # unknown, (or ports?) be brutal
         self[key] = value
 
-    def _update_instance_from_site_deep_volume(self, value):
+    def _update_from_site_declaration_volume(self, value: Any):
         if not isinstance(value, list):
             abort(
                 "Updated volumes in deploy config must be a list.",
@@ -404,20 +403,18 @@ class Resource(dict):
             vol_dic[update_vol["target"]] = update_vol
         self.volume = list(vol_dic.values())
 
-    def _update_instance_from_site_deep_assign(self, value):
-        if not isinstance(value, list):
+    def _update_from_site_declaration_env(self, env_update_dict: Any):
+        """For Resource only, make 'env' dict from AppInstance declaration and
+        base  delcaration in nua-config
+        """
+        if not isinstance(env_update_dict, dict):
             abort(
-                "Updated assignment in deploy config must be a list.",
-                explanation=f"{value=}",
+                "Updated 'env' in deploy config must be a dict.",
+                explanation=f"{env_update_dict=}",
             )
-        assign_dic = {}
-        for orig in self.assign:
-            if "key" in orig:
-                assign_dic[orig["key"]] = orig
-        for update in value:
-            if "key" in orig:
-                assign_dic[orig["key"]] = update
-        self.assign = list(assign_dic.values())
+        base_env = deepcopy(self.env)
+        base_env.update(env_update_dict)
+        self.env = deepcopy(base_env)
 
     def requires_network(self) -> bool:
         """Heuristic to evaluate the need of docker private network.
