@@ -14,7 +14,7 @@ INT_B20 = (
 
 
 @pytest.mark.parametrize("param", INT_B20)
-def test_display_base20(param):
+def test_display_base20(param: tuple[int, str]):
     input = param[0]
     expected = param[1]
 

@@ -53,3 +53,11 @@ def test_verbose_short():
     result = runner.invoke(app, "-v")
 
     assert result.exit_code == 2
+
+
+def test_rpc():
+    runner = CliRunner()
+
+    result = runner.invoke(app, "rpc", "ping")
+
+    assert result.exit_code == 0
