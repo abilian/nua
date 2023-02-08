@@ -40,6 +40,7 @@ class AppInstance(Resource):
 
     def check_valid(self):
         self._check_mandatory()
+        self._nomalize_env_values()
         self._normalize_ports(default_proxy="auto")
         self._normalize_domain()
 

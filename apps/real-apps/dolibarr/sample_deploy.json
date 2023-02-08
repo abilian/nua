@@ -1,11 +1,11 @@
 {
     "site": [
         {
-            "image": "nua-dolibarr-mariadb:16.0-13",
+            "image": "nua-dolibarr-mariadb",
             "domain": "test1.example.com"
         },
         {
-            "image": "nua-dolibarr-mariadb:16.0-13",
+            "image": "nua-dolibarr-mariadb",
             "domain": "test2.example.com"
         }
     ]

@@ -9,7 +9,8 @@ from functools import wraps
 from typing import Any
 
 from nua.agent.gen_password import gen_password
-from nua.lib.panic import abort, warning
+from nua.lib.panic import abort, show, warning
+from nua.lib.tool.state import verbosity
 
 from ..persistent import Persistent
 from ..resource import Resource
@@ -109,6 +110,15 @@ def unique_db(
     return {destination_key: generate_new_db_id()}
 
 
+def _query_resource(source_name: str, rsite: Resource) -> Resource | None:
+    if not source_name:
+        return rsite
+    for resource in rsite.resources:
+        if resource.resource_name == source_name:
+            return resource
+    return None
+
+
 @no_persistent_value
 def resource_property(
     rsite: Resource,
@@ -118,33 +128,34 @@ def resource_property(
     """Retrieve value from resource by name.
 
     Example:
+        CMD_DB_HOST = { from="", key="hostname" }
         CMD_DB_HOST = { from="database", key="hostname" }
         CMD_DB_DATABASE = { from="database", key="POSTGRES_DB" }
     """
-    source = requirement.get("from", "").strip()
-    if not source:
-        abort(f"Bad requirement, missing 'from' key : {requirement}")
-    prop = requirement.get("key", "").strip()
-    if not prop:
+    source_name = requirement.get("from", "").strip()
+    # if not source_name, consider querying current resource
+    property = requirement.get("key", "").strip()
+    if not property:
         abort(f"Bad requirement, missing 'key' key : {requirement}")
-    for resource in rsite.resources:
-        if resource.resource_name != source:
-            continue
-        # first try in environ variables of differnt kinds
-        if prop in resource.env:
-            value = resource.env[prop]
-        elif hasattr(resource, prop):
-            attr = getattr(resource, prop)
-            if callable(attr):
-                value = str(attr())
-            else:
-                value = str(attr)
+    resource = _query_resource(source_name, rsite)
+    if not resource:
+        warning(f"Unknown resource name for {requirement}")
+        return {}
+    # first try in environ variables of differnt kinds
+    if property in resource.env:
+        value = resource.env[property]
+    elif hasattr(resource, property):
+        attr = getattr(resource, property)
+        if callable(attr):
+            value = str(attr())
         else:
-            abort(f"Unknown property for: {requirement}")
-        return {destination_key: value}
-
-    warning(f"Unknown resource name for {requirement}")
-    return {}
+            value = str(attr)
+    else:
+        abort(f"Unknown property for: {requirement}")
+    with verbosity(4):
+        show(f"resource_property {source_name}:{property} ->")
+        show(f"    result {destination_key}:{value}")
+    return {destination_key: value}
 
 
 @no_persistent_value

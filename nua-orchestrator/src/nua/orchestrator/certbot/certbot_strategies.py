@@ -53,7 +53,7 @@ def certbot_run_args(domains: list) -> str:
 
 def apply_none_strategy(domains: list[str]):
     with verbosity(1):
-        vprint_magenta(f"Use HTTP for: {' '.join(domains)}")
+        vprint_magenta(f"Use HTTP protocol for: {' '.join(domains)}")
     return
 
 
@@ -69,7 +69,7 @@ def apply_auto_strategy(domains: list[str]):
         - apply "auto" rules and parameters.
     """
     with verbosity(1):
-        vprint_magenta(f"Use HTTPS (Certbot) for: {' '.join(domains)}")
+        vprint_magenta(f"Use HTTPS protocol (Certbot) for: {' '.join(domains)}")
     cmd = "certbot run " + certbot_run_args(domains)
     if os.getuid():  # aka not root
         cmd = "sudo " + cmd

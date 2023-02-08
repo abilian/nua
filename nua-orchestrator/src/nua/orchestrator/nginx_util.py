@@ -6,7 +6,7 @@ from time import sleep
 
 from nua.lib.actions import jinja2_render_from_str_template
 from nua.lib.console import print_magenta
-from nua.lib.panic import vprint, vprint_magenta, warning
+from nua.lib.panic import info, vprint, vprint_green, vprint_magenta, warning
 from nua.lib.shell import chown_r, mkdir_p, rm_fr, sh
 from nua.lib.tool.state import verbosity
 
@@ -142,19 +142,19 @@ def _actual_configure_nginx_hostname(
     dest_path: str | Path,
     host: dict,
 ):
-    with verbosity(2):
+    with verbosity(4):
         vprint_magenta(f"{host['hostname']} template:")
         vprint(template)
-        vprint_magenta(f"{host['hostname']} target:")
-        vprint(dest_path)
-    jinja2_render_from_str_template(template, dest_path, host)
     with verbosity(2):
-        if not dest_path.exists():
-            warning(f"host '{host['hostname']}', target not created")
-        else:
-            vprint(host["hostname"], "content:")
+        info("Nginx configuration:", dest_path)
+    jinja2_render_from_str_template(template, dest_path, host)
+    if dest_path.exists():
+        with verbosity(3):
+            vprint("Nginx configuration content:")
             with open(dest_path, encoding="utf8") as rfile:
                 vprint(rfile.read())
+    else:
+        warning(f"host '{host['hostname']}', Nginx configuration not created")
     os.chmod(dest_path, 0o644)
 
 
@@ -174,9 +174,11 @@ def install_nua_nginx_default_index_html():
 def nginx_restart():
     # assuming some recent ubuntu distribution:
     delay = config.read("host", "nginx_wait_after_restart") or 1
+    with verbosity(2):
+        vprint_green("Restart Nginx")
     cmd = "systemctl restart nginx"
     if os.geteuid() == 0:
-        sh(cmd)
+        sh(cmd, show_cmd=False)
     else:
-        sh(f"sudo {cmd}")
+        sh(f"sudo {cmd}", show_cmd=False)
     sleep(delay)

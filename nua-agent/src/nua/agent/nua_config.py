@@ -49,7 +49,7 @@ def nomalize_env_values(env: dict) -> dict:
 def normalize_env_leaf(value: Any) -> str:
     if isinstance(value, str):
         return value
-    if isinstance(value, (int, float)):
+    if isinstance(value, (int, float, list)):
         return str(value)
     abort(f"ENV value has wrong type: '{value}'")
     raise SystemExit(1)

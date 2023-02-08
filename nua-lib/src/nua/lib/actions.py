@@ -528,8 +528,8 @@ def jinja2_render_file(template: str | Path, dest: str | Path, data: dict) -> bo
         template_path.read_text(encoding="utf8"), keep_trailing_newline=True
     )
     dest_path.write_text(j2_template.render(data), encoding="utf8")
-    with verbosity(2):
-        show("jinja2 render:", template)
+    with verbosity(3):
+        show("Jinja2 render template from:", template)
     return True
 
 
@@ -539,8 +539,8 @@ def jinja2_render_from_str_template(
     dest_path = Path(dest)
     j2_template = Template(template, keep_trailing_newline=True)
     dest_path.write_text(j2_template.render(data), encoding="utf8")
-    with verbosity(2):
-        show("jinja2 render from string")
+    with verbosity(3):
+        show("Jinja2 render template from string")
     return True
 
 
