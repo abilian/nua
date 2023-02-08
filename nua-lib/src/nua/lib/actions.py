@@ -8,6 +8,7 @@ import tarfile
 import tempfile
 from contextlib import contextmanager
 from glob import glob
+from hashlib import sha256
 from importlib import resources as rso
 from pathlib import Path
 from urllib.parse import urlparse
@@ -16,7 +17,7 @@ from urllib.request import urlopen
 from jinja2 import Template
 
 from .backports import chdir
-from .panic import info, show, warning
+from .panic import abort, info, show, warning
 from .shell import sh
 from .tool.state import verbosity
 
@@ -354,24 +355,49 @@ def install_psycopg2_python(keep_lists: bool = False):
     pip_install("psycopg2-binary")
 
 
-def download_extract(url: str, dest: str | Path) -> Path | None:
+def download_extract(
+    url: str,
+    dest: str | Path,
+    checksum: str = "",
+) -> Path | None:
     name = Path(url).name
     if not any(name.endswith(suf) for suf in (".zip", ".tar", ".tar.gz", ".tgz")):
         raise ValueError(f"Unknown archive format for '{name}'")
     with verbosity(2):
-        info("download URL:", url)
+        info("Download URL:", url)
     with tempfile.TemporaryDirectory() as tmp:
         target = Path(tmp) / name
         with urlopen(url) as remote:  # noqa S310
             target.write_bytes(remote.read())
+        verify_checksum(target, checksum)
         # if name.endswith(".zip"):
         #     return extract_zip(target, dest)
         return extract_all(target, dest, url)
 
 
+def verify_checksum(target: Path, checksum: str) -> None:
+    """If a checksum is provided, verify that the Path has the same sha256 hash.
+
+    Abort the programm if hashes differ.
+    Currently supporting only sha256.
+    """
+    if not checksum:
+        return
+    # Assuming checksum is a 64-long string verified by Nua-config
+    file_hash = sha256(target.read_bytes()).hexdigest()
+    if file_hash == checksum:
+        with verbosity(2):
+            show("Checksum of dowloaded file verified")
+    else:
+        abort(
+            f"Wrong checksum verification for file:\n{target}\n"
+            f"Computed sha256 sum: {file_hash}\nExpected result:       {checksum}"
+        )
+
+
 def extract_all(archive: str | Path, dest: str | Path, url: str = "") -> Path | None:
     with verbosity(2):
-        info("extract archive:", archive)
+        info("Extract archive:", archive)
     with tarfile.open(archive) as tar:
         tar.extractall(dest)
     name = Path(archive).stem
@@ -419,22 +445,22 @@ def is_local_dir(project: str) -> bool:
         abs_path = Path(project).absolute().resolve()
         result = abs_path.is_dir()
         abs_path_s = str(abs_path)
-    with verbosity(2):
+    with verbosity(3):
         info(f"is_local_dir '{abs_path_s}'", result)
     return result
 
 
-def project_path(project: str) -> Path | None:
+def project_path(project: str, checksum: str = "") -> Path | None:
     """Guess meaning of project string and send back local path of the project.
     (WIP)
     """
     if is_local_dir(project):
         return Path(project)
-    return download_extract(project, "/nua/build")
+    return download_extract(project, "/nua/build", checksum)
 
 
-def project_install(project: str) -> None:
-    path = project_path(project)
+def project_install(project: str, checksum: str = "") -> None:
+    path = project_path(project, checksum)
     if not path:
         warning(f"No path found for project '{project}'")
         return
@@ -447,7 +473,7 @@ def detect_and_install(directory: str | Path | None) -> None:
     else:
         path = Path(".")
     with verbosity(2):
-        info("detect_and_install", path)
+        info("Detect and install", path)
     with chdir(path):
         if is_python_project():
             build_python()

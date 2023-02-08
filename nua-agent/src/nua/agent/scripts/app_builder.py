@@ -210,7 +210,7 @@ class BuilderApp:
         if self.config.project:
             return project_install(self.config.project)
         if self.config.src_url:
-            return project_install(self.config.src_url)
+            return project_install(self.config.src_url, self.config.checksum)
         if not installed:
             # no package installed through install_pip_packages and
             # no other way. Let's assume there is a local project.

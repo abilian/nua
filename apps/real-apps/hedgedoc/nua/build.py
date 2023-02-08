@@ -1,15 +1,13 @@
 from shutil import copy2
 
 from nua.agent.nua_config import NuaConfig
-from nua.lib.actions import download_extract, npm_install
 from nua.lib.backports import chdir
 from nua.lib.shell import sh
 
 
 def main():
     config = NuaConfig()
-    src_url = config.src_url
-    hedge_src = download_extract(src_url, "/nua/build")
+    hedge_src = config.fetch_source()
 
     with chdir(hedge_src):
         cmd = "bin/setup"
