@@ -8,16 +8,12 @@ from pprint import pformat
 from subprocess import run  # noqa: S404
 from time import sleep
 
-from docker import DockerClient, from_env
-
-# from docker.errors import APIError, BuildError, ImageNotFound, NotFound
+from docker import DockerClient
 from docker.errors import APIError, NotFound
 from docker.models.containers import Container
 from docker.models.images import Image
 from nua.autobuild.docker_build_utils import docker_require
 from nua.lib.console import print_red
-
-# from .db.model.instance import RUNNING
 from nua.lib.panic import abort, info, vprint, vprint_green, vprint_magenta, warning
 from nua.lib.shell import chmod_r, mkdir_p
 from nua.lib.tool.state import verbosity
@@ -59,7 +55,7 @@ def docker_service_start_if_needed():
 
 def docker_container_of_name(name: str) -> list[Container]:
     """Send a list of 0 or 1 Container of the given name."""
-    client = from_env()
+    client = DockerClient.from_env()
     try:
         return [
             cont
@@ -284,7 +280,7 @@ def docker_run(rsite: Resource, secrets: dict) -> Container:
 
 
 def _docker_run(rsite: Resource, secrets: dict, params: dict) -> Container:
-    client = from_env()
+    client = DockerClient.from_env()
     erase_previous_container(client, params["name"])
     actual_params = params_with_secrets(params, secrets)
     return client.containers.run(rsite.image_id, **actual_params)
@@ -368,7 +364,7 @@ def test_docker_exec(container: Container):
 
 
 def docker_volume_list(name: str) -> list:
-    client = from_env()
+    client = DockerClient.from_env()
     lst = client.volumes.list(filters={"name": name})
     # filter match is not equality
     return [vol for vol in lst if vol.name == name]
@@ -385,7 +381,7 @@ def docker_volume_create_new(volume: Volume):
     if volume.driver != "local" and not install_plugin(volume.driver):
         # assuming it is the name of a plugin
         abort(f"Install of Docker's plugin '{volume.driver}' failed.")
-    client = from_env()
+    client = DockerClient.from_env()
     client.volumes.create(
         name=volume.source,
         driver=volume.driver,
@@ -407,7 +403,7 @@ def docker_volume_create_local_dir(volume: Volume):
 # def docker_tmpfs_create(volume_opt: dict):
 #     """Create a new volume of type "tmpfs"."""
 #
-#     client = from_env()
+#     client = DockerClient.from_env()
 #     client.volumes.create(
 #         name=volume_opt["source"],
 #         driver=driver,
@@ -442,7 +438,7 @@ def docker_volume_prune(volume_opt: dict):
         return
     name = volume.source
     try:
-        client = from_env()
+        client = DockerClient.from_env()
         lst = client.volumes.list(filters={"name": name})
         # beware: filter match is not equality
         found = [vol for vol in lst if vol.name == name]
@@ -457,7 +453,7 @@ def docker_volume_prune(volume_opt: dict):
 
 
 def docker_network_create_bridge(network_name: str):
-    client = from_env()
+    client = DockerClient.from_env()
     found = docker_network_by_name(network_name)
     if found:
         return found
@@ -467,18 +463,18 @@ def docker_network_create_bridge(network_name: str):
 
 def docker_network_prune():
     """prune all unused networks (no option in py-docker?)"""
-    client = from_env()
+    client = DockerClient.from_env()
     client.networks.prune()
 
 
 def docker_network_by_name(network_name: str):
-    client = from_env()
+    client = DockerClient.from_env()
     all_nets = {netw.name: netw for netw in client.networks.list()}
     return all_nets.get(network_name)
 
 
 def install_plugin(plugin_name: str) -> str:
-    client = from_env()
+    client = DockerClient.from_env()
     try:
         plugin = client.plugins.get(plugin_name)
     except NotFound:
@@ -500,7 +496,7 @@ def pull_docker_image(image: str) -> Image:
 
 
 def list_containers():
-    client = from_env()
+    client = DockerClient.from_env()
     for ctn in client.containers.list(all=True):
         image = ctn.image
         if image.tags:

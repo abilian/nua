@@ -1,11 +1,11 @@
 from operator import itemgetter
 from pathlib import Path
 
+from nua.orchestrator import __version__, config
 from nua.orchestrator.app_deployment import AppDeployment
 from nua.orchestrator.app_management import AppManagement
 from nua.orchestrator.db import store
 from nua.orchestrator.db.store import list_all_settings
-from nua.orchestrator import __version__, config
 
 
 class API:
