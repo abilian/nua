@@ -181,11 +181,11 @@ def stop_previous_containers(apps: list):
     pass
 
 
-def deactivate_containers(container_names: list[str]):
+def deactivate_containers(container_names: list[str], show_warning: bool = True):
     for name in container_names:
         if not name:
             continue
-        docker_remove_container_previous(name)
+        docker_remove_container_previous(name, show_warning)
         store.instance_delete_by_container(name)
 
 
@@ -194,7 +194,7 @@ def deactivate_app(site: AppInstance):
     DB)."""
     container_names = [res.container_name for res in site.resources]
     container_names.append(site.container_name)
-    deactivate_containers(container_names)
+    deactivate_containers(container_names, show_warning=False)
 
 
 def deactivate_all_instances():
@@ -205,10 +205,8 @@ def deactivate_all_instances():
     """
     for instance in store.list_instances_all():
         with verbosity(2):
-            vprint(
-                f"Removing from containers and DB: "
-                f"'{instance.app_id}' instance on '{instance.domain}'"
-            )
+            msg = f"Removing instance '{instance.app_id}' on '{instance.domain}'"
+            info(msg)
         site_config = instance.site_config
         container_names = [
             res.get("container_name", "") for res in site_config.get("resources", [])
@@ -216,7 +214,6 @@ def deactivate_all_instances():
         container_names.append(site_config.get("container_name", ""))
         container_names = [name for name in container_names if name]
         deactivate_containers(container_names)
-
     docker_network_prune()
 
 

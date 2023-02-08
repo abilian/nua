@@ -1,14 +1,13 @@
 [metadata]
 id = "hedgedoc"
 version = "1.9.6"
-release = 15
+release = 16
 title = "Hedgedoc"
 author = "Hedgedoc developers"
 tagline = "Nua test with Hedgedoc"
 website = "https://nua.rocks/"
 tags = ["Markdown", "Documentation", "Collaboration"]
 license = "AGPL-3.0 license"
-# profile = ["node"]
 src_url = "https://github.com/hedgedoc/hedgedoc/releases/download/{version}/hedgedoc-{version}.tar.gz"
 
 [profile]
@@ -16,9 +15,6 @@ src_url = "https://github.com/hedgedoc/hedgedoc/releases/download/{version}/hedg
 node = ">=14.13.1,<17"
 
 [build]
-
-# meta-packages = ["postgres-client"]
-
 run-packages = [
     "fontconfig",
     "fonts-noto"
@@ -37,8 +33,9 @@ build-packages = [
 test = "test -f /nua/build/hedgedoc/healthcheck.mjs"
 
 [env]
-# IMPORTANT:to be set at the actual domain deployed:
-CMD_DOMAIN = "localhost"
+# IMPORTANT: to be set at the actual domain deployed:
+CMD_DOMAIN = { from="", key="domain" }
+CMD_ALLOW_ORIGIN = { key="domain" }
 
 CMD_DB_HOST = { from="database", key="hostname" }
 CMD_DB_DATABASE = { from="database", key="POSTGRES_DB" }
@@ -48,26 +45,15 @@ CMD_DB_PASSWORD = { from="database", key="POSTGRES_PASSWORD" }
 NODE_ENV = "production"
 DEBUG = "true"
 UPLOADS_MODE = "0700"
-
 TZ = "Europe/Paris"
-
-# CMD_URL_PATH # if sub directory
-# CMD_DB_URL = "postgres://hedgedoc:password@database:5432/hedgedoc"
-# CMD_DB_URL = "sqlite:///nua/data/sqlite.db"
-# HSTS_ENABLE defines if HSTS headers should be sent. Set this to true if you use HTTPS.
 CMD_HSTS_ENABLE = "false"
 # URL_ADDPORT defines if generated links should contain the port.
 CMD_URL_ADDPORT = "false"
 CMD_PROTOCOL_USESSL = "false"
-# CMD_ALLOW_ORIGIN=['localhost'] #optional
-# CMD_ALLOW_ORIGIN =
 
 # See https://docs.hedgedoc.org/configuration/#users-and-privileges
 CMD_ALLOW_ANONYMOUS = "true"
 CMD_ALLOW_ANONYMOUS_EDITS = "true"
-# CMD_ALLOW_FREEURL
-# CMD_REQUIRE_FREEURL_AUTHENTICATION
-# CMD_DEFAULT_PERMISSION
 
 CMD_EMAIL = "true"
 CMD_ALLOW_EMAIL_REGISTER = "true"
@@ -75,7 +61,6 @@ CMD_ALLOW_EMAIL_REGISTER = "true"
 # postgres:
 CMD_DB_PORT = "5432"
 CMD_DB_DIALECT = "postgres"
-# CMD_DB_URL = "postgres://username:password@localhost:5432/hedgedoc"
 
 [docker]
 # parameters passed as a dict to docker run
@@ -97,17 +82,13 @@ type = "volume"
 # driver = "local"  # default for "volume" type
 # Mount source (e.g. a volume name or a host path):
 prefix = "hedgedoc_uploads"
-
 # Container path:
 target = "/hedgedoc/public/uploads"
-# mode (default to 'rw'
-# mode = "rw"
 
 [volume.backup]
 method = "sync"
 destination = "local"
 frequency = "24h"
-
 
 [[resource]]
 # A resource is another container required by the main app container, its

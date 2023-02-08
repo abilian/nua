@@ -85,7 +85,7 @@ def evaluate_requirement(
             persistent,
         )
         with verbosity(3):
-            info(f"generated value: {result}")
+            show(f"generated value: {result}")
     else:
         warning(f"Requirement maybe not valid for {destination_key}, key set to empty")
         result = {destination_key: ""}

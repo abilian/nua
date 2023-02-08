@@ -18,7 +18,7 @@ from nua.autobuild.docker_build_utils import docker_require
 from nua.lib.console import print_red
 
 # from .db.model.instance import RUNNING
-from nua.lib.panic import abort, info, vprint, warning
+from nua.lib.panic import abort, info, vprint, vprint_green, vprint_magenta, warning
 from nua.lib.shell import chmod_r, mkdir_p
 from nua.lib.tool.state import verbosity
 
@@ -193,26 +193,27 @@ def docker_remove_prior_container_db(rsite: Resource):
     store.instance_delete_by_domain(rsite.domain)
 
 
-def docker_remove_container_previous(name: str):
+def docker_remove_container_previous(name: str, show_warning: bool = True):
     """Remove container of full domain name from running container and DB."""
     containers = docker_container_of_name(name)
-    with verbosity(3):
+    with verbosity(4):
         vprint(f"Stopping container: {pformat(containers)}")
     if containers:
         container = containers[0]
         with verbosity(2):
-            vprint(f"Stopping container '{container.name}'")
+            info(f"Stopping container '{container.name}'")
         _docker_stop_container(container)
         with verbosity(2):
-            vprint(f"Removing container '{container.name}'")
+            info(f"Removing container '{container.name}'")
         try:
             container.remove(v=False, force=True)
         except (NotFound, APIError):
             # container was "autoremoved" after stop
             pass
     else:
-        with verbosity(2):
-            warning(f"no previous container to stop '{name}'")
+        if show_warning:
+            with verbosity(2):
+                warning(f"no previous container to stop '{name}'")
 
 
 def docker_remove_prior_container_live(rsite: Resource):
@@ -267,16 +268,17 @@ def docker_run(rsite: Resource, secrets: dict) -> Container:
         info(f"Docker run image: {rsite.image}")
         info(f"        image id: {rsite.image_id_short}")
         with verbosity(2):
-            vprint("run parameters:\n", pformat(params))
+            vprint_green("Docker run parameters:")
+            vprint_magenta(pformat(params))
     docker_remove_prior_container_live(rsite)
     if rsite.network_name:
         params["network"] = rsite.network_name
         with verbosity(2):
             if rsite.network_name:
-                info("network:", rsite.network_name)
+                info("Network:", rsite.network_name)
     container = _docker_run(rsite, secrets, params)
     with verbosity(3):
-        vprint("docker secrets:", secrets)
+        vprint("Docker secrets:", secrets)
     _check_run_container(container, rsite.container_name)
     return container
 

@@ -6,7 +6,7 @@ from pprint import pformat
 from typing import Any
 
 from nua.agent.nua_config import hyphen_get, nomalize_env_values
-from nua.lib.panic import abort, vprint, warning
+from nua.lib.panic import abort, vprint, vprint_green, warning
 from nua.lib.tool.state import verbosity
 
 from .backup.backup_engine import backup_resource, backup_volume
@@ -499,7 +499,9 @@ class Resource(dict):
                 vprint(f"configure_fct: {configure_fct}")
             configure_fct(self)
             with verbosity(2):
-                vprint(f"configure_db() resource '{self.resource_name}': {self.type}")
+                vprint_green(
+                    f"Configure resource DB '{self.resource_name}': {self.type}"
+                )
             with verbosity(3):
                 vprint(pformat(self))
 

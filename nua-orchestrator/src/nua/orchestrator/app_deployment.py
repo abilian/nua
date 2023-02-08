@@ -222,8 +222,9 @@ class AppDeployment:
         # registering https apps with certbot requires that the base nginx config is
         # deployed.
         register_certbot_domains(self.apps)
-        with verbosity(2):
-            vprint("'apps':\n", pformat(self.apps))
+        with verbosity(3):
+            vprint_green("AppDeployment .apps:")
+            vprint_magenta(self.apps)
 
     def start_apps(self):
         """Start all apps to deploy."""
@@ -253,10 +254,10 @@ class AppDeployment:
                     "AppInstance configuration must be a dict",
                     explanation=f"{pformat(site_dict)}",
                 )
-            site = AppInstance(site_dict)
-            site.check_valid()
+            app_instance = AppInstance(site_dict)
+            app_instance.check_valid()
             # site.set_ports_as_dict()
-            apps.append(site)
+            apps.append(app_instance)
         self.apps = apps
 
     def sort_apps_per_domain(self):
@@ -494,7 +495,7 @@ class AppDeployment:
         clean_nua_nginx_default_site()
         for host in self.apps_per_domain:
             with verbosity(1):
-                info(f"Configure Nginx for hostname '{host['hostname']}'")
+                info(f"Configure Nginx for domain '{host['hostname']}'")
             configure_nginx_hostname(host)
 
     def apps_generate_ports(self):
@@ -628,8 +629,8 @@ class AppDeployment:
         start_one_container(site, mounted_volumes)
 
     def store_container_instance(self, site: AppInstance):
-        with verbosity(2):
-            vprint("saving site config in Nua DB")
+        with verbosity(3):
+            vprint_green("Saving AppInstance configuration in Nua DB")
         store.store_instance(
             app_id=site.app_id,
             nua_tag=site.nua_tag,
@@ -663,7 +664,7 @@ class AppDeployment:
         self.add_host_gateway_to_extra_hosts(run_params)
         run_params["name"] = site.container_name
         run_params["ports"] = site.ports_as_docker_params()
-        run_params["environment"] = self.run_parameters_environment(site)
+        run_params["environment"] = self.run_parameters_app_environment(site)
         if site.healthcheck:
             run_params["healthcheck"] = HealthCheck(site.healthcheck).as_docker_params()
         self.sanitize_run_params(run_params)
@@ -702,17 +703,18 @@ class AppDeployment:
         extra_hosts.update(extra_host_gateway())
         run_params["extra_hosts"] = extra_hosts
 
-    def run_parameters_environment(self, site: AppInstance) -> dict:
+    def run_parameters_app_environment(self, site: AppInstance) -> dict:
         """Return a dict with all environment parameters for the main container
         to run (the AppInstance container)."""
         run_env = site.image_nua_config.get("env", {})
         # update with local services environment (if any):
         run_env.update(self.services_environment(site))
-        # update with result of "assign" dynamic evaluations :
-        run_env.update(instance_key_evaluator(site, late_evaluation=False))
         # variables declared in the env section of the ochestrator deployment
         # configurationcan replace any other source:
         run_env.update(site.env)
+        # update with result of "assign" dynamic evaluations :
+        run_env.update(instance_key_evaluator(site, late_evaluation=False))
+        site.env = run_env
         return run_env
 
     def run_parameters_resource_environment(
@@ -726,11 +728,11 @@ class AppDeployment:
         # late resource has access to environment of main container:
         run_env = deepcopy(site_env)
         # update with result of "assign" dynamic evaluations :
+        # variables declared in env can replace any other source:
+        run_env.update(resource.env)
         run_env.update(
             instance_key_evaluator(site, resource=resource, late_evaluation=False)
         )
-        # variables declared in env can replace any other source:
-        run_env.update(resource.env)
         resource.env = run_env
         return run_env
 
@@ -766,7 +768,7 @@ class AppDeployment:
     def display_deployed(self):
         protocol = protocol_prefix()
         for site in self.apps:
-            msg = f"image '{site.image}' deployed as {protocol}{site.domain}"
+            msg = f"Image '{site.image}' deployed as {protocol}{site.domain}"
             info(msg)
             self.display_persistent_data(site)
 
@@ -784,7 +786,7 @@ class AppDeployment:
                 return
             vprint_green("Volumes used by current Nua configuration:")
             for volume in current_mounted:
-                vprint(Volume.string(volume))
+                vprint_magenta(Volume.string(volume))
 
     def display_unused_volumes(self):
         with verbosity(1):

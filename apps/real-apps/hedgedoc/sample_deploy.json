@@ -1,19 +1,11 @@
 {
     "site": [
         {
-            "image": "hedgedoc:1.9.6-13",
-            "domain": "test1.example.com",
-            "env": {
-                "CMD_DOMAIN": "test1.example.com",
-                "CMD_ALLOW_ORIGIN": ["localhost", "test1.example.com"]
-            }
+            "image": "hedgedoc",
+            "domain": "test1.example.com"
         }, {
-            "image": "hedgedoc:1.9.6-13",
-            "domain": "test2.example.com",
-            "env": {
-                "CMD_DOMAIN": "test2.example.com",
-                "CMD_ALLOW_ORIGIN": ["localhost", "test2.example.com"]
-            }
+            "image": "hedgedoc",
+            "domain": "test2.example.com"
         }
     ]
 }
