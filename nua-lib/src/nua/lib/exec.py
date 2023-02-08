@@ -196,12 +196,6 @@ def exec_as_root(
     _exec_as_user(cmd, "root", cwd=cwd, timeout=timeout, env=env, show_cmd=show_cmd)
 
 
-def ensure_env(key: str, value: str) -> None:
-    """Set ENV vith value variable if needed."""
-    if os.environ.get(key) != value:
-        os.environ[key] = value
-
-
 def set_nua_user() -> None:
     """Ensure user is Nua and related environment.
 
@@ -212,8 +206,8 @@ def set_nua_user() -> None:
         os.setgid(nua_record.pw_gid)
         os.setuid(nua_record.pw_uid)
 
-    ensure_env("USER", NUA)
-    ensure_env("HOME", nua_record.pw_dir)
-    ensure_env("UID", str(nua_record.pw_uid))
-    ensure_env("SHELL", str(nua_record.pw_shell))
+    os.environ["USER"] = NUA
+    os.environ["HOME"] = nua_record.pw_dir
+    os.environ["UID"] = str(nua_record.pw_uid)
+    os.environ["SHELL"] = str(nua_record.pw_shell)
     # os.chdir(nua_record.pw_dir)
