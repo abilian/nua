@@ -6,6 +6,7 @@ from typing import Any
 
 import tomli
 import yaml
+from nua.lib.actions import download_extract
 from nua.lib.panic import abort
 
 from .constants import NUA_CONFIG_EXT, NUA_CONFIG_STEM
@@ -74,6 +75,7 @@ class NuaConfig:
         self._complete_missing_blocks()
         self._fix_spelling()
         self._check_required_metadata()
+        self._check_checksum_format()
         self._nomalize_env_values()
         self.root_dir = self.path.parent
 
@@ -128,6 +130,16 @@ class NuaConfig:
             if key not in self._data["metadata"]:
                 abort(f"Missing mandatory metadata in {self.path}: '{key}'")
 
+    def _check_checksum_format(self):
+        checksum = self.checksum
+        if not checksum:
+            return
+        if checksum.startswith("sha256:"):
+            checksum = checksum[7:]
+        if len(checksum) != 64:
+            abort(f"Wrong checksum content (expecting 64 length sha256): {checksum}")
+        self.metadata["checksum"] = checksum
+
     def _nomalize_env_values(self):
         self._data["env"] = nomalize_env_values(self.env)
 
@@ -152,6 +164,11 @@ class NuaConfig:
         if base := hyphen_get(self.metadata, "src-url"):
             return base.format(**self.metadata)
         return ""
+
+    @property
+    def checksum(self) -> str:
+        """Return checksum associated to 'src-url' or null string."""
+        return self.metadata.get("checksum", "").strip().lower()
 
     @property
     def app_id(self) -> str:
@@ -231,3 +248,9 @@ class NuaConfig:
     def resource(self) -> list:
         """The list of resources (tag 'resource')."""
         return self._data.get("resource", [])
+
+    # actions #######################################################
+
+    def fetch_source(self) -> Path | None:
+        """Download, check and extract source URL, returning the source Path."""
+        return download_extract(self.src_url, "/nua/build", self.checksum)
