@@ -1,6 +1,7 @@
 """Script main entry point for Nua local."""
 import json
 import os
+import sys
 from pathlib import Path
 from pprint import pformat, pprint
 from typing import Optional
@@ -11,6 +12,7 @@ from nua.lib.console import print_red
 from nua.lib.exec import is_current_user, set_nua_user
 from nua.lib.panic import abort, vprint
 from nua.lib.tool.state import set_color, set_verbosity, verbosity
+from .commands.api import API
 
 from .. import __version__
 from ..db import store
@@ -58,6 +60,7 @@ option_restore_strict = typer.Option(
 )
 option_json = typer.Option(False, "--json", help="Output result as JSON.")
 option_short = typer.Option(False, help="Show short text result.")
+option_raw = typer.Option(False, "--raw", help="Return raw result (not JSON).")
 
 
 def _print_version():
@@ -199,6 +202,23 @@ def list_instances(_json: bool = option_json, short: bool = option_short):
             print(json.dumps(result, ensure_ascii=False, indent=2))
         else:
             pprint(result)
+
+
+@app.command("rpc")
+def rpc(method: str, raw: bool = option_raw):
+    """RPC call (by nua-cli)."""
+    initialization()
+    api = API()
+    args_str = sys.stdin.read()
+    if not args_str:
+        args = {}
+    else:
+        args = json.loads(args_str)
+    result = api.call(method, **args)
+    if raw:
+        print(result)
+    else:
+        print(json.dumps(result, ensure_ascii=False, indent=2))
 
 
 @app.command("settings")
