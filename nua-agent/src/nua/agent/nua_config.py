@@ -37,7 +37,7 @@ def hyphen_get(data: dict, key: str, default: Any = None) -> Any:
 
 
 def nomalize_env_values(env: dict) -> dict:
-    validated = {}
+    validated: dict[str, str | dict] = {}
     for key, value in env.items():
         if isinstance(value, dict):
             validated[key] = {k: normalize_env_leaf(v) for k, v in value.items()}
@@ -46,7 +46,7 @@ def nomalize_env_values(env: dict) -> dict:
     return deepcopy(validated)
 
 
-def normalize_env_leaf(value: Any) -> str | dict:
+def normalize_env_leaf(value: Any) -> str:
     if isinstance(value, str):
         return value
     if isinstance(value, (int, float)):
