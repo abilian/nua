@@ -130,9 +130,9 @@ class Resource(dict):
 
     @property
     def volume_declaration(self) -> list:
-        """Docker volume declred on a non-container resource.
+        """Docker volume declared on a non-container resource.
 
-        Thus this volume need to be started by the upper site.
+        Thus, this volume needs to be started by the upper site.
         """
         return self.get("volume_declaration", [])
 

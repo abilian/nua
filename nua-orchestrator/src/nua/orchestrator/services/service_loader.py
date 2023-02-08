@@ -33,7 +33,7 @@ class Services:
             name = conf_service.get("name")
             if not name:
                 print_red(
-                    "A service in nua configuration is missing mandatony key 'name'."
+                    "A service in nua configuration is missing mandatory key 'name'."
                 )
                 continue
             self.configuration_services[name] = conf_service
