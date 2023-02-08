@@ -26,7 +26,7 @@ nox = "*"
 abilian-devtools = "*"
 
 # Helper for monorepo
-invoke = "^1.7.3"
+invoke = "^2"
 
 # Code coverage (reporting)
 codecov = "*"
