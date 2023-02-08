@@ -23,7 +23,6 @@ update            Update the Nua CLI
 from __future__ import annotations
 
 import subprocess
-from operator import itemgetter
 from typing import Optional
 
 import snoop
@@ -32,12 +31,18 @@ from snoop import pp
 
 from nua_cli.version import get_version
 
-from .client import Client
+from .client import get_client
 from .common import OPTS, print_version
+from .subcommands import config, server
 
 snoop.install()
 app = typer.Typer()
-client = Client()
+client = get_client()
+
+
+# Subcommands
+app.add_typer(server.app, name="server", help="Manage the Nua server")
+app.add_typer(config.app, name="config", help="Show / edit app config")
 
 
 def _usage():
@@ -58,37 +63,6 @@ def apps():
 
 
 @app.command()
-def settings():
-    """Show server settings."""
-    result = client.call("settings")
-    pp(result)
-
-
-@app.command()
-def status():
-    """Show Nua status."""
-    result = client.call("status")
-
-    print(f"Nua version: {result['version']}")
-
-    registries = result["registries"]
-    print("Configured registries:")
-    for reg in sorted(registries, key=itemgetter("priority")):
-        msg = (
-            f'  priority: {reg["priority"]:>2}   '
-            f'format: {reg["format"]:<16}   '
-            f'url: {reg["url"]}'
-        )
-        print(msg)
-
-
-@app.command()
-def list():
-    """List applications (alias for `apps` - which one do we keep?)."""
-    apps()
-
-
-@app.command()
 def help():
     """Show help."""
     _usage()
@@ -96,18 +70,10 @@ def help():
 
 @app.command()
 def version():
-    """Show version."""
+    """Show Nua version."""
     typer.echo(f"Nua CLI version: {get_version()}")
     status = client.call("status")
     typer.echo(f"Nua Server version: {status['version']}")
-
-
-@app.command()
-def server_log():
-    """Show server logs (TODO: rename as subcommand?) (TODO: not working)."""
-    result = client.call_raw("server_log")
-    print(result)
-    # typer.echo(result)
 
 
 @app.command()
@@ -118,7 +84,7 @@ def backup():
 
 
 #
-# TODO
+# TODO: application lifecycle operations
 #
 @app.command()
 def build(path: str = "."):
@@ -160,11 +126,6 @@ def stop():
 @app.command()
 def logs():
     """Show application logs."""
-
-
-@app.command()
-def config():
-    """Show application config."""
 
 
 @app.command()

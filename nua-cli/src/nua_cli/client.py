@@ -32,3 +32,14 @@ class Client:
         cmd = f"{NUA_CMD} rpc {method}"
         r = self.connection.run(cmd, hide=True, in_stream=args)
         return json.loads(r.stdout)
+
+
+_CLIENT = None
+
+
+def get_client(host: str = "", user: str = ""):
+    global _CLIENT
+
+    if not _CLIENT:
+        _CLIENT = Client(host, user)
+    return _CLIENT

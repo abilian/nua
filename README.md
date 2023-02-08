@@ -51,15 +51,24 @@ The Nua project is a monorepo, split into several subpackages:
 
 It also comprises several example applications, as well as a few real-world applications: [`apps`](./apps).
 
+To install a development environment, you will need [Poetry](https://python-poetry.org/), and to run:
+
+```
+poetry install
+```
+
+You also need a Docker server.
+
+
 ### Roadmap and current status
 
 The roadmap for the projet is kept up to date on [this kanban board](https://github.com/abilian/nua/projects/1).
 
-As of 2023/01/05, we have a:
+As of 2023/02/08, we have a:
 
 - The "builder" CLI that can build container images.
 - The "orchestrator" CLI that can deploy and manage container images.
-- We have started packaging some applications.
+- We have started packaging some applications (Hedgedoc, Dolibarr, simple demos).
 - Work has started on a common `nua` CLI:
 
 ```
@@ -77,15 +86,20 @@ $ nua --help
 │ --help                          Show this message and exit.                  │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ╭─ Commands ───────────────────────────────────────────────────────────────────╮
-│ config           Show application config.                                    │
-│ deploy           Deploy an application.                                      │
-│ destroy          Destroy an application.                                     │
-│ help             Show help.                                                  │
-│ init             Initialize a new application.                               │
-│ list             List applications.                                          │
-│ logs             Show application logs.                                      │
-│ status           Show Nua status.                                            │
-│ version          Show Nua version and exit.                                  │
+│ apps         List applications.                                              │
+│ backup       Backup a deployed application.                                  │
+│ build        Build app but don't deploy it.                                  │
+│ config       Show / edit app config                                          │
+│ deploy       Deploy an application.                                          │
+│ destroy      Destroy an application.                                         │
+│ help         Show help.                                                      │
+│ logs         Show application logs.                                          │
+│ restore      Restore backup data of a deployed application.                  │
+│ server       Manage the Nua server                                           │
+│ start        Start an application.                                           │
+│ stop         Stop an application.                                            │
+│ update       Update an application.                                          │
+│ version      Show Nua version.                                               │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ```
 
