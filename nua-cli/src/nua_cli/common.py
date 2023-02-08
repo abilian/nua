@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typer
 
-from nua.cli.version import get_version
+from .version import get_version
 
 
 def _version_callback(value: bool) -> None:

@@ -1,7 +1,7 @@
 import pytest
 from typer.testing import CliRunner
 
-from nua.cli.main import app
+from nua_cli.main import app
 
 
 @pytest.fixture()

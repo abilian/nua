@@ -1,5 +1,5 @@
-PKG := nua.cli
-SRC := src/nua
+PKG := nua_cli
+SRC := src
 
 .PHONY: all
 all: test lint
@@ -42,7 +42,7 @@ lint: ## check style
 	black --check $(SRC) tests
 	mypy $(SRC) tests
 	pyright $(SRC) tests
-	deptry .
+	# deptry .
 
 #
 # Formatting

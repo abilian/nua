@@ -1,5 +1,4 @@
-Nua CLI
-=======
+# nua-cli: CLI for NUA (for users)
 
 Command-line interface for Nua.
 
@@ -13,21 +12,49 @@ nua --help
 nua [command] [options]
 ```
 
-## Commands (TBC)
+## Main commands
 
-- `deploy` - Deploy an application
-- `list` - List deployed applications
-- `destroy` - Destroy a deployed application
-- `start` - Start an application
-- `stop` - Stop an application
-- `help` - Show help
-- `version` - Show version
-- `status` - Show Nua status
-- `logs` - Show logs for an application
-- `config` - Show configuration of a deployed application
-- `update` - Update an application
-- `backup` - Backup a deployed application
-- `restore` - Restore backup data of a deployed application
+Here's the list of commands we should support, eventually (TBC):
+
+```
+apps              List apps
+backup            Backup/restore app data
+config            Show/manage config for current app
+deploy            Deploy app
+destroy           Destroy app
+help              Display help
+init              Create a new app
+logs              Tail running logs
+ps                Show process count
+restart           Restart an app
+run               Run a command in the app's environment
+scale             Scale processes
+start             Start an app
+status            Show app status
+stop              Stop an app
+update            Update the Nua CLI
+```
+
+## Subcommands
+
++ additional commands for authentication, backup, etc.
+
+Also, subcommands:
+
+```
+backup dump
+backup restore
+
+config show
+config get
+config set
+config unset
+
+system status
+system ...
+
+```
+
 
 ## Generic options
 
