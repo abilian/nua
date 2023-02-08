@@ -12,7 +12,7 @@ def backup_all():
 
 
 def deployed_config() -> dict:
-    """Debug: return the curreent active config."""
+    """Debug: return the current active config."""
     deployer = AppManagement()
     deployer.load_active_config()
     return deployer.active_config

@@ -56,7 +56,7 @@ class Resource(dict):
         """List of sub resources of the object.
 
         Warning: only AppInstance upper class has an actual use of 'resources'.
-        This sub class Resource will always provide an *empty*list
+        This subclass Resource will always provide an *empty*list
         """
         return []
 
@@ -253,7 +253,7 @@ class Resource(dict):
             self["meta_packages_requirements"] = []
 
     def is_assignable(self) -> bool:
-        """Resource type allow env persistent parameters (most of resources).
+        """Resource type allow env persistent parameters (most of the resources).
 
         Persistent data is stored at site level (not resource level).
         """

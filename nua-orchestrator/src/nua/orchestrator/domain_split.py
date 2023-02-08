@@ -16,7 +16,7 @@ class DomainSplit:
             result = urlparse(f"http://{url_string}")
         self.hostname = result.hostname
         if not self.hostname:
-            abort(f"Fail to parse hostname from: '{url_string}'")
+            abort(f"Failed to parse hostname from: '{url_string}'")
         self.location = result.path.strip("/")
 
     def full_path(self):

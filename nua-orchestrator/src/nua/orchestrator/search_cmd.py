@@ -14,7 +14,7 @@ from packaging.version import parse as parse_version
 from . import config
 
 
-def search_nua(app_name: str) -> list:
+def search_nua(app_name: str) -> list[Path]:
     """Search Nua image from the registries.
 
     (local registry for now).
@@ -26,7 +26,7 @@ def search_nua(app_name: str) -> list:
     return search_docker_tar_local(app, tag)
 
 
-def search_nua_print(app_name: str) -> list:
+def search_nua_print(app_name: str) -> list[Path]:
     """Search Nua image from the registries.
 
     (local registry for now).
@@ -87,9 +87,9 @@ def _path_tar_version(path: Path) -> Version:
     return version
 
 
-def search_docker_tar_local(app, tag) -> list:
+def search_docker_tar_local(app, tag) -> list[Path]:
     """Return list of path of local Nua archives sorted by version."""
-    results = []
+    results: list[Path] = []
     if tag:
         for registry in list_registry_docker_tar_local():
             results.extend(path for path in find_local_tar_tagged(registry, app, tag))

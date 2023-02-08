@@ -320,7 +320,7 @@ def list_instances_container_active_volumes() -> list:
     - unique per 'source' key.
 
     A 'source' volume may be mounted on several instances. So, if still required by
-    another instance, should ne not unmounted when unmounting an instance.
+    another instance, should not be unmounted when unmounting an instance.
     """
     volumes_dict = {}
     containers_dict = {}

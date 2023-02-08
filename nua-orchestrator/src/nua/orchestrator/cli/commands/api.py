@@ -70,3 +70,6 @@ class API:
         deployer.loaded_config = deploy_config
         deployer.parse_deploy_apps()
         deployer.sort_apps_per_domain()
+
+    def ping(self):
+        return "pong"

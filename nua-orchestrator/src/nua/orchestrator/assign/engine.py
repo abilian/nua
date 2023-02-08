@@ -9,8 +9,6 @@ from ..app_instance import AppInstance
 from ..persistent import Persistent
 from ..resource import Resource
 from ..utils import dehyphen
-
-# from . import config
 from .evaluators import (  # site_environment,
     nua_internal,
     random_str,

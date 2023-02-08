@@ -2,7 +2,7 @@
 from datetime import datetime
 from functools import wraps
 
-from docker import from_env
+from docker import DockerClient
 from docker.errors import APIError, BuildError, ImageNotFound
 from docker.models.images import Image
 from nua.lib.console import print_red
@@ -75,7 +75,7 @@ def image_labels(reference: str) -> dict:
 
 def display_docker_img(iname: str):
     vprint_magenta(f"Docker image for '{iname}':")
-    client = from_env()
+    client = DockerClient.from_env()
     result = client.images.list(filters={"reference": iname})
     if not result:
         vprint("No image found")
@@ -101,7 +101,7 @@ def docker_require(reference: str) -> Image | None:
 
 
 def docker_remove_locally(reference: str):
-    client = from_env()
+    client = DockerClient.from_env()
     try:
         image = client.images.get(reference)
         if image:
@@ -113,7 +113,7 @@ def docker_remove_locally(reference: str):
 
 
 def docker_get_locally(reference: str) -> Image | None:
-    client = from_env()
+    client = DockerClient.from_env()
     try:
         name = reference.split("/")[-1]
         image = client.images.get(name)
@@ -128,7 +128,7 @@ def docker_get_locally(reference: str) -> Image | None:
 
 
 def docker_pull(reference: str) -> Image | None:
-    client = from_env()
+    client = DockerClient.from_env()
     try:
         image = client.images.pull(reference)
         if image:

@@ -296,9 +296,7 @@ def _check_run_container(container: Container, name: str):
     test_docker_exec(container)
 
 
-def docker_exec_stdout(
-    container: Container, params: dict, output: io.BufferedWriter
-) -> bool:
+def docker_exec_stdout(container: Container, params: dict, output: io.BufferedWriter):
     """Wrapper on top of the py-docker exec_run() command, capturing the
     output.
 
@@ -325,7 +323,7 @@ def docker_exec_stdout(
         output.write(data[0])
 
 
-def docker_exec(container: Container, params: dict) -> bool:
+def docker_exec(container: Container, params: dict):
     """Wrapper on top of the py-docker exec_run() command, without capturing the
     output.
 

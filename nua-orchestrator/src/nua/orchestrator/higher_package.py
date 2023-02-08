@@ -1,6 +1,6 @@
 """Provide a resource matching a version requirement.
 
-Parse the content of nua.orchestrator plugins dir for .json files to find the
+Parse the content of `nua.orchestrator` plugins dir for .json files to find the
 relevant package/version.
 """
 import json

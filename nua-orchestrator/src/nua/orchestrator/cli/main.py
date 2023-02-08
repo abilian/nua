@@ -81,12 +81,13 @@ def initialization():
     if os.getuid() == 0 or is_current_user("nua"):
         set_nua_user()
     else:
-        print_red("Nua orchestrator must be run as 'root' or 'nua'.")
+        print_red("Warning: Nua orchestrator must be run as 'root' or 'nua'.")
         raise typer.Exit(1)
     if is_initialized:
         with verbosity(3):
             vprint("already initialized")
         return
+
     setup_nua_db()
     register_plugins()
     is_initialized = True

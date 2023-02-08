@@ -51,7 +51,7 @@ RUN_BASE_RESOURCE = {"restart_policy": {"name": "always"}}
 class AppDeployment:
     """Deployment of a list of app instance/nua-image.
 
-    Devel notes: will be refactored into base class and sub classes for various
+    Devel notes: will be refactored into base class and subclasses for various
     deployment strategies (restoring previous configuration, ...).
 
     example of use:

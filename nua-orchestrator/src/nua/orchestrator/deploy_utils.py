@@ -256,6 +256,7 @@ def _pull_resource_remote(resource: Resource) -> bool:
             f"'{package_name} version {resource.version}'"
         )
         return False
+
     resource.image = pull_link["link"]
     return _pull_resource_docker(resource)
 
@@ -267,6 +268,7 @@ def _pull_resource_docker(resource: Resource) -> bool:
     if resource.image not in PULLED_IMAGES:
         warning(f"No image found for '{resource.image}'")
         return False
+
     resource.image_id = PULLED_IMAGES[resource.image]
     return True
 

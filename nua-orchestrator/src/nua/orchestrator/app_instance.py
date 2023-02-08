@@ -49,7 +49,7 @@ class AppInstance(Resource):
         """List of sub resources of the AppInstance object.
 
         Warning: only AppInstance class has an actual use of 'resources'.
-        The sub class Resource will always provide an *empty* list
+        The subclass Resource will always provide an *empty* list
         """
         return self.get("resources", [])
 
@@ -262,9 +262,7 @@ class AppInstance(Resource):
             raise ValueError(f"Unsupported type of container '{self.type}'")
         return search_nua(self.image)
 
-    def set_resources_names(
-        self,
-    ):
+    def set_resources_names(self):
         """Set first container names of resources to permit early host
         assignment to variables.
 

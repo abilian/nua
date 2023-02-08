@@ -33,7 +33,7 @@ def deploy_nua(app_name: str) -> int:
 
 
 def deploy_image(image_id: str, image_nua_config: dict):
-    # here will used core functions of the orchestrator
+    # here we will use core functions of the orchestrator
     # - see if image is already deployed
     # - see if image got specific deploy configuration
     # - build specifc config for nginx and others
