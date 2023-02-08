@@ -1,3 +1,6 @@
+from pathlib import Path
+
+import tomli
 from invoke import task
 
 SUB_REPOS = [
@@ -73,7 +76,7 @@ def fix(c):
 
 
 @task
-def run(c, cmd):
+def run(c, cmd: str):
     """Run given command in all subrepos."""
     run_in_subrepos(c, cmd)
 
@@ -83,6 +86,16 @@ def update(c):
     """Update dependencies the whole project."""
     c.run("poetry update")
     run_in_subrepos(c, "poetry update && poetry install")
+
+
+@task
+def bump_version(c, bump: str = "patch"):
+    """Update version - use 'patch' (default), 'minor' or 'major' as an argument."""
+
+    c.run(f"poetry version {bump}")
+    project_info = tomli.load(Path("pyproject.toml").open("rb"))
+    version = project_info["tool"]["poetry"]["version"]
+    run_in_subrepos(c, f"poetry version {version}")
 
 
 @task
