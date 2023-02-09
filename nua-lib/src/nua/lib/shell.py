@@ -120,17 +120,17 @@ def sh(
         if status < 0:
             msg = (
                 f"Child was terminated by signal {-status},\n"
-                f"shell command was: '{cmd}'\n"
+                f"shell command was: '{cmd}'"
             )
             abort(msg, status)
         elif status > 0:
             msg = (
                 f"Something went wrong (exit code: {status}), \n"
-                f"shell command was: '{cmd}'\n"
+                f"shell command was: '{cmd}'"
             )
             abort(msg, status)
     except OSError as e:
-        abort(f"Execution failed: {e}\nshell command was: '{cmd}'\n")
+        abort(f"Execution failed: {e}\nshell command was: '{cmd}'")
         # Not used, actually, but silences warnings.
         raise SystemExit(1)
     if capture_output:

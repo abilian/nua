@@ -190,9 +190,9 @@ class BuilderApp:
         # assuming it is a python script
         with install_build_packages(self.config.build_packages):
             env = dict(os.environ)
-            cmd = "python --version"
-            sh(cmd, env=env)
-
+            with verbosity(2):
+                cmd = "python --version"
+                sh(cmd, env=env)
             cmd = f"python {script_path}"
             sh(cmd, env=env, timeout=1800)
 

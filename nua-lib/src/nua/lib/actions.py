@@ -75,6 +75,7 @@ def install_build_packages(
     update: bool = True,
     keep_lists: bool = False,
 ):
+    success = True
     if isinstance(packages, str):
         packages = packages.strip().split()
     if packages:
@@ -83,14 +84,18 @@ def install_build_packages(
         _install_packages(packages, update)
     try:
         yield
+    except SystemExit:
+        success = False
+        raise
     finally:
-        if packages:
-            with verbosity(2):
-                show("remove temporary build packages")
-            _purge_packages(packages)
-        apt_final_clean()
-        if not keep_lists:
-            apt_remove_lists()
+        if success:
+            if packages:
+                with verbosity(2):
+                    show("remove temporary build packages")
+                _purge_packages(packages)
+            apt_final_clean()
+            if not keep_lists:
+                apt_remove_lists()
 
 
 def install_pip_packages(packages: list | str | None = None) -> bool:
@@ -391,7 +396,7 @@ def verify_checksum(target: Path, checksum: str) -> None:
     else:
         abort(
             f"Wrong checksum verification for file:\n{target}\n"
-            f"Computed sha256 sum: {file_hash}\nExpected result:       {checksum}"
+            f"Computed sha256 sum: {file_hash}\nExpected result:     {checksum}"
         )
 
 
