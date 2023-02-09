@@ -32,10 +32,10 @@ nua_test_services = "nua.orchestrator.service:test"
 [tool.poetry.dependencies]
 python = "^3.10"
 
-nua-lib = { path = "../nua-lib/", develop = false }
-nua-agent = { path = "../nua-agent/", develop = false }
-nua-build = { path = "../nua-build/", develop = false }
-nua-autobuild = { path = "../nua-autobuild/", develop = false }
+nua-lib = { path = "../nua-lib/", develop = true }
+nua-agent = { path = "../nua-agent/", develop = true }
+nua-build = { path = "../nua-build/", develop = true }
+nua-autobuild = { path = "../nua-autobuild/", develop = true }
 
 # Databases
 SQLAlchemy-serializer = "^1.4.1"
