@@ -290,7 +290,7 @@ class Resource(dict):
     def _nomalize_env_values(self):
         self.env = nomalize_env_values(self.env)
 
-    def _normalize_ports(self, default_proxy: str = "none"):
+    def _normalize_ports(self):
         if "port" not in self:
             self.port = {}
             return
@@ -300,7 +300,7 @@ class Resource(dict):
         for key in keys:
             self.port[key]["name"] = key
         self.port = list(self.port.values())
-        normalize_ports(self.port, default_proxy)
+        normalize_ports(self.port)
 
     def used_ports(self) -> set[int]:
         used = set()

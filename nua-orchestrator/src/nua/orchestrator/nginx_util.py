@@ -86,8 +86,7 @@ def _set_instances_proxy_port(host: dict):
     for site in host["apps"]:
         ports = site["port"]
         for port in ports.values():
-            proxy = port["proxy"]
-            if proxy == "auto":
+            if port["proxy"] == "auto":
                 site["host_use"] = port["host_use"]
                 break
 
@@ -106,8 +105,8 @@ def configure_nginx_hostname(host: dict):
                         'name': 'web'
                         'container': 80,
                         'host': 'auto',
-                        'host_use': 8100,},
-                        'proxy': 'auto'
+                        'host_use': 8100,
+                        'proxy': 'auto'},
                         ,
                         ]
                       }
