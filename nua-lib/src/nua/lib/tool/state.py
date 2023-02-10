@@ -1,5 +1,7 @@
 import os
 from contextlib import contextmanager
+from functools import cache
+from pathlib import Path
 
 STATE = {"verbose": 0, "colorize": True, "verbose_threshold": -1}
 
@@ -21,7 +23,7 @@ def set_color(flag: bool):
 
 
 def use_color() -> bool:
-    if "NO_COLOR" in os.environ:
+    if "NO_COLOR" in os.environ or is_inside_container():
         return False
     return bool(STATE["colorize"])  # noqa
 
@@ -38,3 +40,12 @@ def verbosity(level: int):
 
 def check_verbosity() -> bool:
     return STATE["verbose"] >= STATE["verbose_threshold"]
+
+
+@cache
+def is_inside_container() -> bool:
+    """Test if current execution environment is inside a container."""
+    try:
+        return Path("/nua/metadata/nua-config.json").is_file()
+    except PermissionError:
+        return False
