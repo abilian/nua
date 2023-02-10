@@ -5,7 +5,9 @@ Common interface for databases : MariaDB interface
 # pyright: reportOptionalMemberAccess=false
 import importlib
 import os
+from datetime import datetime, timezone
 from pathlib import Path
+from time import sleep, time
 
 from nua.lib.actions import python_package_installed
 from nua.lib.exec import exec_as_root
@@ -91,6 +93,24 @@ class MariaDbManager(DbManager):
         options = kwargs.get("options", "")
         cmd = f"mariadb-dump {dbname} {options}"
         exec_as_root(cmd)
+
+    def wait_for_db(self, timeout: int = 120):
+        """Wait for the DB beeing up."""
+        when = time()
+        limit = when + timeout
+        while time() < limit:
+            while time() < when:
+                sleep(0.1)
+            try:
+                self.root_connect()
+                now = datetime.now(timezone.utc).isoformat(" ")
+                print(f"{now} - Connection ok")
+                return
+            except mariadb.Error:
+                now = datetime.now(timezone.utc).isoformat(" ")
+                print(f"{now} - Connection failed")
+                when += 5.0
+        raise RuntimeError(f"DB not available after {timeout} seconds.")
 
     def user_drop(self, user: str) -> bool:
         """Drop user (wip, not enough)."""

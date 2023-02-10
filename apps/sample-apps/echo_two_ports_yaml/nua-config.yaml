@@ -19,10 +19,9 @@ build:
 port:
   web:
     container: 8765
-    host: auto
-    protocol: tcp
+    proxy: 8765
 ports:
   abcd:
     container: 8764
     host: 8764
-    protocol: tcp
+    proxy: 8764

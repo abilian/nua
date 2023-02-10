@@ -1,5 +1,5 @@
 [metadata]
-id = "echo-two-ports"
+id = "echo-two-ports-toml"
 version = "1.0"
 release = 2
 title = "Nua test server 2 ports - toml config"
@@ -15,10 +15,9 @@ test = "python -c 'import echo_two_ports'"
 
 [port.web]
 container = 8765
-host = "auto" # default
-protocol = "tcp" # default
+proxy = 8765
 
 [port.abcd]
 container = 8764
 host = 8764
-protocol = "tcp" # default
+proxy = 8764

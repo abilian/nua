@@ -1,7 +1,7 @@
 [metadata]
 id = "flask-mariadb-docker-wheel"
 version = "1.0"
-release = 3
+release = 4
 title = "Flask/MariaDB-docker test wheel"
 author = "Nua testers"
 tagline = "Nua test with Flask/MariaDB-docker"
@@ -10,29 +10,15 @@ tags = ["test", "html", "web", "MariaDB-docker"]
 license = "MIT"
 
 [build]
-# no need of build.py for this test, all should be
-meta-packages = ["mariadb-client"]
 pip-install = ["*.whl"]
 document-root = "/nua/app/html"
 test = "python -c 'import flask_mariadb_docker_wheel'"
 
-[[assign]]
-key = "MARIADB_ROOT_PASSWORD"
-random_str = true
-
-[[assign]]
-key = "USER_PASSWORD"
-# persistent is the default:
-persistent = true
-random_str = true
-
-
 [env]
-# using default port of mariadb (3306), directly addressing the mariadb docker
-# container.
-# DB_HOST for the resource "mariadb" will be found in the env variable NUA_MARIADB_HOST
-USER_DB = "flask_db"
-USER_NAME = "bob"
+DB_HOST = { from="database", key="hostname" }
+USER_DB = { from="database", key="MARIADB_DATABASE" }
+USER_NAME = { from="database", key="MARIADB_USER" }
+USER_PASSWORD = { from="database", key="MARIADB_PASSWORD" }
 
 [docker]
 restart_policy.name = "always"
@@ -40,9 +26,6 @@ restart_policy.name = "always"
 [port.web]
 # publication port of the app inside the container
 container = 80
-# Publication port on the localhost, that will be automatically generated and will
-# be used for configuration of the nginx proxy
-host = "auto"
 
 [[resource]]
 # A resource is another container required by the main app container, its
@@ -51,23 +34,8 @@ host = "auto"
 # with a hostname equal to the container name. The name of the resource hostname
 # is available in the environment variable NUA_${name_of_the_resource}_HOST, ie in
 # this example: NUA_MARIADB_HOST
-name = "mariadb"
+name = "database"
 # declaration of the required image for the resurce, here the official Mariadb
 # Docker image
-type = "docker"
-image = "docker.io/library/mariadb:10.6.10"
-
-[resource.docker]
-restart_policy.name = "always"
-
-[[resource.volume]]
-# here we declare a mounted volume (ie: managed by Docker daemon)
-
-# The mount type (bind / volume / tmpfs / npipe). Default: volume :
-type = "volume"
-# Name of the driver used to create the volume: (for type == "volume")
-driver = "local"
-# Mount source (e.g. a volume name or a host path):
-prefix = "mariadb_db"
-# Container path:
-target = "/var/lib/mysql"
+type = "mariadb"
+version = ">=10.6, <10.7"

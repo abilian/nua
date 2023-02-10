@@ -238,7 +238,7 @@ class AppInstance(Resource):
         for key in keys:
             config_ports[key]["name"] = key
         config_ports = list(config_ports.values())
-        normalize_ports(config_ports, default_proxy="auto")
+        normalize_ports(config_ports)
         ports = ports_as_dict(config_ports)
         with verbosity(4):
             vprint(f"rebase_ports_upon_nua_config(): ports={pformat(ports)}")

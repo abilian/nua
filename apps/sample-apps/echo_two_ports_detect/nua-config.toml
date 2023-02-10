@@ -1,8 +1,8 @@
 [metadata]
-id = "echo-two-ports"
+id = "echo-two-ports-detect"
 version = "1.0"
 release = 2
-title = "Nua test server 2 ports - toml config"
+title = "Nua test server 2 ports - toml config - detect project"
 author = "Jerome Dumonteil <jd@abilian.com>"
 tagline = "Nua test server 2 ports"
 website = "https://nua.rocks/"
@@ -15,8 +15,9 @@ license = "MIT"
 container = 8765
 host = "auto" # default
 protocol = "tcp" # default
+proxy = 8765
 
 [port.abcd]
 container = 8764
 host = 8764
-protocol = "tcp" # default
+proxy = 8764
