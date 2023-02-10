@@ -1,0 +1,22 @@
+[metadata]
+id = "echo-two-ports"
+version = "1.0"
+release = 2
+title = "Nua test server 2 ports - toml config"
+author = "Jerome Dumonteil <jd@abilian.com>"
+tagline = "Nua test server 2 ports"
+website = "https://nua.rocks/"
+tags = ["test", "html", "web", "static"]
+license = "MIT"
+
+[build]
+
+[port.web]
+container = 8765
+host = "auto" # default
+protocol = "tcp" # default
+
+[port.abcd]
+container = 8764
+host = 8764
+protocol = "tcp" # default
