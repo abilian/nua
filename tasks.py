@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import tomli
+from abilian_devtools.invoke import import_tasks
 from invoke import task
 
 SUB_REPOS = [
@@ -13,8 +14,11 @@ SUB_REPOS = [
 ]
 
 
+import_tasks(globals())
+
+
 #
-# Tasks
+# Subrepos tasks
 #
 @task
 def install(c):
@@ -88,6 +92,9 @@ def update(c):
     run_in_subrepos(c, "poetry update && poetry install")
 
 
+#
+# Other tasks
+#
 @task
 def bump_version(c, bump: str = "patch"):
     """Update version - use 'patch' (default), 'minor' or 'major' as an argument."""

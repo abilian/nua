@@ -4,9 +4,15 @@
 
 all: lint
 
+help:
+	inv help-make
+
+
 #
 # Setup
 #
+
+## Install development dependencies and pre-commit hook (env must be already activated)
 develop: install-deps activate-pre-commit configure-git
 
 install-deps:
@@ -26,8 +32,8 @@ configure-git:
 #
 # testing & checking
 #
-test-all: test
 
+## Run python tests
 test:
 	@echo "--> Running Python tests"
 	pytest --ff -x -p no:randomly
@@ -37,6 +43,8 @@ test:
 #
 # Linting
 #
+
+## Lint / check typing
 lint:
 	# first a quick ruff pass
 	ruff nua*/src/ nua*/tests/
@@ -47,6 +55,8 @@ lint:
 #
 # Formatting
 #
+
+## Format code
 format:
 	invoke format
 	# docformatter -i -r nua-*
@@ -59,6 +69,7 @@ format:
 #
 .PHONY: doc doc-html doc-pdf
 
+## Build documentation
 doc: doc-html doc-pdf
 
 doc-html:
@@ -74,6 +85,7 @@ doc-pdf:
 install:
 	poetry install
 
+## Clean up cruft
 clean:
 	invoke clean
 	find . -name __pycache__ -print0 | xargs -0 rm -rf
@@ -88,9 +100,11 @@ clean:
 		.pytest_cache .pytest .DS_Store  docs/_build docs/cache docs/tmp \
 		dist build pip-wheel-metadata junit-*.xml htmlcov coverage.xml
 
+## Clean up cruft and tox/nox virtialenvs
 tidy: clean
 	rm -rf .tox .nox */.nox */.tox
 
+## Update dependencies
 update-deps:
 	pip install -U pip setuptools wheel
 	poetry update
