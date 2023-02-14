@@ -22,5 +22,5 @@ def create_db(dbname, user):
 
 
 if __name__ == "__main__":
-    create_db("mybase", "titi")
+    create_db("mybase", "some_user")
     # sudo su - postgres -c 'psql -c "\l"'

@@ -151,6 +151,8 @@ def resource_property(
         else:
             value = str(attr)
     else:
+        warning("Resource environment:")
+        warning(str(resource.env))
         abort(f"Unknown property for: {requirement}")
     with verbosity(4):
         show(f"resource_property {source_name}:{property} ->")

@@ -28,12 +28,12 @@ SHORT_TIMEOUT = 300
 #
 # Builder for Python projects
 #
-def is_python_project(path: str | Path = "") -> bool:
+def is_python_source_project(path: str | Path = "") -> bool:
     root = Path(path).expanduser().resolve()
     deps_files = ("requirements.txt", "setup.py", "pyproject.toml")
     result = any((root / f).exists() for f in deps_files)
     with verbosity(2):
-        info("is_python_project:", result)
+        info("is_python_source_project():", result)
     return result
 
 
@@ -48,6 +48,14 @@ def build_python(path: str | Path = ""):
         sh("python -m pip install .", cwd=root)
     else:
         warning(f"No method found to build the python project in '{root}'")
+
+
+def is_python_wheel(path: str | Path = "") -> bool:
+    root = Path(path).expanduser().resolve()
+    result = bool(list(root.glob("*.whl")))
+    with verbosity(2):
+        info("is_python_wheel():", result)
+    return result
 
 
 #
@@ -477,11 +485,15 @@ def detect_and_install(directory: str | Path | None) -> None:
         path = Path(directory)
     else:
         path = Path(".")
+    path.resolve()
     with verbosity(2):
         info("Detect and install", path)
     with chdir(path):
-        if is_python_project():
+        if is_python_source_project():
             build_python()
+            return
+        if is_python_wheel():
+            pip_install(["*.whl"])
             return
         warning(f"Not a known project type in '{path}'")
 

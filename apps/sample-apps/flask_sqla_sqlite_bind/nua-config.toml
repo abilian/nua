@@ -1,7 +1,7 @@
 [metadata]
-id = "flask_sqla_sqlite_bind"
+id = "flask-sqla-sqlite-bind"
 version = "1.0"
-release = 3
+release = 4
 title = "Nua test with sqlalchemy, sqlite on bind volume"
 author = "Nua testers"
 tagline = "Nua test with sqlalchemy, sqlite on bind volume"
@@ -11,7 +11,6 @@ license = "MIT"
 
 [build]
 document-root = "/nua/app/html"
-project = "."
 test = "python -c 'import flask_sqla_sqlite_bind'"
 
 [env]

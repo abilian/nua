@@ -2,15 +2,15 @@
     "site": [
         {
             "domain": "test1.example.com",
-            "image": "flask_sqla_sqlite_bind",
-            "run_env": {
+            "image": "flask-sqla-sqlite-bind",
+            "env": {
                 "DB_NAME": "first_student_test.db"
             }
         },
         {
             "domain": "test2.example.com",
-            "image": "flask_sqla_sqlite_bind",
-            "run_env": {
+            "image": "flask-sqla-sqlite-bind",
+            "env": {
                 "DB_NAME": "another_student_test.db"
             }
         }

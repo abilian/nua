@@ -30,7 +30,9 @@ def warning(msg: str, explanation: str = ""):
 
 
 def _print(prefix: str, msg: str, explanation: str):
-    print_red(f"{prefix}: {msg.capitalize()}")
+    if msg:
+        msg = msg[0].upper() + msg[1:]
+    print_red(f"{prefix}: {msg}")
     if explanation:
         print_red(f"    {explanation}")
 

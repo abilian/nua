@@ -28,12 +28,13 @@ class Student(db.Model):
 
 
 def setup_db():
-    print(DB_FOLDER, DB_NAME)
+    print("setup_db:")
+    print("Directory:", DB_FOLDER, "file:", DB_NAME)
     db.create_all()
     if Student.query.count():
-        print("db found.")
+        print("Existing DB found.")
     else:
-        print("call populate_db()")
+        print("Create new content, call populate_db()")
         populate_db()
 
 

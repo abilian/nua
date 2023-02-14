@@ -2,7 +2,7 @@
     "site": [
         {
             "domain": "test.example.com",
-            "image": "flask-upload-bind-mount:1.0-3"
+            "image": "flask-upload-bind-mount"
         }
     ]
 }

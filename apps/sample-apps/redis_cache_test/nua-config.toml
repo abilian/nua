@@ -10,16 +10,11 @@ tags = ["test", "redis"]
 license = "MIT"
 
 [build]
-
 test = "python -c 'import redis_cache_test'"
 
-[[assign]]
-key = "REDIS_HOST"
-property = "database.hostname"
-
-[[assign]]
-key = "REDIS_PORT"
-property = "database.REDIS_PORT"
+[env]
+REDIS_HOST = { from="database", key="hostname" }
+REDIS_PORT = { from="database", key="REDIS_PORT" }
 
 [port.web]
 container = 5000

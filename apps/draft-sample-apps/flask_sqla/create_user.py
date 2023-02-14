@@ -3,24 +3,6 @@
 import psycopg2
 from psycopg2 import sql
 
-#
-# user = "bob"
-# dbname = "mybase"
-# passwd = "azerty"
-# #
-# con = psycopg2.connect(dbname=dbname, user=user, host="127.0.0.1", password=passwd)
-# con.autocommit = True
-#
-# cur = con.cursor()
-#
-
-# cur.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(dbname)))
-# sudo su - postgres
-# psql postgres postgres
-# ALTER USER postgres PASSWORD 'the_pass';
-# \q
-# psql -h localhost postgres postgres
-
 
 def prompt_username(con):
     cur = con.cursor()

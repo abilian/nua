@@ -1,11 +1,11 @@
-from pytest import fixture
+import pytest
 from typer.testing import CliRunner
 
 from nua.orchestrator import __version__
 from nua.orchestrator.cli.main import app
 
 
-@fixture()
+@pytest.fixture()
 def runner():
     return CliRunner()
 

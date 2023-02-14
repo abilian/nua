@@ -29,13 +29,13 @@ def test_python_package_installed():
 def test_actions_pyproject_true():
     folder = Path(__file__).parent.parent
 
-    assert actions.is_python_project(folder)
+    assert actions.is_python_source_project(folder)
 
 
 def test_actions_pyproject_false():
     folder = Path(__file__).parent
 
-    assert not actions.is_python_project(folder)
+    assert not actions.is_python_source_project(folder)
 
 
 def test_check_python_version():

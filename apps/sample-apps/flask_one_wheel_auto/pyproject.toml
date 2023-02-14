@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "flask_pg_dock_psyco"
+name = "flask_one_wheel"
 version = "0.1.0"
-description = "Flask test with postgres docker image"
+description = "Nua test flask one wheel"
 authors = ["Jerome Dumonteil <jd@abilian.com>"]
 license = "MIT"
 
@@ -9,9 +9,6 @@ license = "MIT"
 python = "^3.10"
 gunicorn = "^20.1.0"
 Flask = "^2.1.3"
-Flask-WTF = "^1.0"
-Jinja2 = "^3.1.2"
-psycopg2-binary = "^2.9.3"
 
 [tool.poetry.dev-dependencies]
 
