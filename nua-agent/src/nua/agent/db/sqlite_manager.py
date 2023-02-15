@@ -28,7 +28,7 @@ class SQLiteManager(DbManager):
             return
         Path(dbname).unlink()
 
-    def db_dump(self, dbname: str, **kwargs: str):
+    def db_dump(self, dbname: str, **kwargs: str) -> bool:
         if not self.db_exist(dbname):
             return False
         dest_file = kwargs.get("output")

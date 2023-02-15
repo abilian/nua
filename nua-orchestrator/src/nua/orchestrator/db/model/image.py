@@ -27,5 +27,5 @@ class Image(Base, SerializerMixin):
     created = Column(String(40))
     size = Column(Integer)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Image(sha={self.id_sha[7:13]}, tag={self.nua_tag}"

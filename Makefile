@@ -100,7 +100,7 @@ clean:
 		.pytest_cache .pytest .DS_Store  docs/_build docs/cache docs/tmp \
 		dist build pip-wheel-metadata junit-*.xml htmlcov coverage.xml
 
-## Clean up cruft and tox/nox virtialenvs
+## Clean up cruft and tox/nox virtualenvs
 tidy: clean
 	rm -rf .tox .nox */.nox */.tox
 

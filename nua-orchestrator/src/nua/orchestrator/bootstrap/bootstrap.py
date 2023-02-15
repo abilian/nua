@@ -65,7 +65,7 @@ def main():
     bash_as_nua(cmd)
 
 
-def detect_myself():
+def detect_myself() -> str:
     venv = os.environ.get("VIRTUAL_ENV")
     if venv:
         return f"- Possible command:\n    sudo {Path(venv)/'bin'/'nua-bootstrap'}"
@@ -181,14 +181,18 @@ def install_local_orchestrator():
     url = nua_env.get_value("NUA_GIT_URL")
     if not url:
         url = "https://github.com/abilian/nua.git"
+
     gits = nua_env.nua_home_path() / "gits"
     os.chdir(gits)
     rm_fr(gits / "nua")
+
     cmd = f"git clone -o github {url}"
     mp_exec_as_nua(cmd)
+
     cwd = gits / "nua" / "nua-orchestrator"
-    cmd = "./build.sh"
+    cmd = "poetry install --sync"
     bash_as_nua(cmd, cwd)
+
     cmd = "nua-orchestrator status"
     bash_as_nua(cmd)
 

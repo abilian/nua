@@ -61,7 +61,7 @@ class DeployConfig(Base, SerializerMixin):
     modified = Column(String(40))
     deployed = Column(JSON)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"DeployConfig(state={self.state}, "
             f"id={self.id}), previous={self.iprevious}),"

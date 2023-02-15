@@ -9,7 +9,7 @@ class DeepAccessDict:
     def __len__(self):
         return len(self._dic)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"DeepAccessDict({pformat(self._dic)})"
 
     def __str__(self):

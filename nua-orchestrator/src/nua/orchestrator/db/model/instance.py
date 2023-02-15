@@ -84,5 +84,5 @@ class Instance(Base, SerializerMixin):
     site_config = Column(JSON)
     #  broken for sqlite: instance = index_property("data", "instance", default="")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Instance(app_id={self.app_id}, container='{self.container}', tag={self.nua_tag})"

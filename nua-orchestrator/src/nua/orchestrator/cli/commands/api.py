@@ -53,7 +53,7 @@ class API:
         result = deployer.backup_apps()
         return result
 
-    def deploy(self, deploy_config: dict):
+    def deploy(self, deploy_config: dict) -> str:
         deployer = AppDeployment()
         deployer.local_services_inventory()
         # Not using the deployer method, need refactoring
@@ -71,5 +71,5 @@ class API:
         deployer.parse_deploy_apps()
         deployer.sort_apps_per_domain()
 
-    def ping(self):
+    def ping(self) -> str:
         return "pong"

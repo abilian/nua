@@ -35,5 +35,5 @@ class Setting(Base, SerializerMixin):
     data = Column(JSON)
     #  broken for sqlite: instance = index_property("data", "instance", default="")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Setting(app_id={self.app_id}, instance='{self.instance}', tag={self.nua_tag})"
