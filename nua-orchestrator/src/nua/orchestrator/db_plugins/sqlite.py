@@ -23,7 +23,6 @@ def configure_db(resource: Resource):
         "SQLITE_SOURCE": sqlite_volume["source"],
         "SQLITE_DB": {"unique_db": True, "persist": True},
     }
-    resource.assign_priority = 0
 
 
 def _make_volume(resource: Resource) -> dict:

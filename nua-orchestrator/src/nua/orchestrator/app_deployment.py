@@ -39,6 +39,7 @@ from .nginx_util import (
     nginx_restart,
 )
 from .resource import Resource
+from .resource_deps import ResourceDeps
 from .services import Services
 from .utils import parse_any_format
 from .volume import Volume
@@ -566,29 +567,25 @@ class AppDeployment:
             site.rebase_ports_upon_nua_config()
 
     def evaluate_container_params(self, site: AppInstance):
-        """Compute site run envronment parameters except those requiring late
+        """Compute site run environment parameters except those requiring late
         evaluation (i.e. host names of started containers).
 
         Order of evaluations for Variables:
         - main AppInstance variable assignment (including hostname of resources)
-        - Resource assignement (they have access to site ENV)
         - late evaluation (hostnames)
+        And check for circular dependencies of resources.
         """
-        env = {}
+        resource_deps = ResourceDeps()
         for resource in site.resources:
-            if (not resource.is_assignable()) or (
-                resource.is_assignable()
-                and resource.assign_priority < site.assign_priority
-            ):
-                self.generate_resource_container_run_parameters(site, resource, env)
-        self.generate_app_container_run_parameters(site)
-        env = site.run_params["environment"]
-        for resource in site.resources:
-            if (
-                resource.is_assignable()
-                and resource.assign_priority >= site.assign_priority
-            ):
-                self.generate_resource_container_run_parameters(site, resource, env)
+            resource_deps.add_resource(resource)
+        resource_deps.add_resource(site)
+        ordered_resources = resource_deps.solve()
+
+        for resource in ordered_resources:
+            if resource == site:
+                self.generate_app_container_run_parameters(site)
+            else:
+                self.generate_resource_container_run_parameters(site, resource)
 
     def apps_retrieve_persistent(self):
         for site in self.apps:
@@ -671,7 +668,9 @@ class AppDeployment:
         site.run_params = run_params
 
     def generate_resource_container_run_parameters(
-        self, site: AppInstance, resource: Resource, site_env: dict
+        self,
+        site: AppInstance,
+        resource: Resource,
     ):
         """Return suitable parameters for the docker.run() command (for
         Resource).
@@ -688,7 +687,7 @@ class AppDeployment:
         run_params["name"] = resource.container_name
         run_params["ports"] = resource.ports_as_docker_params()
         run_params["environment"] = self.run_parameters_resource_environment(
-            site, resource, site_env
+            site, resource
         )
         if resource.healthcheck:
             run_params["healthcheck"] = HealthCheck(
@@ -721,14 +720,11 @@ class AppDeployment:
         self,
         site: AppInstance,
         resource: Resource,
-        site_env: dict,
     ) -> dict:
         """Return a dict with all environment parameters for a resource
         container (a Resource container)."""
-        # late resource has access to environment of main container:
-        run_env = deepcopy(site_env)
-        # update with result of "assign" dynamic evaluations :
         # variables declared in env can replace any other source:
+        run_env = {}
         run_env.update(resource.env)
         run_env.update(
             instance_key_evaluator(site, resource=resource, late_evaluation=False)

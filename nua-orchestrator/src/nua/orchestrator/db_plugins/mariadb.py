@@ -41,7 +41,6 @@ def configure_db(resource: Resource):
             }
         )
     resource.env = env
-    resource.assign_priority = 0
 
 
 def _make_volume(resource: Resource) -> dict:

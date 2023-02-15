@@ -27,7 +27,6 @@ def configure_db(resource: Resource):
     # resource.assign = [
     #     {"key": "REDIS_PASSWORD", "random_str": True, "persist": True},
     # ]
-    resource.assign_priority = 0
 
 
 # def setup_db(resource: Resource):

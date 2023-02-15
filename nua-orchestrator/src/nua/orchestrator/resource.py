@@ -97,14 +97,6 @@ class Resource(dict):
         self["service"] = service
 
     @property
-    def assign_priority(self) -> int:
-        return hyphen_get(self, "assign_priority", 10)
-
-    @assign_priority.setter
-    def assign_priority(self, assign_priority: int):
-        self["assign_priority"] = assign_priority
-
-    @property
     def domain(self) -> str:
         return self.get("domain", "")
 

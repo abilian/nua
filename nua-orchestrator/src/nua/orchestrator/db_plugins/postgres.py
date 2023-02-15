@@ -32,7 +32,6 @@ def configure_db(resource: Resource):
         "POSTGRES_USER": {"unique_user": True, "persist": True},
         "POSTGRES_DB": {"unique_db": True, "persist": True},
     }
-    resource.assign_priority = 0
 
 
 def _make_volume(resource: Resource) -> dict:
