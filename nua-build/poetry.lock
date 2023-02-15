@@ -2,14 +2,14 @@
 
 [[package]]
 name = "abilian-devtools"
-version = "0.4.4"
+version = "0.4.8"
 description = "A curated set of dependencies for quality software development"
 category = "dev"
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
-    {file = "abilian_devtools-0.4.4-py3-none-any.whl", hash = "sha256:369ae65abd72b5ace73dfdf57e1aa898522cc42d17629826e37f326d3a4feaf9"},
-    {file = "abilian_devtools-0.4.4.tar.gz", hash = "sha256:2ac72f322c6fbdde76cfe459c12d984e885cdde6a47723c4b58bbf9906a4cf46"},
+    {file = "abilian_devtools-0.4.8-py3-none-any.whl", hash = "sha256:2a3701a1d53e1a1187100a2005f4fa7d8709b25cfd1ed14164e54742fb18eaaa"},
+    {file = "abilian_devtools-0.4.8.tar.gz", hash = "sha256:b79e42061abdc4db5ce87371ad13630f4a50cb5c4d29490e8eb9406ab012ef5b"},
 ]
 
 [package.dependencies]
@@ -36,6 +36,7 @@ flake8-super = "*"
 flake8-super-call = "*"
 flake8-tidy-imports = "*"
 flake8-tuple = "*"
+invoke = ">=2.0.0,<3.0.0"
 isort = "*"
 mypy = "*"
 nox = "*"
@@ -51,6 +52,7 @@ pytest-xdist = "*"
 reuse = "*"
 ruff = "*"
 safety = "*"
+tomlkit = ">=0.11.6,<0.12.0"
 typer = "*"
 vulture = "*"
 
@@ -1038,14 +1040,14 @@ flake8 = "*"
 
 [[package]]
 name = "flake8-pytest-style"
-version = "1.6.0"
+version = "1.7.2"
 description = "A flake8 plugin checking common style issues or inconsistencies with pytest-based tests."
 category = "dev"
 optional = false
-python-versions = ">=3.6.2,<4.0.0"
+python-versions = ">=3.7.2,<4.0.0"
 files = [
-    {file = "flake8-pytest-style-1.6.0.tar.gz", hash = "sha256:c1175713e9e11b78cd1a035ed0bca0d1e41d09c4af329a952750b61d4194ddac"},
-    {file = "flake8_pytest_style-1.6.0-py3-none-any.whl", hash = "sha256:5fedb371a950e9fe0e0e6bfc854be7d99151271208f34cd2cc517681ece27780"},
+    {file = "flake8_pytest_style-1.7.2-py3-none-any.whl", hash = "sha256:f5d2aa3219163a052dd92226589d45fab8ea027a3269922f0c4029f548ea5cd1"},
+    {file = "flake8_pytest_style-1.7.2.tar.gz", hash = "sha256:b924197c99b951315949920b0e5547f34900b1844348432e67a44ab191582109"},
 ]
 
 [package.dependencies]
@@ -1166,14 +1168,14 @@ lxml = ["lxml"]
 
 [[package]]
 name = "identify"
-version = "2.5.17"
+version = "2.5.18"
 description = "File identification library for Python"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "identify-2.5.17-py2.py3-none-any.whl", hash = "sha256:7d526dd1283555aafcc91539acc061d8f6f59adb0a7bba462735b0a318bff7ed"},
-    {file = "identify-2.5.17.tar.gz", hash = "sha256:93cc61a861052de9d4c541a7acb7e3dcc9c11b398a2144f6e52ae5285f5f4f06"},
+    {file = "identify-2.5.18-py2.py3-none-any.whl", hash = "sha256:93aac7ecf2f6abf879b8f29a8002d3c6de7086b8c28d88e1ad15045a15ab63f9"},
+    {file = "identify-2.5.18.tar.gz", hash = "sha256:89e144fa560cc4cffb6ef2ab5e9fb18ed9f9b3cb054384bab4b95c12f6c309fe"},
 ]
 
 [package.extras]
@@ -1201,6 +1203,18 @@ python-versions = ">=3.7"
 files = [
     {file = "iniconfig-2.0.0-py3-none-any.whl", hash = "sha256:b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374"},
     {file = "iniconfig-2.0.0.tar.gz", hash = "sha256:2d91e135bf72d31a410b17c16da610a82cb55f6b0477d1a902134b24a455b8b3"},
+]
+
+[[package]]
+name = "invoke"
+version = "2.0.0"
+description = "Pythonic task execution"
+category = "dev"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "invoke-2.0.0-py3-none-any.whl", hash = "sha256:a860582bcf7a4b336fe18ef53937f0f28cec1c0053ffa767c2fcf7ba0b850f59"},
+    {file = "invoke-2.0.0.tar.gz", hash = "sha256:7ab5dd9cd76b787d560a78b1a9810d252367ab595985c50612702be21d671dd7"},
 ]
 
 [[package]]
@@ -1518,7 +1532,7 @@ tox-to-nox = ["jinja2", "tox"]
 
 [[package]]
 name = "nua-agent"
-version = "0.4.88"
+version = "0.4.90"
 description = "Nua agent"
 category = "main"
 optional = false
@@ -1539,7 +1553,7 @@ url = "../nua-agent"
 
 [[package]]
 name = "nua-autobuild"
-version = "0.4.88"
+version = "0.4.90"
 description = "Nua self builder"
 category = "main"
 optional = false
@@ -1563,7 +1577,7 @@ url = "../nua-autobuild"
 
 [[package]]
 name = "nua-lib"
-version = "0.4.88"
+version = "0.4.90"
 description = "Nua common library"
 category = "main"
 optional = false
@@ -1887,14 +1901,14 @@ diagrams = ["jinja2", "railroad-diagrams"]
 
 [[package]]
 name = "pyright"
-version = "1.1.293"
+version = "1.1.294"
 description = "Command line wrapper for pyright"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pyright-1.1.293-py3-none-any.whl", hash = "sha256:afc05309e775a9869c864da4e8c0c7a3e3be9d8fe202e780c3bae981bbb13936"},
-    {file = "pyright-1.1.293.tar.gz", hash = "sha256:9397fdfcbc684fe5b87abbf9c27f540fe3b8d75999a5f187519cae1d065be38c"},
+    {file = "pyright-1.1.294-py3-none-any.whl", hash = "sha256:5b27e28a1cfc60cea707fd3b644769fa6dd0b194481cdcc2399cf2a51cc5a846"},
+    {file = "pyright-1.1.294.tar.gz", hash = "sha256:fea5fed3d6a3f02259e622c901e86a7b8bcf237d35e1cdfe01d0e0723768dcb6"},
 ]
 
 [package.dependencies]
@@ -2114,14 +2128,14 @@ test = ["commentjson", "packaging", "pytest"]
 
 [[package]]
 name = "reuse"
-version = "1.1.1"
+version = "1.1.2"
 description = "reuse is a tool for compliance with the REUSE recommendations."
 category = "dev"
 optional = false
 python-versions = ">=3.6.2,<4.0.0"
 files = [
-    {file = "reuse-1.1.1-cp311-cp311-manylinux_2_36_x86_64.whl", hash = "sha256:160199707d6e7ac89ecbd60f22eb653d9ba1d6172f72876ee1cdabba319dca50"},
-    {file = "reuse-1.1.1.tar.gz", hash = "sha256:10fa62c52f6b4a913623bf01aa47e104482ef461fe19d4c3e7483e3a2a0bee40"},
+    {file = "reuse-1.1.2-cp311-cp311-manylinux_2_36_x86_64.whl", hash = "sha256:d3cf6981e9b2855845a0cf323526fd1cde94a640ea1d8dce22d4156788b282bc"},
+    {file = "reuse-1.1.2.tar.gz", hash = "sha256:80eb6e5ab5f73c784b5a9153e61a282045f6f9292124e1b55d4a7265dbad4246"},
 ]
 
 [package.dependencies]
@@ -2216,28 +2230,28 @@ files = [
 
 [[package]]
 name = "ruff"
-version = "0.0.243"
+version = "0.0.246"
 description = "An extremely fast Python linter, written in Rust."
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "ruff-0.0.243-py3-none-macosx_10_7_x86_64.whl", hash = "sha256:242571d79d3d7a1e441e88b0cf2814b24bfc4e3a073e5d82df81aa52ad829e4c"},
-    {file = "ruff-0.0.243-py3-none-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:4fd0ef0dddd7ccce6457cca556baf51504c11f7deaaa5944a47c5e0c6c3b1425"},
-    {file = "ruff-0.0.243-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:a9e2e6632e2d07e6e7257a44592e0fade0d5df23004a3b180efd0d3bbb581a09"},
-    {file = "ruff-0.0.243-py3-none-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:9a70c7810453f6c5120887fc22fcbcf8a4987e767f45270a9aad5e6e9b0a26ff"},
-    {file = "ruff-0.0.243-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:0cb8ef4a5cbb219ed344286b07795c0b88f277bc860207e0a6bce0fd8e4c5f8e"},
-    {file = "ruff-0.0.243-py3-none-manylinux_2_17_ppc64.manylinux2014_ppc64.whl", hash = "sha256:f75c11940cc6b374ba070b5dc154c85c2b8753d03cbb53f182438404bae52d31"},
-    {file = "ruff-0.0.243-py3-none-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:919075726724d62b60caedd286317ca0c77cb67ba4291b9067feafdac2506872"},
-    {file = "ruff-0.0.243-py3-none-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:a0f5bdb14a2a2f9a63f6f0979fb0501e426e2bd8e6499ade41e1311b379a4d92"},
-    {file = "ruff-0.0.243-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b8ffdbf62d72db5ab5d3b51abe5b4dfb53cf3f330af7f57e0101f36ff7176449"},
-    {file = "ruff-0.0.243-py3-none-musllinux_1_2_aarch64.whl", hash = "sha256:081b70f1dd2d16d9f60079cf95215d9095ca16032c02118cfc88b0b53e406b9c"},
-    {file = "ruff-0.0.243-py3-none-musllinux_1_2_armv7l.whl", hash = "sha256:d8f1d26c0a3b51a4b5c493c29536112c61ec6ff7a66c5b673b2af37b7859d6f1"},
-    {file = "ruff-0.0.243-py3-none-musllinux_1_2_i686.whl", hash = "sha256:5f432e745f6b38e2a643ae9c05ae30345196a435a23d844b61a50d1808acba82"},
-    {file = "ruff-0.0.243-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:f38b6b6470b468271e283ecc7bc169465b3f3cdb6df199abe69aff0c3c17c756"},
-    {file = "ruff-0.0.243-py3-none-win32.whl", hash = "sha256:2707e2c32ace855afad3e06bddf2280d1fc15e303dea2de3ccd0e308a5b395ae"},
-    {file = "ruff-0.0.243-py3-none-win_amd64.whl", hash = "sha256:be44aff098fd424b9a9218eedef80d7125222ea86c3cd62e15f6f587455c99f3"},
-    {file = "ruff-0.0.243.tar.gz", hash = "sha256:d5847e75038b51801f45b31a93c3526114d3aac59acea3493bb06ebc7783b004"},
+    {file = "ruff-0.0.246-py3-none-macosx_10_7_x86_64.whl", hash = "sha256:2474a805c4244cfaf0390a745a0c5ea9e5452f52fbce0be74930fece8bd40b90"},
+    {file = "ruff-0.0.246-py3-none-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:5839a213a90220845693c95d7e6a19ab26751b9e37047ef8f4a58dc49230c817"},
+    {file = "ruff-0.0.246-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:589aff453085cad28b8d1f517161a6b37a6d359cda419f64c009e0f7ff424d72"},
+    {file = "ruff-0.0.246-py3-none-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:529a7d72f48331b97367cd6d42273f3cafa764d9373e74b75561367135958546"},
+    {file = "ruff-0.0.246-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:ca7d1ee44144460ae119a6212aaff77a671a5729d543b981c786c052011cdfe3"},
+    {file = "ruff-0.0.246-py3-none-manylinux_2_17_ppc64.manylinux2014_ppc64.whl", hash = "sha256:ebe6052bc87ee51d84af231ccd27e5338fdc30d8bf49e51bdcfceb44c51c5625"},
+    {file = "ruff-0.0.246-py3-none-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:8173a00766b88b47431e8e744f577d06c6c52c0e18181ac29a701a9d5c035b39"},
+    {file = "ruff-0.0.246-py3-none-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:45cde6f9df94fb393ffeeada2daca279569b9d53d1d95d49b9b5b418fe70bd23"},
+    {file = "ruff-0.0.246-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:468f282e26d1845f4a06dcd76fdc355f4288208e6b97f061951a7ffd6725102e"},
+    {file = "ruff-0.0.246-py3-none-musllinux_1_2_aarch64.whl", hash = "sha256:67d5fa9abdcb764a7cee242fb65e303662c9cb80104a2dd0657e96fca8a7c6d8"},
+    {file = "ruff-0.0.246-py3-none-musllinux_1_2_armv7l.whl", hash = "sha256:64af553f8ff4d1f51a24104ac8f81b5ce6df9c230d776fa4dd22db96699efdb0"},
+    {file = "ruff-0.0.246-py3-none-musllinux_1_2_i686.whl", hash = "sha256:734ff8fef2e7105cf6946e525b3e8cbed035edc9d58c4f47aac7205dbd1e55c0"},
+    {file = "ruff-0.0.246-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:449e6632c13902df06ac14ccfc7bad71841ab90bfa64e8cb3f1a2ea91e647df0"},
+    {file = "ruff-0.0.246-py3-none-win32.whl", hash = "sha256:f6004332134580f0ede29d86a9a16102ba07c25799e0ab9683359216a419366b"},
+    {file = "ruff-0.0.246-py3-none-win_amd64.whl", hash = "sha256:dd4f58b9295615ebb01563a38a5594fcb4664bb6106b2ccd00b90c0f1d14cf8c"},
+    {file = "ruff-0.0.246.tar.gz", hash = "sha256:f8403e31e64b15c9b3e2745b0400e2f43eea81493ae0fa85e275ed0800a89c19"},
 ]
 
 [[package]]
@@ -2266,14 +2280,14 @@ gitlab = ["python-gitlab (>=1.3.0)"]
 
 [[package]]
 name = "setuptools"
-version = "67.2.0"
+version = "67.3.2"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "setuptools-67.2.0-py3-none-any.whl", hash = "sha256:16ccf598aab3b506593c17378473978908a2734d7336755a8769b480906bec1c"},
-    {file = "setuptools-67.2.0.tar.gz", hash = "sha256:b440ee5f7e607bb8c9de15259dba2583dd41a38879a7abc1d43a71c59524da48"},
+    {file = "setuptools-67.3.2-py3-none-any.whl", hash = "sha256:bb6d8e508de562768f2027902929f8523932fcd1fb784e6d573d2cafac995a48"},
+    {file = "setuptools-67.3.2.tar.gz", hash = "sha256:95f00380ef2ffa41d9bba85d95b27689d923c93dfbafed4aecd7cf988a25e012"},
 ]
 
 [package.extras]
@@ -2346,14 +2360,14 @@ develop = ["sphinx"]
 
 [[package]]
 name = "stevedore"
-version = "4.1.1"
+version = "5.0.0"
 description = "Manage dynamic plugins for Python applications"
 category = "dev"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "stevedore-4.1.1-py3-none-any.whl", hash = "sha256:aa6436565c069b2946fe4ebff07f5041e0c8bf18c7376dd29edf80cf7d524e4e"},
-    {file = "stevedore-4.1.1.tar.gz", hash = "sha256:7f8aeb6e3f90f96832c301bff21a7eb5eefbe894c88c506483d355565d88cc1a"},
+    {file = "stevedore-5.0.0-py3-none-any.whl", hash = "sha256:bd5a71ff5e5e5f5ea983880e4a1dd1bb47f8feebbb3d95b592398e2f02194771"},
+    {file = "stevedore-5.0.0.tar.gz", hash = "sha256:2c428d2338976279e8eb2196f7a94910960d9f7ba2f41f3988511e95ca447021"},
 ]
 
 [package.dependencies]
@@ -2396,6 +2410,18 @@ files = [
 ]
 
 [[package]]
+name = "tomlkit"
+version = "0.11.6"
+description = "Style preserving TOML library"
+category = "dev"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "tomlkit-0.11.6-py3-none-any.whl", hash = "sha256:07de26b0d8cfc18f871aec595fda24d95b08fef89d147caa861939f37230bf4b"},
+    {file = "tomlkit-0.11.6.tar.gz", hash = "sha256:71b952e5721688937fb02cf9d354dbcf0785066149d2855e44531ebdd2b65d73"},
+]
+
+[[package]]
 name = "typer"
 version = "0.7.0"
 description = "Typer, build great CLIs. Easy to code. Based on Python type hints."
@@ -2421,38 +2447,38 @@ test = ["black (>=22.3.0,<23.0.0)", "coverage (>=6.2,<7.0)", "isort (>=5.0.6,<6.
 
 [[package]]
 name = "types-docutils"
-version = "0.19.1.3"
+version = "0.19.1.4"
 description = "Typing stubs for docutils"
 category = "dev"
 optional = false
 python-versions = "*"
 files = [
-    {file = "types-docutils-0.19.1.3.tar.gz", hash = "sha256:36fe30de56f1ece1a9f7a990d47daa781b5af831d2b3f2dcb7dfd01b857cc3d4"},
-    {file = "types_docutils-0.19.1.3-py3-none-any.whl", hash = "sha256:d608e6b91ccf0e8e01c586a0af5b0e0462382d3be65b734af82d40c9d010735d"},
+    {file = "types-docutils-0.19.1.4.tar.gz", hash = "sha256:1b64b21b609ff1fc7791d3d930f14b56b36ad09029fd97e45e34cc889d671b5f"},
+    {file = "types_docutils-0.19.1.4-py3-none-any.whl", hash = "sha256:870d71f3663141f67a3c59d26d2c54a8c478c842208bb0b345fbf6036f49f561"},
 ]
 
 [[package]]
 name = "types-pyyaml"
-version = "6.0.12.4"
+version = "6.0.12.6"
 description = "Typing stubs for PyYAML"
 category = "dev"
 optional = false
 python-versions = "*"
 files = [
-    {file = "types-PyYAML-6.0.12.4.tar.gz", hash = "sha256:ade6e328a5a3df816c47c912c2e1e946ae2bace90744aa73111ee6834b03a314"},
-    {file = "types_PyYAML-6.0.12.4-py3-none-any.whl", hash = "sha256:de3bacfc4e0772d9b1baf007c37354f3c34c8952e90307d5155b6de0fc183a67"},
+    {file = "types-PyYAML-6.0.12.6.tar.gz", hash = "sha256:24e76b938d58e68645271eeb149af6022d1da99788e481f959bd284b164f39a1"},
+    {file = "types_PyYAML-6.0.12.6-py3-none-any.whl", hash = "sha256:77b74d0874482f2b42dd566b7277b0a220068595e0fb42689d0c0560f3d1ae9e"},
 ]
 
 [[package]]
 name = "types-setuptools"
-version = "67.2.0.0"
+version = "67.3.0.1"
 description = "Typing stubs for setuptools"
 category = "dev"
 optional = false
 python-versions = "*"
 files = [
-    {file = "types-setuptools-67.2.0.0.tar.gz", hash = "sha256:d64d467979baaa8261874bbcf8ea9d656c4ccbab315013af8ddb8a1dc18d353f"},
-    {file = "types_setuptools-67.2.0.0-py3-none-any.whl", hash = "sha256:91b1fd18fc3b583a917c073e7483cec43b4f3aa5d5a5a13a0e457f66562cb32a"},
+    {file = "types-setuptools-67.3.0.1.tar.gz", hash = "sha256:1a26d373036c720e566823b6edd664a2db4d138b6eeba856721ec1254203474f"},
+    {file = "types_setuptools-67.3.0.1-py3-none-any.whl", hash = "sha256:a7e0f0816b5b449f5bcdc0efa43da91ff81dbe6941f293a6490d68a450e130a1"},
 ]
 
 [package.dependencies]
@@ -2460,14 +2486,14 @@ types-docutils = "*"
 
 [[package]]
 name = "typing-extensions"
-version = "4.4.0"
+version = "4.5.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "typing_extensions-4.4.0-py3-none-any.whl", hash = "sha256:16fa4864408f655d35ec496218b85f79b3437c829e93320c7c9215ccfd92489e"},
-    {file = "typing_extensions-4.4.0.tar.gz", hash = "sha256:1511434bb92bf8dd198c12b1cc812e800d4181cfcb867674e0f8279cc93087aa"},
+    {file = "typing_extensions-4.5.0-py3-none-any.whl", hash = "sha256:fb33085c39dd998ac16d1431ebc293a8b3eedd00fd4a32de0ff79002c19511b4"},
+    {file = "typing_extensions-4.5.0.tar.gz", hash = "sha256:5cb5f4a79139d699607b3ef622a1dedafa84e115ab0024e0d9c044a9479ca7cb"},
 ]
 
 [[package]]
