@@ -5,7 +5,7 @@ from copy import deepcopy
 from pprint import pformat
 from typing import Any
 
-from nua.agent.nua_config import hyphen_get, nomalize_env_values
+from nua.agent.nua_config import nomalize_env_values
 from nua.lib.panic import abort, vprint, vprint_green, warning
 from nua.lib.tool.state import verbosity
 
