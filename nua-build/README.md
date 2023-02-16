@@ -59,7 +59,7 @@ Some other base images are available to facilitate builds in other programming e
 
     - `shell`: shell shortcuts (mostly wrappers above `subprocess` and `shutil`)
     - `exec`: shortcuts to execute sub commands like `exec_as_root()`, `exec_as_root()`
-    - `action`: higher level commands, related to the installation of packages and dependencies (wrappers above `apt`, `pip`, ...)
+    - `actions`: higher level commands, related to the installation of packages and dependencies (wrappers above `apt`, `pip`, ...)
 
 - `nua-agent`: agent for Nua apps. It provides:
 

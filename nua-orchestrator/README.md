@@ -34,7 +34,7 @@ At the moment, that implies a first temporary installation of Nua (that can be d
 That command will do many things:
 
 - create nua account
-- install required packaes (Docker, postgres, Nginx, ...)
+- install required packages (Docker, postgres, Nginx, ...)
 - apply default configuration to the host
 - ...
 

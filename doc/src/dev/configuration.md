@@ -16,10 +16,10 @@ The `nua-config.toml` file starts with a block of metadata that describes the ap
 
 ```toml
 [metadata]
-id = "hedgedoc
-version = "1.9.6
+id = "hedgedoc"
+version = "1.9.6"
 release = 13
-title = "Hedgedoc
+title = "Hedgedoc"
 author = "Hedgedoc developers"
 tagline = "The best platform to write and share markdown"
 website = "https://hedgedoc.org/"
@@ -41,7 +41,7 @@ The `build` section specifies the environment and, if applicable, the specific a
 
 ```toml
 [build]
-builder = "node-14
+builder = "node-14"
 run-packages = [
     "fontconfig",
     "fonts-noto"
@@ -60,7 +60,7 @@ test = "test -f /nua/build/hedgedoc/healthcheck.mjs"
 
 The declarations in the _build_ section rely as much as possible on declarative mode, auto-detection and default files. Here we are dealing with a Node application, which is normally auto-detected by the presence of a `package.json` file. However, as the current version of Hedgedoc requires a specific version of Node, this configuration item must be specified by the `builder = "node-14"` directive.
 
-Build-packages' are packages which are needed for the 'build' phase of the application, but which can be removed afterwards, in order to get a reasonably sized image.
+Build-packages are packages which are needed for the 'build' phase of the application, but which can be removed afterwards, in order to get a reasonably sized image.
 
 Finally, the `test` tag declares a "smoke test" to verify that the application is installed correctly.
 
@@ -73,16 +73,16 @@ This section allows you to specify the variables that will be injected into the 
 
 ```toml
 [env]
-CMD_DOMAIN = "localhost
+CMD_DOMAIN = "localhost"
 NODE_ENV = "production"
 # ... (truncated list)
-CMD_DB_PORT = "5432
-CMD_DB_DIALECT = "postgres
+CMD_DB_PORT = "5432"
+CMD_DB_DIALECT = "postgres"
 # Dynamic variables
 CMD_DB_HOST = { from="database", key="hostname" }
 CMD_DB_DATABASE = { from="database", key="POSTGRES_DB" }
 # ...
-SECRET_KEY = { type="string", random=true, length=12 }
+SECRET_KEY = { type="string", random=true, length=24 }
 ```
 
 Environment variables declared in the `nua-config` file can be changed when an instance is started. This feature allows both:
@@ -94,7 +94,7 @@ Some of these variables in the above example are *dynamic*. Nua's orchestrator e
 
 For applications that are not programmed to be configured via environment variables, a mechanism for generating config files, via a template language such as Jinja, is provided.
 
-### port' directive
+### `port` directive
 
 This directive lists the ports to be configured by the orchestrator. Here a port named "web" is declared, and the application provides a service on port 3000. By default it is the `TCP` protocol, it will be routed later by the orchestrator to a domain name.
 
@@ -113,19 +113,19 @@ command = "node /nua/build/hedgedoc/healthcheck.mjs"
 interval = 10
 ```
 
-### List of `volume` directives
+### List of `volume` directive
 
 It is possible to declare storage spaces of different types. By default, the "volume" type is a space managed locally by the Docker server. Other volume types are available (`bind` for manually managed local resources, `tmpfs`, or any remote resource type which has a driver for Docker. The value of the `prefix` tag will be appended with the instance name (name of the domain served) to give the instance a unique volume name.
 
 ```toml
 [[volume]]
-type = "volume
-prefix = "hedgedoc_uploads
+type = "volume"
+prefix = "hedgedoc_uploads"
 target = "/hedgedoc/public/uploads"
 
 [volume.backup]
 method = "sync"
-destination = "local
+destination = "local"
 frequency = "24h"
 ```
 
