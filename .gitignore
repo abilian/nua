@@ -1,7 +1,8 @@
-# Byte-compiled / optimized / DLL files
+# Caches
 __pycache__/
 *.py[cod]
-*$py.class
+.mypy_cache/
+.cache
 
 # C extensions
 *.so
@@ -23,12 +24,6 @@ wheels/
 .installed.cfg
 *.egg
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
-
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
@@ -39,45 +34,17 @@ htmlcov/
 .tox/
 .coverage
 .coverage.*
-.cache
 nosetests.xml
 coverage.xml
 *.cover
 .hypothesis/
 .pytest_cache/
 
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
-*.log
-local_settings.py
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
-
 # Sphinx documentation
 docs/_build/
 
-# PyBuilder
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
 # pyenv
 .python-version
-
-# celery beat schedule file
-celerybeat-schedule
-
-# SageMath parsed files
-*.sage.py
 
 # dotenv
 .env
@@ -87,25 +54,15 @@ celerybeat-schedule
 venv/
 ENV/
 
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
 # mkdocs documentation
 /site
-
-# mypy
-.mypy_cache/
 
 # IDE settings
 .vscode/
 .idea/
-
-# Stuff not ready yet
-apps/draft-real-apps/
+.spyderproject
+.spyproject
+.ropeproject
 
 # Secret
 .envrc
