@@ -1,35 +1,27 @@
 """Script main entry point for Nua local."""
 import json
-import os
 import sys
 from pathlib import Path
-from pprint import pformat, pprint
 from typing import Optional
 
 import typer
-from nua.lib.actions import check_python_version
-from nua.lib.console import print_red
-from nua.lib.exec import is_current_user, set_nua_user
-from nua.lib.panic import abort, vprint
-from nua.lib.tool.state import set_color, set_verbosity, verbosity
+from nua.lib.tool.state import set_color, set_verbosity
 
 from .. import __version__
-from ..db import store
-from ..db.store import installed_nua_settings, list_all_settings
-from ..nua_db_setup import setup_nua_db
-from ..register_plugins import register_plugins
 from ..search_cmd import search_nua_print
+from . import debug
 from .commands.api import API
-from .commands.backup import backup_all, deployed_config
+from .commands.backup import backup_all
 from .commands.deploy import deploy_nua_apps
 from .commands.deploy_nua import deploy_nua
 from .commands.local_cmd import reload_servers, status
 from .commands.restore import restore_nua_apps_replay, restore_nua_apps_strict
+from .init import initialization
 
 ALLOW_SUFFIX = {".json", ".toml", ".yaml", ".yml"}
 
 app = typer.Typer()
-is_initialized = False
+app.add_typer(debug.app, name="debug", no_args_is_help=True)
 
 arg_search_app = typer.Argument(..., help="App id or image name.")
 arg_deploy_app = typer.Argument(
@@ -71,26 +63,6 @@ def usage():
     _print_version()
     typer.echo("Usage(wip): nua status\n" "Try 'nua --help' for help.")
     raise typer.Exit(0)
-
-
-def initialization():
-    global is_initialized
-
-    if not check_python_version():
-        abort("Python 3.10+ is required for Nua orchestrator.")
-    if os.getuid() == 0 or is_current_user("nua"):
-        set_nua_user()
-    else:
-        print_red("Warning: Nua orchestrator must be run as 'root' or 'nua'.")
-        raise typer.Exit(1)
-    if is_initialized:
-        with verbosity(3):
-            vprint("already initialized")
-        return
-
-    setup_nua_db()
-    register_plugins()
-    is_initialized = True
 
 
 @app.command("status")
@@ -160,54 +132,9 @@ def backup_all_cmd(
     backup_all()
 
 
-@app.command("show_deployed_config")
-def deployed_config_cmd(
-    verbose: int = opt_verbose,
-    colorize: bool = option_color,
-):
-    """Debug: show current active configuration."""
-    set_verbosity(verbose)
-    set_color(colorize)
-    initialization()
-    print(pformat(deployed_config()))
-
-
-@app.command("show_db_settings")
-def show_db_settings():
-    """Debug: show settings in db."""
-    initialization()
-    print(pformat(list_all_settings()))
-
-
-@app.command("show_nua_settings")
-def show_nua_settings():
-    """Debug: show Nua orchestrator settings in db."""
-    initialization()
-    print(pformat(installed_nua_settings()))
-
-
-#
-# Added by SF, used by the nua-cli
-#
-@app.command("list-instances")
-def list_instances(_json: bool = option_json, short: bool = option_short):
-    """List all instances."""
-    initialization()
-    if short:
-        for info in store.list_instances_all_short():
-            print(info, end="\n\n")
-    else:
-        instances = store.list_instances_all()
-        result = [instance.to_dict() for instance in instances]
-        if _json:
-            print(json.dumps(result, ensure_ascii=False, indent=2))
-        else:
-            pprint(result)
-
-
-@app.command("rpc")
+@app.command("rpc", hidden=True)
 def rpc(method: str, raw: bool = option_raw):
-    """RPC call (by nua-cli)."""
+    """RPC call (used by nua-cli)."""
     initialization()
     api = API()
     args_str = sys.stdin.read()
@@ -222,17 +149,6 @@ def rpc(method: str, raw: bool = option_raw):
         print(json.dumps(result, ensure_ascii=False, indent=2))
 
 
-@app.command("settings")
-def settings(_json: bool = option_json):
-    """Debug: show settings in db."""
-    initialization()
-    result = list_all_settings()
-    if _json:
-        print(json.dumps(result, ensure_ascii=False, indent=2))
-    else:
-        pprint(result)
-
-
 @app.callback(invoke_without_command=True)
 def main(
     ctx: typer.Context,
@@ -240,4 +156,4 @@ def main(
 ):
     """Nua orchestrator local."""
     if ctx.invoked_subcommand is None:
-        usage()
+        print(ctx.get_help())
