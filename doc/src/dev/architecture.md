@@ -15,5 +15,5 @@
 
 The main components are:
 
-- The [orchestrator](../orchestrator/)
-- The builder [todo]
+- The [builder](./builder/)
+- The [orchestrator](./orchestrator/)
