@@ -35,6 +35,7 @@ codecov = "*"
 types-setuptools = "*"
 types-paramiko = "*"
 types-requests = "*"
+types-pyyaml = "*"
 
 # Docs
 mkdocs = "^1.3.0"
