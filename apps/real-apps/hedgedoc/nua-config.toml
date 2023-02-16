@@ -4,8 +4,8 @@ version = "1.9.6"
 release = 17
 title = "Hedgedoc"
 author = "Hedgedoc developers"
-tagline = "Nua test with Hedgedoc"
-website = "https://nua.rocks/"
+tagline = "The best platform to write and share markdown"
+website = "https://hedgedoc.org/"
 tags = ["Markdown", "Documentation", "Collaboration"]
 license = "AGPL-3.0 license"
 src_url = "https://github.com/hedgedoc/hedgedoc/releases/download/{version}/hedgedoc-{version}.tar.gz"
@@ -34,7 +34,16 @@ build-packages = [
 test = "test -f /nua/build/hedgedoc/healthcheck.mjs"
 
 [env]
-# IMPORTANT: to be set at the actual domain deployed:
+# Generic environment variables
+NODE_ENV = "production"
+DEBUG = "true"
+UPLOADS_MODE = "0700"
+TZ = "Europe/Paris"
+
+# Env variables prefixed with CMD_ are specific to Hedgedoc
+# (which used to be called CodiMD, hence "CMD_")
+
+# IMPORTANT: to be set at the actual domain deployed
 CMD_DOMAIN = { from="", key="domain" }
 CMD_ALLOW_ORIGIN = { key="domain" }
 
@@ -43,10 +52,6 @@ CMD_DB_DATABASE = { from="database", key="POSTGRES_DB" }
 CMD_DB_USERNAME = { from="database", key="POSTGRES_USER" }
 CMD_DB_PASSWORD = { from="database", key="POSTGRES_PASSWORD" }
 
-NODE_ENV = "production"
-DEBUG = "true"
-UPLOADS_MODE = "0700"
-TZ = "Europe/Paris"
 CMD_HSTS_ENABLE = "false"
 # URL_ADDPORT defines if generated links should contain the port.
 CMD_URL_ADDPORT = "false"

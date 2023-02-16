@@ -4,8 +4,8 @@ version = "16.0"
 release = 15
 title = "Dolibarr (for mariadb), based on tuxgazy dockerfile"
 author = "Dolibarr developers"
-tagline = "Nua test with Dolibarr"
-website = "https://nua.rocks/"
+tagline = "Open Source ERP & CRM for business"
+website = "https://www.dolibarr.org/"
 tags = ["test", "php", "web", "Dolibarr"]
 licence = "GPLv3"
 
