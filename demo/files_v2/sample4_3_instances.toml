@@ -1,0 +1,11 @@
+[[site]]
+image = "nua-flask-hello"
+domain = "test1.example.com"
+
+[[site]]
+image = "nua-flask-pg-via-orch"
+domain = "test2.example.com"
+
+[[site]]
+image = "nua-flask-upload-tmpfs"
+domain = "test3.example.com"

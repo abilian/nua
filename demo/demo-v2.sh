@@ -5,29 +5,25 @@ the Nua Orchestrator and run some basic demos.
 
 It must be run locally (./demo.sh) by a user with 'sudoer' capability.
 
-The script will install many packages (build-essential, python3.10, ...).
+The script will update and install many packages (build-essential, python3.10, ...).
 
 Important:
-  - this demo takes (optionnaly)) control on postgres on the host.
   - this script will propose to erase all your docker content:
       'docker system prune -a'
 
-- modify the REPLACE_DOMAIN file in this directory, or edit manually the
-  'sample_*.toml' files in files_v2 to change the 'domain' default (example.com)
-  to your domain.
 - check the GIT_LOCAL variable at the beginning of the script
 - NUA_CERTBOT_STRATEGY is 'none' (no https config, default is 'auto')
 "
 
-# Where to clone nua
+# Where to clone Nua
 GIT_LOCAL="${HOME}/gits2"
 
 #######################################################################
 
 HERE="$PWD"
 NUA_CERTBOT_STRATEGY="none"
-NUA_BUILD="${GIT_LOCAL}/nua/nua_build"
-NUA_ORC="${GIT_LOCAL}/nua/nua_orchestrator"
+NUA_BUILD="${GIT_LOCAL}/nua/nua-build"
+NUA_ORC="${GIT_LOCAL}/nua/nua-orchestrator"
 DEMO="${GIT_LOCAL}/nua/demo"
 NUA_REPOSITORY="https://github.com/abilian/nua.git"
 BRANCH="main"
@@ -60,11 +56,11 @@ function exe() {
 }
 
 
-yesno "run the script" || exit 0
+yesno "Run the script (many packages will be installed/updated)" || exit 0
 
 cat /etc/lsb-release |grep -q 'Ubuntu 22.04' || {
     echo "The script is only tested for distribution 'Ubuntu 22.04'"
-    yesno "continue anyway" || exit 1
+    yesno "Continue anyway" || exit 1
 }
 
 
@@ -84,14 +80,18 @@ python3.10-venv
 software-properties-common
 sudo
 "
-exe sudo apt-get update --fix-missing
-exe sudo apt-get upgrade -y
-exe sudo apt-get install --no-install-recommends -y ${packages}
+# libpq-dev
+# libpq5
+
+exe sudo DEBIAN_FRONTEND=noninteractive apt-get update --fix-missing
+exe sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
+exe sudo DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y ${packages}
+exe sudo DEBIAN_FRONTEND=noninteractive apt autoremove -y
 
 [ "${VIRTUAL_ENV}" != "p3nua" ] && [ ! -f "${HOME}/p3nua/bin/activate" ] && {
     echo
-    echo_yellow "Installation of nua-build requires some venv python"
-    yesno "make venv 'p3nua'" && {
+    echo_yellow "Installation of nua-build requires some python virtual env"
+    yesno "Make venv 'p3nua'" && {
         exe cd ${HOME}
         exe python3.10 -m venv p3nua
         exe source p3nua/bin/activate
@@ -101,56 +101,42 @@ exe sudo apt-get install --no-install-recommends -y ${packages}
 
 
 source ${HOME}/p3nua/bin/activate || {
-    echo "No virtual env '${HOME}/p3nua' ? Exiting."
+    echo "Error: no virtual env '${HOME}/p3nua' found. Exiting."
     exit 1
 }
 
+exe pip install -U pip setuptools wheel poetry
 
-yesno "git clone nua repository from '${NUA_REPOSITORY}'" && {
+yesno "Do 'git clone' nua repository from '${NUA_REPOSITORY}' and build nua" && {
     exe mkdir -p "${GIT_LOCAL}"
     exe cd "${GIT_LOCAL}"
     [ -d "nua" ] && sudo rm -fr nua
     exe git clone ${NUA_REPOSITORY}
     exe cd nua
     exe git checkout ${BRANCH}
-}
-
-
-yesno "build nua" && {
     exe cd "${NUA_BUILD}"
     git pull
     git checkout ${BRANCH}
     ./build.sh
-
     exe cd "${NUA_ORC}"
     ./build.sh
 }
 
 
-yesno "erase all docker images (not mandatory, but it ensures a clean rebuild of nua images)" && {
+yesno "Erase all local docker images (not mandatory, but it ensures a clean rebuild of Nua images)" && {
     docker system prune -a
 }
 
 
-yesno "build some docker images for nua demo" && {
+yesno "Build docker images for Nua demo" && {
     exe cd "${HERE}/files_v2"
-    exe nua-build -vv flask_pg_psyco_wheel
+    exe nua-build -vv flask_hello
     exe nua-build -vv flask_upload_tmpfs
-    exe nua-build -vv flask_pg_dock_psyco_wheel
+    exe nua-build -vv flask_pg_via_orch
 }
 
 
-# yesno "build all the docker images for nua test (say no)" && {
-#     exe cd "${NUA_BUILD}/tests"
-#     echo "This may take a few minutes..."
-#     pytest -k "test_builds"
-# }
-
-
 yesno "Important: creation of the account for the orchestrator" && {
-    # yesno "option: remove mariadb and ALL CONTENT (to fix a bug about root password)" && {
-    #     sudo apt-get remove --purge  mariadb-server-10.6
-    # }
     exe cd "${NUA_ORC}"
     if [ "$EUID" == "0" ]; then
         exe nua-bootstrap
@@ -159,86 +145,104 @@ yesno "Important: creation of the account for the orchestrator" && {
     fi
 }
 
+yesno "Provide actual domain names for the 3 'example.com' domains" && {
+    rm -f "${HERE}/REPLACE_DOMAIN"
+    for d in test1 test2 test3
+    do
+        read -p "Enter the fqdn replacing '${d}.example.com' ? " response
+        echo "${d}.example.com ${response}" >> "${HERE}/REPLACE_DOMAIN"
+    done
+} || {
+    echo "test1.example.com test1.example.com" > "${HERE}/REPLACE_DOMAIN"
+    echo "test2.example.com test2.example.com" >> "${HERE}/REPLACE_DOMAIN"
+    echo "test3.example.com test3.example.com" >> "${HERE}/REPLACE_DOMAIN"
+}
 
-yesno "Demo 1: start 2 instances of an app using the local postgres server" && {
-    path="${HERE}/files_v2/sample_2sites_flask_pg_psyco.toml"
+yesno "Demo 1: start 2 basic flask apps" && {
+    file="sample1_2_flask_apps.toml"
+    path="${HERE}/files_v2/${file}"
     echo "The following file will be generated from user requirements (domain, db name)"
     echo "and Nua will complete with defaults values."
     echo
     nua_test_replace_domain "${HERE}/REPLACE_DOMAIN" "${path}" /tmp
-    chmod a+r /tmp/sample_2sites_flask_pg_psyco.toml
+    chmod a+r /tmp/${file}
     echo -e "${cgreen}"
-    cat /tmp/sample_2sites_flask_pg_psyco.toml
+    cat /tmp/${file}
     echo -e "${cclear}"
     echo
     cat <<EOF > /tmp/test.sh
 #!/bin/bash
 export NUA_CERTBOT_STRATEGY="${NUA_CERTBOT_STRATEGY}"
-~nua/nua310/bin/nua deploy -v /tmp/sample_2sites_flask_pg_psyco.toml
+~nua/nua310/bin/nua-orchestrator deploy -v /tmp/${file}
 EOF
     chmod a+x /tmp/test.sh
     sudo -u nua bash /tmp/test.sh
 }
 
 
-yesno "Demo 2: start 3 instances of an app using the local postgres server" && {
-    path="${HERE}/files_v2/sample_3sites_flask_pg_psyco.toml"
+yesno "Demo 2: start 3 instances of an app using a postgres DB" && {
+    file="sample2_3_flask_pg.toml"
+    path="${HERE}/files_v2/${file}"
     echo "The following file will be generated from user requirements (domain, db name)"
     echo "and Nua will complete with defaults values."
     echo
     nua_test_replace_domain "${HERE}/REPLACE_DOMAIN" "${path}" /tmp
-    chmod a+r /tmp/sample_3sites_flask_pg_psyco.toml
+    chmod a+r /tmp/${file}
     echo -e "${cgreen}"
-    cat /tmp/sample_3sites_flask_pg_psyco.toml
+    cat /tmp/${file}
     echo -e "${cclear}"
     echo
     cat <<EOF > /tmp/test.sh
 #!/bin/bash
 export NUA_CERTBOT_STRATEGY="${NUA_CERTBOT_STRATEGY}"
-~nua/nua310/bin/nua deploy -v /tmp/sample_3sites_flask_pg_psyco.toml
+~nua/nua310/bin/nua-orchestrator deploy -v /tmp/${file}
 EOF
     chmod a+x /tmp/test.sh
     sudo -u nua bash /tmp/test.sh
 }
 
 
-yesno "Demo 3: start 3 instances of an app using postgres and some tmpfs" && {
-    path="${HERE}/files_v2/sample_3sites_flask_pg_tmpfs.toml"
+yesno "Demo 3: start 2 instances of an app using postgres and some tmpfs apps" && {
+    file="sample3_3_flask_tmpfs.toml"
+    path="${HERE}/files_v2/${file}"
     echo "The following file will be generated from user requirements (domain, db name)"
     echo "and Nua will complete with defaults values."
     echo
     nua_test_replace_domain "${HERE}/REPLACE_DOMAIN" "${path}" /tmp
-    chmod a+r /tmp/sample_3sites_flask_pg_tmpfs.toml
+    chmod a+r /tmp/${file}
     echo -e "${cgreen}"
-    cat /tmp/sample_3sites_flask_pg_tmpfs.toml
+    cat /tmp/${file}
     echo -e "${cclear}"
     echo
     cat <<EOF > /tmp/test.sh
 #!/bin/bash
 export NUA_CERTBOT_STRATEGY="${NUA_CERTBOT_STRATEGY}"
-~nua/nua310/bin/nua deploy -v /tmp/sample_3sites_flask_pg_tmpfs.toml
+~nua/nua310/bin/nua-orchestrator deploy -v /tmp/${file}
 EOF
     chmod a+x /tmp/test.sh
     sudo -u nua bash /tmp/test.sh
 }
 
 
-yesno "Demo 4: start 2 instances of an app using postgres in a docker container" && {
-    path="${HERE}/files_v2/sample_2sites_flask_pg_docker.toml"
+yesno "Demo 4: start 1 instances of 3 different apps" && {
+    file="sample4_3_instances.toml"
+    path="${HERE}/files_v2/${file}"
     echo "The following file will be generated from user requirements (domain, db name)"
     echo "and Nua will complete with defaults values."
     echo
     nua_test_replace_domain "${HERE}/REPLACE_DOMAIN" "${path}" /tmp
-    chmod a+r /tmp/sample_2sites_flask_pg_docker.toml
+    chmod a+r /tmp/${file}
     echo -e "${cgreen}"
-    cat /tmp/sample_2sites_flask_pg_docker.toml
+    cat /tmp/${file}
     echo -e "${cclear}"
     echo
     cat <<EOF > /tmp/test.sh
 #!/bin/bash
 export NUA_CERTBOT_STRATEGY="${NUA_CERTBOT_STRATEGY}"
-~nua/nua310/bin/nua deploy -v /tmp/sample_2sites_flask_pg_docker.toml
+~nua/nua310/bin/nua-orchestrator deploy -v /tmp/${file}
 EOF
     chmod a+x /tmp/test.sh
     sudo -u nua bash /tmp/test.sh
 }
+
+echo_yellow "End of the demo."

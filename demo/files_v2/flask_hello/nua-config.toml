@@ -1,0 +1,25 @@
+[metadata]
+id = "flask-hello"
+version = "1.2"
+title = "Flask test hello world"
+author = "Nua testers"
+tagline = "Nua test with Flask - one - setup"
+website = "https://nua.rocks/"
+tags = ["test", "html", "web", "static"]
+license = "MIT"
+profile = ["test"]
+release = 3
+
+[build]
+document_root = "/nua/app/html"
+
+project = "."
+
+test = "python -c 'import flask_hello'"
+
+[docker]
+# parameters passed as a dict to docker run
+auto_remove = true
+
+[port.web]
+container = 80
