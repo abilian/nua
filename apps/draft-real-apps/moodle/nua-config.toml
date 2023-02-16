@@ -1,0 +1,18 @@
+#
+# Note: this is an "old-school" PHP app (not using Composer or a framework).
+# Also: it's incorrectly detected as a Node.js app.
+#
+[metadata]
+id = "moodle"
+title = "Moodle"
+author = "Moodle authors"
+description = "Moodle - the world's open source learning platform"
+website = "https://moodle.org/"
+version = "4.1.1"
+release = 1
+license = "GPL-3.0"
+
+src-url = "https://github.com/moodle/moodle/archive/v{version}.tar.gz"
+
+[build]
+build-packages = []

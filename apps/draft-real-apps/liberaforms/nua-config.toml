@@ -1,0 +1,21 @@
+[metadata]
+id = "liberaforms"
+version = "2.1.2"
+title = "Liberaforms"
+author = "Liberaforms authors"
+license = "AGPL-3.0-or-later"
+tagline = "Free form software."
+website = "https://liberaforms.org/"
+tags = ["forms"]
+profile = ["generic"]
+
+src-url = "https://gitlab.com/liberaforms/liberaforms/-/archive/v{version}/liberaforms-v{version}.tar.bz2"
+src-checksum = ""
+
+[build]
+build-packages = [
+    # Needed to build psycopg2
+    "gcc",
+    "python3-dev",
+    "libpq-dev",
+]

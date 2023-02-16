@@ -1,0 +1,13 @@
+[metadata]
+id = "radicale"
+version = "3.1.8"
+title = "Radicale"
+author = "Kozea"
+license = "GPLv3"
+tagline = "A simple CalDAV (calendar) and CardDAV (contact) server"
+website = "https://radicale.org/"
+tags = ["calendar", "contacts", "caldav", "carddav"]
+profile = ["generic"]
+
+src-url = "https://github.com/Kozea/Radicale/archive/refs/tags/v{version}.tar.gz"
+src-checksum = ""

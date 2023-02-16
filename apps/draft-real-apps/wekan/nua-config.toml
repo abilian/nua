@@ -1,0 +1,26 @@
+[metadata]
+id = "wekan"
+title = "Wekan"
+author = "Wekan developers"
+tagline = "Open-source kanban boards"
+license = "MIT"
+
+version = "6.71"
+website = "https://wekan.github.io/"
+tags = ["kanban", "planning", "project"]
+
+src-url = "https://github.com/wekan/wekan/archive/refs/tags/v{version}.tar.gz"
+
+# Notes:
+# Technology used: Meteor
+
+
+#[addons]
+#local-storage = { }
+#mongodb = { }
+#sendmail = { }
+#ldap = { }
+
+#[run]
+#health-check-path = "/"
+#http-port = 3_000

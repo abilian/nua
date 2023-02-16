@@ -1,0 +1,14 @@
+[metadata]
+id = "shynet"
+title = "shynet"
+author = "shynet authors"
+description = "Modern, privacy-friendly, and detailed web analytics that works without cookies or JS."
+website = ""
+version = "0.12.0"
+release = 1
+license = "Apache-2.0"
+
+src-url = "https://github.com/milesmcc/shynet/archive/v{version}.tar.gz"
+
+[build]
+build-packages = []

@@ -1,0 +1,25 @@
+[metadata]
+id = "demo-flask"
+version = "0.1"
+title = "Flask Demo"
+author = "Abilian"
+tagline = "Simple demo"
+license = "MIT"
+src-url = "https://github.com/abilian/flask-nua-demo/archive/refs/tags/{version}.tar.gz"
+src-checksum = ""
+
+
+[build]
+build-packages = [
+    "build-essential",
+    "python3-dev",
+    "libsqlite3-dev",
+#    "netcat",
+#    "libicu-dev",
+#    "libssl-dev",
+#    "git",
+]
+
+
+[env]
+PORT = 5000

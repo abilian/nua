@@ -1,0 +1,17 @@
+#
+# NB: project is dead, this is more as way to test the Nua builder.
+#
+[metadata]
+id = "goodwork"
+title = "goodwork"
+author = "goodwork authors"
+description = "Self hosted project management and collaboration tool  built with Laravel & VueJS"
+website = ""
+version = "unknown"
+release = 1
+license = "MIT"
+
+src-url = "https://github.com/Hasnayeen/goodwork/archive/refs/heads/main.zip"
+
+[build]
+build-packages = []

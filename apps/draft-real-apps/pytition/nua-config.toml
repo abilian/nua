@@ -1,0 +1,21 @@
+[metadata]
+id = "pytition"
+version = "2.6"
+title = "Pytition"
+author = "Pytition authors"
+license = "BSD-3"
+tagline = "Privacy-friendly online petitions"
+website = "https://github.com/pytition/Pytition"
+tags = []
+profile = ["association"]
+
+src-url = "https://github.com/pytition/Pytition/archive/refs/tags/v{version}.tar.gz"
+src-checksum = ""
+
+[build]
+build-packages = [
+    "gcc",
+    "python3-dev",
+    "libssl-dev",
+    "libmysqlclient-dev",
+]

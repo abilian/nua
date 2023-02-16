@@ -8,7 +8,7 @@ def gen_password(length: int = 16) -> str:
     """Generate random passord.
 
     With ascii and digits, lenght 16, log10(62**16) ~ 28, and basic
-    constraints. Added constraint for user names: first char is letter.
+    constraints. Added constraint for usernames: first char is letter.
     """
     alphabet = string.ascii_letters + string.digits
     while True:

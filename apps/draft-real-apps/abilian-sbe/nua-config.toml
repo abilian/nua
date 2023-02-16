@@ -1,0 +1,25 @@
+[metadata]
+id = "abilan-sbe"
+title = "Abilian Social Business Engine (SBE)"
+author = "Abilian"
+description = "Abilian SBE is a Python web application framework for building social business applications."
+version = "0.1"
+release = 1
+license = "GPL"
+src-url = "https://github.com/abilian/abilian-sbe-monorepo/archive/refs/heads/main.zip"
+
+[build]
+build-packages = [
+    # Needed to build psycopg2
+    "gcc",
+    "python3-dev",
+    "libpq-dev",
+    # For magic
+    "libmagic-dev",
+]
+
+build-script = """
+!#/bin/sh
+
+echo "hello"
+"""

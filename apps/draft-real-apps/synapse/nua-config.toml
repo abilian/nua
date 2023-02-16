@@ -1,0 +1,18 @@
+[metadata]
+id = "synapse"
+version = "1.75.0"
+title = "Synapse"
+author = "Matrix"
+license = "Apache License 2.0"
+tagline = "A server for Matrix, an ambitious new ecosystem for open federated Instant Messaging and VoIP."
+website = "https://matrix.org/"
+tags = ["calendar", "contacts", "caldav", "carddav"]
+profile = ["generic"]
+
+src-url = "https://github.com/matrix-org/synapse/archive/refs/tags/v{version}.tar.gz"
+src-checksum = ""
+
+[build]
+build-packages = [
+    "rust-all",
+]

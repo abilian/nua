@@ -1,0 +1,22 @@
+[metadata]
+id = "status-page"
+title = "Status Page"
+author = "Status Page authors"
+description = "Open Source Statuspage Software"
+version = "2.0.16"
+release = 1
+license = "Apache License 2.0"
+src-url = "https://github.com/Status-Page/Status-Page/archive/refs/tags/v{version}.tar.gz"
+
+[build]
+build-packages = [
+    # Needed to build psycopg2
+    "gcc",
+    "python3-dev",
+    "libpq-dev",
+]
+
+#
+# OK it builds, but then for running it, we need to follow these instructions:
+# https://docs.status-page.dev/en/stable/installation/3-status-page/
+#

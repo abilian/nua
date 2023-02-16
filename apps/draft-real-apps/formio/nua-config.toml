@@ -1,0 +1,13 @@
+[metadata]
+id = "form.io"
+version = "3.0.0"
+title = "form.io"
+author = "Form.io LLC"
+license = "OSL 3.0"
+tagline = "A Form and Data Management Platform for Progressive Web Applications. "
+website = "https://form.io/"
+tags = ["forms"]
+profile = ["generic"]
+
+src-url = "https://github.com/formio/formio/archive/refs/tags/v{version}.tar.gz"
+src-checksum = ""

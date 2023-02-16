@@ -1,0 +1,15 @@
+[metadata]
+id = "text2quiz"
+title = "text2quiz"
+author = "text2quiz authors"
+description = "Tex2quiz is a quiz app, build with Svelte Kit, that can automatically create a (complex) quiz from a simple text.  13 question types are available (True/False, MCQ, Cloze test, Flashcards, Short answers, Drag and drop, Ordering …)."
+website = "https://text2quiz.vercel.app/"
+version = "???"
+release = 1
+license = "GPL-3.0"
+
+src-url = "https://github.com/eyssette/text2quiz/archive/refs/heads/main.tar.gz"
+
+[build]
+node-version = "16.x"
+build-packages = []
