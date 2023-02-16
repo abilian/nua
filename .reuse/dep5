@@ -3,90 +3,100 @@ Upstream-Name: Nua
 Upstream-Contact: Stefane Fermigier <sf@abilian.com>
 Source: https://nua.rocks/
 
-
 # Source
 
 Files: nua*/*
-Copyright: 2022 Abilian SAS <contact@abilian.com>
+Copyright: 2021-2023 Abilian SAS <contact@abilian.com>
 License: AGPL-3.0-only
-
 
 # Doc
 
 Files: doc/*
-Copyright: 2022 Abilian SAS <contact@abilian.com>
+Copyright: 2021-2023 Abilian SAS <contact@abilian.com>
 License: CC-BY-4.0
 
+Files: notes/*
+Copyright: 2021-2023 Abilian SAS <contact@abilian.com>
+License: CC-BY-4.0
 
 # Packages
 
 Files: apps/*
-Copyright: 2022 Abilian SAS <contact@abilian.com>
+Copyright: 2021-2023 Abilian SAS <contact@abilian.com>
 License: MIT
 
+# Demo
+
+Files: demo/*
+Copyright: 2021-2023 Abilian SAS <contact@abilian.com>
+License: MIT
 
 # Cruft
 
-Files: demos/*
-Copyright: 2022 Abilian SAS <contact@abilian.com>
-License: MIT
-
 Files: .cruft.json
-Copyright: 2022 Abilian SAS <contact@abilian.com>
+Copyright: 2021-2023 Abilian SAS <contact@abilian.com>
 License: MIT
 
 Files: .editorconfig
-Copyright: 2022 Abilian SAS <contact@abilian.com>
+Copyright: 2021-2023 Abilian SAS <contact@abilian.com>
 License: MIT
 
 Files: .github/*
-Copyright: 2022 Abilian SAS <contact@abilian.com>
+Copyright: 2021-2023 Abilian SAS <contact@abilian.com>
 License: MIT
 
 Files: .gitignore
-Copyright: 2022 Abilian SAS <contact@abilian.com>
+Copyright: 2021-2023 Abilian SAS <contact@abilian.com>
 License: MIT
 
 Files: .pre-commit-config.yaml
-Copyright: 2022 Abilian SAS <contact@abilian.com>
+Copyright: 2021-2023 Abilian SAS <contact@abilian.com>
 License: MIT
 
 Files: AUTHORS.rst
-Copyright: 2022 Abilian SAS <contact@abilian.com>
+Copyright: 2021-2023 Abilian SAS <contact@abilian.com>
 License: MIT
 
 Files: CONTRIBUTING.rst
-Copyright: 2022 Abilian SAS <contact@abilian.com>
+Copyright: 2021-2023 Abilian SAS <contact@abilian.com>
 License: MIT
 
 Files: HISTORY.rst
-Copyright: 2022 Abilian SAS <contact@abilian.com>
+Copyright: 2021-2023 Abilian SAS <contact@abilian.com>
 License: MIT
 
 Files: Makefile
-Copyright: 2022 Abilian SAS <contact@abilian.com>
+Copyright: 2021-2023 Abilian SAS <contact@abilian.com>
 License: MIT
 
 Files: README.md
-Copyright: 2022 Abilian SAS <contact@abilian.com>
+Copyright: 2021-2023 Abilian SAS <contact@abilian.com>
 License: MIT
 
 Files: pants.toml
-Copyright: 2022 Abilian SAS <contact@abilian.com>
+Copyright: 2021-2023 Abilian SAS <contact@abilian.com>
 License: MIT
 
 Files: poetry.lock
-Copyright: 2022 Abilian SAS <contact@abilian.com>
+Copyright: 2021-2023 Abilian SAS <contact@abilian.com>
 License: MIT
 
 Files: pyproject.toml
-Copyright: 2022 Abilian SAS <contact@abilian.com>
+Copyright: 2021-2023 Abilian SAS <contact@abilian.com>
 License: MIT
 
 Files: setup.cfg
-Copyright: 2022 Abilian SAS <contact@abilian.com>
+Copyright: 2021-2023 Abilian SAS <contact@abilian.com>
 License: MIT
 
-Files: tox.ini
-Copyright: 2022 Abilian SAS <contact@abilian.com>
+Files: noxfile.py
+Copyright: 2021-2023 Abilian SAS <contact@abilian.com>
+License: MIT
+
+Files: tasks.py
+Copyright: 2021-2023 Abilian SAS <contact@abilian.com>
+License: MIT
+
+Files: tools/*
+Copyright: 2021-2023 Abilian SAS <contact@abilian.com>
 License: MIT

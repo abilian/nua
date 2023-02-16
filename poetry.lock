@@ -2,14 +2,14 @@
 
 [[package]]
 name = "abilian-devtools"
-version = "0.4.8"
+version = "0.4.9"
 description = "A curated set of dependencies for quality software development"
 category = "dev"
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
-    {file = "abilian_devtools-0.4.8-py3-none-any.whl", hash = "sha256:2a3701a1d53e1a1187100a2005f4fa7d8709b25cfd1ed14164e54742fb18eaaa"},
-    {file = "abilian_devtools-0.4.8.tar.gz", hash = "sha256:b79e42061abdc4db5ce87371ad13630f4a50cb5c4d29490e8eb9406ab012ef5b"},
+    {file = "abilian_devtools-0.4.9-py3-none-any.whl", hash = "sha256:47f84b3612a69052d42a513c01246e19827953a7217902d1f0efd58d9c5086ca"},
+    {file = "abilian_devtools-0.4.9.tar.gz", hash = "sha256:00bb42eb3ad383dd16a87074f239d2561cecfb6d1d44574f009595fda11f21c9"},
 ]
 
 [package.dependencies]

@@ -7,7 +7,7 @@ site_url: https://nua.rocks/
 docs_dir: src
 
 # Copyright
-copyright: Copyright &copy; 2021-2022 Abilian SAS
+copyright: Copyright &copy; 2021-2021-2023 Abilian SAS
 
 # Repository
 repo_name: 'abilian/nua'
