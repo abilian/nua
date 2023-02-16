@@ -188,9 +188,12 @@ def install_local_orchestrator():
 
     cmd = f"git clone -o github {url}"
     mp_exec_as_nua(cmd)
+    cmd = "git checkout main"
+    mp_exec_as_nua(cmd)
 
     cwd = gits / "nua" / "nua-orchestrator"
-    cmd = "poetry install --sync"
+    poetry = f"{nua_env.get_value('NUA_VENV')}/bin/poetry"
+    cmd = f"{poetry} install"
     bash_as_nua(cmd, cwd)
 
     cmd = "nua-orchestrator status"
