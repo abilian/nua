@@ -7,7 +7,7 @@ site_url: https://nua.rocks/
 docs_dir: src
 
 # Copyright
-copyright: Copyright &copy; 2021-2021-2023 Abilian SAS
+copyright: Copyright &copy; 2021-2023 Abilian SAS
 
 # Repository
 repo_name: 'abilian/nua'
@@ -126,15 +126,16 @@ plugins:
   #       - ../src/app
 
 nav:
-  - Home: index.md
+  - Home:
+    - Intro: index.md
+    - Funding: funding.md
   - Developers:
     - Intro: dev/index.md
     - Architecture: dev/architecture.md
-    - The Orchestrator: dev/orchestrator.md
-    - Database: dev/database.md
-    - Open Source Librairies used: dev/libraries.md
-    - API (back-end): dev/api.md
-    - Front-End: dev/front-end.md
+    - Configuration: dev/configuration.md
+    - Builder: dev/builder.md
+    - Orchestrator: dev/orchestrator.md
+    - Process and tools: dev/process-tools.md
   - Users:
     - Intro: user/index.md
     - Command Line Interface: user/cli.md

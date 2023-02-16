@@ -32,7 +32,7 @@ The main steps to build a Nua image:
 
 - The package can use a dedicated (potentially pre-existing) Dockerfile. Then this Dockerfile must be modified slightly to add the metadata to the image:
 
-```
+```dockerfile
 RUN mkdir -p /nua/metadata
 COPY nua-config.toml /nua/metadata/
 ```
@@ -55,23 +55,17 @@ Some other base images are available to facilitate builds in other programming e
 
 `nua-build` uses the following packages:
 
-- `nua-lib`: common code for all Nua packages.
+- `nua-lib`: common code for all Nua packages. It provides:
 
-    `nua-lib` provides:
+    - `shell`: shell shortcuts (mostly wrappers above `subprocess` and `shutil`)
+    - `exec`: shortcuts to execute sub commands like `exec_as_root()`, `exec_as_root()`
+    - `action`: higher level commands, related to the installation of packages and dependencies (wrappers above `apt`, `pip`, ...)
 
-  - `shell`: shell shortcuts (mostly wrappers above `subprocess` and `shutil`)
-  - `exec`: shortcuts to execute sub commands like `exec_as_root()`, `exec_as_root()`
-  - `action`: higher level commands, related to the installation of packages and dependencies (wrappers above `apt`, `pip`, ...)
+- `nua-agent`: agent for Nua apps. It provides:
 
-- `nua-agent`: agent for Nua apps.
+    - `nua_config`: library to read the embeded `nua-config` file (introspection),
+    - `app_builder`: actual builder of the application inside the Docker image.
 
-    `nua-agent` provides:
-
-  - `nua_config`: library to read the embeded `nua-config` file (introspection),
-  - `app_builder`: actual builder of the application inside the Docker image.
-
-- `nua-autobuild`: build Docker images used by Nua.
-
-    `nua-autobuild` provides:
+- `nua-autobuild`: build Docker images used by Nua. It provides:
 
     - `nua_image_builder`:  tool to build locally the Nua standard base images if needed
