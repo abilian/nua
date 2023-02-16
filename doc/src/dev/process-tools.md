@@ -25,9 +25,11 @@ But since all subpackages have different sets of dependencies, you can use [Nox]
 
 ## Additional tools
 
-### Makefile
+### Makefile and Invoke
 
 We provide a Makefile to ease some common tasks. Type `make help` to get a list of the most useful available targets.
+
+For a few complex tasks, we also provide a `tasks.py` file, which can be used with [Invoke](https://www.pyinvoke.org/). Type `invoke --list` (or `inv -l`) to get a list of the available tasks.
 
 ### Abilian DevTools
 
