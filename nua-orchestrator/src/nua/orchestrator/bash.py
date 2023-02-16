@@ -27,7 +27,7 @@ def _bash_as_nua(cmd, cwd, timeout, env):
     set_nua_user()
     full_env = os.environ.copy()
     full_env.update(env)
-    cmd = f"source {nua_env.get_value('NUA_VENV')}/bin/activate; {cmd}"
+    cmd = f"source {nua_env.get_value('NUA_VENV')}/bin/activate && {cmd}"
     run(
         cmd,
         shell=True,  # noqa: S602
