@@ -2,11 +2,11 @@
 from pprint import pformat, pprint
 
 import typer
-
 from nua.lib.tool.state import set_color, set_verbosity
-from .init import initialization
+
 from ..app_management import AppManagement
 from ..db.store import installed_nua_settings, list_all_settings
+from .init import initialization
 
 ALLOW_SUFFIX = {".json", ".toml", ".yaml", ".yml"}
 
