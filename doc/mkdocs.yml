@@ -6,6 +6,23 @@ site_url: https://nua.rocks/
 
 docs_dir: src
 
+# Navigation
+nav:
+  - Home:
+    - Intro: index.md
+    - Funding: funding.md
+  - Developers:
+    - Intro: dev/index.md
+    - Architecture: dev/architecture.md
+    - "Specifications: Configuration": dev/configuration.md
+    - "Specification: App Images": dev/image.md
+    - Builder: dev/builder.md
+    - Orchestrator: dev/orchestrator.md
+    - Process and tools: dev/process-tools.md
+  - Users:
+    - Intro: user/index.md
+    - Command Line Interface: user/cli.md
+
 # Copyright
 copyright: Copyright &copy; 2021-2023 Abilian SAS
 
@@ -124,18 +141,3 @@ plugins:
   #     custom_templates: templates
   #     watch:
   #       - ../src/app
-
-nav:
-  - Home:
-    - Intro: index.md
-    - Funding: funding.md
-  - Developers:
-    - Intro: dev/index.md
-    - Architecture: dev/architecture.md
-    - Configuration: dev/configuration.md
-    - Builder: dev/builder.md
-    - Orchestrator: dev/orchestrator.md
-    - Process and tools: dev/process-tools.md
-  - Users:
-    - Intro: user/index.md
-    - Command Line Interface: user/cli.md

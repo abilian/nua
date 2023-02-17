@@ -25,6 +25,9 @@ nua-orchestrator = { path = "nua-orchestrator", develop = true }
 nox = "*"
 abilian-devtools = "*"
 
+autotyping = "^22.9.0"
+pytest-monkeytype = "^1.1.0"
+
 # Helper for monorepo
 invoke = "^2.0.0"
 
@@ -39,17 +42,16 @@ types-pyyaml = "*"
 
 # Docs
 mkdocs = "^1.4.2"
-mkdocs-material = "^8.5.11"
+mkdocs-material = "^9.0"
 mkdocs-material-extensions = "^1.1.1"
-mkdocs-roamlinks-plugin = "^0.1.4"
+mkdocs-roamlinks-plugin = "^0.2"
 mkdocs-with-pdf = "^0.9.3"
-mkdocstrings = {extras = ["python"], version = "^0.19.1"}
+mkdocstrings = {extras = ["python"], version = "^0.20"}
+
 sqla2uml = "^0.1.3"
 pygments = "^2.14.0"
-autotyping = "^22.9.0"
-pytest-monkeytype = "^1.1.0"
-pydeps = "^1.11.1"
 modulegraph = "^0.19.3"
+pydeps = "^1.11.1"
 
 docformatter = "*"
 

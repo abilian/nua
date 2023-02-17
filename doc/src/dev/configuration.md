@@ -1,4 +1,6 @@
-# Configuring a Nua project: the `nua-config.toml` file
+# Configuring a Nua project
+
+## The `nua-config` file
 
 This is the cornerstone of a Nua managed application. This file centralises the metadata describing the application, the description of the application's _build_ steps, the required resources (databases, etc.) and the default values (environment, configuration files).
 
@@ -10,7 +12,7 @@ The syntax used is the TOML language, but Nua also accepts YAML and JSON.
 
 HedgeDoc (<https://hedgedoc.org/>) is a collaborative Markdown document editing application, one of the first to be packaged with Nua. It is a Nodejs application that uses the classic *build* tools for this ecosystem: `package.json` and `npm`.
 
-## Section `metadata`
+### Section `metadata`
 
 The `nua-config.toml` file starts with a block of metadata that describes the application in the classic way:
 
@@ -131,7 +133,7 @@ frequency = "24h"
 
 The volume can be accompanied by a backup directive. As with environment variables, these directives can be changed when deploying an instance. For example, a test or demo instance does not have the same backup requirements as a production instance.
 
-### List of `resource` directives
+### List of `resource` directive
 
 Finally, the `resource` directive is used to declare a resource, i.e. an application or service. This can be a local or remote service, or in this case a container.
 

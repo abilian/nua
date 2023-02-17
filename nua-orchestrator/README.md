@@ -1,4 +1,4 @@
-# Nua orchestrator, local scripts implementation (v0 draft)
+# Nua orchestrator
 
 ## Role of the orchestrator
 
@@ -10,9 +10,10 @@ The host must be a linux server installed with the distribution:
 
     Ubuntu 22.04.1 LTS (jammy)
 
-In current version, the orchestrator manages locally a single host.
+In the current version, the orchestrator manages locally a single host.
 
 The Nua Orchestrator will need a 'nua' administrator account with root privileges (sudoer and docker groups).
+
 The Nua Orchestrator will interfere with local resources such as Docker services and locally installed databases. The recommended configuration is therefore to use a dedicated server.
 
 ## Installation
