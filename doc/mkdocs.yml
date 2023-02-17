@@ -19,6 +19,9 @@ nav:
     - Builder: dev/builder.md
     - Orchestrator: dev/orchestrator.md
     - Process and tools: dev/process-tools.md
+    - Contributing: dev/contributing.md
+    - Change log: dev/changelog.md
+    - Credits: dev/authors.md
   - Users:
     - Intro: user/index.md
     - Command Line Interface: user/cli.md
