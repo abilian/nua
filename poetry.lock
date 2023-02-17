@@ -2,14 +2,14 @@
 
 [[package]]
 name = "abilian-devtools"
-version = "0.4.9"
+version = "0.4.10"
 description = "A curated set of dependencies for quality software development"
 category = "dev"
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
-    {file = "abilian_devtools-0.4.9-py3-none-any.whl", hash = "sha256:47f84b3612a69052d42a513c01246e19827953a7217902d1f0efd58d9c5086ca"},
-    {file = "abilian_devtools-0.4.9.tar.gz", hash = "sha256:00bb42eb3ad383dd16a87074f239d2561cecfb6d1d44574f009595fda11f21c9"},
+    {file = "abilian_devtools-0.4.10-py3-none-any.whl", hash = "sha256:47a80a7ba208285dcbc6787439d2d3cc00393589742866ef23526cea92dcfa0c"},
+    {file = "abilian_devtools-0.4.10.tar.gz", hash = "sha256:2fe5c0f8e3afabcfcdf37231089caf4bab9101e4b64b4a13b3bef68dd4327cac"},
 ]
 
 [package.dependencies]
@@ -959,6 +959,25 @@ files = [
 ]
 
 [[package]]
+name = "docformatter"
+version = "1.5.0"
+description = "Formats docstrings to follow PEP 257"
+category = "dev"
+optional = false
+python-versions = ">=3.6,<4.0"
+files = [
+    {file = "docformatter-1.5.0-py3-none-any.whl", hash = "sha256:ae56c64822c3184602ac83ec37650c9785e80dfec17b4eba4f49ad68815d71c0"},
+    {file = "docformatter-1.5.0.tar.gz", hash = "sha256:9dc71659d3b853c3018cd7b2ec34d5d054370128e12b79ee655498cb339cc711"},
+]
+
+[package.dependencies]
+tomli = {version = ">=2.0.0,<3.0.0", markers = "python_version >= \"3.7\""}
+untokenize = ">=0.1.1,<0.2.0"
+
+[package.extras]
+tomli = ["tomli (<2.0.0)"]
+
+[[package]]
 name = "docker"
 version = "6.0.1"
 description = "A Python library for the Docker Engine API."
@@ -1483,14 +1502,14 @@ smmap = ">=3.0.1,<6"
 
 [[package]]
 name = "gitpython"
-version = "3.1.30"
-description = "GitPython is a python library used to interact with Git repositories"
+version = "3.1.31"
+description = "GitPython is a Python library used to interact with Git repositories"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "GitPython-3.1.30-py3-none-any.whl", hash = "sha256:cd455b0000615c60e286208ba540271af9fe531fa6a87cc590a7298785ab2882"},
-    {file = "GitPython-3.1.30.tar.gz", hash = "sha256:769c2d83e13f5d938b7688479da374c4e3d49f71549aaf462b646db9602ea6f8"},
+    {file = "GitPython-3.1.31-py3-none-any.whl", hash = "sha256:f04893614f6aa713a60cbbe1e6a97403ef633103cdd0ef5eb6efe0deb98dbe8d"},
+    {file = "GitPython-3.1.31.tar.gz", hash = "sha256:8ce3bcf69adfdf7c7d503e78fd3b1c492af782d58893b650adb2ac8912ddd573"},
 ]
 
 [package.dependencies]
@@ -1572,14 +1591,14 @@ test = ["objgraph", "psutil"]
 
 [[package]]
 name = "griffe"
-version = "0.25.4"
+version = "0.25.5"
 description = "Signatures for entire Python programs. Extract the structure, the frame, the skeleton of your project, to generate API documentation or find breaking changes in your API."
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "griffe-0.25.4-py3-none-any.whl", hash = "sha256:919f935a358b31074d16e324e26b041883c60a8cf10504655e394afc3a7caad8"},
-    {file = "griffe-0.25.4.tar.gz", hash = "sha256:f190edf8ef58d43c856d2d6761ec324a043ff60deb8c14359263571e8b91fe68"},
+    {file = "griffe-0.25.5-py3-none-any.whl", hash = "sha256:1fb9edff48e66d4873014a2ebf21aca5f271d0006a4c937826e3cf592ffb3706"},
+    {file = "griffe-0.25.5.tar.gz", hash = "sha256:11ea3403ef0560a1cbcf7f302eb5d21cf4c1d8ed3f8a16a75aa9f6f458caf3f1"},
 ]
 
 [package.dependencies]
@@ -3803,6 +3822,17 @@ mypy-extensions = ">=0.3.0"
 typing-extensions = ">=3.7.4"
 
 [[package]]
+name = "untokenize"
+version = "0.1.1"
+description = "Transforms tokens into original source code (while preserving whitespace)."
+category = "dev"
+optional = false
+python-versions = "*"
+files = [
+    {file = "untokenize-0.1.1.tar.gz", hash = "sha256:3865dbbbb8efb4bb5eaa72f1be7f3e0be00ea8b7f125c69cbd1f5fda926f37a2"},
+]
+
+[[package]]
 name = "urllib3"
 version = "1.26.14"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
@@ -3898,14 +3928,14 @@ watchmedo = ["PyYAML (>=3.10)"]
 
 [[package]]
 name = "weasyprint"
-version = "57.2"
+version = "58.0"
 description = "The Awesome Document Factory"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "weasyprint-57.2-py3-none-any.whl", hash = "sha256:685692e7a2b4aec21010a61c1e8f1d6cd611dd46509fa7068fcca3c8e59a94f5"},
-    {file = "weasyprint-57.2.tar.gz", hash = "sha256:b8e9ef2dcbcfbc82e99215acfd68f947b2b5f1999b5b156db75fabe380ba7e9a"},
+    {file = "weasyprint-58.0-py3-none-any.whl", hash = "sha256:63f092bae12a2c8eac6975209510782bb0af2f562fc68efba78222f9386c3897"},
+    {file = "weasyprint-58.0.tar.gz", hash = "sha256:70f482cad8e53c2c3eae9cf86af412eb93405b16ac8781b519ea3326d475bd6f"},
 ]
 
 [package.dependencies]
@@ -4044,4 +4074,4 @@ test = ["pytest"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "9ac78be39d037fdd00894ef1360cc3ae5af0c8735e7a6cacc2d3aed9b06280fc"
+content-hash = "995f8587f54df35f6a1e5cc4a270c0bf3e917af85c54c962ecdbf323bedc79c8"
