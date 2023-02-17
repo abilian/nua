@@ -1,7 +1,9 @@
 import json
 import os
+import sys
 from io import StringIO
 
+import typer
 from fabric import Connection
 
 # Hardcoded for now
@@ -31,7 +33,13 @@ class Client:
         args = StringIO(json.dumps(kw))
         cmd = f"{NUA_CMD} rpc {method}"
         r = self.connection.run(cmd, hide=True, in_stream=args)
-        return json.loads(r.stdout)
+        try:
+            return json.loads(r.stdout)
+        except json.JSONDecodeError:
+            typer.secho(
+                f"Invalid response from server:\n{r.stdout}", fg=typer.colors.RED
+            )
+            sys.exit(1)
 
 
 _CLIENT = None

@@ -1,17 +1,17 @@
 from operator import itemgetter
+from pprint import pp
 
 import typer
-from snoop import pp
 
 from nua_cli.client import get_client
 
-app = typer.Typer()
+app = typer.Typer(name="server")
 client = get_client()
 
 
 @app.command()
 def logs():
-    print("Showing logs [TODO]")
+    print("Showing server logs [TODO]")
 
 
 @app.command()
@@ -37,3 +37,8 @@ def settings():
     """Show server settings."""
     result = client.call("settings")
     pp(result)
+
+
+@app.callback()
+def main():
+    """Manage the Nua server."""

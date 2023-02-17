@@ -1,54 +1,50 @@
 """
 TODO:
 
-apps              List apps
-build             Build app but don't deploy it
-backup            Backup/restore app data
-config            Show/manage config for current app
-deploy            Deploy app
-destroy           Destroy app
-help              Display help
-init              Create a new app
-logs              Tail running logs
-ps                Show process count
-restart           Restart an app
-run               Run a command in the app's environment
-scale             Scale processes
-settings          Show server settings
-start             Start an app
-status            Show app status
-stop              Stop an app
-update            Update the Nua CLI
+[x] = done
+[ ] = not done
+
+[x] apps              List apps
+[x] build             Build app but don't deploy it
+[x] backup            Backup/restore app data
+[x] config            Show/manage config for current app
+[ ] deploy            Deploy app
+[ ] destroy           Destroy app
+[ ] help              Display help
+[ ] init              Create a new app
+[ ] logs              Tail running logs
+[ ] ps                Show process count
+[ ] restart           Restart an app
+[ ] run               Run a command in the app's environment
+[ ] scale             Scale processes
+[ ] settings          Show server settings
+[ ] start             Start an app
+[ ] status            Show app status
+[ ] stop              Stop an app
+[ ] update            Update the Nua CLI
+[x] version           Show Nua version
 """
 from __future__ import annotations
 
 import subprocess
+from pprint import pp
 from typing import Optional
 
-import snoop
 import typer
-from snoop import pp
 
 from nua_cli.version import get_version
 
 from .client import get_client
-from .common import OPTS, print_version
+from .common import OPTS
 from .subcommands import config, server
 
-snoop.install()
 app = typer.Typer()
 client = get_client()
 
 
 # Subcommands
-app.add_typer(server.app, name="server", help="Manage the Nua server")
-app.add_typer(config.app, name="config", help="Show / edit app config")
-
-
-def _usage():
-    print_version()
-    typer.echo("Usage(wip): nua status\n" "Try 'nua --help' for help.")
-    raise typer.Exit(0)
+app.add_typer(server.app)
+app.add_typer(config.app)
 
 
 #
@@ -63,9 +59,9 @@ def apps():
 
 
 @app.command()
-def help():
+def help(ctx: typer.Context):
     """Show help."""
-    _usage()
+    print(app)
 
 
 @app.command()
@@ -89,7 +85,6 @@ def backup():
 @app.command()
 def build(path: str = "."):
     """Build app but don't deploy it."""
-
     subprocess.run(["nua-dev", "build", path])
 
 
@@ -111,31 +106,37 @@ def deploy(imagename: str, domainname: str):
 @app.command()
 def destroy():
     """Destroy an application."""
+    typer.secho("Not implemented yet", fg=typer.colors.RED)
 
 
 @app.command()
 def start():
     """Start an application."""
+    typer.secho("Not implemented yet", fg=typer.colors.RED)
 
 
 @app.command()
 def stop():
     """Stop an application."""
+    typer.secho("Not implemented yet", fg=typer.colors.RED)
 
 
 @app.command()
 def logs():
     """Show application logs."""
+    typer.secho("Not implemented yet", fg=typer.colors.RED)
 
 
 @app.command()
 def update():
     """Update an application."""
+    typer.secho("Not implemented yet", fg=typer.colors.RED)
 
 
 @app.command()
 def restore():
     """Restore backup data of a deployed application."""
+    typer.secho("Not implemented yet", fg=typer.colors.RED)
 
 
 @app.callback(invoke_without_command=True)
@@ -143,11 +144,6 @@ def main(
     ctx: typer.Context,
     version: Optional[bool] = OPTS["version"],
 ):
-    """Nua local CLI."""
-    # initialization()
+    """Nua CLI."""
     if ctx.invoked_subcommand is None:
-        _usage()
-
-
-if __name__ == "__main__":
-    app()
+        print(ctx.get_help())

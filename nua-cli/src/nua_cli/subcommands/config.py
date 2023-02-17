@@ -1,12 +1,12 @@
 import sys
+from pprint import pp
 
 import typer
-from snoop import pp
 
 from nua_cli.client import get_client
 from nua_cli.common import get_current_app_id
 
-app = typer.Typer()
+app = typer.Typer(name="config")
 client = get_client()
 
 
@@ -29,3 +29,10 @@ def show(app: str = typer.Option("", help="Id of the application.")):
     else:
         typer.secho(f"App {app_id} not found", fg=typer.colors.RED)
         sys.exit(1)
+
+
+@app.callback()
+def main(ctx: typer.Context):
+    """Show/edit application config."""
+    if ctx.invoked_subcommand is None:
+        print(ctx.get_help())
