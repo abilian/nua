@@ -1,16 +1,6 @@
 # Using the Command Line Interface
 
-In addition to the web interface, Nua has a Command Line Interface.
-
-This CLI will provide both functionalities present in the web interface and additional specific functionalities.
-
-At the moment, each package defines a few commands, and a specific `nua_cli` provides some common fontend. These will be refactored during development in order to provide a consistent UX and DX.
-
-## Building packages
-
-The only build environment command:
-
-    nuad build
+In its first iterations, Nua provides only a Command Line Interface (CLI).
 
 ## Managing the orchestrator
 
@@ -22,7 +12,7 @@ Currently, the orchestrator, as a server, is managed using the following command
 $ nua-orchestrator --help
 Usage: nua-orchestrator [OPTIONS] COMMAND [ARGS]...
 
-  Nua orchestrator server.
+  Nua orchestrator local.
 
 Options:
   -V, --version         Show Nua version and exit.
@@ -32,40 +22,48 @@ Options:
   --help                Show this message and exit.
 
 Commands:
-  restart  Restart orchestrator server.
-  start    Start orchestrator server.
-  status   Status of orchestrator server.
-  stop     Stop orchestrator server.
+  backup   Backup now all instance having a backup rules.
+  debug    Debug commands
+  deploy   Search, install and launch Nua image.
+  reload   Rebuild config and restart apps.
+  restore  Restore last successful deployment.
+  search   Search Nua image.
+  status   Status of orchestrator.
 ```
 
-## The `nua_cli` set of commands
+## The `nua` set of commands
 
-When the orchestrator is started, it provides both a web interface and a CLI interface.
-The `nua_cli` CLI will be accessible:
+The `nua` command is a CLI provided by the `nua-cli` package. It is intended to be used by a standard user of Nua.
 
--   locally, permitting to the owner of the Nua instance to interact directly with the orchestrator.
--   remotely, permitting identified users to perform a subset of these tasks.
+Nua uses SSH public key authentication, then a secure channel to the orchestrator is established using the SSH protocol.
 
-Indeed, dependending of the technical circumstance or technical culture of Nua users, some tasks
-may be simpler to do from a CLI. For example, dowloading some data into a file or moving containers between several hosts.
-
-The local CLI is supported by a small RPC server on top of ZeroMQ. For remote access, Nua uses SSH public
-key authentication, then a secure channel to the local RPC server.
-
-Some example of `nua_cli` task, administration of users:
+Here is a list of `nua` commands (some of them are not implemented yet):
 
 ```text
-nua users --help
-Usage: nua users [OPTIONS] COMMAND [ARGS]...
+Usage: nua [OPTIONS] COMMAND [ARGS]...
+
+  Nua CLI.
 
 Options:
-  --help  Show this message and exit.
+  -V, --version         Show Nua version and exit.
+  --install-completion  Install completion for the current shell.
+  --show-completion     Show completion for the current shell, to copy it or
+                        customize the installation.
+  --help                Show this message and exit.
 
 Commands:
-  add     Add user account.
-  count   Number or users in the table.
-  delete  Delete users accounts.
-  list    List users accounts.
-  pubkey  Update some user account public key.
-  update  Update some user account for one key/value pair.
+  apps     List applications.
+  backup   Backup a deployed application.
+  build    Build app but don't deploy it.
+  config   Show/edit application config.
+  deploy   Deploy an application.
+  destroy  Destroy an application.
+  help     Show help.
+  logs     Show application logs.
+  restore  Restore backup data of a deployed application.
+  server   Manage the Nua server.
+  start    Start an application.
+  stop     Stop an application.
+  update   Update an application.
+  version  Show Nua version.
 ```
