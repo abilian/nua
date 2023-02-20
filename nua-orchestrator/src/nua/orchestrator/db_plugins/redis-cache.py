@@ -25,7 +25,7 @@ def configure_db(resource: Resource):
     #  - and change start commenad like ["redis-server", "/etc/redis/redis.conf"]
     #
     # resource.assign = [
-    #     {"key": "REDIS_PASSWORD", "random_str": True, "persist": True},
+    #     {"key": "REDIS_PASSWORD", "random": True, "persist": True},
     # ]
 
 

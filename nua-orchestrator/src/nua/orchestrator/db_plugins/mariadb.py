@@ -25,13 +25,23 @@ def configure_db(resource: Resource):
     # env
     env = {
         "MARIADB_PORT": "3306",
-        "MARIADB_ROOT_PASSWORD": {"random_str": True, "persist": True},
+        "MARIADB_ROOT_PASSWORD": {
+            "random": True,
+            "type": "str",
+            "length": 24,
+            "persist": True,
+        },
     }
     if resource.get("create_user", True):
         env.update(
             {
                 "MARIADB_USER": {"unique_user": True, "persist": True},
-                "MARIADB_PASSWORD": {"random_str": True, "persist": True},
+                "MARIADB_PASSWORD": {
+                    "random": True,
+                    "type": "str",
+                    "length": 24,
+                    "persist": True,
+                },
             }
         )
     if resource.get("create_db", True):

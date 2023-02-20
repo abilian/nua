@@ -11,7 +11,7 @@ from ..resource import Resource
 from ..utils import dehyphen
 from .evaluators import (  # site_environment,
     nua_internal,
-    random_str,
+    random,
     resource_property,
     unique_db,
     unique_user,
@@ -21,7 +21,7 @@ EVALUATOR_FCT = {
     "key": resource_property,
     # "environment": site_environment,
     "nua_internal": nua_internal,
-    "random_str": random_str,
+    "random": random,
     # "property": resource_property,
     "unique_db": unique_db,
     "unique_user": unique_user,

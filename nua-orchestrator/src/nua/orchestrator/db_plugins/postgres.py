@@ -28,7 +28,12 @@ def configure_db(resource: Resource):
     # env
     resource.env = {
         "POSTGRES_PORT": "5432",
-        "POSTGRES_PASSWORD": {"random_str": True, "persist": True},
+        "POSTGRES_PASSWORD": {
+            "random": True,
+            "type": "str",
+            "length": 24,
+            "persist": True,
+        },
         "POSTGRES_USER": {"unique_user": True, "persist": True},
         "POSTGRES_DB": {"unique_db": True, "persist": True},
     }

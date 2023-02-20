@@ -8,7 +8,7 @@ but call through wrapper uses a third argument: 'persistent'
 from functools import wraps
 from typing import Any
 
-from nua.agent.gen_password import gen_password
+from nua.agent.gen_password import gen_password, gen_randint
 from nua.lib.panic import abort, show, warning
 from nua.lib.tool.state import verbosity
 
@@ -66,18 +66,25 @@ def no_persistent_value(func):
 
 
 @persistent_value
-def random_str(
+def random(
     resource: Resource,
     destination_key: str,
     requirement: dict,
 ) -> dict:
-    """Send a password.
+    """Send a random string or a random integer.
 
-    - ramdom generated,
-    - or from previous execution if 'persistent' is true and previous
-    data is found.
+    The value is either ramdomly generated or read from previous execution if
+    'persistent' is true (default) and previous data is found.
+    Default length for random string is 24.
+    Random integer is a 64 bit positive signed, [0, 2*64-1]
     """
-    return {destination_key: gen_password(24)}
+    tpe = requirement.get("type", "string")
+    if tpe.lower() in {"int", "integer"}:
+        return {destination_key: gen_randint()}
+    length = max(1, int(requirement.get("length", 24)))
+    if length < 8:
+        warning(f"A random string of length {length} would result in a weak password")
+    return {destination_key: gen_password(length)}
 
 
 @persistent_value

@@ -1,13 +1,13 @@
 import string
 
-from nua.agent.gen_password import gen_password
+from nua.agent.gen_password import gen_password, gen_randint
 
 
 def test_gen_password_len():
-    """Expect len to be 16."""
+    """Expect len to be 24."""
     pwd = gen_password()
 
-    assert len(pwd) >= 16
+    assert len(pwd) >= 24
 
 
 def test_gen_password_content():
@@ -18,8 +18,16 @@ def test_gen_password_content():
 
 
 def test_gen_password_different():
-    """Test should fail 1/10e28."""
+    """Test should fail 1/10e43."""
     pwd1 = gen_password()
     pwd2 = gen_password()
 
     assert pwd1 != pwd2
+
+
+def test_gen_randint():
+    """Chck result is int."""
+    randint = gen_randint()
+
+    assert isinstance(randint, int)
+    assert randint >= 0

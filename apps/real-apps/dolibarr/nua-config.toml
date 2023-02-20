@@ -19,7 +19,7 @@ DOLI_DB_HOST = { from="database", key="hostname" }
 DOLI_DB_USER = { from="database", key="MARIADB_USER" }
 DOLI_DB_PASSWORD = { from="database", key="MARIADB_PASSWORD" }
 DOLI_DB_NAME = { from="database", key="MARIADB_DATABASE" }
-DOLI_ADMIN_PASSWORD = { random_str='true' }
+DOLI_ADMIN_PASSWORD = { random='true' }
 
 DOLI_ADMIN_LOGIN = "admin"
 DOLI_URL_ROOT = 'http://0.0.0.0'

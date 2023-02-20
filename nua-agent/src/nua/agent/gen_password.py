@@ -4,10 +4,10 @@ import string
 MIN_DIGIT = 3
 
 
-def gen_password(length: int = 16) -> str:
-    """Generate random passord.
+def gen_password(length: int = 24) -> str:
+    """Generate random password.
 
-    With ascii and digits, lenght 16, log10(62**16) ~ 28, and basic
+    With ascii and digits, lenght 24, log10(62**16) ~ 43, and basic
     constraints. Added constraint for usernames: first char is letter.
     """
     alphabet = string.ascii_letters + string.digits
@@ -21,3 +21,8 @@ def gen_password(length: int = 16) -> str:
         ):
             break
     return password
+
+
+def gen_randint() -> int:
+    """Generate random integer of 64 bits."""
+    return secrets.randbits(64)
