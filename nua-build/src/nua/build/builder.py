@@ -17,11 +17,7 @@ from shutil import copy2, copytree
 import docker
 from docker.errors import BuildError
 from docker.utils.json_stream import json_stream
-from nua.agent.constants import (
-    NUA_BUILDER_NODE_TAG14,
-    NUA_BUILDER_NODE_TAG16,
-    NUA_BUILDER_TAG,
-)
+from nua.agent.constants import NUA_BUILDER_TAG
 from nua.agent.nua_config import NuaConfig, hyphen_get, nua_config_names
 from nua.autobuild.docker_build_utils import (
     display_docker_img,
@@ -29,6 +25,7 @@ from nua.autobuild.docker_build_utils import (
     image_labels,
 )
 from nua.autobuild.nua_image_builder import NUAImageBuilder
+from nua.autobuild.register_builders import is_builder
 from nua.lib.backports import chdir
 from nua.lib.panic import info, show, title, vprint, vprint_blue
 from nua.lib.shell import rm_fr
@@ -41,9 +38,6 @@ from . import __version__, config
 logging.basicConfig(level=logging.INFO)
 
 RE_SUCCESS = re.compile(r"(^Successfully built |sha256:)([0-9a-f]+)$")
-# beyond base image NUA_BUILDER_TAG, permit other build base. Currently tested with
-# a Nodejs16 base image:
-ALLOWED_PROFILE = {"node": [NUA_BUILDER_NODE_TAG14, NUA_BUILDER_NODE_TAG16]}
 
 
 class BuilderError(Exception):
@@ -90,23 +84,24 @@ class Builder:
         self.container_type = container
 
     def check_allowed_base_image(self):
-        for key in self.config.profile:
-            if key not in ALLOWED_PROFILE:
-                raise BuilderError(
-                    f"Nua profile must be one of:\n{', '.join(ALLOWED_PROFILE.keys())}"
-                )
+        builder = self.config.builder
+        if not builder:
+            return
+        if not is_builder(builder):
+            raise BuilderError(f"Unknown Nua builder: '{builder}'")
 
     def ensure_base_image_profile_availability(self):
         """Profile will determine the required base image.
 
         If empty, the standard Nua base image is used.
         """
-        # the default base image needs to exist first is all profile situations
         image_builder = NUAImageBuilder()
         image_builder.ensure_base_image()
-        for key in self.config.profile:
-            image_builder = NUAImageBuilder()
-            image_builder.ensure_images(ALLOWED_PROFILE[key])
+        builder = self.config.builder
+        if not builder:
+            return
+        image_builder = NUAImageBuilder()
+        image_builder.ensure_images(builder)
 
     def select_base_image(self):
         """Select a base image among possible choices.
@@ -114,25 +109,13 @@ class Builder:
         It may append that we have 2 images for Nodejs v14 and v16, and
         an app allowing both version.
         """
-        for key, required_version in self.config.profile.items():
-            if key == "node":
-                self._set_base_image_node(required_version)
-        if not self.nua_base:
+        builder = self.config.builder
+        if builder:
+            self.nua_base = NUAImageBuilder.builder_tag(builder)
+        else:
             self.nua_base = NUA_BUILDER_TAG
         with verbosity(2):
             info(f"Nua base image: '{self.nua_base}'")
-
-    def _set_base_image_node(self, required_version: str):
-        references = ALLOWED_PROFILE["node"]
-        version_spec = SpecifierSet(required_version)
-        for reference in references:
-            provided = image_labels(reference).get("node_version")
-            if not provided:
-                continue
-            if Version(provided) in version_spec:
-                # we found an image with relevant version of nodejs
-                self.nua_base = reference
-                return
 
     def detect_nua_dir(self):
         """Detect dir containing nua files (start.py, build.py, Dockerfile,

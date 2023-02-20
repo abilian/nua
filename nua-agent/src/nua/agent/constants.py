@@ -2,8 +2,6 @@ from .version import __version__
 
 NUA_PYTHON_TAG = f"nua-python:{__version__}"
 NUA_BUILDER_TAG = f"nua-builder:{__version__}"
-NUA_BUILDER_NODE_TAG14 = f"nua-builder-nodejs14:{__version__}"
-NUA_BUILDER_NODE_TAG16 = f"nua-builder-nodejs16:{__version__}"
 
 NUA_CONFIG_STEM = "nua-config"
 NUA_CONFIG_EXT = ("json", "toml", "yaml", "yml")

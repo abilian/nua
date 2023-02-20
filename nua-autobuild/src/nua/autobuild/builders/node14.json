@@ -1,0 +1,16 @@
+{
+    "app_id": "nua-builder-nodejs14",
+    "name": [
+        "node14",
+        "node-14",
+        "node_14",
+        "nodejs14",
+        "nodejs-14",
+        "nodejs_14"
+    ],
+    "container": "docker",
+    "dockerfile": "Dockerfile_nua_builder_node14",
+    "labels": {
+        "node_version": "14"
+    }
+}

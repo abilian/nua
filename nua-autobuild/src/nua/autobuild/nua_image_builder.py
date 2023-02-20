@@ -3,12 +3,7 @@ import tempfile
 from pathlib import Path
 
 import docker
-from nua.agent.constants import (
-    NUA_BUILDER_NODE_TAG14,
-    NUA_BUILDER_NODE_TAG16,
-    NUA_BUILDER_TAG,
-    NUA_PYTHON_TAG,
-)
+from nua.agent.constants import NUA_BUILDER_TAG, NUA_PYTHON_TAG
 from nua.lib.actions import copy_from_package
 from nua.lib.backports import chdir
 from nua.lib.panic import abort, show, title, vprint
@@ -16,13 +11,7 @@ from nua.lib.shell import mkdir_p
 from nua.lib.tool.state import verbosity
 
 from . import __version__ as nua_version
-from .constants import (
-    DOCKERFILE_BUILDER,
-    DOCKERFILE_BUILDER_NODE14,
-    DOCKERFILE_BUILDER_NODE16,
-    DOCKERFILE_PYTHON,
-    NUA_LINUX_BASE,
-)
+from .constants import DOCKERFILE_BUILDER, DOCKERFILE_PYTHON, NUA_LINUX_BASE
 from .docker_build_utils import (
     display_docker_img,
     docker_build_log_error,
@@ -30,6 +19,7 @@ from .docker_build_utils import (
     docker_require,
 )
 from .nua_wheel_builder import NuaWheelBuilder
+from .register_builders import builder_ids, builder_info, is_builder
 
 
 class NUAImageBuilder:
@@ -38,10 +28,6 @@ class NUAImageBuilder:
         self.images_path = {}
         self.force = False
         self.download = False
-        self.builder_methods = {
-            NUA_BUILDER_NODE_TAG14: self.ensure_nua_builder_node14,
-            NUA_BUILDER_NODE_TAG16: self.ensure_nua_builder_node16,
-        }
         self.displayed = set()
 
     def display_once_docker_img(self, image_tag: str):
@@ -84,35 +70,33 @@ class NUAImageBuilder:
 
     def ensure_all_nua_builders(self):
         """Build the (several) build images providing various environments."""
-        self.ensure_nua_builder_node14()
-        self.ensure_nua_builder_node16()
+        for app_id in builder_ids():
+            self.ensure_nua_builder_name(app_id)
 
-    def ensure_nua_builder_node14(self):
-        self._ensure_nua_builder_node_x(NUA_BUILDER_NODE_TAG14)
-
-    def ensure_nua_builder_node16(self):
-        self._ensure_nua_builder_node_x(NUA_BUILDER_NODE_TAG16)
-
-    def _ensure_nua_builder_node_x(self, image_tag: str):
-        if self.force or not docker_require(image_tag):
+    def ensure_nua_builder_name(self, name: str):
+        info = builder_info(name)
+        app_id = info["app_id"]
+        tag = f"{app_id}:{nua_version}"
+        if self.force or not docker_require(tag):
             if self.force:
-                docker_remove_locally(image_tag)
-            self.build_nua_builder_node(image_tag)
+                docker_remove_locally(tag)
+            self.build_builder_of_name(app_id)
         with verbosity(1):
-            self.display_once_docker_img(image_tag)
+            self.display_once_docker_img(tag)
 
-    def ensure_images(self, required: list):
+    def ensure_images(self, required: list | str):
         with verbosity(3):
             vprint("ensure_images:", required)
         # ensure base images
         self.ensure_base_image()
+        if isinstance(required, str):
+            required = [required]
         for key in required:
-            method = self.builder_methods.get(key)
-            if not method:
-                abort(f"No method to build '{key}'")
-                # Please the typechecker
-                raise SystemExit
-            method()
+            if not is_builder(key):
+                abort(f"'{key}' is not a known Nua builder.")
+                raise SystemExit(1)
+        for key in required:
+            self.build_builder_of_name(key)
 
     def ensure_base_image(self):
         with verbosity(3):
@@ -144,19 +128,24 @@ class NUAImageBuilder:
             with chdir(build_path):
                 docker_build_builder()
 
-    def build_nua_builder_node(self, image_tag: str):
-        """Build images of profile family 'node'.
-
-        Currently, image_tag can be: NUA_BUILDER_NODE_TAG16 or 14
-        """
-        title(f"Building the docker image {image_tag}")
+    def build_builder_of_name(self, name: str):
+        """Build a specific environmanet builder."""
+        info = builder_info(name)
+        app_id = info["app_id"]
+        # tag = f"{app_id}:{nua_version}"
+        title(f"Building the docker image {app_id}:{nua_version}")
         with tempfile.TemporaryDirectory() as build_dir:
             build_path = Path(build_dir)
             with verbosity(3):
                 show(f"build directory: {build_path}")
             self.copy_wheels(build_path)
+            docker_build_custom(info, build_path)
 
-            docker_build_builder_node_tag(image_tag, build_path)
+    @staticmethod
+    def builder_tag(name: str) -> str:
+        info = builder_info(name)
+        app_id = info["app_id"]
+        return f"{app_id}:{nua_version}"
 
     def copy_wheels(self, build_path: Path):
         wheel_path = build_path / "nua_build_whl"
@@ -202,62 +191,28 @@ def docker_build_builder():
     )
 
 
-def docker_build_builder_node_tag(image_tag: str, build_path: Path):
-    if image_tag == NUA_BUILDER_NODE_TAG14:
-        docker_build_builder_node_tag14(build_path)
-    if image_tag == NUA_BUILDER_NODE_TAG16:
-        docker_build_builder_node_tag16(build_path)
-
-
 @docker_build_log_error
-def docker_build_builder_node_tag14(build_path: Path):
+def docker_build_custom(info: dict, build_path: Path):
     with chdir(build_path):
-        # Fixme: there is no way to retrieve the precise version before installation
-        # because docker can not make a dynamic "label"
-        node_version = "14"
-        copy_from_package(
-            "nua.autobuild.dockerfiles", DOCKERFILE_BUILDER_NODE14, build_path
-        )
-        app_id = "nua-builder-nodejs14"
+        app_id = info["app_id"]
+        tag = f"{app_id}:{nua_version}"
+        labels = {
+            "APP_ID": app_id,
+            "NUA_TAG": NUA_BUILDER_TAG,
+            "NUA_BUILD_VERSION": nua_version,
+        }
+        labels.update(info["labels"])
+        dockerfile = info["dockerfile"]
+        copy_from_package("nua.autobuild.builders", dockerfile.name, build_path)
         client = docker.from_env()
         image, tee = client.images.build(
             path=".",
-            dockerfile=DOCKERFILE_BUILDER_NODE14,
+            dockerfile=dockerfile.name,
             buildargs={
                 "nua_builder_tag": NUA_BUILDER_TAG,
                 "nua_version": nua_version,
             },
-            tag=NUA_BUILDER_NODE_TAG14,
-            labels={
-                "APP_ID": app_id,
-                "NUA_TAG": NUA_BUILDER_TAG,
-                "NUA_BUILD_VERSION": nua_version,
-                "node_version": node_version,
-            },
-            rm=True,
-        )
-
-
-@docker_build_log_error
-def docker_build_builder_node_tag16(build_path: Path):
-    with chdir(build_path):
-        # Fixme: there is no way to retrieve the precise version before installation...
-        node_version = "16"
-        copy_from_package(
-            "nua.autobuild.dockerfiles", DOCKERFILE_BUILDER_NODE16, build_path
-        )
-        app_id = "nua-builder-nodejs16"
-        client = docker.from_env()
-        image, tee = client.images.build(
-            path=".",
-            dockerfile=DOCKERFILE_BUILDER_NODE16,
-            buildargs={"nua_builder_tag": NUA_BUILDER_TAG, "nua_version": nua_version},
-            tag=NUA_BUILDER_NODE_TAG16,
-            labels={
-                "APP_ID": app_id,
-                "NUA_TAG": NUA_BUILDER_TAG,
-                "NUA_BUILD_VERSION": nua_version,
-                "node_version": node_version,
-            },
+            tag=tag,
+            labels=labels,
             rm=True,
         )

@@ -185,6 +185,10 @@ class NuaConfig:
         return self["build"]
 
     @property
+    def builder(self) -> dict:
+        return self.build.get("builder", "")
+
+    @property
     def project(self) -> str:
         """The project URL to build with autodetection."""
         if base := self.build.get("project"):
@@ -227,20 +231,6 @@ class NuaConfig:
     @property
     def docker(self) -> dict:
         return self["docker"]
-
-    # profile #######################################################
-
-    @property
-    def profile(self) -> str:
-        """Profile of image and required version.
-
-        Example or returned value:
-            for standard:
-                {}
-            for nodejs:
-                {"node": ">=14.13.1,<17"}
-        """
-        return self["profile"]
 
     # resource ######################################################
 
