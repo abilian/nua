@@ -85,17 +85,13 @@ class Builder:
             raise BuilderError(f"Unknown Nua builder: '{builder}'")
 
     def ensure_base_image_profile_availability(self):
-        """Profile will determine the required base image.
+        """Ensure the required Nua images are available.
 
+        The tag 'builder' will determine the required base image.
         If empty, the standard Nua base image is used.
         """
         image_builder = NUAImageBuilder()
-        image_builder.ensure_base_image()
-        builder = self.config.builder
-        if not builder:
-            return
-        image_builder = NUAImageBuilder()
-        image_builder.ensure_images(builder)
+        image_builder.ensure_images(self.config.builder)
 
     def select_base_image(self):
         """Select a base image among possible choices.

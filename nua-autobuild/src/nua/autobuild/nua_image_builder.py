@@ -89,6 +89,8 @@ class NUAImageBuilder:
             vprint("ensure_images:", required)
         # ensure base images
         self.ensure_base_image()
+        if not required:
+            return
         if isinstance(required, str):
             required = [required]
         for key in required:
@@ -96,7 +98,7 @@ class NUAImageBuilder:
                 abort(f"'{key}' is not a known Nua builder.")
                 raise SystemExit(1)
         for key in required:
-            self.build_builder_of_name(key)
+            self.ensure_nua_builder_name(key)
 
     def ensure_base_image(self):
         with verbosity(3):
