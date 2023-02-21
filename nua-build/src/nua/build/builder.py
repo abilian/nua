@@ -19,19 +19,13 @@ from docker.errors import BuildError
 from docker.utils.json_stream import json_stream
 from nua.agent.constants import NUA_BUILDER_TAG
 from nua.agent.nua_config import NuaConfig, hyphen_get, nua_config_names
-from nua.autobuild.docker_build_utils import (
-    display_docker_img,
-    docker_build_log_error,
-    image_labels,
-)
+from nua.autobuild.docker_build_utils import display_docker_img, docker_build_log_error
 from nua.autobuild.nua_image_builder import NUAImageBuilder
 from nua.autobuild.register_builders import is_builder
 from nua.lib.backports import chdir
 from nua.lib.panic import info, show, title, vprint, vprint_blue
 from nua.lib.shell import rm_fr
 from nua.lib.tool.state import verbosity, verbosity_level
-from packaging.specifiers import SpecifierSet
-from packaging.version import Version
 
 from . import __version__, config
 

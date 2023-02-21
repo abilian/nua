@@ -26,7 +26,6 @@ nua-lib = { path = "../nua-lib/", develop = true }
 nua-agent = { path = "../nua-agent/", develop = true }
 nua-autobuild = { path = "../nua-autobuild/", develop = true }
 
-packaging = "*"
 tomli = "^2.0.1"
 
 # CLI and text ui

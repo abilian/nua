@@ -202,12 +202,12 @@ def docker_build_custom(info: dict, build_path: Path):
             "NUA_BUILD_VERSION": nua_version,
         }
         labels.update(info["labels"])
-        dockerfile = info["dockerfile"]
-        copy_from_package("nua.autobuild.builders", dockerfile.name, build_path)
+        dockerfile_path = build_path / "Dockerfile"
+        dockerfile_path.write_text(info["dockerfile"])
         client = docker.from_env()
         image, tee = client.images.build(
             path=".",
-            dockerfile=dockerfile.name,
+            dockerfile="Dockerfile",
             buildargs={
                 "nua_builder_tag": NUA_BUILDER_TAG,
                 "nua_version": nua_version,

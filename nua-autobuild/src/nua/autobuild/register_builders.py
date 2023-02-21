@@ -4,15 +4,15 @@ Docker builders are defined by a json file of properties and a Dockerfile.
 """
 import json
 from importlib import resources as rso
-from pathlib import Path
+from importlib.abc import Traversable
 from pprint import pformat
 
 from nua.lib.panic import vprint, vprint_magenta
 from nua.lib.tool.state import verbosity
 
-BUILDERS_DIRS = ("nua.autobuild.builders",)
-BUILDERS = {}
-BUILDER_NAMES = {}
+BUILDERS_DIRS: tuple[str] = ("nua.autobuild.builders",)
+BUILDERS: dict[str, dict] = {}
+BUILDER_NAMES: dict[str, str] = {}
 initialized = False
 
 
@@ -31,17 +31,18 @@ def builder_info(name: str) -> dict:
 def builder_ids() -> list[str]:
     if not initialized:
         register_builders()
-    return list(BUILDERS.key())
+    return list(BUILDERS.keys())
 
 
 def register_builders() -> None:
     global initialized
+    records: dict[str, Traversable] = {}
     for dir in BUILDERS_DIRS:
         for file in rso.files(dir).iterdir():
-            path = Path(file)
-            if path.suffix != ".json" or path.stem.startswith("_"):
+            if not file.is_file():
                 continue
-            load_builder_config(path, dir)
+            records[file.name] = file
+    load_builder_configs(records)
     initialized = True
     with verbosity(3):
         _show_builders_info()
@@ -53,21 +54,25 @@ def _show_builders_info() -> None:
     vprint("BUILDERS:", pformat(BUILDERS))
 
 
-def load_builder_config(path: Path, builder_dir: str) -> None:
-    builder_config = json.loads(path.read_text(encoding="utf8"))
-    if not builder_config or "app_id" not in builder_config:
-        return
-    classify_builder(builder_config, builder_dir)
+def load_builder_configs(records: dict[str, Traversable]) -> None:
+    for name, file in records.items():
+        if name.startswith("_") or not name.endswith(".json"):
+            continue
+        builder_config = json.loads(file.read_text(encoding="utf8"))
+        if not builder_config or "app_id" not in builder_config:
+            continue
+        docker_file = read_docker_file(records, builder_config)
+        register_builder_config(builder_config, docker_file)
 
 
-def classify_builder(builder_config: dict, builder_dir) -> None:
+def read_docker_file(records: dict[str, Traversable], builder_config: dict) -> str:
     if builder_config["container"] != "docker":
         vprint("Only Docker builders are currently supported.")
-        return
-    docker_file = Path(builder_dir) / builder_config["dockerfile"]
-    if not docker_file.is_file():
-        vprint("Missing Dockerfile {docker_file}")
-        return
+        return ""
+    return records[builder_config["dockerfile"]].read_text(encoding="utf8")
+
+
+def register_builder_config(builder_config: dict, docker_file: str):
     app_id = builder_config["app_id"]
     labels = builder_config["labels"]
     BUILDERS[app_id] = {
