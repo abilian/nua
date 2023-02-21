@@ -1,7 +1,7 @@
 [metadata]
 id = "hedgedoc"
 version = "1.9.6"
-release = 17
+release = 18
 title = "Hedgedoc"
 author = "Hedgedoc developers"
 tagline = "The best platform to write and share markdown"
@@ -11,11 +11,10 @@ license = "AGPL-3.0 license"
 src_url = "https://github.com/hedgedoc/hedgedoc/releases/download/{version}/hedgedoc-{version}.tar.gz"
 checksum = 'dfd0fca006f9075f072df058476ea542adb32b63964afb2985211e1114ab333e'
 
-[profile]
-# use a specific docker image containing nodejs:
-node = ">=14.13.1,<17"
-
 [build]
+# use a specific docker image containing nodejs:
+builder = "node-14"
+
 run-packages = [
     "fontconfig",
     "fonts-noto"
