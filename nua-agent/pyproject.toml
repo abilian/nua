@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-agent"
-version = "0.4.90"
+version = "0.4.91"
 description = "Nua agent"
 authors = [
     "Stefane Fermigier <sf@abilian.com>",
@@ -16,7 +16,7 @@ packages = [
 python = "^3.10"
 setuptools = "*"
 packaging = "*"
-nua-lib = { path = "../nua-lib/", develop = false }
+nua-lib = "==0.4.91"
 tomli = "^2.0.1"
 pyyaml = "^6.0"
 
@@ -29,25 +29,13 @@ types-pyyaml = "*"
 [tool.poetry.scripts]
 app_builder = "nua.agent.scripts.app_builder:main"
 
-[build-system]
-requires = [
-    "poetry-core>=1.0.0",
-]
-build-backend = "poetry.core.masonry.api"
-
-# ------------------------------------------------------------------------------
-
 [tool.pytest.ini_options]
 filterwarnings = [
     "ignore:.*distutils package:DeprecationWarning",
     "ignore::DeprecationWarning",
 ]
 
-# ------------------------------------------------------------------------------
-
 [tool.ruff]
-
-# ------------------------------------------------------------------------------
 
 [tool.deptry]
 exclude = [
@@ -60,11 +48,9 @@ ignore_obsolete = [
     "nua-lib",
 ]
 ignore_missing = [
-     "nua",
+    "nua",
 ]
 ignore_transitive = []
-
-# ------------------------------------------------------------------------------
 
 [tool.pyright]
 exclude = [
@@ -72,3 +58,9 @@ exclude = [
     "tests",
     "noxfile.py",
 ]
+
+[build-system]
+requires = [
+    "poetry-core>=1.0.0",
+]
+build-backend = "poetry.core.masonry.api"
