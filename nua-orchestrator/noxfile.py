@@ -20,6 +20,6 @@ def pytest(session: nox.Session) -> None:
 
 
 def _install(session):
-    session.run("poetry", "install", "--quiet", "--sync", external=True)
+    session.run("poetry", "install", "--quiet", external=True)
     session.run("pip", "check", external=True)
     session.run("poetry", "check", external=True)
