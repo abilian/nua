@@ -1045,7 +1045,7 @@ requirements-deprecated-finder = ["pip-api", "pipreqs"]
 name = "jinja2"
 version = "3.1.2"
 description = "A very fast and expressive template engine."
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -1119,7 +1119,7 @@ testing = ["coverage", "pytest", "pytest-cov", "pytest-regressions"]
 name = "markupsafe"
 version = "2.1.2"
 description = "Safely add untrusted strings to HTML/XML markup."
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -1375,17 +1375,13 @@ tox-to-nox = ["jinja2", "tox"]
 
 [[package]]
 name = "nua-lib"
-version = "0.4.90"
+version = "0.4.91"
 description = "Nua common library"
 category = "main"
 optional = false
-python-versions = "^3.10"
+python-versions = "*"
 files = []
-develop = false
-
-[package.dependencies]
-jinja2 = "^3.1.2"
-setuptools = "*"
+develop = true
 
 [package.source]
 type = "directory"
@@ -2251,4 +2247,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "a9a860d63bd7f48e7f8675977c19bea9f97beda28e6e49e438ac47e78543eac0"
+content-hash = "6baba075446ec7e0c79a16b52b27be6a379d8a959b03d8345514c96f7fba4b61"

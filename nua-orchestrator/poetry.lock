@@ -1660,7 +1660,7 @@ tox-to-nox = ["jinja2", "tox"]
 
 [[package]]
 name = "nua-agent"
-version = "0.4.90"
+version = "0.4.91"
 description = "Nua agent"
 category = "main"
 optional = false
@@ -1669,7 +1669,7 @@ files = []
 develop = true
 
 [package.dependencies]
-nua-lib = {path = "../nua-lib"}
+nua-lib = "==0.4.91"
 packaging = "*"
 pyyaml = "^6.0"
 setuptools = "*"
@@ -1681,7 +1681,7 @@ url = "../nua-agent"
 
 [[package]]
 name = "nua-autobuild"
-version = "0.4.90"
+version = "0.4.91"
 description = "Nua self builder"
 category = "main"
 optional = false
@@ -1705,7 +1705,7 @@ url = "../nua-autobuild"
 
 [[package]]
 name = "nua-build"
-version = "0.4.90"
+version = "0.4.91"
 description = "Nua build package (currently: build, core build, agent)"
 category = "main"
 optional = false
@@ -1728,7 +1728,7 @@ url = "../nua-build"
 
 [[package]]
 name = "nua-lib"
-version = "0.4.90"
+version = "0.4.91"
 description = "Nua common library"
 category = "main"
 optional = false
