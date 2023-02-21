@@ -1,0 +1,16 @@
+{
+    "app_id": "nua-builder-ruby320-704",
+    "name": [
+        "ruby320-704",
+        "ruby320_704",
+        "ruby32-70",
+        "ruby32_70",
+        "ruby320",
+        "ruby32"
+    ],
+    "container": "docker",
+    "dockerfile": "Dockerfile_nua_builder_ruby32_rails70",
+    "labels": {
+        "ruby_version": "3.2.0"
+    }
+}
