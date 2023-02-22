@@ -23,7 +23,7 @@ import_tasks(globals())
 @task
 def install(c):
     """Install all sub-packages (and dependencies)"""
-    run_in_subrepos(c, "pip install -e .")
+    run_in_subrepos(c, "pip install --no-cache-dir -e .")
 
 
 @task

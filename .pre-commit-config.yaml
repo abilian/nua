@@ -7,7 +7,7 @@ repos:
     - id: ruff
       # Respect `exclude` and `extend-exclude` settings.
       # Not working (?)
-      args: ["--force-exclude"]
+      # args: ["--force-exclude"]
       # Using this instead:
       exclude: (apps|demo|nua)
 
