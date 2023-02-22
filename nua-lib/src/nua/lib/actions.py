@@ -289,43 +289,47 @@ def install_ruby(
     rails: str = "",
     keep_lists: bool = False,
 ):
-    """Installation of Ruby via 'rvm'.
-
-    Exec as root.
-    """
-    install_package_list(
-        "curl gpg2 software-properties-common",
-        keep_lists=True,
-        clean=False,
-    )
-    purge_package_list("ruby ruby-dev ri")
-    cmd = (
-        "gpg --keyserver keyserver.ubuntu.com --recv-keys "
-        "409B6B1796C275462A1703113804BB82D39DC0E3 "
-        "7D2BAF1CF37B13E2069D6956105BD0E739499BDB"
-    )
-    sh(cmd)
-    cmd = "apt-add-repository -y ppa:rael-gc/rvm"
-    sh(cmd)
-    install_package_list("rvm", keep_lists=True)
-    cmd = "usermod -a -G rvm root"
-    sh(cmd)
-    cmd = "usermod -a -G rvm nua"
-    sh(cmd)
-    bashrc_line = 'source "/etc/profile.d/rvm.sh"'
-    append_bashrc("/root", bashrc_line)
-    append_bashrc("/nua", bashrc_line)
-    cmd = f"rvm install {version} --default"
-    sh(cmd)
-    cmd = "ruby --version"
-    sh(cmd)
-    cmd = "gem update"
-    sh(cmd)
-    cmd = "gem install bundler"
-    sh(cmd)
-    if rails:
-        cmd = f"gem install rails -v {rails}"
-        sh(cmd)
+    # """Installation of Ruby via 'rvm'.
+    #
+    # Exec as root.
+    # """
+    # install_package_list(
+    #     "curl dirmngr gpg gpg-agent software-properties-common",
+    #     keep_lists=True,
+    #     clean=False,
+    # )
+    # purge_package_list("ruby ruby-dev ri")
+    # cmd = (
+    #     "gpg --keyserver keyserver.ubuntu.com --recv-keys "
+    #     "409B6B1796C275462A1703113804BB82D39DC0E3 "
+    #     "7D2BAF1CF37B13E2069D6956105BD0E739499BDB"
+    # )
+    # sh(cmd)
+    # cmd = "apt-add-repository -y ppa:rael-gc/rvm"
+    # sh(cmd)
+    # install_package_list("rvm", keep_lists=True)
+    # cmd = "cat /etc/group"
+    # sh(cmd)
+    # cmd = 'source "/etc/profile.d/rvm.sh" && cat /etc/group'
+    # sh(cmd)
+    # cmd = "usermod -a -G rvm root"
+    # sh(cmd)
+    # cmd = "usermod -a -G rvm nua"
+    # sh(cmd)
+    # bashrc_line = 'source "/etc/profile.d/rvm.sh"'
+    # append_bashrc("/root", bashrc_line)
+    # append_bashrc("/nua", bashrc_line)
+    # cmd = f"rvm install {version} --default"
+    # sh(cmd)
+    # cmd = "ruby --version"
+    # sh(cmd)
+    # cmd = "gem update"
+    # sh(cmd)
+    # cmd = "gem install bundler"
+    # sh(cmd)
+    # if rails:
+    #     cmd = f"gem install rails -v {rails}"
+    #     sh(cmd)
 
     if not keep_lists:
         apt_remove_lists()
@@ -655,7 +659,15 @@ def camel_format(name: str) -> str:
     return "".join(word.title() for word in name.replace("-", "_").split("_"))
 
 
-def copy_from_package(package: str, filename: str, destdir: Path):
+def copy_from_package(
+    package: str,
+    filename: str,
+    destdir: Path,
+    destname: str = "",
+):
     content = rso.files(package).joinpath(filename).read_text(encoding="utf8")
-    target = destdir / filename
+    if destname:
+        target = destdir / destname
+    else:
+        target = destdir / filename
     target.write_text(content)
