@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-master"
-version = "0.4.93"
+version = "0.4.96"
 description = ""
 authors = [
     "Stefane Fermigier <sf@abilian.com>",
