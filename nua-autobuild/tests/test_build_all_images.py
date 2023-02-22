@@ -8,7 +8,7 @@ from nua.agent.constants import NUA_BUILDER_TAG, NUA_PYTHON_TAG
 
 
 def test_force_build():  # noqa
-    from nua.autobuild.nua_image_builder import NUAImageBuilder
+    from nua.autobuild.nua_image_builder import NuaImageBuilder
 
     client = docker.from_env()
 
@@ -21,7 +21,7 @@ def test_force_build():  # noqa
             client.images.remove(image, force=True, noprune=False)
         assert not client.images.list(image)
 
-    image_builder = NUAImageBuilder()
+    image_builder = NuaImageBuilder()
     image_builder.build(force=True, download=True, all=True)
 
     for image in (
@@ -32,11 +32,11 @@ def test_force_build():  # noqa
 
 
 def test_quick_build():  # noqa
-    from nua.autobuild.nua_image_builder import NUAImageBuilder
+    from nua.autobuild.nua_image_builder import NuaImageBuilder
 
     client = docker.from_env()
 
-    image_builder = NUAImageBuilder()
+    image_builder = NuaImageBuilder()
     image_builder.build(all=True)
 
     for image in (

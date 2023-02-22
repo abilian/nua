@@ -5,7 +5,7 @@ import typer
 from nua.lib.tool.state import set_color, set_verbosity
 
 from . import __version__
-from .nua_image_builder import NUAImageBuilder
+from .nua_image_builder import NuaImageBuilder
 
 app = typer.Typer()
 
@@ -25,7 +25,7 @@ option_force = typer.Option(
 
 option_download = typer.Option(
     False,
-    "--dowload",
+    "--download",
     "-d",
     help="Force download of Nua source code.",
 )
@@ -47,7 +47,7 @@ option_version = typer.Option(
 )
 
 option_verbose = typer.Option(
-    0, "--verbose", "-v", help="Show more informations, until -vvv. ", count=True
+    0, "--verbose", "-v", help="Show more information, until -vvv. ", count=True
 )
 
 option_color = typer.Option(True, "--color/--no-color", help="Colorize messages. ")
@@ -70,5 +70,5 @@ def main(
     """Nua-self-build CLI inferface."""
     set_verbosity(verbose)
     set_color(colorize)
-    image_builder = NUAImageBuilder()
+    image_builder = NuaImageBuilder()
     image_builder.build(force=force, download=download, all=all)

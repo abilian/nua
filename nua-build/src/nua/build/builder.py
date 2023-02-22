@@ -21,7 +21,7 @@ from nua.autobuild.docker_build_utils import (
     docker_build_log_error,
     docker_stream_build,
 )
-from nua.autobuild.nua_image_builder import NUAImageBuilder
+from nua.autobuild.nua_image_builder import NuaImageBuilder
 from nua.autobuild.register_builders import is_builder
 from nua.lib.backports import chdir
 from nua.lib.panic import info, show, title, vprint, vprint_blue
@@ -89,7 +89,7 @@ class Builder:
         The tag 'builder' will determine the required base image.
         If empty, the standard Nua base image is used.
         """
-        image_builder = NUAImageBuilder()
+        image_builder = NuaImageBuilder()
         image_builder.ensure_images(self.config.builder)
 
     def select_base_image(self):
@@ -100,7 +100,7 @@ class Builder:
         """
         builder = self.config.builder
         if builder:
-            self.nua_base = NUAImageBuilder.builder_tag(builder)
+            self.nua_base = NuaImageBuilder.builder_tag(builder)
         else:
             self.nua_base = NUA_BUILDER_TAG
         with verbosity(2):

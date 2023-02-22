@@ -21,7 +21,7 @@ from .nua_wheel_builder import NuaWheelBuilder
 from .register_builders import builder_ids, builder_info, is_builder
 
 
-class NUAImageBuilder:
+class NuaImageBuilder:
     def __init__(self):
         self.orig_wd = None
         self.images_path = {}
