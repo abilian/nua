@@ -258,7 +258,7 @@ def install_nodejs_via_nvm(home: Path | str = "/nua"):
     node_version = "16.18.0"
     # nvm_version = "v0.39.0"
     nvm_dir = f"{home}/.nvm"
-    install_package_list("wget", keep_lists=True)
+    install_package_list("wget ", keep_lists=True)
     bashrc_modif = (
         f'export PATH="{nvm_dir}/versions/node/v{node_version}/bin/:$PATH"\n'
         f'export NVM_DIR="{nvm_dir}"\n'
@@ -285,52 +285,39 @@ def install_nodejs_via_nvm(home: Path | str = "/nua"):
 
 
 def install_ruby(
-    version: str = "3.2.0",
+    version: str = "3.2.1",
     rails: str = "",
     keep_lists: bool = False,
 ):
-    # """Installation of Ruby via 'rvm'.
-    #
-    # Exec as root.
-    # """
-    # install_package_list(
-    #     "curl dirmngr gpg gpg-agent software-properties-common",
-    #     keep_lists=True,
-    #     clean=False,
-    # )
-    # purge_package_list("ruby ruby-dev ri")
-    # cmd = (
-    #     "gpg --keyserver keyserver.ubuntu.com --recv-keys "
-    #     "409B6B1796C275462A1703113804BB82D39DC0E3 "
-    #     "7D2BAF1CF37B13E2069D6956105BD0E739499BDB"
-    # )
-    # sh(cmd)
-    # cmd = "apt-add-repository -y ppa:rael-gc/rvm"
-    # sh(cmd)
-    # install_package_list("rvm", keep_lists=True)
-    # cmd = "cat /etc/group"
-    # sh(cmd)
-    # cmd = 'source "/etc/profile.d/rvm.sh" && cat /etc/group'
-    # sh(cmd)
-    # cmd = "usermod -a -G rvm root"
-    # sh(cmd)
-    # cmd = "usermod -a -G rvm nua"
-    # sh(cmd)
-    # bashrc_line = 'source "/etc/profile.d/rvm.sh"'
-    # append_bashrc("/root", bashrc_line)
-    # append_bashrc("/nua", bashrc_line)
-    # cmd = f"rvm install {version} --default"
-    # sh(cmd)
-    # cmd = "ruby --version"
-    # sh(cmd)
-    # cmd = "gem update"
-    # sh(cmd)
-    # cmd = "gem install bundler"
-    # sh(cmd)
-    # if rails:
-    #     cmd = f"gem install rails -v {rails}"
-    #     sh(cmd)
+    """Installation of Ruby via 'ruby-install'.
 
+    Exec as root.
+    """
+    install_package_list(
+        "wget pkg-config build-essential",
+        keep_lists=True,
+        clean=False,
+    )
+    purge_package_list("ruby ruby-dev ri")
+    rivers = "0.9.0"
+    with chdir("/tmp"):  # noqa s108
+        cmd = (
+            f"wget -O ruby-install-{rivers}.tar.gz "
+            f"https://github.com/postmodern/ruby-install/archive/v{rivers}.tar.gz"
+        )
+        sh(cmd)
+        cmd = f"tar -xzvf ruby-install-{rivers}.tar.gz"
+        sh(cmd)
+        with chdir(f"ruby-install-{rivers}"):
+            cmd = "make install"
+            sh(cmd)
+    cmd = f"rm -fr /tmp/ruby-install-{rivers}*"
+    sh(cmd)
+    cmd = f"ruby-install --system --cleanup -j4 {version} -- --disable-install-doc"
+    sh(cmd)
+    if rails:
+        cmd = f"gem install -N rails -v {rails}"
+        sh(cmd)
     if not keep_lists:
         apt_remove_lists()
 
