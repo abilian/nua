@@ -1,15 +1,19 @@
 """Docker scripting utils."""
+import re
 from datetime import datetime
 from functools import wraps
 
+import docker
 from docker import DockerClient
 from docker.errors import APIError, BuildError, ImageNotFound
 from docker.models.images import Image
+from docker.utils.json_stream import json_stream
 from nua.lib.console import print_red
-from nua.lib.panic import abort, vprint, vprint_magenta
-from nua.lib.tool.state import verbosity
+from nua.lib.panic import abort, vprint, vprint_blue, vprint_magenta
+from nua.lib.tool.state import verbosity, verbosity_level
 
 LOCAL_CONFIG = {"size_unit_MiB": False}
+RE_SUCCESS = re.compile(r"(^Successfully built |sha256:)([0-9a-f]+)$")
 
 
 def vprint_log_stream(docker_log: list):
@@ -139,3 +143,45 @@ def docker_pull(reference: str) -> Image | None:
         with verbosity(3):
             vprint(f"Image '{reference}' not found in Docker hub")
         return None
+
+
+def _print_buffer_log(messages: list[str]):
+    for message in messages:
+        print(message, end="")
+
+
+def docker_stream_build(path: str, tag: str, buildargs: dict, labels: dict) -> str:
+    messages_buffer: list[str] = []
+    client = docker.from_env()
+    resp = client.api.build(
+        path=path,
+        tag=tag,
+        rm=True,
+        forcerm=True,
+        buildargs=buildargs,
+        labels=labels,
+        nocache=True,
+        timeout=1800,
+    )
+    last_event = None
+    image_id = None
+    stream = json_stream(resp)
+    for chunk in stream:
+        if "error" in chunk:
+            _print_buffer_log(messages_buffer)
+            raise BuildError(chunk["error"], "")
+        last_event = chunk
+        message = chunk.get("stream")
+        if not message:
+            continue
+        if match := RE_SUCCESS.search(message):
+            image_id = match.group(2)
+        with verbosity(2):
+            vprint_blue(message)
+        if verbosity_level() < 2:
+            # store message for printing full log if later an error occurs
+            messages_buffer.append(message)
+    if not image_id:
+        _print_buffer_log(messages_buffer)
+        raise BuildError(last_event or "Unknown", "")
+    return image_id
