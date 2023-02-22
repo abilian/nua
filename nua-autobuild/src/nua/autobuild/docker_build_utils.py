@@ -150,7 +150,32 @@ def _print_buffer_log(messages: list[str]):
         print(message, end="")
 
 
-def docker_stream_build(path: str, tag: str, buildargs: dict, labels: dict) -> str:
+def _docker_stream_chunk(
+    chunk: dict,
+    messages_buffer: list[str],
+    result: dict,
+) -> None:
+    if "error" in chunk:
+        _print_buffer_log(messages_buffer)
+        raise BuildError(chunk["error"], "")
+    result["last_event"] = chunk
+    message = chunk.get("stream")
+    if message:
+        if match := RE_SUCCESS.search(message):
+            result["image_id"] = match.group(2)
+        with verbosity(2):
+            vprint_blue(message)
+        if verbosity_level() < 2:
+            # store message for printing full log if later an error occurs
+            messages_buffer.append(message)
+
+
+def docker_stream_build(
+    path: str,
+    tag: str,
+    buildargs: dict,
+    labels: dict,
+) -> str:
     messages_buffer: list[str] = []
     client = docker.from_env()
     resp = client.api.build(
@@ -163,25 +188,11 @@ def docker_stream_build(path: str, tag: str, buildargs: dict, labels: dict) -> s
         nocache=True,
         timeout=1800,
     )
-    last_event = None
-    image_id = None
     stream = json_stream(resp)
+    result: dict[str, str] = {}
     for chunk in stream:
-        if "error" in chunk:
-            _print_buffer_log(messages_buffer)
-            raise BuildError(chunk["error"], "")
-        last_event = chunk
-        message = chunk.get("stream")
-        if not message:
-            continue
-        if match := RE_SUCCESS.search(message):
-            image_id = match.group(2)
-        with verbosity(2):
-            vprint_blue(message)
-        if verbosity_level() < 2:
-            # store message for printing full log if later an error occurs
-            messages_buffer.append(message)
-    if not image_id:
+        _docker_stream_chunk(chunk, messages_buffer, result)
+    if "image_id" not in result:
         _print_buffer_log(messages_buffer)
-        raise BuildError(last_event or "Unknown", "")
-    return image_id
+        raise BuildError(result.get("last_event", "Unknown"), "")
+    return result["image_id"]

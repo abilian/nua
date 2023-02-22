@@ -24,7 +24,7 @@ from nua.autobuild.docker_build_utils import (
 from nua.autobuild.nua_image_builder import NuaImageBuilder
 from nua.autobuild.register_builders import is_builder
 from nua.lib.backports import chdir
-from nua.lib.panic import info, show, title, vprint, vprint_blue
+from nua.lib.panic import info, show, title, vprint
 from nua.lib.shell import rm_fr
 from nua.lib.tool.state import verbosity, verbosity_level
 

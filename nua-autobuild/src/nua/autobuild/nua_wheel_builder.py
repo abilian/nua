@@ -2,6 +2,7 @@
 import re
 import tempfile
 import zipfile
+from contextlib import suppress
 from pathlib import Path
 from shutil import copy2
 from urllib.request import urlopen
@@ -21,7 +22,7 @@ class NuaWheelBuilder:
         self.wheel_path = wheel_path
         self.build_path = Path()
         self.download = download
-        self.nua_local_git = None
+        self.nua_local_git = Path()
 
     def make_wheels(self) -> bool:
         if self.download:
@@ -63,22 +64,19 @@ class NuaWheelBuilder:
         """Try to find all required files locally in an up to date git repository.
 
         Warning: only for devel tests"""
-        try:
-            nua_top = self._nua_top()
-            if self._quick_check(nua_top):
-                self.nua_local_git = nua_top
-                return True
+        result = False
+        with suppress(ValueError, OSError):
             for path in (
+                self._nua_top(),
                 Path.home() / "gits" / "nua",
                 Path.home() / "git" / "nua",
                 Path.home() / "tmp" / "nua",
             ):
                 if self._quick_check(path):
                     self.nua_local_git = path
-                    return True
-            return False
-        except (ValueError, OSError):
-            return False
+                    result = True
+                    break
+        return result
 
     def build_from_download(self) -> bool:
         with tempfile.TemporaryDirectory() as build_dir:
@@ -92,7 +90,8 @@ class NuaWheelBuilder:
                 target.write_bytes(remote.read())
             with zipfile.ZipFile(target, "r") as zfile:
                 zfile.extractall(self.build_path)
-            return self.build_from(self.build_path / "nua-main")
+            self.nua_local_git = self.build_path / "nua-main"
+            return self.build_from_local()
 
     def build_from_local(self) -> bool:
         if not self.nua_local_git or not self.nua_local_git.is_dir():
@@ -100,28 +99,22 @@ class NuaWheelBuilder:
             return False  # for the qa
         with verbosity(3):
             vprint([f.name for f in self.nua_local_git.iterdir()])
-        return all(
-            (
-                self.build_nua_lib(self.nua_local_git),
-                self.build_nua_agent(self.nua_local_git),
-            )
-        )
+        return all((self.build_nua_lib(), self.build_nua_agent()))
 
-    def build_nua_lib(self, top_git: Path) -> bool:
-        return self.poetry_build(top_git / "nua-lib")
+    def build_nua_lib(self) -> bool:
+        return self.poetry_build(self.nua_local_git / "nua-lib")
 
-    def build_nua_agent(self, top_git: Path) -> bool:
-        self.hack_agent_pyproject(top_git)
-        return self.poetry_build(top_git / "nua-agent")
+    def build_nua_agent(self) -> bool:
+        self.hack_agent_pyproject()
+        return self.poetry_build(self.nua_local_git / "nua-agent")
 
-    @staticmethod
-    def hack_agent_pyproject(top_git: Path):
+    def hack_agent_pyproject(self):
         """Since we use local path dependencies when making wheel, we need to
         force the version deps to something local.
 
         FIXME: to be solved by publishing to Pypi index.
         """
-        path = top_git / "nua-agent" / "pyproject.toml"
+        path = self.nua_local_git / "nua-agent" / "pyproject.toml"
         pyproject = tomli.loads(path.read_text(encoding="utf8"))
         version = pyproject["tool"]["poetry"]["version"]
         dep = f"=={version}"
