@@ -169,7 +169,7 @@ def _purge_packages(packages: list):
     environ = os.environ.copy()
     environ["DEBIAN_FRONTEND"] = "noninteractive"
     for package in packages:
-        cmd = f"apt-get purge -y {package} || true"
+        cmd = f"apt-get purge -y {package} 2>/dev/null || true"
         sh(cmd, env=environ, timeout=SHORT_TIMEOUT, show_cmd=False)
 
 
