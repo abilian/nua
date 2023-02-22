@@ -21,6 +21,7 @@ class NuaWheelBuilder:
         self.wheel_path = wheel_path
         self.build_path = Path()
         self.download = download
+        self.nua_local_git = None
 
     def make_wheels(self) -> bool:
         if self.download:
@@ -45,22 +46,39 @@ class NuaWheelBuilder:
     def _nua_top() -> Path:
         return Path(__file__).resolve().parent.parent.parent.parent.parent
 
-    def check_devel_mode(self) -> bool:
-        """Try to find all required files locally in an up to date git."""
+    @staticmethod
+    def _quick_check(path: Path) -> bool:
         try:
-            nua_top = self._nua_top()
             return all(
                 (
-                    (nua_top / ".git").is_dir(),
-                    (nua_top / "nua-lib" / "pyproject.toml").is_file(),
-                    (nua_top / "nua-agent" / "pyproject.toml").is_file(),
+                    (path / ".git").is_dir(),
+                    (path / "nua-lib" / "pyproject.toml").is_file(),
+                    (path / "nua-agent" / "pyproject.toml").is_file(),
                 )
             )
         except (ValueError, OSError):
             return False
 
-    def build_from_local(self):
-        return self.build_from(self._nua_top())
+    def check_devel_mode(self) -> bool:
+        """Try to find all required files locally in an up to date git repository.
+
+        Warning: only for devel tests"""
+        try:
+            nua_top = self._nua_top()
+            if self._quick_check(nua_top):
+                self.nua_local_git = nua_top
+                return True
+            for path in (
+                Path.home() / "gits" / "nua",
+                Path.home() / "git" / "nua",
+                Path.home() / "tmp" / "nua",
+            ):
+                if self._quick_check(path):
+                    self.nua_local_git = path
+                    return True
+            return False
+        except (ValueError, OSError):
+            return False
 
     def build_from_download(self) -> bool:
         with tempfile.TemporaryDirectory() as build_dir:
@@ -76,13 +94,18 @@ class NuaWheelBuilder:
                 zfile.extractall(self.build_path)
             return self.build_from(self.build_path / "nua-main")
 
-    def build_from(self, top_git: Path) -> bool:
-        if not (top_git.is_dir()):
-            abort(f"Directory not found '{top_git}'")
+    def build_from_local(self) -> bool:
+        if not self.nua_local_git or not self.nua_local_git.is_dir():
+            abort(f"Directory not found '{self.nua_local_git}'")
             return False  # for the qa
         with verbosity(3):
-            vprint([f.name for f in top_git.iterdir()])
-        return all((self.build_nua_lib(top_git), self.build_nua_agent(top_git)))
+            vprint([f.name for f in self.nua_local_git.iterdir()])
+        return all(
+            (
+                self.build_nua_lib(self.nua_local_git),
+                self.build_nua_agent(self.nua_local_git),
+            )
+        )
 
     def build_nua_lib(self, top_git: Path) -> bool:
         return self.poetry_build(top_git / "nua-lib")
