@@ -1,0 +1,11 @@
+{
+    "app_id": "nua-builder-ruby321",
+    "name": [
+        "ruby321", "ruby-321", "ruby32", "ruby-32"
+    ],
+    "container": "docker",
+    "dockerfile": "Dockerfile_nua_builder_ruby32",
+    "labels": {
+        "ruby_version": "3.2.1"
+    }
+}

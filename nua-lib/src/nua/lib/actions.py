@@ -286,7 +286,6 @@ def install_nodejs_via_nvm(home: Path | str = "/nua"):
 
 def install_ruby(
     version: str = "3.2.1",
-    rails: str = "",
     keep_lists: bool = False,
 ):
     """Installation of Ruby via 'ruby-install'.
@@ -299,25 +298,22 @@ def install_ruby(
         clean=False,
     )
     purge_package_list("ruby ruby-dev ri")
-    rivers = "0.9.0"
+    ri_vers = "0.9.0"
     with chdir("/tmp"):  # noqa s108
         cmd = (
-            f"wget -O ruby-install-{rivers}.tar.gz "
-            f"https://github.com/postmodern/ruby-install/archive/v{rivers}.tar.gz"
+            f"wget -O ruby-install-{ri_vers}.tar.gz "
+            f"https://github.com/postmodern/ruby-install/archive/v{ri_vers}.tar.gz"
         )
         sh(cmd)
-        cmd = f"tar -xzvf ruby-install-{rivers}.tar.gz"
+        cmd = f"tar -xzvf ruby-install-{ri_vers}.tar.gz"
         sh(cmd)
-        with chdir(f"ruby-install-{rivers}"):
+        with chdir(f"ruby-install-{ri_vers}"):
             cmd = "make install"
             sh(cmd)
-    cmd = f"rm -fr /tmp/ruby-install-{rivers}*"
+    cmd = f"rm -fr /tmp/ruby-install-{ri_vers}*"
     sh(cmd)
     cmd = f"ruby-install --system --cleanup -j4 {version} -- --disable-install-doc"
     sh(cmd)
-    if rails:
-        cmd = f"gem install -N rails -v {rails}"
-        sh(cmd)
     if not keep_lists:
         apt_remove_lists()
 
