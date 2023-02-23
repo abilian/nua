@@ -13,6 +13,7 @@ nua = "nua_cli.main:app"
 
 [tool.poetry.dependencies]
 python = "^3.10"
+tomli = "^2.0.1"
 typer = "^0.7.0"
 fabric = "^3.0.0"
 snoop = "*"
