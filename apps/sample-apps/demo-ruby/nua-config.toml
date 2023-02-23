@@ -1,0 +1,23 @@
+[metadata]
+id = "webauthn-rails-demo"
+version = "1.0"
+release = 1
+title = "webauthn-rails-demo"
+author = "webauthn-rails-demo authors"
+tagline = "Application demonstrating a WebAuthn password-less login built with Ruby on Rails"
+website = "https://github.com/cedarcode/webauthn-rails-demo-app"
+tags = ["Ruby", "Rails", "NodeJs"]
+license = "Apache-2.0 license"
+src-url = "https://github.com/cedarcode/webauthn-rails-demo-app/archive/refs/heads/master.zip"
+
+[build]
+builder = "ruby-272"
+# rems: compilation of ruby-2.7.2 breaks openSSL (old version 1.0 required)
+
+[env]
+# Generic environment variables
+NODE_ENV = "production"
+DEBUG = "true"
+
+[port.web]
+container = 3000

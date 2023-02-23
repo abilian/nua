@@ -24,7 +24,10 @@ import_tasks(globals())
 def install(c):
     """Install all sub-packages (and dependencies)"""
     # first uninstall all
-    c.run("pip list --format freeze |grep nua- |xargs pip uninstall -yq &>/dev/null")
+    c.run(
+        "pip list --format freeze |grep nua- |xargs pip uninstall -yq &>/dev/null",
+        warn=True,
+    )
     run_in_subrepos(c, "pip install --no-cache-dir -e .")
 
 

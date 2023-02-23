@@ -6,6 +6,7 @@ import re
 import sys
 import tarfile
 import tempfile
+import zipfile
 from contextlib import contextmanager
 from glob import glob
 from hashlib import sha256
@@ -284,6 +285,31 @@ def install_nodejs_via_nvm(home: Path | str = "/nua"):
     sh(cmd, env=environ)
 
 
+def compile_openssl_1_1() -> str:
+    soft = "openssl-1.1.1g"
+    info(f"Compiling {soft}")
+    dest = f"/nua/.openssl/{soft}"
+    install_package_list(
+        "wget pkg-config build-essential",
+        keep_lists=True,
+        clean=False,
+    )
+    with chdir("/nua"):
+        sh(f"wget https://www.openssl.org/source/{soft}.tar.gz")
+        sh(f"tar zxvf {soft}.tar.gz")
+        with chdir(soft):
+            sh(f"./config --prefix={dest} --openssldir={dest}")
+            # ../test/recipes/80-test_ssl_new.t (Wstat: 256 Tests: 29 Failed: 1)
+            # Failed test:  12
+            # sh("make && make test && make install")
+            sh("make && make install")
+            sh("rm -rf {dest}/certs")
+            sh(f"ln -s /etc/ssl/certs {dest}/certs")
+        sh(f"rm -fr {soft}")
+        sh(f"rm -f {soft}.tar.gz")
+    return dest
+
+
 def install_ruby(
     version: str = "3.2.1",
     keep_lists: bool = False,
@@ -298,6 +324,10 @@ def install_ruby(
         clean=False,
     )
     purge_package_list("ruby ruby-dev ri")
+    options = "--disable-install-doc"
+    if version.startswith("2.") or version.startswith("3.0"):
+        ssl = compile_openssl_1_1()
+        options = f"--disable-install-doc --with-openssl-dir={ssl}"
     ri_vers = "0.9.0"
     with chdir("/tmp"):  # noqa s108
         cmd = (
@@ -312,7 +342,7 @@ def install_ruby(
             sh(cmd)
     cmd = f"rm -fr /tmp/ruby-install-{ri_vers}*"
     sh(cmd)
-    cmd = f"ruby-install --system --cleanup -j4 {version} -- --disable-install-doc"
+    cmd = f"ruby-install --system --cleanup -j4 {version} -- {options}"
     sh(cmd)
     if not keep_lists:
         apt_remove_lists()
@@ -417,8 +447,6 @@ def download_extract(
         with urlopen(url) as remote:  # noqa S310
             target.write_bytes(remote.read())
         verify_checksum(target, checksum)
-        # if name.endswith(".zip"):
-        #     return extract_zip(target, dest)
         return extract_all(target, dest, url)
 
 
@@ -445,8 +473,12 @@ def verify_checksum(target: Path, checksum: str) -> None:
 def extract_all(archive: str | Path, dest: str | Path, url: str = "") -> Path | None:
     with verbosity(2):
         info("Extract archive:", archive)
-    with tarfile.open(archive) as tar:
-        tar.extractall(dest)
+    if Path(archive).suffix == ".zip":
+        with zipfile.ZipFile(archive, "r") as zfile:
+            zfile.extractall(dest)
+    else:
+        with tarfile.open(archive) as tar:
+            tar.extractall(dest)
     name = Path(archive).stem
     if name.endswith(".tar"):
         name = name[:-4]

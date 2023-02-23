@@ -19,11 +19,9 @@ def chown_r(path: str | Path, user: str, group: str | None = None):
         chown_r(document_root, "www-data", "www-data")
     """
     root = Path(path)
-    if root.is_dir():
-        for subpath in root.rglob(""):
-            shutil.chown(subpath, user, group or user)
-    else:
-        shutil.chown(root, user, group or user)
+    for item in root.rglob("*"):
+        shutil.chown(item, user, group or user)
+    shutil.chown(root, user, group or user)
 
 
 def _dir_chmod_r(root: Path, file_mode: int, dir_mode: int):
@@ -43,8 +41,13 @@ def chmod_r(path: str | Path, file_mode: int, dir_mode: int | None = None):
     root = Path(path)
     if dir_mode is None:
         dir_mode = file_mode
+    for item in root.rglob("*"):
+        if item.is_dir():
+            item.chmod(dir_mode)
+        else:
+            item.chmod(file_mode)
     if root.is_dir():
-        _dir_chmod_r(root, file_mode, dir_mode)
+        root.chmod(dir_mode)
     else:
         root.chmod(file_mode)
 

@@ -1,0 +1,11 @@
+{
+    "app_id": "nua-builder-ruby272",
+    "name": [
+        "ruby272", "ruby-272"
+    ],
+    "container": "docker",
+    "dockerfile": "Dockerfile_nua_builder_ruby272",
+    "labels": {
+        "ruby_version": "2.7.2"
+    }
+}
