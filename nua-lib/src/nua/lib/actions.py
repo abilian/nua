@@ -302,8 +302,8 @@ def compile_openssl_1_1() -> str:
             # ../test/recipes/80-test_ssl_new.t (Wstat: 256 Tests: 29 Failed: 1)
             # Failed test:  12
             # sh("make && make test && make install")
-            sh("make && make install")
-            sh("rm -rf {dest}/certs")
+            sh("make -j4 && make install_sw && make install_ssldirs")
+            sh(f"rm -fr {dest}/certs")
             sh(f"ln -s /etc/ssl/certs {dest}/certs")
         sh(f"rm -fr {soft}")
         sh(f"rm -f {soft}.tar.gz")
@@ -319,7 +319,7 @@ def install_ruby(
     Exec as root.
     """
     install_package_list(
-        "wget pkg-config build-essential",
+        "wget pkg-config build-essential libpq-dev",
         keep_lists=True,
         clean=False,
     )
@@ -341,6 +341,8 @@ def install_ruby(
             cmd = "make install"
             sh(cmd)
     cmd = f"rm -fr /tmp/ruby-install-{ri_vers}*"
+    sh(cmd)
+    cmd = f"ruby-install --system --cleanup -j4 {version} -- {options}"
     sh(cmd)
     cmd = f"ruby-install --system --cleanup -j4 {version} -- {options}"
     sh(cmd)
