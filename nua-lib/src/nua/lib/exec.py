@@ -8,7 +8,7 @@ from subprocess import DEVNULL, run  # noqa S404
 NUA = "nua"
 
 
-def sudo_cmd_as_user(
+def sudo_cmd_as_user(  # noqa CFQ002
     cmd: str | list,
     user: str,
     *,
@@ -16,10 +16,15 @@ def sudo_cmd_as_user(
     timeout: int | None = None,
     env: dict | None = None,
     show_cmd: bool = True,
+    set_home=True,
 ):
     if isinstance(cmd, list):
         cmd = " ".join(cmd)
     sudo_cmd = f"sudo -nu {user} {cmd}"
+    if set_home:
+        if not env:
+            env = {}
+        env["HOME"] = pwd.getpwnam(user).pw_dir
     _mp_process_cmd(sudo_cmd, cwd=cwd, timeout=timeout, env=env, show_cmd=show_cmd)
 
 
@@ -30,9 +35,6 @@ def _mp_process_cmd(
     env: dict | None = None,
     show_cmd: bool = True,
 ):
-    full_env = os.environ.copy()
-    if env:
-        full_env.update(env)
     proc = mp.Process(target=_run_shell_cmd, args=(cmd, cwd, timeout, env, show_cmd))
     proc.start()
     proc.join()
@@ -45,10 +47,9 @@ def _run_shell_cmd(
     env: dict | None = None,
     show_cmd: bool = True,
 ):
-    if env is None:
-        _env = dict(os.environ)
-    else:
-        _env = env
+    _env = dict(os.environ)
+    if env:
+        _env.update(env)
     if show_cmd:
         stdout = None
     else:
@@ -103,12 +104,16 @@ def _exec_as_user(
     env: dict | None = None,
     show_cmd: bool = True,
 ):
+    if isinstance(cmd, str):
+        cmd = [cmd]
     if is_current_user(user):
-        _run_cmd(cmd, timeout=timeout, env=env, show_cmd=show_cmd)
+        for command in cmd:
+            _run_cmd(command, timeout=timeout, env=env, show_cmd=show_cmd)
     elif os.getuid() == 0 or is_current_user(NUA):
-        sudo_cmd_as_user(
-            cmd, user, cwd=cwd, timeout=timeout, env=env, show_cmd=show_cmd
-        )
+        for command in cmd:
+            sudo_cmd_as_user(
+                command, user, cwd=cwd, timeout=timeout, env=env, show_cmd=show_cmd
+            )
     else:
         raise ValueError(f"Not allowed : _exec_as_user {user} as uid {os.getuid()}")
 
@@ -138,6 +143,7 @@ def exec_as_nua(
     env: dict | None = None,
     timeout: int | None = None,
 ):
+    """Exec command or list of commands as user nua."""
     _exec_as_user(cmd, NUA, cwd=cwd, timeout=timeout, env=env)
 
 
@@ -187,12 +193,13 @@ def mp_exec_as_postgres(
 
 
 def exec_as_root(
-    cmd,
+    cmd: str | list,
     cwd: str | None = None,
     env: dict | None = None,
     timeout: int | None = None,
     show_cmd: bool = True,
 ):
+    """Exec command or list of commands as user root."""
     _exec_as_user(cmd, "root", cwd=cwd, timeout=timeout, env=env, show_cmd=show_cmd)
 
 
