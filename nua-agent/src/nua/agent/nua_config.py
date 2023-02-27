@@ -1,5 +1,6 @@
 """Wrapper for the "nua-config.toml" file."""
 import json
+import os
 from copy import deepcopy
 from pathlib import Path
 from typing import Any
@@ -8,13 +9,22 @@ import tomli
 import yaml
 from nua.lib.actions import download_extract
 from nua.lib.panic import abort
+from nua.lib.shell import chown_r
 
 from .constants import NUA_CONFIG_EXT, NUA_CONFIG_STEM
 from .nua_tag import nua_tag_string
 
 REQUIRED_BLOCKS = ["metadata"]
 REQUIRED_METADATA = ["id", "version", "title", "author", "license"]
-OPTIONAL_METADATA = ["tagline", "website", "tags", "profile", "release", "changelog"]
+OPTIONAL_METADATA = [
+    "tagline",
+    "website",
+    "tags",
+    "profile",
+    "release",
+    "changelog",
+    "name",
+]
 # blocks added (empty) if not present in orig file:
 COMPLETE_BLOCKS = ["build", "env", "docker"]
 
@@ -175,6 +185,12 @@ class NuaConfig:
         return self.metadata.get("id", "")
 
     @property
+    def name(self) -> str:
+        if name := self.metadata.get("name", ""):
+            return name
+        return self.app_id
+
+    @property
     def nua_tag(self) -> str:
         return nua_tag_string(self.metadata)
 
@@ -241,6 +257,15 @@ class NuaConfig:
 
     # actions #######################################################
 
-    def fetch_source(self) -> Path | None:
-        """Download, check and extract source URL, returning the source Path."""
-        return download_extract(self.src_url, "/nua/build", self.checksum)
+    def fetch_source(self, name: str = "") -> Path:
+        """Download, check and extract source URL, returning the source Path.
+
+        Set ownership to 'nua' user if launched by 'root'."""
+        if not name:
+            name = self.name
+            if name.startswith("nua-"):
+                name = name[4:]
+        path = download_extract(self.src_url, "/nua/build", name, self.checksum)
+        if os.getuid() == 0:
+            chown_r(path, "nua")
+        return path

@@ -4,9 +4,7 @@ import mmap
 import os
 import re
 import sys
-import tarfile
 import tempfile
-import zipfile
 from contextlib import contextmanager
 from glob import glob
 from hashlib import sha256
@@ -21,6 +19,7 @@ from .backports import chdir
 from .panic import abort, info, show, warning
 from .shell import sh
 from .tool.state import verbosity
+from .unarchiver import unarchive
 
 LONG_TIMEOUT = 1800
 SHORT_TIMEOUT = 300
@@ -437,19 +436,21 @@ def install_psycopg2_python(keep_lists: bool = False):
 def download_extract(
     url: str,
     dest: str | Path,
+    dest_name: str,
     checksum: str = "",
-) -> Path | None:
+) -> Path:
     name = Path(url).name
-    if not any(name.endswith(suf) for suf in (".zip", ".tar", ".tar.gz", ".tgz")):
-        raise ValueError(f"Unknown archive format for '{name}'")
     with verbosity(2):
-        info("Download URL:", url)
+        print("Download URL:", url)
+        # info("Download URL:", url)
     with tempfile.TemporaryDirectory() as tmp:
         target = Path(tmp) / name
         with urlopen(url) as remote:  # noqa S310
             target.write_bytes(remote.read())
         verify_checksum(target, checksum)
-        return extract_all(target, dest, url)
+        dest_path = Path(dest) / dest_name
+        unarchive(target, str(dest_path))
+        return dest_path
 
 
 def verify_checksum(target: Path, checksum: str) -> None:
@@ -470,47 +471,6 @@ def verify_checksum(target: Path, checksum: str) -> None:
             f"Wrong checksum verification for file:\n{target}\n"
             f"Computed sha256 sum: {file_hash}\nExpected result:     {checksum}"
         )
-
-
-def extract_all(archive: str | Path, dest: str | Path, url: str = "") -> Path | None:
-    with verbosity(2):
-        info("Extract archive:", archive)
-    if Path(archive).suffix == ".zip":
-        with zipfile.ZipFile(archive, "r") as zfile:
-            zfile.extractall(dest)
-    else:
-        with tarfile.open(archive) as tar:
-            tar.extractall(dest)
-    name = Path(archive).stem
-    if name.endswith(".tar"):
-        name = name[:-4]
-
-    possible = [name]
-
-    name2 = re.sub(r"-[0-9.post]*$", "", name)
-    if name2:
-        possible.append(name2)
-
-    if url:
-        if match := re.search(".*/(.*)/archive/.*", url):
-            possible.append(match.group(1))
-        version = re.sub(r".*-([0-9.post]*$)", "", name)
-        if version:
-            possible.extend([f"{n}-{version}" for n in possible])
-            possible.append(version)
-    return _detect_archive_path(dest, possible)
-
-
-def _detect_archive_path(dest: str | Path, possible: list) -> Path | None:
-    for name in possible:
-        result = Path(dest) / name
-        if result.exists():
-            with verbosity(2):
-                info("detected path:", result)
-            return result
-    with verbosity(2):
-        show("detected path: no path detected")
-    return None
 
 
 def is_local_dir(project: str) -> bool:

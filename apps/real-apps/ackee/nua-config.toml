@@ -1,0 +1,60 @@
+[metadata]
+id = "ackee"
+version = "3.4.2"
+release = 2
+title = "Ackee"
+author = "Ackee authors"
+tagline = "Self-hosted, Node.js based analytics tool for those who care about privacy."
+website = "https://ackee.electerious.com"
+tags = ["analytics"]
+license = "MIT license"
+src-url = "https://github.com/electerious/Ackee/archive/v{version}.tar.gz"
+checksum = 'cdd79a9662c6ad36b22d1a3ba7c7c02b834cf0babea22606c73af10a74742328'
+
+[build]
+# use a specific docker image containing nodejs:
+builder = "node-16"
+
+run-packages = [
+]
+
+build-packages = [
+    "build-essential",
+    "python3-dev",
+    "libsqlite3-dev",
+    "netcat",
+    "libicu-dev",
+    "libssl-dev",
+    "git",
+]
+
+
+[env]
+# Generic environment variables
+NODE_ENV = "production"
+DEBUG = "true"
+TZ = "Europe/Paris"
+
+ACKEE_USERNAME = "ackee"
+ACKEE_PASSWORD = { random='true', length=16, display='true' }
+ACKEE_ALLOW_ORIGIN = { key="domain" }
+DB_HOST = { from="database", key="hostname" }
+DB_USER = { from="database", key="MONGO_INITDB_ROOT_USERNAME" }
+DB_PWD = { from="database", key="MONGO_INITDB_ROOT_PASSWORD" }
+DB_PORT = 27017
+# ACKEE_MONGODB = "mongodb://{DB_HOST}:{DB_PORT}/ackee"
+ACKEE_MONGODB = "mongodb://{DB_USER}:{DB_PWD}@{DB_HOST}:{DB_PORT}/"
+
+[port.web]
+container = 3000
+
+[[resource]]
+# A resource is another container required by the main app container, its
+# configuration is described below, under the key of name of the resource. Several
+# resources can be declared. The resource host will appear in the local network
+# with a hostname equal to the container name.
+
+# Declaration of the required image for the resurce, here the official Postgres.
+name = "database"
+type = "mongo"
+version = ">=5, <6"

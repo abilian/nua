@@ -239,15 +239,6 @@ def erase_previous_container(client: DockerClient, name: str):
         pass
 
 
-def params_with_secrets(params: dict, secrets: dict) -> dict:
-    """Complete the docker run() environment parameter with secrets."""
-    result = deepcopy(params)
-    env = result.get("environment", {})
-    env.update(secrets)
-    result["environment"] = env
-    return result
-
-
 def docker_run(rsite: Resource, secrets: dict) -> Container:
     """Wrapper on top of the py-docker run() command.
 
@@ -282,8 +273,23 @@ def docker_run(rsite: Resource, secrets: dict) -> Container:
 def _docker_run(rsite: Resource, secrets: dict, params: dict) -> Container:
     client = DockerClient.from_env()
     erase_previous_container(client, params["name"])
-    actual_params = params_with_secrets(params, secrets)
+    actual_params = params_with_secrets_and_f_strings(params, secrets)
     return client.containers.run(rsite.image_id, **actual_params)
+
+
+def params_with_secrets_and_f_strings(params: dict, secrets: dict) -> dict:
+    """Complete the docker run() environment parameter with secrets."""
+    result = deepcopy(params)
+    env = result.get("environment", {})
+    env.update(secrets)
+    fstrings = {
+        key: val.format(**env)
+        for key, val in env.items()
+        if isinstance(val, str) and "{" in val and "}" in val
+    }
+    env.update(fstrings)
+    result["environment"] = env
+    return result
 
 
 def _check_run_container(container: Container, name: str):

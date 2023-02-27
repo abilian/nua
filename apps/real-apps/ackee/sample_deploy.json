@@ -1,0 +1,8 @@
+{
+    "site": [
+        {
+            "image": "ackee",
+            "domain": "test1.example.com"
+        }
+    ]
+}
