@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "nua-docs"
+version = "0.4.97"
+description = ""
+authors = [
+    "Stefane Fermigier <sf@abilian.com>",
+    "Jerome Dumonteil <jd@abilian.com>",
+]
+license = "GNU FDL"
+
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+[tool.poetry.group.dev.dependencies]
+mkdocs = "^1.4.2"
+mkdocs-material = "^9.0"
+mkdocs-material-extensions = "^1.1.1"
+mkdocs-roamlinks-plugin = "^0.2"
+mkdocs-with-pdf = "^0.9.3"
+mkdocstrings = {extras = ["python"], version = "^0.20"}
+
+sqla2uml = "^0.1.3"
+pygments = "^2.14.0"
+modulegraph = "^0.19.3"
+pydeps = "^1.11.1"
+
+docformatter = "*"
