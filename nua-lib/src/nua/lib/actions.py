@@ -17,7 +17,7 @@ from jinja2 import Template
 
 from .backports import chdir
 from .panic import abort, info, show, warning
-from .shell import sh
+from .shell import chown_r, sh
 from .tool.state import verbosity
 from .unarchiver import unarchive
 
@@ -104,6 +104,81 @@ def install_build_packages(
             apt_final_clean()
             if not keep_lists:
                 apt_remove_lists()
+
+
+def install_python(version: str = "3.10", venv: str = "", keep_lists: bool = False):
+    PY_UBUNTU = {"2.7", "3.10"}
+    PY_DEADSNAKES = {"3.7", "3.8", "3.9", "3.11"}
+    if version not in PY_UBUNTU and version not in PY_DEADSNAKES:
+        abort(f"Unknown Python version: '{version}'")
+        raise SystemExit
+    if not venv:
+        venv = f"/nua/p{version.replace('.','')}"
+    if version in PY_DEADSNAKES:
+        sh("add-apt-repository -y ppa:deadsnakes/ppa")
+    _install_python_packages(version)
+    _make_python_venv(version, venv)
+    chown_r(venv, "nua")
+    if not keep_lists:
+        apt_remove_lists()
+
+
+def _install_python_packages(version: str):
+    py = f"python{version}"
+    if version == "2.7":
+        packages = [
+            "software-properties-common",
+            py,
+            f"{py}-dev",
+            "virtualenv",
+            "python-pip",
+            f"{py}-distutils",
+        ]
+    else:
+        packages = [
+            "software-properties-common",
+            py,
+            f"{py}-dev",
+            f"{py}-venv",
+            f"{py}-distutils",
+        ]
+    _install_packages(packages, True)
+
+
+def _venv_environ(venv: str) -> dict[str, str]:
+    env = os.environ.copy()
+    env["VIRTUAL_ENV"] = venv
+    env["PATH"] = f"{venv}/bin:{env['PATH']}"
+    return env
+
+
+def _make_python_venv(version: str, venv: str):
+    if version == "2.7":
+        return _make_python_venv_27(venv)
+    py = f"python{version}"
+    sh(f"{py} -m venv {venv}")
+    with python_venv(venv):
+        sh("python -m pip install --upgrade setuptools wheel pip")
+
+
+def _make_python_venv_27(venv: str):
+    sh(f"virtualenv -p /usr/bin/python2.7 {venv}")
+    with python_venv(venv):
+        sh("pip2 install -U setuptools wheel pip")
+
+
+@contextmanager
+def python_venv(venv: str):
+    orig_env = dict(os.environ)
+    os.environ["VIRTUAL_ENV"] = venv
+    os.environ["PATH"] = f"{venv}/bin:{orig_env['PATH']}"
+    with verbosity(2):
+        print(f"Using Python venv: '{venv}'")
+    try:
+        yield
+    finally:
+        os.environ.clear()
+        os.environ.update(orig_env)
 
 
 def install_pip_packages(packages: list | str | None = None) -> bool:
