@@ -208,14 +208,16 @@ class BuilderApp:
         if self.find_build_script():
             return self.run_build_script()
         if self.config.project:
-            return project_install(self.config.project)
+            return project_install(self.config.project, self.config.name)
         if self.config.src_url:
-            return project_install(self.config.src_url, self.config.checksum)
+            return project_install(
+                self.config.src_url, self.config.name, self.config.checksum
+            )
         if not installed:
             # no package installed through install_pip_packages and
             # no other way. Let's assume there is a local project.
             show("Try install from some local project")
-            project_install(".")
+            project_install(".", self.config.name)
 
     def test_build(self):
         """Execute a configured shell command to check build is successful."""

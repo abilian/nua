@@ -525,6 +525,10 @@ def download_extract(
         verify_checksum(target, checksum)
         dest_path = Path(dest) / dest_name
         unarchive(target, str(dest_path))
+        with verbosity(2):
+            print("Project path:", dest_path)
+        with verbosity(3):
+            sh(f"ls -l {dest_path}")
         return dest_path
 
 
@@ -566,17 +570,17 @@ def is_local_dir(project: str) -> bool:
     return result
 
 
-def project_path(project: str, checksum: str = "") -> Path | None:
+def _project_path(project: str, name: str, checksum: str = "") -> Path | None:
     """Guess meaning of project string and send back local path of the project.
     (WIP)
     """
     if is_local_dir(project):
         return Path(project)
-    return download_extract(project, "/nua/build", checksum)
+    return download_extract(project, "/nua/build", name, checksum)
 
 
-def project_install(project: str, checksum: str = "") -> None:
-    path = project_path(project, checksum)
+def project_install(project: str, name: str = "noname", checksum: str = "") -> None:
+    path = _project_path(project, name, checksum)
     if not path:
         warning(f"No path found for project '{project}'")
         return

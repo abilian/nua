@@ -11,8 +11,6 @@ src-checksum = ""
 [build]
 # app pyproject broken ? need to force install of dependencies
 pip-install = ["flask", "gunicorn"]
-# project explicit declaration reuired since we have some prior pip install
-project = "https://github.com/abilian/flask-nua-demo/archive/refs/tags/{version}.tar.gz"
 
 test = "python -c 'import app'"
 
