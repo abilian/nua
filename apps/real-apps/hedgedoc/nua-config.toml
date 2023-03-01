@@ -1,15 +1,16 @@
 [metadata]
 id = "hedgedoc"
-version = "1.9.6"
-release = 18
+version = "1.9.7"
+# Nota: version 1.9.6 seems broken since 1.9.7
+release = 2
 title = "Hedgedoc"
-author = "Hedgedoc developers"
+author = "Hedgedoc authors"
 tagline = "The best platform to write and share markdown"
 website = "https://hedgedoc.org/"
 tags = ["Markdown", "Documentation", "Collaboration"]
 license = "AGPL-3.0 license"
 src_url = "https://github.com/hedgedoc/hedgedoc/releases/download/{version}/hedgedoc-{version}.tar.gz"
-checksum = 'dfd0fca006f9075f072df058476ea542adb32b63964afb2985211e1114ab333e'
+checksum = 'c9bd99c65cf45fa1d7808855b46abbfa13b24400254d8da5e81dae2965494bb3'
 
 [build]
 # use a specific docker image containing nodejs:
@@ -54,7 +55,9 @@ CMD_DB_PASSWORD = { from="database", key="POSTGRES_PASSWORD" }
 CMD_HSTS_ENABLE = "false"
 # URL_ADDPORT defines if generated links should contain the port.
 CMD_URL_ADDPORT = "false"
-CMD_PROTOCOL_USESSL = "false"
+# if not using HTTPS, set the CMD_PROTOCOL_USESSL to false:
+# CMD_PROTOCOL_USESSL = "false"
+CMD_PROTOCOL_USESSL = "true"
 
 # See https://docs.hedgedoc.org/configuration/#users-and-privileges
 CMD_ALLOW_ANONYMOUS = "true"

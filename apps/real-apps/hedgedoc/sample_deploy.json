@@ -2,10 +2,16 @@
     "site": [
         {
             "image": "hedgedoc",
-            "domain": "test1.example.com"
+            "domain": "test1.example.com",
+            "env": {
+                "CMD_PROTOCOL_USESSL": "true"
+            }
         }, {
             "image": "hedgedoc",
-            "domain": "test2.example.com"
+            "domain": "test2.example.com",
+            "env": {
+                "CMD_PROTOCOL_USESSL": "true"
+            }
         }
     ]
 }
