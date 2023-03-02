@@ -11,6 +11,7 @@ import tempfile
 from contextlib import suppress
 from importlib import resources as rso
 from pathlib import Path
+from pprint import pformat
 from shutil import copy2, copytree
 
 import docker
@@ -47,24 +48,64 @@ class Builder:
     manifest: list[Path]
     nua_base: str
     config: NuaConfig
+    build_strategy: str
 
     def __init__(self, config_file):
         self.config = NuaConfig(config_file)
         self.nua_base = ""
+        self.build_dir = Path()
         self.manifest = []
+        self.build_strategy = ""
+
+    def _title_build(self):
+        title(f"Building the image for {self.config.app_id}")
 
     def run(self):
+        with verbosity(4):
+            vprint(pformat(self.config.as_dict()))
         self.detect_container_type()
+        self.detect_build_strategy()
+        if self.build_strategy == "build":
+            self.build_from_dockerfile()
+        elif self.build_strategy == "wrap":
+            self.build_from_wrap_image()
+        else:
+            raise NotImplementedError(
+                f"Unknown build strategy '{self.build_strategy}'",
+            )
+
+    def build_from_dockerfile(self):
         self.check_allowed_base_image()
         self.ensure_base_image_profile_availability()
         self.select_base_image()
-
-        title(f"Building the image for {self.config.app_id}")
+        self._title_build()
         self.detect_nua_dir()
         if self.container_type == "docker":
             self.build_docker_image()
         else:
             raise NotImplementedError(f"Container type '{self.container_type}'")
+
+    def build_from_wrap_image(self):
+        self._title_build()
+        if self.container_type != "docker":
+            raise NotImplementedError(f"Container type '{self.container_type}'")
+        self.make_build_dir()
+        self.write_wrap_dockerfile()
+        self.build_wrap_with_docker_stream()
+        rm_fr(self.build_dir)
+
+    def write_wrap_dockerfile(self):
+        self.config.dump_json(self.build_dir)
+        docker_file = self.build_dir / "Dockerfile"
+        docker_file.write_text(
+            (
+                "ARG nua_wrap_tag\n"
+                "FROM ${nua_wrap_tag}\n\n"
+                "RUN mkdir -p /nua/metadata\n"
+                "COPY nua-config.json /nua/metadata/\n"
+            ),
+            encoding="utf8",
+        )
 
     def detect_container_type(self):
         """Placeholder for future container technology detection.
@@ -75,6 +116,22 @@ class Builder:
         if container != "docker":
             raise BuilderError(f"Unknown container type: '{container}'")
         self.container_type = container
+
+    def detect_build_strategy(self):
+        """Detect how to build the container.
+
+        For now 2 choices:
+        - build: full build from generated Dockerfile
+        - wrap: use existing Docker image and add Nua metadata
+        """
+        if self.config.docker_wrap_image:
+            self.build_strategy = "wrap"
+            with verbosity(3):
+                info(f"docker_wrap_image: {self.config.docker_wrap_image}")
+        else:
+            self.build_strategy = "build"
+        with verbosity(3):
+            info(f"Build strategy: {self.build_strategy}")
 
     def check_allowed_base_image(self):
         builder = self.config.builder
@@ -237,6 +294,27 @@ class Builder:
                 "NUA_BUILD_VERSION": __version__,
             }
             info(f"Building image {nua_tag}")
+            image_id = docker_stream_build(".", nua_tag, buildargs, labels)
+            with verbosity(1):
+                display_docker_img(nua_tag)
+            if save:
+                client = docker.from_env()
+                image = client.images.get(image_id)
+                self.save(image, nua_tag)
+
+    @docker_build_log_error
+    def build_wrap_with_docker_stream(self, save=True):
+        with chdir(self.build_dir):
+            nua_tag = self.config.nua_tag
+            buildargs = {
+                "nua_wrap_tag": self.config.docker_wrap_image,
+            }
+            labels = {
+                "APP_ID": self.config.app_id,
+                "NUA_TAG": nua_tag,
+                "NUA_BUILD_VERSION": __version__,
+            }
+            info(f"Building (wrap) image {nua_tag}")
             image_id = docker_stream_build(".", nua_tag, buildargs, labels)
             with verbosity(1):
                 display_docker_img(nua_tag)

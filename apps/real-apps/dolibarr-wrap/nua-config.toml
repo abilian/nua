@@ -1,0 +1,72 @@
+[metadata]
+id = "dolibarr-mariadb-wrap"
+version = "16.0.4"
+release = 1
+title = "Dolibarr (for mariadb), wrap build based on tuxgazy Docker image"
+author = "Dolibarr developers"
+tagline = "Open Source ERP & CRM for business"
+website = "https://www.dolibarr.org/"
+tags = ["test", "php", "web", "Dolibarr"]
+licence = "GPLv3"
+# here the wrapped Docker declaration:
+docker = "tuxgasy/dolibarr:{version}"
+
+[build]
+
+[env]
+DOLI_DB_HOST = { from="database", key="hostname" }
+DOLI_DB_USER = { from="database", key="MARIADB_USER" }
+DOLI_DB_PASSWORD = { from="database", key="MARIADB_PASSWORD" }
+DOLI_DB_NAME = { from="database", key="MARIADB_DATABASE" }
+DOLI_ADMIN_PASSWORD = { random='true' }
+
+DOLI_ADMIN_LOGIN = "admin"
+DOLI_URL_ROOT = 'http://0.0.0.0'
+PHP_INI_DATE_TIMEZONE = 'Europe/Paris'
+# DOLI_DB_HOST_PORT = "3306"
+
+[port.web]
+container = 80
+
+[healthcheck]
+command = "true"  # shell true -> no command, always ok, for test
+start-period = 900
+interval = 30
+timeout = 30
+retries = 3
+
+[[volume]]
+# declare a local volume for plublic uploads
+# type = "bind"
+# type = "volume" -> the default
+# Name of the driver used to create the volume: (for type == "volume")
+# driver = "local" -> the default
+# Mount source (e.g. a volume name or a host path):
+prefix = "dolibarr_custom"
+# Container path:
+target = "/var/www/html/custom"
+
+[[volume]]
+# declare a local volume for plublic uploads
+# type = "bind"
+# type = "volume" -> the default
+# Name of the driver used to create the volume: (for type == "volume")
+# driver = "local" -> the default
+# Mount source (e.g. a volume name or a host path):
+prefix = "dolibarr_documents"
+# Container path:
+target = "/var/www/documents"
+
+
+[[resource]]
+# A resource is another container required by the main app container, its
+# configuration is described below, under the key of name of the resource. Several
+# resources can be declared. The resource host will appear in the local network
+# with a hostname equal to the container name.
+
+# Declaration of the required image for the resource, here the official Mariadb.
+name = "database"
+type = "mariadb"
+version = ">=10.6, <10.7"
+# create_user = true -> the default
+# create_db = true   -> the default

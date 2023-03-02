@@ -1,0 +1,8 @@
+{
+    "site": [
+        {
+            "image": "dolibarr-mariadb-wrap",
+            "domain": "test1.example.com"
+        }
+    ]
+}
