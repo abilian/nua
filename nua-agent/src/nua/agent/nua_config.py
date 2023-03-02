@@ -24,7 +24,7 @@ OPTIONAL_METADATA = [
     "release",
     "changelog",
     "name",
-    "docker",
+    "image",
 ]
 # blocks added (empty) if not present in orig file:
 COMPLETE_BLOCKS = ["build", "env", "docker"]
@@ -177,13 +177,14 @@ class NuaConfig:
         return ""
 
     @property
-    def docker_wrap_image(self) -> str:
-        """Optional Docker image to be used as base for 'wrap' strategy.
+    def wrap_image(self) -> str:
+        """Optional  Docker 'image' to be used as base for 'wrap' strategy.
 
-        If the 'docker' metadata is defined, the build strategy is to add the
-        '/nua/metadata/nua-config.json' file on the declared image.
+        If the 'image' metadata is defined, the build strategy is to add the
+        '/nua/metadata/nua-config.json' file on the declared image,
+        when build method is 'wrap'.
         """
-        if base := self.metadata.get("docker", ""):
+        if base := self.metadata.get("image", ""):
             return base.format(**self.metadata)
         return ""
 
@@ -247,6 +248,15 @@ class NuaConfig:
     @property
     def pip_install(self) -> list:
         return hyphen_get(self.build, "pip-install", [])
+
+    @property
+    def build_method(self) -> str:
+        """Build method (or default build method.
+
+        Can be empty string if not defined (then autodetection from metadata).
+        """
+        default_method = hyphen_get(self.build, "default-method", "")
+        return self.build.get("method", default_method)
 
     # env ###########################################################
 

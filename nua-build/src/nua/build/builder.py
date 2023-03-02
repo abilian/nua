@@ -48,14 +48,14 @@ class Builder:
     manifest: list[Path]
     nua_base: str
     config: NuaConfig
-    build_strategy: str
+    build_method: str
 
     def __init__(self, config_file):
         self.config = NuaConfig(config_file)
         self.nua_base = ""
         self.build_dir = Path()
         self.manifest = []
-        self.build_strategy = ""
+        self.build_method = ""
 
     def _title_build(self):
         title(f"Building the image for {self.config.app_id}")
@@ -64,14 +64,14 @@ class Builder:
         with verbosity(4):
             vprint(pformat(self.config.as_dict()))
         self.detect_container_type()
-        self.detect_build_strategy()
-        if self.build_strategy == "build":
+        self.detect_build_method()
+        if self.build_method == "build":
             self.build_from_dockerfile()
-        elif self.build_strategy == "wrap":
+        elif self.build_method == "wrap":
             self.build_from_wrap_image()
         else:
             raise NotImplementedError(
-                f"Unknown build strategy '{self.build_strategy}'",
+                f"Unknown build strategy '{self.build_method}'",
             )
 
     def build_from_dockerfile(self):
@@ -117,21 +117,26 @@ class Builder:
             raise BuilderError(f"Unknown container type: '{container}'")
         self.container_type = container
 
-    def detect_build_strategy(self):
+    def detect_build_method(self):
         """Detect how to build the container.
 
         For now 2 choices:
         - build: full build from generated Dockerfile
         - wrap: use existing Docker image and add Nua metadata
         """
-        if self.config.docker_wrap_image:
-            self.build_strategy = "wrap"
-            with verbosity(3):
-                info(f"docker_wrap_image: {self.config.docker_wrap_image}")
-        else:
-            self.build_strategy = "build"
+        method = self.config.build_method or self._build_method_from_data()
+        if method not in {"build", "wrap"}:
+            raise BuilderError(f"Unknown build method: '{method}'")
+        self.build_method = method
         with verbosity(3):
-            info(f"Build strategy: {self.build_strategy}")
+            info(f"Build mathod: {self.build_method}")
+
+    def _build_method_from_data(self) -> str:
+        if self.config.wrap_image:
+            with verbosity(3):
+                info(f"metadata.wrap_image: {self.config.wrap_image}")
+            return "wrap"
+        return "build"
 
     def check_allowed_base_image(self):
         builder = self.config.builder
@@ -307,7 +312,7 @@ class Builder:
         with chdir(self.build_dir):
             nua_tag = self.config.nua_tag
             buildargs = {
-                "nua_wrap_tag": self.config.docker_wrap_image,
+                "nua_wrap_tag": self.config.wrap_image,
             }
             labels = {
                 "APP_ID": self.config.app_id,
