@@ -36,9 +36,8 @@ def nua_config_names():
 
 
 def hyphen_get(data: dict, key: str, default: Any = None) -> Any:
-    """Return value from dict for key either hyphen "-" or underscore "_" in it,
-    priority to "-".
-    """
+    """Return value from dict for key either hyphen "-" or underscore "_" in
+    it, priority to "-"."""
     if (hypkey := key.replace("_", "-")) in data:
         result = data.get(hypkey)
     elif (underkey := key.replace("-", "_")) in data:
@@ -49,6 +48,14 @@ def hyphen_get(data: dict, key: str, default: Any = None) -> Any:
 
 
 def nomalize_env_values(env: dict) -> dict:
+    def normalize_env_leaf(value: Any) -> str:
+        if isinstance(value, str):
+            return value
+        if isinstance(value, (int, float, list)):
+            return str(value)
+        abort(f"ENV value has wrong type: '{value}'")
+        raise SystemExit(1)
+
     validated: dict[str, str | dict] = {}
     for key, value in env.items():
         if isinstance(value, dict):
@@ -56,15 +63,6 @@ def nomalize_env_values(env: dict) -> dict:
         else:
             validated[key] = normalize_env_leaf(value)
     return deepcopy(validated)
-
-
-def normalize_env_leaf(value: Any) -> str:
-    if isinstance(value, str):
-        return value
-    if isinstance(value, (int, float, list)):
-        return str(value)
-    abort(f"ENV value has wrong type: '{value}'")
-    raise SystemExit(1)
 
 
 class NuaConfig:
@@ -75,12 +73,14 @@ class NuaConfig:
 
     path: Path
     root_dir: Path
+    nua_dir_exists: bool
     _data: dict
 
     def __init__(self, path: str | Path | None = None):
         if not path:
             path = "."
-        self._find_config_file(path)
+        self._find_root_dir(path)
+        self._find_config_file()
         self._loads_config()
         self._check_required_blocks()
         self._complete_missing_blocks()
@@ -88,19 +88,71 @@ class NuaConfig:
         self._check_required_metadata()
         self._check_checksum_format()
         self._nomalize_env_values()
-        self.root_dir = self.path.parent
 
-    def _find_config_file(self, path: Path | str) -> None:
+    def _find_root_dir(self, path: Path | str) -> None:
+        """Find project folder.
+
+        Analyses structure of parameters:
+
+        Below the expected structure of folders. 'nua' folder and subfolders are
+        optional, the 'nua-config' file can be at 3 positions: 'project', 'nua'
+        subfolder, or 'metadata' subfolder.
+
+        The path parameter can be:
+            - the 'nua-config' file
+            - the path of 'nua' folder, 'project' folder or folder containing the
+              'nua-config' file
+
+        We try to:
+            - find the 'nua-file'
+            - find the 'project' path
+            - find the 'nua' path (if exists)
+
+        The 'nua-config' file used is the one of higher level found.
+
+        /project
+            ...project code source...
+            nua-config
+            /nua
+                Dockerfile
+                build.py
+                ...
+                nua-config
+                /metadata
+                    nua-config
+                /build
+                   ...files to copy...
+                /app
+                   ...files to copy...
+        """
         path = Path(path).resolve()
-        if path.is_file():
-            path = path.parent
         if path.is_dir():
+            folder = path
+        else:
+            folder = path.parent
+        if folder.name == "nua":
+            self.root_dir = folder.parent
+        elif folder.name == "metadata" and folder.parent.name == "nua":
+            self.root_dir = folder.parent.parent
+        else:
+            self.root_dir = folder
+        self.nua_dir_exists = (self.root_dir / "nua").is_dir()
+
+    def _find_config_file(self):
+        """Find nua-config file."""
+        for folder in (
+            self.root_dir,
+            self.root_dir / "nua",
+            self.root_dir / "nua" / "metadata",
+        ):
+            if not folder.is_dir():
+                continue
             for name in nua_config_names():
-                test_path = path / name
+                test_path = folder / name
                 if test_path.is_file():
                     self.path = test_path
                     return
-        abort(f"Nua config file not found in: '{path}'")
+        abort(f"Nua config file not found in '{self.root_dir}' and sub folders")
         raise SystemExit(1)
 
     def _loads_config(self):
@@ -177,11 +229,17 @@ class NuaConfig:
         return ""
 
     @property
+    def git_url(self) -> str:
+        if base := hyphen_get(self.metadata, "git-url"):
+            return base.format(**self.metadata)
+        return ""
+
+    @property
     def wrap_image(self) -> str:
         """Optional  Docker 'image' to be used as base for 'wrap' strategy.
 
-        If the 'image' metadata is defined, the build strategy is to add the
-        '/nua/metadata/nua-config.json' file on the declared image,
+        If the 'image' metadata is defined, the build strategy is to add
+        the '/nua/metadata/nua-config.json' file on the declared image,
         when build method is 'wrap'.
         """
         if base := self.metadata.get("image", ""):
@@ -253,7 +311,8 @@ class NuaConfig:
     def build_method(self) -> str:
         """Build method (or default build method.
 
-        Can be empty string if not defined (then autodetection from metadata).
+        Can be empty string if not defined (then autodetection from
+        metadata).
         """
         default_method = hyphen_get(self.build, "default-method", "")
         return self.build.get("method", default_method)
@@ -282,7 +341,8 @@ class NuaConfig:
     def fetch_source(self, name: str = "") -> Path:
         """Download, check and extract source URL, returning the source Path.
 
-        Set ownership to 'nua' user if launched by 'root'."""
+        Set ownership to 'nua' user if launched by 'root'.
+        """
         if not name:
             name = self.name
             if name.startswith("nua-"):

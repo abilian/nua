@@ -1,8 +1,8 @@
 """Script to build a nua package (experimental)
 
-- information come from a mandatory local file: "nua-config.toml"
-- origin may be a source tar.gz or a git repository
-- build locally if source is python package
+- information come from a mandatory local file: "nua-config" (.toml, .json, .yaml)
+- origin may be a source tar.gz or a git repository or a docker image...
+- build locally or wrap docker image
 
 Note: **currently use "nua-build ..." for command line**.
 See later if move this to "nua ...".

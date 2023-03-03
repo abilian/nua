@@ -15,6 +15,7 @@ from pprint import pformat
 from shutil import copy2, copytree
 
 import docker
+from docker.models.images import Image
 from nua.agent.constants import NUA_BUILDER_TAG
 from nua.agent.nua_config import NuaConfig, hyphen_get, nua_config_names
 from nua.autobuild.docker_build_utils import (
@@ -43,18 +44,15 @@ class Builder:
 
     container_type: str
     build_dir: Path
-    nua_dir: Path
-    nua_dir_relative: Path
-    manifest: list[Path]
+    nua_folder: Path
     nua_base: str
     config: NuaConfig
     build_method: str
 
-    def __init__(self, config_file):
-        self.config = NuaConfig(config_file)
+    def __init__(self, config_path: str | Path | None = None):
+        self.config = NuaConfig(config_path)
         self.nua_base = ""
         self.build_dir = Path()
-        self.manifest = []
         self.build_method = ""
 
     def _title_build(self):
@@ -79,7 +77,7 @@ class Builder:
         self.ensure_base_image_profile_availability()
         self.select_base_image()
         self._title_build()
-        self.detect_nua_dir()
+        self.detect_nua_folder()
         if self.container_type == "docker":
             self.build_docker_image()
         else:
@@ -148,8 +146,8 @@ class Builder:
     def ensure_base_image_profile_availability(self):
         """Ensure the required Nua images are available.
 
-        The tag 'builder' will determine the required base image.
-        If empty, the standard Nua base image is used.
+        The tag 'builder' will determine the required base image. If
+        empty, the standard Nua base image is used.
         """
         image_builder = NuaImageBuilder()
         image_builder.ensure_images(self.config.builder)
@@ -168,33 +166,19 @@ class Builder:
         with verbosity(2):
             info(f"Nua base image: '{self.nua_base}'")
 
-    def detect_nua_dir(self):
-        """Detect dir containing nua files (start.py, build.py, Dockerfile,
-        etc.)."""
-        nua_dir = hyphen_get(self.config.build, "nua_dir")
-        if not nua_dir:
-            # Check if default 'nua' dir exists
-            path = self.config.root_dir / "nua"
-            if path.is_dir():
-                nua_dir = "nua"
-            else:
-                # Use the root folder (where is the nua-config.toml file)
-                nua_dir = "."
-        # Check if provided path does exist:
-        path = self.config.root_dir / nua_dir
-        if not path.is_dir():
-            raise BuilderError(f"Path not found for 'nua-dir' : '{nua_dir}'")
-        self.nua_dir = path
-        self.nua_dir_relative = self.nua_dir.relative_to(self.config.root_dir)
-        with verbosity(3):
-            vprint(f"self.nua_dir: {self.nua_dir}")
-        return
+    def detect_nua_folder(self):
+        """Detect folder containing nua files.
+
+        (Dockerfile, start.py, build.py, ...)
+        """
+        if self.config.nua_dir_exists:
+            self.nua_folder = self.config.root_dir / "nua"
+        else:
+            self.nua_folder = self.config.root_dir
 
     def build_docker_image(self):
         self.make_build_dir()
-        self.list_manifest_files()
-        self.copy_manifest_files()
-        self.complete_with_default_files()
+        self.copy_project_files()
         with verbosity(1):
             info("Copying Nua config file:", self.config.path.name)
         copy2(self.config.path, self.build_dir)
@@ -209,56 +193,71 @@ class Builder:
             raise BuilderError(
                 f"Build directory parent not found: '{build_dir_parent}'"
             )
-
         self.build_dir = Path(tempfile.mkdtemp(dir=build_dir_parent))
         with verbosity(1):
             info(f"Build directory: {self.build_dir}")
 
-    def list_manifest_files(self):
-        """List the files to copy from local directory."""
-        if self.config.manifest:
-            self.manifest = [
-                self.config.root_dir / name for name in self.config.manifest
-            ]
-            return
-        if self.config.src_url:
-            # We have some src_rul defined, so only copy local files from nua_dir
-            # (if not defined, it still will be the full local directory)
-            if self.nua_dir == self.config.root_dir:
-                self.manifest_from_root_dir()
-            else:
-                self.manifest = [self.nua_dir]
-            return
-        # Finally, consider that local directory is the source directory: copy all.
-        self.manifest_from_root_dir()
+    def copy_project_files(self):
+        """Detect and copy files to build_dir.
 
-    def manifest_from_root_dir(self):
-        """Get the list of files and directory without invalid hidden files."""
-        with verbosity(3):
-            vprint("manifest from:", self.config.root_dir)
-        self.manifest = [
-            file
-            for file in self.config.root_dir.glob("*")
-            if not file.name.startswith(".")
-            and file.name != "__pycache__"
-            and file.name not in list(nua_config_names())
+        - if no 'src-url', copy local source code from root_dir into build_dir
+        - if 'src-url' or other remote source, do not copy local code of root_dir
+        - if 'manifest' defined, copy manifest content to nua/src
+        - if /nua exists, copy it to nua (but not nua/src or nua-config)
+        - then copy required/default files to build_dir (nuaconfig, ...)
+        """
+        (self.build_dir / "nua").mkdir(mode=0o755)
+        self._copy_local_code()
+        self._copy_manifest_files()
+        self._copy_nua_folder()
+        self._copy_default_files()
+
+    def _copy_items(self, paths: list[Path], dest_dir: Path):
+        for path in paths:
+            if path.is_file():
+                with verbosity(1):
+                    info("Copying file:", path.name)
+                copy2(path, dest_dir)
+            elif path.is_dir():
+                with verbosity(1):
+                    info("Copying directory:", path.name)
+                copytree(path, dest_dir / path.name)
+            else:
+                raise BuilderError(f"File not found: {path}")
+
+    def _copy_local_code(self):
+        if any((self.config.src_url, self.config.git_url)):
+            return
+        files = [
+            item
+            for item in self.config.root_dir.glob("*")
+            if not item.name.startswith(".")
+            and item.name != "__pycache__"
+            and item.name != "nua"
+            and item.name not in set(nua_config_names())
         ]
+        self._copy_items(files, self.build_dir)
 
-    def copy_manifest_files(self):
-        for file in self.manifest:
-            if file.is_file():
-                with verbosity(1):
-                    info("Copying file:", file.name)
-                copy2(file, self.build_dir)
-            elif file.is_dir():
-                with verbosity(1):
-                    info("Copying directory:", file.name)
-                copytree(file, self.build_dir / file.name)
-            else:
-                raise BuilderError(f"File not found: {file}")
+    def _copy_manifest_files(self):
+        if not self.config.manifest:
+            return
+        files = [self.config.root_dir / name for name in self.config.manifest]
+        self._copy_items(files, self.build_dir)
 
-    def complete_with_default_files(self):
-        """Complete missing files from defaults (Dockerfile, start.py, ...)."""
+    def _copy_nua_folder(self):
+        if not self.config.nua_dir_exists:
+            return
+        files = [
+            item
+            for item in (self.config.root_dir / "nua").glob("*")
+            if not item.name.startswith(".")
+            and item.name not in set(nua_config_names())
+        ]
+        self._copy_items(files, self.build_dir / "nua")
+
+    def _copy_default_files(self):
+        """Complete missing files from defaults, at the moment the Dockerfile,
+        (and maybe start.py, ...)."""
         if not hyphen_get(self.config.build, "default_files", True):
             return
         for file in rso.files("nua.build.defaults").iterdir():
@@ -268,24 +267,28 @@ class Builder:
                 or file.name.startswith(".")
             ):
                 continue
-            dest = self.nua_dir / file.name
-            if dest.is_file():
-                # file already exists, do not replace by default content
+            path = self.nua_folder / file.name
+            destination = self.build_dir / "nua" / file.name
+            if path.is_file():
+                # file already exists, do not replace by default content, but copy
+                # to /nua
+                if path != destination:
+                    copy2(path, self.build_dir / "nua")
                 continue
             with verbosity(1):
                 info("Copying Nua default file:", file.name)
             content = file.read_text(encoding="utf8")
-            target = self.build_dir / self.nua_dir_relative / file.name
+            destination = self.build_dir / "nua" / file.name
             with verbosity(3):
-                vprint(f"target path: {target}")
-            target.write_text(content)
+                vprint(f"destination path: {destination}")
+            destination.write_text(content)
 
     @docker_build_log_error
-    def build_with_docker_stream(self, save=True):
+    def build_with_docker_stream(self, save: bool = True):
         with chdir(self.build_dir):
             with suppress(IOError):
                 copy2(
-                    self.build_dir / self.nua_dir_relative / "Dockerfile",
+                    self.build_dir / "nua" / "Dockerfile",
                     self.build_dir,
                 )
             nua_tag = self.config.nua_tag
@@ -308,7 +311,7 @@ class Builder:
                 self.save(image, nua_tag)
 
     @docker_build_log_error
-    def build_wrap_with_docker_stream(self, save=True):
+    def build_wrap_with_docker_stream(self, save: bool = True):
         with chdir(self.build_dir):
             nua_tag = self.config.nua_tag
             buildargs = {
@@ -328,7 +331,7 @@ class Builder:
                 image = client.images.get(image_id)
                 self.save(image, nua_tag)
 
-    def save(self, image, nua_tag):
+    def save(self, image: Image, nua_tag: str):
         dest = f"/var/tmp/{nua_tag}.tar"  # noqa S108
         with open(dest, "wb") as tarfile:
             for chunk in image.save(chunk_size=2**25, named=True):
