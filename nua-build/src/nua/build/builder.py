@@ -221,7 +221,7 @@ class Builder:
             elif path.is_dir():
                 with verbosity(1):
                     info("Copying directory:", path.name)
-                copytree(path, dest_dir / path.name)
+                copytree(path, dest_dir / path.name, dirs_exist_ok=True)
             else:
                 raise BuilderError(f"File not found: {path}")
 

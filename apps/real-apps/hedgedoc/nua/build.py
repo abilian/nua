@@ -17,9 +17,6 @@ def main():
             ]
         )
 
-    copy2("nua/config.json", "/nua/build/hedgedoc/")
-    copy2("nua/healthcheck.mjs", "/nua/build/hedgedoc/")
-
 
 if __name__ == "__main__":
     main()

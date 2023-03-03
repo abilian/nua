@@ -80,7 +80,7 @@ VOLUME /var/www/html/custom
 # here the changes from original Dockerfile:
 COPY nua/docker-run.sh /usr/local/bin/
 RUN mkdir -p /nua/metadata
-COPY nua-config.toml /nua/metadata/
+COPY ./nua-config.toml /nua/metadata/
 
 ENTRYPOINT ["docker-run.sh"]
 

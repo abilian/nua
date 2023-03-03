@@ -1,7 +1,7 @@
 [metadata]
 id = "dolibarr-mariadb"
 version = "16.0"
-release = 15
+release = 16
 title = "Dolibarr (for mariadb), based on tuxgazy dockerfile"
 author = "Dolibarr developers"
 tagline = "Open Source ERP & CRM for business"
@@ -10,9 +10,7 @@ tags = ["test", "php", "web", "Dolibarr"]
 licence = "GPLv3"
 
 [build]
-manifest = ["nua"]
-default_files = false
-# test = "test -f /nua/metadata/nua-config.json" -> default test
+default-files = false
 
 [env]
 DOLI_DB_HOST = { from="database", key="hostname" }

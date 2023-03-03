@@ -222,7 +222,7 @@ class BuilderApp:
 
     def test_build(self):
         """Execute a configured shell command to check build is successful."""
-        default = "test -f /nua/metadata/nua-config.json"
+        default = "test -f /nua/metadata/nua-config.*"
         command = self.config.build.get("test", default)
         if not command:
             return
