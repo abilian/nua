@@ -34,9 +34,9 @@ def instance_key_evaluator(
     resource: Resource | None = None,
     late_evaluation: bool = False,
 ) -> dict:
-    """Evaluate value for 'env' values declared as dict with dynamic parameters,
-    through retrieving persistent value or compute value from specialized functions.
-    """
+    """Evaluate value for 'env' values declared as dict with dynamic
+    parameters, through retrieving persistent value or compute value from
+    specialized functions."""
     env = {}
     if resource is None:
         resource = site

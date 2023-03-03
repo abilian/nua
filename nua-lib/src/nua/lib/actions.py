@@ -533,10 +533,11 @@ def download_extract(
 
 
 def verify_checksum(target: Path, checksum: str) -> None:
-    """If a checksum is provided, verify that the Path has the same sha256 hash.
+    """If a checksum is provided, verify that the Path has the same sha256
+    hash.
 
-    Abort the programm if hashes differ.
-    Currently supporting only sha256.
+    Abort the programm if hashes differ. Currently supporting only
+    sha256.
     """
     if not checksum:
         return
@@ -554,6 +555,7 @@ def verify_checksum(target: Path, checksum: str) -> None:
 
 def is_local_dir(project: str) -> bool:
     """Analysis of some ptoject string and guess wether local path or URL.
+
     (WIP)
     """
     parsed = urlparse(project)
@@ -572,6 +574,7 @@ def is_local_dir(project: str) -> bool:
 
 def _project_path(project: str, name: str, checksum: str = "") -> Path | None:
     """Guess meaning of project string and send back local path of the project.
+
     (WIP)
     """
     if is_local_dir(project):

@@ -171,8 +171,8 @@ def docker_check_container_listed(name: str) -> bool:
 
 
 def docker_remove_prior_container_db(rsite: Resource):
-    """Search & remove containers already configured for this same AppInstance or
-    Resource (running or stopped), from DB."""
+    """Search & remove containers already configured for this same AppInstance
+    or Resource (running or stopped), from DB."""
     if rsite.type != "nua-site":
         # FIXME for resourc containers
         return
@@ -213,8 +213,8 @@ def docker_remove_container_previous(name: str, show_warning: bool = True):
 
 
 def docker_remove_prior_container_live(rsite: Resource):
-    """Search & remove containers already configured for this same AppInstance or
-    Resource (running or stopped), from Docker.
+    """Search & remove containers already configured for this same AppInstance
+    or Resource (running or stopped), from Docker.
 
     Security feature: try to remove containers of exactly same name that
     could be found in docker daemon:
@@ -330,8 +330,8 @@ def docker_exec_stdout(container: Container, params: dict, output: io.BufferedWr
 
 
 def docker_exec(container: Container, params: dict):
-    """Wrapper on top of the py-docker exec_run() command, without capturing the
-    output.
+    """Wrapper on top of the py-docker exec_run() command, without capturing
+    the output.
 
     Defaults are:
     cmd, stdout=False, stderr=False, stdin=False, tty=False, privileged=False,
@@ -395,9 +395,11 @@ def docker_volume_create_new(volume: Volume):
 
 
 def docker_volume_create_local_dir(volume: Volume):
-    """For volumes of type "bind", create a local directory on the host if needed.
+    """For volumes of type "bind", create a local directory on the host if
+    needed.
 
-    This my use more options in future versions."""
+    This my use more options in future versions.
+    """
     if Path(volume.source).exists():
         return
     mkdir_p(volume.source)

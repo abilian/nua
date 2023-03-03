@@ -61,9 +61,11 @@ class NuaWheelBuilder:
             return False
 
     def check_devel_mode(self) -> bool:
-        """Try to find all required files locally in an up to date git repository.
+        """Try to find all required files locally in an up to date git
+        repository.
 
-        Warning: only for devel tests"""
+        Warning: only for devel tests
+        """
         result = False
         with suppress(ValueError, OSError):
             for path in (

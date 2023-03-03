@@ -1,5 +1,4 @@
-"""Function to auto configure a SQLite DB, on a local Docker volume.
-"""
+"""Function to auto configure a SQLite DB, on a local Docker volume."""
 from ..resource import Resource
 from ..volume import Volume
 

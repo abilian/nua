@@ -245,7 +245,8 @@ class Resource(dict):
             self["meta_packages_requirements"] = []
 
     def is_assignable(self) -> bool:
-        """Resource type allow env persistent parameters (most of the resources).
+        """Resource type allow env persistent parameters (most of the
+        resources).
 
         Persistent data is stored at site level (not resource level).
         """
@@ -397,8 +398,7 @@ class Resource(dict):
 
     def _update_from_site_declaration_env(self, env_update_dict: Any):
         """For Resource only, make 'env' dict from AppInstance declaration and
-        base  delcaration in nua-config
-        """
+        base  delcaration in nua-config."""
         if not isinstance(env_update_dict, dict):
             abort(
                 "Updated 'env' in deploy config must be a dict.",
@@ -498,7 +498,8 @@ class Resource(dict):
                 vprint(pformat(self))
 
     def load_meta_packages_requirements(self):
-        """Some plugin may require some meta-packages requirements for main app.
+        """Some plugin may require some meta-packages requirements for main
+        app.
 
         For example : postgres DB-> postgres-client -> psycopg2
         (for future use)

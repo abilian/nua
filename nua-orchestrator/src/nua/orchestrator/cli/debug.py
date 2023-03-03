@@ -57,4 +57,4 @@ def settings():
 
 @app.callback()
 def main():
-    """Debug commands"""
+    """Debug commands."""

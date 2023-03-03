@@ -1,5 +1,4 @@
-"""Function to auto configure a MongoDB container DB.
-"""
+"""Function to auto configure a MongoDB container DB."""
 
 from ..resource import Resource
 from ..volume import Volume

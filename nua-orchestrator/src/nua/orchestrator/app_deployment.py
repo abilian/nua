@@ -462,8 +462,7 @@ class AppDeployment:
 
     def apps_merge_app_instances_to_resources(self):
         """Merge configuration declared in the AppInstance config to original
-        nua-config declarations.
-        """
+        nua-config declarations."""
         for site in self.apps:
             site.merge_instance_to_resources()
         with verbosity(3):

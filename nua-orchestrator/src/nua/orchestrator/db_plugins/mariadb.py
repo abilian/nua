@@ -1,5 +1,4 @@
-"""Function to auto configure a Mariadb container DB.
-"""
+"""Function to auto configure a Mariadb container DB."""
 # from nua.agent.db.mariadb_manager import MariadbManager
 
 from ..resource import Resource

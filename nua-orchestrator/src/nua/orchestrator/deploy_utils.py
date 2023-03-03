@@ -1,5 +1,4 @@
-"""Class to manage the deployment of a group of AppInstance.
-"""
+"""Class to manage the deployment of a group of AppInstance."""
 from collections.abc import Callable
 from pathlib import Path
 from pprint import pformat
@@ -190,8 +189,8 @@ def deactivate_containers(container_names: list[str], show_warning: bool = True)
 
 
 def deactivate_app(site: AppInstance):
-    """Deactive containers of AppInstance and all sub Resources (updating orchestrator
-    DB)."""
+    """Deactive containers of AppInstance and all sub Resources (updating
+    orchestrator DB)."""
     container_names = [res.container_name for res in site.resources]
     container_names.append(site.container_name)
     deactivate_containers(container_names, show_warning=False)

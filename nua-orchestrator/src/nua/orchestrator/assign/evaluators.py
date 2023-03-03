@@ -1,9 +1,8 @@
 """Functions to respond to requirement from instance declarations.
 
 All evaluation function must have same 2 arguments:
-    function(resource, requirement)
-but call through wrapper uses a third argument: 'persistent'
-
+function(resource, requirement) but call through wrapper uses a third
+argument: 'persistent'
 """
 from functools import wraps
 from typing import Any
@@ -73,10 +72,10 @@ def random(
 ) -> dict:
     """Send a random string or a random integer.
 
-    The value is either ramdomly generated or read from previous execution if
-    'persistent' is true (default) and previous data is found.
-    Default length for random string is 24.
-    Random integer is a 64 bit positive signed, [0, 2*64-1]
+    The value is either ramdomly generated or read from previous
+    execution if 'persistent' is true (default) and previous data is
+    found. Default length for random string is 24. Random integer is a
+    64 bit positive signed, [0, 2*64-1]
     """
     tpe = requirement.get("type", "string")
     if tpe.lower() in {"int", "integer"}:

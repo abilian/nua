@@ -1,4 +1,4 @@
-"""Parse content of db_plugins
+"""Parse content of db_plugins.
 
 Family "db" can have functions:
     - configure_db()

@@ -118,7 +118,8 @@ class BuilderApp:
         self.make_custom_document_root()
 
     def make_custom_document_root(self):
-        """If the app defines a specific document root  (i.e. /var/www/html)."""
+        """If the app defines a specific document root  (i.e.
+        /var/www/html)."""
         document_root = hyphen_get(self.config.build, "document-root")
         if not document_root:
             return
@@ -182,7 +183,8 @@ class BuilderApp:
     def run_build_script(self):
         """Process the 'build.py' script if exists.
 
-        The script is run from the directory of the nua-config.toml file.
+        The script is run from the directory of the nua-config.toml
+        file.
         """
         script_path = self.find_build_script()
         if not script_path:
@@ -197,8 +199,7 @@ class BuilderApp:
             sh(cmd, env=env, timeout=1800)
 
     def detect_and_build_project(self):
-        """Detect the build method and apply.
-        (WIP)
+        """Detect the build method and apply. (WIP)
 
         Current guess:
             - "build.py"

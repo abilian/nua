@@ -1,5 +1,4 @@
-"""Parse the meta-packages requirements.
-"""
+"""Parse the meta-packages requirements."""
 import json
 from functools import cache
 from importlib import resources as rso

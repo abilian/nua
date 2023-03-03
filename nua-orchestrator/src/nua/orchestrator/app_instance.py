@@ -165,7 +165,8 @@ class AppInstance(Resource):
             self._merge_resource_updates_to_resource(resource_updates)
 
     def rebase_env_upon_nua_conf(self):
-        """Merge AppInstance declared env at deploy time upon base declaration of nua-config."""
+        """Merge AppInstance declared env at deploy time upon base declaration
+        of nua-config."""
         base_env = deepcopy(self.image_nua_config.get("env", {}))
         base_env.update(self.env)
         self.env = base_env
