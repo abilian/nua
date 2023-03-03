@@ -12,13 +12,15 @@ from shutil import copy2
 from nua.lib.actions import (
     apt_remove_lists,
     copy_from_package,
+    detect_and_install,
     install_build_packages,
     install_meta_packages,
     install_packages,
     install_pip_packages,
-    project_install,
+    install_source,
 )
 from nua.lib.backports import chdir
+from nua.lib.exec import exec_as_nua
 from nua.lib.panic import abort, info, show, vprint
 from nua.lib.shell import chmod_r, chown_r, mkdir_p, rm_fr, sh
 from nua.lib.tool.state import set_verbosity, verbosity, verbosity_level
@@ -40,8 +42,6 @@ logging.basicConfig(level=logging.INFO)
 class BuilderApp:
     """Class to hold config and other state information during build."""
 
-    nua_dir: Path
-
     def __init__(self):
         # we are supposed to launch "nua buld" from cwd, but we'll see later
         # self.root_dir = Path.cwd()
@@ -54,46 +54,31 @@ class BuilderApp:
             abort(f"Build directory does not exist: '{self.build_dir}'")
         chdir(self.build_dir)
         self.config = NuaConfig(self.build_dir)
-
-    def fetch(self):
-        pass
-        # chdir(self.build_dir)
-        # if self.config.source_url:
-        #     cmd = (
-        #         f"curl -sL {self.config.source_url} | "
-        #         "tar -xz -c src --strip-components 1 -f -"
-        #     )
-        #     sh(cmd)
-        # elif self.config.src_git:
-        #     cmd = f"git clone {self.config.src_git} src"
-        #     sh(cmd)
-        # else:
-        #     print("No src_url or src_git content to fetch.")
-
-    def detect_nua_dir(self):
-        """Detect dir containing nua files (start.py, build.py, Dockerfile)."""
-        nua_dir = hyphen_get(self.config.build, "nua-dir")
-        if not nua_dir:
-            # Check if default 'nua' dir exists
-            path = self.build_dir / "nua"
-            if path.is_dir():
-                self.nua_dir = path
-            else:
-                # Use the root folder (where is the nua-config.toml file)
-                self.nua_dir = self.build_dir
-            with verbosity(2):
-                vprint("self.nua_dir:", self.nua_dir)
-            return
-        # Provided path must exist (or should have failed earlier)
-        self.nua_dir = self.build_dir / nua_dir
+        self.source = Path()
 
     def build(self):
-        self.detect_nua_dir()
         self.make_dirs()
         with chdir(self.config.root_dir):
             self.pre_build()
-            self.detect_and_build_project()
-            self.post_build()
+            code_installed = self.install_project_code()
+            self.merge_files()
+            if os.getuid() == 0:
+                chown_r("/nua/build", "nua")
+            pip_installed = install_pip_packages(self.config.pip_install)
+            if code_installed:
+                detect_and_install(self.source)
+                if os.getuid() == 0:
+                    chown_r("/nua/build", "nua")
+            if not any((pip_installed, code_installed)):
+                # no package installed through install_pip_packages and
+                # no other way. Let's assume there is a local project.
+                show("Try install from some local project")
+                detect_and_install(".", self.config.name)
+                if os.getuid() == 0:
+                    chown_r("/nua/build", "nua")
+            if code_installed:
+                self.run_build_script()
+        self.post_build()
         self.test_build()
 
     def infer_meta_packages(self) -> list:
@@ -160,7 +145,7 @@ class BuilderApp:
         name = hyphen_get(self.config.build, "start-script")
         if not name:
             name = "start.py"
-        path = self.nua_dir / name
+        path = self.build_dir / "nua" / name
         path = path.absolute().resolve()
         if path.is_file():
             with verbosity(3):
@@ -172,7 +157,7 @@ class BuilderApp:
         name = hyphen_get(self.config.build, "build-script")
         if not name:
             name = "build.py"
-        path = self.nua_dir / name
+        path = self.build_dir / "nua" / name
         path = path.absolute().resolve()
         if path.is_file():
             with verbosity(3):
@@ -181,11 +166,13 @@ class BuilderApp:
         return None
 
     def run_build_script(self):
-        """Process the 'build.py' script if exists.
+        """Process the 'build.py' script if exists or the build-command.
 
         The script is run from the directory of the nua-config.toml
         file.
         """
+        if self.config.build_command:
+            return self.build_command()
         script_path = self.find_build_script()
         if not script_path:
             return
@@ -198,27 +185,54 @@ class BuilderApp:
             cmd = f"python {script_path}"
             sh(cmd, env=env, timeout=1800)
 
-    def detect_and_build_project(self):
-        """Detect the build method and apply. (WIP)
+    def build_command(self):
+        """Process the 'build-command' commands.
 
-        Current guess:
-            - "build.py"
-            - "project" directory
+        The script is run from the sources dirctory.
         """
-        installed = install_pip_packages(self.config.pip_install)
-        if self.find_build_script():
-            return self.run_build_script()
-        if self.config.project:
-            return project_install(self.config.project, self.config.name)
+        if not self.config.build_command:
+            return
+        # assuming it is a python script
+        with install_build_packages(self.config.build_packages):
+            with chdir(self.source):
+                exec_as_nua(self.config.build_command)
+
+    def install_project_code(self) -> bool:
+        installed = False
         if self.config.src_url:
-            return project_install(
-                self.config.src_url, self.config.name, self.config.checksum
+            self.source = install_source(
+                self.config.src_url,
+                "/nua/build",
+                self.config.name,
+                self.config.checksum,
             )
-        if not installed:
-            # no package installed through install_pip_packages and
-            # no other way. Let's assume there is a local project.
-            show("Try install from some local project")
-            project_install(".", self.config.name)
+            installed = True
+
+        elif self.config.project:
+            self.source = install_source(
+                self.config.project,
+                "/nua/build",
+                self.config.name,
+            )
+            installed = True
+        elif self.config.git_url:
+            pass
+        return installed
+
+    def merge_files(self):
+        """Copy content of various /nua/build/nua subfolders in /nua"""
+        root = Path("/nua/build/nua")
+        if not root.is_dir():
+            return
+        for item in root.iterdir():
+            if item.name == "nua" or not item.is_dir():
+                continue
+            for file in item.glob("**"):
+                if not file.is_file():
+                    continue
+                target = Path("/nua/build").joinpath(file.relative_to(root))
+                target.parent.mkdir(parents=True, exist_ok=True)
+                copy2(file, target.parent)
 
     def test_build(self):
         """Execute a configured shell command to check build is successful."""
@@ -233,5 +247,4 @@ class BuilderApp:
 def main() -> None:
     """Setup app in Nua container."""
     builder = BuilderApp()
-    builder.fetch()
     builder.build()

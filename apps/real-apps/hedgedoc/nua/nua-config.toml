@@ -31,6 +31,8 @@ build-packages = [
     "git",
 ]
 
+build-command = ["bin/setup","yarn cache clean; rm -fr /tmp/*"]
+
 test = "test -f /nua/build/hedgedoc/healthcheck.mjs"
 
 [env]

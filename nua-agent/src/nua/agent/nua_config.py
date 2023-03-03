@@ -304,6 +304,10 @@ class NuaConfig:
         return hyphen_get(self.build, "build-packages", [])
 
     @property
+    def build_command(self) -> list:
+        return hyphen_get(self.build, "build-command", [])
+
+    @property
     def pip_install(self) -> list:
         return hyphen_get(self.build, "pip-install", [])
 

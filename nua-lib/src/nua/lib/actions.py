@@ -572,22 +572,19 @@ def is_local_dir(project: str) -> bool:
     return result
 
 
-def _project_path(project: str, name: str, checksum: str = "") -> Path | None:
-    """Guess meaning of project string and send back local path of the project.
+def install_source(
+    url: str,
+    dest_dir: str | Path,
+    name: str,
+    checksum: str = "",
+) -> Path:
+    """Guess meaning of url string and send back local path of the dowloaded source.
 
     (WIP)
     """
-    if is_local_dir(project):
-        return Path(project)
-    return download_extract(project, "/nua/build", name, checksum)
-
-
-def project_install(project: str, name: str = "noname", checksum: str = "") -> None:
-    path = _project_path(project, name, checksum)
-    if not path:
-        warning(f"No path found for project '{project}'")
-        return
-    detect_and_install(path)
+    if is_local_dir(url):
+        return Path(url)
+    return download_extract(url, dest_dir, name, checksum)
 
 
 def detect_and_install(directory: str | Path | None) -> None:
