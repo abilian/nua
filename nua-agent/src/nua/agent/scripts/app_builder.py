@@ -45,7 +45,7 @@ class BuilderApp:
     def __init__(self):
         if "nua_verbosity" in os.environ:
             set_verbosity(int(os.environ["nua_verbosity"]))
-            with verbosity(1):
+            with verbosity(3):
                 info("verbosity:", verbosity_level())
         self.build_dir = Path(NUA_BUILD_PATH)
         if not self.build_dir.is_dir():

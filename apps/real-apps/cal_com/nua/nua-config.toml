@@ -1,0 +1,45 @@
+[metadata]
+id = "cal.com"
+version = "2.6.6"
+release = 1
+title = "Cal.com"
+author = "Cal.com authors"
+tagline = "Scheduling infrastructure for everyone."
+website = "https://cal.com"
+tags = ["scheduling"]
+license = "AGPL-3.0"
+src-url = "https://github.com/calcom/cal.com/archive/refs/tags/v{version}.zip"
+checksum = 'ea39828e96786069027df4e56a1fbf722630248ee77a4f556fc4893b62c9cb2e'
+
+[build]
+# use a specific docker image containing nodejs:
+builder = "node-16"
+build-packages = [
+    # "git",
+]
+build-command = "yarn install"
+
+[env]
+# Generic environment variables
+NODE_ENV = "production"
+# DEBUG = "true"
+# TZ = "Europe/Paris"
+
+# DB_HOST = { from="database", key="hostname" }
+# DB_USER = { from="database", key="MONGO_INITDB_ROOT_USERNAME" }
+# DB_PWD = { from="database", key="MONGO_INITDB_ROOT_PASSWORD" }
+# DB_PORT = 27017
+
+[port.web]
+container = 3000
+
+[[resource]]
+# A resource is another container required by the main app container, its
+# configuration is described below, under the key of name of the resource. Several
+# resources can be declared. The resource host will appear in the local network
+# with a hostname equal to the container name.
+
+# Declaration of the required image for the resurce, here the official Postgres.
+name = "database"
+type = "postgres"
+version = ">=14, <15"
