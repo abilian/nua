@@ -25,6 +25,7 @@ nav:
   - Users:
     - Intro: user/index.md
     - Command Line Interface: user/cli.md
+  - News: news/index.md
 
 # Copyright
 copyright: Copyright &copy; 2021-2023 Abilian SAS
@@ -62,7 +63,7 @@ theme:
   features:
     - navigation.tabs
     - navigation.top
-    - navigation.instant
+    # - navigation.instant
 
 extra:
   homepage: https://nua.rocks
@@ -97,6 +98,11 @@ markdown_extensions:
 plugins:
   - search
   - roamlinks
+  - blogging:
+      dirs:
+        - news
+      features:
+        tags: {}
   - with-pdf:
       author: Stefane Fermigier / Jérôme Dumonteil
       copyright: © 2022 Abilian
