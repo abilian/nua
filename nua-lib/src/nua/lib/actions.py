@@ -88,7 +88,7 @@ def install_build_packages(
         packages = packages.strip().split()
     if packages:
         with verbosity(2):
-            show("install temporary build packages")
+            show("Install temporary build packages")
         _install_packages(packages, update)
     try:
         yield
@@ -99,7 +99,7 @@ def install_build_packages(
         if success:
             if packages:
                 with verbosity(2):
-                    show("remove temporary build packages")
+                    show("Remove temporary build packages")
                 _purge_packages(packages)
             apt_final_clean()
             if not keep_lists:

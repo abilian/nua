@@ -21,6 +21,8 @@ def sudo_cmd_as_user(  # noqa CFQ002
     if isinstance(cmd, list):
         cmd = " ".join(cmd)
     sudo_cmd = f"sudo -nu {user} {cmd}"
+    if show_cmd:
+        print(cmd)
     if set_home:
         if not env:
             env = {}

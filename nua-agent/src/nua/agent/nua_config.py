@@ -305,7 +305,12 @@ class NuaConfig:
 
     @property
     def build_command(self) -> list:
-        return hyphen_get(self.build, "build-command", [])
+        cmd = hyphen_get(self.build, "build-command", [])
+        if isinstance(cmd, list):
+            return cmd
+        if isinstance(cmd, str) and cmd:
+            return [cmd]
+        return []
 
     @property
     def pip_install(self) -> list:

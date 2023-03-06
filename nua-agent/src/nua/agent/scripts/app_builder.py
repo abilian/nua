@@ -200,9 +200,10 @@ class BuilderApp:
         """
         if not self.config.build_command:
             return
-        # assuming it is a python script
         with install_build_packages(self.config.build_packages):
             with chdir(self.source):
+                with verbosity(2):
+                    show("Execution of build-command")
                 exec_as_nua(self.config.build_command)
 
     def install_project_code(self) -> bool:
