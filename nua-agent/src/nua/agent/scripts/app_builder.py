@@ -61,20 +61,16 @@ class BuilderApp:
             with verbosity(1):
                 info("******** Stage: build")
             code_installed = self.install_project_code()
-            if os.getuid() == 0:
-                chown_r("/nua/build", "nua")
             pip_installed = install_pip_packages(self.config.pip_install)
             if code_installed:
-                detect_and_install(self.source)
-                if os.getuid() == 0:
-                    chown_r("/nua/build", "nua")
+                built = detect_and_install(self.source)
             if not any((pip_installed, code_installed)):
                 # no package installed through install_pip_packages and
                 # no other way. Let's assume there is a local project.
                 show("Try install from some local project")
-                detect_and_install(".", self.config.name)
-                if os.getuid() == 0:
-                    chown_r("/nua/build", "nua")
+                built = detect_and_install(".")
+            if (code_installed or pip_installed or built) and os.getuid() == 0:
+                chown_r("/nua/build", "nua")
             if code_installed:
                 self.run_build_script()
         self.post_build()

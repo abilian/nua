@@ -14,6 +14,14 @@ src-url = "https://github.com/cedarcode/webauthn-rails-demo-app/archive/refs/hea
 builder = "ruby-272"
 # rems: compilation of ruby-2.7.2 breaks openSSL (old version 1.0 required)
 
+build-command = [
+    "cp .env.example .env",
+    "bundle install",
+    "bundle add tzinfo-data",
+    "yarn install",
+    "bundle exec rake db:setup"
+    ]
+
 [env]
 # Generic environment variables
 NODE_ENV = "production"

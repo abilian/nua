@@ -587,22 +587,23 @@ def install_source(
     return download_extract(url, dest_dir, name, checksum)
 
 
-def detect_and_install(directory: str | Path | None) -> None:
+def detect_and_install(directory: str | Path | None) -> bool:
     if directory:
         path = Path(directory)
     else:
         path = Path(".")
     path.resolve()
     with verbosity(2):
-        info("Detect and install", path)
+        info("Detect and install in ", path)
     with chdir(path):
         if is_python_source_project():
             build_python()
-            return
+            return True
         if is_python_wheel():
             pip_install(["*.whl"])
-            return
+            return True
         warning(f"Not a known project type in '{path}'")
+        return False
 
 
 #
