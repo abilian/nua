@@ -43,8 +43,6 @@ class BuilderApp:
     """Class to hold config and other state information during build."""
 
     def __init__(self):
-        # we are supposed to launch "nua buld" from cwd, but we'll see later
-        # self.root_dir = Path.cwd()
         if "nua_verbosity" in os.environ:
             set_verbosity(int(os.environ["nua_verbosity"]))
             with verbosity(1):
@@ -60,8 +58,9 @@ class BuilderApp:
         self.make_dirs()
         with chdir(self.config.root_dir):
             self.pre_build()
+            with verbosity(1):
+                info("******** Stage: build")
             code_installed = self.install_project_code()
-            self.merge_files()
             if os.getuid() == 0:
                 chown_r("/nua/build", "nua")
             pip_installed = install_pip_packages(self.config.pip_install)
@@ -80,6 +79,8 @@ class BuilderApp:
                 self.run_build_script()
         self.post_build()
         self.test_build()
+        with verbosity(1):
+            show("******** Build done.")
 
     def infer_meta_packages(self) -> list:
         """Return packages inferred from the nua-config requirements."""
@@ -93,6 +94,8 @@ class BuilderApp:
 
     def pre_build(self):
         """Process installation of packages prior to running install script."""
+        with verbosity(1):
+            info("******** Stage: pre-build")
         install_meta_packages(self.infer_meta_packages(), keep_lists=True)
         install_meta_packages(self.config.meta_packages, keep_lists=True)
         install_packages(self.config.packages, keep_lists=True)
@@ -119,6 +122,11 @@ class BuilderApp:
         chmod_r(directory, 0o644, 0o755)
 
     def post_build(self):
+        with verbosity(1):
+            info("******** Stage: post-build")
+        self.merge_files()
+        if os.getuid() == 0:
+            chown_r("/nua/build", "nua")
         apt_remove_lists()
         self.copy_metadata()
         self.make_start_script()
@@ -223,14 +231,18 @@ class BuilderApp:
         """Copy content of various /nua/build/nua subfolders in /nua"""
         root = Path("/nua/build/nua")
         if not root.is_dir():
+            with verbosity(3):
+                print("not a directory: /nua/build/nua")
             return
         for item in root.iterdir():
             if item.name == "nua" or not item.is_dir():
                 continue
-            for file in item.glob("**"):
+            for file in item.glob("**/*"):
                 if not file.is_file():
                     continue
-                target = Path("/nua/build").joinpath(file.relative_to(root))
+                with verbosity(3):
+                    print("merge file:", item)
+                target = Path("/nua").joinpath(file.relative_to(root))
                 target.parent.mkdir(parents=True, exist_ok=True)
                 copy2(file, target.parent)
 
