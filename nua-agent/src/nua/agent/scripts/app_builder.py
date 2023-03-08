@@ -8,6 +8,7 @@ import logging
 import os
 from pathlib import Path
 from shutil import copy2
+from textwrap import dedent
 
 from nua.lib.actions import (
     apt_remove_lists,
@@ -136,15 +137,35 @@ class BuilderApp:
     def make_start_script(self):
         script_dir = Path(NUA_SCRIPTS_PATH)
         script_dir.mkdir(mode=0o755, parents=True, exist_ok=True)
+        if self.config.start_command:
+            with verbosity(2):
+                vprint("Writing start script from 'start-command'")
+            script_path = script_dir / "start.py"
+            script_path.write_text(self._start_script_content())
+            return
         path = self.find_start_script()
         if path:
             with verbosity(2):
                 vprint("Copying start script:", path)
             copy2(path, script_dir)
-        else:
-            with verbosity(2):
-                vprint("Copying default start script")
-            copy_from_package("nua.agent.defaults", "start.py", script_dir)
+            return
+        with verbosity(2):
+            vprint("Copying default start script")
+        copy_from_package("nua.agent.defaults", "start.py", script_dir)
+
+    def _start_script_content(self) -> str:
+        cwd = repr(str(self.source))
+        return dedent(
+            f"""\
+        import os
+
+        from nua.lib.exec import exec_as_nua
+
+        exec_as_nua({self.config.start_command},
+                    cwd={cwd},
+                    env=os.environ,)
+        """
+        )
 
     def find_start_script(self) -> Path | None:
         name = hyphen_get(self.config.build, "start-script")
@@ -193,7 +214,7 @@ class BuilderApp:
     def build_command(self):
         """Process the 'build-command' commands.
 
-        The script is run from the sources dirctory.
+        The script is run from the sources directory.
         """
         if not self.config.build_command:
             return

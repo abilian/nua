@@ -313,6 +313,15 @@ class NuaConfig:
         return []
 
     @property
+    def start_command(self) -> list:
+        cmd = hyphen_get(self.build, "start-command", [])
+        if isinstance(cmd, list):
+            return cmd
+        if isinstance(cmd, str) and cmd:
+            return [cmd]
+        return []
+
+    @property
     def pip_install(self) -> list:
         return hyphen_get(self.build, "pip-install", [])
 
