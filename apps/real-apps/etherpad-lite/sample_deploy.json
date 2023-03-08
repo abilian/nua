@@ -1,0 +1,8 @@
+{
+    "site": [
+        {
+            "image": "etherpad-lite",
+            "domain": "test1.example.com"
+        }
+    ]
+}
