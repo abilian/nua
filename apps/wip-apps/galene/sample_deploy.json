@@ -1,0 +1,8 @@
+{
+    "site": [
+        {
+            "image": "galene",
+            "domain": "test1.example.com"
+        }
+    ]
+}

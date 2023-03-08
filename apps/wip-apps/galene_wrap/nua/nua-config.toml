@@ -1,0 +1,22 @@
+[metadata]
+id = "galene"
+version = "0.6.2"
+release = 1
+title = "Galène videoconference server"
+author = "Galene authors"
+tagline = "Galène videoconference server"
+website = "https://galene.org/"
+tags = ["golang", "visio"]
+licence = "MIT"
+# here the wrapped Docker declaration:
+image = "deburau/galene:{version}"
+
+[build]
+default-method = "wrap"
+
+[env]
+GALENE_TURN = ""
+# GALENE_TURN=1.2.3.4:1194
+
+[port.web]
+container = 8443

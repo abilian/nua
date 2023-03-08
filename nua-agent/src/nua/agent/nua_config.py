@@ -235,6 +235,12 @@ class NuaConfig:
         return ""
 
     @property
+    def git_branch(self) -> str:
+        if base := hyphen_get(self.metadata, "git-branch"):
+            return base.format(**self.metadata)
+        return "main"
+
+    @property
     def wrap_image(self) -> str:
         """Optional  Docker 'image' to be used as base for 'wrap' strategy.
 

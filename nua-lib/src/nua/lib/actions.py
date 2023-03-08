@@ -587,6 +587,26 @@ def install_source(
     return download_extract(url, dest_dir, name, checksum)
 
 
+def install_git_source(
+    url: str,
+    branch: str,
+    dest_dir: str | Path,
+    name: str,
+) -> Path:
+    """Git clone a remote repository."""
+    if dest_dir:
+        path = Path(dest_dir)
+    else:
+        path = Path(".")
+    path.resolve()
+    with verbosity(2):
+        info("Git clone the the directory ", path)
+    with chdir(path):
+        cmd = f"git clone --depth 1 --branch {branch} {url} {name}"
+        sh(cmd)
+    return path / name
+
+
 def detect_and_install(directory: str | Path | None) -> bool:
     if directory:
         path = Path(directory)

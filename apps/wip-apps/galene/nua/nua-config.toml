@@ -1,0 +1,28 @@
+[metadata]
+id = "galene"
+version = "0.6.2"
+release = 1
+title = "Galène videoconference server"
+author = "Galene authors"
+tagline = "Galène videoconference server"
+website = "https://galene.org/"
+tags = ["golang", "visio"]
+licence = "MIT"
+git-url = "https://github.com/jech/galene.git"
+git-branch = "galene-0.6-branch"
+
+[build]
+build-packages = ['golang-go']
+build-command = "CGO_ENABLED=0 go build -ldflags='-s -w'"
+
+[env]
+GALENE_TURN = ""
+# GALENE_TURN=1.2.3.4:1194
+
+[port.web]
+container = 8443
+
+[port.turn]
+container = 1194
+proxy = 1194
+ssl = false

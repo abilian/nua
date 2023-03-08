@@ -15,6 +15,7 @@ from nua.lib.actions import (
     copy_from_package,
     detect_and_install,
     install_build_packages,
+    install_git_source,
     install_meta_packages,
     install_packages,
     install_pip_packages,
@@ -85,6 +86,8 @@ class BuilderApp:
         inferred = []
         for resource in self.config.resource:
             inferred.extend(meta_packages_requirements(resource.get("type", "")))
+        if self.config.git_url:
+            inferred.extend(meta_packages_requirements("git"))
         if inferred:
             with verbosity(2):
                 vprint(f"Inferred meta packages: {inferred}")
@@ -243,7 +246,13 @@ class BuilderApp:
             )
             installed = True
         elif self.config.git_url:
-            pass
+            self.source = install_git_source(
+                self.config.git_url,
+                self.config.git_branch,
+                "/nua/build",
+                self.config.name,
+            )
+            installed = True
         return installed
 
     def merge_files(self):
