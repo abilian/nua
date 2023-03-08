@@ -2,7 +2,7 @@
 import re
 import tempfile
 import zipfile
-from contextlib import suppress
+from contextlib import contextmanager, suppress
 from pathlib import Path
 from shutil import copy2
 from urllib.request import urlopen
@@ -107,9 +107,10 @@ class NuaWheelBuilder:
         return self.poetry_build(self.nua_local_git / "nua-lib")
 
     def build_nua_agent(self) -> bool:
-        self.hack_agent_pyproject()
-        return self.poetry_build(self.nua_local_git / "nua-agent")
+        with self.hack_agent_pyproject():
+            return self.poetry_build(self.nua_local_git / "nua-agent")
 
+    @contextmanager
     def hack_agent_pyproject(self):
         """Since we use local path dependencies when making wheel, we need to
         force the version deps to something local.
@@ -117,11 +118,18 @@ class NuaWheelBuilder:
         FIXME: to be solved by publishing to Pypi index.
         """
         path = self.nua_local_git / "nua-agent" / "pyproject.toml"
-        pyproject = tomli.loads(path.read_text(encoding="utf8"))
+        content = path.read_text(encoding="utf8")
+        pyproject = tomli.loads(content)
         version = pyproject["tool"]["poetry"]["version"]
         dep = f"=={version}"
         pyproject["tool"]["poetry"]["dependencies"]["nua-lib"] = dep
         path.write_text(tomli_w.dumps(pyproject))
+        try:
+            yield
+        except SystemExit:
+            raise
+        finally:
+            path.write_text(content)
 
     def poetry_build(self, path: Path) -> bool:
         with verbosity(3):
