@@ -1,7 +1,7 @@
 [metadata]
 id = "redis-cache-test"
 version = "1.0"
-release = 1
+release = 2
 title = "Redis cache test"
 author = "Nua testers"
 tagline = "Redis cache test"
@@ -10,6 +10,7 @@ tags = ["test", "redis"]
 license = "MIT"
 
 [build]
+start-command = "python -c 'from redis_cache_test.app import main; main()'"
 test = "python -c 'import redis_cache_test'"
 
 [env]

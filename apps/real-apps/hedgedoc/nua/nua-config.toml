@@ -31,8 +31,11 @@ build-packages = [
     "git",
 ]
 
-build-command = ["bin/setup","yarn cache clean; rm -fr /tmp/*"]
-
+build-command = [
+    "bin/setup",
+    "yarn cache clean; rm -fr /tmp/*"
+]
+start-command = "node app.js"
 test = "test -f /nua/build/hedgedoc/healthcheck.mjs"
 
 [env]
