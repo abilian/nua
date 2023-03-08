@@ -62,6 +62,7 @@ class BuilderApp:
                 info("******** Stage: build")
             code_installed = self.install_project_code()
             pip_installed = install_pip_packages(self.config.pip_install)
+            built = False
             if code_installed:
                 built = detect_and_install(self.source)
             if not any((pip_installed, code_installed)):
