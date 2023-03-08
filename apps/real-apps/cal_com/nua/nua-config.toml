@@ -9,27 +9,76 @@ website = "https://cal.com"
 tags = ["scheduling"]
 license = "AGPL-3.0"
 src-url = "https://github.com/calcom/cal.com/archive/refs/tags/v{version}.zip"
-checksum = 'ea39828e96786069027df4e56a1fbf722630248ee77a4f556fc4893b62c9cb2e'
+checksum = "ea39828e96786069027df4e56a1fbf722630248ee77a4f556fc4893b62c9cb2e"
 
 [build]
 # use a specific docker image containing nodejs:
 builder = "node-16"
-build-packages = [
-    # "git",
+run-packages = [
+    "netcat"
 ]
-build-command = "yarn install"
+build-command = [
+    # "yarn global add turbo",
+    # "yarn add turbo",
+    "yarn config set network-timeout 1000000000 -g",
+    # "turbo prune --scope=@calcom/web --docker",
+    "yarn install",
+    # "yarn turbo run build --filter=@calcom/web",
+    "npm install prisma",
+    ]
 start-command = "yarn start"
 
 [env]
+NEXT_PUBLIC_LICENSE_CONSENT  = "agree"
+LICENSE = "https://github.com/calendso/calendso/blob/main/LICENSE"
+NEXT_PUBLIC_WEBAPP_URL = "http://localhost:3000"
+# NEXTAUTH_URL=http://localhost:3000/api/auth
+
+NEXTAUTH_SECRET = { random='true', length=32 }
+CALENDSO_ENCRYPTION_KEY = { random='true', length=32 }
+
+PG_DB_HOST = { from="database", key="hostname" }
+POSTGRES_USER = { from="database", key="POSTGRES_USER" }
+POSTGRES_PASSWORD = { from="database", key="POSTGRES_PASSWORD" }
+POSTGRES_DB = { from="database", key="POSTGRES_DB" }
+DATABASE_HOST = "{PG_DB_HOST}:5432"
+DATABASE_URL = "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${PG_DB_HOST}:5432/${POSTGRES_DB}"
+
+GOOGLE_API_CREDENTIALS={}
+
+# POSTGRES_USER=unicorn_user
+# POSTGRES_PASSWORD=magical_password
+# POSTGRES_DB=calendso
+# DATABASE_HOST=database:5432
+# DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${DATABASE_HOST}/${POSTGRES_DB}
+# GOOGLE_API_CREDENTIALS={}
+
+CALCOM_TELEMETRY_DISABLED = "1"
+
+#
+# # Used for the Office 365 / Outlook.com Calendar integration
+# MS_GRAPH_CLIENT_ID=
+# MS_GRAPH_CLIENT_SECRET=
+#
+# # Used for the Zoom integration
+# ZOOM_CLIENT_ID=
+# ZOOM_CLIENT_SECRET=
+#
+# # E-mail settings
+# # Configures the global From: header whilst sending emails.
+# EMAIL_FROM=notifications@example.com
+#
+# # Configure SMTP settings (@see https://nodemailer.com/smtp/).
+# EMAIL_SERVER_HOST=smtp.example.com
+# EMAIL_SERVER_PORT=587
+# EMAIL_SERVER_USER=email_user
+# EMAIL_SERVER_PASSWORD=email_password
+
 # Generic environment variables
 NODE_ENV = "production"
+NODE_OPTIONS = "--max-old-space-size=4096"
 # DEBUG = "true"
 # TZ = "Europe/Paris"
-
-# DB_HOST = { from="database", key="hostname" }
-# DB_USER = { from="database", key="MONGO_INITDB_ROOT_USERNAME" }
-# DB_PWD = { from="database", key="MONGO_INITDB_ROOT_PASSWORD" }
-# DB_PORT = 27017
 
 [port.web]
 container = 3000
