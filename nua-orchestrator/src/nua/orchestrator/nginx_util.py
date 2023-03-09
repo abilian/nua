@@ -2,6 +2,7 @@
 import os
 from importlib import resources as rso
 from pathlib import Path
+from pprint import pformat
 from time import sleep
 
 from nua.lib.actions import jinja2_render_from_str_template
@@ -113,6 +114,9 @@ def configure_nginx_hostname(host: dict):
                    },
                    ...
     """
+    with verbosity(4):
+        vprint("configure_nginx_hostname: host")
+        vprint(pformat(host))
     _set_instances_proxy_port(host)
     # later: see for port on other :port interfaces
     nua_nginx_path = nua_env.nginx_path()
