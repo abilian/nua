@@ -1,0 +1,32 @@
+[metadata]
+id = "echo-three"
+version = "1.0"
+release = 1
+title = "Nua test server 3 ports"
+author = "Jerome Dumonteil <jd@abilian.com>"
+tagline = "Nua test server 3 ports"
+website = "https://nua.rocks/"
+tags = ["test", "html", "web", "static"]
+license = "MIT"
+
+[build]
+
+test = "python -c 'from echo_three.echo_server import echo'"
+
+start-command = "python -c 'from echo_three.echo_server import echos; echos(8763, 8764, 8765)'"
+
+[port.web]
+container = 8765
+host = "auto" # default
+protocol = "tcp" # default
+# proxy = 80
+
+[port.portb]
+container = 8764
+host = 8764
+proxy = 8764
+
+[port.portc]
+container = 8763
+host = 8763
+proxy = 8763
