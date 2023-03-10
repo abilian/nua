@@ -3,6 +3,7 @@
 Basically a wrapper for the NUA_ENV dict as a singleton, no class
 needed.
 """
+import os
 from copy import deepcopy
 from pathlib import Path
 
@@ -34,6 +35,14 @@ def detect_nua_home():
 
 def nginx_path() -> Path:
     return nua_home_path() / "nginx"
+
+
+def venv_bin() -> str:
+    return os.path.join(os.environ["VIRTUAL_ENV"], "bin")
+
+
+def certbot_exe() -> str:
+    return os.path.join(venv_bin(), "certbot")
 
 
 def as_dict() -> dict:

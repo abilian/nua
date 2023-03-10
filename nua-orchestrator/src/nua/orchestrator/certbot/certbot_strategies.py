@@ -18,14 +18,35 @@ from nua.lib.tool.state import verbosity
 
 from nua.orchestrator import config
 
+from ..nua_env import certbot_exe, nua_home
+
+
+def cert_home() -> str:
+    return os.path.join(nua_home(), "letsencrypt")
+
+
+def certbot_invocation_list() -> list[str]:
+    return [
+        certbot_exe(),
+        "--config-dir",
+        os.path.join(nua_home(), "letsencrypt"),
+        "--work-dir",
+        os.path.join(nua_home(), "lib", "letsencrypt"),
+        "--logs-dir",
+        os.path.join(nua_home(), "log", "letsencrypt"),
+    ]
+
+
+def certbot_invocation() -> str:
+    return " ".join(certbot_invocation_list())
+
 
 def certbot_run(_top_domain: str, domains: list) -> str:
     """Build cerbot's arguments for a domain and subdomains.
 
     (Local function)
     """
-    run_args = [
-        "certbot",
+    run_args = certbot_invocation_list() + [
         "run",
         "--nginx",
         "--keep",
@@ -103,8 +124,7 @@ def certbot_certonly(top_domain: str, domains: list) -> str:
                  --email jd@abilian.com -d test1.xxxx.xyz --cert-name xxxx.xyz
 
     """
-    run_args = [
-        "certbot",
+    run_args = certbot_invocation_list + [
         "certonly",
         "--nginx",
         "--keep",

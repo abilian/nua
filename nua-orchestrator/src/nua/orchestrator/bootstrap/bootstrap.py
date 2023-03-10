@@ -25,6 +25,7 @@ from nua.lib.shell import chown_r, mkdir_p, rm_fr, sh, user_exists
 
 from .. import nua_env
 from ..bash import bash_as_nua
+from ..certbot.certbot import install_certbot
 from ..mariadb_utils import bootstrap_install_mariadb, set_random_mariadb_pwd
 from ..nginx_util import install_nginx
 from ..postgres_utils import bootstrap_install_postgres, set_random_postgres_pwd
@@ -38,7 +39,16 @@ HOST_PACKAGES = [
     "git",
     "nginx-light",
     "software-properties-common",
-    "python3-certbot-nginx",
+    # "python3-certbot-nginx",  deprecated: prefer pypi version in local venv
+]
+
+PIP_PACKAGES = [
+    "]pip",
+    "setuptools",
+    "wheel",
+    "poetry",
+    "certbot",
+    "certbot-nginx",
 ]
 
 
@@ -81,6 +91,7 @@ def bootstrap():
     bootstrap_install_postgres_or_fail()
     # bootstrap_install_mariadb_or_fail()
     install_nginx()
+    install_certbot()
     install_local_orchestrator()
     # create_nua_key()
     # create_ssl_key()
@@ -137,7 +148,17 @@ def record_nua_home():
 
 def make_nua_dirs():
     home = nua_env.nua_home_path()
-    for folder in ("tmp", "log", "db", "config", "apps", "images", "gits", "backups"):
+    for folder in (
+        "tmp",
+        "log",
+        "db",
+        "config",
+        "apps",
+        "images",
+        "gits",
+        "backups",
+        "letsencrypt",
+    ):
         mkdir_p(home / folder)
         chown_r(home / folder, NUA)
         os.chmod(home / folder, 0o755)  # noqa: S103
@@ -167,10 +188,9 @@ def create_nua_venv():
 
 
 def install_python_packages():
-    for package in ("pip", "setuptools", "wheel", "poetry"):
-        print_magenta(f"Install {package}")
-        cmd = f"python -m pip install -U {package}"
-        bash_as_nua(cmd, "/home/nua")
+    print_magenta("Install local Python packages")
+    cmd = f"python -m pip install -U {' '.join(PIP_PACKAGES)}"
+    bash_as_nua(cmd, "/home/nua")
 
 
 def install_local_orchestrator():

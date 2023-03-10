@@ -11,14 +11,24 @@ Test ENV variables:
 """
 
 import os
+from importlib import resources as rso
+from pathlib import Path
+from textwrap import dedent
 
-from nua.lib.console import print_red
+from nua.lib.console import print_magenta, print_red
 from nua.lib.panic import abort, vprint
 from nua.lib.tool.state import verbosity
 
 from nua.orchestrator import config
 
-from .certbot_strategies import apply_auto_strategy, apply_none_strategy
+from ..nua_env import certbot_exe, nua_home_path, venv_bin
+from .certbot_strategies import (
+    apply_auto_strategy,
+    apply_none_strategy,
+    certbot_invocation,
+)
+
+CERTBOT_CONF = "nua.orchestrator.certbot.config"
 
 ALLOWED_STRATEGY = {"auto": apply_auto_strategy, "none": apply_none_strategy}
 STRATEGY_PROTO = {"auto": "https://", "none": "http://"}
@@ -71,3 +81,48 @@ def assert_valid_certbot_strategy(strategy: str):
         print_red("Allowed values for certbot_strategy are:")
         print_red(f"{ALLOWED_STRATEGY}")
         abort(f"Unknown certbot_strategy: {strategy}")
+
+
+def install_certbot() -> None:
+    print_magenta("Installation of Nua certbot configuration")
+    _make_folders()
+    _copy_configuration()
+    _set_cron()
+
+
+def _make_folders() -> None:
+    for path in (
+        nua_home_path() / "letsencrypt",
+        nua_home_path() / "lib" / "letsencrypt",
+        nua_home_path() / "log" / "letsencrypt",
+    ):
+        path.mkdir(parents=True, exist_ok=True)
+        path.chmod(0o755)  # noqa: S103
+
+
+def _copy_configuration() -> None:
+    conf_file = nua_home_path() / "letsencrypt" / "cli.ini"
+    conf_file.write_text(
+        rso.files(CERTBOT_CONF).joinpath("cli.ini").read_text(encoding="utf8")
+    )
+    conf_file.chmod(0o644)
+
+
+def _set_cron() -> None:
+    cron_file = Path("/etc/cron.d/nua_certbot")
+    cron_file.write_text(_certbot_cron())
+    cron_file.chmod(0o644)
+
+
+def _certbot_cron() -> str:
+    if not Path(certbot_exe()).exists():
+        raise ValueError(f"Certbot executable not found at '{certbot_exe()}'")
+    certbot = certbot_invocation()
+    return dedent(
+        f"""\
+    SHELL=/bin/sh
+    PATH={venv_bin()}:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+    0 */12 * * * root perl -e 'sleep int(rand(43200))' && {certbot} -q renew
+    """
+    )
