@@ -24,6 +24,10 @@ ALLOWED_STRATEGY = {"auto": apply_auto_strategy, "none": apply_none_strategy}
 STRATEGY_PROTO = {"auto": "https://", "none": "http://"}
 
 
+def use_https() -> bool:
+    return get_certbot_strategy() == "auto"
+
+
 def register_certbot_domains(apps: list):
     """Apply certbot strategy to domains.
 
@@ -36,17 +40,15 @@ def register_certbot_domains(apps: list):
     """
     tops = {}
     for site in apps:
-        hostname = site.hostname
         # hostname is "www.exemple.com"
         # -> top domain is "exemple.com"
-        top_domain = ".".join(hostname.split(".")[-2:])
-        domains = tops.get(top_domain, set())
-        domains.add(hostname)
-        tops[top_domain] = domains
+        domains = tops.get(site.top_domain, set())
+        domains.add(site.hostname)
+        tops[site.top_domain] = domains
     strategy = get_certbot_strategy()
     strategy_function = ALLOWED_STRATEGY[strategy]
-    for domains in tops.values():
-        strategy_function(list(domains))
+    for top_domain, domains in tops.items():
+        strategy_function(top_domain, list(domains))
     with verbosity(3):
         vprint("register_certbot_domains() done")
 
@@ -60,7 +62,7 @@ def get_certbot_strategy() -> str:
     return strategy
 
 
-def protocol_prefix():
+def protocol_prefix() -> str:
     return STRATEGY_PROTO[get_certbot_strategy()]
 
 

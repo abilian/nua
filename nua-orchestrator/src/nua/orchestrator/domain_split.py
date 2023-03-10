@@ -19,13 +19,16 @@ class DomainSplit:
             abort(f"Failed to parse hostname from: '{url_string}'")
         self.location = result.path.strip("/")
 
-    def full_path(self):
+    def full_path(self) -> str:
         if self.location:
             return f"{self.hostname}/{self.location}"
         else:
             return self.hostname
 
-    def container_suffix(self):
+    def top_domain(self) -> str:
+        return ".".join(self.hostname.split(".")[-2:])
+
+    def container_suffix(self) -> str:
         if self.location:
             return f"{self.hostname}-{self.location}"
         else:

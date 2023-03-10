@@ -66,6 +66,14 @@ class AppInstance(Resource):
         self["image_nua_config"] = image_nua_config
 
     @property
+    def top_domain(self) -> str:
+        return self["top_domain"]
+
+    @top_domain.setter
+    def top_domain(self, top_domain: str):
+        self["top_domain"] = top_domain
+
+    @property
     def local_services(self) -> list:
         return [
             resource.service for resource in self.resources if resource.type == "local"
@@ -220,6 +228,7 @@ class AppInstance(Resource):
     def _normalize_domain(self):
         dom = DomainSplit(self.domain)
         self.domain = dom.full_path()
+        self.top_domain = dom.top_domain()
 
     # CHANGE: now volumes updated in site configuration, so
     # different strategy for store.py

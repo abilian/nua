@@ -3,10 +3,11 @@ map $http_upgrade $connection_upgrade {
         default upgrade;
         ''      close;
 }
+
 {% for hst in apps[0].port.values() -%}
 {% if hst.proxy == 'auto' %}
 server {
-    listen 80;
+    listen 443 ssl;
     server_name {{hostname}};
 	location / {
         proxy_pass         http://localhost:{{hst.host_use}};
@@ -26,11 +27,17 @@ server {
                 proxy_set_header Upgrade $http_upgrade;
                 proxy_set_header Connection $connection_upgrade;
         }
+
+    ssl_certificate /etc/letsencrypt/live/{{apps[0].top_domain}}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{{apps[0].top_domain}}/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
 }
+
 {% else -%}
 server {
-    listen {{hst.proxy}};
+    listen {{hst.proxy}} ssl;
     server_name {{hostname}};
 	location / {
         proxy_pass         http://localhost:{{hst.host_use}};
@@ -41,15 +48,10 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
 	}
 
-    location /socket.io/ {
-                proxy_pass http://localhost:{{hst.host_use}};
-                proxy_set_header Host $host;
-                proxy_set_header X-Real-IP $remote_addr;
-                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                proxy_set_header X-Forwarded-Proto $scheme;
-                proxy_set_header Upgrade $http_upgrade;
-                proxy_set_header Connection $connection_upgrade;
-        }
+    ssl_certificate /etc/letsencrypt/live/{{apps[0].top_domain}}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{{apps[0].top_domain}}/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
 }
 {%- endif %}
