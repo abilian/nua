@@ -305,6 +305,11 @@ class Resource(dict):
             # normalization done: host is present and either 'auto' or an int
             if isinstance(host, int):
                 used.add(host)
+            # if proxy is hard coded (when multiple port are open),
+            # add it to the list
+            proxy = port["proxy"]
+            if isinstance(proxy, int):
+                used.add(proxy)
         return used
 
     def allocate_auto_ports(self, allocator: Callable):
