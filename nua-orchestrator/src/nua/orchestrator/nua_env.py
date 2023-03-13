@@ -6,7 +6,6 @@ needed.
 import os
 from copy import deepcopy
 from pathlib import Path
-from pprint import pformat
 
 from dotenv import dotenv_values
 

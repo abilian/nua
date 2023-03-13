@@ -129,7 +129,9 @@ def sh(
         elif status > 0:
             msg = (
                 f"Something went wrong (exit code: {status}), \n"
-                f"shell command was: '{cmd}'"
+                f"shell command was: '{cmd}'\n"
+                f"{completed.stdout}\n"
+                f"{completed.stderr}"
             )
             abort(msg, status)
     except OSError as e:

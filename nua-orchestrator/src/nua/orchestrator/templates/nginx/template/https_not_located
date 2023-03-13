@@ -28,8 +28,8 @@ server {
                 proxy_set_header Connection $connection_upgrade;
         }
 
-    ssl_certificate /etc/letsencrypt/live/{{apps[0].top_domain}}/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/{{apps[0].top_domain}}/privkey.pem;
+    ssl_certificate /home/nua/letsencrypt/live/{{hostname}}/fullchain.pem;
+    ssl_certificate_key /home/nua/letsencrypt/live/{{hostname}}/privkey.pem;
     include /etc/letsencrypt/options-ssl-nginx.conf;
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
@@ -48,8 +48,8 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
 	}
 
-    ssl_certificate /etc/letsencrypt/live/{{apps[0].top_domain}}/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/{{apps[0].top_domain}}/privkey.pem;
+    ssl_certificate /home/nua/letsencrypt/live/{{hostname}}/fullchain.pem;
+    ssl_certificate_key /home/nua/letsencrypt/live/{{hostname}}/privkey.pem;
     include /etc/letsencrypt/options-ssl-nginx.conf;
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
