@@ -18,12 +18,10 @@
     },
     "port": {
         "web": {
-            "container": 8765,
-            "proxy": 8765
+            "container": 8765
         },
         "abcd": {
             "container": 8764,
-            "host": 8764,
             "proxy": 8764
         }
     }
