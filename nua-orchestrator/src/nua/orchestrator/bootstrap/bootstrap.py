@@ -39,11 +39,13 @@ HOST_PACKAGES = [
     "git",
     "nginx-light",
     "software-properties-common",
-    # "python3-certbot-nginx",  deprecated: prefer pypi version in local venv
+    "python3-certbot-nginx",
+    # use pypi version of certbot, but still install the old ubuntu
+    # version for /etc/letsencrypt/options-ssl-nginx.conf ?
 ]
 
 PIP_PACKAGES = [
-    "]pip",
+    "pip",
     "setuptools",
     "wheel",
     "poetry",

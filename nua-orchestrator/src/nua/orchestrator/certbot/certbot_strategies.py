@@ -30,10 +30,10 @@ def certbot_invocation_list() -> list[str]:
         certbot_exe(),
         "--config-dir",
         os.path.join(nua_home(), "letsencrypt"),
-        "--work-dir",
-        os.path.join(nua_home(), "lib", "letsencrypt"),
-        "--logs-dir",
-        os.path.join(nua_home(), "log", "letsencrypt"),
+        # "--work-dir",
+        # os.path.join(nua_home(), "lib", "letsencrypt"),
+        # "--logs-dir",
+        # os.path.join(nua_home(), "log", "letsencrypt"),
     ]
 
 
@@ -154,6 +154,56 @@ def certbot_certonly(top_domain: str, domains: list) -> str:
     return " ".join(run_args)
 
 
+def certbot_certonly_mono(domain: str) -> str:
+    """Build cerbot's arguments for a subdomains.
+
+    Use a different key for each subdomain to prevent garbag configuration when
+    multiple subdomains changes
+
+    TODO
+    - do not use obsolete jammy certbot package (pb // libssl 3.0.2)
+      so from 1.20 in Jammy to current certbot 2.4.0
+      pip install certbot certbot-nginx
+    - => pypi certbot
+    - => specific path of cert files for nua
+    - => use options with expand, --cert-name --no-redirect
+    - => need to analyse ("certbot certificates") for fetch actual cert path
+    - => manually update (templates) after certificate generation
+
+     certbot certonly --nginx --no-redirect --keep --renew-with-new-domains
+                 --allow-subset-of-names --expand --agree-tos -n --rsa-key-size 4096
+                 --cert-name xxxx.xyz  --email jd@abilian.com -w /home/nua/nginx/www
+                 -d test2.xxxx.xyz
+
+     certbot certonly --nginx --keep --renew-with-new-domains --allow-subset-of-names
+                 --expand --agree-tos -n --rsa-key-size 4096 --no-redirect
+                 --email jd@abilian.com -d test1.xxxx.xyz --cert-name xxxx.xyz
+
+    """
+    run_args = certbot_invocation_list() + [
+        "certonly",
+        "--nginx",
+        "--keep",
+        "--key-type rsa",  # for newer certbot versions
+        # "--redirect",
+        "--no-redirect",
+    ]
+    # if top_domain:
+    #     run_args.append(f"--cert-name {top_domain}")
+    if not os.environ.get("NUA_CERTBOT_VERBOSE"):
+        run_args.append("--quiet")
+    if os.environ.get("NUA_CERTBOT_TEST"):
+        run_args.append("--test-cert")
+    admin_mail = config.read("nua", "host", "host_admin_mail")
+    if admin_mail:
+        email = f"--email {admin_mail}"
+    else:
+        email = "--register-unsafely-without-email"
+    run_args.append(email)
+    run_args.append(f"-d {domain}")
+    return " ".join(run_args)
+
+
 def apply_none_strategy(_top_domain: str, domains: list[str]):
     with verbosity(1):
         vprint_magenta(f"Use HTTP protocol for: {' '.join(domains)}")
@@ -174,16 +224,18 @@ def apply_auto_strategy(top_domain: str, domains: list[str]):
     with verbosity(1):
         vprint_magenta(f"Use HTTPS protocol (Certbot) for: {' '.join(domains)}")
     # cmd = certbot_run(top_domain, domains)
-    cmd = certbot_certonly(top_domain, domains)
-    if os.getuid():  # aka not root
-        cmd = "sudo " + cmd
-    # Important:
-    # - command is executed as root
-    # - when "sudo cmd", from nua, we epect to use the host's certbot package
-    #   of the host installation (not a venv package)
-    # - certbot has been installed on the host from nua-bootstrap
-    with verbosity(2):
-        show(cmd)
-    output = sh(cmd, show_cmd=False, capture_output=True)
-    with verbosity(3):
-        vprint(output)
+    # cmd = certbot_certonly(top_domain, domains)
+    for domain in domains:
+        cmd = certbot_certonly_mono(domain)
+        if os.getuid():  # aka not root
+            cmd = "sudo " + cmd
+        # Important:
+        # - command is executed as root
+        # - when "sudo cmd", from nua, we epect to use the host's certbot package
+        #   of the host installation (not a venv package)
+        # - certbot has been installed on the host from nua-bootstrap
+        with verbosity(2):
+            show(cmd)
+        output = sh(cmd, show_cmd=False, capture_output=True)
+        with verbosity(3):
+            vprint(output)

@@ -6,6 +6,7 @@ needed.
 import os
 from copy import deepcopy
 from pathlib import Path
+from pprint import pformat
 
 from dotenv import dotenv_values
 
@@ -38,7 +39,10 @@ def nginx_path() -> Path:
 
 
 def venv_bin() -> str:
-    return os.path.join(os.environ["VIRTUAL_ENV"], "bin")
+    venv = os.environ.get("VIRTUAL_ENV")
+    if not venv:
+        venv = get_value("NUA_VENV")
+    return os.path.join(venv, "bin")
 
 
 def certbot_exe() -> str:
