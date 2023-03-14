@@ -117,7 +117,8 @@ def read_nginx_template(host: dict) -> str:
     else:
         proto = "http"
     key = f"{ports}_{loca}_{proto}"
-    return rso.files(CONF_TEMPLATE).joinpath(TEMPLATES[key]).read_text(encoding="utf8")
+    filename = TEMPLATES[key]
+    return rso.files(CONF_TEMPLATE).joinpath(filename).read_text(encoding="utf8")
 
 
 def configure_nginx_hostname(host: dict):

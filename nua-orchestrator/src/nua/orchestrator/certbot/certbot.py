@@ -18,7 +18,7 @@ from nua.lib.tool.state import verbosity
 
 from nua.orchestrator import config
 
-from .certbot_strategies import apply_auto_strategy, apply_none_strategy
+from .commands import apply_auto_strategy, apply_none_strategy
 
 CERTBOT_CONF = "nua.orchestrator.certbot.config"
 
