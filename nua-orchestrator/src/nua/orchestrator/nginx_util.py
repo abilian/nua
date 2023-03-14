@@ -17,14 +17,10 @@ from .certbot.certbot import use_https
 CONF_TEMPLATE = "nua.orchestrator.templates.nginx.template"
 CONF_HTML = "nua.orchestrator.templates.nginx.html"
 TEMPLATES = {
-    "mono_located_http": "domain_located_template",
-    "mono_located_https": "unimplemented",  # requires certbot --redirect option
-    "mono_noloca_http": "_good_domain_not_located_template",
-    "mono_noloca_https": "https_not_located.j2",  # did require certbot --redirect
-    "multi_located_http": "wip_certbot_is_broken",
-    "multi_located_https": "wip_certbot_is_broken",
-    "multi_noloca_http": "http_domain_not_located_template",
-    "multi_noloca_https": "https_not_located.j2",
+    "located_http": "wip_not_implemented",
+    "located_https": "wip_not_implemented",
+    "noloca_http": "http_not_located.j2",
+    "noloca_https": "https_not_located.j2",
 }
 
 
@@ -93,8 +89,7 @@ def clean_nua_nginx_default_site():
     install_nua_nginx_default_site()
 
 
-def _set_instances_proxy_port(host: dict):
-    # FIXME: update templates to accept several proxyied ports
+def _set_instances_proxy_auto_port(host: dict):
     for site in host["apps"]:
         ports = site["port"]
         for port in ports.values():
@@ -104,19 +99,15 @@ def _set_instances_proxy_port(host: dict):
 
 
 def read_nginx_template(host: dict) -> str:
-    if len(host["apps"][0]["port"]) > 1:
-        ports = "multi"
-    else:
-        ports = "mono"
     if host["located"]:
-        loca = "located"
+        located = "located"
     else:
-        loca = "noloca"
+        located = "noloca"
     if use_https():
-        proto = "https"
+        protocol = "https"
     else:
-        proto = "http"
-    key = f"{ports}_{loca}_{proto}"
+        protocol = "http"
+    key = f"{located}_{protocol}"
     filename = TEMPLATES[key]
     return rso.files(CONF_TEMPLATE).joinpath(filename).read_text(encoding="utf8")
 
@@ -148,8 +139,7 @@ def configure_nginx_hostname(host: dict):
     with verbosity(4):
         vprint("configure_nginx_hostname: host")
         vprint(pformat(host))
-    _set_instances_proxy_port(host)
-    # later: see for port on other :port interfaces
+    _set_instances_proxy_auto_port(host)
     nua_nginx_path = nua_env.nginx_path()
     template = read_nginx_template(host)
     dest_path = nua_nginx_path / "sites" / host["hostname"]
