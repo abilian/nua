@@ -22,6 +22,7 @@ def _normalize_port(port: dict):
         _normalize_port_item_host(port)
         _normalize_port_item_protocol(port)
         _normalize_port_item_proxy(port)
+        _normalize_port_item_ssl(port)
     except ValueError:
         print("--- Error in ports config: ---")
         print(pformat(port))
@@ -58,7 +59,6 @@ def _normalize_port_item_protocol(port: dict):
 
 
 def _normalize_port_item_proxy(port: dict):
-    # fixme: currently only one proxy is managed by nginx configuration
     proxy = str(port.get("proxy", "auto")).lower().strip()  # proxy auto ~ 80, 443
     name = port["name"]
     if proxy == "auto" and name != "web":
@@ -71,3 +71,8 @@ def _normalize_port_item_proxy(port: dict):
     except (ValueError, TypeError):
         raise ValueError("'proxy' value must be: an integer or 'auto' or 'none'")
     port["proxy"] = int_proxy
+
+
+def _normalize_port_item_ssl(port: dict):
+    ssl = bool(port.get("ssl", True))
+    port["ssl"] = ssl

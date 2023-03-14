@@ -20,11 +20,11 @@ TEMPLATES = {
     "mono_located_http": "domain_located_template",
     "mono_located_https": "unimplemented",  # requires certbot --redirect option
     "mono_noloca_http": "_good_domain_not_located_template",
-    "mono_noloca_https": "https_not_located",  # did require certbot --redirect
+    "mono_noloca_https": "https_not_located.j2",  # did require certbot --redirect
     "multi_located_http": "wip_certbot_is_broken",
     "multi_located_https": "wip_certbot_is_broken",
     "multi_noloca_http": "http_domain_not_located_template",
-    "multi_noloca_https": "https_not_located",
+    "multi_noloca_https": "https_not_located.j2",
 }
 
 
