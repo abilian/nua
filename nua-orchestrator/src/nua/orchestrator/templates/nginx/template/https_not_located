@@ -30,8 +30,8 @@ server {
 
     ssl_certificate /home/nua/letsencrypt/live/{{hostname}}/fullchain.pem;
     ssl_certificate_key /home/nua/letsencrypt/live/{{hostname}}/privkey.pem;
-    include /etc/letsencrypt/options-ssl-nginx.conf;
-    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+    include /home/nua/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /home/nua/letsencrypt/ssl-dhparams.pem;
 
 }
 
@@ -50,8 +50,8 @@ server {
 
     ssl_certificate /home/nua/letsencrypt/live/{{hostname}}/fullchain.pem;
     ssl_certificate_key /home/nua/letsencrypt/live/{{hostname}}/privkey.pem;
-    include /etc/letsencrypt/options-ssl-nginx.conf;
-    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+    include /home/nua/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /home/nua/letsencrypt/ssl-dhparams.pem;
 
 }
 {%- endif %}

@@ -25,7 +25,7 @@ from nua.lib.shell import chown_r, mkdir_p, rm_fr, sh, user_exists
 
 from .. import nua_env
 from ..bash import bash_as_nua
-from ..certbot.certbot import install_certbot
+from ..certbot.installer import install_certbot
 from ..mariadb_utils import bootstrap_install_mariadb, set_random_mariadb_pwd
 from ..nginx_util import install_nginx
 from ..postgres_utils import bootstrap_install_postgres, set_random_postgres_pwd
@@ -39,7 +39,7 @@ HOST_PACKAGES = [
     "git",
     "nginx-light",
     "software-properties-common",
-    "python3-certbot-nginx",
+    # "python3-certbot-nginx",
     # use pypi version of certbot, but still install the old ubuntu
     # version for /etc/letsencrypt/options-ssl-nginx.conf ?
 ]
