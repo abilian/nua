@@ -27,7 +27,7 @@ from .. import nua_env
 from ..bash import bash_as_nua
 from ..certbot.installer import install_certbot
 from ..mariadb_utils import bootstrap_install_mariadb, set_random_mariadb_pwd
-from ..nginx_util import install_nginx
+from ..nginx.installer import install_nginx
 from ..postgres_utils import bootstrap_install_postgres, set_random_postgres_pwd
 
 NUA = "nua"

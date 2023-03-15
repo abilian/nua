@@ -32,7 +32,7 @@ from .deploy_utils import (
 )
 from .domain_split import DomainSplit
 from .healthcheck import HealthCheck
-from .nginx_util import (
+from .nginx.utils import (
     chown_r_nua_nginx,
     clean_nua_nginx_default_site,
     configure_nginx_hostname,
