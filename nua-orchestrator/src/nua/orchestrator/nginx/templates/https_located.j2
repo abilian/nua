@@ -1,0 +1,69 @@
+map $http_upgrade $connection_upgrade {
+        default upgrade;
+        ''      close;
+}
+
+{% for port in ports_list %}
+{% if port == '80' -%}
+server {
+    listen 443 ssl;
+    server_name {{hostname}};
+
+    {% for app in apps -%}
+    {% if port in app.port -%}
+    {% set hst = app.port[port] -%}
+    location /{{app.location}} {
+		rewrite /{{app.location}}(/.*|$) /$1  break;
+        proxy_pass         http://localhost:{{hst.host_use}};
+        proxy_redirect     off;
+        proxy_set_header   Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+	}
+
+    location /socket.io/ {
+                proxy_pass http://localhost:{{hst.host_use}};
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection $connection_upgrade;
+    }
+
+    ssl_certificate /home/nua/letsencrypt/live/{{hostname}}/fullchain.pem;
+    ssl_certificate_key /home/nua/letsencrypt/live/{{hostname}}/privkey.pem;
+    include /home/nua/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /home/nua/letsencrypt/ssl-dhparams.pem;
+
+    {%- endif %}
+    {%- endfor %}
+}
+{% else -%}
+server {
+    listen {{port}} ssl;
+    server_name {{hostname}};
+
+    {% for app in apps -%}
+    {% if port in app.port -%}
+    {% set hst = app.port[port] -%}
+    location /{{app.location}} {
+		rewrite /{{app.location}}(/.*|$) /$1  break;
+        proxy_pass         http://localhost:{{hst.host_use}};
+        proxy_redirect     off;
+        proxy_set_header   Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+	}
+
+    ssl_certificate /home/nua/letsencrypt/live/{{hostname}}/fullchain.pem;
+    ssl_certificate_key /home/nua/letsencrypt/live/{{hostname}}/privkey.pem;
+    include /home/nua/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /home/nua/letsencrypt/ssl-dhparams.pem;
+    {%- endif %}
+    {%- endfor %}
+}
+{%- endif %}
+{%- endfor %}

@@ -14,9 +14,11 @@ from .. import config, nua_env
 from ..certbot.certbot import use_https
 
 CONF_TEMPLATE = "nua.orchestrator.nginx.templates"
+
+# TODO: located templates do not support the "ssl=False" flag
 TEMPLATES = {
-    "located_http": "wip_not_implemented",
-    "located_https": "wip_not_implemented",
+    "located_http": "http_located.j2",
+    "located_https": "https_located.j2",
     "noloca_http": "http_not_located.j2",
     "noloca_https": "https_not_located.j2",
 }
@@ -53,6 +55,16 @@ def _set_instances_proxy_auto_port(host: dict):
             if port["proxy"] == "auto":
                 site["host_use"] = port["host_use"]
                 break
+
+
+def _set_located_port_list(host: dict):
+    if not host["located"]:
+        return
+    ports_set = set()
+    for app in host["apps"]:
+        ports = app["port"]
+        ports_set.update(ports.keys())
+    host["ports_list"] = list(ports_set)
 
 
 def read_nginx_template(host: dict) -> str:
@@ -97,6 +109,7 @@ def configure_nginx_hostname(host: dict):
         vprint("configure_nginx_hostname: host")
         vprint(pformat(host))
     _set_instances_proxy_auto_port(host)
+    _set_located_port_list(host)
     nua_nginx_path = nua_env.nginx_path()
     template = read_nginx_template(host)
     dest_path = nua_nginx_path / "sites" / host["hostname"]
