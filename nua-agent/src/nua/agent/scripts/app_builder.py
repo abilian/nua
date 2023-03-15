@@ -86,8 +86,8 @@ class BuilderApp:
         inferred = []
         for resource in self.config.resource:
             inferred.extend(meta_packages_requirements(resource.get("type", "")))
-        if self.config.git_url:
-            inferred.extend(meta_packages_requirements("git"))
+        # if self.config.git_url:
+        #     inferred.extend(meta_packages_requirements("git"))
         if inferred:
             with verbosity(2):
                 vprint(f"Inferred meta packages: {inferred}")

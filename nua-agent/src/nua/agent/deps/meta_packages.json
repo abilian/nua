@@ -1,5 +1,4 @@
 {
     "mariadb": ["mariadb-client"],
-    "postgres": ["postgres-client"],
-    "git": ["git"]
+    "postgres": ["postgres-client"]
 }

@@ -12,8 +12,26 @@ git-url = "https://github.com/jech/galene.git"
 git-branch = "galene-0.6-branch"
 
 [build]
-build-packages = ['golang-go']
-build-command = "CGO_ENABLED=0 go build -ldflags='-s -w'"
+build-packages = ['golang-go', 'git']  # go modules need git for VCS version
+build-command = [
+    "CGO_ENABLED=0 go build -ldflags='-s -w'",
+    "cp galene /nua/app",
+    "cp LICENCE /nua/app",
+    "cp -a static /nua/app",
+    "mkdir /nua/app/groups",
+    "mkdir /nua/app/data",
+    "echo '{\"presenter\": [{}]}' > /nua/app/groups/test.json"
+]
+start-command = "/nua/app/galene -insecure -data /nua/app/data -groups /nua/app/groups -static /nua/app/static"
+
+#
+# First, you might need to inform Galene of the URL at which users connect
+# (the reverse proxy's URL) by adding an entry `proxyURL` to your
+# `data/config.json` file:
+#
+#     {
+#         "proxyURL": "https://galene.example.org/"
+#     }
 
 [env]
 GALENE_TURN = ""

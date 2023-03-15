@@ -599,11 +599,13 @@ def install_git_source(
     else:
         path = Path(".")
     path.resolve()
-    with verbosity(2):
-        info("Git clone the the directory ", path)
-    with chdir(path):
-        cmd = f"git clone --depth 1 --branch {branch} {url} {name}"
-        sh(cmd)
+    cmd = f"git clone --depth 1 --branch {branch} {url} {name}"
+    if "git" in installed_packages():
+        with chdir(path):
+            sh(cmd)
+    else:
+        with tmp_install_package_list("git"), chdir(path):
+            sh(cmd)
     return path / name
 
 
