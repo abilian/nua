@@ -34,7 +34,7 @@ class TarUnarchiver(Unarchiver):
 
         with tarfile.open(src) as tar:
             root = Path(tar.getmembers()[0].path)
-            tar.extractall(dest_dir, members=get_members(tar, root))
+            tar.extractall(dest_dir, members=get_members(tar, root))  # noqa s202
 
 
 class ZipUnarchiver(Unarchiver):

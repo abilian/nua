@@ -129,7 +129,7 @@ def _make_check_test(test: dict):
     else:
         url = url.replace("http://", "https://")
     print("testing: ", url)
-    response = requests.get(url)
+    response = requests.get(url, timeout=60)
     _apply_check_suite(test, response)
 
 
