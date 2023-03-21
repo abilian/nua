@@ -1,7 +1,7 @@
 # Nua Documentation
 
 
-!!! danger "Do not use yet!"
+!!! danger "Do not use yet (in production)!"
     This code is still experimental, and not meant for public consumption.
 
     We plan to have a first usable release, by the end of Q1 2023, and a stable release by the end of Q2 2023.
@@ -36,7 +36,18 @@ This vision is based on a set of principles:
 
 ## Presentation
 
+### High-level / strategic presentation, given in 2022 and 2023
+
 <iframe class="speakerdeck-iframe" style="border: 0px none; background: rgba(0, 0, 0, 0.1) padding-box; margin: 0px; padding: 0px; border-radius: 6px; box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 40px; width: 100%; height: auto; aspect-ratio: 560 / 314;" src="https://speakerdeck.com/player/f7a0c4f8df0a49be8d6d5e944a0eed90" title="Nua - a self-hosted, resilient PaaS" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" data-ratio="1.78343949044586" frameborder="0"></iframe>
+
+### Python-focused presentation (given at PyConFr 2023 in Bordeaux)
+
+
+<iframe class="speakerdeck-iframe" style="border: 0px none; background: rgba(0, 0, 0, 0.1) padding-box; margin: 0px; padding: 0px; border-radius: 6px; box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 40px; width: 100%; height: auto; aspect-ratio: 560 / 314;" src="https://speakerdeck.com/player/b69f33062ebb48a3b884b7b2bc5f0a4a" title="Nua, un PaaS open source en Python pour l'auto-hébergement de vos applications" allowfullscreen="true" data-ratio="1.78343949044586" frameborder="0"></iframe>
+
+### Presenation at IMPULSE 2023 (1 slide, in French)
+
+<iframe class="speakerdeck-iframe" style="border: 0px none; background: rgba(0, 0, 0, 0.1) padding-box; margin: 0px; padding: 0px; border-radius: 6px; box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 40px; width: 100%; height: auto; aspect-ratio: 560 / 314;" src="https://speakerdeck.com/player/d36daeb62d4347ad8b96fa63e649b6c8" title="Pitch Abilian @ IMPULSE 2023" allowfullscreen="true" data-ratio="1.78343949044586" frameborder="0"></iframe>
 
 
 ## Concept Map
