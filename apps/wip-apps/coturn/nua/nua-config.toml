@@ -1,0 +1,40 @@
+[metadata]
+id = "coturn"
+version = "4.6.1"
+release = 1
+title = "Coturn server"
+author = "Coturn authors"
+tagline = "VoIP media traffic NAT traversal server and gateway"
+website = "https://galene.org/"
+tags = ["udp", "turn", "voip"]
+licence = "TURN Server license"
+# here the wrapped Docker declaration:
+image = "coturn/coturn:{version}-debian"
+
+[build]
+default-method = "wrap"
+
+[env]
+DETECT_EXTERNAL_IP = "yes"
+DETECT_RELAY_IP = "yes"
+
+[docker]
+network = "host"
+restart_policy.name = "always"
+min-port = 49160
+max-port = 49200
+
+# [port.web]
+# EXPOSE 3478 3478/udp 5349 5349/udp
+
+[[volume]]
+# The mount type (bind / volume / tmpfs / npipe). Default: volume :
+type = "tmpfs"
+# Name of the driver used to create the volume: (for type == "volume")
+# driver = "local"
+# Mount source (e.g. a volume name or a host path):
+# the directory must exits
+# Container path:
+target = "/var/lib/coturn"
+tmpfs_size = "4G"
+tmpfs_mode = 666
