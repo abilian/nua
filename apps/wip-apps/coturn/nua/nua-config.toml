@@ -1,7 +1,7 @@
 [metadata]
 id = "coturn"
 version = "4.6.1"
-release = 1
+release = 2
 title = "Coturn server"
 author = "Coturn authors"
 tagline = "VoIP media traffic NAT traversal server and gateway"
@@ -22,8 +22,6 @@ DETECT_RELAY_IP = "yes"
 [docker]
 network = "host"
 restart_policy.name = "always"
-min-port = 49160
-max-port = 49200
 
 # [port.web]
 # EXPOSE 3478 3478/udp 5349 5349/udp
@@ -39,3 +37,9 @@ type = "tmpfs"
 target = "/var/lib/coturn"
 tmpfs_size = "4G"
 tmpfs_mode = 666
+
+[[volume]]
+# The mount type (bind / volume / tmpfs / npipe). Default: volume :
+type = "bind"
+source = "/home/nua/config/turnserver.conf"
+target = "/etc/coturn/turnserver.conf"
