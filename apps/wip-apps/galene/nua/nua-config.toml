@@ -1,7 +1,7 @@
 [metadata]
 id = "galene"
 version = "0.6.2"
-release = 1
+release = 3
 title = "Galène videoconference server"
 author = "Galene authors"
 tagline = "Galène videoconference server"
@@ -19,28 +19,30 @@ build-command = [
     "cp LICENCE /nua/app",
     "cp -a static /nua/app",
     "mkdir /nua/app/groups",
-    "mkdir /nua/app/data",
-    "echo '{\"presenter\": [{}]}' > /nua/app/groups/test.json"
+    "mkdir /nua/app/data"
 ]
 start-command = "/nua/app/galene -insecure -data /nua/app/data -groups /nua/app/groups -static /nua/app/static"
 
-#
-# First, you might need to inform Galene of the URL at which users connect
-# (the reverse proxy's URL) by adding an entry `proxyURL` to your
-# `data/config.json` file:
-#
-#     {
-#         "proxyURL": "https://galene.example.org/"
-#     }
-
 [env]
-GALENE_TURN = ""
+# GALENE_TURN = ""
 # GALENE_TURN=1.2.3.4:1194
 
 [port.web]
 container = 8443
 
-[port.turn]
-container = 1194
-proxy = 1194
-ssl = false
+# [port.turn]
+# container = 1194
+# proxy = 1194
+# ssl = false
+
+[[volume]]
+# The mount type (bind / volume / tmpfs / npipe). Default: volume :
+type = "bind"
+source = "/home/nua/galene/groups"
+target = "/nua/app/groups"
+
+[[volume]]
+# The mount type (bind / volume / tmpfs / npipe). Default: volume :
+type = "bind"
+source = "/home/nua/galene/data"
+target = "/nua/app/data"

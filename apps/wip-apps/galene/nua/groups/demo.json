@@ -1,0 +1,9 @@
+{
+    "op": [
+        {
+            "username": "demo0",
+            "password": "some_pw0"
+        }
+    ],
+    "presenter": [{}]
+}
