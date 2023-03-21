@@ -12,7 +12,8 @@ licence = "TURN Server license"
 image = "coturn/coturn:{version}-debian"
 
 [build]
-default-method = "wrap"
+# default-method = "wrap"
+docker-user = "nobody:nogroup"
 
 [env]
 DETECT_EXTERNAL_IP = "yes"

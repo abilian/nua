@@ -341,6 +341,14 @@ class NuaConfig:
         default_method = hyphen_get(self.build, "default-method", "")
         return self.build.get("method", default_method)
 
+    @property
+    def docker_user(self) -> str:
+        """User of the Docker container, default is root.
+
+        Especially usefull when wrapping an existing Dockerfile.
+        """
+        return hyphen_get(self.build, "docker-user", "")
+
     # env ###########################################################
 
     @property
