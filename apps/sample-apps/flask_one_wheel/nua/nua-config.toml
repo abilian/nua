@@ -12,8 +12,10 @@ license = "MIT"
 [build]
 pip-install = ["*.whl"]
 document-root = "/nua/app/html"
-start-command = "gunicorn --worker-tmp-dir /dev/shm --workers 2 -b :80 flask_one_wheel.wsgi:app"
 test = "python -c 'import flask_one_wheel'"
+
+[run]
+start = "gunicorn --worker-tmp-dir /dev/shm --workers 2 -b :80 flask_one_wheel.wsgi:app"
 
 [port.web]
 container = 80

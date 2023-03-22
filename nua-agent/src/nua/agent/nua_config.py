@@ -27,7 +27,7 @@ OPTIONAL_METADATA = [
     "image",
 ]
 # blocks added (empty) if not present in orig file:
-COMPLETE_BLOCKS = ["build", "env", "docker"]
+COMPLETE_BLOCKS = ["build", "run", "env", "docker"]
 
 
 def nua_config_names():
@@ -319,15 +319,6 @@ class NuaConfig:
         return []
 
     @property
-    def start_command(self) -> list:
-        cmd = hyphen_get(self.build, "start-command", [])
-        if isinstance(cmd, list):
-            return cmd
-        if isinstance(cmd, str) and cmd:
-            return [cmd]
-        return []
-
-    @property
     def pip_install(self) -> list:
         return hyphen_get(self.build, "pip-install", [])
 
@@ -348,6 +339,21 @@ class NuaConfig:
         Especially usefull when wrapping an existing Dockerfile.
         """
         return hyphen_get(self.build, "docker-user", "")
+
+    # run ###########################################################
+
+    @property
+    def run(self) -> dict:
+        return self["run"]
+
+    @property
+    def start_command(self) -> list:
+        cmd = hyphen_get(self.run, "start", [])
+        if isinstance(cmd, list):
+            return cmd
+        if isinstance(cmd, str) and cmd:
+            return [cmd]
+        return []
 
     # env ###########################################################
 

@@ -21,7 +21,9 @@ build-command = [
     "yarn install",
     "bundle exec rake db:setup"
     ]
-start-command = "bundle exec rails s"
+
+[run]
+start = "bundle exec rails s"
 
 [env]
 # Generic environment variables

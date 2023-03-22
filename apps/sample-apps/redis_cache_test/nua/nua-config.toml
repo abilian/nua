@@ -10,8 +10,10 @@ tags = ["test", "redis"]
 license = "MIT"
 
 [build]
-start-command = "python -c 'from redis_cache_test.app import main; main()'"
 test = "python -c 'import redis_cache_test'"
+
+[run]
+start = "python -c 'from redis_cache_test.app import main; main()'"
 
 [env]
 REDIS_HOST = { from="database", key="hostname" }

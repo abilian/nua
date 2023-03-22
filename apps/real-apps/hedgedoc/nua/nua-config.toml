@@ -35,8 +35,10 @@ build-command = [
     "bin/setup",
     "yarn cache clean; rm -fr /tmp/*"
 ]
-start-command = "node app.js"
 test = "test -f /nua/build/hedgedoc/healthcheck.mjs"
+
+[run]
+start = "node app.js"
 
 [env]
 # Generic environment variables

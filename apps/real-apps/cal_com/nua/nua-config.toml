@@ -26,7 +26,9 @@ build-command = [
     # "yarn turbo run build --filter=@calcom/web",
     "npm install prisma",
     ]
-start-command = "yarn start"
+
+[run]
+start = "yarn start"
 
 [env]
 NEXT_PUBLIC_LICENSE_CONSENT  = "agree"

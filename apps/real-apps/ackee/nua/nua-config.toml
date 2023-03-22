@@ -24,7 +24,9 @@ build-packages = [
     "git",
 ]
 build-command = "yarn install"
-start-command = "yarn start"
+
+[run]
+start = "yarn start"
 
 [env]
 # Generic environment variables

@@ -21,7 +21,9 @@ build-command = [
     "mkdir /nua/app/groups",
     "mkdir /nua/app/data"
 ]
-start-command = "/nua/app/galene -insecure -data /nua/app/data -groups /nua/app/groups -static /nua/app/static"
+
+[run]
+start = "/nua/app/galene -insecure -data /nua/app/data -groups /nua/app/groups -static /nua/app/static"
 
 [env]
 # GALENE_TURN = ""

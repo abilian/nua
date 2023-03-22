@@ -18,7 +18,9 @@ run-packages = [
 ]
 
 build-command = "true"  # aka do nothing
-start-command = "./src/bin/run.sh"
+
+[run]
+start = "./src/bin/run.sh"
 
 [env]
 NODE_ENV = "production"

@@ -12,10 +12,11 @@ release = 3
 
 [build]
 document_root = "/nua/app/html"
-
 project = "."
-start-command = "gunicorn --worker-tmp-dir /dev/shm --workers 2 -b :80 flask_one_setup.wsgi:app"
 test = "python -c 'import flask_one_setup'"
+
+[run]
+start = "gunicorn --worker-tmp-dir /dev/shm --workers 2 -b :80 flask_one_setup.wsgi:app"
 
 [docker]
 # parameters passed as a dict to docker run
