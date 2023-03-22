@@ -16,11 +16,6 @@ checksum = 'c9bd99c65cf45fa1d7808855b46abbfa13b24400254d8da5e81dae2965494bb3'
 # use a specific docker image containing nodejs:
 builder = "node-14"
 
-run-packages = [
-    "fontconfig",
-    "fonts-noto"
-]
-
 build-packages = [
     "build-essential",
     "python3-dev",
@@ -38,6 +33,10 @@ build-command = [
 test = "test -f /nua/build/hedgedoc/healthcheck.mjs"
 
 [run]
+packages = [
+    "fontconfig",
+    "fonts-noto"
+]
 start = "node app.js"
 
 [env]

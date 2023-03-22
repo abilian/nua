@@ -14,9 +14,6 @@ checksum = "ea39828e96786069027df4e56a1fbf722630248ee77a4f556fc4893b62c9cb2e"
 [build]
 # use a specific docker image containing nodejs:
 builder = "node-16"
-run-packages = [
-    "netcat"
-]
 build-command = [
     # "yarn global add turbo",
     # "yarn add turbo",
@@ -28,6 +25,7 @@ build-command = [
     ]
 
 [run]
+packages = "netcat"
 start = "yarn start"
 
 [env]

@@ -65,6 +65,15 @@ def nomalize_env_values(env: dict) -> dict:
     return deepcopy(validated)
 
 
+def forced_list(content: str | list) -> list:
+    """Return always a list, if a single string is provided, wrap it into list."""
+    if isinstance(content, list):
+        return content
+    if isinstance(content, str) and content:
+        return [content]
+    return []
+
+
 class NuaConfig:
     """Class to manage the "nua-config.toml" file.
 
@@ -290,37 +299,23 @@ class NuaConfig:
 
     @property
     def manifest(self) -> list:
-        return self.build.get("manifest", [])
+        return forced_list(self.build.get("manifest", []))
 
     @property
     def meta_packages(self) -> list:
-        return hyphen_get(self.build, "meta-packages", [])
-
-    @property
-    def packages(self) -> list:
-        # use alias for run-packages
-        run_packages = hyphen_get(self.build, "run-packages", [])
-        if not run_packages:
-            # previous name
-            run_packages = self.build.get("packages", [])
-        return run_packages
+        return forced_list(hyphen_get(self.build, "meta-packages", []))
 
     @property
     def build_packages(self) -> list:
-        return hyphen_get(self.build, "build-packages", [])
+        return forced_list(hyphen_get(self.build, "build-packages", []))
 
     @property
     def build_command(self) -> list:
-        cmd = hyphen_get(self.build, "build-command", [])
-        if isinstance(cmd, list):
-            return cmd
-        if isinstance(cmd, str) and cmd:
-            return [cmd]
-        return []
+        return forced_list(hyphen_get(self.build, "build-command", []))
 
     @property
     def pip_install(self) -> list:
-        return hyphen_get(self.build, "pip-install", [])
+        return forced_list(hyphen_get(self.build, "pip-install", []))
 
     @property
     def build_method(self) -> str:
@@ -347,13 +342,13 @@ class NuaConfig:
         return self["run"]
 
     @property
+    def packages(self) -> list:
+        "Return list of run packages (packages remanent after build)."
+        return forced_list(self.run.get("packages", []))
+
+    @property
     def start_command(self) -> list:
-        cmd = hyphen_get(self.run, "start", [])
-        if isinstance(cmd, list):
-            return cmd
-        if isinstance(cmd, str) and cmd:
-            return [cmd]
-        return []
+        return forced_list(hyphen_get(self.run, "start", []))
 
     # env ###########################################################
 
