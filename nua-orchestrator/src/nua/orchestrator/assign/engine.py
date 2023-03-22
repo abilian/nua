@@ -10,6 +10,7 @@ from ..persistent import Persistent
 from ..resource import Resource
 from ..utils import dehyphen
 from .evaluators import (  # site_environment,
+    external_ip_evaluation,
     nua_internal,
     random,
     resource_property,
@@ -21,6 +22,7 @@ EVALUATOR_FCT = {
     "key": resource_property,
     # "environment": site_environment,
     "nua_internal": nua_internal,
+    "external_ip": external_ip_evaluation,
     "random": random,
     # "property": resource_property,
     "unique_db": unique_db,

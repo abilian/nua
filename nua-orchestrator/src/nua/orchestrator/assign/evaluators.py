@@ -11,6 +11,7 @@ from nua.agent.gen_password import gen_password, gen_randint
 from nua.lib.panic import abort, show, warning
 from nua.lib.tool.state import verbosity
 
+from ..net_utils.external_ip import external_ip
 from ..persistent import Persistent
 from ..resource import Resource
 from .db_utils import generate_new_db_id, generate_new_user_id
@@ -197,3 +198,17 @@ def nua_internal(
         # add the key to the list of secrets to pass at run() time
         rsite.add_requested_secrets(destination_key)
     return {}
+
+
+@no_persistent_value
+def external_ip_evaluation(
+    _unused: Resource,
+    destination_key: str,
+    requirement: dict,
+) -> dict:
+    """Return the detected external IP address (v4).
+
+    The value is only set when executing the docker.run() for main site
+    and all sub resources.
+    """
+    return {destination_key: external_ip()}
