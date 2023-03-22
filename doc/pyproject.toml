@@ -11,10 +11,10 @@ license = "GNU FDL"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-mkdocs-blogging-plugin = "^2.2.2"
 
 [tool.poetry.group.dev.dependencies]
 mkdocs = "^1.4.2"
+mkdocs-blogging-plugin = "^2.2.2"
 mkdocs-material = "^9.0"
 mkdocs-material-extensions = "^1.1.1"
 mkdocs-roamlinks-plugin = "^0.2"
