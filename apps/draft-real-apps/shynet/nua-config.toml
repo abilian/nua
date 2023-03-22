@@ -11,4 +11,4 @@ license = "Apache-2.0"
 src-url = "https://github.com/milesmcc/shynet/archive/v{version}.tar.gz"
 
 [build]
-build-packages = []
+packages = []

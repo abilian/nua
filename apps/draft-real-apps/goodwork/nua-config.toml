@@ -14,4 +14,4 @@ license = "MIT"
 src-url = "https://github.com/Hasnayeen/goodwork/archive/refs/heads/main.zip"
 
 [build]
-build-packages = []
+packages = []

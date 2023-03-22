@@ -13,7 +13,7 @@ src-url = "https://gitlab.com/liberaforms/liberaforms/-/archive/v{version}/liber
 src-checksum = ""
 
 [build]
-build-packages = [
+packages = [
     # Needed to build psycopg2
     "gcc",
     "python3-dev",

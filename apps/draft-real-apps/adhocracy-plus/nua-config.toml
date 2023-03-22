@@ -11,7 +11,7 @@ license = "AGPL-3.0"
 src-url = "https://github.com/liqd/adhocracy-plus/archive/v{version}.tar.gz"
 
 [build]
-build-packages = [
+packages = [
     "git",
     # Needed to build psycopg2
     "gcc",

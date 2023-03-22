@@ -12,4 +12,4 @@ src-url = "https://github.com/eyssette/text2quiz/archive/refs/heads/main.tar.gz"
 
 [build]
 node-version = "16.x"
-build-packages = []
+packages = []

@@ -9,7 +9,7 @@ license = "Apache License 2.0"
 src-url = "https://github.com/Status-Page/Status-Page/archive/refs/tags/v{version}.tar.gz"
 
 [build]
-build-packages = [
+packages = [
     # Needed to build psycopg2
     "gcc",
     "python3-dev",

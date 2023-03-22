@@ -16,7 +16,7 @@ checksum = 'c9bd99c65cf45fa1d7808855b46abbfa13b24400254d8da5e81dae2965494bb3'
 # use a specific docker image containing nodejs:
 builder = "node-14"
 
-build-packages = [
+packages = [
     "build-essential",
     "python3-dev",
     "libsqlite3-dev",

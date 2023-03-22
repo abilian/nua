@@ -15,4 +15,4 @@ license = "GPL-3.0"
 src-url = "https://github.com/moodle/moodle/archive/v{version}.tar.gz"
 
 [build]
-build-packages = []
+packages = []

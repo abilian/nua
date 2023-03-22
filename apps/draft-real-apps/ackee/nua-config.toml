@@ -11,4 +11,4 @@ license = "MIT"
 src-url = "https://github.com/electerious/Ackee/archive/v{version}.tar.gz"
 
 [build]
-build-packages = []
+packages = []

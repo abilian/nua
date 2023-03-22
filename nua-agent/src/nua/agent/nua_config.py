@@ -307,7 +307,7 @@ class NuaConfig:
 
     @property
     def build_packages(self) -> list:
-        return forced_list(hyphen_get(self.build, "build-packages", []))
+        return forced_list(self.build.get("packages", []))
 
     @property
     def build_command(self) -> list:

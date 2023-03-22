@@ -11,4 +11,4 @@ license = "GPL-3.0"
 src-url = "https://github.com/matomo-org/matomo/archive/{version}.tar.gz"
 
 [build]
-build-packages = []
+packages = []

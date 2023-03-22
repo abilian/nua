@@ -13,7 +13,7 @@ src-url = "https://github.com/pytition/Pytition/archive/refs/tags/v{version}.tar
 src-checksum = ""
 
 [build]
-build-packages = [
+packages = [
     "gcc",
     "python3-dev",
     "libssl-dev",

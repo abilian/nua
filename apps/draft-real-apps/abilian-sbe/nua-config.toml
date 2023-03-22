@@ -9,7 +9,7 @@ license = "GPL"
 src-url = "https://github.com/abilian/abilian-sbe-monorepo/archive/refs/heads/main.zip"
 
 [build]
-build-packages = [
+packages = [
     # Needed to build psycopg2
     "gcc",
     "python3-dev",

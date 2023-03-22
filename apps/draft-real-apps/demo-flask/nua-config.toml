@@ -10,7 +10,7 @@ src-checksum = ""
 
 
 [build]
-build-packages = [
+packages = [
     "build-essential",
     "python3-dev",
     "libsqlite3-dev",

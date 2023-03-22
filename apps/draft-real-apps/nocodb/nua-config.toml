@@ -11,4 +11,4 @@ license = "AGPL-3.0"
 src-url = "https://github.com/nocodb/nocodb/archive/v{version}.tar.gz"
 
 [build]
-build-packages = []
+packages = []
