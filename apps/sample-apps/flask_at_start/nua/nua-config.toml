@@ -10,7 +10,7 @@ tags = ["test", "html", "web", "start"]
 license = "MIT"
 
 [build]
-document-root = "/nua/app/html"
+document-root = "/var/lib"
 test = "python -c 'import sample_app'"
 
 [run]
@@ -34,4 +34,4 @@ container = 3000
 type = "tmpfs"
 target = "/var/lib/sample_www"
 tmpfs_size = "2G"
-tmpfs_mode = 666
+tmpfs_mode = 1777

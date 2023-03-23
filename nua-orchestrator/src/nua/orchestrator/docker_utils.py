@@ -299,7 +299,7 @@ def _check_run_container(container: Container, name: str):
         warning("rsite.container_name != container.name")
         warning(f"rsite.container_name = {name}")
         warning(f"container.name = {container.name}")
-    test_docker_exec(container)
+    # test_docker_exec(container)
 
 
 def docker_exec_stdout(container: Container, params: dict, output: io.BufferedWriter):

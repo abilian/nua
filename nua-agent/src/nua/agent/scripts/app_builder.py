@@ -163,7 +163,9 @@ class BuilderApp:
         import os
 
         from nua.lib.exec import exec_as_nua
+        from nua.agent.start_template import fill_templates
 
+        fill_templates({self.config.metadata})
         exec_as_nua({self.config.start_command},
                     cwd={cwd},
                     env=os.environ,)
