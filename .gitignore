@@ -18,7 +18,6 @@ downloads/
 eggs/
 .eggs/
 sdist/
-var/
 wheels/
 *.egg-info/
 .installed.cfg
