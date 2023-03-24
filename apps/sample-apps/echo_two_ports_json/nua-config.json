@@ -14,7 +14,10 @@
     },
     "build": {
         "pip-install": ["*.whl"],
-        "test": "python -c 'import echo_two_ports'"
+        "test": "python -c 'import echos'"
+    },
+    "run": {
+        "start": "python -c 'from echos.echo_server import echos; echos(8764, 8765)'"
     },
     "port": {
         "web": {

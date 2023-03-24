@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "echo-two-ports"
+name = "echos"
 version = "0.1.0"
 description = "Nua test server 2 ports"
 authors = ["Jerome Dumonteil <jd@abilian.com>"]

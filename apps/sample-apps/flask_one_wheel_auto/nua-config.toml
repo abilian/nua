@@ -15,4 +15,4 @@ document-root = "/nua/app/html"
 test = "python -c 'import flask_one_wheel'"
 
 [port.web]
-container = 80
+container = 8080

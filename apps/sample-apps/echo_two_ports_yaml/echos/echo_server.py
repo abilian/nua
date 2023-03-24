@@ -15,6 +15,11 @@ def server(port: int):
         http.serve_forever()
 
 
-def echo_server(port: int):
+def echo(port: int):
     process = mp.Process(target=server, args=(port,))
     process.start()
+
+
+def echos(*ports: int):
+    for port in ports:
+        echo(port)

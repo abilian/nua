@@ -10,10 +10,10 @@ tags = ["test", "html", "web", "static"]
 license = "MIT"
 
 [build]
-test = "python -c 'from echo_three.echo_server import echo'"
+test = "python -c 'from echos.echo_server import echo'"
 
 [run]
-start = "python -c 'from echo_three.echo_server import echos; echos(8763, 8764, 8765)'"
+start = "python -c 'from echos.echo_server import echos; echos(8763, 8764, 8765)'"
 
 [port.web]
 container = 8765
