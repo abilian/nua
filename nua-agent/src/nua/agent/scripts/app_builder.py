@@ -12,7 +12,6 @@ from textwrap import dedent
 
 from nua.lib.actions import (
     apt_remove_lists,
-    copy_from_package,
     detect_and_install,
     install_build_packages,
     install_git_source,
