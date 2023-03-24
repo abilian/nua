@@ -11,7 +11,7 @@ from typing import Any
 from nua.lib.actions import jinja2_render_file
 
 
-def fill_templates(metadata: dict):
+def render_templates(metadata: dict):
     """Find files and templates in the /nua/templates folder and fill them.
 
     Destination files may be on Docker mounted volumes.
@@ -36,7 +36,7 @@ def _iterate_template_files(src_folder: Path, data: dict[str, Any]):
             continue
         dest = Path("/") / file.relative_to(src_folder)
         if file.name.endswith(".j2"):
-            _fill_template(file, dest.with_suffix(""), data)
+            _render_template(file, dest.with_suffix(""), data)
         else:
             _copy_file(file, dest)
 
@@ -47,7 +47,7 @@ def _copy_file(src: Path, dest: Path):
     dest.chmod(0o644)
 
 
-def _fill_template(template: Path, dest: Path, data: dict[str, Any]):
+def _render_template(template: Path, dest: Path, data: dict[str, Any]):
     dest.parent.mkdir(mode=0o755, parents=True, exist_ok=True)
     jinja2_render_file(template, dest, data)
     dest.chmod(0o644)

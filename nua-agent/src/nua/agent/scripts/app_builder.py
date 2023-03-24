@@ -143,9 +143,7 @@ class BuilderApp:
         if self.config.start_command:
             with verbosity(2):
                 vprint("Writing start script from 'start-command'")
-            script_path = script_dir / "start.py"
-            script_path.write_text(self._start_script_content())
-            return
+            return self._write_start_script(script_dir, self.config.start_command)
         path = self.find_start_script()
         if path:
             with verbosity(2):
@@ -153,24 +151,26 @@ class BuilderApp:
             copy2(path, script_dir)
             return
         with verbosity(2):
-            vprint("Copying default start script")
-        copy_from_package("nua.agent.defaults", "start.py", script_dir)
+            vprint("Writing debug start script")
+            return self._write_start_script(script_dir, ["env"])
 
-    def _start_script_content(self) -> str:
+    def _write_start_script(self, script_dir: Path, start_cmd: list):
         cwd = repr(str(self.source))
-        return dedent(
+        cmd = dedent(
             f"""\
         import os
 
         from nua.lib.exec import exec_as_nua
-        from nua.agent.start_template import fill_templates
+        from nua.agent.templates import render_templates
 
-        fill_templates({self.config.metadata})
-        exec_as_nua({self.config.start_command},
+        render_templates({self.config.metadata})
+        exec_as_nua({start_cmd},
                     cwd={cwd},
                     env=os.environ,)
         """
         )
+        script_path = script_dir / "start.py"
+        script_path.write_text(cmd)
 
     def find_start_script(self) -> Path | None:
         name = hyphen_get(self.config.build, "start-script")
