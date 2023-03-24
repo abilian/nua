@@ -105,6 +105,12 @@ class Resource(dict):
         self["domain"] = domain
 
     @property
+    def domain_realm(self) -> str:
+        if len(self.domain.split(".")) < 3:
+            return self.domain
+        return self.split(".", 1)[-1]
+
+    @property
     def port(self) -> list | dict:
         return self["port"]
 
