@@ -1,0 +1,11 @@
+# Coturn TURN SERVER configuration file
+
+# simplified configuration for galene
+
+listening-port={{env.LISTEN_PORT}}
+fingerprint
+lt-cred-mech
+user={{env.GALENE_USER}}:{{env.GALENE_PW}}
+server-name={{env.DOMAIN}}
+realm={{env.REALM}}
+#external-ip={{ 1}}
