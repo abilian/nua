@@ -30,7 +30,7 @@ build-command = [
     "bin/setup",
     "yarn cache clean; rm -fr /tmp/*"
 ]
-test = "test -f /nua/build/hedgedoc/healthcheck.mjs"
+test = "test -f /nua/build/hedgedoc/app.js"
 
 [run]
 packages = [
