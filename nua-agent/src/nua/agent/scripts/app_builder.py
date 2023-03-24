@@ -73,8 +73,10 @@ class BuilderApp:
                 built = detect_and_install(".")
             if (code_installed or pip_installed or built) and os.getuid() == 0:
                 chown_r("/nua/build", "nua")
-            if code_installed:
-                self.run_build_script()
+            # if code_installed:
+            # always run build script: maybe no code source, but only configuration of
+            # standard .deb packages
+            self.run_build_script()
         self.post_build()
         self.test_build()
         with verbosity(1):
@@ -238,7 +240,6 @@ class BuilderApp:
                 self.config.checksum,
             )
             installed = True
-
         elif self.config.project:
             self.source = install_source(
                 self.config.project,
