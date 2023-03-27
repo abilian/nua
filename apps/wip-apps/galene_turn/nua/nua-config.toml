@@ -24,9 +24,9 @@ build-command = [
 
 [run]
 start = """\
-/nua/app/galene -http "127.0.0.1:{LISTEN_PORT}" \
+/nua/app/galene -http 127.0.0.1:${LISTEN_PORT} \
 -insecure \
--turn {EXTERNAL_IP}:{TURN_PORT} -udp-range 49152-65535 \
+-turn ${LOCAL_HOST}:${TURN_PORT} -udp-range 49152-65535 \
 -groups /nua/app/groups \
 -data /nua/app/data"""
 # -recordings __DATA_DIR__/recordings  \
@@ -34,16 +34,22 @@ start = """\
 [env]
 # GALENE_TURN = ""
 # GALENE_TURN=1.2.3.4:1194
+LOCAL_HOST = { key="hostname" }
 TURN_PORT = 8443
 LISTEN_PORT = 1194
 # GALENE_USER = "galene"
 # GALENE_PW = "galene_pw"
 DOMAIN = { key="domain" }
 # REALM = { key="domain_realm" }
-EXTERNAL_IP = { key="external_ip" }
+EXTERNAL_IP = { external_ip=true }
 
 [port.web]
 container = 8443
+
+
+[docker]
+# network = "host"
+restart_policy.name = "always"
 
 # [port.turn]
 # container = 1194

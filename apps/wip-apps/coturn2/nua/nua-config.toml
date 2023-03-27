@@ -22,7 +22,7 @@ GALENE_USER = "galene"
 GALENE_PW = "galene_pw"
 DOMAIN = { key="domain" }
 REALM = { key="domain_realm" }
-EXTERNAL_IP = { key="external_ip" }
+EXTERNAL_IP = { external_ip=true }
 
 [docker]
 network = "host"
