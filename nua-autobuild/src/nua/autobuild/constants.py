@@ -5,7 +5,8 @@ CODE_URL = "https://github.com/abilian/nua/archive/refs/heads/main.zip"
 # NUA_LINUX_BASE = "ubuntu:jammy-20220801"
 # NUA_LINUX_BASE = "ubuntu:jammy-20221003"
 # NUA_LINUX_BASE = "ubuntu:jammy-20221130"
-NUA_LINUX_BASE = "ubuntu:jammy-20230126"
+# NUA_LINUX_BASE = "ubuntu:jammy-20230126"
+NUA_LINUX_BASE = "ubuntu:jammy-20230308"
 
 NUA_PYTHON_TAG = f"nua-python:{__version__}"
 
