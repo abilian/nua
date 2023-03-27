@@ -4,7 +4,6 @@ Template must be filled :
     - after volume mounts and environment initialization,
     - before application start script.
 """
-import os
 from pathlib import Path
 from typing import Any
 
