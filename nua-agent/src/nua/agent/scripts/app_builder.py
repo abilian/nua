@@ -158,8 +158,6 @@ class BuilderApp:
 
     def _write_start_script(self, script_dir: Path, start_cmd: list):
         data = deepcopy(self.config.metadata_rendered)
-        data.update(os.environ)
-        start_cmd_rendered = [cmd.format(**data) for cmd in start_cmd]
         cwd = repr(str(self.source))
         cmd = dedent(
             f"""\
@@ -169,7 +167,7 @@ class BuilderApp:
         from nua.agent.templates import render_templates
 
         render_templates({data})
-        exec_as_nua({start_cmd_rendered},
+        exec_as_nua({start_cmd},
                     cwd={cwd},
                     env=os.environ,)
         """
