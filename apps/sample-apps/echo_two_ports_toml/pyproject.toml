@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "echos"
 version = "0.1.0"
-description = "Nua test server 3 ports"
+description = "Nua test server 2 ports"
 authors = ["Jerome Dumonteil <jd@abilian.com>"]
 license = "MIT"
 

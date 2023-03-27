@@ -2,7 +2,7 @@ metadata:
   author: Jerome Dumonteil <jd@abilian.com>
   id: echo-two-ports-yaml
   license: MIT
-  release: 2
+  release: 3
   tagline: Nua test server 2 ports
   tags:
   - test

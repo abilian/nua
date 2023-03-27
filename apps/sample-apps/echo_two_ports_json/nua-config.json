@@ -2,7 +2,7 @@
     "metadata": {
         "id": "echo-two-ports-json",
         "version": "1.0",
-        "release": 2,
+        "release": 3,
         "title": "Nua test server 2 ports - json config",
         "author": "Jerome Dumonteil <jd@abilian.com>",
         "tagline": "Nua test server 2 ports",

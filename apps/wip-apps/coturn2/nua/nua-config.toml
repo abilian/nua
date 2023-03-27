@@ -11,7 +11,6 @@ licence = "TURN Server license"
 
 [build]
 packages = ["coturn"]
-docker-user = "nobody:nogroup"
 build-command = "rm -f /etc/turnserver.conf"
 
 [run]
