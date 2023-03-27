@@ -227,8 +227,19 @@ class NuaConfig:
         return self["metadata"]
 
     @property
+    def metadata_rendered(self) -> dict:
+        """Return the metadata dict with rendered f-string values."""
+        data = {}
+        for key, val in deepcopy(self.metadata).items():
+            if isinstance(val, str):
+                data[key] = val.format(**self.metadata)
+            else:
+                data[key] = val
+        return data
+
+    @property
     def version(self) -> str:
-        """version of package source."""
+        """Version of package source."""
         return self.metadata.get("version", "")
 
     @property
@@ -311,7 +322,15 @@ class NuaConfig:
 
     @property
     def build_command(self) -> list:
-        return forced_list(hyphen_get(self.build, "build-command", []))
+        """Return the list of build commands, each cmd rendered with metadata."""
+        metadata = self.metadata_rendered
+        commands = []
+        for cmd in forced_list(hyphen_get(self.build, "build-command", [])):
+            if isinstance(cmd, str):
+                commands.append(cmd.format(**metadata))
+            else:
+                commands.append(cmd)
+        return commands
 
     @property
     def pip_install(self) -> list:

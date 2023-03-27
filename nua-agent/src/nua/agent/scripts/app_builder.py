@@ -6,6 +6,7 @@
 """
 import logging
 import os
+from copy import deepcopy
 from pathlib import Path
 from shutil import copy2
 from textwrap import dedent
@@ -156,6 +157,9 @@ class BuilderApp:
             return self._write_start_script(script_dir, ["env"])
 
     def _write_start_script(self, script_dir: Path, start_cmd: list):
+        data = deepcopy(self.config.metadata_rendered)
+        data.update(os.environ)
+        start_cmd_rendered = [cmd.format(**data) for cmd in start_cmd]
         cwd = repr(str(self.source))
         cmd = dedent(
             f"""\
@@ -164,8 +168,8 @@ class BuilderApp:
         from nua.lib.exec import exec_as_nua
         from nua.agent.templates import render_templates
 
-        render_templates({self.config.metadata})
-        exec_as_nua({start_cmd},
+        render_templates({data})
+        exec_as_nua({start_cmd_rendered},
                     cwd={cwd},
                     env=os.environ,)
         """

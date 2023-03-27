@@ -11,17 +11,13 @@ from typing import Any
 from nua.lib.actions import jinja2_render_file
 
 
-def render_templates(metadata: dict):
+def render_templates(data: dict):
     """Find files and templates in the /nua/templates folder and fill them.
 
     Destination files may be on Docker mounted volumes.
     This function is expected to be run as root. Files are stored with 755 rights.
     Files ending with .j2 are considered as Jinja2 templates.
     """
-    data = {
-        "metadata": metadata,
-        "env": dict(os.environ),
-    }
     src_folder = Path("/nua/templates")
     if not src_folder.is_dir():
         return
