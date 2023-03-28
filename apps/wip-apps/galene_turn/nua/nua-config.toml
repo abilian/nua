@@ -24,19 +24,21 @@ build-command = [
 
 [run]
 start = """\
-/nua/app/galene -http 127.0.0.1:${LISTEN_PORT} \
+/nua/app/galene \
 -insecure \
--turn ${LOCAL_HOST}:${TURN_PORT} -udp-range 49152-65535 \
+-turn ${EXTERNAL_IP}:${TURN_PORT} \
 -groups /nua/app/groups \
 -data /nua/app/data"""
+# -http 127.0.0.1:${LISTEN_PORT} \
+# -turn ${LOCAL_HOST}:${TURN_PORT} -udp-range 49152-65535 \
 # -recordings __DATA_DIR__/recordings  \
 
 [env]
 # GALENE_TURN = ""
 # GALENE_TURN=1.2.3.4:1194
 LOCAL_HOST = { key="hostname" }
-TURN_PORT = 8443
-LISTEN_PORT = 1194
+TURN_PORT = 1194
+LISTEN_PORT = 8443
 # GALENE_USER = "galene"
 # GALENE_PW = "galene_pw"
 DOMAIN = { key="domain" }
@@ -46,15 +48,14 @@ EXTERNAL_IP = { external_ip=true }
 [port.web]
 container = 8443
 
+[port.turn]
+container = 1194
+proxy = 1194
+ssl = false
 
 [docker]
 # network = "host"
 restart_policy.name = "always"
-
-# [port.turn]
-# container = 1194
-# proxy = 1194
-# ssl = false
 
 [[volume]]
 # The mount type (bind / volume / tmpfs / npipe). Default: volume :
