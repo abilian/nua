@@ -5,5 +5,7 @@
             "password": "some_pw0"
         }
     ],
+    "public": true,
     "presenter": [{}]
+
 }

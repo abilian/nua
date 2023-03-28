@@ -1,8 +1,8 @@
 [metadata]
-id = "galene-turn"
+id = "galene"
 version = "0.6.2"
 release = 1
-title = "Galène videoconference server"
+title = "Galène videoconference server "
 author = "Galene authors"
 tagline = "Galène videoconference server"
 website = "https://galene.org/"
@@ -26,36 +26,41 @@ build-command = [
 start = """\
 /nua/app/galene \
 -insecure \
--turn ${EXTERNAL_IP}:${TURN_PORT} \
+-http 127.0.0.1:${LISTEN_PORT} \
+-turn :${TURN_PORT} \
 -udp-range 49152-65535 \
 -groups /nua/app/groups \
 -data /nua/app/data"""
-# -turn ${LOCAL_HOST}:${TURN_PORT} -udp-range 49152-65535 \
-# -turn 127.0.0.1:${TURN_PORT} \
 # -recordings __DATA_DIR__/recordings  \
 
 [env]
-# GALENE_TURN = ""
-# GALENE_TURN=1.2.3.4:1194
-LOCAL_HOST = { key="hostname" }
-TURN_PORT = 1194
 LISTEN_PORT = 8443
-# GALENE_USER = "galene"
-# GALENE_PW = "galene_pw"
+TURN_PORT = 1194
+GALENE_ADMIN = "admin"
+GALENE_ADM_PWD = { random='true', length=24 }
+GALENE_OPERATOR = "galene"
+GALENE_OP_PWD = { random='true', length=24 }
 DOMAIN = { key="domain" }
 # REALM = { key="domain_realm" }
-EXTERNAL_IP = { external_ip=true }
+# EXTERNAL_IP = { external_ip=true }
+GROUP_PUBLIC = "true"
+GROUP_DISPLAYNAME = "demo group"
+GROUP_DESCRIPTION = "Galène demo server"
+GROUP_CONTACT = ""
+GROUP_COMMENT = "A small demo server for Galène"
+GROUP_MAX_CLIENTS = "5"
+GROUP_ALLOW_RECORDING = "false"
+GROUP_ALLOW_ANONYMOUS = "false"
+GROUP_ALLOW_SUBGROUPS = "false"
+GROUP_AUTOLOCK = "false"
+GROUP_AUTOKICK = "false"
 
 [port.web]
 container = 8443
-
-[port.turn]
-container = 1194
-proxy = 1194
-ssl = false
-# ssl = true
+host = 8443
 
 [docker]
+network = "host"
 restart_policy.name = "always"
 
 [[volume]]
