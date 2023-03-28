@@ -1,6 +1,7 @@
 """Docker utils."""
 import io
 import json
+from contextlib import suppress
 from copy import deepcopy
 from functools import cache
 from pathlib import Path
@@ -239,17 +240,29 @@ def erase_previous_container(client: DockerClient, name: str):
         pass
 
 
+def docker_run_params(rsite: Resource) -> dict:
+    """Return the actual docker parameters."""
+    params = deepcopy(rsite.run_params)
+    # the actual key is 'environment'
+    if "env" in params:
+        del params["env"]
+    params["detach"] = True  # force detach option
+    if rsite.network_name:
+        params["network"] = rsite.network_name
+    if params.get("network", "") == "host":
+        # remove all ports NAT
+        with suppress(KeyError):
+            del params["ports"]
+    return params
+
+
 def docker_run(rsite: Resource, secrets: dict) -> Container:
     """Wrapper on top of the py-docker run() command.
 
     Returns:
         The new started container.
     """
-    params = deepcopy(rsite.run_params)
-    # the actual key is 'environment'
-    if "env" in params:
-        del params["env"]
-    params["detach"] = True  # force detach option
+    params = docker_run_params(rsite)
     with verbosity(1):
         # info(f"Docker run image: {rsite.image_id}")
         info(f"Docker run image: {rsite.image}")
@@ -258,11 +271,9 @@ def docker_run(rsite: Resource, secrets: dict) -> Container:
             vprint_green("Docker run parameters:")
             vprint_magenta(pformat(params))
     docker_remove_prior_container_live(rsite)
-    if rsite.network_name:
-        params["network"] = rsite.network_name
-        with verbosity(2):
-            if rsite.network_name:
-                info("Network:", rsite.network_name)
+    with verbosity(2):
+        if "network" in params:
+            info("Network:", params["network"])
     container = _docker_run(rsite, secrets, params)
     with verbosity(3):
         vprint("Docker secrets:", secrets)
