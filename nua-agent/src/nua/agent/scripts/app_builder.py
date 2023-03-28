@@ -164,9 +164,9 @@ class BuilderApp:
         import os
 
         from nua.lib.exec import exec_as_nua
-        from nua.agent.templates import render_templates
+        from nua.agent.templates import render_config_templates
 
-        render_templates({data})
+        render_config_templates({data})
         exec_as_nua({start_cmd},
                     cwd={cwd},
                     env=os.environ,)

@@ -4,13 +4,14 @@ Template must be filled :
     - after volume mounts and environment initialization,
     - before application start script.
 """
+import os
 from pathlib import Path
 from typing import Any
 
 from nua.lib.actions import jinja2_render_file
 
 
-def render_templates(data: dict):
+def render_config_templates(data: dict):
     """Find files and templates in the /nua/templates folder and fill them.
 
     Destination files may be on Docker mounted volumes.
@@ -20,6 +21,7 @@ def render_templates(data: dict):
     src_folder = Path("/nua/templates")
     if not src_folder.is_dir():
         return
+    data.update(os.environ)
     _iterate_template_files(src_folder, data)
 
 
