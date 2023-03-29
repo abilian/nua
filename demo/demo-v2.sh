@@ -3,15 +3,16 @@
 echo "This demo script can compile Nua, create a 'nua' user managing
 the Nua Orchestrator and run some basic demos.
 
+The demo requires a recent Ubuntu platform like Ubuntu 22.04.2 LTS.
+
 It must be run locally (./demo.sh) by a user with 'sudoer' capability.
 
 The script will update and install many packages (build-essential, python3.10, ...).
 
-Important:
-  - this script will propose to erase all your docker content:
+Important: this script will propose to erase all your docker content:
       'docker system prune -a'
 
-- check the GIT_LOCAL variable at the beginning of the script
+- Check the GIT_LOCAL variable at the beginning of the script
 - NUA_CERTBOT_STRATEGY is 'none' (no https config, default is 'auto')
 "
 
@@ -95,7 +96,7 @@ exe sudo DEBIAN_FRONTEND=noninteractive apt autoremove -y
         exe cd ${HOME}
         exe python3.10 -m venv p3nua
         exe source p3nua/bin/activate
-        exe pip install -U pip setuptools wheel poetry
+        exe pip install -U pip setuptools wheel poetry invoke
     }
 }
 
@@ -105,7 +106,7 @@ source ${HOME}/p3nua/bin/activate || {
     exit 1
 }
 
-exe pip install -U pip setuptools wheel poetry
+exe pip install -U pip setuptools wheel poetry invoke
 
 yesno "Do 'git clone' nua repository from '${NUA_REPOSITORY}' and build nua" && {
     exe mkdir -p "${GIT_LOCAL}"
@@ -114,12 +115,13 @@ yesno "Do 'git clone' nua repository from '${NUA_REPOSITORY}' and build nua" && 
     exe git clone ${NUA_REPOSITORY}
     exe cd nua
     exe git checkout ${BRANCH}
-    exe cd "${NUA_BUILD}"
-    git pull
-    git checkout ${BRANCH}
-    ./build.sh
-    exe cd "${NUA_ORC}"
-    ./build.sh
+    inv install
+    # exe cd "${NUA_BUILD}"
+    # git pull
+    # git checkout ${BRANCH}
+    # ./build.sh
+    # exe cd "${NUA_ORC}"
+    # ./build.sh
 }
 
 

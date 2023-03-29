@@ -14,7 +14,7 @@ from nua.lib.console import print_magenta
 from nua.lib.shell import sh
 
 from ..nua_env import certbot_exe, nua_home_path, venv_bin
-from .certbot_strategies import certbot_invocation
+from .commands import certbot_invocation
 
 CERTBOT_CONF = "nua.orchestrator.certbot.config"
 

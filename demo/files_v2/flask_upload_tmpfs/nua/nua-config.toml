@@ -1,7 +1,7 @@
 [metadata]
 id = "flask-upload-tmpfs"
 version = "1.0"
-release = 3
+release = 4
 title = "Flask test upload with container tmpfs"
 author = "Nua testers"
 tagline = "Flask test upload with with container tmpfs"
@@ -11,27 +11,18 @@ license = "MIT"
 
 [build]
 document-root = "/nua/app/html"
-# - should auto detect local python project
-
 test = "python -c 'import flask_upload_tmpfs'"
 
+[run]
+start = "gunicorn --worker-tmp-dir /dev/shm --workers 2 -b :8000 flask_upload_tmpfs.wsgi:app"
+
 [port.web]
-container = 80
+container = 8000
 
 [[volume]]
 # The mount type (bind / volume / tmpfs / npipe). Default: volume :
 type = "tmpfs"
 # Name of the driver used to create the volume: (for type == "volume")
-# driver = "local"
-# Mount source (e.g. a volume name or a host path):
-# the directory must exits
-# Container path:
 target = "/var/tmp/mount_point"
 tmpfs_size = "10G"
-tmpfs_mode = 666
-#[[mount.opt]]
-# list of volume-op tags
-# docker.types.Mount
-# volume = client.volumes.create(name='foobar', driver='local',
-#   driver_opts={'foo': 'bar', 'baz': 'false'},
-#   labels={"key": "value"})
+tmpfs_mode = 0o1777
