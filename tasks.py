@@ -24,14 +24,17 @@ except ImportError:
 # Subrepos tasks
 #
 @task
-def install(c):
+def install(c, quiet=False):
     """Install all sub-packages (and dependencies)"""
     # first uninstall all
     c.run(
         "pip list --format freeze |grep nua- |xargs pip uninstall -yq &>/dev/null",
         warn=True,
     )
-    run_in_subrepos(c, "pip install --no-cache-dir -e .")
+    if quiet:
+        run_in_subrepos(c, "pip install -qq --no-cache-dir -e .")
+    else:
+        run_in_subrepos(c, "pip install --no-cache-dir -e .")
 
 
 @task
