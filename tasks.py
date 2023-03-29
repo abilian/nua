@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import tomli
-from abilian_devtools.invoke import import_tasks
 from invoke import task
 
 SUB_REPOS = [
@@ -13,8 +12,12 @@ SUB_REPOS = [
     "nua-orchestrator",
 ]
 
+try:
+    from abilian_devtools.invoke import import_tasks
 
-import_tasks(globals())
+    import_tasks(globals())
+except ImportError:
+    pass
 
 
 #
