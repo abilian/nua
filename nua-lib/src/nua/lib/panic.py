@@ -62,6 +62,11 @@ def vprint(*args: Any):
         print(*args)
 
 
+def vfprint(*args: Any):
+    if check_verbosity():
+        print(*args, end="", flush=True)
+
+
 def vprint_blue(message: str):
     if check_verbosity():
         print_stream_blue(message)

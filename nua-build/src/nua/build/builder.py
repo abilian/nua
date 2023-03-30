@@ -26,13 +26,14 @@ from nua.autobuild.docker_build_utils import (
 from nua.autobuild.nua_image_builder import NuaImageBuilder
 from nua.autobuild.register_builders import is_builder
 from nua.lib.backports import chdir
-from nua.lib.panic import info, show, title, vprint
+from nua.lib.panic import info, show, title, vfprint, vprint
 from nua.lib.shell import rm_fr
 from nua.lib.tool.state import verbosity, verbosity_level
 
 from . import __version__, config
 
 logging.basicConfig(level=logging.INFO)
+CLIENT_TIMEOUT = 600
 
 
 class BuilderError(Exception):
@@ -317,7 +318,7 @@ class Builder:
             with verbosity(1):
                 display_docker_img(nua_tag)
             if save:
-                client = docker.from_env()
+                client = docker.from_env(timeout=CLIENT_TIMEOUT)
                 image = client.images.get(image_id)
                 self.save(image, nua_tag)
 
@@ -338,15 +339,26 @@ class Builder:
             with verbosity(1):
                 display_docker_img(nua_tag)
             if save:
-                client = docker.from_env()
+                client = docker.from_env(timeout=CLIENT_TIMEOUT)
                 image = client.images.get(image_id)
                 self.save(image, nua_tag)
 
     def save(self, image: Image, nua_tag: str):
         dest = f"/var/tmp/{nua_tag}.tar"  # noqa S108
-        with open(dest, "wb") as tarfile:
-            for chunk in image.save(chunk_size=2**25, named=True):
-                tarfile.write(chunk)
+        chunk_size = 2**22
+        step = round(image.attrs["Size"]) // 20
+        accu = 0
         with verbosity(1):
+            vfprint("Saving image ")
+        with open(dest, "wb") as tarfile:
+            for chunk in image.save(chunk_size=chunk_size, named=True):
+                tarfile.write(chunk)
+                accu += len(chunk)
+                if accu >= step:
+                    accu -= step
+                    with verbosity(1):
+                        vfprint(".")
+        with verbosity(1):
+            vprint("")
             show("Docker image saved:")
             show(dest)
