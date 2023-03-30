@@ -16,6 +16,11 @@ Nua is an open source, self-hosted cloud platform project (a *PaaS* - *platform 
 It is particularly aimed at organisations (SMEs, associations, public services, etc.) that wish, or need, to implement a digital autonomy strategy, and as such are moving towards open source software as a priority.
 
 
+## Concept Map
+
+<img src="diagrams/mindmaps/Nua Concept Map.png">
+
+
 ## Vision
 
 The Nua project was born out of a double need within Abilian:
@@ -42,17 +47,13 @@ This vision is based on a set of principles:
 
 ### Python-focused presentation (given at PyConFr 2023 in Bordeaux)
 
-
 <iframe class="speakerdeck-iframe" style="border: 0px none; background: rgba(0, 0, 0, 0.1) padding-box; margin: 0px; padding: 0px; border-radius: 6px; box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 40px; width: 100%; height: auto; aspect-ratio: 560 / 314;" src="https://speakerdeck.com/player/b69f33062ebb48a3b884b7b2bc5f0a4a" title="Nua, un PaaS open source en Python pour l'auto-hébergement de vos applications" allowfullscreen="true" data-ratio="1.78343949044586" frameborder="0"></iframe>
 
-### Presenation at IMPULSE 2023 (1 slide, in French)
+### Presentation at IMPULSE 2023 (1 slide, in French)
+
+We gave a short presentation on Nua during the IMPULSE 2023 conference in Brussels:
 
 <iframe class="speakerdeck-iframe" style="border: 0px none; background: rgba(0, 0, 0, 0.1) padding-box; margin: 0px; padding: 0px; border-radius: 6px; box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 40px; width: 100%; height: auto; aspect-ratio: 560 / 314;" src="https://speakerdeck.com/player/d36daeb62d4347ad8b96fa63e649b6c8" title="Pitch Abilian @ IMPULSE 2023" allowfullscreen="true" data-ratio="1.78343949044586" frameborder="0"></iframe>
-
-
-## Concept Map
-
-<img src="diagrams/mindmaps/Nua Concept Map.png">
 
 
 ## Use cases
