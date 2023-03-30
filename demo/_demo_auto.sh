@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DELAY=0.08
+DELAY=0.16
 
 function cmtn() {
     txt=$1
@@ -69,11 +69,11 @@ function yesno {
     echo
     echo -ne "${cyellow} ----> "
     cmtn "$1"
-    echo -ne " ? (y/n) ${cclear}"; read
+    echo -ne " ? (y/n) ${cclear}";
+    sleep 0.2
+    echo "y"
     echo
-    echo
-    [[ "$REPLY" =~ ^[YyOo] ]] && return 0
-    return 1
+    return 0
 }
 
 function exe() {
@@ -146,7 +146,7 @@ yesno "Do 'git clone' nua repository from '${NUA_REPOSITORY}' and build nua" && 
 
 
 yesno "Erase all local docker images (not mandatory, but it ensures a clean rebuild of Nua images)" && {
-    docker system prune -a
+    yes | docker system prune -a
 }
 
 
@@ -171,8 +171,11 @@ yesno "Provide actual domain names for the 3 'example.com' domains" && {
     rm -f "${HERE}/REPLACE_DOMAIN"
     for d in test1 test2 test3
     do
-        read -p "Enter the fqdn replacing '${d}.example.com' ? " response
-        echo "${d}.example.com ${response}" >> "${HERE}/REPLACE_DOMAIN"
+        echo -n "Enter the fqdn replacing '${d}.example.com' ? "
+        sleep 0.1
+        cmtn "${d}.abilian.com"
+        echo
+        echo "${d}.example.com ${d}.abilian.com" >> "${HERE}/REPLACE_DOMAIN"
     done
 } || {
     echo "test1.example.com test1.example.com" > "${HERE}/REPLACE_DOMAIN"
