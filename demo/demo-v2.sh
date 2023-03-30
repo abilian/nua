@@ -84,10 +84,11 @@ sudo
 # libpq-dev
 # libpq5
 
-exe sudo DEBIAN_FRONTEND=noninteractive apt-get update --fix-missing
-exe sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
-exe sudo DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y ${packages}
-exe sudo DEBIAN_FRONTEND=noninteractive apt autoremove -y
+APT_GET="sudo DEBIAN_FRONTEND=noninteractive apt-get -qq -o=Dpkg::Use-Pty=0"
+exe $APT_GET update --fix-missing
+exe $APT_GET upgrade -y
+exe $APT_GET install --no-install-recommends -y ${packages}
+exe $APT_GET autoremove -y
 
 [ "${VIRTUAL_ENV}" != "p3nua" ] && [ ! -f "${HOME}/p3nua/bin/activate" ] && {
     echo
@@ -96,7 +97,7 @@ exe sudo DEBIAN_FRONTEND=noninteractive apt autoremove -y
         exe cd ${HOME}
         exe python3.10 -m venv p3nua
         exe source p3nua/bin/activate
-        exe pip install -U pip setuptools wheel poetry invoke
+        exe pip install -qq -U pip setuptools wheel poetry invoke
     }
 }
 
@@ -106,16 +107,16 @@ source ${HOME}/p3nua/bin/activate || {
     exit 1
 }
 
-exe pip install -U pip setuptools wheel poetry invoke
+exe pip install -qq -U pip setuptools wheel poetry invoke
 
 yesno "Do 'git clone' nua repository from '${NUA_REPOSITORY}' and build nua" && {
     exe mkdir -p "${GIT_LOCAL}"
     exe cd "${GIT_LOCAL}"
     [ -d "nua" ] && sudo rm -fr nua
-    exe git clone ${NUA_REPOSITORY}
+    exe git clone -q ${NUA_REPOSITORY}
     exe cd nua
-    exe git checkout ${BRANCH}
-    inv install
+    exe git checkout -q ${BRANCH}
+    inv install --quiet
     # exe cd "${NUA_BUILD}"
     # git pull
     # git checkout ${BRANCH}
