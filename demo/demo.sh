@@ -1,20 +1,43 @@
 #!/bin/bash
 
-echo "This demo script can compile Nua, create a 'nua' user managing
-the Nua Orchestrator and run some basic demos.
+DELAY=0.08
 
-The demo requires a recent Ubuntu platform like Ubuntu 22.04.2 LTS.
+function cmtn() {
+    txt=$1
+    for (( i=0; i<${#txt}; i++ )); do
+        sleep ${DELAY}
+        echo -n "${txt:$i:1}"
+    done
+}
 
-It must be run locally (./demo.sh) by a user with 'sudoer' capability.
+function cmt() {
+    echo -n "# "
+    cmtn "$1"
+    echo ""
+}
 
-The script will update and install many packages (build-essential, python3.10, ...).
-
-Important: this script will propose to erase all your docker content:
-      'docker system prune -a'
-
-- Check the GIT_LOCAL variable at the beginning of the script
-- NUA_CERTBOT_STRATEGY is 'none' (no https config, default is 'auto')
-"
+cmt "This demo script will:"
+cmt "   - build the Nua software,"
+cmt "   - create a 'nua' user managing the Nua Orchestrator,"
+cmt "   - build some Nua packages (nua-build tool),"
+cmt "   - install groups of packages (nua-orchestrator tool),"
+cmt ""; sleep 1
+cmt "The demo requires a recent Ubuntu platform like Ubuntu 22.04.2 LTS."
+cmt ""; sleep 0.5
+cmt "The script must be run locally by a user with 'sudoer' capability."
+cmt ""; sleep 0.5
+cmt "You can skip parts of the demo (just answer 'n')."
+cmt ""; sleep 0.5
+cmt "The script will update and install many packages on the local host"
+cmt "(build-essential, python3.10, ...)."
+cmt ""; sleep 0.5
+cmt "Important: this script will propose to erase all your docker content"
+cmt "with the command:"
+cmt "    'docker system prune -a'"
+cmt ""; sleep 1.5
+cmt "Check variables at beginning of this script:"
+cmt "   - the GIT_LOCAL variable at the beginning of this script,"
+cmt "   - NUA_CERTBOT_STRATEGY : 'none' for HTTP config, set to 'auto' for HTTPS"
 
 # Where to clone Nua
 GIT_LOCAL="${HOME}/gits2"
@@ -44,7 +67,9 @@ function echo_green {
 
 function yesno {
     echo
-    echo -ne "${cyellow} ----> $1 ? (y/n) ${cclear}"; read
+    echo -ne "${cyellow} ----> "
+    cmtn "$1"
+    echo -ne " ? (y/n) ${cclear}"; read
     echo
     echo
     [[ "$REPLY" =~ ^[YyOo] ]] && return 0
@@ -117,12 +142,6 @@ yesno "Do 'git clone' nua repository from '${NUA_REPOSITORY}' and build nua" && 
     exe cd nua
     exe git checkout -q ${BRANCH}
     inv install --quiet
-    # exe cd "${NUA_BUILD}"
-    # git pull
-    # git checkout ${BRANCH}
-    # ./build.sh
-    # exe cd "${NUA_ORC}"
-    # ./build.sh
 }
 
 
