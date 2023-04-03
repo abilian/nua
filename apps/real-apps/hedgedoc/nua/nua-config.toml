@@ -3,8 +3,8 @@ id = "hedgedoc"
 version = "1.9.7"
 # Nota: version 1.9.6 seems broken since 1.9.7
 release = 3
-title = "Hedgedoc"
-author = "Hedgedoc authors"
+title = "HedgeDoc"
+author = "HedgeDoc authors"
 tagline = "The best platform to write and share markdown"
 website = "https://hedgedoc.org/"
 tags = ["Markdown", "Documentation", "Collaboration"]
