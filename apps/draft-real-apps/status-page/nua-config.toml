@@ -6,6 +6,7 @@ description = "Open Source Statuspage Software"
 version = "2.0.16"
 release = 1
 license = "Apache License 2.0"
+website = "https://docs.status-page.dev/"
 src-url = "https://github.com/Status-Page/Status-Page/archive/refs/tags/v{version}.tar.gz"
 
 [build]

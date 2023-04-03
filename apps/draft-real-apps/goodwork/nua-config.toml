@@ -5,7 +5,7 @@
 id = "goodwork"
 title = "goodwork"
 author = "goodwork authors"
-description = "Self hosted project management and collaboration tool  built with Laravel & VueJS"
+description = "(Dead) Self hosted project management and collaboration tool  built with Laravel & VueJS"
 website = ""
 version = "unknown"
 release = 1
