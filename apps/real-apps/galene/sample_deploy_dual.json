@@ -1,0 +1,15 @@
+{
+    "site": [
+        {
+            "image": "galene",
+            "domain": "test1.example.com"
+        }, {
+            "image": "galene",
+            "domain": "test2.example.com",
+            "env": {
+                "LISTEN_PORT": 8444,
+                "TURN_PORT": 1195
+            }
+        }
+    ]
+}

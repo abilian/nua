@@ -9,9 +9,52 @@ def ports_as_dict(port_list: list) -> dict:
     return {str(port["container"]): port for port in port_list}
 
 
+def ports_assigned(ports: list) -> set[int]:
+    used = set()
+    for port in ports:
+        if not port:  # could be an empty {} ?
+            continue
+        host = port["host"]
+        # normalization done: host is present and either 'auto' or an int
+        if isinstance(host, int):
+            used.add(host)
+        # if proxy is hard coded (when multiple port are open),
+        # add it to the list
+        proxy = port["proxy"]
+        if isinstance(proxy, int):
+            used.add(proxy)
+    return used
+
+
+def ports_as_docker_parameters(ports: list) -> dict:
+    return {
+        f"{port['container']}/{port['protocol']}": port["host_use"] for port in ports
+    }
+
+
+def ports_as_list(ports_dict: dict) -> list:
+    keys = list(ports_dict.keys())
+    for key in keys:
+        ports_dict[key]["name"] = key
+    return list(ports_dict.values())
+
+
+def rebase_ports_on_defaults(defaults_ports: list, update_ports: list) -> list:
+    defaults = {p["name"]: p for p in defaults_ports}
+    updates = {p["name"]: p for p in update_ports}
+    defaults.update(updates)
+    return list(defaults.values())
+
+
 def normalize_ports(port_list: list):
     for port in port_list:
         _normalize_port(port)
+
+
+def normalize_ports_list(port_list: list) -> list:
+    for port in port_list:
+        _normalize_port(port)
+    return port_list
 
 
 def _normalize_port(port: dict):
@@ -32,15 +75,20 @@ def _normalize_port(port: dict):
 def _normalize_port_item_container(port: dict):
     if "container" not in port:
         raise ValueError("Missing 'container' key in port configuration")
+    if isinstance(port["container"], dict):
+        return
     try:
-        cont = int(port["container"])
+        container = int(port["container"])
     except (ValueError, TypeError):
         raise ValueError("port['container'] value must be an integer")
-    port["container"] = cont
+    port["container"] = container
 
 
 def _normalize_port_item_host(port: dict):
-    host = str(port.get("host", "auto")).lower().strip()
+    host = port.get("host", "auto")
+    if isinstance(host, dict):
+        return
+    host = str(host).lower().strip()
     if host == "auto":
         port["host"] = "auto"
         return
@@ -52,14 +100,17 @@ def _normalize_port_item_host(port: dict):
 
 
 def _normalize_port_item_protocol(port: dict):
-    proto = str(port.get("protocol", "tcp")).lower().strip()
-    if proto not in {"tcp", "udp"}:
+    protocol = str(port.get("protocol", "tcp")).lower().strip()
+    if protocol not in {"tcp", "udp"}:
         raise ValueError("port['protocol'] must be 'tcp' or 'udp' (default is 'tcp')")
-    port["protocol"] = proto
+    port["protocol"] = protocol
 
 
 def _normalize_port_item_proxy(port: dict):
-    proxy = str(port.get("proxy", "auto")).lower().strip()  # proxy auto ~ 80, 443
+    proxy = port.get("proxy", "auto")
+    if isinstance(proxy, dict):
+        return
+    proxy = str(proxy).lower().strip()  # proxy auto ~ 80, 443
     name = port["name"]
     if proxy == "auto" and name != "web":
         raise ValueError("Only port.web can have an 'proxy' = 'auto' value")

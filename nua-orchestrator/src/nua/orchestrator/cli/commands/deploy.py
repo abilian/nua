@@ -9,6 +9,6 @@ def deploy_nua_apps(deploy_config: str):
     deployer.gather_requirements()
     deployer.configure_apps()
     deployer.deactivate_previous_apps()
-    deployer.apply_configuration()
+    deployer.apply_nginx_configuration()
     deployer.start_apps()
     deployer.post_deployment()

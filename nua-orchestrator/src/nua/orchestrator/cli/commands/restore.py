@@ -16,7 +16,7 @@ def restore_nua_apps_strict():
     deployer.gather_requirements()
     deployer.restore_configure()
     deployer.restore_deactivate_previous_apps()
-    deployer.apply_configuration()
+    deployer.apply_nginx_configuration()
     deployer.start_apps()
     deployer.post_deployment()
 
@@ -34,6 +34,6 @@ def restore_nua_apps_replay():
     deployer.gather_requirements()
     deployer.configure_apps()
     deployer.restore_deactivate_previous_apps()
-    deployer.apply_configuration()
+    deployer.apply_nginx_configuration()
     deployer.start_apps()
     deployer.post_deployment()

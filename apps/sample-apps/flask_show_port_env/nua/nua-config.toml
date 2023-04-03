@@ -1,0 +1,29 @@
+[metadata]
+id = "flask-show-port-env"
+version = "1.0"
+release = 1
+title = "Flask show IP, config port via ENV"
+author = "Nua testers"
+tagline = "Nua test with Flask - IP"
+website = "https://nua.rocks/"
+tags = ["test", "html", "web", "IP"]
+license = "MIT"
+
+[build]
+document-root = "/nua/app/html"
+test = "python -c 'import flask_show'"
+
+[run]
+# NOTA: start command uses shall explasion variables
+start = "gunicorn --worker-tmp-dir /dev/shm --workers 1 -b :${CONT_PORT} flask_show.wsgi:app"
+
+[env]
+CONT_PORT = 8000
+MY_IP = { external_ip='true' }
+
+[docker]
+# parameters passed as a dict to docker run
+auto_remove = true
+
+[port.web]
+container = { key="CONT_PORT" }

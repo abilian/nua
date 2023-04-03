@@ -10,8 +10,13 @@ from nua.lib.tool.state import verbosity
 
 from .domain_split import DomainSplit
 from .persistent import Persistent
-from .port_normalization import normalize_ports, ports_as_dict
+from .port_normalization import (
+    normalize_ports_list,
+    ports_as_list,
+    rebase_ports_on_defaults,
+)
 from .resource import Resource
+from .resource_deps import ResourceDeps
 from .search_cmd import search_nua
 from .utils import sanitized_name
 from .volume import Volume
@@ -166,6 +171,7 @@ class AppInstance(Resource):
     def merge_instance_to_resources(self):
         self.rebase_env_upon_nua_conf()
         self.rebase_volumes_upon_nua_conf()
+        self.rebase_ports_upon_nua_config()
         resource_declarations = self.get("resource", [])
         if not resource_declarations:
             return
@@ -178,6 +184,19 @@ class AppInstance(Resource):
         base_env = deepcopy(self.image_nua_config.get("env", {}))
         base_env.update(self.env)
         self.env = base_env
+
+    def order_resources_dependencies(self) -> list[Resource]:
+        """Order of evaluations for variables
+
+        - main AppInstance variable assignment (including hostname of resources)
+        - late evaluation (hostnames)
+        And check for circular dependencies of resources.
+        """
+        resource_deps = ResourceDeps()
+        for resource in self.resources:
+            resource_deps.add_resource(resource)
+        resource_deps.add_resource(self)
+        return resource_deps.solve()
 
     def _merge_resource_updates_to_resource(self, resource_updates):
         if not resource_updates:
@@ -240,20 +259,13 @@ class AppInstance(Resource):
         self.volume = self.rebased_volumes_upon_package_conf(self.image_nua_config)
 
     def rebase_ports_upon_nua_config(self):
-        config_ports = deepcopy(self.image_nua_config.get("port", {}))
-        if not isinstance(config_ports, dict):
+        nua_config_ports = deepcopy(self.image_nua_config.get("port", {}))
+        if not isinstance(nua_config_ports, dict):
             abort("nua_config['port'] must be a dict")
-
-        keys = list(config_ports.keys())
-        for key in keys:
-            config_ports[key]["name"] = key
-        config_ports = list(config_ports.values())
-        normalize_ports(config_ports)
-        ports = ports_as_dict(config_ports)
+        base_ports = normalize_ports_list(ports_as_list(nua_config_ports))
+        self.port_list = rebase_ports_on_defaults(base_ports, self.port_list)
         with verbosity(4):
-            vprint(f"rebase_ports_upon_nua_config(): ports={pformat(ports)}")
-        ports.update(self.port)
-        self.port = ports
+            vprint(f"rebase_ports_upon_nua_config(): ports={pformat(self.port_list)}")
 
     def find_registry_path(self, cached: bool = False) -> bool:
         # list of images sorted by version:

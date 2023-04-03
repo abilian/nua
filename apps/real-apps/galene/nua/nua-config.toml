@@ -1,7 +1,7 @@
 [metadata]
 id = "galene"
 version = "0.6.2"
-release = 1
+release = 3
 title = "Galène videoconference server "
 author = "Galene authors"
 tagline = "Galène videoconference server"
@@ -48,7 +48,7 @@ GROUP_DISPLAYNAME = "demo group"
 GROUP_DESCRIPTION = "Galène demo server"
 GROUP_CONTACT = ""
 GROUP_COMMENT = "A small demo server for Galène"
-GROUP_MAX_CLIENTS = "5"
+GROUP_MAX_CLIENTS = "20"
 GROUP_ALLOW_RECORDING = "false"
 GROUP_ALLOW_ANONYMOUS = "false"
 GROUP_ALLOW_SUBGROUPS = "false"
@@ -56,8 +56,8 @@ GROUP_AUTOLOCK = "false"
 GROUP_AUTOKICK = "false"
 
 [port.web]
-container = 8443
-host = 8443
+container = { key="LISTEN_PORT" }
+host = { key="LISTEN_PORT" }
 
 [docker]
 network = "host"
@@ -65,12 +65,18 @@ restart_policy.name = "always"
 
 [[volume]]
 # The mount type (bind / volume / tmpfs / npipe). Default: volume :
-type = "bind"
-source = "/home/nua/galene/groups"
+# type = "bind"
+# source = "/home/nua/galene/groups"
+# target = "/nua/app/groups"
+type = "volume"
+prefix = "galene_groups"
 target = "/nua/app/groups"
 
 [[volume]]
 # The mount type (bind / volume / tmpfs / npipe). Default: volume :
-type = "bind"
-source = "/home/nua/galene/data"
+# type = "bind"
+# source = "/home/nua/galene/data"
+# target = "/nua/app/data"
+type = "volume"
+prefix = "galene_data"
 target = "/nua/app/data"

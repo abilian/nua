@@ -12,7 +12,12 @@ from nua.lib.tool.state import verbosity
 from .backup.backup_engine import backup_resource, backup_volume
 from .backup.backup_report import global_backup_report
 from .healthcheck import HealthCheck
-from .port_normalization import normalize_ports, ports_as_dict
+from .port_normalization import (
+    normalize_ports_list,
+    ports_as_docker_parameters,
+    ports_as_list,
+    ports_assigned,
+)
 from .register_plugins import (
     is_assignable_plugin,
     is_db_plugins,
@@ -56,7 +61,7 @@ class Resource(dict):
         """List of sub resources of the object.
 
         Warning: only AppInstance upper class has an actual use of 'resources'.
-        This subclass Resource will always provide an *empty*list
+        This subclass Resource will always provide an *empty* list.
         """
         return []
 
@@ -117,6 +122,14 @@ class Resource(dict):
     @port.setter
     def port(self, ports: list | dict):
         self["port"] = ports
+
+    @property
+    def port_list(self) -> list:
+        return self.get("port_list", [])
+
+    @port_list.setter
+    def port_list(self, port_list: list):
+        self["port_list"] = port_list
 
     @property
     def volume(self) -> list:
@@ -258,17 +271,6 @@ class Resource(dict):
         """
         return self.type in ASSIGNABLE_TYPE or is_assignable_plugin(self.type)
 
-    def set_ports_as_dict(self):
-        """Replace ports list by a dict with container port as key.
-
-        (use str key because later conversion to json)
-        """
-        if not isinstance(self.port, dict):
-            ports_dict = ports_as_dict(self.port)
-            self.port = ports_dict
-        for resource in self.resources:
-            resource.set_ports_as_dict()
-
     def _check_mandatory(self):
         self._check_missing("type")
         if self["type"] == "local":
@@ -295,44 +297,20 @@ class Resource(dict):
             return
         if not isinstance(self.port, dict):
             abort("AppInstance['port'] must be a dict")
-        keys = list(self.port.keys())
-        for key in keys:
-            self.port[key]["name"] = key
-        self.port = list(self.port.values())
-        normalize_ports(self.port)
+        self.port_list = normalize_ports_list(ports_as_list(self.port))
 
     def used_ports(self) -> set[int]:
-        used = set()
-        # when method is used, ports became a dict:
-        for port in self.port.values():
-            if not port:  # could be an empty {} ?
-                continue
-            host = port["host"]
-            # normalization done: host is present and either 'auto' or an int
-            if isinstance(host, int):
-                used.add(host)
-            # if proxy is hard coded (when multiple port are open),
-            # add it to the list
-            proxy = port["proxy"]
-            if isinstance(proxy, int):
-                used.add(proxy)
-        return used
+        return ports_assigned(self.port_list)
 
     def allocate_auto_ports(self, allocator: Callable):
-        if not self.port:
-            return
-        # when method is used, ports became a dict:
-        for port in self.port.values():
+        for port in self.port_list:
             if port["host"] == "auto":
                 port["host_use"] = allocator()
             else:
                 port["host_use"] = port["host"]
 
     def ports_as_docker_params(self) -> dict:
-        cont_ports = {}
-        for port in self.port.values():
-            cont_ports[f"{port['container']}/{port['protocol']}"] = port["host_use"]
-        return cont_ports
+        return ports_as_docker_parameters(self.port_list)
 
     def _normalize_volumes(self):
         if "volume" not in self:
@@ -442,7 +420,7 @@ class Resource(dict):
         connect to the resource container port.
         """
         env = {}
-        for port in self.port.values():
+        for port in self.port_list:
             variable = f"NUA_{self.resource_name.upper()}_PORT_{port['container']}"
             value = str(port["host_use"])
             env[variable] = value
