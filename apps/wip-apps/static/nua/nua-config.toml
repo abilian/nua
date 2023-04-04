@@ -1,0 +1,36 @@
+[metadata]
+id = "static-min"
+version = "1.0"
+release = 1
+title = "static-min"
+author = "Nua authors"
+tagline = "Serving static files"
+website = "https://nua.rocks"
+tags = ["static", "web"]
+license = "MIT license"
+
+[build]
+build-command = "true"
+
+[run]
+start = "true"
+
+[env]
+STATIC = ""
+
+[docker]
+
+[port.web]
+container = 8000
+
+[[volume]]
+# declare a local volume for plublic uploads
+# bind example: type = "bind"
+type = "volume"
+
+# Name of the driver used to create the volume: (for type == "volume")
+# driver = "local"  # default for "volume" type
+# Mount source (e.g. a volume name or a host path):
+prefix = "static"
+# Container path:
+target = "/var/www"

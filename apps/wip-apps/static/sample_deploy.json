@@ -1,0 +1,8 @@
+{
+    "site": [
+        {
+            "image": "static",
+            "domain": "test1.example.com"
+        }
+    ]
+}
