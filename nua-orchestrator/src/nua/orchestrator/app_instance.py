@@ -4,6 +4,7 @@ from copy import deepcopy
 from pathlib import Path
 from pprint import pformat
 
+from nua.agent.nua_config import hyphen_get
 from nua.agent.nua_tag import nua_tag_string
 from nua.lib.panic import abort, vprint, warning
 from nua.lib.tool.state import verbosity
@@ -71,6 +72,18 @@ class AppInstance(Resource):
         self["image_nua_config"] = image_nua_config
 
     @property
+    def instance_name(self) -> str:
+        if base := hyphen_get(self, "instance-name"):
+            return base
+        return ""
+
+    @instance_name.setter
+    def instance_name(self, instance_name: str):
+        if "instance_name" in self:
+            del self["instance_name"]
+        self["instance-name"] = instance_name
+
+    @property
     def top_domain(self) -> str:
         return self["top_domain"]
 
@@ -87,12 +100,24 @@ class AppInstance(Resource):
     @property
     def app_id(self) -> str:
         return self.image_nua_config["metadata"]["id"]
-        # if app_id.startswith("nua-"):
-        #     app_id = app_id[4:]
-        # return app_id
+
+    @property
+    def app_id_short(self) -> str:
+        """Return short app id, without 'nua-' prefix neither version).
+
+        "hedgedoc" -> "hedgedoc"
+        """
+        app_id = self.app_id
+        if app_id.startswith("nua-"):
+            return app_id[4:]
+        return app_id
 
     @property
     def nua_tag(self) -> str:
+        """Return long tag string with version and release.
+
+        "hedgedoc" -> "nua-hedgedoc:1.9.7-3"
+        """
         return nua_tag_string(self.image_nua_config["metadata"])
 
     @property
@@ -297,3 +322,10 @@ class AppInstance(Resource):
                 # docker resources are only visible from bridge network, so use
                 # the container name as hostname
                 resource.hostname = name
+
+    def default_instance_name(self):
+        """Return a name based on app id and domain.
+
+        To use when the user does not provide an app name or as default value.
+        """
+        return f"{self.app_id_short}-{self.domain}"
