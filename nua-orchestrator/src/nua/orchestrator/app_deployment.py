@@ -39,7 +39,6 @@ from .nginx.utils import (
     nginx_restart,
 )
 from .resource import Resource
-from .resource_deps import ResourceDeps
 from .services import Services
 from .utils import parse_any_format
 from .volume import Volume
@@ -62,7 +61,7 @@ class AppDeployment:
         deployer.gather_requirements()
         deployer.configure_apps()
         deployer.deactivate_previous_apps()
-        deployer.apply_configuration()
+        deployer.apply_nginx_configuration()
         deployer.start_apps()
         deployer.post_deployment()
     """
@@ -184,13 +183,11 @@ class AppDeployment:
         self.apps_configure_requested_db()
         self.apps_set_volumes_names()
         self.apps_check_local_service_available()
-        self.apps_set_ports_as_dict()
+        self.apps_retrieve_persistent()
+        self.apps_evaluate_dynamic_values()
+        self.apps_generate_ports()
         self.apps_parse_healthcheck()
         self.apps_check_host_services_configuration()
-        self.apps_retrieve_persistent()
-        # We now allocate ports *before* stopping services, thus this may induce
-        # a flip/flop balance when reinstalling same config
-        self.apps_generate_ports()
 
     def restore_configure(self):
         """Try to reuse the previous configuration with no change."""
@@ -216,7 +213,7 @@ class AppDeployment:
         self.orig_mounted_volumes = store.list_instances_container_active_volumes()
         deactivate_all_instances()
 
-    def apply_configuration(self):
+    def apply_nginx_configuration(self):
         """Apply configuration, especially configurations that can not be
         deployed before all previous apps are stopped."""
         self.configure_nginx()
@@ -395,7 +392,6 @@ class AppDeployment:
 
     def install_required_resources(self):
         self.apps_parse_resources()
-        self.apps_set_ports_as_dict()
         if not self.pull_all_resources_images():
             abort("Missing Docker images")
 
@@ -437,10 +433,6 @@ class AppDeployment:
     def apps_parse_resources(self):
         for site in self.apps:
             site.parse_resources()
-
-    def apps_set_ports_as_dict(self):
-        for site in self.apps:
-            site.set_ports_as_dict()
 
     def apps_parse_healthcheck(self):
         for site in self.apps:
@@ -501,10 +493,7 @@ class AppDeployment:
     def apps_generate_ports(self):
         start_ports = config.read("nua", "ports", "start") or 8100
         end_ports = config.read("nua", "ports", "end") or 9000
-        with verbosity(4):
-            vprint(f"apps_generate_ports(): interval {start_ports} to {end_ports}")
-        self.update_ports_from_nua_config()
-        allocated_ports = self._configured_ports()
+        allocated_ports = self.configured_ports()
         with verbosity(4):
             vprint(f"apps_generate_ports(): {allocated_ports=}")
         # list of ports used for domains / apps, trying to keep them unchanged
@@ -520,32 +509,15 @@ class AppDeployment:
         with verbosity(3):
             vprint("apps_generate_ports() done")
 
-    def _configured_ports(self) -> set[int]:
+    def configured_ports(self) -> set[int]:
         """Return set of required host ports (aka non auto ports) from
         site_list.
 
         Returns: set of integers
-
-        Expected format for ports:
-        port = {
-            "80":{
-                "name": web,
-                "container": 80,
-                "host": "auto",
-                "protocol": "tcp",
-                "proxy": "auto"
-                },
-            ...
-        }
         """
         used = set()
         for site in self.apps:
-            try:
-                used.update(site.used_ports())
-            except (ValueError, IndexError) as e:
-                print_red("Error: for site config:", e)
-                print(pformat(site))
-                raise
+            used.update(site.used_ports())
         return used
 
     def apps_allocate_ports(self, allocator: Callable):
@@ -555,36 +527,13 @@ class AppDeployment:
             for resource in site.resources:
                 resource.allocate_auto_ports(allocator)
 
-    def update_ports_from_nua_config(self):
-        """If port not declared in site config, use image definition.
-
-        Merge ports modifications from site config with image config.
-        """
-        with verbosity(5):
-            vprint(f"update_ports_from_nua_config(): len(site_list)= {len(self.apps)}")
-        for site in self.apps:
-            site.rebase_ports_upon_nua_config()
-
     def evaluate_container_params(self, site: AppInstance):
         """Compute site run environment parameters except those requiring late
         evaluation (i.e. host names of started containers).
-
-        Order of evaluations for Variables:
-        - main AppInstance variable assignment (including hostname of resources)
-        - late evaluation (hostnames)
-        And check for circular dependencies of resources.
         """
-        resource_deps = ResourceDeps()
+        self.generate_app_container_run_parameters(site)
         for resource in site.resources:
-            resource_deps.add_resource(resource)
-        resource_deps.add_resource(site)
-        ordered_resources = resource_deps.solve()
-
-        for resource in ordered_resources:
-            if resource == site:
-                self.generate_app_container_run_parameters(site)
-            else:
-                self.generate_resource_container_run_parameters(site, resource)
+            self.generate_resource_container_run_parameters(resource)
 
     def apps_retrieve_persistent(self):
         for site in self.apps:
@@ -596,6 +545,42 @@ class AppDeployment:
             vprint(f"persistent previous: {previous=}")
         previous.update(site.persistent_full_dict())
         site.set_persistent_full_dict(previous)
+
+    def apps_evaluate_dynamic_values(self):
+        for site in self.apps:
+            self.evaluate_dynamic_values(site)
+
+    def evaluate_dynamic_values(self, site: AppInstance):
+        ordered_resources = site.order_resources_dependencies()
+        for resource in ordered_resources:
+            if resource == site:
+                self.generate_app_env_port_values(site)
+            else:
+                self.generate_resource_env_port_values(site, resource)
+
+    def generate_app_env_port_values(self, site: AppInstance):
+        run_env = deepcopy(site.env)
+        run_env.update(instance_key_evaluator(site, late_evaluation=False))
+        site.env = run_env
+        new_port_list = []
+        for port in site.port_list:
+            new_port = deepcopy(port)
+            new_port.update(
+                instance_key_evaluator(
+                    site,
+                    port=port,
+                    late_evaluation=False,
+                )
+            )
+            new_port_list.append(new_port)
+        site.port_list = new_port_list
+
+    def generate_resource_env_port_values(self, site: AppInstance, resource: Resource):
+        run_env = deepcopy(resource.env)
+        run_env.update(
+            instance_key_evaluator(site, resource=resource, late_evaluation=False)
+        )
+        resource.env = run_env
 
     def start_network(self, site: AppInstance):
         if site.network_name:
@@ -650,17 +635,17 @@ class AppDeployment:
         run_params.update(nua_docker_default_run)
         # run parameters defined in the image configuration, without the "env"
         # sections:
-        run_nua_conf = deepcopy(site.image_nua_config.get("docker", {}))
-        if "env" in run_nua_conf:
-            del run_nua_conf["env"]
-        run_params.update(run_nua_conf)
+        nua_conf_docker = deepcopy(site.image_nua_config.get("docker", {}))
+        if "env" in nua_conf_docker:
+            del nua_conf_docker["env"]
+        run_params.update(nua_conf_docker)
         # update with parameters that could be added to AppInstance configuration :
         run_params.update(site.get("docker", {}))
         # Add the hostname/IP of local Docker hub (Docker feature) :
         self.add_host_gateway_to_extra_hosts(run_params)
         run_params["name"] = site.container_name
         run_params["ports"] = site.ports_as_docker_params()
-        run_params["environment"] = self.run_parameters_app_environment(site)
+        run_params["environment"] = site.env
         if site.healthcheck:
             run_params["healthcheck"] = HealthCheck(site.healthcheck).as_docker_params()
         self.sanitize_run_params(run_params)
@@ -668,26 +653,17 @@ class AppDeployment:
 
     def generate_resource_container_run_parameters(
         self,
-        site: AppInstance,
         resource: Resource,
     ):
         """Return suitable parameters for the docker.run() command (for
         Resource).
-
-        method launched 2 times:
-         - first: assignment before site environment evaluation (site_envv empty) for
-           early resources (most DBs),
-         - second: assignment after site environment evaluation (site_envv empty) for
-           second phase resources.
         """
         run_params = deepcopy(RUN_BASE_RESOURCE)
         run_params.update(resource.docker)
         self.add_host_gateway_to_extra_hosts(run_params)
         run_params["name"] = resource.container_name
         run_params["ports"] = resource.ports_as_docker_params()
-        run_params["environment"] = self.run_parameters_resource_environment(
-            site, resource
-        )
+        run_params["environment"] = resource.env
         if resource.healthcheck:
             run_params["healthcheck"] = HealthCheck(
                 resource.healthcheck

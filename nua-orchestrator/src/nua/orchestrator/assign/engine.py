@@ -35,34 +35,36 @@ def instance_key_evaluator(
     site: AppInstance,
     resource: Resource | None = None,
     late_evaluation: bool = False,
+    port: dict | None = None,
 ) -> dict:
     """Evaluate value for 'env' values declared as dict with dynamic
     parameters, through retrieving persistent value or compute value from
     specialized functions."""
-    env = {}
+    result = {}
     if resource is None:
         resource = site
         persistent = site.persistent("")
     else:
         persistent = site.persistent(resource.resource_name)
-    dynamic_env = {k: v for k, v in resource.env.items() if isinstance(v, dict)}
+    if port is None:
+        dynamics = {k: v for k, v in resource.env.items() if isinstance(v, dict)}
+    else:
+        dynamics = {k: v for k, v in port.items() if isinstance(v, dict)}
     with verbosity(3):
-        info(
-            f"instance_key_evaluator ({late_evaluation=}):\n    {pformat(dynamic_env)}"
-        )
-    if not dynamic_env:
+        info(f"instance_key_evaluator ({late_evaluation=}):\n    {pformat(dynamics)}")
+    if not dynamics:
         return {}
-    for destination_key, requirement in dynamic_env.items():
+    for destination_key, requirement in dynamics.items():
         evaluate_requirement(
             resource,
             destination_key,
             requirement,
             persistent,
-            env,
+            result,
             late_evaluation,
         )
     site.set_persistent(persistent)
-    return env
+    return result
 
 
 def evaluate_requirement(

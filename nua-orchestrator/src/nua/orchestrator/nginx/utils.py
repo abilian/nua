@@ -50,8 +50,8 @@ def clean_nua_nginx_default_site():
 
 def _set_instances_proxy_auto_port(host: dict):
     for site in host["apps"]:
-        ports = site["port"]
-        for port in ports.values():
+        ports = site["port_list"]
+        for port in ports:
             if port["proxy"] == "auto":
                 site["host_use"] = port["host_use"]
                 break
@@ -62,8 +62,9 @@ def _set_located_port_list(host: dict):
         return
     ports_set = set()
     for app in host["apps"]:
-        ports = app["port"]
-        ports_set.update(ports.keys())
+        ports = app["port_list"]
+        for port in ports:
+            ports_set.add(port["container"])
     host["ports_list"] = list(ports_set)
 
 
@@ -92,17 +93,15 @@ def configure_nginx_hostname(host: dict):
                  'top_domain': 'example.com',
                  'image': 'flask-one:1.2-1',
                  'location': 'instance1'
-                 'port': {
-                      "80": {
-                        'name': 'web'
-                        'container': 80,
-                        'host': 'auto',
-                        'host_use': 8100,
-                        'proxy': 'auto'},
-                        ,
-                        ]
-                      }
-                   },
+                 'port': {},
+                 'port_list': [{'container': 3000,
+                                  'host': 'auto',
+                                  'host_use': 8101,
+                                  'name': 'web',
+                                  'protocol': 'tcp',
+                                  'proxy': 'auto',
+                                  'ssl': True}],
+
                    ...
     """
     with verbosity(4):

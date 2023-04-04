@@ -3,7 +3,7 @@ map $http_upgrade $connection_upgrade {
         ''      close;
 }
 
-{% for hst in apps[0].port.values() %}
+{% for hst in apps[0].port_list %}
 {% if hst.proxy == 'auto' -%}
 server {
     listen 80;
