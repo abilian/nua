@@ -1,5 +1,4 @@
 """For debug, print the list of instance names."""
-from pprint import pprint
 
 from ..db import store
 from ..nua_db_setup import setup_nua_db
