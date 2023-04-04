@@ -20,15 +20,15 @@ The Nua Orchestrator will interfere with local resources such as Docker services
 
 ### The bootstrap command
 
-To install, use the boostraping script: `nua-bootstrap`.
+To install, you will need to use the boostraping script: `nua-bootstrap`.
 
-At the moment, that implies a first temporary installation of Nua (that can be done in a temporary directory)
+At the moment, this implies a first temporary installation of Nua (which can be done in a temporary directory)
 
 ```console
-    git clone https://github.com/abilian/nua
-    cd nua/nua-orchestrator
-    ./build.sh
-    nua-bootstrap
+git clone https://github.com/abilian/nua
+cd nua/nua-orchestrator
+./build.py
+./env/bin/nua-bootstrap
 ```
 
 
