@@ -1,6 +1,6 @@
 {
   "template": "git@github.com:abilian/cookiecutter-abilian-python.git",
-  "commit": "73d60b38f68f33f30dfea71949c07cf91093efc7",
+  "commit": "35d7cb22d565331429660019e3422332d21897d1",
   "checkout": null,
   "context": {
     "cookiecutter": {
