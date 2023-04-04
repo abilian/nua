@@ -2,7 +2,7 @@
 
 ## Current sponsors
 
-- [Abilian](http://www.abilian.com)
+- [Abilian](https://www.abilian.com)
 - [TCA](https://agencetca.info) (through the AIPress24 project)
 
 ## How to become a sponsor

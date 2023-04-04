@@ -10,6 +10,7 @@ docs_dir: src
 nav:
   - Home:
     - Intro: index.md
+    - "Available apps": apps.md
     - Funding: funding.md
   - Developers:
     - Intro: dev/index.md
@@ -24,6 +25,7 @@ nav:
     - Credits: dev/authors.md
   - Users:
     - Intro: user/index.md
+    - Installation: user/install.md
     - Command Line Interface: user/cli.md
   - News: news/index.md
 
