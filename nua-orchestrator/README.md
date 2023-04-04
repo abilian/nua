@@ -26,7 +26,7 @@ At the moment, that implies a first temporary installation of Nua (that can be d
 
 ```console
     git clone https://github.com/abilian/nua
-    cd nua-orchestrator
+    cd nua/nua-orchestrator
     ./build.sh
     nua-bootstrap
 ```
