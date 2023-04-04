@@ -1,16 +1,17 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from dataclasses import dataclass, field
 from pprint import pformat
 from typing import Any
 
 
+@dataclass
 class Persistent:
     """Management of persistent generated values (like passwords)."""
 
-    def __init__(self, name: str):
-        self.name = name
-        self._dict = {}
+    name: str
+    _dict: dict = field(default_factory=dict)
 
     @classmethod
     def from_name_dict(cls, name: str, persist_dict: dict) -> Persistent:
