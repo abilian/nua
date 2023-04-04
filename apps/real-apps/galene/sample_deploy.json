@@ -1,6 +1,7 @@
 {
     "site": [
         {
+            "instance_name": "galene1",
             "image": "galene",
             "domain": "test1.example.com"
         }

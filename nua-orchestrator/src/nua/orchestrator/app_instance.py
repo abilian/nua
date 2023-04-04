@@ -49,6 +49,7 @@ class AppInstance(Resource):
         self._nomalize_env_values()
         self._normalize_ports()
         self._normalize_domain()
+        self._set_instance_name()
 
     @property
     def resources(self) -> list:
@@ -74,14 +75,14 @@ class AppInstance(Resource):
     @property
     def instance_name(self) -> str:
         if base := hyphen_get(self, "instance-name"):
-            return base
+            return base.strip()
         return ""
 
     @instance_name.setter
     def instance_name(self, instance_name: str):
         if "instance_name" in self:
             del self["instance_name"]
-        self["instance-name"] = instance_name
+        self["instance-name"] = instance_name.strip()
 
     @property
     def top_domain(self) -> str:
@@ -102,15 +103,17 @@ class AppInstance(Resource):
         return self.image_nua_config["metadata"]["id"]
 
     @property
-    def app_id_short(self) -> str:
-        """Return short app id, without 'nua-' prefix neither version).
+    def image_short(self) -> str:
+        """Return short app id from deployment 'image' value.
 
-        "hedgedoc" -> "hedgedoc"
+        Used early: at that moment the Docker image and actual image/nua_config are
+        not available.
+        Remove 'nua-' prefix and version):  "nua-hedgedoc" -> "hedgedoc".
         """
-        app_id = self.app_id
-        if app_id.startswith("nua-"):
-            return app_id[4:]
-        return app_id
+        image = self.image.strip()
+        if image.startswith("nua-"):
+            image = image[4:]
+        return image.split(":")[0]
 
     @property
     def nua_tag(self) -> str:
@@ -274,11 +277,13 @@ class AppInstance(Resource):
         self.domain = dom.full_path()
         self.top_domain = dom.top_domain()
 
-    # CHANGE: now volumes updated in site configuration, so
-    # different strategy for store.py
-    # def rebased_volumes_upon_nua_conf(self):
-    #     """warning: here, no update of self data"""
-    #     return self.rebased_volumes_upon_package_conf(self.image_nua_config)
+    def _set_instance_name(self):
+        if self.instance_name:
+            return
+        name = self.default_instance_name()
+        self.instance_name = name
+        with verbosity(0):
+            warning(f"Instance name not provided, using default: '{name}'")
 
     def rebase_volumes_upon_nua_conf(self):
         self.volume = self.rebased_volumes_upon_package_conf(self.image_nua_config)
@@ -328,4 +333,4 @@ class AppInstance(Resource):
 
         To use when the user does not provide an app name or as default value.
         """
-        return f"{self.app_id_short}-{self.domain}"
+        return f"{self.image_short}-{self.domain}"

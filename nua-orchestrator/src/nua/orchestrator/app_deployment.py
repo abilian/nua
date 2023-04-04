@@ -739,6 +739,8 @@ class AppDeployment:
     def display_deployed(self):
         protocol = protocol_prefix()
         for site in self.apps:
+            msg = f"Instance name: {site.instance_name}"
+            info(msg)
             msg = f"Image '{site.image}' deployed as {protocol}{site.domain}"
             info(msg)
             self.display_persistent_data(site)
