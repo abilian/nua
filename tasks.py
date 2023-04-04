@@ -132,12 +132,13 @@ def graph(c):
 #
 # Helpers
 #
+RESET = "\033[0m"
+BOLD = "\033[1m"
 
 
 def h1(msg):
     print()
-    print(msg)
-    print("=" * len(msg))
+    print(BOLD + msg + RESET)
     print()
 
 
