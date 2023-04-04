@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DELAY=0.08
+DELAY=0.03
 
 function cmtn() {
     txt=$1
@@ -45,12 +45,14 @@ GIT_LOCAL="${HOME}/gits2"
 #######################################################################
 
 HERE="$PWD"
+NUA_ENV="${HOME}/env"
 NUA_CERTBOT_STRATEGY="none"
-NUA_BUILD="${GIT_LOCAL}/nua/nua-build"
 NUA_ORC="${GIT_LOCAL}/nua/nua-orchestrator"
-DEMO="${GIT_LOCAL}/nua/demo"
 NUA_REPOSITORY="https://github.com/abilian/nua.git"
 BRANCH="main"
+# Unused
+# NUA_BUILD="${GIT_LOCAL}/nua/nua-build"
+# DEMO="${GIT_LOCAL}/nua/demo"
 
 cyellow='\033[1;33m'
 cgreen='\033[1;32m'
@@ -195,7 +197,7 @@ yesno "Demo 1: start 2 basic flask apps" && {
     cat <<EOF > /tmp/test.sh
 #!/bin/bash
 export NUA_CERTBOT_STRATEGY="${NUA_CERTBOT_STRATEGY}"
-~nua/nua310/bin/nua-orchestrator deploy -v /tmp/${file}
+${NUA_ENV}/bin/nua-orchestrator deploy -v /tmp/${file}
 EOF
     chmod a+x /tmp/test.sh
     sudo -u nua bash /tmp/test.sh
@@ -217,7 +219,7 @@ yesno "Demo 2: start 3 instances of an app using a postgres DB" && {
     cat <<EOF > /tmp/test.sh
 #!/bin/bash
 export NUA_CERTBOT_STRATEGY="${NUA_CERTBOT_STRATEGY}"
-~nua/nua310/bin/nua-orchestrator deploy -v /tmp/${file}
+${NUA_ENV}/bin/nua-orchestrator deploy -v /tmp/${file}
 EOF
     chmod a+x /tmp/test.sh
     sudo -u nua bash /tmp/test.sh
@@ -239,7 +241,7 @@ yesno "Demo 3: start 2 instances of an app using postgres and some tmpfs apps" &
     cat <<EOF > /tmp/test.sh
 #!/bin/bash
 export NUA_CERTBOT_STRATEGY="${NUA_CERTBOT_STRATEGY}"
-~nua/nua310/bin/nua-orchestrator deploy -v /tmp/${file}
+${NUA_ENV}/bin/nua-orchestrator deploy -v /tmp/${file}
 EOF
     chmod a+x /tmp/test.sh
     sudo -u nua bash /tmp/test.sh
@@ -261,7 +263,7 @@ yesno "Demo 4: start 1 instances of 3 different apps" && {
     cat <<EOF > /tmp/test.sh
 #!/bin/bash
 export NUA_CERTBOT_STRATEGY="${NUA_CERTBOT_STRATEGY}"
-~nua/nua310/bin/nua-orchestrator deploy -v /tmp/${file}
+${NUA_ENV}/bin/nua-orchestrator deploy -v /tmp/${file}
 EOF
     chmod a+x /tmp/test.sh
     sudo -u nua bash /tmp/test.sh

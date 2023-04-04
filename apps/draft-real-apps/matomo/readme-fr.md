@@ -1,3 +1,7 @@
+# Matomo
+
+## À propos
+
 Matomo (anciennement connu sous le nom de Piwik) est une plateforme d'analyse web gratuite et open-source conçue pour fournir aux utilisateurs des informations sur les visiteurs de leur site web. Elle permet de suivre diverses mesures telles que le nombre de visiteurs, les pages vues, le taux de rebond, la durée moyenne de la visite, et bien d'autres encore.
 
 Matomo offre des fonctionnalités telles que le suivi en temps réel, les rapports personnalisés, les cartes thermiques, les tests A/B et le suivi des conversions, qui peuvent aider les propriétaires de sites web à optimiser leur site pour améliorer l'engagement des utilisateurs et les conversions. Matomo donne également la priorité à la confidentialité des utilisateurs en permettant aux propriétaires de sites web d'héberger leurs propres données sur leurs serveurs, ce qui garantit que les données sensibles des utilisateurs restent confidentielles et sécurisées.

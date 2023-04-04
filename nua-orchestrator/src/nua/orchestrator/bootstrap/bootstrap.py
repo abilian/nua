@@ -170,7 +170,7 @@ def create_nua_venv():
     print_magenta("Creation of Python virtual environment for 'nua'")
     # assuming we already did check we have python >= 3.10
     host_python = "/usr/bin/python3"
-    vname = "nua310"
+    vname = "env"
     home = nua_env.nua_home_path()
     venv_path = home / vname
     nua_env.set_value("NUA_VENV", str(venv_path))

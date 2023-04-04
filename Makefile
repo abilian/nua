@@ -95,6 +95,7 @@ clean:
 	rm -f .coverage */.coverage
 	rm -rf dist nua-*/dist
 	rm -rf apps/*/*/build_dir
+	cd doc && make clean
 	# Remove more cruft
 	rm -rf *.egg-info *.egg .eggs .cache .mypy_cache .pyre \
 		.pytest_cache .pytest .DS_Store  docs/_build docs/cache docs/tmp \

@@ -7,7 +7,7 @@ import typer
 from fabric import Connection
 
 # Hardcoded for now
-NUA_CMD = "./nua310/bin/nua-orchestrator"
+NUA_CMD = "./env/bin/nua-orchestrator"
 
 
 class Client:

@@ -38,16 +38,16 @@ def nginx_path() -> Path:
 
 
 def venv_bin() -> str:
-    venv = os.environ.get("VIRTUAL_ENV")
-    if not venv:
-        venv = get_value("NUA_VENV")
+    # Hack (hardcoded path), FIXME
+    venv = "/home/nua/env"
+    # venv = os.environ.get("VIRTUAL_ENV")
+    # if not venv:
+    #     venv = get_value("NUA_VENV")
     return os.path.join(venv, "bin")
 
 
 def certbot_exe() -> str:
-    # Hack, FIXME
-    return "/home/nua/nua310/bin/certbot"
-    # return os.path.join(venv_bin(), "certbot")
+    return os.path.join(venv_bin(), "certbot")
 
 
 def as_dict() -> dict:
