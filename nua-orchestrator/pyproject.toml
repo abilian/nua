@@ -21,6 +21,7 @@ nua-bootstrap = "nua.orchestrator.bootstrap.bootstrap:main"
 # (If they are still really needed)
 nua-pg-pwd = "nua.orchestrator.scripts.set_pg_pwd:app"
 nua-mariadb-init = "nua.orchestrator.scripts.mariadb_restore:app"
+nua-list-instances = "nua.orchestrator.scripts.list_instances:main"
 nua-print-instances = "nua.orchestrator.scripts.print_instances:main"
 nua-print-volumes = "nua.orchestrator.scripts.print_mounted_volumes:main"
 nua-print-ports = "nua.orchestrator.scripts.print_used_ports:main"
@@ -44,7 +45,7 @@ psycopg2-binary = "^2.9.3"
 
 # Other deps
 setuptools = "*"
-wheel = "^0.38"
+wheel = "*"
 tomli = "^2"
 paramiko = "^2.11.0"
 docker = "^6"

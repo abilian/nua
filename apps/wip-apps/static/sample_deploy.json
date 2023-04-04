@@ -1,8 +1,7 @@
 {
     "site": [
         {
-            "instance_name": "galene1",
-            "image": "galene",
+            "image": "static",
             "domain": "test1.example.com"
         }
     ]

@@ -5,6 +5,10 @@ For Docker container and network names, the ":" will be replaced by "-".
 
 
 def nua_tag_string(metadata: dict) -> str:
+    """Return long tag string with version and release.
+
+    "hedgedoc" -> "nua-hedgedoc:1.9.7-3"
+    """
     if release := metadata.get("release", ""):
         suffix = f"-{release}"
     else:

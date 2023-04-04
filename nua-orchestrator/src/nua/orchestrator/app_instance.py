@@ -4,6 +4,7 @@ from copy import deepcopy
 from pathlib import Path
 from pprint import pformat
 
+from nua.agent.nua_config import hyphen_get
 from nua.agent.nua_tag import nua_tag_string
 from nua.lib.panic import abort, vprint, warning
 from nua.lib.tool.state import verbosity
@@ -48,6 +49,7 @@ class AppInstance(Resource):
         self._nomalize_env_values()
         self._normalize_ports()
         self._normalize_domain()
+        self._set_instance_name()
 
     @property
     def resources(self) -> list:
@@ -71,6 +73,18 @@ class AppInstance(Resource):
         self["image_nua_config"] = image_nua_config
 
     @property
+    def instance_name(self) -> str:
+        if base := hyphen_get(self, "instance-name"):
+            return base.strip()
+        return ""
+
+    @instance_name.setter
+    def instance_name(self, instance_name: str):
+        if "instance_name" in self:
+            del self["instance_name"]
+        self["instance-name"] = instance_name.strip()
+
+    @property
     def top_domain(self) -> str:
         return self["top_domain"]
 
@@ -87,12 +101,26 @@ class AppInstance(Resource):
     @property
     def app_id(self) -> str:
         return self.image_nua_config["metadata"]["id"]
-        # if app_id.startswith("nua-"):
-        #     app_id = app_id[4:]
-        # return app_id
+
+    @property
+    def image_short(self) -> str:
+        """Return short app id from deployment 'image' value.
+
+        Used early: at that moment the Docker image and actual image/nua_config are
+        not available.
+        Remove 'nua-' prefix and version):  "nua-hedgedoc" -> "hedgedoc".
+        """
+        image = self.image.strip()
+        if image.startswith("nua-"):
+            image = image[4:]
+        return image.split(":")[0]
 
     @property
     def nua_tag(self) -> str:
+        """Return long tag string with version and release.
+
+        "hedgedoc" -> "nua-hedgedoc:1.9.7-3"
+        """
         return nua_tag_string(self.image_nua_config["metadata"])
 
     @property
@@ -249,11 +277,13 @@ class AppInstance(Resource):
         self.domain = dom.full_path()
         self.top_domain = dom.top_domain()
 
-    # CHANGE: now volumes updated in site configuration, so
-    # different strategy for store.py
-    # def rebased_volumes_upon_nua_conf(self):
-    #     """warning: here, no update of self data"""
-    #     return self.rebased_volumes_upon_package_conf(self.image_nua_config)
+    def _set_instance_name(self):
+        if self.instance_name:
+            return
+        name = self.default_instance_name()
+        self.instance_name = name
+        with verbosity(0):
+            warning(f"Instance name not provided, using default: '{name}'")
 
     def rebase_volumes_upon_nua_conf(self):
         self.volume = self.rebased_volumes_upon_package_conf(self.image_nua_config)
@@ -297,3 +327,10 @@ class AppInstance(Resource):
                 # docker resources are only visible from bridge network, so use
                 # the container name as hostname
                 resource.hostname = name
+
+    def default_instance_name(self):
+        """Return a name based on app id and domain.
+
+        To use when the user does not provide an app name or as default value.
+        """
+        return f"{self.image_short}-{self.domain}"

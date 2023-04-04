@@ -279,7 +279,7 @@ class Resource(dict):
             self._check_missing("image")
 
     def _check_missing(self, key: str):
-        if key not in self:
+        if key not in self or not str(self[key]).strip():
             abort(f"AppInstance or Resource configuration missing '{key}' key")
 
     def _parse_healthcheck(self, config: dict | None = None):

@@ -1656,7 +1656,7 @@ tox-to-nox = ["jinja2", "tox"]
 
 [[package]]
 name = "nua-agent"
-version = "0.5.5"
+version = "0.5.6"
 description = "Nua agent"
 category = "main"
 optional = false
@@ -1677,7 +1677,7 @@ url = "../nua-agent"
 
 [[package]]
 name = "nua-autobuild"
-version = "0.5.5"
+version = "0.5.6"
 description = "Nua self builder"
 category = "main"
 optional = false
@@ -1701,7 +1701,7 @@ url = "../nua-autobuild"
 
 [[package]]
 name = "nua-build"
-version = "0.5.5"
+version = "0.5.6"
 description = "Nua build package (currently: build, core build, agent)"
 category = "main"
 optional = false
@@ -1724,7 +1724,7 @@ url = "../nua-build"
 
 [[package]]
 name = "nua-lib"
-version = "0.5.5"
+version = "0.5.6"
 description = "Nua common library"
 category = "main"
 optional = false
@@ -1926,14 +1926,14 @@ testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
 name = "pre-commit"
-version = "3.2.1"
+version = "3.2.2"
 description = "A framework for managing and maintaining multi-language pre-commit hooks."
 category = "dev"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pre_commit-3.2.1-py2.py3-none-any.whl", hash = "sha256:a06a7fcce7f420047a71213c175714216498b49ebc81fe106f7716ca265f5bb6"},
-    {file = "pre_commit-3.2.1.tar.gz", hash = "sha256:b5aee7d75dbba21ee161ba641b01e7ae10c5b91967ebf7b2ab0dfae12d07e1f1"},
+    {file = "pre_commit-3.2.2-py2.py3-none-any.whl", hash = "sha256:0b4210aea813fe81144e87c5a291f09ea66f199f367fa1df41b55e1d26e1e2b4"},
+    {file = "pre_commit-3.2.2.tar.gz", hash = "sha256:5b808fcbda4afbccf6d6633a56663fed35b6c2bc08096fd3d47ce197ac351d9d"},
 ]
 
 [package.dependencies]
@@ -2893,20 +2893,20 @@ test = ["websockets"]
 
 [[package]]
 name = "wheel"
-version = "0.38.4"
+version = "0.40.0"
 description = "A built-package format for Python"
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "wheel-0.38.4-py3-none-any.whl", hash = "sha256:b60533f3f5d530e971d6737ca6d58681ee434818fab630c83a734bb10c083ce8"},
-    {file = "wheel-0.38.4.tar.gz", hash = "sha256:965f5259b566725405b05e7cf774052044b1ed30119b5d586b2703aafe8719ac"},
+    {file = "wheel-0.40.0-py3-none-any.whl", hash = "sha256:d236b20e7cb522daf2390fa84c55eea81c5c30190f90f29ae2ca1ad8355bf247"},
+    {file = "wheel-0.40.0.tar.gz", hash = "sha256:cd1196f3faee2b31968d626e1731c94f99cbdb67cf5a46e4f5656cbee7738873"},
 ]
 
 [package.extras]
-test = ["pytest (>=3.0.0)"]
+test = ["pytest (>=6.0.0)"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "f8bf9fe6a39a2e61429caa736673e03912abedbe14981f0fb347a92717b9b4b1"
+content-hash = "2bef22a87ba0d8cf9a9d8c036990a4a7fe6f540c70c764d843bb14c54c1f03c0"
