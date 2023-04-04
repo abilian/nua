@@ -20,11 +20,13 @@ from .db.create import create_base
 from .db.session import configure_session
 from .util.deep_access_dict import DeepAccessDict
 
+__all__ = ["setup_nua_db"]
+
 
 def setup_nua_db():
     """Create the db if needed and also populate the configuration from both db
     values and default parameters."""
-    find_db_url()
+    get_db_uri()
     create_base()
     configure_session()
     setup_first_launch()
@@ -96,6 +98,22 @@ def setup_first_launch():
         return update_default_settings(settings)
 
 
+def get_db_uri() -> None:
+    # environment:
+    url = os.environ.get("NUA_DB_URL", "")
+    local_dir = os.environ.get("NUA_DB_LOCAL_DIR", "")
+    if not url:
+        url, local_dir = _url_from_local_config()
+    if not url:
+        url, local_dir = _url_from_defaults()
+    # store url in global config local_dir and url
+    config.set("nua", "db", "local_dir", local_dir or "")
+    if local_dir:
+        Path(local_dir).mkdir(mode=0o755, parents=True, exist_ok=True)
+    config.set("nua", "db", "url", url)
+    # print(f"find_db_url(): {config.nua.db.url=}")
+
+
 def _url_from_local_config():
     url, local_dir = (None, None)
     path = Path.home() / "nua_config.toml"
@@ -118,19 +136,3 @@ def _url_from_defaults():
     url = source_config.read("db", "url")
     local_dir = source_config.read("db", "local_dir")
     return url, local_dir
-
-
-def find_db_url() -> None:
-    # environment:
-    url = os.environ.get("NUA_DB_URL", "")
-    local_dir = os.environ.get("NUA_DB_LOCAL_DIR", "")
-    if not url:
-        url, local_dir = _url_from_local_config()
-    if not url:
-        url, local_dir = _url_from_defaults()
-    # store url in global config local_dir and url
-    config.set("nua", "db", "local_dir", local_dir or "")
-    if local_dir:
-        Path(local_dir).mkdir(mode=0o755, parents=True, exist_ok=True)
-    config.set("nua", "db", "url", url)
-    # print(f"find_db_url(): {config.nua.db.url=}")
