@@ -45,7 +45,9 @@ def venv_bin() -> str:
 
 
 def certbot_exe() -> str:
-    return os.path.join(venv_bin(), "certbot")
+    # Hack, FIXME
+    return "/home/nua/nua310/certbot"
+    # return os.path.join(venv_bin(), "certbot")
 
 
 def as_dict() -> dict:
