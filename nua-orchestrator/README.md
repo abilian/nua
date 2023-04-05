@@ -44,7 +44,7 @@ At the moment, this implies a first temporary installation of Nua (which can be 
 ```console
 git clone https://github.com/abilian/nua
 cd nua/nua-orchestrator
-./build.py
+./install.py
 sudo ./env/bin/nua-bootstrap
 ```
 
