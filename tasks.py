@@ -1,7 +1,14 @@
+import os
+import sys
 from pathlib import Path
 
 import tomli
+import watchfiles
+from dotenv import load_dotenv
 from invoke import task
+
+load_dotenv()
+
 
 SUB_REPOS = [
     "nua-lib",
@@ -10,6 +17,20 @@ SUB_REPOS = [
     "nua-autobuild",
     "nua-build",
     "nua-orchestrator",
+]
+
+RSYNC_EXCLUDES = [
+    ".git",
+    ".env",
+    ".venv",
+    ".mypy_cache",
+    ".pytest_cache",
+    "dist",
+    "build",
+    ".nox",
+    ".tox",
+    ".cache",
+    ".coverage",
 ]
 
 try:
@@ -127,6 +148,24 @@ def graph(c):
         h1(f"Running '{cmd}' in subrepos: {sub_repo}")
         with c.cd(sub_repo):
             c.run(cmd)
+
+
+@task
+def watch(c, host=None):
+    """Watch for changes a push to a remote server."""
+    if not host:
+        host = os.environ.get("NUA_HOST")
+    if not host:
+        print(
+            "Please set NUA_HOST env var or "
+            "pass it as an argument (--host=example.com)."
+        )
+        sys.exit()
+
+    excludes_args = " ".join([f"--exclude={e}" for e in RSYNC_EXCLUDES])
+    for _changes in watchfiles.watch("."):
+        print("Syncing to remote server...")
+        c.run(f"rsync -e ssh -avz {excludes_args} ./ nua@{host}:/home/nua/nua/")
 
 
 #
