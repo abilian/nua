@@ -10,7 +10,7 @@ The syntax used is the TOML language, but Nua also accepts YAML and JSON.
 
 ## An example of a commented `nua-config` file: **HedgeDoc**
 
-HedgeDoc (<https://hedgedoc.org/>) is a collaborative Markdown document editing application, one of the first to be packaged with Nua. It is a Nodejs application that uses the classic *build* tools for this ecosystem: `package.json` and `npm`.
+HedgeDoc (<https://hedgedoc.org/>) is a collaborative Markdown document editing application, one of the first to be packaged with Nua. It is a Node.js application that uses the classic *build* tools for this ecosystem: `package.json` and `npm`.
 
 ### Section `metadata`
 
@@ -21,8 +21,8 @@ The `nua-config.toml` file starts with a block of metadata that describes the ap
 id = "hedgedoc"
 version = "1.9.6"
 release = 13
-title = "Hedgedoc"
-author = "Hedgedoc developers"
+title = "HedgeDoc"
+author = "HedgeDoc developers"
 tagline = "The best platform to write and share markdown"
 website = "https://hedgedoc.org/"
 tags = ["Markdown", "Documentation", "Collaboration"]
@@ -60,7 +60,7 @@ build-packages = [
 test = "test -f /nua/build/hedgedoc/healthcheck.mjs"
 ```
 
-The declarations in the _build_ section rely as much as possible on declarative mode, auto-detection and default files. Here we are dealing with a Node application, which is normally auto-detected by the presence of a `package.json` file. However, as the current version of Hedgedoc requires a specific version of Node, this configuration item must be specified by the `builder = "node-14"` directive.
+The declarations in the _build_ section rely as much as possible on declarative mode, auto-detection and default files. Here we are dealing with a Node application, which is normally auto-detected by the presence of a `package.json` file. However, as the current version of HedgeDoc requires a specific version of Node, this configuration item must be specified by the `builder = "node-14"` directive.
 
 Build-packages are packages which are needed for the 'build' phase of the application, but which can be removed afterwards, in order to get a reasonably sized image.
 

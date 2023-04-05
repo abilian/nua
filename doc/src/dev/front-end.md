@@ -8,7 +8,7 @@ Additionally, [DaisyUI](https://daisyui.com/) is used to provide some default co
 
 ## JavaScript
 
-The front-end is developped as an [Hypermedia-Driven Application](https://htmx.org/essays/hypermedia-driven-applications/):
+The front-end is developed as an [Hypermedia-Driven Application](https://htmx.org/essays/hypermedia-driven-applications/):
 pages are generated, using a template language, by the server (a paradigm know as Multi-Page Applications or MPAs), combined with the better user experience of Single-Page Applications (SPAs).
 
 Additionally, two pieces of JavaScript are used to provide interactivity when useful or necessary:
@@ -21,4 +21,4 @@ Additionally, two pieces of JavaScript are used to provide interactivity when us
 
 We're using the [Vite](https://vitejs.dev/) to bundle assets (CSS, JavaScript).
 
-Vite is integrated (mostly) transparently with the backend using the [Flask-Vite]() plugin we have developped during the project.
+Vite is integrated (mostly) transparently with the backend using the [Flask-Vite]() plugin we have developed during the project.

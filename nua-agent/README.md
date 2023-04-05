@@ -12,6 +12,6 @@ It will provide the following features (TBC):
 
 `nua-agent` provides:
 
--   `nua_config`: library to read the embeded `nua-config` file (introspection),
+-   `nua_config`: library to read the embedded `nua-config` file (introspection),
 -   `app_builder`: actual builder of the application inside the Docker image.
 -   `db`: collection of tools to manage databases

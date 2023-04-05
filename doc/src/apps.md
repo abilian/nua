@@ -7,7 +7,7 @@
 ## Collaboration on documents
 
 - [Etherpad lite](https://github.com/abilian/nua/tree/main/apps/real-apps/etherpad-lite/nua)
-- [Hedgedoc](https://github.com/abilian/nua/tree/main/apps/real-apps/hedgedoc/nua) (formerly known as CodiMD)
+- [HedgeDoc](https://github.com/abilian/nua/tree/main/apps/real-apps/hedgedoc/nua) (formerly known as CodiMD)
 
 ## Video conferencing
 

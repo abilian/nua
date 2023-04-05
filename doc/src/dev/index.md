@@ -81,7 +81,7 @@ installed in the container.
 
 ### Full-featured apps
 
-- [Hedgedoc](https://github.com/abilian/nua/tree/main/apps/real-apps/hedgedoc)
+- [HedgeDoc](https://github.com/abilian/nua/tree/main/apps/real-apps/hedgedoc)
 - [Dolibarr](https://github.com/abilian/nua/tree/main/apps/real-apps/dolibarr)
 
 ### "Toy" apps

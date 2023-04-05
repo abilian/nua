@@ -5,12 +5,12 @@ Build system for Nua packages.
 
 ## Purpose
 
-The `nua-build` package is used to build packages deployable by the the Nua orchestrator.
+The `nua-build` package is used to build packages deployable by the Nua orchestrator.
 
 The current version of nua-build builds Docker images for an amd64 Linux environment. There are plans to extend the system to other container and isolation architectures in future releases.
 
 
-`nua-build` relies on a `nua-config` configuration file containing application build directives. This configuration can reference other local or remote resources and is supplemented by default values. The file can be formattted as TOML, JSON or YAML.
+`nua-build` relies on a `nua-config` configuration file containing application build directives. This configuration can reference other local or remote resources and is supplemented by default values. The file can be formatted as TOML, JSON or YAML.
 
 ## Build sequence:
 
@@ -39,7 +39,7 @@ COPY nua-config.toml /nua/metadata/
 
 ### Containerization layers
 
-Standard Nua images are images build from `nua-build`'s default Dockefile.
+Standard Nua images are images build from `nua-build`'s default Dockerfile.
 
 Standard Nua images contain three layers:
 
@@ -63,7 +63,7 @@ Some other base images are available to facilitate builds in other programming e
 
 - `nua-agent`: agent for Nua apps. It provides:
 
-    - `nua_config`: library to read the embeded `nua-config` file (introspection),
+    - `nua_config`: library to read the embedded `nua-config` file (introspection),
     - `app_builder`: actual builder of the application inside the Docker image.
 
 - `nua-autobuild`: build Docker images used by Nua. It provides:

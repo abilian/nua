@@ -4,7 +4,7 @@
 
 ## Requirements
 
-The host must be a linux server installed with the distribution:
+The host must be a Linux server installed with the distribution:
 
     Ubuntu 22.04.1 LTS (jammy)
 
@@ -35,7 +35,7 @@ Note: this is temporary, the installation script will take care of this kind of 
 
 ### The bootstrap command
 
-To install, you will need to use the boostraping script: `nua-bootstrap`.
+To install, you will need to use the bootstrapping script: `nua-bootstrap`.
 
 At the moment, this implies a first temporary installation of Nua (which can be done in a temporary directory), from a sudo-able account:
 
@@ -102,4 +102,4 @@ Nua installation done for user 'nua' on this host.
 Command 'nua --help':
 ```
 
-At the end of the installation, the availables commands are displayed.
+At the end of the installation, the available commands are displayed.
