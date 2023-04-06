@@ -9,6 +9,7 @@ from nua.lib.tool.state import set_color, set_verbosity
 
 from .. import __version__
 from ..search_cmd import search_nua_print
+from . import configuration as config_cmd
 from . import debug
 from .commands.api import API
 from .commands.backup import backup_all
@@ -21,6 +22,7 @@ from .init import initialization
 ALLOW_SUFFIX = {".json", ".toml", ".yaml", ".yml"}
 
 app = typer.Typer()
+app.add_typer(config_cmd.app, name="config", no_args_is_help=True)
 app.add_typer(debug.app, name="debug", no_args_is_help=True)
 
 arg_search_app = typer.Argument(..., help="App id or image name.")
