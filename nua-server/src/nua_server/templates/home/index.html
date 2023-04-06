@@ -4,12 +4,14 @@
   <div class="card md:flex max-w-lg">
     <img class="rounded-full mx-auto h-20 w-20 md:mr-6 mb-6" src="/static/img/nua-logo.png">
     <div class="flex-grow text-center md:text-left mb-0">
-      <h4 class="heading my-0">{{ app.name }}</h4>
+      <h4 class="heading my-0 truncate">
+        <a href="{{ app.url }}">{{ app.name }}</a>
+      </h4>
       <p class="mb-3 mt-2">{{ app.tagline }}</p>
       <div>
-        <span class="chip ~info mb-1">Web</span>
-        <span class="chip ~info mb-1">Analytics</span>
-        <span class="chip ~info mb-1">Marketing</span>
+        {% for tag in app.tags %}
+          <span class="chip ~info mb-1">{{ tag }}</span>
+        {% endfor %}
       </div>
     </div>
   </div>
@@ -22,7 +24,7 @@
       <div class="max-w-screen-xl mx-auto pb-6 px-4 sm:px-6 lg:pb-16 lg:px-8">
         <div class="bg-white ">
 
-          <h1 class="heading mb-8">Active apps</h1>
+          <h1 class="heading mb-8 ">Active apps</h1>
 
           <ul role="list" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {% for app in apps %}

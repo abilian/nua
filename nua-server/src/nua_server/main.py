@@ -7,7 +7,6 @@ from starlite.contrib.jinja import JinjaTemplateEngine
 
 from nua_server.pages import admin, home
 
-
 handlers = home.get_handlers() + admin.get_handlers()
 
 
@@ -16,9 +15,7 @@ template_config = TemplateConfig(
 )
 
 static_files_config = [
-    StaticFilesConfig(
-        directories=[Path(__file__).parent / "static"], path="/static"
-    ),
+    StaticFilesConfig(directories=[Path(__file__).parent / "static"], path="/static"),
 ]
 
 app = Starlite(

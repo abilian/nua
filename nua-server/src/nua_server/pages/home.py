@@ -17,16 +17,19 @@ async def home() -> Template:
     client = get_client()
 
     result = client.call("list")
-    pp(result)
-
     apps = []
     for instance in result:
-        metadata = instance["site_config"]["image_nua_config"]["metadata"]
-        apps.append({
-            "app_id": instance["app_id"],
-            "name": metadata["title"],
-            "tagline": metadata["tagline"],
-        })
+        site_config = instance["site_config"]
+        metadata = site_config["image_nua_config"]["metadata"]
+        apps.append(
+            {
+                "app_id": instance["app_id"],
+                "name": metadata["title"],
+                "tagline": metadata["tagline"],
+                "url": f"https://{site_config['hostname']}/",
+                "tags": metadata.get("tags", []),
+            }
+        )
     apps.sort(key=lambda app: app["name"].lower())
 
     context = {
