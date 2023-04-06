@@ -76,8 +76,8 @@ class BuilderApp:
                 if (code_installed or pip_installed or built) and os.getuid() == 0:
                     chown_r("/nua/build", "nua")
                 # if code_installed:
-                # always run build script: maybe no code source, but only configuration of
-                # standard .deb packages
+                # always run build script: maybe no code source,
+                # but only configuration of standard .deb packages
                 self.run_build_script()
         self.post_build()
         self.test_build()
