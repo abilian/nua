@@ -47,14 +47,6 @@ def nua_settings():
     print(pformat(installed_nua_settings()))
 
 
-@app.command("settings")
-def settings():
-    """Debug: show settings in db."""
-    initialization()
-    result = list_all_settings()
-    pprint(result)
-
-
 @app.callback()
 def main():
     """Debug commands."""
