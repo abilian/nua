@@ -1,6 +1,7 @@
 {
     "site": [
         {
+            "instance-name": "my dolibarr",
             "image": "dolibarr-mariadb-wrap",
             "domain": "test1.example.com"
         }

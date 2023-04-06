@@ -12,7 +12,7 @@ licence = "GPLv3"
 image = "tuxgasy/dolibarr:{version}"
 
 [build]
-default-method = "wrap"
+method = "wrap"
 
 [env]
 DOLI_DB_HOST = { from="database", key="hostname" }
