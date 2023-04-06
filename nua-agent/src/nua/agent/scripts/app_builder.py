@@ -62,22 +62,23 @@ class BuilderApp:
             self.pre_build()
             with verbosity(1):
                 info("******** Stage: build")
-            code_installed = self.install_project_code()
-            pip_installed = install_pip_packages(self.config.pip_install)
-            built = False
-            if code_installed:
-                built = detect_and_install(self.source)
-            if not any((pip_installed, code_installed)):
-                # no package installed through install_pip_packages and
-                # no other way. Let's assume there is a local project.
-                show("Try install from some local project")
-                built = detect_and_install(".")
-            if (code_installed or pip_installed or built) and os.getuid() == 0:
-                chown_r("/nua/build", "nua")
-            # if code_installed:
-            # always run build script: maybe no code source, but only configuration of
-            # standard .deb packages
-            self.run_build_script()
+            with install_build_packages(self.config.build_packages):
+                code_installed = self.install_project_code()
+                pip_installed = install_pip_packages(self.config.pip_install)
+                built = False
+                if code_installed:
+                    built = detect_and_install(self.source)
+                if not any((pip_installed, code_installed)):
+                    # no package installed through install_pip_packages and
+                    # no other way. Let's assume there is a local project.
+                    show("Try install from some local project")
+                    built = detect_and_install(".")
+                if (code_installed or pip_installed or built) and os.getuid() == 0:
+                    chown_r("/nua/build", "nua")
+                # if code_installed:
+                # always run build script: maybe no code source, but only configuration of
+                # standard .deb packages
+                self.run_build_script()
         self.post_build()
         self.test_build()
         with verbosity(1):
@@ -211,13 +212,12 @@ class BuilderApp:
         if not script_path:
             return
         # assuming it is a python script
-        with install_build_packages(self.config.build_packages):
-            env = dict(os.environ)
-            with verbosity(2):
-                cmd = "python --version"
-                sh(cmd, env=env)
-            cmd = f"python {script_path}"
-            sh(cmd, env=env, timeout=1800)
+        env = dict(os.environ)
+        with verbosity(2):
+            cmd = "python --version"
+            sh(cmd, env=env)
+        cmd = f"python {script_path}"
+        sh(cmd, env=env, timeout=1800)
 
     def build_command(self):
         """Process the 'build-command' commands.
@@ -226,11 +226,10 @@ class BuilderApp:
         """
         if not self.config.build_command:
             return
-        with install_build_packages(self.config.build_packages):
-            with chdir(self.source):
-                with verbosity(2):
-                    show("Execution of build-command")
-                exec_as_nua(self.config.build_command)
+        with chdir(self.source):
+            with verbosity(2):
+                show("Execution of build-command")
+            exec_as_nua(self.config.build_command)
 
     def install_project_code(self) -> bool:
         installed = False
