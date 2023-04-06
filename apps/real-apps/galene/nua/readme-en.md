@@ -8,6 +8,6 @@ Galene uses WebRTC (Web Real-Time Communication) technology, which is built into
 
 One of the key features of Galene is its support for end-to-end encryption, which helps ensure that communication between participants is private and secure. It also supports various video and audio codecs, allowing users to choose the best quality for their specific needs.
 
-Galene is open-source software, which means that it can be freely downloaded, modified, and distributed by anyone. It is compatible with Linux, macOS, and Windows operating systems, and can be deployed on-premise or in the cloud. It is developped by [Juliusz Chroboczek](https://www.irif.fr/~jch/), a researcher at the Sorbonne Université, with financial support from [Nexedi](https://www.nexedi.com/).
+Galene is open-source software, which means that it can be freely downloaded, modified, and distributed by anyone. It is compatible with Linux, macOS, and Windows operating systems, and can be deployed on-premise or in the cloud. It is developed by [Juliusz Chroboczek](https://www.irif.fr/~jch/), a researcher at the Sorbonne Université, with financial support from [Nexedi](https://www.nexedi.com/).
 
 Galène has been used in production at two major universities (Université de Paris and Sorbonne Université) for lectures, practicals, seminars, and for staff meetings. It has been used to host several conferences.

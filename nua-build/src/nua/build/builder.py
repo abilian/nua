@@ -167,7 +167,7 @@ class Builder:
     def select_base_image(self):
         """Select a base image among possible choices.
 
-        It may append that we have 2 images for Nodejs v14 and v16, and
+        It may append that we have 2 images for Node.js v14 and v16, and
         an app allowing both version.
         """
         builder = self.config.builder

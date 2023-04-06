@@ -34,7 +34,7 @@ option_all = typer.Option(
     True,
     "--all",
     "-a",
-    help="Build all base images (Nodejs, ...).",
+    help="Build all base images (Node.js, ...).",
 )
 
 option_version = typer.Option(

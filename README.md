@@ -68,7 +68,7 @@ As of 2023/02/08, we have a:
 
 - The "builder" CLI that can build container images.
 - The "orchestrator" CLI that can deploy and manage container images.
-- We have started packaging some applications (Hedgedoc, Dolibarr, simple demos).
+- We have started packaging some applications (HedgeDoc, Dolibarr, simple demos).
 - Work has started on a common `nua` CLI:
 
 ```

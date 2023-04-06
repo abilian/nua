@@ -46,7 +46,7 @@ DEBUG = "true"
 UPLOADS_MODE = "0700"
 TZ = "Europe/Paris"
 
-# Env variables prefixed with CMD_ are specific to Hedgedoc
+# Env variables prefixed with CMD_ are specific to HedgeDoc
 # (which used to be called CodiMD, hence "CMD_")
 
 # IMPORTANT: to be set at the actual domain deployed

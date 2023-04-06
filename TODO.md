@@ -6,7 +6,8 @@
 - [ ] streamline the installation process (make a debian package? or `curl ... | bash`?)
 - [ ] logs & debugs
 - [ ] fix all deptry issues (or use something else)
-- [ ] more packages]
+- [ ] more packages
+- [ ] release proper packages on PyPI
 
 ## Started
 
