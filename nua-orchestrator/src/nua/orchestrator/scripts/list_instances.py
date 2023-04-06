@@ -8,7 +8,7 @@ def main():
     setup_nua_db()
     instances = store.list_instances_all()
     for instance in instances:
-        print(instance.to_dict()["site_config"]["instance_name"])
+        print(instance.to_dict()["site_config"]["instance_name_internal"])
 
 
 if __name__ == "__main__":

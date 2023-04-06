@@ -73,16 +73,12 @@ class AppInstance(Resource):
         self["image_nua_config"] = image_nua_config
 
     @property
-    def instance_name(self) -> str:
-        if base := hyphen_get(self, "instance-name"):
-            return base.strip()
-        return ""
+    def instance_name_internal(self) -> str:
+        return self["instance_name_internal"]
 
-    @instance_name.setter
-    def instance_name(self, instance_name: str):
-        if "instance_name" in self:
-            del self["instance_name"]
-        self["instance-name"] = instance_name.strip()
+    @property
+    def instance_name_user(self) -> str:
+        return self["instance_name_user"]
 
     @property
     def top_domain(self) -> str:
@@ -278,12 +274,19 @@ class AppInstance(Resource):
         self.top_domain = dom.top_domain()
 
     def _set_instance_name(self):
-        if self.instance_name:
-            return
-        name = self.default_instance_name()
-        self.instance_name = name
-        with verbosity(0):
-            warning(f"Instance name not provided, using default: '{name}'")
+        name = hyphen_get(self, "instance-name") or ""
+        if not "_".join(name.split()):
+            name = self.default_instance_name()
+            with verbosity(0):
+                warning(f"Instance name not provided, using default: '{name}'")
+        self.set_instance_name(name)
+
+    def set_instance_name(self, name: str):
+        name_internal = "_".join(name.split())
+        if not name_internal:
+            raise ValueError("Empty name instance is not allowed")
+        self["instance_name_internal"] = name_internal
+        self["instance_name_user"] = name.strip()
 
     def rebase_volumes_upon_nua_conf(self):
         self.volume = self.rebased_volumes_upon_package_conf(self.image_nua_config)

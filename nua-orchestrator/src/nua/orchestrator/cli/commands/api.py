@@ -69,7 +69,7 @@ class API:
     def _load_deploy_config(self, deployer: AppDeployment, deploy_config: dict):
         deployer.loaded_config = deploy_config
         deployer.parse_deploy_apps()
-        deployer.sort_apps_per_domain()
+        deployer.sort_apps_per_name_domain()
 
     def ping(self) -> str:
         return "pong"

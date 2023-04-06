@@ -1,4 +1,9 @@
-"""Class to manage the deployment of a group of app instances."""
+"""Class to manage the deployment of a group of app instances.
+
+Note:
+    - Security of deployment (deploy an app instance upon an existing one) is not
+      currently managed in this level.
+"""
 import time
 from collections.abc import Callable
 from copy import deepcopy
@@ -140,7 +145,7 @@ class AppDeployment:
             info(f"Deploy apps from: {config_path}")
         self.loaded_config = parse_any_format(config_path)
         self.parse_deploy_apps()
-        self.sort_apps_per_domain()
+        self.sort_apps_per_name_domain()
         with verbosity(3):
             self.print_host_list()
 
@@ -156,7 +161,7 @@ class AppDeployment:
         for site_dict in previous_config["deployed"]["apps"]:
             self.apps.append(AppInstance.from_dict(site_dict))
         # self.future_config_id = previous_config.get("id")
-        self.sort_apps_per_domain()
+        self.sort_apps_per_name_domain()
 
     def restore_previous_deploy_config_replay(self):
         """Retrieve last successful deployment configuration (replay mode)."""
@@ -168,7 +173,7 @@ class AppDeployment:
         self.loaded_config = previous_config["deployed"]["requested"]
         # self.future_config_id = previous_config.get("id")
         self.parse_deploy_apps()
-        self.sort_apps_per_domain()
+        self.sort_apps_per_name_domain()
         with verbosity(3):
             self.print_host_list()
 
@@ -258,14 +263,33 @@ class AppDeployment:
             apps.append(app_instance)
         self.apps = apps
 
-    def sort_apps_per_domain(self):
+    def sort_apps_per_name_domain(self):
         """Classify the apps per domain, filtering out miss declared apps.
 
         The apps per domain are available in self.apps_per_domain
         """
+        self._filter_duplicate_instance_names()
         self._make_apps_per_domain()
         self._filter_miss_located_apps()
         self._update_apps_list()
+
+    def _filter_duplicate_instance_names(self) -> dict:
+        """Warn about duplicate instance_name and remove the duplicate.
+
+        Note:
+            - It's a basic feature for consistency, not a security featture
+              about currently deployed instances.
+        """
+        filtered = []
+        known_names = set()
+        for site in self.apps:
+            name = site.instance_name_internal
+            if name in known_names:
+                warning(f"Duplicate instance name '{name}'. Skipped.")
+                continue
+            filtered.append(site)
+            known_names.add(name)
+        self.apps = filtered
 
     def _make_apps_per_domain(self):
         """Convert dict(hostname:[apps,..]) to list({hostname, apps}).
@@ -541,6 +565,7 @@ class AppDeployment:
 
     def retrieve_persistent(self, site: AppInstance):
         previous = store.instance_persistent(site.domain, site.app_id)
+        # previous = store.instance_persistent(site.instance_name_internal)
         with verbosity(4):
             vprint(f"persistent previous: {previous=}")
         previous.update(site.persistent_full_dict())
@@ -739,7 +764,7 @@ class AppDeployment:
     def display_deployed(self):
         protocol = protocol_prefix()
         for site in self.apps:
-            msg = f"Instance name: {site.instance_name}"
+            msg = f"Instance name: {site.instance_name_internal}"
             info(msg)
             msg = f"Image '{site.image}' deployed as {protocol}{site.domain}"
             info(msg)
