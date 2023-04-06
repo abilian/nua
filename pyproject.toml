@@ -18,6 +18,7 @@ nua-agent = { path = "nua-agent", develop = true }
 nua-autobuild = { path = "nua-autobuild", develop = true }
 nua-build = { path = "nua-build", develop = true }
 nua-orchestrator = { path = "nua-orchestrator", develop = true }
+watchfiles = "^0.19.0"
 
 
 [tool.poetry.group.dev.dependencies]
