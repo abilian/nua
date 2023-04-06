@@ -1,0 +1,87 @@
+[tool.poetry]
+name = "nua-server"
+version = "0.1.0"
+description = "Nua (web) server"
+authors = []
+packages = [
+    { include = "nua_server", from = "src" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+starlite = { version = "*", extras = ["standard"]}
+uvicorn = "*"
+markupsafe = "^2.1.2"
+snoop = "^0.4.3"
+fabric = "^3.0.0"
+prettyprinter = "^0.18.0"
+
+[tool.poetry.group.dev.dependencies]
+abilian-devtools = "*"
+nox = "*"
+devtools = "*"
+starlite = { version = "*", extras = ["testing"] }
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+# ------------------------------------------------------------------------------
+
+[tool.ruff]
+extend-ignore = [
+    "E501", # Line too long
+]
+
+# ------------------------------------------------------------------------------
+
+[tool.black]
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+    'if TYPE_CHECKING:',
+    'pragma: no cover',
+    "if __name__ == '__main__':",
+]
+
+[tool.coverage.run]
+omit = [
+    "tests/*",
+]
+
+[tool.mypy]
+check_untyped_defs = true
+disallow_any_generics = false
+disallow_incomplete_defs = true
+disallow_untyped_decorators = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+implicit_reexport = false
+show_error_codes = true
+strict = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unreachable = true
+warn_unused_configs = true
+warn_unused_ignores = true
+
+[tool.pytest.ini_options]
+addopts = "--cov=main -v"
+
+[tool.pylint.MESSAGE_CONTROL]
+disable = [
+    "missing-module-docstring",
+]
+enable = "useless-suppression"
+
+[tool.pylint.BASIC]
+no-docstring-rgx="test.*$"
+
+[tool.pylint.FORMAT]
+max-line-length = "120"

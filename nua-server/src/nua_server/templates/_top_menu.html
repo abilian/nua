@@ -1,0 +1,77 @@
+<nav class="border-b border-gray-200 bg-white" xmlns:x-on="http://www.w3.org/1999/xhtml">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16">
+      <div class="flex">
+        <!-- logo -->
+        <div class="flex-shrink-0 flex items-center">
+          <a hx-boost="true" href="/"><img class="block lg:hidden h-8 w-auto" src="/static/img/nua-logo.png"
+              alt="Nua"><img class="hidden lg:block h-8 w-auto" src="/static/img/nua-logo.png"
+              alt="Nua"></a>
+        </div>
+
+        <!-- main menu -->
+        <div class="hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8">
+          {% for item in main_menu %}
+            <a hx-boost="true" href="{{ item.url }}"
+                class="uppercase tooltip tooltip-bottom text-gray-900 inline-flex items-center px-1 pt-1 text-sm font-semibold "
+                aria-current="page" data-tip="tooltip">{{ item.label }}</a>
+          {% endfor %}
+        </div>
+      </div>
+
+
+      <!-- dropdown for profile -->
+      <div class="hidden sm:ml-6 sm:flex sm:items-center">
+
+        <div x-data="{
+        open: false,
+        toggle() {
+            if (this.open) {
+                return this.close();
+            }
+            this.open = true;
+        },
+        close(focusAfter) {
+            this.open = false;
+            focusAfter &amp;&amp; focusAfter.focus();
+        }
+    }" x-on:keydown.escape.prevent.stop="close($refs.button)"
+            x-on:focusin.window="! $refs.panel.contains($event.target) &amp;&amp; close()" x-id="['dropdown-button']"
+            class="ml-3 relative">
+          <button type="button" aria-haspopup="true" aria-expanded="false"
+              class="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+              x-ref="button" x-on:click="toggle()" :aria-expanded="open" :aria-controls="$id('dropdown-button')"
+              aria-controls="dropdown-button-5">
+            <span class="sr-only">Open user menu</span>
+            <img class="h-8 w-8 rounded-full" src="https://randomuser.me/api/portraits/men/1.jpg" alt="">
+          </button>
+
+          <!-- Panel -->
+          <div x-ref="panel" x-show="open" x-transition.origin.top.left="" x-on:click.outside="close($refs.button)"
+              :id="$id('dropdown-button')"
+              class="absolute z-20 right-0 mt-2 bg-white border border-gray-200 rounded shadow-lg"
+              id="dropdown-button-5" style="display: none;">
+            <div>
+
+              <a href="/swork/profile/"
+                  class="block px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100">
+                Profile
+              </a>
+
+              <a href="/preferences"
+                  class="block px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100">
+                Preferences
+              </a>
+
+              <a href="/auth/logout"
+                  class="block px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100">
+                Déconnexion
+              </a>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
