@@ -20,6 +20,7 @@ nav:
     - Builder: dev/builder.md
     - Orchestrator: dev/orchestrator.md
     - Process and tools: dev/process-tools.md
+    - CLI: dev/cli.md
     - Contributing: dev/contributing.md
     - Change log: dev/changelog.md
     - Credits: dev/authors.md

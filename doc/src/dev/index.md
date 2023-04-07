@@ -83,7 +83,9 @@ installed in the container.
 
 - [HedgeDoc](https://github.com/abilian/nua/tree/main/apps/real-apps/hedgedoc)
 - [Dolibarr](https://github.com/abilian/nua/tree/main/apps/real-apps/dolibarr)
+- [...more...](https://github.com/abilian/nua/tree/main/apps/real-apps)
 
 ### "Toy" apps
 
 - [Flask demo](https://github.com/abilian/nua/tree/main/apps/sample-apps/demo-flask)
+- [...more...](https://github.com/abilian/nua/tree/main/apps/sample-apps)
