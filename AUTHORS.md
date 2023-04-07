@@ -7,4 +7,4 @@
 
 ## Contributors
 
-None yet. Why not be the first?
+None yet. [Why not be the first?](./CONTRIBUTING.md)
