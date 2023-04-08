@@ -222,7 +222,7 @@ class BuilderApp:
     def build_command(self):
         """Process the 'build-command' commands.
 
-        The script is run from the sources directory.
+        The script is run from the source directory.
         """
         if not self.config.build_command:
             return
