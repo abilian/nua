@@ -9,6 +9,10 @@ from invoke import task
 
 load_dotenv()
 
+RESET = "\033[0m"
+BOLD = "\033[1m"
+DIM = "\033[2m"
+
 
 SUB_REPOS = [
     "nua-lib",
@@ -25,6 +29,7 @@ RSYNC_EXCLUDES = [
     ".venv",
     ".mypy_cache",
     ".pytest_cache",
+    ".ruff_cache",
     "dist",
     "build",
     ".nox",
@@ -152,7 +157,7 @@ def graph(c):
 
 @task
 def watch(c, host=None):
-    """Watch for changes a push to a remote server."""
+    """Watch for changes and push to a remote server."""
     if not host:
         host = os.environ.get("NUA_HOST")
     if not host:
@@ -163,17 +168,20 @@ def watch(c, host=None):
         sys.exit()
 
     excludes_args = " ".join([f"--exclude={e}" for e in RSYNC_EXCLUDES])
-    for _changes in watchfiles.watch("."):
-        print("Syncing to remote server...")
+
+    def sync():
+        print(f"{BOLD}Syncing to remote server...{DIM}")
         c.run(f"rsync -e ssh -avz {excludes_args} ./ nua@{host}:/home/nua/nua/")
+
+    sync()
+    for _changes in watchfiles.watch("."):
+        print("Changes detected, syncing...")
+        sync()
 
 
 #
 # Helpers
 #
-RESET = "\033[0m"
-BOLD = "\033[1m"
-
 
 def h1(msg):
     print()
