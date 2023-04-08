@@ -53,7 +53,7 @@ container = 3000
 # resources can be declared. The resource host will appear in the local network
 # with a hostname equal to the container name.
 
-# Declaration of the required image for the resurce, here the official Postgres.
+# Declaration of the required image for the resource, here MongoDB.
 name = "database"
 type = "mongo"
 version = ">=5, <6"
