@@ -53,7 +53,7 @@ def nomalize_env_values(env: dict) -> dict:
             return value
         if isinstance(value, (int, float, list)):
             return str(value)
-        Abort(f"ENV value has wrong type: '{value}'")
+        raise Abort(f"ENV value has wrong type: '{value}'")
 
     validated: dict[str, str | dict] = {}
     for key, value in env.items():
@@ -338,7 +338,7 @@ class NuaConfig:
 
     @property
     def build_method(self) -> str:
-        """Build method (or default build method.
+        """Build method (or default build method).
 
         Can be empty string if not defined (then autodetection from
         metadata).

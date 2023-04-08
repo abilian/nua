@@ -50,7 +50,7 @@ def register_builders() -> None:
 
 
 def _show_builders_info() -> None:
-    vprint_magenta("builders registered:")
+    vprint_magenta("Builders registered:")
     vprint("BUILDERS_DIRS:", pformat(BUILDERS_DIRS))
     vprint("BUILDERS:", pformat(BUILDERS))
 
