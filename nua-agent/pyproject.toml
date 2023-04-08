@@ -26,8 +26,18 @@ nox = "*"
 types-setuptools = "*"
 types-pyyaml = "*"
 
+platformdirs = "<3.0.0"
+
 [tool.poetry.scripts]
 app_builder = "nua.agent.scripts.app_builder:main"
+
+[build-system]
+requires = [
+    "poetry-core>=1.0.0",
+]
+build-backend = "poetry.core.masonry.api"
+
+# -----------------------------------------------------------------------------
 
 [tool.pytest.ini_options]
 filterwarnings = [
@@ -35,7 +45,11 @@ filterwarnings = [
     "ignore::DeprecationWarning",
 ]
 
+
+# -----------------------------------------------------------------------------
 [tool.ruff]
+
+# -----------------------------------------------------------------------------
 
 [tool.deptry]
 exclude = [
@@ -52,15 +66,11 @@ ignore_missing = [
 ]
 ignore_transitive = []
 
+# -----------------------------------------------------------------------------
+
 [tool.pyright]
 exclude = [
     ".nox",
     "tests",
     "noxfile.py",
 ]
-
-[build-system]
-requires = [
-    "poetry-core>=1.0.0",
-]
-build-backend = "poetry.core.masonry.api"

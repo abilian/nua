@@ -43,13 +43,17 @@ nox = "*"
 types-setuptools = "*"
 types-pyyaml = "*"
 
-[tool.pytest.ini_options]
-filterwarnings = ["ignore:.*distutils package:DeprecationWarning", "ignore::DeprecationWarning"]
-
+# To please poetry
+platformdirs = "<3.0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+# ------------------------------------------------------------------------------
+
+[tool.pytest.ini_options]
+filterwarnings = ["ignore:.*distutils package:DeprecationWarning", "ignore::DeprecationWarning"]
 
 # ------------------------------------------------------------------------------
 

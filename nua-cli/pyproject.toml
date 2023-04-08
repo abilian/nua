@@ -24,6 +24,9 @@ devtools = "*"
 types-setuptools = "*"
 snoop = "*"
 
+# To please poetry
+platformdirs = "<3.0.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

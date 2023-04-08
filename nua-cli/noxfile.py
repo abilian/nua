@@ -18,10 +18,11 @@ def lint(session: nox.Session) -> None:
 @session(python=PYTHON_VERSIONS)
 def pytest(session: nox.Session) -> None:
     _install(session)
-    session.run("pytest", "--tb=short", external=True)
+    session.run("pytest", "--tb=short")
 
 
 def _install(session: nox.Session):
-    session.run("poetry", "install", "--quiet", external=True)
-    session.run("pip", "check", external=True)
-    session.run("poetry", "check", external=True)
+    session.install("poetry")
+    session.run("poetry", "install", "--quiet")
+    session.run("pip", "check")
+    session.run("poetry", "check")
