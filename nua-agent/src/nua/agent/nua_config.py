@@ -66,7 +66,8 @@ def nomalize_env_values(env: dict) -> dict:
 
 
 def forced_list(content: str | list) -> list:
-    """Return always a list, if a single string is provided, wrap it into list."""
+    """Return always a list, if a single string is provided, wrap it into
+    list."""
     if isinstance(content, list):
         return content
     if isinstance(content, str) and content:
@@ -322,7 +323,8 @@ class NuaConfig:
 
     @property
     def build_command(self) -> list:
-        """Return the list of build commands, each cmd rendered with metadata."""
+        """Return the list of build commands, each cmd rendered with
+        metadata."""
         metadata = self.metadata_rendered
         commands = []
         for cmd in forced_list(hyphen_get(self.build, "build-command", [])):

@@ -187,7 +187,6 @@ def allow_docker_connection():
 
     Must be run as root at bootstrap time.
     """
-
     auth_line = (
         "host    all             all             172.16.0.0/12           password"
     )

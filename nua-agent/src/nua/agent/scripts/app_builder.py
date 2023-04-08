@@ -262,7 +262,7 @@ class BuilderApp:
         return installed
 
     def merge_files(self):
-        """Copy content of various /nua/build/nua subfolders in /nua"""
+        """Copy content of various /nua/build/nua subfolders in /nua."""
         root = Path("/nua/build/nua")
         if not root.is_dir():
             with verbosity(3):

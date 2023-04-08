@@ -2,17 +2,16 @@
 
 WIP
 
-To remove all mariadb packages:
-sudo apt-get remove --purge mariadb-server-10.6 mariadb-client
-sudo apt-get autoremove
-sudo apt-get autoclean
+To remove all mariadb packages::
 
-sudo rm /var/lib/mysql/ib_logfile0
-sudo rm /var/lib/mysql/ib_logfile1
+    sudo apt-get remove --purge mariadb-server-10.6 mariadb-client
+    sudo apt-get autoremove sudo apt-get autoclean
 
-sudo apt-get install mariadb-server-10.6
+    sudo rm /var/lib/mysql/ib_logfile0 sudo rm /var/lib/mysql/ib_logfile1
 
-sudo apt-get install libmariadb3 libmariadb-dev
+    sudo apt-get install mariadb-server-10.6
+
+    sudo apt-get install libmariadb3 libmariadb-dev
 """
 import os
 import re

@@ -40,7 +40,10 @@ def certbot_invocation() -> str:
 
 
 def certbot_certonly(domain: str, option: str) -> str:
-    """Build cerbot's arguments for a subdomains. standalone or nginx call."""
+    """Build cerbot's arguments for a subdomains.
+
+    Standalone or nginx call.
+    """
     run_args = certbot_invocation_list() + [
         "certonly",
         option,

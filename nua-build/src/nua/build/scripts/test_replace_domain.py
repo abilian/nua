@@ -1,13 +1,15 @@
 """Utility script to replace a string in a file, typically 'example.com' to
 actual domain in test files.
 
-The original is not changed, but copied with changes made in a second location.
+The original is not changed, but copied with changes made in a second
+location.
 
-args 1: path of textfile containing replacement rules, see example below
-args 2: path of source file
-args 3: directory path for the replaced version of file
+- args 1: path of textfile containing replacement rules, see example below
+- args 2: path of source file
+- args 3: directory path for the replaced version of file
 
-replacement rules, put a replacement per line, orig / replacement:
+replacement rules, put a replacement per line, orig / replacement::
+
     test.example.com test.yerom.xyz
     test1.example.com test1.yerom.xyz
     test2.example.com test2.yerom.xyz

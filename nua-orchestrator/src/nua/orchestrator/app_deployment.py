@@ -558,8 +558,7 @@ class AppDeployment:
 
     def evaluate_container_params(self, site: AppInstance):
         """Compute site run environment parameters except those requiring late
-        evaluation (i.e. host names of started containers).
-        """
+        evaluation (i.e. host names of started containers)."""
         self.generate_app_container_run_parameters(site)
         for resource in site.resources:
             self.generate_resource_container_run_parameters(resource)
@@ -686,8 +685,7 @@ class AppDeployment:
         resource: Resource,
     ):
         """Return suitable parameters for the docker.run() command (for
-        Resource).
-        """
+        Resource)."""
         run_params = deepcopy(RUN_BASE_RESOURCE)
         run_params.update(resource.docker)
         self.add_host_gateway_to_extra_hosts(run_params)

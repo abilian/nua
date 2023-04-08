@@ -102,9 +102,11 @@ class AppInstance(Resource):
     def image_short(self) -> str:
         """Return short app id from deployment 'image' value.
 
-        Used early: at that moment the Docker image and actual image/nua_config are
-        not available.
-        Remove 'nua-' prefix and version):  "nua-hedgedoc" -> "hedgedoc".
+        Used early: at that moment the Docker image and actual
+        image/nua_config are not available.
+
+        Remove 'nua-' prefix and version):  "nua-hedgedoc" ->
+        "hedgedoc".
         """
         image = self.image.strip()
         if image.startswith("nua-"):
@@ -210,7 +212,7 @@ class AppInstance(Resource):
         self.env = base_env
 
     def order_resources_dependencies(self) -> list[Resource]:
-        """Order of evaluations for variables
+        """Order of evaluations for variables.
 
         - main AppInstance variable assignment (including hostname of resources)
         - late evaluation (hostnames)
@@ -335,6 +337,7 @@ class AppInstance(Resource):
     def default_instance_name(self):
         """Return a name based on app id and domain.
 
-        To use when the user does not provide an app name or as default value.
+        To use when the user does not provide an app name or as default
+        value.
         """
         return f"{self.image_short}-{self.domain}"

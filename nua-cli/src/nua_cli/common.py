@@ -36,7 +36,6 @@ def print_version() -> None:
 
 def get_current_app_id() -> str:
     """Get the current app id (if possible)."""
-
     path = Path("nua-config.toml")
     if not path.exists():
         return ""
