@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 from pprint import pformat
 
-from nua.lib.panic import abort
+from nua.lib.panic import Abort
 from paramiko import RSAKey
 
 from nua.orchestrator.db import store
@@ -60,7 +60,8 @@ def set_new_host_key_from_file():
     print("Store RSA key in Nua host...")
     path = Path(sys.argv[1]).expanduser()
     if not path.exists():
-        abort(f"File not found (or not access granted): {str(path)}")
+        raise Abort(f"File not found (or not access granted): {str(path)}")
+
     key = RSAKey(filename=path)
     blob = private_key_blob_from_key(key)
     setup_nua_db()

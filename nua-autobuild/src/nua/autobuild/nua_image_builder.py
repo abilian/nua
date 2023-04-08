@@ -5,7 +5,7 @@ from pathlib import Path
 from nua.agent.constants import NUA_BUILDER_TAG, NUA_PYTHON_TAG
 from nua.lib.actions import copy_from_package
 from nua.lib.backports import chdir
-from nua.lib.panic import abort, show, title, vprint
+from nua.lib.panic import Abort, show, title, vprint
 from nua.lib.shell import mkdir_p
 from nua.lib.tool.state import verbosity
 
@@ -94,8 +94,7 @@ class NuaImageBuilder:
             required = [required]
         for key in required:
             if not is_builder(key):
-                abort(f"'{key}' is not a known Nua builder.")
-                raise SystemExit(1)
+                raise Abort(f"'{key}' is not a known Nua builder.")
         for key in required:
             self.ensure_nua_builder_custom(key)
 
@@ -179,7 +178,7 @@ class NuaImageBuilder:
         mkdir_p(wheel_path)
         wheel_builder = NuaWheelBuilder(wheel_path, self.download)
         if not wheel_builder.make_wheels():
-            abort("Build of required Nua wheels failed")
+            raise Abort("Build of required Nua wheels failed")
 
 
 def docker_build_custom(info: dict, build_path: Path):

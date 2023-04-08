@@ -26,6 +26,7 @@ class DeepAccessDict:
     def set(self, *args):
         if len(args) < 2:
             raise ValueError("At least 2 args required")
+
         key = args[-2]
         value = args[-1]
         current = self._dic
@@ -44,6 +45,7 @@ class DeepAccessDict:
     def delete(self, *args):
         if len(args) < 1:
             raise ValueError("At least 1 arg required")
+
         current = self._dic
         for arg in args[:-1]:
             if isinstance(current, dict):

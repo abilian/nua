@@ -15,7 +15,7 @@ from docker.models.containers import Container
 from docker.models.images import Image
 from nua.autobuild.docker_build_utils import docker_require
 from nua.lib.console import print_red
-from nua.lib.panic import abort, info, vprint, vprint_green, vprint_magenta, warning
+from nua.lib.panic import Abort, info, vprint, vprint_green, vprint_magenta, warning
 from nua.lib.shell import chmod_r, mkdir_p
 from nua.lib.tool.state import verbosity
 
@@ -175,18 +175,23 @@ def docker_remove_prior_container_db(rsite: Resource):
     """Search & remove containers already configured for this same AppInstance
     or Resource (running or stopped), from DB."""
     if rsite.type != "nua-site":
-        # FIXME for resourc containers
+        # FIXME for resource containers
         return
+
     previous_name = store.instance_container(rsite.domain)
     if not previous_name:
         return
+
     with verbosity(1):
         info(f"    -> remove previous container: {previous_name}")
+
     docker_stop_container_name(previous_name)
     docker_remove_container(previous_name)
+
     with verbosity(4):
         containers = docker_container_of_name(previous_name)
         vprint("docker_remove_container after", containers)
+
     store.instance_delete_by_domain(rsite.domain)
 
 
@@ -195,22 +200,24 @@ def docker_remove_container_previous(name: str, show_warning: bool = True):
     containers = docker_container_of_name(name)
     with verbosity(4):
         vprint(f"Stopping container: {pformat(containers)}")
-    if containers:
-        container = containers[0]
-        with verbosity(2):
-            info(f"Stopping container '{container.name}'")
-        _docker_stop_container(container)
-        with verbosity(2):
-            info(f"Removing container '{container.name}'")
-        try:
-            container.remove(v=False, force=True)
-        except (NotFound, APIError):
-            # container was "autoremoved" after stop
-            pass
-    else:
+
+    if not containers:
         if show_warning:
             with verbosity(2):
                 warning(f"no previous container to stop '{name}'")
+        return
+
+    container = containers[0]
+    with verbosity(2):
+        info(f"Stopping container '{container.name}'")
+    _docker_stop_container(container)
+    with verbosity(2):
+        info(f"Removing container '{container.name}'")
+    try:
+        container.remove(v=False, force=True)
+    except (NotFound, APIError):
+        # container was "autoremoved" after stop
+        pass
 
 
 def docker_remove_prior_container_live(rsite: Resource):
@@ -223,6 +230,7 @@ def docker_remove_prior_container_live(rsite: Resource):
     previous_name = rsite.run_params.get("name", "")
     if not previous_name:
         return
+
     for container in docker_container_of_name(previous_name):
         print_red(f"Try removing a container not listed in Nua DB: {container.name}")
         docker_stop_container_name(container.name)
@@ -270,13 +278,16 @@ def docker_run(rsite: Resource, secrets: dict) -> Container:
         with verbosity(2):
             vprint_green("Docker run parameters:")
             vprint_magenta(pformat(params))
+
     docker_remove_prior_container_live(rsite)
     with verbosity(2):
         if "network" in params:
             info("Network:", params["network"])
+
     container = _docker_run(rsite, secrets, params)
     with verbosity(3):
         vprint("Docker secrets:", secrets)
+
     _check_run_container(container, rsite.container_name)
     return container
 
@@ -305,7 +316,8 @@ def params_with_secrets_and_f_strings(params: dict, secrets: dict) -> dict:
 
 def _check_run_container(container: Container, name: str):
     if not docker_check_container_listed(container.name):
-        abort(f"Failed starting container {container.name}")
+        raise Abort(f"Failed starting container {container.name}")
+
     if name != container.name:
         warning("rsite.container_name != container.name")
         warning(f"rsite.container_name = {name}")
@@ -395,7 +407,8 @@ def docker_volume_create_new(volume: Volume):
     """Create a new volume of type "volume"."""
     if volume.driver != "local" and not install_plugin(volume.driver):
         # assuming it is the name of a plugin
-        abort(f"Install of Docker's plugin '{volume.driver}' failed.")
+        raise Abort(f"Install of Docker's plugin '{volume.driver}' failed.")
+
     client = DockerClient.from_env()
     client.volumes.create(
         name=volume.source,

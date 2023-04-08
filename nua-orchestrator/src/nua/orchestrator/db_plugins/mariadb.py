@@ -34,7 +34,10 @@ def configure_db(resource: Resource):
     if resource.get("create_user", True):
         env.update(
             {
-                "MARIADB_USER": {"unique_user": True, "persist": True},
+                "MARIADB_USER": {
+                    "unique_user": True,
+                    "persist": True,
+                },
                 "MARIADB_PASSWORD": {
                     "random": True,
                     "type": "str",

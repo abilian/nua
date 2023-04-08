@@ -16,7 +16,7 @@ from urllib.request import urlopen
 from jinja2 import Template
 
 from .backports import chdir
-from .panic import abort, info, show, warning
+from .panic import Abort, info, show, warning
 from .shell import chown_r, sh
 from .tool.state import verbosity
 from .unarchiver import unarchive
@@ -110,8 +110,8 @@ def install_python(version: str = "3.10", venv: str = "", keep_lists: bool = Fal
     PY_UBUNTU = {"2.7", "3.10"}
     PY_DEADSNAKES = {"3.7", "3.8", "3.9", "3.11"}
     if version not in PY_UBUNTU and version not in PY_DEADSNAKES:
-        abort(f"Unknown Python version: '{version}'")
-        raise SystemExit
+        raise Abort(f"Unknown Python version: '{version}'")
+
     if not venv:
         venv = f"/nua/p{version.replace('.','')}"
     if version in PY_DEADSNAKES:
@@ -547,7 +547,7 @@ def verify_checksum(target: Path, checksum: str) -> None:
         with verbosity(2):
             show("Checksum of dowloaded file verified")
     else:
-        abort(
+        raise Abort(
             f"Wrong checksum verification for file:\n{target}\n"
             f"Computed sha256 sum: {file_hash}\nExpected result:     {checksum}"
         )

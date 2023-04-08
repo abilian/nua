@@ -12,7 +12,7 @@ from pprint import pformat
 from typing import Any
 
 from nua.lib.console import print_green, print_red
-from nua.lib.panic import abort, info, vprint, vprint_green, vprint_magenta, warning
+from nua.lib.panic import Abort, info, vprint, vprint_green, vprint_magenta, warning
 from nua.lib.tool.state import verbosity
 
 from . import config
@@ -155,7 +155,8 @@ class AppDeployment:
             info("Deploy apps from previous deployment (strict mode).")
         previous_config = self.previous_success_deployment_record()
         if not previous_config:
-            abort("Impossible to find a previous deployment.")
+            raise Abort("Impossible to find a previous deployment.")
+
         self.loaded_config = previous_config["deployed"]["requested"]
         self.apps = []
         for site_dict in previous_config["deployed"]["apps"]:
@@ -169,7 +170,8 @@ class AppDeployment:
             info("Deploy apps from previous deployment (replay deployment).")
         previous_config = self.previous_success_deployment_record()
         if not previous_config:
-            abort("Impossible to find a previous deployment.")
+            raise Abort("Impossible to find a previous deployment.")
+
         self.loaded_config = previous_config["deployed"]["requested"]
         # self.future_config_id = previous_config.get("id")
         self.parse_deploy_apps()
@@ -253,10 +255,11 @@ class AppDeployment:
         apps = []
         for site_dict in self.loaded_config["site"]:
             if not isinstance(site_dict, dict):
-                abort(
+                raise Abort(
                     "AppInstance configuration must be a dict",
                     explanation=f"{pformat(site_dict)}",
                 )
+
             app_instance = AppInstance(site_dict)
             app_instance.check_valid()
             # site.set_ports_as_dict()
@@ -382,7 +385,8 @@ class AppDeployment:
     def install_required_images(self):
         # first: check that all Nua images are available:
         if not self.find_all_apps_images():
-            abort("Missing Nua images")
+            raise Abort("Missing Nua images")
+
         self.install_images()
 
     def find_all_apps_images(self) -> bool:
@@ -403,7 +407,8 @@ class AppDeployment:
         installed = {}
         for site in self.apps:
             if not site.find_registry_path(cached=True):
-                abort(f"No image found for '{site.image}'")
+                raise Abort(f"No image found for '{site.image}'")
+
             registry_path = site.registry_path
             if registry_path in installed:
                 image_id = installed[registry_path][0]
@@ -417,7 +422,7 @@ class AppDeployment:
     def install_required_resources(self):
         self.apps_parse_resources()
         if not self.pull_all_resources_images():
-            abort("Missing Docker images")
+            raise Abort("Missing Docker images")
 
     def pull_all_resources_images(self) -> bool:
         return all(
@@ -442,14 +447,14 @@ class AppDeployment:
         available_services = set(self.available_services.keys())
         for service in self.required_services:
             if service not in available_services:
-                abort(f"Required service '{service}' is not available")
+                raise Abort(f"Required service '{service}' is not available")
 
     def apps_check_host_services_configuration(self):
         for site in self.apps:
             for service in site.local_services:
                 handler = self.available_services[service]
                 if not handler.check_site_configuration(site):
-                    abort(
+                    raise Abort(
                         f"Required service '{service}' not configured for "
                         f"site {site.domain}"
                     )

@@ -4,7 +4,7 @@ import shutil
 from pathlib import Path
 from subprocess import CompletedProcess, run  # noqa: S404
 
-from .panic import abort, show
+from .panic import Abort, show
 
 
 def cat(filename: str | Path):
@@ -115,6 +115,7 @@ def sh(
     """Run a shell command."""
     if show_cmd:
         show(cmd)
+
     try:
         # subprocess call with shell=True identified, security issue:
         # We do want to mimic current shell action, including all environment
@@ -125,7 +126,7 @@ def sh(
                 f"Child was terminated by signal {-status},\n"
                 f"shell command was: '{cmd}'"
             )
-            abort(msg, status)
+            raise Abort(msg, status)
         elif status > 0:
             msg = (
                 f"Something went wrong (exit code: {status}), \n"
@@ -133,11 +134,12 @@ def sh(
                 f"{completed.stdout}\n"
                 f"{completed.stderr}"
             )
-            abort(msg, status)
+            raise Abort(msg, status)
     except OSError as e:
-        abort(f"Execution failed: {e}\nshell command was: '{cmd}'")
+        raise Abort(f"Execution failed: {e}\nshell command was: '{cmd}'")
         # Not used, actually, but silences warnings.
         raise SystemExit(1)
+
     if capture_output:
         return completed.stdout
     else:

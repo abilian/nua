@@ -18,9 +18,9 @@ from nua.lib.actions import (
     install_package_list,
     string_in,
 )
-from nua.lib.console import print_green, print_magenta, print_red
+from nua.lib.console import print_blue, print_green, print_magenta, print_red
 from nua.lib.exec import exec_as_nua, mp_exec_as_nua
-from nua.lib.panic import abort, warning
+from nua.lib.panic import Abort, warning
 from nua.lib.shell import chown_r, mkdir_p, rm_fr, sh, user_exists
 
 from .. import nua_env
@@ -55,19 +55,19 @@ PIP_PACKAGES = [
 
 
 def main():
-    print_magenta("Installing Nua bootstrap on local host.")
+    print_blue("Installing Nua bootstrap script on local host...")
     if not check_python_version():
-        abort("Python 3.10+ is required for Nua installation.")
+        raise Abort("Python 3.10+ is required for Nua installation.")
     if user_exists(NUA):
         warning("Nua was already installed.")
     if os.geteuid() != 0:
-        print_red(
+        raise Abort(
             "Nua bootstrap script requires root privileges.\n"
             "Please try again, this time using 'sudo'.\n"
             "- When sudo, use absolute script path.\n"
             f"{detect_myself()}\n"
         )
-        raise SystemExit(1)
+
     apt_update()
     bootstrap()
     apt_final_clean()
@@ -101,39 +101,39 @@ def bootstrap():
 
 def bootstrap_install_postgres_or_fail():
     if not bootstrap_install_postgres() or not set_random_postgres_pwd():
-        print_red("Nua bootstrap exiting.")
-        raise SystemExit()
+        raise Abort("Can't initialize Postgresql.")
 
 
 def bootstrap_install_mariadb_or_fail():
     if not bootstrap_install_mariadb() or not set_random_mariadb_pwd():
-        print_red("Nua bootstrap exiting.")
-        raise SystemExit()
+        raise Abort("Can't initialize Mariadb.")
 
 
 def install_packages():
-    print_magenta("Installation of base packages:")
+    print_blue("Installing base packages...")
     install_package_list(HOST_PACKAGES, update=False, clean=False, keep_lists=True)
 
 
 def create_nua_user():
     if not user_exists(NUA):
-        print_magenta("Creation of user 'nua'")
+        print_blue("Creating user 'nua'...")
         cmd = "useradd --inactive -1 -G docker -m -s /bin/bash -U nua"
         # cmd = "useradd --inactive -1 -G sudo,docker -m -s /bin/bash -U nua"
         sh(cmd)
+
     record_nua_home()
     make_nua_dirs()
     nua_full_sudoer()
 
 
 def nua_full_sudoer():
-    print_magenta("Modifying /etc/sudoers for user 'nua' (full access with no passwd)")
+    print_blue("Modifying /etc/sudoers for user 'nua' (full access with no passwd)...")
     header = "# Nua: full access for Nua user:\n"
     # check already done:
     if string_in("/etc/sudoers", header):
         print_magenta("-> Prior changes found: do nothing")
         return
+
     with open("/etc/sudoers", "a") as sudofile:
         sudofile.write("\n")
         sudofile.write(header)
@@ -144,8 +144,7 @@ def record_nua_home():
     try:
         nua_env.detect_nua_home()
     except RuntimeError:
-        print_red("Something weird append: can't find HOME of 'nua'")
-        raise
+        raise Abort("Something weird append: can't find HOME of 'nua'")
 
 
 def make_nua_dirs():
@@ -167,7 +166,7 @@ def make_nua_dirs():
 
 
 def create_nua_venv():
-    print_magenta("Creation of Python virtual environment for 'nua'")
+    print_blue("Creating the Python virtual environment for 'nua'")
     # assuming we already did check we have python >= 3.10
     host_python = "/usr/bin/python3"
     vname = "env"

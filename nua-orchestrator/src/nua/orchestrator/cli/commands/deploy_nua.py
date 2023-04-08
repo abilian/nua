@@ -2,7 +2,7 @@
 
 WIP
 """
-from nua.lib.panic import abort, vprint_magenta
+from nua.lib.panic import Abort, vprint_magenta
 from nua.lib.tool.state import verbosity
 
 from ...deploy_utils import load_install_image
@@ -21,7 +21,7 @@ def deploy_nua(app_name: str) -> int:
         vprint_magenta(f"image: '{app_name}'")
     results = search_nua(app_name)
     if not results:
-        abort(f"No image found for the app id '{app_name}'.")
+        raise Abort(f"No image found for the app id '{app_name}'.")
 
     # ensure docker is running
     docker_service_start_if_needed()

@@ -1,5 +1,5 @@
 """Solve the order of evaluation of resources dynamic parameters."""
-from nua.lib.panic import abort
+from nua.lib.panic import Abort
 
 from .resource import Resource
 
@@ -32,8 +32,8 @@ class ResourceDeps:
     def add_resource(self, resource: Resource):
         task = Task(resource)
         if task.name in self.node_names:
-            abort(f"Duplicate name in resources: {task.name}")
-            raise SystemExit(1)
+            raise Abort(f"Duplicate name in resources: {task.name}")
+
         self.node_names.add(task.name)
         self.nodes.append(task)
 
@@ -46,8 +46,8 @@ class ResourceDeps:
         free = [task for task in self.nodes if not task.dependencies]
         if not free:
             names = [task.name for task in self.nodes]
-            abort(f"Circular dependencies in resources: {names}")
-            raise SystemExit(1)
+            raise Abort(f"Circular dependencies in resources: {names}")
+
         self.ordered_resources.extend([task.resource for task in free])
         self.nodes = [task for task in self.nodes if task not in free]
         free_names = {task.name for task in free}

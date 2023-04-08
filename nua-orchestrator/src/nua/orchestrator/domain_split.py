@@ -2,7 +2,7 @@
 
 from urllib.parse import urlparse
 
-from nua.lib.panic import abort
+from nua.lib.panic import Abort
 
 
 class DomainSplit:
@@ -16,7 +16,8 @@ class DomainSplit:
             result = urlparse(f"http://{url_string}")
         self.hostname = result.hostname
         if not self.hostname:
-            abort(f"Failed to parse hostname from: '{url_string}'")
+            raise Abort(f"Failed to parse hostname from: '{url_string}'")
+
         self.location = result.path.strip("/")
 
     def full_path(self) -> str:

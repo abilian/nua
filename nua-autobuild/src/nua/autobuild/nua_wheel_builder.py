@@ -10,7 +10,7 @@ from urllib.request import urlopen
 import tomli
 import tomli_w
 from nua.lib.backports import chdir
-from nua.lib.panic import abort, vprint, warning
+from nua.lib.panic import Abort, vprint, warning
 from nua.lib.shell import rm_fr, sh
 from nua.lib.tool.state import verbosity
 
@@ -97,7 +97,7 @@ class NuaWheelBuilder:
 
     def build_from_local(self) -> bool:
         if not self.nua_local_git or not self.nua_local_git.is_dir():
-            abort(f"Directory not found '{self.nua_local_git}'")
+            raise Abort(f"Directory not found '{self.nua_local_git}'")
             return False  # for the qa
         with verbosity(3):
             vprint([f.name for f in self.nua_local_git.iterdir()])

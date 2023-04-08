@@ -23,7 +23,7 @@ from nua.lib.actions import (
 )
 from nua.lib.backports import chdir
 from nua.lib.exec import exec_as_nua
-from nua.lib.panic import abort, info, show, vprint
+from nua.lib.panic import Abort, info, show, vprint
 from nua.lib.shell import chmod_r, chown_r, mkdir_p, rm_fr, sh
 from nua.lib.tool.state import set_verbosity, verbosity, verbosity_level
 
@@ -49,9 +49,11 @@ class BuilderApp:
             set_verbosity(int(os.environ["nua_verbosity"]))
             with verbosity(3):
                 info("verbosity:", verbosity_level())
+
         self.build_dir = Path(NUA_BUILD_PATH)
         if not self.build_dir.is_dir():
-            abort(f"Build directory does not exist: '{self.build_dir}'")
+            raise Abort(f"Build directory does not exist: '{self.build_dir}'")
+
         chdir(self.build_dir)
         self.config = NuaConfig(self.build_dir)
         self.source = Path()
@@ -79,6 +81,7 @@ class BuilderApp:
                 # always run build script: maybe no code source,
                 # but only configuration of standard .deb packages
                 self.run_build_script()
+
         self.post_build()
         self.test_build()
         with verbosity(1):

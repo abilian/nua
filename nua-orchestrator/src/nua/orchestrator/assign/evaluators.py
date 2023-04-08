@@ -8,7 +8,7 @@ from functools import wraps
 from typing import Any
 
 from nua.agent.gen_password import gen_password, gen_randint
-from nua.lib.panic import abort, show, warning
+from nua.lib.panic import Abort, show, warning
 from nua.lib.tool.state import verbosity
 
 from ..net_utils.external_ip import external_ip
@@ -143,11 +143,13 @@ def resource_property(
     # if not source_name, consider querying current resource
     property = requirement.get("key", "").strip()
     if not property:
-        abort(f"Bad requirement, missing 'key' key : {requirement}")
+        raise Abort(f"Bad requirement, missing 'key' key : {requirement}")
+
     resource = _query_resource(source_name, rsite)
     if not resource:
         warning(f"Unknown resource name for {requirement}")
         return {}
+
     # first try in environ variables of differnt kinds
     if property in resource.env:
         value = resource.env[property]
@@ -160,7 +162,8 @@ def resource_property(
     else:
         warning("Resource environment:")
         warning(str(resource.env))
-        abort(f"Unknown property for: {requirement}")
+        raise Abort(f"Unknown property for: {requirement}")
+
     with verbosity(4):
         show(f"resource_property {source_name}:{property} ->")
         show(f"    result {destination_key}:{value}")

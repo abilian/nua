@@ -13,13 +13,14 @@ from .console import (
 from .tool.state import check_verbosity
 
 
-def abort(msg: str, status: int = 1, explanation: str = ""):
-    if not msg:
-        msg = "unknown error"
-    _print("Error", msg, explanation)
-    if not status:
-        status = 1
-    raise SystemExit(status)
+class Abort(SystemExit):
+    def __init__(
+        self, msg: str = "unknown error", status: int = 1, explanation: str = ""
+    ):
+        if not msg:
+            msg = "unknown error"
+        _print("Error", msg, explanation)
+        super().__init__(status)
 
 
 def warning(msg: str, explanation: str = ""):

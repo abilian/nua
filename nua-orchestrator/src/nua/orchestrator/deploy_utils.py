@@ -7,7 +7,7 @@ import docker
 import docker.types
 from nua.autobuild.docker_build_utils import display_one_docker_img, docker_require
 from nua.build.archive_search import ArchiveSearch
-from nua.lib.panic import abort, info, vprint, vprint_green, vprint_magenta, warning
+from nua.lib.panic import Abort, info, vprint, vprint_blue, vprint_green, warning
 from nua.lib.tool.state import verbosity
 
 from .app_instance import AppInstance
@@ -43,14 +43,19 @@ def load_install_image(image_path: str | Path) -> tuple:
     if not path.is_file():
         warning("Local Docker image does not exist")
         raise FileNotFoundError(path)
+
     arch_search = ArchiveSearch(path)
     image_nua_config = arch_search.nua_config_dict()
     if not image_nua_config:
-        abort(f"image non compatible Nua: {path}.", explanation="No Nua config found")
+        raise Abort(
+            f"image non compatible Nua: {path}.", explanation="No Nua config found"
+        )
+
     metadata = image_nua_config["metadata"]
     msg = "Installing App: {id} {version}, {title}".format(**metadata)
     if verbosity(0):
-        vprint_magenta(msg)
+        vprint_blue(msg)
+
     client = docker.from_env()
     # images_before = {img.id for img in client.images.list()}
     with open(path, "rb") as input:  # noqa: S108
@@ -75,8 +80,7 @@ def port_allocator(start_ports: int, end_ports: int, allocated_ports: set) -> Ca
             ):
                 allocated_ports.add(port)
                 return port
-        abort("Not enough available ports")
-        raise SystemExit(1)  # Please mypy
+        raise Abort("Not enough available ports")
 
     return allocator
 
@@ -239,8 +243,10 @@ def pull_resource_container(resource: Resource) -> bool:
     """
     if resource.type == "docker":
         return _pull_resource_docker(resource)
+
     if resource.is_docker_plugin():
         return _pull_resource_remote(resource)
+
     warning(f"Unknown resource type: {resource.type}")
     return True
 
@@ -264,6 +270,7 @@ def _pull_resource_docker(resource: Resource) -> bool:
     """Retrieve a resource container or get reference from cache."""
     if resource.image not in PULLED_IMAGES:
         _actual_pull_container(resource)
+
     if resource.image not in PULLED_IMAGES:
         warning(f"No image found for '{resource.image}'")
         return False
@@ -276,6 +283,7 @@ def _actual_pull_container(resource: Resource):
     """Retrieve a resource container."""
     with verbosity(1):
         info(f"Pulling image '{resource.image}'")
+
     docker_image = docker_require(resource.image)
     if docker_image:
         PULLED_IMAGES[resource.image] = docker_image.id

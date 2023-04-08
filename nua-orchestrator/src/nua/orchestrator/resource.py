@@ -6,7 +6,7 @@ from pprint import pformat
 from typing import Any
 
 from nua.agent.nua_config import nomalize_env_values
-from nua.lib.panic import abort, vprint, vprint_green, warning
+from nua.lib.panic import Abort, vprint, vprint_green, warning
 from nua.lib.tool.state import verbosity
 
 from .backup.backup_engine import backup_resource, backup_volume
@@ -280,7 +280,7 @@ class Resource(dict):
 
     def _check_missing(self, key: str):
         if key not in self or not str(self[key]).strip():
-            abort(f"AppInstance or Resource configuration missing '{key}' key")
+            raise Abort(f"AppInstance or Resource configuration missing '{key}' key")
 
     def _parse_healthcheck(self, config: dict | None = None):
         if config:
@@ -295,8 +295,10 @@ class Resource(dict):
         if "port" not in self:
             self.port = {}
             return
+
         if not isinstance(self.port, dict):
-            abort("AppInstance['port'] must be a dict")
+            raise Abort("AppInstance['port'] must be a dict")
+
         self.port_list = normalize_ports_list(ports_as_list(self.port))
 
     def used_ports(self) -> set[int]:
@@ -317,7 +319,8 @@ class Resource(dict):
             self.volume = []
             return
         if not isinstance(self.volume, list):
-            abort("AppInstance['volume'] must be a list")
+            raise Abort("AppInstance['volume'] must be a list")
+
         # filter empty elements
         volume_list = [v for v in self.volume if v]
         self.volume = Volume.normalize_list(volume_list)
@@ -359,7 +362,7 @@ class Resource(dict):
         orig = self[key]
         if isinstance(orig, dict):
             if not isinstance(value, dict):
-                abort(
+                raise Abort(
                     "Updated value in deploy config must be a dict.",
                     explanation=f"{orig=}\n{value=}",
                 )
@@ -374,10 +377,11 @@ class Resource(dict):
 
     def _update_from_site_declaration_volume(self, value: Any):
         if not isinstance(value, list):
-            abort(
+            raise Abort(
                 "Updated volumes in deploy config must be a list.",
                 explanation=f"{value=}",
             )
+
         vol_dic = {}
         for orig_vol in self.volume:
             vol_dic[orig_vol["target"]] = orig_vol
@@ -389,10 +393,11 @@ class Resource(dict):
         """For Resource only, make 'env' dict from AppInstance declaration and
         base  delcaration in nua-config."""
         if not isinstance(env_update_dict, dict):
-            abort(
+            raise Abort(
                 "Updated 'env' in deploy config must be a dict.",
                 explanation=f"{env_update_dict=}",
             )
+
         base_env = deepcopy(self.env)
         base_env.update(env_update_dict)
         self.env = deepcopy(base_env)

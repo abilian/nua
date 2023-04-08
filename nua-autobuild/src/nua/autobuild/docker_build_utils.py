@@ -9,7 +9,7 @@ from docker.errors import APIError, BuildError, ImageNotFound
 from docker.models.images import Image
 from docker.utils.json_stream import json_stream
 from nua.lib.console import print_red
-from nua.lib.panic import abort, vprint, vprint_blue, vprint_magenta
+from nua.lib.panic import Abort, vprint, vprint_blue, vprint_magenta
 from nua.lib.tool.state import verbosity, verbosity_level
 
 LOCAL_CONFIG = {"size_unit_MiB": False}
@@ -32,7 +32,7 @@ def docker_build_log_error(func):
             print_red("Something went wrong with image build!")
             print_red(str(e))
             print_red("=" * 60)
-            abort("Exiting.")
+            raise Abort("Exiting.")
 
         except APIError as e:
             message = ["=" * 60]
@@ -47,7 +47,7 @@ def docker_build_log_error(func):
             message.append("=" * 60)
             for line in message:
                 print_red(line)
-            abort("Exiting.")
+            raise Abort("Exiting.")
 
     return build_log_error_wrapper
 

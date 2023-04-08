@@ -6,7 +6,7 @@ from pathlib import Path
 
 import tomli
 import yaml
-from nua.lib.panic import abort
+from nua.lib.panic import Abort
 
 RE_NB_UNIT = re.compile(r"(\d+\.?\d*)\s*(\S*)")
 SIZE_UNIT = {"B": 1, "K": 2**10, "M": 2**20, "G": 2**30, "T": 2**40}
@@ -64,9 +64,9 @@ def sanitized_name(name: str, length=255) -> str:
     name = "".join(x for x in str(name).lower() if x in ALLOW_NAME)
     name = name[:length]
     if len(name) < 2:
-        abort(f"Name is too short: '{name}'")
+        raise Abort(f"Name is too short: '{name}'")
     if name[0] not in ALLOW_FIRST:
-        abort(f"Name first character not valid: '{name}'")
+        raise Abort(f"Name first character not valid: '{name}'")
     return name
 
 

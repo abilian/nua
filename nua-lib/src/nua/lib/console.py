@@ -21,6 +21,11 @@ def print_green(msg: str):
 
 
 @if_color
+def print_blue(msg: str):
+    print(ColorStr.blue(msg))
+
+
+@if_color
 def print_magenta(msg: str):
     print(ColorStr.magenta(msg))
 

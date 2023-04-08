@@ -26,7 +26,10 @@ def configure_db(resource: Resource):
     # env
     resource.env = {
         "MONGO_PORT": "27017",
-        "MONGO_INITDB_ROOT_USERNAME": {"unique_user": True, "persist": True},
+        "MONGO_INITDB_ROOT_USERNAME": {
+            "unique_user": True,
+            "persist": True,
+        },
         "MONGO_INITDB_ROOT_PASSWORD": {
             "random": True,
             "type": "str",

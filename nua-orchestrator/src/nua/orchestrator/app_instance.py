@@ -6,7 +6,7 @@ from pprint import pformat
 
 from nua.agent.nua_config import hyphen_get
 from nua.agent.nua_tag import nua_tag_string
-from nua.lib.panic import abort, vprint, warning
+from nua.lib.panic import Abort, info, vprint, warning
 from nua.lib.tool.state import verbosity
 
 from .domain_split import DomainSplit
@@ -278,7 +278,7 @@ class AppInstance(Resource):
         if not "_".join(name.split()):
             name = self.default_instance_name()
             with verbosity(0):
-                warning(f"Instance name not provided, using default: '{name}'")
+                info(f"Instance name not provided, using default: '{name}'")
         self.set_instance_name(name)
 
     def set_instance_name(self, name: str):
@@ -294,7 +294,8 @@ class AppInstance(Resource):
     def rebase_ports_upon_nua_config(self):
         nua_config_ports = deepcopy(self.image_nua_config.get("port", {}))
         if not isinstance(nua_config_ports, dict):
-            abort("nua_config['port'] must be a dict")
+            raise Abort("nua_config['port'] must be a dict")
+
         base_ports = normalize_ports_list(ports_as_list(nua_config_ports))
         self.port_list = rebase_ports_on_defaults(base_ports, self.port_list)
         with verbosity(4):
