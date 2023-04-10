@@ -21,6 +21,7 @@ class API:
 
     def status(self):
         """Send some status information about local installation."""
+
         # fixme: go further on status details (sub servers...)
         def display_configured_registries():
             """Show configured registries."""

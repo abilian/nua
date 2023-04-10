@@ -27,6 +27,7 @@ def persistent_value(func):
     Default is 'persistent = true'.
     If persistent is False, erase the data from *local* config storage.
     """
+
     @wraps(func)
     def wrapper(
         resource: Resource,
@@ -51,6 +52,7 @@ def persistent_value(func):
 
 def no_persistent_value(func):
     """Dummy wrapper to remove thirf argument."""
+
     @wraps(func)
     def wrapper(
         resource: Resource,
