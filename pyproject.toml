@@ -10,7 +10,7 @@ license = "AGPL"
 
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = ">=3.10,<3.12"
 
 nua-lib = { path = "nua-lib", develop = true }
 nua-cli = { path = "nua-cli", develop = true }
@@ -26,11 +26,7 @@ watchfiles = "^0.19.0"
 nox = "*"
 abilian-devtools = "*"
 pydeps = "^1.11.1"
-
 autotyping = "^22.9.0"
-pytest-monkeytype = "^1.1.0"
-
-docformatter = "*"
 
 # Helper for monorepo
 invoke = "^2.0.0"
@@ -38,11 +34,16 @@ invoke = "^2.0.0"
 # Code coverage (reporting)
 codecov = "*"
 
+# Debug
+snoop = "*"
+
 # Typing
 types-setuptools = "*"
 types-paramiko = "*"
 types-requests = "*"
 types-pyyaml = "*"
+
+# Helper for remote development
 watchfiles = "^0.19.0"
 
 [build-system]
