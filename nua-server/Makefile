@@ -7,7 +7,7 @@ all: test lint
 
 ## Start development server
 run:
-	uvicorn nua_server.main:app --reload
+	uvicorn --factory nua_server.main:create_app --reload
 
 
 #
