@@ -10,6 +10,7 @@
 - [ ] fix all deptry issues (or use something else)
 - [ ] more packages
 - [ ] release proper packages on PyPI
+- [ ] orchestrator as a server
 
 ### Bug fixes
 

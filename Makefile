@@ -87,7 +87,7 @@ install:
 
 ## Clean up cruft
 clean:
-	invoke clean
+	-invoke clean
 	find . -name __pycache__ -print0 | xargs -0 rm -rf
 	find . -type d -empty -delete
 	rm -rf .mypy_cache .pytest_cache .ruff_cache
