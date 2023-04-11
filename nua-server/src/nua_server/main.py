@@ -1,5 +1,7 @@
 """Main Sanic application."""
 
+import snoop
+
 # Imported for side-effects => don't remove the assert statements
 from nua_server.pages import admin, home
 
@@ -9,6 +11,10 @@ assert admin
 assert home
 assert app
 
+
+snoop.install()
+
+# Old Starlite config
 
 # handlers = home.get_handlers() + admin.get_handlers()
 #

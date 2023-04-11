@@ -16,6 +16,7 @@ markupsafe = "^2.1.2"
 snoop = "^0.4.3"
 fabric = "^3.0.0"
 prettyprinter = "^0.18.0"
+webbits = {git = "https://github.com/abilian/webbits.git"}
 
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
