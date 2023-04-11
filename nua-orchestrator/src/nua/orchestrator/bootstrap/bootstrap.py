@@ -174,7 +174,7 @@ def create_nua_venv():
     venv_path = home / vname
     nua_env.set_value("NUA_VENV", str(venv_path))
     if venv_path.is_dir():
-        print_red(f"-> Prior {venv_path} found: do nothing")
+        print_magenta(f"-> Prior {venv_path} found: do nothing")
     os.chdir(home)
     # venv.create(venv_path, with_pip=True)
     cmd = f"{host_python} -m venv {venv_path}"
@@ -189,7 +189,7 @@ def create_nua_venv():
 
 
 def install_python_packages():
-    print_magenta("Install local Python packages")
+    print_blue("Installing local Python packages...")
     cmd = f"python -m pip install -U {' '.join(PIP_PACKAGES)}"
     bash_as_nua(cmd, "/home/nua")
 
