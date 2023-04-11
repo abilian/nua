@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import toml
+import tomli
 import typer
 
 from .version import get_version
@@ -52,4 +52,4 @@ def get_current_app_config() -> dict:
 
     config_file = Path("nua/nua-config.toml")
     config_data = config_file.read_text()
-    return toml.loads(config_data)
+    return tomli.loads(config_data)
