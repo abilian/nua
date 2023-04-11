@@ -295,6 +295,13 @@ class AppDeployment:
             site.running_status = RUNNING
             self.store_container_instance(site)
 
+    def remove_data(self, domain: str, apps: list[AppInstance]):
+        """Remove data of stopped app: container, volume, network."""
+        with verbosity(1):
+            info(f"Remove instance of domain '{domain}'.")
+        for site in apps:
+            deactivate_app(site)
+
     def parse_deploy_apps(self):
         """Make the list of AppInstances.
 
