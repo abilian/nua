@@ -20,7 +20,7 @@ from nua.lib.actions import (
 )
 from nua.lib.console import print_blue, print_green, print_magenta
 from nua.lib.exec import exec_as_nua, mp_exec_as_nua
-from nua.lib.panic import Abort, warning
+from nua.lib.panic import Abort, info
 from nua.lib.shell import chown_r, mkdir_p, rm_fr, sh, user_exists
 
 from .. import nua_env
@@ -59,7 +59,7 @@ def main():
     if not check_python_version():
         raise Abort("Python 3.10+ is required for Nua installation.")
     if user_exists(NUA):
-        warning("Nua was already installed.")
+        info("Nua was already installed.")
     if os.geteuid() != 0:
         raise Abort(
             "Nua bootstrap script requires root privileges.\n"
