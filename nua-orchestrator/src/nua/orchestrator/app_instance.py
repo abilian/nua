@@ -9,6 +9,7 @@ from nua.agent.nua_tag import nua_tag_string
 from nua.lib.panic import Abort, info, vprint, warning
 from nua.lib.tool.state import verbosity
 
+from .db.model.instance import STOPPED
 from .domain_split import DomainSplit
 from .persistent import Persistent
 from .port_normalization import (
@@ -132,6 +133,14 @@ class AppInstance(Resource):
         name = sanitized_name(f"{self.nua_dash_name}-{suffix}")
         self["container_name"] = name
         return name
+
+    @property
+    def running_status(self) -> str:
+        return self.get("running_status", STOPPED)
+
+    @running_status.setter
+    def running_status(self, status: str):
+        self["running_status"] = status
 
     def persistent(self, name: str) -> Persistent:
         """Return Persistent instance for resource of name 'name'.

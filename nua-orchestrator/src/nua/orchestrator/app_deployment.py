@@ -261,6 +261,7 @@ class AppDeployment:
             self.setup_resources_db(site)
             self.merge_volume_only_resources(site)
             self.start_main_app_container(site)
+            site.running_status = RUNNING
             self.store_container_instance(site)
         chown_r_nua_nginx()
         nginx_restart()
@@ -272,6 +273,7 @@ class AppDeployment:
         for site in apps:
             # self.start_network(site)
             start_one_app_containers(site)
+            site.running_status = RUNNING
             self.store_container_instance(site)
 
     def stop_deployed_apps(self, domain: str, apps: list[AppInstance]):
@@ -280,7 +282,8 @@ class AppDeployment:
             info(f"Stop instance of domain '{domain}'.")
         for site in apps:
             stop_one_app_containers(site)
-            self.store_container_instance(site, state=STOPPED)
+            site.running_status = STOPPED
+            self.store_container_instance(site)
 
     def restart_deployed_apps(self, domain: str, apps: list[AppInstance]):
         """Restart deployed instances."""
@@ -289,6 +292,7 @@ class AppDeployment:
         for site in apps:
             # self.start_network(site)
             restart_one_app_containers(site)
+            site.running_status = RUNNING
             self.store_container_instance(site)
 
     def parse_deploy_apps(self):
@@ -691,7 +695,7 @@ class AppDeployment:
         mounted_volumes = mount_resource_volumes(site)
         start_one_container(site, mounted_volumes)
 
-    def store_container_instance(self, site: AppInstance, state: str = RUNNING):
+    def store_container_instance(self, site: AppInstance):
         with verbosity(3):
             vprint_green("Saving AppInstance configuration in Nua DB")
         store.store_instance(
@@ -700,7 +704,7 @@ class AppDeployment:
             domain=site.domain,
             container=site.container_name,
             image=site.image,
-            state=state,
+            state=site.running_status,
             site_config=dict(site),
         )
 
@@ -823,6 +827,8 @@ class AppDeployment:
             msg = f"Instance name: {site.instance_name_internal}"
             info(msg)
             msg = f"Image '{site.image}' deployed as {protocol}{site.domain}"
+            info(msg)
+            msg = f"Deployment status: {site.running_status}"
             info(msg)
             self.display_persistent_data(site)
 
