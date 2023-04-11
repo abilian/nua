@@ -3,8 +3,9 @@ import os
 import sys
 from io import StringIO
 
-import typer
 from fabric import Connection
+
+from nua_cli.colors import red
 
 # Hardcoded for now
 NUA_CMD = "./env/bin/nua-orchestrator"
@@ -39,9 +40,7 @@ class Client:
         try:
             return json.loads(r.stdout)
         except json.JSONDecodeError:
-            typer.secho(
-                f"Invalid response from server:\n{r.stdout}", fg=typer.colors.RED
-            )
+            print(red(f"Invalid response from server:\n{r.stdout}"))
             sys.exit(1)
 
     def ssh(self, command: str):

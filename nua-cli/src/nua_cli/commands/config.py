@@ -1,37 +1,44 @@
-import sys
 from pprint import pp
 
-import typer
-
+from nua_cli.base import Argument, Command
 from nua_cli.client import get_client
 from nua_cli.common import get_current_app_id
+from nua_cli.exceptions import CommandError
 
-cli = typer.Typer(name="config")
 client = get_client()
 
 
-@cli.command()
-def show(app_id: str = typer.Argument("", help="Id of the application.")):
+class ShowCommand(Command):
     """Show application config."""
-    result = client.call("list")
 
-    if not app_id:
-        app_id = get_current_app_id()
-    if not app_id:
-        typer.secho("No app_id specified", fg=typer.colors.RED)
-        sys.exit(1)
+    name = "config show"
 
-    for instance in result:
-        if instance["app_id"] == app_id:
-            pp(instance)
-            break
-    else:
-        typer.secho(f"App {app_id} not found", fg=typer.colors.RED)
-        sys.exit(1)
+    arguments = [
+        Argument("app_id", default="", help="Id of the application."),
+    ]
+
+    def run(self):
+        result = client.call("list")
+
+        app_id = self.args.app_id
+
+        if not app_id:
+            app_id = get_current_app_id()
+        if not app_id:
+            raise CommandError("No app_id specified")
+
+        for instance in result:
+            if instance["app_id"] == app_id:
+                pp(instance)
+                break
+        else:
+            raise CommandError(f"App {app_id} not found")
 
 
-@cli.callback(invoke_without_command=True)
-def main(ctx: typer.Context):
+class ConfigCommand(Command):
     """Show/edit application config."""
-    if ctx.invoked_subcommand is None:
-        print(ctx.get_help())
+
+    name = "config"
+
+    def run(self):
+        self.cli.print_help()

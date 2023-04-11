@@ -15,10 +15,12 @@ nua = "nua_cli.main:cli"
 python = ">=3.10,<3.12"
 
 tomli = "^2.0.1"
-typer = "^0.7.0"
 fabric = "^3.0.0"
 # Temp: use snoop in prod code
 snoop = "*"
+
+# typer = "^0.7.0"
+termcolor = "^2.2.0"
 
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
