@@ -52,6 +52,22 @@ def settings():
     pp(result)
 
 
-@app.callback()
-def main():
+@app.command()
+def ps():
+    """List all server processes."""
+    result = client.ssh("ps -aux")
+    print(result.stdout)
+
+
+@app.command()
+def uptime():
+    """Show server uptime."""
+    result = client.ssh("uptime")
+    print(result.stdout)
+
+
+@app.callback(invoke_without_command=True)
+def main(ctx: typer.Context):
     """Manage the Nua server."""
+    if ctx.invoked_subcommand is None:
+        print(ctx.get_help())
