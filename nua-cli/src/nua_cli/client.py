@@ -57,9 +57,9 @@ class Client:
         for instance in result:
             if instance["app_id"] == app_id:
                 app_info = instance
-                break
+                return app_info
 
-        return app_info
+        raise ValueError(f"App {app_id} not found")
 
 
 _CLIENT = None
