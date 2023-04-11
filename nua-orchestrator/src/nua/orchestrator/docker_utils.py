@@ -93,26 +93,9 @@ def docker_stop_container_name(name: str):
     if not _docker_wait_empty_container_list(
         name, config.read("host", "docker_kill_timeout")
     ):
-        for remain in docker_container_of_name(name):
-            warning(f"container not killed: {remain.name}")
-
-
-def docker_stop_container(name: str):
-    if not name:
-        return
-    containers = docker_container_of_name(name)
-    with verbosity(3):
-        vprint("docker_stop_container_name():", containers)
-    if not containers:
-        warning(f"docker_stop_container_name(): no container of name '{name}'")
-        return
-    for ctn in containers:
-        _docker_stop_container(ctn)
-    if not _docker_wait_empty_container_list(
-        name, config.read("host", "docker_kill_timeout")
-    ):
-        for remain in docker_container_of_name(name):
-            warning(f"container not killed: {remain.name}")
+        pass
+        # for remain in docker_container_of_name(name):
+        #     warning(f"container not killed: {remain.name}")
 
 
 def _docker_stop_container(container: Container):
