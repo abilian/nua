@@ -23,6 +23,9 @@ class Client:
         self.user = user
         self.connection = Connection(self.host, self.user)
 
+    #
+    # Low level API
+    #
     def call_raw(self, method: str, **kw):
         args = StringIO(json.dumps(kw))
         cmd = f"{NUA_CMD} rpc --raw {method}"
@@ -40,6 +43,23 @@ class Client:
                 f"Invalid response from server:\n{r.stdout}", fg=typer.colors.RED
             )
             sys.exit(1)
+
+    def ssh(self, command: str):
+        return self.connection.run(command, hide=True)
+
+    #
+    # Higher level API
+    #
+    def get_app_info(self, app_id: str) -> dict:
+        result = self.call("list")
+
+        app_info = None
+        for instance in result:
+            if instance["app_id"] == app_id:
+                app_info = instance
+                break
+
+        return app_info
 
 
 _CLIENT = None

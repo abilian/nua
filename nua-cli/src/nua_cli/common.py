@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import tomli
+import toml
 import typer
 
 from .version import get_version
@@ -36,9 +36,20 @@ def print_version() -> None:
 
 def get_current_app_id() -> str:
     """Get the current app id (if possible)."""
-    path = Path("nua-config.toml")
-    if not path.exists():
+    try:
+        config = get_current_app_config()
+        return config["metadata"]["id"]
+    except ValueError:
         return ""
 
-    config = tomli.load(path.open("rb"))
-    return config["metadata"]["id"]
+
+def get_current_app_config() -> dict:
+    config_file = Path("nua-config.toml")
+    if not config_file.exists():
+        config_file = Path("nua/nua-config.toml")
+    if not config_file.exists():
+        raise ValueError("No nua-config.toml found.")
+
+    config_file = Path("nua/nua-config.toml")
+    config_data = config_file.read_text()
+    return toml.loads(config_data)

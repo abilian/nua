@@ -12,7 +12,7 @@ TODO:
 [ ] destroy           Destroy app
 [ ] help              Display help
 [ ] init              Create a new app
-[ ] logs              Tail running logs
+[x] logs              Tail running logs
 [ ] ps                Show process count
 [ ] restart           Restart an app
 [ ] run               Run a command in the app's environment
@@ -32,11 +32,10 @@ from typing import Optional
 
 import typer
 
-from nua_cli.version import get_version
-
 from .client import get_client
-from .common import OPTS
+from .common import OPTS, get_current_app_id
 from .subcommands import config, server
+from .version import get_version
 
 app = typer.Typer()
 client = get_client()
@@ -143,9 +142,17 @@ def stop():
 
 
 @app.command()
-def logs():
+def logs(app_id: Optional[str] = typer.Argument(None, help="Application ID")):
     """Show application logs."""
-    typer.secho("Not implemented yet", fg=typer.colors.RED)
+    # Quick & dirty implementation that calls docker directly.
+    if not app_id:
+        app_id = get_current_app_id()
+    app_info = client.get_app_info(app_id)
+    container_id = app_info["site_config"]["container_id"]
+    result = client.ssh(f"docker logs {container_id}")
+    # Note: 'docker logs' returns data to both stderr and stdout.
+    # We need to merge the two streams, on find another way
+    print(result.stderr)
 
 
 @app.command()

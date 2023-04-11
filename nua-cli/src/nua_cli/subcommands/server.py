@@ -10,8 +10,21 @@ client = get_client()
 
 
 @app.command()
-def logs():
-    print("Showing server logs [TODO]")
+def logs(service: str = typer.Argument("", help="Service to show logs for")):
+    """Show server logs."""
+    if not service:
+        print("Service must be one of: nua, letsencrypt, nginx")
+
+    match service:
+        case "nua":
+            print("Showing Nua logs [TODO]")
+        case "letsencrypt":
+            result = client.ssh("cat log/letsencrypt/letsencrypt.log")
+            print(result.stdout)
+        case "nginx":
+            print("Showing Nginx logs [TODO]")
+        case _:
+            raise typer.BadParameter("Service must be one of: nua, letsencrypt, nginx")
 
 
 @app.command()
