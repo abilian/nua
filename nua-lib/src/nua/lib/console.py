@@ -31,11 +31,6 @@ def print_magenta(msg: str):
 
 
 @if_color
-def print_stream_blue(msg: str):
-    print(ColorStr.blue_bright(msg), end="")
-
-
-@if_color
 def print_red(msg: str):
     print(ColorStr.red_bold(msg))
 

@@ -2,13 +2,13 @@
 from typing import Any
 
 from .console import (
+    print_blue,
     print_bold_yellow,
     print_bold_yellow_white,
     print_green,
     print_green_cyan,
     print_magenta,
     print_red,
-    print_stream_blue,
 )
 from .tool.state import check_verbosity
 
@@ -70,7 +70,7 @@ def vfprint(*args: Any):
 
 def vprint_blue(message: str):
     if check_verbosity():
-        print_stream_blue(message)
+        print_blue(message)
 
 
 def vprint_magenta(message: str):
