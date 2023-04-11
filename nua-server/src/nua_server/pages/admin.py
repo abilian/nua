@@ -1,6 +1,3 @@
-from textwrap import dedent
-
-from devtools import debug
 from markupsafe import Markup
 from prettyprinter import pformat
 from webbits.html import html
@@ -26,7 +23,7 @@ async def admin_view(request) -> dict:
                 metadata = site_config["image_nua_config"]["metadata"]
                 url = f"/admin/apps/{instance['app_id']}/"
                 title = metadata["title"]
-                # h.li(h.a(title, href=url))
+                # Should be: h.li(h.a(title, href=url))
                 with h.li():
                     h.a(title, href=url)
 
@@ -55,16 +52,6 @@ async def app_view(request, app_id: str) -> dict:
     with h.div(class_="content ~neutral"):
         h.h2("Raw output")
         h.pre(json_pp(app))
-    # body = dedent(
-    #     f"""
-    #     <div class="content ~neutral">
-    #     <h2 class="">Raw output</h2>
-    #     <pre>
-    #     {json_pp(app)}
-    #     </pre>
-    #     </div>
-    # """
-    # )
 
     context = {
         "main_menu": MAIN_MENU,
