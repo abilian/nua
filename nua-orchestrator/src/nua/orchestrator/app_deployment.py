@@ -21,7 +21,7 @@ from .assign.engine import instance_key_evaluator
 from .certbot import protocol_prefix, register_certbot_domains
 from .db import store
 from .db.model.deployconfig import ACTIVE, INACTIVE, PREVIOUS
-from .db.model.instance import RUNNING
+from .db.model.instance import RUNNING, STOPPED
 from .deploy_utils import (
     create_container_private_network,
     deactivate_all_instances,
@@ -33,6 +33,7 @@ from .deploy_utils import (
     pull_resource_container,
     start_container_engine,
     start_one_container,
+    stop_one_app_containers,
     unused_volumes,
 )
 from .domain_split import DomainSplit
@@ -41,7 +42,9 @@ from .nginx.utils import (
     chown_r_nua_nginx,
     clean_nua_nginx_default_site,
     configure_nginx_hostname,
+    nginx_reload,
     nginx_restart,
+    remove_nginx_configuration_hostname,
 )
 from .resource import Resource
 from .services import Services
@@ -149,33 +152,40 @@ class AppDeployment:
         with verbosity(3):
             self.print_host_list()
 
+    def _load_deployed_configuration(self):
+        previous_config = self.previous_success_deployment_record()
+        if not previous_config:
+            raise Abort("Impossible to find a previous deployment.")
+        self.loaded_config = previous_config["deployed"]["requested"]
+        self.apps = [
+            AppInstance.from_dict(app_instance_data)
+            for app_instance_data in previous_config["deployed"]["apps"]
+        ]
+        self.sort_apps_per_name_domain()
+
+    def instances_of_domain(self, stop_domain: str) -> list[AppInstance]:
+        """Set isntance of domain app to "stopped"."""
+        with verbosity(1):
+            info(f"Stop instance of domain '{stop_domain}'.")
+        self._load_deployed_configuration()
+        target_apps = [
+            apps for apps in self.apps_per_domain if apps["hostname"] == stop_domain
+        ]
+        if not target_apps:
+            raise Abort(f"No instance found for domain '{stop_domain}'")
+        return target_apps
+
     def restore_previous_deploy_config_strict(self):
         """Retrieve last successful deployment configuration (strict mode)."""
         with verbosity(1):
             info("Deploy apps from previous deployment (strict mode).")
-        previous_config = self.previous_success_deployment_record()
-        if not previous_config:
-            raise Abort("Impossible to find a previous deployment.")
-
-        self.loaded_config = previous_config["deployed"]["requested"]
-        self.apps = []
-        for site_dict in previous_config["deployed"]["apps"]:
-            self.apps.append(AppInstance.from_dict(site_dict))
-        # self.future_config_id = previous_config.get("id")
-        self.sort_apps_per_name_domain()
+        self._load_deployed_configuration()
 
     def restore_previous_deploy_config_replay(self):
         """Retrieve last successful deployment configuration (replay mode)."""
         with verbosity(1):
             info("Deploy apps from previous deployment (replay deployment).")
-        previous_config = self.previous_success_deployment_record()
-        if not previous_config:
-            raise Abort("Impossible to find a previous deployment.")
-
-        self.loaded_config = previous_config["deployed"]["requested"]
-        # self.future_config_id = previous_config.get("id")
-        self.parse_deploy_apps()
-        self.sort_apps_per_name_domain()
+        self._load_deployed_configuration()
         with verbosity(3):
             self.print_host_list()
 
@@ -231,6 +241,16 @@ class AppDeployment:
             vprint_green("AppDeployment .apps:")
             vprint_magenta(self.apps)
 
+    def remove_nginx_configuration(self, stop_domain: str):
+        """Remove apps from the nginx configuration.
+
+        To stop nginx redirection before actually stopping the apps.
+        """
+        with verbosity(1):
+            info(f"Remove domain from Nginx: '{stop_domain}'")
+        remove_nginx_configuration_hostname(stop_domain)
+        nginx_reload()
+
     def start_apps(self):
         """Start all apps to deploy."""
         # restarting local services:
@@ -246,6 +266,12 @@ class AppDeployment:
             self.store_container_instance(site)
         chown_r_nua_nginx()
         nginx_restart()
+
+    def stop_apps(self, apps: list[AppInstance]):
+        """Stop app instances."""
+        for site in self.apps:
+            stop_one_app_containers(site)
+            self.store_container_instance(site, state=STOPPED)
 
     def parse_deploy_apps(self):
         """Make the list of AppInstances.
@@ -638,7 +664,7 @@ class AppDeployment:
         mounted_volumes = mount_resource_volumes(site)
         start_one_container(site, mounted_volumes)
 
-    def store_container_instance(self, site: AppInstance):
+    def store_container_instance(self, site: AppInstance, state: str = RUNNING):
         with verbosity(3):
             vprint_green("Saving AppInstance configuration in Nua DB")
         store.store_instance(
@@ -647,7 +673,7 @@ class AppDeployment:
             domain=site.domain,
             container=site.container_name,
             image=site.image,
-            state=RUNNING,
+            state=state,
             site_config=dict(site),
         )
 

@@ -119,6 +119,19 @@ def configure_nginx_hostname(host: dict):
         dest_path.unlink(missing_ok=True)
 
 
+def remove_nginx_configuration_hostname(stop_domain: str):
+    """Remove configuration for dommain.
+
+    warning: only for user 'nua' or 'root'
+    """
+    with verbosity(4):
+        vprint("remove_nginx_configuration_hostname:")
+        vprint(stop_domain)
+    nua_nginx_path = nua_env.nginx_path()
+    dest_path = nua_nginx_path / "sites" / stop_domain
+    dest_path.unlink(missing_ok=True)
+
+
 def _actual_configure_nginx_hostname(
     template: str,
     dest_path: str | Path,
@@ -151,6 +164,19 @@ def nginx_restart():
     with verbosity(2):
         vprint_green("Restart Nginx")
     cmd = "systemctl restart nginx"
+    if os.geteuid() == 0:
+        sh(cmd, show_cmd=False)
+    else:
+        sh(f"sudo {cmd}", show_cmd=False)
+    sleep(delay)
+
+
+def nginx_reload():
+    # assuming some recent ubuntu distribution:
+    delay = config.read("host", "nginx_wait_after_restart") or 1
+    with verbosity(2):
+        vprint_green("Reload Nginx")
+    cmd = "systemctl reload nginx"
     if os.geteuid() == 0:
         sh(cmd, show_cmd=False)
     else:

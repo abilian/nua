@@ -17,6 +17,7 @@ from .commands.deploy import deploy_nua_apps
 from .commands.deploy_nua import deploy_nua
 from .commands.local_cmd import reload_servers, status
 from .commands.restore import restore_nua_apps_replay, restore_nua_apps_strict
+from .commands.stop import stop_nua_instance_domain
 from .init import initialization
 
 ALLOW_SUFFIX = {".json", ".toml", ".yaml", ".yml"}
@@ -55,6 +56,7 @@ option_restore_strict = typer.Option(
 option_json = typer.Option(False, "--json", help="Output result as JSON.")
 option_short = typer.Option(False, help="Show short text result.")
 option_raw = typer.Option(False, "--raw", help="Return raw result (not JSON).")
+option_domain = typer.Option("", "--domain", "-d", help="Select domain to stop.")
 
 
 def _print_version():
@@ -120,6 +122,22 @@ def restore_local(
         restore_nua_apps_strict()
     else:
         restore_nua_apps_replay()
+
+
+@app.command("stop")
+def stop_local(
+    verbose: int = opt_verbose,
+    colorize: bool = option_color,
+    domain: str = option_domain,
+):
+    """Stop a deployed instance."""
+    set_verbosity(verbose)
+    set_color(colorize)
+    initialization()
+    if domain:
+        stop_nua_instance_domain(domain)
+    else:
+        print("WIP: currently a domain must be provided.")
 
 
 @app.command("backup")

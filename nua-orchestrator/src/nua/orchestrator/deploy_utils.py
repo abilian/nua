@@ -19,6 +19,7 @@ from .docker_utils import (
     docker_remove_container_previous,
     docker_run,
     docker_service_start_if_needed,
+    docker_stop_container_name,
     docker_volume_create_or_use,
     docker_volume_prune,
 )
@@ -180,8 +181,26 @@ def start_one_container(rsite: Resource, mounted_volumes: list):
             info(f"    connected to network: {rsite.network_name}")
 
 
-def stop_previous_containers(apps: list):
-    pass
+def stop_one_app_containers(rsite: Resource):
+    stop_one_container(rsite)
+    for resource in rsite.resources:
+        stop_one_container(resource)
+    docker_network_prune()
+
+
+def stop_one_container(rsite: Resource):
+    # rsite.container_id
+    with verbosity(1):
+        info(f"    -> stop container of name: {rsite.container_name}")
+        info(f"                 container id: {rsite.container_id_short}")
+    stop_containers([rsite.container_name])
+
+
+def stop_containers(container_names: list[str]):
+    for name in container_names:
+        if not name:
+            continue
+        docker_stop_container_name(name)
 
 
 def deactivate_containers(container_names: list[str], show_warning: bool = True):
