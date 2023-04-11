@@ -9,7 +9,8 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.10"
-starlite = { version = "*", extras = ["standard"]}
+# starlite = { version = "*", extras = ["standard"]}
+sanic = {extras = ["ext"], version = "^23.3.0"}
 uvicorn = "*"
 markupsafe = "^2.1.2"
 snoop = "^0.4.3"
@@ -20,7 +21,7 @@ prettyprinter = "^0.18.0"
 abilian-devtools = "*"
 nox = "*"
 devtools = "*"
-starlite = { version = "*", extras = ["testing"] }
+# starlite = { version = "*", extras = ["testing"] }
 
 # To please poetry
 platformdirs = "<3.0.0"

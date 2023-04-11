@@ -1,19 +1,13 @@
 # from pprint import pp
 
-from starlite import Template, get
-
+from nua_server.app import app
 from nua_server.client import get_client
 from nua_server.menus import MAIN_MENU
 
 
-def get_handlers():
-    return [
-        home,
-    ]
-
-
-@get("/")
-async def home() -> Template:
+@app.get("/")
+@app.ext.template("home/index.html")
+async def home_view(request) -> dict:
     client = get_client()
 
     result = client.call("list")
@@ -36,4 +30,4 @@ async def home() -> Template:
         "main_menu": MAIN_MENU,
         "apps": apps,
     }
-    return Template(name="home/index.html", context=context)
+    return context

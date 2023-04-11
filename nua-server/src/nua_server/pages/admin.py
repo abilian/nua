@@ -2,22 +2,15 @@ from textwrap import dedent
 
 from markupsafe import Markup
 from prettyprinter import pformat
-from starlite import Template, get
 
+from nua_server.app import app
 from nua_server.client import get_client
 from nua_server.menus import ADMIN_MENU, MAIN_MENU
 
 
-def get_handlers():
-    return [
-        admin,
-        settings,
-        app,
-    ]
-
-
-@get("/admin/")
-async def admin() -> Template:
+@app.get("/admin/")
+@app.ext.template("admin/index.html")
+async def admin_view(request) -> dict:
     client = get_client()
     result = client.call("list")
     result.sort(key=lambda app: app["app_id"].lower())
@@ -45,11 +38,12 @@ async def admin() -> Template:
         "title": "Admin",
         "body": Markup(body),
     }
-    return Template(name="admin/index.html", context=context)
+    return context
 
 
-@get("/admin/apps/{app_id:str}/")
-async def app(app_id: str) -> Template:
+@app.get("/admin/apps/<app_id:str>/")
+@app.ext.template("admin/index.html")
+async def app_view(request, app_id: str) -> dict:
     client = get_client()
     result = client.call("list")
 
@@ -76,11 +70,12 @@ async def app(app_id: str) -> Template:
         "title": f"App: {app_id}",
         "body": Markup(body),
     }
-    return Template(name="admin/index.html", context=context)
+    return context
 
 
-@get("/admin/settings/")
-async def settings() -> Template:
+@app.get("/admin/settings/")
+@app.ext.template("admin/default.html")
+async def settings_view(request) -> dict:
     client = get_client()
     result = client.call("settings")
 
@@ -101,7 +96,7 @@ async def settings() -> Template:
         "title": "Settings",
         "body": Markup(body),
     }
-    return Template(name="admin/default.html", context=context)
+    return context
 
 
 def json_pp(obj):

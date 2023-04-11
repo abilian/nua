@@ -1,25 +1,28 @@
-"""Minimal Starlite application."""
+"""Main Sanic application."""
 
-from pathlib import Path
-
-from starlite import Starlite, StaticFilesConfig, TemplateConfig
-from starlite.contrib.jinja import JinjaTemplateEngine
-
+# Imported for side-effects => don't remove the assert statements
 from nua_server.pages import admin, home
 
-handlers = home.get_handlers() + admin.get_handlers()
+from .app import app
+
+assert admin
+assert home
+assert app
 
 
-template_config = TemplateConfig(
-    directory=Path(__file__).parent / "templates", engine=JinjaTemplateEngine
-)
+# handlers = home.get_handlers() + admin.get_handlers()
+#
+#
+# template_config = TemplateConfig(
+#     directory=Path(__file__).parent / "templates", engine=JinjaTemplateEngine
+# )
+#
+# static_files_config = [
+#     StaticFilesConfig(directories=[Path(__file__).parent / "static"], path="/static"),
+# ]
 
-static_files_config = [
-    StaticFilesConfig(directories=[Path(__file__).parent / "static"], path="/static"),
-]
-
-app = Starlite(
-    route_handlers=handlers,
-    template_config=template_config,
-    static_files_config=static_files_config,
-)
+# app = Starlite(
+#     route_handlers=handlers,
+#     template_config=template_config,
+#     static_files_config=static_files_config,
+# )
