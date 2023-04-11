@@ -6,11 +6,11 @@ import typer
 from nua_cli.client import get_client
 from nua_cli.common import get_current_app_id
 
-app = typer.Typer(name="config")
+cli = typer.Typer(name="config")
 client = get_client()
 
 
-@app.command()
+@cli.command()
 def show(app_id: str = typer.Argument("", help="Id of the application.")):
     """Show application config."""
     result = client.call("list")
@@ -30,7 +30,7 @@ def show(app_id: str = typer.Argument("", help="Id of the application.")):
         sys.exit(1)
 
 
-@app.callback(invoke_without_command=True)
+@cli.callback(invoke_without_command=True)
 def main(ctx: typer.Context):
     """Show/edit application config."""
     if ctx.invoked_subcommand is None:

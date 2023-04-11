@@ -32,25 +32,25 @@ import snoop
 import typer
 
 from .client import get_client
+from .commands import config, server
 from .common import OPTS, get_current_app_id
-from .subcommands import config, server
 from .version import get_version
 
 snoop.install()
 
-app = typer.Typer()
+cli = typer.Typer()
 client = get_client()
 
 
 # Subcommands
-app.add_typer(server.app)
-app.add_typer(config.app)
+cli.add_typer(server.cli)
+cli.add_typer(config.cli)
 
 
 #
 # Done
 #
-@app.command()
+@cli.command()
 def apps():
     """List applications."""
     result = client.call("list")
@@ -69,13 +69,13 @@ def apps():
         typer.secho(f"{app_id} ({status})", fg=color)
 
 
-@app.command()
+@cli.command()
 def help(ctx: typer.Context):
     """Show help."""
     print(ctx.get_help())
 
 
-@app.command()
+@cli.command()
 def version():
     """Show Nua version."""
     typer.echo(f"Nua CLI version: {get_version()}")
@@ -83,7 +83,7 @@ def version():
     typer.echo(f"Nua Server version: {status['version']}")
 
 
-@app.command()
+@cli.command()
 def backup():
     """Backup a deployed application."""
     result = client.call_raw("backup")
@@ -93,7 +93,7 @@ def backup():
 #
 # TODO: application lifecycle operations
 #
-@app.command()
+@cli.command()
 def build(
     path: str = ".",
     experimental: bool = typer.Option(
@@ -120,25 +120,25 @@ def build(
         subprocess.run(["nua-build"] + verbosity_flags + [path])
 
 
-@app.command()
+@cli.command()
 def destroy():
     """Destroy an application."""
     typer.secho("Not implemented yet", fg=typer.colors.RED)
 
 
-@app.command()
+@cli.command()
 def start():
     """Start an application."""
     typer.secho("Not implemented yet", fg=typer.colors.RED)
 
 
-@app.command()
+@cli.command()
 def stop():
     """Stop an application."""
     typer.secho("Not implemented yet", fg=typer.colors.RED)
 
 
-@app.command()
+@cli.command()
 def logs(app_id: Optional[str] = typer.Argument(None, help="Application ID")):
     """Show application logs."""
     # Quick & dirty implementation that calls docker directly.
@@ -152,19 +152,19 @@ def logs(app_id: Optional[str] = typer.Argument(None, help="Application ID")):
     print(result.stderr)
 
 
-@app.command()
+@cli.command()
 def update():
     """Update an application."""
     typer.secho("Not implemented yet", fg=typer.colors.RED)
 
 
-@app.command()
+@cli.command()
 def restore():
     """Restore backup data of a deployed application."""
     typer.secho("Not implemented yet", fg=typer.colors.RED)
 
 
-@app.callback(invoke_without_command=True)
+@cli.callback(invoke_without_command=True)
 def main(
     ctx: typer.Context,
     version: Optional[bool] = OPTS["version"],

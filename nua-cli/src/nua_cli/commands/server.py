@@ -5,11 +5,11 @@ import typer
 
 from nua_cli.client import get_client
 
-app = typer.Typer(name="server")
+cli = typer.Typer(name="server")
 client = get_client()
 
 
-@app.command()
+@cli.command()
 def logs(service: str = typer.Argument("", help="Service to show logs for")):
     """Show server logs."""
     if not service:
@@ -27,7 +27,7 @@ def logs(service: str = typer.Argument("", help="Service to show logs for")):
             raise typer.BadParameter("Service must be one of: nua, letsencrypt, nginx")
 
 
-@app.command()
+@cli.command()
 def status():
     """Show Nua status."""
     result = client.call("status")
@@ -45,28 +45,28 @@ def status():
         print(msg)
 
 
-@app.command()
+@cli.command()
 def settings():
     """Show server settings."""
     result = client.call("settings")
     pp(result)
 
 
-@app.command()
+@cli.command()
 def ps():
     """List all server processes."""
     result = client.ssh("ps -aux")
     print(result.stdout)
 
 
-@app.command()
+@cli.command()
 def uptime():
     """Show server uptime."""
     result = client.ssh("uptime")
     print(result.stdout)
 
 
-@app.callback(invoke_without_command=True)
+@cli.callback(invoke_without_command=True)
 def main(ctx: typer.Context):
     """Manage the Nua server."""
     if ctx.invoked_subcommand is None:
