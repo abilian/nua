@@ -31,6 +31,7 @@ from .deploy_utils import (
     mount_resource_volumes,
     port_allocator,
     pull_resource_container,
+    restart_one_app_containers,
     start_container_engine,
     start_one_app_containers,
     start_one_container,
@@ -280,6 +281,15 @@ class AppDeployment:
         for site in apps:
             stop_one_app_containers(site)
             self.store_container_instance(site, state=STOPPED)
+
+    def restart_deployed_apps(self, domain: str, apps: list[AppInstance]):
+        """Restart deployed instances."""
+        with verbosity(1):
+            info(f"Restart instance of domain '{domain}'.")
+        for site in apps:
+            # self.start_network(site)
+            restart_one_app_containers(site)
+            self.store_container_instance(site)
 
     def parse_deploy_apps(self):
         """Make the list of AppInstances.

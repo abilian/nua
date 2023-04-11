@@ -12,11 +12,12 @@ from nua.lib.tool.state import verbosity
 
 from .app_instance import AppInstance
 from .db import store
-from .docker_utils import (  # docker_restart_container_name,
+from .docker_utils import (
     docker_host_gateway_ip,
     docker_network_create_bridge,
     docker_network_prune,
     docker_remove_container_previous,
+    docker_restart_container_name,
     docker_run,
     docker_service_start_if_needed,
     docker_start_container_name,
@@ -196,6 +197,12 @@ def start_one_app_containers(site: AppInstance):
     start_one_deployed_container(site)
 
 
+def restart_one_app_containers(site: AppInstance):
+    for resource in site.resources:
+        restart_one_deployed_container(resource)
+    restart_one_deployed_container(site)
+
+
 def stop_one_container(rsite: Resource):
     with verbosity(1):
         info(f"    -> stop container of name: {rsite.container_name}")
@@ -217,11 +224,25 @@ def start_one_deployed_container(rsite: Resource):
     start_containers([rsite.container_name])
 
 
+def restart_one_deployed_container(rsite: Resource):
+    with verbosity(1):
+        info(f"    -> restart container of name: {rsite.container_name}")
+        info(f"                    container id: {rsite.container_id_short}")
+    restart_containers([rsite.container_name])
+
+
 def start_containers(container_names: list[str]):
     for name in container_names:
         if not name:
             continue
         docker_start_container_name(name)
+
+
+def restart_containers(container_names: list[str]):
+    for name in container_names:
+        if not name:
+            continue
+        docker_restart_container_name(name)
 
 
 def deactivate_containers(container_names: list[str], show_warning: bool = True):

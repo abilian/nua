@@ -17,7 +17,8 @@ from .commands.deploy import deploy_nua_apps
 from .commands.deploy_nua import deploy_nua
 from .commands.local_cmd import reload_servers, status
 from .commands.restore import restore_nua_apps_replay, restore_nua_apps_strict
-from .commands.start_stop import (  # restart_nua_instance_domain,
+from .commands.start_stop import (
+    restart_nua_instance_domain,
     start_nua_instance_domain,
     stop_nua_instance_domain,
 )
@@ -159,20 +160,20 @@ def start_local(
         print("WIP: currently a domain must be provided.")
 
 
-# @app.command("restart")
-# def restart_local(
-#     verbose: int = opt_verbose,
-#     colorize: bool = option_color,
-#     domain: str = option_domain,
-# ):
-#     """Restart a deployed instance."""
-#     set_verbosity(verbose)
-#     set_color(colorize)
-#     initialization()
-#     if domain:
-#         restart_nua_instance_domain(domain)
-#     else:
-#         print("WIP: currently a domain must be provided.")
+@app.command("restart")
+def restart_local(
+    verbose: int = opt_verbose,
+    colorize: bool = option_color,
+    domain: str = option_domain,
+):
+    """Restart a deployed instance."""
+    set_verbosity(verbose)
+    set_color(colorize)
+    initialization()
+    if domain:
+        restart_nua_instance_domain(domain)
+    else:
+        print("WIP: currently a domain must be provided.")
 
 
 @app.command("backup")

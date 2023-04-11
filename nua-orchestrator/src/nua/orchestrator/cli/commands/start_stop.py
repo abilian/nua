@@ -29,3 +29,15 @@ def stop_nua_instance_domain(domain: str):
     deployer.remove_nginx_configuration(domain)
     deployer.stop_deployed_apps(domain, stopping_apps)
     deployer.post_deployment()
+
+
+def restart_nua_instance_domain(domain: str):
+    """Restart some deployed app instance.
+
+    WIP: at the moment requires identification of the instance per domain name.
+    """
+    deployer = AppDeployment()
+    restarting_apps = deployer.instances_of_domain(domain)
+    deployer.restart_deployed_apps(domain, restarting_apps)
+    deployer.reconfigure_nginx_domain(domain)
+    deployer.post_deployment()
