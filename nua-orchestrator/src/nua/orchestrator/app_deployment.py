@@ -154,7 +154,7 @@ class AppDeployment:
         with verbosity(3):
             self.print_host_list()
 
-    def _load_deployed_configuration(self):
+    def load_deployed_configuration(self):
         previous_config = self.previous_success_deployment_record()
         if not previous_config:
             raise Abort("Impossible to find a previous deployment.")
@@ -167,7 +167,7 @@ class AppDeployment:
 
     def instances_of_domain(self, domain: str) -> list[AppInstance]:
         """Select deployed instances of domain."""
-        self._load_deployed_configuration()
+        self.load_deployed_configuration()
         for apps_dom in self.apps_per_domain:
             if apps_dom["hostname"] == domain:
                 return apps_dom["apps"]
@@ -177,13 +177,13 @@ class AppDeployment:
         """Retrieve last successful deployment configuration (strict mode)."""
         with verbosity(1):
             info("Deploy apps from previous deployment (strict mode).")
-        self._load_deployed_configuration()
+        self.load_deployed_configuration()
 
     def restore_previous_deploy_config_replay(self):
         """Retrieve last successful deployment configuration (replay mode)."""
         with verbosity(1):
             info("Deploy apps from previous deployment (replay deployment).")
-        self._load_deployed_configuration()
+        self.load_deployed_configuration()
         with verbosity(3):
             self.print_host_list()
 
@@ -294,6 +294,13 @@ class AppDeployment:
             restart_one_app_containers(site)
             site.running_status = RUNNING
             self.store_container_instance(site)
+
+    def remove_data(self, domain: str, apps: list[AppInstance]):
+        """Remove data of stopped app: container, volume, network."""
+        with verbosity(1):
+            info(f"Remove instance of domain '{domain}'.")
+        for site in apps:
+            deactivate_app(site)
 
     def parse_deploy_apps(self):
         """Make the list of AppInstances.
@@ -814,14 +821,14 @@ class AppDeployment:
 
     def post_deployment(self):
         self.store_deploy_configs_after_swap()
-        self.display_final()
+        self.display_deployment_status()
 
-    def display_final(self):
-        self.display_deployed()
+    def display_deployment_status(self):
+        self.display_deployed_apps()
         self.display_used_volumes()
         self.display_unused_volumes()
 
-    def display_deployed(self):
+    def display_deployed_apps(self):
         protocol = protocol_prefix()
         for site in self.apps:
             msg = f"Instance name: {site.instance_name_internal}"
