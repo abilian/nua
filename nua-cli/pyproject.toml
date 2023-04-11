@@ -17,12 +17,13 @@ python = ">=3.10,<3.12"
 tomli = "^2.0.1"
 typer = "^0.7.0"
 fabric = "^3.0.0"
+# Temp: use snoop in prod code
+snoop = "*"
 
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
 devtools = "*"
 types-setuptools = "*"
-snoop = "*"
 
 # To please poetry
 platformdirs = "<3.0.0"
