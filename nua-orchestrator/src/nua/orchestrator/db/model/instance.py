@@ -3,7 +3,7 @@ from sqlalchemy_serializer import SerializerMixin
 
 from .base import Base
 
-RUNNING = "running"
+RUNNING = "started"
 STOPPED = "stopped"
 
 
