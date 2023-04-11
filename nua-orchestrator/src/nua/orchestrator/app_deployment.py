@@ -32,6 +32,7 @@ from .deploy_utils import (
     port_allocator,
     pull_resource_container,
     start_container_engine,
+    start_one_app_containers,
     start_one_container,
     stop_one_app_containers,
     unused_volumes,
@@ -163,17 +164,13 @@ class AppDeployment:
         ]
         self.sort_apps_per_name_domain()
 
-    def instances_of_domain(self, stop_domain: str) -> list[AppInstance]:
-        """Set isntance of domain app to "stopped"."""
-        with verbosity(1):
-            info(f"Stop instance of domain '{stop_domain}'.")
+    def instances_of_domain(self, domain: str) -> list[AppInstance]:
+        """Select deployed instances of domain."""
         self._load_deployed_configuration()
-        target_apps = [
-            apps for apps in self.apps_per_domain if apps["hostname"] == stop_domain
-        ]
-        if not target_apps:
-            raise Abort(f"No instance found for domain '{stop_domain}'")
-        return target_apps
+        for apps_dom in self.apps_per_domain:
+            if apps_dom["hostname"] == domain:
+                return apps_dom["apps"]
+        raise Abort(f"No instance found for domain '{domain}'")
 
     def restore_previous_deploy_config_strict(self):
         """Retrieve last successful deployment configuration (strict mode)."""
@@ -267,9 +264,20 @@ class AppDeployment:
         chown_r_nua_nginx()
         nginx_restart()
 
-    def stop_apps(self, apps: list[AppInstance]):
-        """Stop app instances."""
-        for site in self.apps:
+    def start_deployed_apps(self, domain: str, apps: list[AppInstance]):
+        """Start deployed instances previously stopped."""
+        with verbosity(1):
+            info(f"Start instance of domain '{domain}'.")
+        for site in apps:
+            # self.start_network(site)
+            start_one_app_containers(site)
+            self.store_container_instance(site)
+
+    def stop_deployed_apps(self, domain: str, apps: list[AppInstance]):
+        """Stop deployed app instances."""
+        with verbosity(1):
+            info(f"Stop instance of domain '{domain}'.")
+        for site in apps:
             stop_one_app_containers(site)
             self.store_container_instance(site, state=STOPPED)
 
@@ -544,6 +552,15 @@ class AppDeployment:
             with verbosity(1):
                 info(f"Configure Nginx for domain '{host['hostname']}'")
             configure_nginx_hostname(host)
+
+    def reconfigure_nginx_domain(self, domain: str):
+        for host in self.apps_per_domain:
+            if host["hostname"] != domain:
+                continue
+            with verbosity(1):
+                info(f"Configure Nginx for domain '{host['hostname']}'")
+            configure_nginx_hostname(host)
+        nginx_reload()
 
     def apps_generate_ports(self):
         start_ports = config.read("nua", "ports", "start") or 8100

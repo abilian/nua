@@ -12,13 +12,14 @@ from nua.lib.tool.state import verbosity
 
 from .app_instance import AppInstance
 from .db import store
-from .docker_utils import (
+from .docker_utils import (  # docker_restart_container_name,
     docker_host_gateway_ip,
     docker_network_create_bridge,
     docker_network_prune,
     docker_remove_container_previous,
     docker_run,
     docker_service_start_if_needed,
+    docker_start_container_name,
     docker_stop_container_name,
     docker_volume_create_or_use,
     docker_volume_prune,
@@ -181,15 +182,21 @@ def start_one_container(rsite: Resource, mounted_volumes: list):
             info(f"    connected to network: {rsite.network_name}")
 
 
-def stop_one_app_containers(rsite: Resource):
-    stop_one_container(rsite)
-    for resource in rsite.resources:
+def stop_one_app_containers(site: AppInstance):
+    stop_one_container(site)
+    for resource in site.resources:
         stop_one_container(resource)
-    docker_network_prune()
+    # docker_network_prune() : no, need to keep same network to easily restart the
+    # container with same network.
+
+
+def start_one_app_containers(site: AppInstance):
+    for resource in site.resources:
+        start_one_deployed_container(resource)
+    start_one_deployed_container(site)
 
 
 def stop_one_container(rsite: Resource):
-    # rsite.container_id
     with verbosity(1):
         info(f"    -> stop container of name: {rsite.container_name}")
         info(f"                 container id: {rsite.container_id_short}")
@@ -201,6 +208,20 @@ def stop_containers(container_names: list[str]):
         if not name:
             continue
         docker_stop_container_name(name)
+
+
+def start_one_deployed_container(rsite: Resource):
+    with verbosity(1):
+        info(f"    -> start container of name: {rsite.container_name}")
+        info(f"                  container id: {rsite.container_id_short}")
+    start_containers([rsite.container_name])
+
+
+def start_containers(container_names: list[str]):
+    for name in container_names:
+        if not name:
+            continue
+        docker_start_container_name(name)
 
 
 def deactivate_containers(container_names: list[str], show_warning: bool = True):
