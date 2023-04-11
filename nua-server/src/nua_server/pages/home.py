@@ -19,7 +19,7 @@ async def home_view(request) -> dict:
             {
                 "app_id": instance["app_id"],
                 "name": metadata["title"],
-                "tagline": metadata["tagline"],
+                "tagline": metadata.get("tagline", ""),
                 "url": f"https://{site_config['hostname']}/",
                 "tags": metadata.get("tags", []),
             }

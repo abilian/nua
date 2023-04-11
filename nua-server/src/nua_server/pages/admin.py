@@ -36,32 +36,6 @@ async def admin_view(request) -> dict:
     return context
 
 
-@app.get("/admin/apps/<app_id:str>/")
-@app.ext.template("admin/index.html")
-async def app_view(request, app_id: str) -> dict:
-    client = get_client()
-    result = client.call("list")
-
-    app = None
-    for instance in result:
-        if instance["app_id"] == app_id:
-            app = instance
-            break
-
-    body = h = html()
-    with h.div(class_="content ~neutral"):
-        h.h2("Raw output")
-        h.pre(json_pp(app))
-
-    context = {
-        "main_menu": MAIN_MENU,
-        "admin_menu": ADMIN_MENU,
-        "title": f"App: {app_id}",
-        "body": Markup(str(body)),
-    }
-    return context
-
-
 @app.get("/admin/settings/")
 @app.ext.template("admin/default.html")
 async def settings_view(request) -> dict:
@@ -80,6 +54,60 @@ async def settings_view(request) -> dict:
         "body": Markup(str(body)),
     }
     return context
+
+
+@app.get("/admin/apps/<app_id:str>/")
+@app.ext.template("admin/index.html")
+async def app_view(request, app_id: str) -> dict:
+    app_info = get_app_info(app_id)
+
+    body = h = html()
+    with h.div(class_="content ~neutral"):
+        h.h2("Raw output")
+        h.pre(json_pp(app_info))
+
+    context = {
+        "main_menu": MAIN_MENU,
+        "admin_menu": ADMIN_MENU,
+        "title": f"App: {app_id}",
+        "body": Markup(str(body)),
+    }
+    return context
+
+
+@app.get("/admin/apps/<app_id:str>/logs/")
+@app.ext.template("admin/index.html")
+async def app_logs_view(request, app_id: str) -> dict:
+    app_info = get_app_info(app_id)
+
+    body = h = html()
+    with h.div(class_="content ~neutral"):
+        h.h2("Raw output")
+        h.pre(json_pp(app_info))
+
+    context = {
+        "main_menu": MAIN_MENU,
+        "admin_menu": ADMIN_MENU,
+        "title": f"App: {app_id}",
+        "body": Markup(str(body)),
+    }
+    return context
+
+
+#
+# Utils
+#
+def get_app_info(app_id: str) -> dict:
+    client = get_client()
+    result = client.call("list")
+
+    app = None
+    for instance in result:
+        if instance["app_id"] == app_id:
+            app = instance
+            break
+
+    return app
 
 
 def json_pp(obj):
