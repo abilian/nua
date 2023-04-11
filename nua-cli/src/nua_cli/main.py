@@ -13,29 +13,30 @@ TODO:
 [ ] help              Display help
 [ ] init              Create a new app
 [x] logs              Tail running logs
-[ ] ps                Show process count
 [ ] restart           Restart an app
 [ ] run               Run a command in the app's environment
 [ ] scale             Scale processes
-[ ] settings          Show server settings
+[ ] server            Manage the Nua server
 [ ] start             Start an app
 [ ] status            Show app status
 [ ] stop              Stop an app
-[ ] update            Update the Nua CLI
+[ ] update            Update an app
 [x] version           Show Nua version
 """
 from __future__ import annotations
 
 import subprocess
-from pprint import pp
 from typing import Optional
 
+import snoop
 import typer
 
 from .client import get_client
 from .common import OPTS, get_current_app_id
 from .subcommands import config, server
 from .version import get_version
+
+snoop.install()
 
 app = typer.Typer()
 client = get_client()
@@ -54,13 +55,24 @@ def apps():
     """List applications."""
     result = client.call("list")
     for instance in result:
-        typer.echo(instance["app_id"])
+        app_id = instance["app_id"]
+        container_id = instance["site_config"]["container_id"]
+        container_info = client.get_container_info(container_id)
+        status = container_info[0]["State"]["Status"]
+        match status:
+            case "running":
+                color = typer.colors.GREEN
+            case "exited":
+                color = typer.colors.RED
+            case _:
+                color = typer.colors.YELLOW
+        typer.secho(f"{app_id} ({status})", fg=color)
 
 
 @app.command()
 def help(ctx: typer.Context):
     """Show help."""
-    print(app)
+    print(ctx.get_help())
 
 
 @app.command()
@@ -106,21 +118,6 @@ def build(
         subprocess.run(["nua-dev", "build", path])
     else:
         subprocess.run(["nua-build"] + verbosity_flags + [path])
-
-
-@app.command()
-def deploy(image: str, domain: str):
-    """Deploy an application."""
-    deply_config = {
-        "site": [
-            {
-                "domain": domain,
-                "image": image,
-            },
-        ],
-    }
-    result = client.call("deploy", deploy_config=deply_config)
-    pp(result)
 
 
 @app.command()

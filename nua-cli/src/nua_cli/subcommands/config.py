@@ -11,11 +11,10 @@ client = get_client()
 
 
 @app.command()
-def show(app: str = typer.Option("", help="Id of the application.")):
+def show(app_id: str = typer.Argument("", help="Id of the application.")):
     """Show application config."""
     result = client.call("list")
 
-    app_id = app
     if not app_id:
         app_id = get_current_app_id()
     if not app_id:
@@ -31,7 +30,7 @@ def show(app: str = typer.Option("", help="Id of the application.")):
         sys.exit(1)
 
 
-@app.callback()
+@app.callback(invoke_without_command=True)
 def main(ctx: typer.Context):
     """Show/edit application config."""
     if ctx.invoked_subcommand is None:

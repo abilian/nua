@@ -61,6 +61,10 @@ class Client:
 
         raise ValueError(f"App {app_id} not found")
 
+    def get_container_info(self, container_id: str) -> dict:
+        result = self.ssh(f"docker inspect {container_id}").stdout
+        return json.loads(result)
+
 
 _CLIENT = None
 
