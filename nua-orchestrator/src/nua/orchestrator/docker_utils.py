@@ -67,6 +67,19 @@ def docker_container_of_name(name: str) -> list[Container]:
         return []
 
 
+def docker_start_container_name(name: str):
+    if not name:
+        return
+    containers = docker_container_of_name(name)
+    with verbosity(3):
+        vprint("docker_start_container_name():", containers)
+    if not containers:
+        warning(f"docker_start_container_name(): no container of name '{name}'")
+        return
+    for ctn in containers:
+        _docker_start_container(ctn)
+
+
 def _docker_wait_empty_container_list(name: str, timeout: int) -> bool:
     if not timeout:
         timeout = 1
@@ -103,6 +116,20 @@ def _docker_stop_container(container: Container):
         container.stop()
     except APIError as e:
         warning(f"Stopping container error: {e}")
+
+
+def _docker_start_container(container: Container):
+    try:
+        container.start()
+    except APIError as e:
+        warning(f"Starting container error: {e}")
+
+
+def _docker_restart_container(container: Container):
+    try:
+        container.restart()
+    except APIError as e:
+        warning(f"Restarting container error: {e}")
 
 
 def _docker_remove_container(name: str, force=False, volume=False):
