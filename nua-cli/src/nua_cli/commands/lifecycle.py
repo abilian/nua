@@ -1,4 +1,4 @@
-from nua_cli.base import Command, Argument
+from nua_cli.base import Argument, Command
 from nua_cli.client import get_client
 from nua_cli.colors import red
 
@@ -25,6 +25,8 @@ class StartCommand(Command):
 
 class StopCommand(Command):
     """Stop an application."""
+
+    # TODO: add --all option
 
     name = "stop"
 

@@ -16,7 +16,13 @@ class AppsCommand(Command):
             app_id = instance["app_id"]
             domain = instance["site_config"]["domain"]
             container_id = instance["site_config"]["container_id"]
-            container_info = client.get_container_info(container_id)
+
+            try:
+                container_info = client.get_container_info(container_id)
+            except ValueError:
+                print(red(f"{app_id} @ {domain} - container not found"))
+                continue
+
             status = container_info[0]["State"]["Status"]
 
             match status:

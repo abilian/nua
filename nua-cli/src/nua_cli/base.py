@@ -1,3 +1,11 @@
+"""
+Simple framework for building command line applications with multiple
+commands and subcommands.
+
+Similar to Cleo.
+
+Based on the stdlib argparse module.
+"""
 from __future__ import annotations
 
 import argparse
@@ -94,6 +102,7 @@ class CLI:
     #
     def find_command(self) -> type[Command]:
         args = sys.argv[1:]
+        args = [arg for arg in args if not arg.startswith("-")]
         args_str = " ".join(args)
         commands = sorted(self.commands, key=lambda command: -len(command.name))
         for command in commands:
@@ -120,6 +129,7 @@ class CLI:
             sys.exit(1)
 
     def call_command(self, command: Command, args: argparse.Namespace):
+        # Inject arguments into the command `run` method.
         sign = inspect.signature(command.run)
         kwargs = {}
         for name, parameter in sign.parameters.items():
@@ -131,6 +141,7 @@ class CLI:
             else:
                 value = parameter.default
             kwargs[name] = value
+
         command.run(**kwargs)
 
     def add_command(self, command_class: type[Command]):
