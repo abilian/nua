@@ -12,7 +12,7 @@ from nua.lib.tool.state import verbosity
 
 from .app_instance import AppInstance
 from .db import store
-from .docker_utils import (
+from .docker_utils import (  # docker_volume_prune,
     docker_host_gateway_ip,
     docker_network_create_bridge,
     docker_network_prune,
@@ -25,7 +25,6 @@ from .docker_utils import (
     docker_start_container_name,
     docker_stop_container_name,
     docker_volume_create_or_use,
-    docker_volume_prune,
 )
 from .higher_package import higher_package
 from .internal_secrets import secrets_dict

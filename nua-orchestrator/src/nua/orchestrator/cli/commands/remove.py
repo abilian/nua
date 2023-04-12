@@ -1,6 +1,4 @@
 """Nua main scripts."""
-from pprint import pformat
-
 from nua.orchestrator.app_deployment import AppDeployment
 
 
