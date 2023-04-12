@@ -288,10 +288,10 @@ def tmp_install_package_list(
             apt_remove_lists()
 
 
-def installed_packages() -> list:
+def installed_packages() -> set:
     cmd = "apt list --installed"
     result = sh(cmd, timeout=SHORT_TIMEOUT, capture_output=True, show_cmd=False)
-    return result.splitlines()
+    return {name.split("/")[0] for name in result.splitlines()}
 
 
 def npm_install(package: str, force: bool = False) -> None:
