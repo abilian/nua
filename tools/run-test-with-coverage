@@ -43,7 +43,7 @@ def main():
     sh("poetry install")
     # sh("poetry run codecov --file */.coverage")
     sh("coverage combine */.coverage")
-    sh("poetry run codecov --file .coverage")
+    # sh("poetry run codecov --file .coverage")
 
 
 if __name__ == "__main__":

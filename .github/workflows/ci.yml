@@ -30,9 +30,9 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - run: pip install -U pip setuptools wheel nox poetry codecov
+      - run: pip install -U pip setuptools wheel nox poetry
       - run: nox -e "${{ matrix.action }}(sub_repo='${{ matrix.sub_repo }}')"
-      - run: codecov
+      # - run: codecov
       - name: Notify slack fail
         if: failure()
         env:
@@ -44,15 +44,15 @@ jobs:
           status: FAILED
           color: danger
 
-  coverage:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-      - run: pip install -U pip setuptools wheel poetry codecov
-      - run: ./tools/run-test-with-coverage
-      # Not needed
-      # - run: codecov
+#  coverage:
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - uses: actions/checkout@v3
+#      - uses: actions/setup-python@v4
+#        with:
+#          python-version: "3.11"
+#      - run: pip install -U pip setuptools wheel poetry
+#      # - run: ./tools/run-test-with-coverage
+#      # Not needed
+#      # - run: codecov

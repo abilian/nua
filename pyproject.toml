@@ -32,7 +32,6 @@ autotyping = "^22.9.0"
 invoke = "^2.0.0"
 
 # Code coverage (reporting)
-codecov = "*"
 
 # Debug
 snoop = "*"
