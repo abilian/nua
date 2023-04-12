@@ -64,7 +64,7 @@ class Client:
         try:
             result = self.ssh(f"docker inspect {container_id}").stdout
             return json.loads(result)
-        except:
+        except:  # noqa
             raise ValueError(f"Container {container_id} not found")
 
 
