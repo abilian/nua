@@ -136,7 +136,7 @@ def pg_check_installed() -> bool:
 
 
 def _pg_check_installed_version() -> bool:
-    package = f"postgresql-{PG_VERSION}/"
+    package = f"postgresql-{PG_VERSION}"
     if package in installed_packages():
         return True
     warning(f"Required package not installed: {package}")
