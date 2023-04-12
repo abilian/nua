@@ -78,6 +78,7 @@ def usage():
 def status_local():
     """Status of orchestrator."""
     initialization()
+    set_verbosity(1)
     status()
 
 

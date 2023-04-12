@@ -16,7 +16,9 @@ from .docker_utils import (
     docker_host_gateway_ip,
     docker_network_create_bridge,
     docker_network_prune,
+    docker_network_remove_one,
     docker_remove_container_previous,
+    docker_remove_volume_by_source,
     docker_restart_container_name,
     docker_run,
     docker_service_start_if_needed,
@@ -124,6 +126,13 @@ def create_docker_volumes(volumes_config: list):
         docker_volume_create_or_use(volume_params)
 
 
+def remove_volume_by_source(source: str):
+    if not source:
+        return
+    info(f"Removing volume: {source}")
+    docker_remove_volume_by_source(source)
+
+
 def new_docker_mount(volume_params: dict) -> docker.types.Mount:
     volume = Volume.parse(volume_params)
     if volume.type == "volume":
@@ -159,9 +168,9 @@ def new_docker_driver_config(volume: Volume) -> docker.types.DriverConfig | None
     return docker.types.DriverConfig(volume.driver)
 
 
-def unmount_unused_volumes(orig_mounted_volumes: list):
-    for unused in unused_volumes(orig_mounted_volumes):
-        docker_volume_prune(unused)
+# def unmount_unused_volumes(orig_mounted_volumes: list):
+#     for unused in unused_volumes(orig_mounted_volumes):
+#         docker_volume_prune(unused)
 
 
 def start_one_container(rsite: Resource, mounted_volumes: list):
@@ -290,11 +299,23 @@ def start_container_engine():
 
 
 def create_container_private_network(network_name: str):
-    """Create a private network for the container (and it's surb containers).
+    """Create a private network for the container (and it's sub containers).
 
     Currrently: only managing Docker bridge network.
     """
+    if not network_name:
+        return
     docker_network_create_bridge(network_name)
+
+
+def remove_container_private_network(network_name: str):
+    """Remove an existing private network.
+
+    Currrently: only managing Docker bridge network.
+    """
+    if not network_name:
+        return
+    docker_network_remove_one(network_name)
 
 
 def pull_resource_container(resource: Resource) -> bool:

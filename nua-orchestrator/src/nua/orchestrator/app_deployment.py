@@ -12,7 +12,15 @@ from pprint import pformat
 from typing import Any
 
 from nua.lib.console import print_green, print_red
-from nua.lib.panic import Abort, info, vprint, vprint_green, vprint_magenta, warning
+from nua.lib.panic import (
+    Abort,
+    info,
+    show,
+    vprint,
+    vprint_green,
+    vprint_magenta,
+    warning,
+)
 from nua.lib.tool.state import verbosity
 
 from . import config
@@ -31,6 +39,8 @@ from .deploy_utils import (
     mount_resource_volumes,
     port_allocator,
     pull_resource_container,
+    remove_container_private_network,
+    remove_volume_by_source,
     restart_one_app_containers,
     start_container_engine,
     start_one_app_containers,
@@ -84,6 +94,7 @@ class AppDeployment:
         self.available_services = {}
         self.orig_mounted_volumes = []
         self.previous_config_id = 0
+        self._mounted_before_removing = []  # internal use when removing app instance
         # self.future_config_id = 0
 
     @staticmethod
@@ -129,6 +140,18 @@ class AppDeployment:
         self.future_config_id = store.deploy_config_add_config(
             deploy_config, self.previous_config_id, ACTIVE
         )
+
+    def remove_app_instance(self, removed_app: AppInstance):
+        domain = removed_app.hostname
+        apps = [app for app in self.apps if app != removed_app]
+        self.apps = apps
+        self.sort_apps_per_name_domain()
+        self.remove_domain_from_config(domain)
+
+    def remove_domain_from_config(self, domain: str):
+        sites = self.loaded_config.get("site", [])
+        new_sites = [item for item in sites if item.get("domain", "") != domain]
+        self.loaded_config["site"] = new_sites
 
     def local_services_inventory(self):
         """Initialization step: inventory of available resources available on
@@ -295,12 +318,39 @@ class AppDeployment:
             site.running_status = RUNNING
             self.store_container_instance(site)
 
-    def remove_data(self, domain: str, apps: list[AppInstance]):
-        """Remove data of stopped app: container, volume, network."""
+    def remove_container_and_network(self, domain: str, apps: list[AppInstance]):
+        """Remove stopped app: container, network, but not volumes."""
         with verbosity(1):
             info(f"Remove instance of domain '{domain}'.")
+        self._mounted_before_removing = store.list_instances_container_active_volumes()
         for site in apps:
             deactivate_app(site)
+            remove_container_private_network(site.network_name)
+
+    @staticmethod
+    def _local_volumes_dict(volume_list: list) -> dict:
+        return {
+            item["source"]: item
+            for item in volume_list
+            if item["type"] == "volume" and item["driver"] == "local"
+        }
+
+    def remove_managed_volumes(self, apps: list[AppInstance]):
+        """Remove data of stopped app: local managed volumes."""
+        before = self._local_volumes_dict(self._mounted_before_removing)
+        now_used = self._local_volumes_dict(
+            store.list_instances_container_active_volumes()
+        )
+        for source in before:
+            if source not in now_used:
+                remove_volume_by_source(source)
+
+    def remove_deployed_instance(self, domain: str, apps: list[AppInstance]):
+        """Remove data of stopped app: local managed volumes."""
+        with verbosity(1):
+            info(f"Remove app instance of domain '{domain}'.")
+        for site in apps:
+            self.remove_app_instance(site)
 
     def parse_deploy_apps(self):
         """Make the list of AppInstances.
@@ -829,6 +879,10 @@ class AppDeployment:
         self.display_unused_volumes()
 
     def display_deployed_apps(self):
+        if not self.apps:
+            show("No app deployed.")
+            return
+        show("Deployed:")
         protocol = protocol_prefix()
         for site in self.apps:
             msg = f"Instance name: {site.instance_name_internal}"
