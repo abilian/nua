@@ -11,7 +11,7 @@ class LogsCommand(Command):
     name = "logs"
 
     arguments = [
-        Argument("app_id", "", help="Application ID"),
+        Argument("app_id", default="", help="Application ID"),
     ]
 
     def run(self, app_id: str = ""):

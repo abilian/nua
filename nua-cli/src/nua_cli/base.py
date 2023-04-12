@@ -25,14 +25,15 @@ from nua_cli.version import get_version
 
 class Command(ABC):
     name: str
-    args: list
-    options: list
     cli: CLI
 
-    arguments: list = []
+    arguments: list[Argument] = []
+    options: list[Option] = []
 
     def __init__(self, cli):
         self.cli = cli
+        # self.arguments = []
+        # self.options = []
 
     @abstractmethod
     def run(self, *args, **kwargs):
@@ -40,8 +41,8 @@ class Command(ABC):
 
 
 class Argument:
-    def __init__(self, name: str, default=None, **kwargs):
-        self.name = name
+    def __init__(self, *args, **kwargs):
+        self.args = args
         self.kwargs = kwargs
 
 
@@ -100,30 +101,29 @@ class CLI:
     #
     # Internal API
     #
-    def find_command(self) -> type[Command]:
+    def find_command(self) -> Command:
         args = sys.argv[1:]
         args = [arg for arg in args if not arg.startswith("-")]
         args_str = " ".join(args)
         commands = sorted(self.commands, key=lambda command: -len(command.name))
         for command in commands:
             if args_str.startswith(command.name):
-                return command
+                return command(self)
         raise CommandError("No command found")
 
-    def parse_args(self, command: type[Command]):
+    def parse_args(self, command: Command):
         parser = argparse.ArgumentParser(add_help=False, exit_on_error=False)
         for argument in command.arguments:
-            parser.add_argument(argument.name, **argument.kwargs)
+            parser.add_argument(*argument.args, **argument.kwargs)
         for option in self.options:
             parser.add_argument(*option.args, **option.kwargs)
         argv = sys.argv[len(command.name.split()) + 1 :]
         args = parser.parse_args(argv)
         return args
 
-    def run_command(self, args: argparse.Namespace, command: type[Command]):
+    def run_command(self, args: argparse.Namespace, command: Command):
         try:
-            cmd = command(self)
-            self.call_command(cmd, args)
+            self.call_command(command, args)
         except (BadArgument, CommandError) as e:
             print(red(e))
             sys.exit(1)
