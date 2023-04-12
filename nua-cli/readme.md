@@ -34,11 +34,13 @@ Here's the list of commands we should support, eventually (TBC):
 
 ```
 Available commands:
+  apps             List applications.
   backup           Backup a deployed application.
   config           Show/edit application config.
   destroy          Destroy an application.
   help             Show help.
   logs             Show application logs.
+  restart          Restart an application.
   restore          Restore backup data of a deployed application.
   server           Manage the Nua server.
   start            Start an application.

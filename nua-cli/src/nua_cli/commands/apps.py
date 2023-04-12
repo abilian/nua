@@ -1,20 +1,20 @@
+from nua_cli.base import Command
 from nua_cli.client import get_client
 from nua_cli.colors import green, red, yellow
 
 client = get_client()
 
 
-class AppsCommand:
-    """Manage applications."""
+class AppsCommand(Command):
+    """List applications."""
 
     name = "apps"
 
     def run(self):
-        """List applications."""
-
         result = client.call("list")
         for instance in result:
             app_id = instance["app_id"]
+            domain = instance["site_config"]["domain"]
             container_id = instance["site_config"]["container_id"]
             container_info = client.get_container_info(container_id)
             status = container_info[0]["State"]["Status"]
@@ -27,4 +27,4 @@ class AppsCommand:
                 case _:
                     color = yellow
 
-            print(color(f"{app_id} ({status})"))
+            print(color(f"{app_id} @ {domain} ({status})"))
