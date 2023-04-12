@@ -84,6 +84,19 @@ class UptimeCommand(Command):
         print(result.stdout)
 
 
+class CleanupCommand(Command):
+    """Cleanup server (remove inactive docker images and containers)."""
+
+    name = "server cleanup"
+
+    # TODO: ask for confirmation
+
+    def run(self):
+        result = client.ssh("docker system prune -af")
+        result = client.ssh("docker volume prune -f")
+        print(result.stdout)
+
+
 class ServerCommand(Command):
     """Manage the Nua server."""
 
