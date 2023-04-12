@@ -9,11 +9,15 @@ docs_dir: src
 # Navigation
 nav:
   - Home:
-    - Intro: index.md
+    - Introduction: index.md
     - "Available apps": apps.md
     - Funding: funding.md
+  - Users:
+    - Introduction: user/index.md
+    - Installation: user/install.md
+    - Command Line Interface: user/cli.md
   - Developers:
-    - Intro: dev/index.md
+    - Introduction: dev/index.md
     - Architecture: dev/architecture.md
     - "Specifications: Configuration": dev/configuration.md
     - "Specification: App Images": dev/image.md
@@ -24,10 +28,6 @@ nav:
     - Contributing: dev/contributing.md
     - Change log: dev/changelog.md
     - Credits: dev/authors.md
-  - Users:
-    - Intro: user/index.md
-    - Installation: user/install.md
-    - Command Line Interface: user/cli.md
   - News: news/index.md
 
 # Copyright

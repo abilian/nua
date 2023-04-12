@@ -4,6 +4,22 @@ Command-line interface for Nua.
 
 Used by developers and devops people to deploy and manage applications.
 
+## Installation
+
+Nua-cli will be released soon on PyPI.
+
+In the meantime, you can install it from the source repository:
+
+```bash
+pipx install --force "git+https://github.com/abilian/nua.git#subdirectory=nua-cli"
+```
+
+Alternatively, if you're hacking on nua-cli, you can install it in editable mode from your local clone:
+
+```bash
+pipx install --force -e path/to/nua/nua-cli
+```
+
 ## Usage
 
 ```bash
