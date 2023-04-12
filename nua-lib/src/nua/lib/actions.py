@@ -584,7 +584,7 @@ def install_source(
     (WIP)
     """
     if is_local_dir(url):
-        return Path(url)
+        return Path(url).resolve()
     return download_extract(url, dest_dir, name, checksum)
 
 
@@ -596,10 +596,9 @@ def install_git_source(
 ) -> Path:
     """Git clone a remote repository."""
     if dest_dir:
-        path = Path(dest_dir)
+        path = Path(dest_dir).resolve()
     else:
-        path = Path(".")
-    path.resolve()
+        path = Path(".").resolve()
     cmd = f"git clone --depth 1 --branch {branch} {url} {name}"
     if "git" in installed_packages():
         with chdir(path):
@@ -612,10 +611,9 @@ def install_git_source(
 
 def detect_and_install(directory: str | Path | None) -> bool:
     if directory:
-        path = Path(directory)
+        path = Path(directory).resolve()
     else:
-        path = Path(".")
-    path.resolve()
+        path = Path(".").resolve()
     with verbosity(2):
         info("Detect and install in ", path)
     with chdir(path):
