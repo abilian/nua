@@ -23,6 +23,7 @@ from nua.agent.gen_password import gen_password
 from nua.lib.actions import install_package_list, installed_packages
 from nua.lib.console import print_magenta, print_red
 from nua.lib.exec import exec_as_root, exec_as_root_daemon
+from nua.lib.panic import warning
 from nua.lib.shell import chown_r, sh
 
 MARIADB_VERSION = "10.6"
@@ -178,12 +179,11 @@ def mariadb_check_installed() -> bool:
 
 
 def _mariadb_check_installed_version() -> bool:
-    package = f"mariadb-server-{MARIADB_VERSION}/"
-    found = [s for s in installed_packages() if s.startswith(package)]
-    if not found:
-        print_red(f"Required package not installed: {package}")
-        return False
-    return True
+    package = f"mariadb-server-{MARIADB_VERSION}"
+    if package in installed_packages():
+        return True
+    warning(f"Required package not installed: {package}")
+    return False
 
 
 def _mariadb_check_config_port(path: Path) -> str:

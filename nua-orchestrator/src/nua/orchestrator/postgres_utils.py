@@ -8,6 +8,7 @@ from nua.agent.gen_password import gen_password
 from nua.lib.actions import install_package_list, installed_packages
 from nua.lib.console import print_magenta, print_red
 from nua.lib.exec import mp_exec_as_postgres
+from nua.lib.panic import warning
 from nua.lib.shell import chown_r, sh
 
 from .docker_utils import docker_host_gateway_ip
@@ -135,12 +136,11 @@ def pg_check_installed() -> bool:
 
 
 def _pg_check_installed_version() -> bool:
-    pg_package = f"postgresql-{PG_VERSION}/"
-    found = [s for s in installed_packages() if s.startswith(pg_package)]
-    if not found:
-        print_red(f"Required package not installed: postgresql-{PG_VERSION}")
-        return False
-    return True
+    package = f"postgresql-{PG_VERSION}/"
+    if package in installed_packages():
+        return True
+    warning(f"Required package not installed: {package}")
+    return False
 
 
 def _pg_check_std_port() -> bool:
