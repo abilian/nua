@@ -420,6 +420,14 @@ def docker_volume_list(name: str) -> list:
     return [vol for vol in lst if vol.name == name]
 
 
+def docker_remove_volume_by_source(source: str):
+    for volume in docker_volume_list(source):
+        try:
+            volume.remove(force=True)
+        except APIError as e:
+            print(e)
+
+
 def docker_volume_create(volume: Volume):
     found = docker_volume_list(volume.source)
     if not found:
@@ -514,16 +522,29 @@ def docker_network_create_bridge(network_name: str):
         return client.networks.create(network_name, driver="bridge")
 
 
+def docker_network_remove_one(network_name: str):
+    """Prune a network identified by its name."""
+    network = docker_network_by_name(network_name)
+    if network:
+        try:
+            network.remove()
+        except APIError as e:
+            print(e)
+
+
 def docker_network_prune():
-    """prune all unused networks (no option in py-docker?)"""
+    """Prune all unused networks."""
     client = DockerClient.from_env()
     client.networks.prune()
 
 
 def docker_network_by_name(network_name: str):
+    """Return a network identified by its name."""
     client = DockerClient.from_env()
-    all_nets = {netw.name: netw for netw in client.networks.list()}
-    return all_nets.get(network_name)
+    for net in client.networks.list():
+        if net.name == network_name:
+            return net
+    return None
 
 
 def install_plugin(plugin_name: str) -> str:

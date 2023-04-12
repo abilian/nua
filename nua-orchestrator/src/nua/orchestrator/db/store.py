@@ -327,7 +327,7 @@ def list_instances_container_active_volumes() -> list:
     containers_dict = {}
     for instance in list_instances_all_active():
         # for volume in volumes_merge_config(instance.site_config):
-        site = AppInstance(instance.site_config)
+        site = AppInstance.from_dict(instance.site_config)
         for volume in site.volume:
             if volume["type"] == "tmpfs":
                 continue
@@ -336,6 +336,16 @@ def list_instances_container_active_volumes() -> list:
             domains = containers_dict.get(source, [])
             domains.append(instance.domain)
             containers_dict[source] = domains
+        for resource in site.resources:
+            for volume in resource.volume:
+                if volume["type"] == "tmpfs":
+                    continue
+                source = volume["source"]
+                volumes_dict[source] = volume
+                domains = containers_dict.get(source, [])
+                domains.append(instance.domain)
+                containers_dict[source] = domains
+
     for source, volume in volumes_dict.items():
         volume["domains"] = containers_dict[source]
     return list(volumes_dict.values())
