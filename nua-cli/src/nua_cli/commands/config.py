@@ -17,10 +17,8 @@ class ShowCommand(Command):
         Argument("app_id", default="", help="Id of the application."),
     ]
 
-    def run(self):
+    def run(self, app_id: str):
         result = client.call("list")
-
-        app_id = self.args.app_id
 
         if not app_id:
             app_id = get_current_app_id()

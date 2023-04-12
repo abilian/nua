@@ -27,34 +27,26 @@ from __future__ import annotations
 
 import snoop
 
-from .base import CLI
+from nua_cli.base import CLI
 
 snoop.install()
 
 
 cli = CLI()
+cli.add_option(
+    "-h", "--help", default=False, action="store_true", help="Show help and exit"
+)
+cli.add_option(
+    "-V", "--version", default=False, action="store_true", help="Show version and exit"
+)
+cli.add_option(
+    "-d", "--debug", default=False, action="store_true", help="Enable debug mode"
+)
+cli.add_option(
+    "-v", "--verbose", default=False, action="store_true", help="Increase verbosity"
+)
 cli.scan("nua_cli.commands")
 
 
-# cli = typer.Typer()
-# client = get_client()
-#
-#
-# # Subcommands
-# cli.add_typer(server.cli)
-# cli.add_typer(config.cli)
-#
-#
-# #
-# # TODO: application lifecycle operations
-# #
-
-#
-# @cli.callback(invoke_without_command=True)
-# def main(
-#     ctx: typer.Context,
-#     version: Optional[bool] = OPTS["version"],
-# ):
-#     """Nua CLI."""
-#     if ctx.invoked_subcommand is None:
-#         print(ctx.get_help())
+if __name__ == "__main__":
+    cli.run()

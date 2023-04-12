@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import importlib
+import inspect
 import sys
 from abc import ABC, abstractmethod
 from inspect import isabstract, isclass
@@ -20,14 +21,13 @@ class Command(ABC):
     options: list
     cli: CLI
 
-    arguments = []
+    arguments: list = []
 
-    def __init__(self, args, cli):
-        self.args = args
+    def __init__(self, cli):
         self.cli = cli
 
     @abstractmethod
-    def run(self):
+    def run(self, *args, **kwargs):
         raise NotImplementedError
 
 
@@ -44,42 +44,37 @@ class Option:
 
 
 class CLI:
-    def __init__(self):
+    def __init__(self, help_maker=None):
         self.commands = []
+        self.options = []
+        if help_maker:
+            self.help_maker = help_maker
+        else:
+            self.help_maker = HelpMaker()
 
+    #
+    # Public API
+    #
     def __call__(self):
+        # Convenience. Needed?
         return self.run()
 
     def run(self):
         command = self.find_command()
-        print(f"Running command: {command.name}")
-
-        parser = argparse.ArgumentParser()
-        for argument in command.arguments:
-            parser.add_argument(argument.name, **argument.kwargs)
-        argv = sys.argv[len(command.name.split()) + 1 :]
-        args = parser.parse_args(argv)
-
         try:
-            cmd = command(args, self)
-            cmd.run()
-        except (BadArgument, CommandError) as e:
-            print(red(e))
+            args = self.parse_args(command)
+        except argparse.ArgumentError as e:
+            print(e)
+            self.help_maker.print_help(command)
             sys.exit(1)
-
-    def find_command(self):
-        args = sys.argv[1:]
-        args_str = " ".join(args)
-        commands = sorted(self.commands, key=lambda command: -len(command.name))
-        for command in commands:
-            if args_str.startswith(command.name):
-                return command
+        self.common_options(args)
+        self.run_command(args, command)
 
     def scan(self, module_name: str):
         root_module = importlib.import_module(module_name)
         root_module_name = root_module.__name__
-        root_path = Path(root_module.__file__).parent
-        for _, module_name, _ in iter_modules([root_path]):
+        root_path = Path(root_module.__file__).parent  # type: ignore
+        for _, module_name, _ in iter_modules([str(root_path)]):
             module = importlib.import_module(f"{root_module_name}.{module_name}")
             for attribute_name in dir(module):
                 attribute = getattr(module, attribute_name)
@@ -87,15 +82,80 @@ class CLI:
                 if isclass(attribute) and issubclass(attribute, Command):
                     self.add_command(attribute)
 
+    def add_option(self, *args, **kwargs):
+        if args and isinstance(args[0], Option):
+            option = args[0]
+            self.options.append(option)
+        else:
+            self.options.append(Option(*args, **kwargs))
+
+    #
+    # Internal API
+    #
+    def find_command(self) -> type[Command]:
+        args = sys.argv[1:]
+        args_str = " ".join(args)
+        commands = sorted(self.commands, key=lambda command: -len(command.name))
+        for command in commands:
+            if args_str.startswith(command.name):
+                return command
+        raise CommandError("No command found")
+
+    def parse_args(self, command: type[Command]):
+        parser = argparse.ArgumentParser(add_help=False, exit_on_error=False)
+        for argument in command.arguments:
+            parser.add_argument(argument.name, **argument.kwargs)
+        for option in self.options:
+            parser.add_argument(*option.args, **option.kwargs)
+        argv = sys.argv[len(command.name.split()) + 1 :]
+        args = parser.parse_args(argv)
+        return args
+
+    def run_command(self, args: argparse.Namespace, command: type[Command]):
+        try:
+            cmd = command(self)
+            self.call_command(cmd, args)
+        except (BadArgument, CommandError) as e:
+            print(red(e))
+            sys.exit(1)
+
+    def call_command(self, command: Command, args: argparse.Namespace):
+        sign = inspect.signature(command.run)
+        kwargs = {}
+        for name, parameter in sign.parameters.items():
+            # Needed ?
+            if name == "self":
+                continue
+            if name in args:
+                value = getattr(args, name)
+            else:
+                value = parameter.default
+            kwargs[name] = value
+        command.run(**kwargs)
+
     def add_command(self, command_class: type[Command]):
         if isabstract(command_class):
             return
         self.commands.append(command_class)
 
+    def common_options(self, args: argparse.Namespace):
+        if args.help:
+            self.help_maker.print_help(self)
+            sys.exit(0)
+        if args.version:
+            print(get_version())
+            sys.exit(0)
+
     def print_help(self):
+        self.help_maker.print_help(self)
+
+
+class HelpMaker:
+    def print_help(self, cli):
         self.print_version()
         self.print_usage()
-        self.print_commands()
+        self.print_options(cli.options)
+        self.print_commands(cli.commands)
 
     def print_version(self):
         version = get_version()
@@ -107,13 +167,19 @@ class CLI:
         print("  nua <command> [options] [arguments]")
         print()
 
-    def print_commands(self):
+    def print_options(self, options: list[Option]):
+        print(bold("Options:"))
+        for option in options:
+            print(f"  {blue(option.args[0])}  {option.kwargs['help']}")
+        print()
+
+    def print_commands(self, commands: list[Command]):
         print(bold("Available commands:"))
 
         def sorter(command):
             return len(command.name.split(" ")), command.name
 
-        commands = [command for command in self.commands if command.name]
+        commands = [command for command in commands if command.name]
         commands = sorted(commands, key=sorter)
         simple_commands = [command for command in commands if " " not in command.name]
         complex_commands = [command for command in commands if " " in command.name]

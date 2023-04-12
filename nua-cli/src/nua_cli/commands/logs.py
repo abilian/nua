@@ -11,12 +11,11 @@ class LogsCommand(Command):
     name = "logs"
 
     arguments = [
-        Argument("app_id", None, help="Application ID"),
+        Argument("app_id", "", help="Application ID"),
     ]
 
-    def run(self):
+    def run(self, app_id: str = ""):
         # Quick & dirty implementation that calls docker directly.
-        app_id = self.args.app_id
         if not app_id:
             app_id = get_current_app_id()
         app_info = client.get_app_info(app_id)

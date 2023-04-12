@@ -12,47 +12,32 @@ nua --help
 nua [command] [options]
 ```
 
-## Main commands
+## Main commands and subcommands
 
 Here's the list of commands we should support, eventually (TBC):
 
 ```
-apps              List apps
-backup            Backup/restore app data
-config            Show/manage config for current app
-deploy            Deploy app
-destroy           Destroy app
-help              Display help
-init              Create a new app
-logs              Tail running logs
-ps                Show process count
-restart           Restart an app
-run               Run a command in the app's environment
-scale             Scale processes
-start             Start an app
-status            Show app status
-stop              Stop an app
-update            Update the Nua CLI
-```
+Available commands:
+  backup           Backup a deployed application.
+  config           Show/edit application config.
+  destroy          Destroy an application.
+  help             Show help.
+  logs             Show application logs.
+  restore          Restore backup data of a deployed application.
+  server           Manage the Nua server.
+  start            Start an application.
+  stop             Stop an application.
+  update           Update an application.
 
-## Subcommands
+ config
+  config show      Show application config.
 
-+ additional commands for authentication, backup, etc.
-
-Also, subcommands:
-
-```
-backup dump
-backup restore
-
-config show
-config get
-config set
-config unset
-
-system status
-system ...
-
+ server
+  server logs      Show server logs.
+  server ps        List all server processes.
+  server settings  Show server settings.
+  server status    Show Nua status.
+  server uptime    Show server uptime.
 ```
 
 

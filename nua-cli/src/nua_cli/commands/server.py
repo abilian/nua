@@ -17,12 +17,11 @@ class LogsCommand(Command):
         Argument("service", help="Service to show logs for"),
     ]
 
-    def run(self):
-        args = self.args
-        if not args.service:
+    def run(self, service: str):
+        if not service:
             print("Service must be one of: nua, letsencrypt, nginx")
 
-        match args.service:
+        match service:
             case "nua":
                 print("Showing Nua logs [TODO]")
             case "letsencrypt":
