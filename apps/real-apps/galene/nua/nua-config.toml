@@ -1,7 +1,7 @@
 [metadata]
 id = "galene"
 version = "0.6.2"
-release = 3
+release = 4
 title = "Galène videoconference server "
 author = "Galene authors"
 tagline = "Galène videoconference server"
@@ -21,6 +21,7 @@ build-command = [
     "mkdir /nua/app/groups",
     "mkdir /nua/app/data"
 ]
+test = "test -f /nua/app/galene"
 
 [run]
 start = """\
