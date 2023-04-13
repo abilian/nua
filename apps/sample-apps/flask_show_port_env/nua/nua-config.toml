@@ -20,6 +20,10 @@ start = "gunicorn --worker-tmp-dir /dev/shm --workers 1 -b :${CONT_PORT} flask_s
 [env]
 CONT_PORT = 8000
 MY_IP = { external_ip='true' }
+STEP1 = "step1"
+STEP2 = "step2: dynamic {STEP1}"
+STEP3 = "step3: dynamic {STEP2} {CONT_PORT}"
+STEP4 = "step4: dynamic {STEP3}"
 
 [docker]
 # parameters passed as a dict to docker run

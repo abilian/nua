@@ -1,6 +1,7 @@
 """Docker utils."""
 import io
 import json
+import re
 from contextlib import suppress
 from copy import deepcopy
 from functools import cache
@@ -23,6 +24,8 @@ from . import config
 from .db import store
 from .resource import Resource
 from .volume import Volume
+
+RE_VAR = re.compile(r"\{[^\{\}]+\}")
 
 
 @cache
@@ -327,14 +330,32 @@ def params_with_secrets_and_f_strings(params: dict, secrets: dict) -> dict:
     result = deepcopy(params)
     env = result.get("environment", {})
     env.update(secrets)
-    fstrings = {
-        key: val.format(**env)
-        for key, val in env.items()
-        if isinstance(val, str) and "{" in val and "}" in val
-    }
-    env.update(fstrings)
+    fill_env_strings(env)
     result["environment"] = env
     return result
+
+
+def fill_env_strings(env: dict):
+    templates = {
+        key: val
+        for key, val in env.items()
+        if isinstance(val, str) and RE_VAR.search(val)
+    }
+    if not templates:
+        return
+    values = deepcopy(env)
+    recursion = 20
+    while recursion:
+        recursion -= 1
+        filled = {}
+        for key, val in templates.items():
+            filled[key] = val.format(**values)
+        values.update(filled)
+        templates = {key: val for key, val in filled.items() if RE_VAR.search(val)}
+        if not templates:
+            env.update(values)
+            return
+    raise RuntimeError("Recursion limit when filling ENV variables")
 
 
 def _check_run_container(container: Container, name: str):
