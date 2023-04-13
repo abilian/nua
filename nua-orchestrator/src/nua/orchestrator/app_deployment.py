@@ -819,36 +819,6 @@ class AppDeployment:
         extra_hosts.update(extra_host_gateway())
         run_params["extra_hosts"] = extra_hosts
 
-    def run_parameters_app_environment(self, site: AppInstance) -> dict:
-        """Return a dict with all environment parameters for the main container
-        to run (the AppInstance container)."""
-        run_env = site.image_nua_config.get("env", {})
-        # update with local services environment (if any):
-        run_env.update(self.services_environment(site))
-        # variables declared in the env section of the ochestrator deployment
-        # configurationcan replace any other source:
-        run_env.update(site.env)
-        # update with result of "assign" dynamic evaluations :
-        run_env.update(instance_key_evaluator(site, late_evaluation=False))
-        site.env = run_env
-        return run_env
-
-    def run_parameters_resource_environment(
-        self,
-        site: AppInstance,
-        resource: Resource,
-    ) -> dict:
-        """Return a dict with all environment parameters for a resource
-        container (a Resource container)."""
-        # variables declared in env can replace any other source:
-        run_env = {}
-        run_env.update(resource.env)
-        run_env.update(
-            instance_key_evaluator(site, resource=resource, late_evaluation=False)
-        )
-        resource.env = run_env
-        return run_env
-
     @staticmethod
     def sanitize_run_params(run_params: dict):
         """Docker constraint: 2 docker options not compatible."""
