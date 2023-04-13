@@ -3,6 +3,7 @@ from pprint import pp
 
 from nua_cli.base import Argument, Command
 from nua_cli.client import get_client
+from nua_cli.colors import red
 from nua_cli.common import get_current_app_id
 from nua_cli.exceptions import BadArgument
 
@@ -19,12 +20,20 @@ class EnvShowCommand(Command):
     ]
 
     def run(self, app_id: str = ""):
-        # Quick & dirty implementation that calls docker directly.
         if not app_id:
             app_id = get_current_app_id()
         app_info = client.get_app_info(app_id)
         for k, v in app_info["site_config"]["env"].items():
             print(f"{k}={repr(v)}")
+
+
+class EnvSetCommand(Command):
+    """Show application env variables."""
+
+    name = "env set"
+
+    def run(self, app_id: str = ""):
+        print(red("Not implemented yet"))
 
 
 class EnvCommand(Command):
