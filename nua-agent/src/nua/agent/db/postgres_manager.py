@@ -30,7 +30,6 @@ else:
 
 PG_VERSION = "14"
 POSTGRES_CONF_PATH = Path(f"/etc/postgresql/{PG_VERSION}/main")
-RE_ANY_PG = re.compile(r"^postgresql-[0-9\.]+/")
 RE_5432 = re.compile(r"\s*port\s*=\s*5432\D")
 RE_COMMENT = re.compile(r"\s*#")
 RE_LISTEN = re.compile(r"\s*listen_addresses\s*=(.*)$")
