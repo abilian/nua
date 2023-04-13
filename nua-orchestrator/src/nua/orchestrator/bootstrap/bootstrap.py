@@ -6,10 +6,12 @@ Use this script for installing the orchestrator on a new host.
 
 In future versions, change this to a standalone script.
 """
+import multiprocessing as mp
 import os
 
 # import venv -> this induces bugs (venv from venv...), prefer direct /usr/bin/python3
 from pathlib import Path
+from subprocess import run  # noqa: S404
 
 from nua.lib.actions import (
     apt_final_clean,
@@ -19,12 +21,11 @@ from nua.lib.actions import (
     string_in,
 )
 from nua.lib.console import print_blue, print_green, print_magenta
-from nua.lib.exec import exec_as_nua, mp_exec_as_nua
+from nua.lib.exec import exec_as_nua, mp_exec_as_nua, set_nua_user
 from nua.lib.panic import Abort, info
 from nua.lib.shell import chown_r, mkdir_p, rm_fr, sh, user_exists
 
 from .. import nua_env
-from ..bash import bash_as_nua
 from ..certbot.installer import install_certbot
 from ..mariadb_utils import bootstrap_install_mariadb, set_random_mariadb_pwd
 from ..nginx.installer import install_nginx
@@ -73,7 +74,6 @@ def main():
     apt_final_clean()
     print_green("\nNua installation done for user 'nua' on this host.")
     cmd = "nua-orchestrator --help"
-    print(f"Command '{cmd}':")
     bash_as_nua(cmd)
 
 
@@ -204,21 +204,50 @@ def install_local_orchestrator():
         url = "https://github.com/abilian/nua.git"
 
     gits = nua_env.nua_home_path() / "gits"
-    os.chdir(gits)
     rm_fr(gits / "nua")
 
-    cmd = f"git clone -o github {url}"
-    mp_exec_as_nua(cmd)
+    cmd = f"git clone {url}"
+    mp_exec_as_nua(cmd, gits)
     cmd = "git checkout main"
-    mp_exec_as_nua(cmd)
+    mp_exec_as_nua(cmd, gits / "nua")
+    pip_safe_install(gits / "nua")
 
-    cwd = gits / "nua" / "nua-orchestrator"
-    poetry = f"{nua_env.get_value('NUA_VENV')}/bin/poetry"
-    cmd = f"{poetry} install"
+
+def pip_safe_install(cwd: Path):
+    pip = Path(nua_env.venv_bin()) / "pip"
+    cmd = (
+        f"{pip} list --format freeze | grep nua- | "
+        f"xargs {pip} uninstall -qy 2> /dev/null"
+    )
+    bash_as_nua(cmd)
+    cmd = f"{pip} install ."
     bash_as_nua(cmd, cwd)
 
-    cmd = "nua-orchestrator status"
-    bash_as_nua(cmd)
+
+def bash_as_nua(cmd: str, cwd: str | Path | None = None, timeout: int | None = 600):
+    env = nua_env.as_dict()
+    if not cwd:
+        cwd = nua_env.nua_home()
+    if not timeout:
+        timeout = 600
+    proc = mp.Process(target=_bash_as_nua, args=(cmd, cwd, timeout, env))
+    proc.start()
+    proc.join()
+
+
+def _bash_as_nua(cmd, cwd, timeout, env):
+    set_nua_user()
+    full_env = os.environ.copy()
+    full_env.update(env)
+    cmd = f"source {nua_env.get_value('NUA_VENV')}/bin/activate && {cmd}"
+    run(
+        cmd,
+        shell=True,  # noqa: S602
+        timeout=timeout,
+        cwd=cwd,
+        executable="/bin/bash",
+        env=full_env,
+    )
 
 
 if __name__ == "__main__":
