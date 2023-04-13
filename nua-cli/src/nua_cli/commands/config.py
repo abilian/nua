@@ -14,7 +14,7 @@ class ShowCommand(Command):
     name = "config show"
 
     arguments = [
-        Argument("app_id", nargs='?', help="Id of the application."),
+        Argument("app_id", nargs="?", help="Id of the application."),
     ]
 
     def run(self, app_id: str):

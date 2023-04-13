@@ -1,11 +1,7 @@
-from operator import itemgetter
-from pprint import pp
-
 from nua_cli.base import Argument, Command
 from nua_cli.client import get_client
 from nua_cli.colors import red
 from nua_cli.common import get_current_app_id
-from nua_cli.exceptions import BadArgument
 
 client = get_client()
 
@@ -16,7 +12,7 @@ class EnvShowCommand(Command):
     name = "env show"
 
     arguments = [
-        Argument("app_id", nargs='?', help="Application ID"),
+        Argument("app_id", nargs="?", help="Application ID"),
     ]
 
     def run(self, app_id: str = ""):
