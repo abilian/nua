@@ -13,10 +13,8 @@ from . import configuration as config_cmd
 from . import debug
 from .commands.api import API
 from .commands.backup import backup_all
-from .commands.deploy import deploy_nua_apps
-from .commands.deploy_nua import deploy_nua
+from .commands.deploy_remove import deploy_nua, deploy_nua_apps, remove_nua_domain
 from .commands.local_cmd import reload_servers, status
-from .commands.remove import remove_nua_domain
 from .commands.restore import restore_nua_apps_replay, restore_nua_apps_strict
 from .commands.start_stop import (
     restart_nua_instance_domain,
