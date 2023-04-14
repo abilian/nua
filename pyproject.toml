@@ -7,10 +7,10 @@ authors = [
     "Jerome Dumonteil <jd@abilian.com>",
 ]
 license = "AGPL"
+# Empty package, needed to be able to build the monorepo
 packages = [
-  { include = "nua-master" }
+  { include = "nua", from = "src" }
 ]
-
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.12"
@@ -23,7 +23,6 @@ nua-build = { path = "nua-build", develop = true }
 nua-orchestrator = { path = "nua-orchestrator", develop = true }
 nua-server = { path = "nua-server", develop = true }
 
-
 [tool.poetry.group.dev.dependencies]
 # Testing / checking
 nox = "*"
@@ -33,8 +32,7 @@ autotyping = "^22.9.0"
 
 # Helper for monorepo
 invoke = "^2.0.0"
-
-# Code coverage (reporting)
+tomli = "^2.0.1"
 
 # Debug
 snoop = "*"
