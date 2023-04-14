@@ -4,6 +4,8 @@ Note:
     - Security of deployment (deploy an app instance upon an existing one) is not
       currently managed in this level.
 """
+from __future__ import annotations
+
 import time
 from collections.abc import Callable
 from copy import deepcopy
@@ -68,6 +70,10 @@ RUN_BASE: dict[str, Any] = {}  # see also nua_config
 RUN_BASE_RESOURCE = {"restart_policy": {"name": "always"}}
 
 
+def known_strings(current: list[str], new: list[str]) -> list[str]:
+    return [s for s in new if s in set(current)]
+
+
 class AppDeployment:
     """Deployment of a list of app instance/nua-image.
 
@@ -91,6 +97,7 @@ class AppDeployment:
         self.apps = []
         self.apps_per_domain = []
         self.deployed_domains = []
+        self.already_deployed_domains = set()
         self.required_services = set()
         self.available_services = {}
         self.orig_mounted_volumes = []
@@ -175,6 +182,9 @@ class AppDeployment:
         self.loaded_config = parse_any_format(config_path)
         self.parse_deploy_apps()
         self.sort_apps_per_name_domain()
+        self.deployed_domains = sorted(
+            {apps_dom["hostname"] for apps_dom in self.apps_per_domain}
+        )
         with verbosity(3):
             self.print_host_list()
 
@@ -195,6 +205,42 @@ class AppDeployment:
         self.deployed_domains = sorted(
             {apps_dom["hostname"] for apps_dom in self.apps_per_domain}
         )
+
+    def merge(self, additional: AppDeployment, option: str = "add"):
+        """Merge a deployment configuration into the current one.
+
+        WIP:
+            - first step: 'add', strict, no conflict allowed
+            - next: add and replace if needed (merge)
+        """
+        with verbosity(3):
+            print(f"merge() {option}")
+        if option == "add":
+            return self.merge_add(additional)
+        raise RuntimeError("Merge option not implemented")
+
+    def merge_add(self, additional: AppDeployment):
+        """Merge by simple addtion of new domain to list."""
+        with verbosity(3):
+            print(f"self.deployed_domains       {self.deployed_domains}")
+            print(f"additional.deployed_domains {additional.deployed_domains}")
+        conflict = known_strings(self.deployed_domains, additional.deployed_domains)
+        if conflict:
+            raise Abort(
+                f"Some required domains are already deployed: {', '.join(conflict)}\n"
+                "Merge with strict add do not allow domain conflicts"
+            )
+        # Note: additional should read from DB the already allocated ports:
+        additional.configure_apps()
+        self.store_initial_deployment_state()
+        self.already_deployed_domains = set(self.deployed_domains)
+        self.apps.extend(additional.apps)
+        self.sort_apps_per_name_domain()
+        self.deployed_domains = sorted(
+            {apps_dom["hostname"] for apps_dom in self.apps_per_domain}
+        )
+        self.merge_nginx_configuration()
+        self.merge_start_apps(additional.apps)
 
     def instances_of_domain(self, domain: str) -> list[AppInstance]:
         """Select deployed instances of domain."""
@@ -223,6 +269,12 @@ class AppDeployment:
         self.install_required_resources()
 
     def configure_apps(self):
+        self.configure_apps_step1()
+        self.configure_apps_step2()
+        self.configure_apps_step3()
+
+    def configure_apps_step1(self):
+        """ "First part of app configuration: data local to app."""
         self.apps_set_network_name()
         self.apps_set_resources_names()
         self.apps_merge_app_instances_to_resources()
@@ -231,7 +283,13 @@ class AppDeployment:
         self.apps_check_local_service_available()
         self.apps_retrieve_persistent()
         self.apps_evaluate_dynamic_values()
+
+    def configure_apps_step2(self):
+        """ "Second part of app configuration: common data (ports)."""
         self.apps_generate_ports()
+
+    def configure_apps_step3(self):
+        """ "Last part of app configuration: requiring ports."""
         self.apps_parse_healthcheck()
         self.apps_check_host_services_configuration()
 
@@ -258,9 +316,33 @@ class AppDeployment:
         deactivate_all_instances()
 
     def apply_nginx_configuration(self):
-        """Apply configuration, especially configurations that can not be
+        """Apply configuration to Nginx, especially configurations that can not be
         deployed before all previous apps are stopped."""
         self.configure_nginx()
+        # registering https apps with certbot requires that the base nginx config is
+        # deployed.
+        register_certbot_domains(self.apps)
+        with verbosity(3):
+            vprint_green("AppDeployment .apps:")
+            vprint_magenta(self.apps)
+
+    def merge_nginx_configuration(self):
+        """Apply configuration to Nginx, when apps are already deployed."""
+        if not self.already_deployed_domains:
+            # easy, either first deployment or all apps removed, start from zero:
+            return self.apply_nginx_configuration()
+        for host in self.apps_per_domain:
+            hostname = host["hostname"]
+            with verbosity(3):
+                print(f"merge_nginx_configuration for {hostname}")
+
+            if hostname in self.already_deployed_domains:
+                with verbosity(3):
+                    print("continue, already_deployed_domains")
+                continue
+            with verbosity(1):
+                info(f"Configure Nginx for domain '{hostname}'")
+            configure_nginx_hostname(host)
         # registering https apps with certbot requires that the base nginx config is
         # deployed.
         register_certbot_domains(self.apps)
@@ -289,6 +371,26 @@ class AppDeployment:
             info("Removing Nginx configuration.")
         for domain in self.deployed_domains:
             remove_nginx_configuration_hostname(domain)
+        nginx_reload()
+
+    def merge_start_apps(self, new_apps: list[AppInstance]):
+        """Start new deployed apps."""
+        if not self.already_deployed_domains:
+            # easy, either first deployment or all apps removed, start from zero:
+            return self.start_apps()
+        # restarting local services:
+        self.restart_local_services()
+        for site in new_apps:
+            deactivate_app(site)
+            self.start_network(site)
+            self.evaluate_container_params(site)
+            self.start_resources_containers(site)
+            self.setup_resources_db(site)
+            self.merge_volume_only_resources(site)
+            self.start_main_app_container(site)
+            site.running_status = RUNNING
+            self.store_container_instance(site)
+        chown_r_nua_nginx()
         nginx_reload()
 
     def start_apps(self):

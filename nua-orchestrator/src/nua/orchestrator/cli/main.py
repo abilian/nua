@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Optional
 
 import typer
+from nua.lib.panic import warning
 from nua.lib.tool.state import set_color, set_verbosity
 
 from .. import __version__
@@ -13,7 +14,11 @@ from . import configuration as config_cmd
 from . import debug
 from .commands.api import API
 from .commands.backup import backup_all
-from .commands.deploy_remove import deploy_nua, deploy_nua_apps, remove_nua_domain
+from .commands.deploy_remove import (
+    deploy_merge_nua_app,
+    deploy_nua_apps,
+    remove_nua_domain,
+)
 from .commands.local_cmd import reload_servers, status
 from .commands.restore import restore_nua_apps_replay, restore_nua_apps_strict
 from .commands.start_stop import (
@@ -31,7 +36,7 @@ app.add_typer(debug.app, name="debug", no_args_is_help=True)
 
 arg_search_app = typer.Argument(..., help="App id or image name.")
 arg_deploy_app = typer.Argument(
-    ..., metavar="APP", help="App id or image name (or toml file)."
+    ..., metavar="APP", help="App config file (json or toml file)."
 )
 
 
@@ -96,7 +101,7 @@ def search_local(app: str = arg_search_app):
 
 @app.command("deploy")
 def deploy_local(
-    app_name: str = arg_deploy_app,
+    apps_conf: str = arg_deploy_app,
     verbose: int = opt_verbose,
     colorize: bool = option_color,
 ):
@@ -105,11 +110,29 @@ def deploy_local(
     set_color(colorize)
     initialization()
 
-    path = Path(app_name)
+    path = Path(apps_conf)
     if path.suffix in ALLOW_SUFFIX and path.is_file():
-        deploy_nua_apps(app_name)
+        deploy_merge_nua_app(apps_conf)
     else:
-        deploy_nua(app_name)
+        warning("Unknown file format.")
+
+
+@app.command("deploy-replace")
+def deploy_replace_local(
+    apps_conf: str = arg_deploy_app,
+    verbose: int = opt_verbose,
+    colorize: bool = option_color,
+):
+    """Replace all deployed instances by new deployment list."""
+    set_verbosity(verbose)
+    set_color(colorize)
+    initialization()
+
+    path = Path(apps_conf)
+    if path.suffix in ALLOW_SUFFIX and path.is_file():
+        deploy_nua_apps(apps_conf)
+    else:
+        warning("Unknown file format.")
 
 
 @app.command("remove")

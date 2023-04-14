@@ -108,6 +108,8 @@ def gen_cert_standalone(domain: str):
 
 
 def gen_cert_nginx(domain: str):
+    with verbosity(3):
+        print("domain exists:", domain)
     if os.getuid():  # aka not root
         prefix = "sudo "
     else:
@@ -139,11 +141,12 @@ def apply_auto_strategy(top_domain: str, domains: list[str]):
         - let certbot manage cron,
         - apply "auto" rules and parameters.
     """
+    sorted_domains = sorted(domains)
     with verbosity(1):
-        vprint_magenta(f"Use HTTPS protocol (Certbot) for: {' '.join(domains)}")
+        vprint_magenta(f"Use HTTPS protocol (Certbot) for: {' '.join(sorted_domains)}")
     # cmd = certbot_run(top_domain, domains)
     # cmd = certbot_certonly(top_domain, domains)
-    for domain in domains:
+    for domain in sorted_domains:
         if cert_exists(domain):
             gen_cert_nginx(domain)
         else:

@@ -11,6 +11,7 @@ Test ENV variables:
 """
 
 import os
+from pprint import pformat
 
 from nua.lib.console import print_red
 from nua.lib.panic import Abort, vprint
@@ -47,6 +48,9 @@ def register_certbot_domains(apps: list):
         domains = tops.get(site.top_domain, set())
         domains.add(site.hostname)
         tops[site.top_domain] = domains
+    with verbosity(3):
+        print("certbot registration for:")
+        print(pformat(tops))
     strategy = get_certbot_strategy()
     strategy_function = ALLOWED_STRATEGY[strategy]
     for top_domain, domains in tops.items():
