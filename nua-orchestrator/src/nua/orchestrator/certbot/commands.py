@@ -146,8 +146,8 @@ def apply_auto_strategy(top_domain: str, domains: list[str]):
     if nginx_is_active() and all(cert_exists(domain) for domain in sorted_domains):
         for domain in sorted_domains:
             gen_cert_nginx(domain)
-        else:
-            nginx_stop()
-            for domain in sorted_domains:
-                gen_cert_standalone(domain)
-            nginx_restart()
+    else:
+        nginx_stop()
+        for domain in sorted_domains:
+            gen_cert_standalone(domain)
+        nginx_restart()

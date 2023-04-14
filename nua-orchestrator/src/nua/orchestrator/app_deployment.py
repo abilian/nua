@@ -323,7 +323,7 @@ class AppDeployment:
         register_certbot_domains(self.apps)
         with verbosity(3):
             vprint_green("AppDeployment .apps:")
-            vprint_magenta(self.apps)
+            vprint_magenta(pformat(self.apps))
 
     def merge_nginx_configuration(self):
         """Apply configuration to Nginx, when apps are already deployed."""
