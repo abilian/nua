@@ -90,6 +90,7 @@ class AppDeployment:
         self.loaded_config = {}
         self.apps = []
         self.apps_per_domain = []
+        self.deployed_domains = []
         self.required_services = set()
         self.available_services = {}
         self.orig_mounted_volumes = []
@@ -180,13 +181,20 @@ class AppDeployment:
     def load_deployed_configuration(self):
         previous_config = self.previous_success_deployment_record()
         if not previous_config:
-            raise Abort("Impossible to find a previous deployment.")
+            warning("Impossible to find a previous deployment.")
+            self.loaded_config = {}
+            self.apps = []
+            self.deployed_domains = []
+            return
         self.loaded_config = previous_config["deployed"]["requested"]
         self.apps = [
             AppInstance.from_dict(app_instance_data)
             for app_instance_data in previous_config["deployed"]["apps"]
         ]
         self.sort_apps_per_name_domain()
+        self.deployed_domains = sorted(
+            {apps_dom["hostname"] for apps_dom in self.apps_per_domain}
+        )
 
     def instances_of_domain(self, domain: str) -> list[AppInstance]:
         """Select deployed instances of domain."""
@@ -232,14 +240,12 @@ class AppDeployment:
         self.apps_check_local_service_available()
         self.apps_check_host_services_configuration()
 
-    def deactivate_previous_apps(self):
-        """Find all instance in DB.
-
-        - remove container if exists
-        - remove site from Nua DB
-        """
+    def store_initial_deployment_state(self):
+        """Register in store the initial state before changes."""
         self.store_deploy_configs_before_swap()
         self.orig_mounted_volumes = store.list_instances_container_active_volumes()
+
+    def deactivate_previous_apps(self):
         deactivate_all_instances()
 
     def restore_deactivate_previous_apps(self):
@@ -270,6 +276,19 @@ class AppDeployment:
         with verbosity(1):
             info(f"Remove domain from Nginx: '{stop_domain}'")
         remove_nginx_configuration_hostname(stop_domain)
+        nginx_reload()
+
+    def remove_all_deployed_nginx_configuration(self):
+        """Remove all deployed apps from the nginx configuration.
+
+        To stop nginx redirection before actually stopping the apps.
+        """
+        if not self.deployed_domains:
+            return
+        with verbosity(1):
+            info("Removing Nginx configuration.")
+        for domain in self.deployed_domains:
+            remove_nginx_configuration_hostname(domain)
         nginx_reload()
 
     def start_apps(self):
@@ -308,6 +327,18 @@ class AppDeployment:
             site.running_status = STOPPED
             self.store_container_instance(site)
 
+    def stop_all_deployed_apps(self, store_status: bool = False):
+        """Stop all deployed app instances."""
+        if not self.apps:
+            return
+        with verbosity(1):
+            info("Stop all instances.")
+        for site in self.apps:
+            stop_one_app_containers(site)
+            if store_status:
+                site.running_status = STOPPED
+                self.store_container_instance(site)
+
     def restart_deployed_apps(self, domain: str, apps: list[AppInstance]):
         """Restart deployed instances."""
         with verbosity(1):
@@ -324,6 +355,17 @@ class AppDeployment:
             info(f"Remove instance of domain '{domain}'.")
         self._mounted_before_removing = store.list_instances_container_active_volumes()
         for site in apps:
+            deactivate_app(site)
+            remove_container_private_network(site.network_name)
+
+    def remove_all_deployed_container_and_network(self):
+        """Remove all (stopped) apps container, network, but not volumes."""
+        if not self.apps:
+            return
+        with verbosity(1):
+            info("Remove all instances.")
+        self._mounted_before_removing = store.list_instances_container_active_volumes()
+        for site in self.apps:
             deactivate_app(site)
             remove_container_private_network(site.network_name)
 
@@ -344,6 +386,12 @@ class AppDeployment:
         for source in before:
             if source not in now_used:
                 remove_volume_by_source(source)
+
+    def remove_all_deployed_managed_volumes(self):
+        """Remove local volumes of all (stopped) apps."""
+        before = self._local_volumes_dict(self._mounted_before_removing)
+        for source in before:
+            remove_volume_by_source(source)
 
     def remove_deployed_instance(self, domain: str, apps: list[AppInstance]):
         """Remove data of stopped app: local managed volumes."""
@@ -842,6 +890,13 @@ class AppDeployment:
     def post_deployment(self):
         self.store_deploy_configs_after_swap()
         self.display_deployment_status()
+
+    def post_full_uninstall(self, display: bool = False):
+        self.loaded_config = {}
+        self.apps = []
+        self.store_deploy_configs_after_swap()
+        if display:
+            self.display_deployment_status()
 
     def display_deployment_status(self):
         self.display_deployed_apps()
