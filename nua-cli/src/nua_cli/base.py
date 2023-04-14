@@ -73,8 +73,9 @@ class CLI:
         try:
             args = self.parse_args(command)
         except argparse.ArgumentError as e:
-            print(e)
-            self.help_maker.print_help(command)
+            print(red(f"Argument parsing error: {e}\n"))
+            print("Usage:\n")
+            self.help_maker.print_help(self)
             sys.exit(1)
         self.common_options(args)
         self.run_command(args, command)
@@ -112,7 +113,7 @@ class CLI:
         raise CommandError("No command found")
 
     def parse_args(self, command: Command):
-        parser = argparse.ArgumentParser(add_help=False, exit_on_error=False)
+        parser = MyArgParser(add_help=False, exit_on_error=False)
         for argument in command.arguments:
             parser.add_argument(*argument.args, **argument.kwargs)
         for option in self.options:
@@ -159,6 +160,11 @@ class CLI:
 
     def print_help(self):
         self.help_maker.print_help(self)
+
+
+class MyArgParser(argparse.ArgumentParser):
+    def error(self, message):
+        raise argparse.ArgumentError(None, message)
 
 
 class HelpMaker:
