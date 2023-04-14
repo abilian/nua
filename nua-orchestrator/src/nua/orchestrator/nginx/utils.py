@@ -3,14 +3,13 @@ import os
 from importlib import resources as rso
 from pathlib import Path
 from pprint import pformat
-from time import sleep
 
 from nua.lib.actions import jinja2_render_from_str_template
-from nua.lib.panic import info, vprint, vprint_green, vprint_magenta, warning
-from nua.lib.shell import chown_r, mkdir_p, rm_fr, sh
+from nua.lib.panic import info, vprint, vprint_magenta, warning
+from nua.lib.shell import chown_r, mkdir_p, rm_fr
 from nua.lib.tool.state import verbosity
 
-from .. import config, nua_env
+from .. import nua_env
 from ..certbot.certbot import use_https
 
 CONF_TEMPLATE = "nua.orchestrator.nginx.templates"
@@ -156,29 +155,3 @@ def _actual_configure_nginx_hostname(
 def chown_r_nua_nginx():
     if not os.getuid():
         chown_r(nua_env.nginx_path(), "nua", "nua")
-
-
-def nginx_restart():
-    # assuming some recent ubuntu distribution:
-    delay = config.read("host", "nginx_wait_after_restart") or 1
-    with verbosity(2):
-        vprint_green("Restart Nginx")
-    cmd = "systemctl restart nginx"
-    if os.geteuid() == 0:
-        sh(cmd, show_cmd=False)
-    else:
-        sh(f"sudo {cmd}", show_cmd=False)
-    sleep(delay)
-
-
-def nginx_reload():
-    # assuming some recent ubuntu distribution:
-    delay = config.read("host", "nginx_wait_after_restart") or 1
-    with verbosity(2):
-        vprint_green("Reload Nginx")
-    cmd = "systemctl reload nginx"
-    if os.geteuid() == 0:
-        sh(cmd, show_cmd=False)
-    else:
-        sh(f"sudo {cmd}", show_cmd=False)
-    sleep(delay)

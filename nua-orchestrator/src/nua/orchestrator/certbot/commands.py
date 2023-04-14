@@ -12,7 +12,6 @@ Test ENV variables:
 
 import os
 from pathlib import Path
-from time import sleep
 
 from nua.lib.panic import show, vprint, vprint_magenta
 from nua.lib.shell import sh
@@ -20,6 +19,7 @@ from nua.lib.tool.state import verbosity
 
 from nua.orchestrator import config
 
+from ..nginx.cmd import nginx_is_active, nginx_restart, nginx_stop
 from ..nua_env import certbot_exe, nua_home_path
 
 
@@ -85,13 +85,6 @@ def gen_cert_standalone(domain: str):
         prefix = "sudo "
     else:
         prefix = ""
-    cmd = f"{prefix}systemctl stop nginx || true"
-    with verbosity(2):
-        show(cmd)
-    output = sh(cmd, show_cmd=False, capture_output=True)
-    with verbosity(3):
-        vprint(output)
-    sleep(1)
     standalone_cmd = certbot_certonly(domain, "--standalone")
     cmd = f"{prefix}{standalone_cmd}"
     with verbosity(2):
@@ -146,8 +139,15 @@ def apply_auto_strategy(top_domain: str, domains: list[str]):
         vprint_magenta(f"Use HTTPS protocol (Certbot) for: {' '.join(sorted_domains)}")
     # cmd = certbot_run(top_domain, domains)
     # cmd = certbot_certonly(top_domain, domains)
-    for domain in sorted_domains:
-        if cert_exists(domain):
+    #
+    # If all domain are already known from letsencrypt, we may try a direct
+    # reload using nginx (so without killing nginx websites)
+    # Else, we need to stop nginx and use the standalone procedure.
+    if nginx_is_active() and all(cert_exists(domain) for domain in sorted_domains):
+        for domain in sorted_domains:
             gen_cert_nginx(domain)
         else:
-            gen_cert_standalone(domain)
+            nginx_stop()
+            for domain in sorted_domains:
+                gen_cert_standalone(domain)
+            nginx_restart()

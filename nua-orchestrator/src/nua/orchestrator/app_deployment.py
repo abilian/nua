@@ -52,12 +52,11 @@ from .deploy_utils import (
 )
 from .domain_split import DomainSplit
 from .healthcheck import HealthCheck
+from .nginx.cmd import nginx_reload, nginx_restart
 from .nginx.utils import (
     chown_r_nua_nginx,
     clean_nua_nginx_default_site,
     configure_nginx_hostname,
-    nginx_reload,
-    nginx_restart,
     remove_nginx_configuration_hostname,
 )
 from .resource import Resource

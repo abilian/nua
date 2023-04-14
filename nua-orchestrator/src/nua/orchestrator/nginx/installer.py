@@ -9,12 +9,8 @@ from nua.lib.panic import warning
 from nua.lib.shell import chown_r, mkdir_p
 
 from .. import nua_env
-from .utils import (
-    chown_r_nua_nginx,
-    install_nua_nginx_default_site,
-    nginx_restart,
-    template_content,
-)
+from .cmd import nginx_restart
+from .utils import chown_r_nua_nginx, install_nua_nginx_default_site, template_content
 
 CONF_HTML = "nua.orchestrator.nginx.html"
 
