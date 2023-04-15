@@ -24,24 +24,11 @@ def export_nua_config(
     """Export current Nua orchestrator config (JSON) to file or stdout."""
     initialization()
     content = installed_nua_settings()
+    config_text = json.dumps(content, ensure_ascii=False, indent=4, sort_keys=True)
     if config_file:
-        Path(config_file).write_text(
-            json.dumps(
-                content,
-                ensure_ascii=False,
-                indent=4,
-                sort_keys=True,
-            ),
-            encoding="utf8",
-        )
+        Path(config_file).write_text(config_text, encoding="utf8")
     else:
-        json.dump(
-            content,
-            sys.stdout,
-            ensure_ascii=False,
-            indent=4,
-            sort_keys=True,
-        )
+        print(config_text)
 
 
 @app.command("update")
@@ -52,6 +39,11 @@ def update_nua_config(
     initialization()
     content = parse_any_format(Path(config_file))
     config_update(content)
+
+
+@app.callback()
+def main():
+    """Manage the orchestrator config."""
 
 
 def config_update(updates: dict):
