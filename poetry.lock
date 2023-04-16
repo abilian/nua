@@ -2016,6 +2016,7 @@ nua-agent = {path = "../nua-agent", develop = true}
 nua-autobuild = {path = "../nua-autobuild", develop = true}
 nua-lib = {path = "../nua-lib", develop = true}
 pyyaml = "^6"
+snoop = "^0.4.3"
 tomli = "^2.0.1"
 typer = {version = "^0.7.0", extras = ["all"]}
 
