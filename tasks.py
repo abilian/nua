@@ -2,7 +2,11 @@ import os
 import sys
 from pathlib import Path
 
-import tomli
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
+
 import watchfiles
 from dotenv import load_dotenv
 from invoke import task
@@ -137,7 +141,7 @@ def bump_version(c, bump: str = "patch"):
     """Update version - use 'patch' (default), 'minor' or 'major' as an argument."""
 
     c.run(f"poetry version {bump}")
-    project_info = tomli.load(Path("pyproject.toml").open("rb"))
+    project_info = tomllib.load(Path("pyproject.toml").open("rb"))
     version = project_info["tool"]["poetry"]["version"]
     run_in_subrepos(c, f"poetry version {version}")
 
@@ -170,8 +174,8 @@ def watch(c, host=None):
     excludes_args = " ".join([f"--exclude={e}" for e in RSYNC_EXCLUDES])
 
     def sync():
-        print(f"{BOLD}Syncing to remote server...{DIM}")
-        c.run(f"rsync -e ssh -avz {excludes_args} ./ nua@{host}:/home/nua/nua/")
+        print(f"{BOLD}Syncing to remote server (nua@{host})...{DIM}")
+        c.run(f"rsync -e ssh -avz {excludes_args} ./ nua@{host}:/home/nua/src/")
 
     sync()
     for _changes in watchfiles.watch("."):
