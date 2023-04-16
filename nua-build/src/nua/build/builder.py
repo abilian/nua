@@ -73,9 +73,7 @@ class BuilderFactory:
         if build_method == "wrap":
             return DockerWrapBuilder(self.config)
 
-        raise ValueError(
-            f"Unknown build strategy '{build_method}'"
-        )
+        raise ValueError(f"Unknown build strategy '{build_method}'")
 
     # XXX: not used
     def detect_container_type(self) -> str:
