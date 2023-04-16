@@ -20,3 +20,7 @@ def yellow(text):
 
 def bold(text):
     return colored(text, attrs=["bold"])
+
+
+def dim(text):
+    return colored(text, attrs=["dark"])
