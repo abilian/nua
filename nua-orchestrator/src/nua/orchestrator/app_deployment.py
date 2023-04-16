@@ -1008,7 +1008,8 @@ class AppDeployment:
         if not self.apps:
             show("No app deployed.")
             return
-        show("Deployed:")
+
+        show("Deployed apps:")
         protocol = protocol_prefix()
         for site in self.apps:
             msg = f"Instance name: {site.instance_name_internal}"
@@ -1018,6 +1019,7 @@ class AppDeployment:
             msg = f"Deployment status: {site.running_status}"
             info(msg)
             self.display_persistent_data(site)
+        print()
 
     def display_persistent_data(self, site: AppInstance):
         with verbosity(3):

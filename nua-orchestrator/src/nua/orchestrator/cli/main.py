@@ -19,7 +19,7 @@ from .commands.deploy_remove import (
     deploy_nua_apps,
     remove_nua_domain,
 )
-from .commands.local_cmd import reload_servers, status
+from .commands.status import status
 from .commands.restore import restore_nua_apps_replay, restore_nua_apps_strict
 from .commands.start_stop import (
     restart_nua_instance_domain,
@@ -88,8 +88,10 @@ def status_local():
 @app.command("reload")
 def reload_local():
     """Rebuild config and restart apps."""
+    print("Not implemented yet.")
     initialization()
-    reload_servers()
+    # TODO (not implemented yet)
+    # reload_servers()
 
 
 @app.command("search")
@@ -105,7 +107,7 @@ def deploy_local(
     verbose: int = opt_verbose,
     colorize: bool = option_color,
 ):
-    """Search, install and launch Nua image."""
+    """Deploy one or several Nua applications."""
     set_verbosity(verbose)
     set_color(colorize)
     initialization()
