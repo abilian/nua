@@ -1,6 +1,6 @@
 import string
 
-from nua.agent.gen_password import gen_password, gen_randint
+from nua.lib.gen_password import gen_password, gen_randint
 
 
 def test_gen_password_len():

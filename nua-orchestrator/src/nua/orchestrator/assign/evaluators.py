@@ -7,7 +7,7 @@ argument: 'persistent'
 from functools import wraps
 from typing import Any
 
-from nua.agent.gen_password import gen_password, gen_randint
+from nua.lib.gen_password import gen_password, gen_randint
 from nua.lib.panic import Abort, show, warning
 from nua.lib.tool.state import verbosity
 

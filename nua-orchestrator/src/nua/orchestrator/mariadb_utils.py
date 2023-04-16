@@ -19,7 +19,7 @@ from pathlib import Path
 from time import sleep
 
 from nua.agent.db.mariadb_manager import NUA_MARIADB_PWD_FILE
-from nua.agent.gen_password import gen_password
+from nua.lib.gen_password import gen_password
 from nua.lib.actions import install_package_list, installed_packages
 from nua.lib.console import print_magenta, print_red
 from nua.lib.exec import exec_as_root, exec_as_root_daemon
