@@ -14,17 +14,17 @@ from nua.lib.tool.state import verbosity
 
 def is_builder(name: str) -> bool:
     register_builders()
-    return name in builder_registry.BUILDER_NAMES
+    return name in builder_registry.builder_names
 
 
 def builder_info(name: str) -> dict:
     register_builders()
-    return builder_registry.BUILDERS[builder_registry.BUILDER_NAMES[name]]
+    return builder_registry.builders[builder_registry.builder_names[name]]
 
 
 def builder_ids() -> list[str]:
     register_builders()
-    return list(builder_registry.BUILDERS.keys())
+    return list(builder_registry.builders.keys())
 
 
 def register_builders() -> None:
@@ -32,15 +32,15 @@ def register_builders() -> None:
 
 
 class BuilderRegistry:
-    BUILDERS_DIRS: tuple[str]
-    BUILDERS: dict[str, dict]
-    BUILDER_NAMES: dict[str, str]
+    builders_dirs: tuple[str]
+    builders: dict[str, dict]
+    builder_names: dict[str, str]
 
     def __init__(self):
         self.is_initialized = False
-        self.BUILDERS_DIRS = ("nua.autobuild.builders",)
-        self.BUILDERS = {}
-        self.BUILDER_NAMES = {}
+        self.builders_dirs = ("nua.autobuild.builders",)
+        self.builders = {}
+        self.builder_names = {}
 
     def register_builders(self) -> None:
         if self.is_initialized:
@@ -54,7 +54,7 @@ class BuilderRegistry:
 
     def get_records(self):
         records: dict[str, Traversable] = {}
-        for dir in self.BUILDERS_DIRS:
+        for dir in self.builders_dirs:
             for file in rso.files(dir).iterdir():
                 if not file.is_file():
                     continue
@@ -63,8 +63,8 @@ class BuilderRegistry:
 
     def show_builders_info(self) -> None:
         vprint_magenta("Builders registered:")
-        vprint("BUILDERS_DIRS:", pformat(self.BUILDERS_DIRS))
-        vprint("BUILDERS:", pformat(self.BUILDERS))
+        vprint("BUILDERS_DIRS:", pformat(self.builders_dirs))
+        vprint("BUILDERS:", pformat(self.builders))
 
     def load_builder_configs(self, records: dict[str, Traversable]) -> None:
         for name, file in records.items():
@@ -87,7 +87,7 @@ class BuilderRegistry:
     def register_builder_config(self, builder_config: dict, docker_file: str):
         app_id = builder_config["app_id"]
         labels = builder_config["labels"]
-        self.BUILDERS[app_id] = {
+        self.builders[app_id] = {
             "app_id": app_id,
             "dockerfile": docker_file,
             "labels": labels,
@@ -97,7 +97,7 @@ class BuilderRegistry:
             names = [names]
         names.append(app_id)
         for name in names:
-            self.BUILDER_NAMES[name] = app_id
+            self.builder_names[name] = app_id
 
 
 builder_registry = BuilderRegistry()
