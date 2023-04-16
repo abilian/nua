@@ -62,7 +62,7 @@ def nomalize_env_values(env: dict[str, Union[str, int, float, list]]) -> dict[st
         else:
             validated[key] = normalize_env_leaf(value)
 
-    return deepcopy(validated)
+    return deepcopy(validated)  # type: ignore
 
 
 def force_list(content: str | list[str]) -> list[str]:
@@ -98,6 +98,9 @@ class NuaConfig:
         self._check_required_metadata()
         self._check_checksum_format()
         self._nomalize_env_values()
+
+    def __repr__(self):
+        return f"NuaConfig(path={self.path}, id={id(self)})"
 
     def _find_root_dir(self, path: Path | str) -> None:
         """Find project folder.
