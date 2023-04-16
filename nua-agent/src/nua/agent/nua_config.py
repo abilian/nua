@@ -169,7 +169,9 @@ class NuaConfig:
                     self.path = test_path
                     return
 
-        raise NuaConfigError(f"Nua config file not found in '{self.root_dir}' and sub folders")
+        raise NuaConfigError(
+            f"Nua config file not found in '{self.root_dir}' and sub folders"
+        )
 
     def _loads_config(self):
         if self.path.suffix == ".toml":
@@ -192,7 +194,9 @@ class NuaConfig:
     def _check_required_blocks(self):
         for block in REQUIRED_BLOCKS:
             if block not in self._data:
-                raise NuaConfigError(f"Missing mandatory block in {self.path}: '{block}'")
+                raise NuaConfigError(
+                    f"Missing mandatory block in {self.path}: '{block}'"
+                )
 
     def _complete_missing_blocks(self):
         for block in COMPLETE_BLOCKS:
@@ -206,7 +210,9 @@ class NuaConfig:
     def _check_required_metadata(self):
         for key in REQUIRED_METADATA:
             if key not in self._data["metadata"]:
-                raise NuaConfigError(f"Missing mandatory metadata in {self.path}: '{key}'")
+                raise NuaConfigError(
+                    f"Missing mandatory metadata in {self.path}: '{key}'"
+                )
 
     def _check_checksum_format(self):
         checksum = self.checksum

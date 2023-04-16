@@ -71,5 +71,6 @@ def main(
     # Called as `nua-self-build`
     set_verbosity(verbose)
     set_color(colorize)
+
     image_builder = NuaImageBuilder()
     image_builder.build(force=force, download=download, all=all)

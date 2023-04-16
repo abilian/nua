@@ -36,15 +36,15 @@ class DockerBuilder(Builder):
     container_type = "docker"
 
     def run(self):
+        if not self.container_type == "docker":
+            raise NotImplementedError(f"Container type '{self.container_type}'")
+
         self.check_allowed_base_image()
         self.ensure_base_image_profile_availability()
         self.select_base_image()
         self._title_build()
         self.detect_nua_folder()
-        if self.container_type == "docker":
-            self.build_docker_image()
-        else:
-            raise NotImplementedError(f"Container type '{self.container_type}'")
+        self.build_docker_image()
 
     def check_allowed_base_image(self):
         builder = self.config.builder

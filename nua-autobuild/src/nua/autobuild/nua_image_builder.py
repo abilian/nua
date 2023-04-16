@@ -29,11 +29,6 @@ class NuaImageBuilder:
         self.download = False
         self.displayed = set()
 
-    def display_once_docker_img(self, image_tag: str):
-        if image_tag not in self.displayed:
-            display_docker_img(image_tag)
-            self.displayed.add(image_tag)
-
     def build(
         self, force: bool = False, download: bool = False, all: bool = True
     ) -> dict:
@@ -87,6 +82,11 @@ class NuaImageBuilder:
 
         with verbosity(1):
             self.display_once_docker_img(tag)
+
+    def display_once_docker_img(self, image_tag: str):
+        if image_tag not in self.displayed:
+            display_docker_img(image_tag)
+            self.displayed.add(image_tag)
 
     def ensure_images(self, required: list | str):
         with verbosity(3):
