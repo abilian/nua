@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "nua-master"
+name = "nua-monorepo"
 version = "0.5.8"
 description = ""
 authors = [
@@ -9,7 +9,7 @@ authors = [
 license = "AGPL"
 # Empty package, needed to be able to build the monorepo
 packages = [
-  { include = "nua", from = "src" }
+  { include = "nua_monorepo", from = "src" }
 ]
 
 [tool.poetry.dependencies]
