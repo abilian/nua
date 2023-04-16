@@ -1,11 +1,11 @@
 from operator import itemgetter
 
-from nua.orchestrator.app_deployment import AppDeployment
 from nua.orchestrator import __version__, config
-
+from nua.orchestrator.app_deployment import AppDeployment
 
 # NOTE: /tmp is not ideal, but /run would require some privileges: see later.
 # see later for log module implementation
+
 
 class StatusCommand:
     """Status of orchestrator."""

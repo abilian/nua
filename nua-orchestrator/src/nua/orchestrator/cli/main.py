@@ -19,13 +19,13 @@ from .commands.deploy_remove import (
     deploy_nua_apps,
     remove_nua_domain,
 )
-from .commands.status import status
 from .commands.restore import restore_nua_apps_replay, restore_nua_apps_strict
 from .commands.start_stop import (
     restart_nua_instance_domain,
     start_nua_instance_domain,
     stop_nua_instance_domain,
 )
+from .commands.status import status
 from .init import initialization
 
 ALLOW_SUFFIX = {".json", ".toml", ".yaml", ".yml"}
