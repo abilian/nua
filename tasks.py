@@ -28,7 +28,7 @@ SUB_REPOS = [
 ]
 
 RSYNC_EXCLUDES = [
-    ".git",
+    # ".git",
     ".env",
     ".venv",
     ".mypy_cache",
