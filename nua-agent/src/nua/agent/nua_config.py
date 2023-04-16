@@ -3,7 +3,7 @@ import json
 import os
 from copy import deepcopy
 from pathlib import Path
-from typing import Any
+from typing import Any, Union
 
 import tomli
 import yaml
@@ -47,7 +47,7 @@ def hyphen_get(data: dict, key: str, default: Any = None) -> Any:
     return result
 
 
-def nomalize_env_values(env: dict) -> dict:
+def nomalize_env_values(env: dict[str, Union[str, int, float, list]]) -> dict[str, str]:
     def normalize_env_leaf(value: Any) -> str:
         if isinstance(value, str):
             return value
