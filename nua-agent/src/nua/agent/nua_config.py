@@ -8,7 +8,6 @@ from typing import Any, Union
 import tomli
 import yaml
 from nua.lib.actions import download_extract
-from nua.lib.panic import Abort
 from nua.lib.shell import chown_r
 
 from .constants import NUA_CONFIG_EXT, NUA_CONFIG_STEM
@@ -28,6 +27,10 @@ OPTIONAL_METADATA = [
 ]
 # blocks added (empty) if not present in orig file:
 COMPLETE_BLOCKS = ["build", "run", "env", "docker"]
+
+
+class NuaConfigError(ValueError):
+    pass
 
 
 def nua_config_names():
@@ -53,7 +56,7 @@ def nomalize_env_values(env: dict[str, Union[str, int, float, list]]) -> dict[st
             return value
         if isinstance(value, (int, float, list)):
             return str(value)
-        raise Abort(f"ENV value has wrong type: '{value}'")
+        raise NuaConfigError(f"ENV value has wrong type: '{value}'")
 
     validated: dict[str, str | dict] = {}
     for key, value in env.items():
@@ -165,7 +168,8 @@ class NuaConfig:
                 if test_path.is_file():
                     self.path = test_path
                     return
-        raise Abort(f"Nua config file not found in '{self.root_dir}' and sub folders")
+
+        raise NuaConfigError(f"Nua config file not found in '{self.root_dir}' and sub folders")
 
     def _loads_config(self):
         if self.path.suffix == ".toml":
@@ -173,7 +177,7 @@ class NuaConfig:
         elif self.path.suffix in {".json", ".yaml", ".yml"}:
             self._data = yaml.safe_load(self.path.read_text(encoding="utf8"))
         else:
-            raise Abort(f"Unknown file extension for '{self.path}'")
+            raise NuaConfigError(f"Unknown file extension for '{self.path}'")
 
     def as_dict(self) -> dict:
         return self._data
@@ -188,7 +192,7 @@ class NuaConfig:
     def _check_required_blocks(self):
         for block in REQUIRED_BLOCKS:
             if block not in self._data:
-                raise Abort(f"Missing mandatory block in {self.path}: '{block}'")
+                raise NuaConfigError(f"Missing mandatory block in {self.path}: '{block}'")
 
     def _complete_missing_blocks(self):
         for block in COMPLETE_BLOCKS:
@@ -202,7 +206,7 @@ class NuaConfig:
     def _check_required_metadata(self):
         for key in REQUIRED_METADATA:
             if key not in self._data["metadata"]:
-                raise Abort(f"Missing mandatory metadata in {self.path}: '{key}'")
+                raise NuaConfigError(f"Missing mandatory metadata in {self.path}: '{key}'")
 
     def _check_checksum_format(self):
         checksum = self.checksum
@@ -211,7 +215,7 @@ class NuaConfig:
         if checksum.startswith("sha256:"):
             checksum = checksum[7:]
         if len(checksum) != 64:
-            raise Abort(
+            raise NuaConfigError(
                 f"Wrong checksum content (expecting 64 length sha256): {checksum}"
             )
         self.metadata["checksum"] = checksum
