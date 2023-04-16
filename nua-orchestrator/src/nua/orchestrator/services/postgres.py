@@ -1,5 +1,9 @@
 """Nua postgres as a service."""
-from ..postgres_utils import pg_check_listening, pg_restart_service, postgres_pwd
+from ..db_utils.postgres_utils import (
+    pg_check_listening,
+    pg_restart_service,
+    postgres_pwd,
+)
 from .service_base import ServiceBase
 
 

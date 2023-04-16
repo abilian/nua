@@ -26,7 +26,7 @@ PLUGIN_DIRS = ("nua.orchestrator.db_plugins",)
 FAMILY_SET = {family: set() for family in FAMILIES}
 
 
-def register_plugins() -> list:
+def register_plugins():
     for dir in PLUGIN_DIRS:
         for file in rso.files(dir).iterdir():
             path = Path(file)

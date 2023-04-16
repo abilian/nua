@@ -27,9 +27,12 @@ from nua.lib.shell import chown_r, mkdir_p, rm_fr, sh, user_exists
 
 from .. import nua_env
 from ..certbot.installer import install_certbot
-from ..mariadb_utils import bootstrap_install_mariadb, set_random_mariadb_pwd
+from ..db_utils.mariadb_utils import bootstrap_install_mariadb, set_random_mariadb_pwd
+from ..db_utils.postgres_utils import (
+    bootstrap_install_postgres,
+    set_random_postgres_pwd,
+)
 from ..nginx.installer import install_nginx
-from ..postgres_utils import bootstrap_install_postgres, set_random_postgres_pwd
 
 NUA = "nua"
 HOST_PACKAGES = [

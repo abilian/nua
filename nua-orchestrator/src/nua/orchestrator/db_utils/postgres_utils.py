@@ -4,10 +4,10 @@ import re
 from pathlib import Path
 
 from nua.agent.db.postgres_manager import NUA_PG_PWD_FILE
-from nua.lib.gen_password import gen_password
 from nua.lib.actions import install_package_list, installed_packages
 from nua.lib.console import print_magenta, print_red
 from nua.lib.exec import mp_exec_as_postgres
+from nua.lib.gen_password import gen_password
 from nua.lib.panic import warning
 from nua.lib.shell import chown_r, sh
 
@@ -66,7 +66,7 @@ def set_postgres_pwd(password: str) -> bool:
     encryption of streams and expiration date. Basically we need clear
     password somewhere. Since this password is only used by Nua scripts
     (if Nua is the only user of local postgres DB), it could also be
-    generated / erased at each invocation. Passord could be stored in
+    generated / erased at each invocation. Password could be stored in
     some file in the postgres user home (a postgres feature). No test of
     min password length in this function.
     """
@@ -78,6 +78,7 @@ def set_postgres_pwd(password: str) -> bool:
     return True
 
 
+# XXX: not used
 def pg_run_environment(_unused_site: dict) -> dict:
     """Return a dict of environ variable for docker.run().
 
