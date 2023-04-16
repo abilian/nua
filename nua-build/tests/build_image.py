@@ -9,7 +9,7 @@ from nua.agent.nua_config import NuaConfig
 from nua.lib.backports import chdir
 from typer.testing import CliRunner
 
-from nua.build.builder import get_builder
+from nua.build.builders import get_builder
 
 runner = CliRunner(mix_stderr=False)
 

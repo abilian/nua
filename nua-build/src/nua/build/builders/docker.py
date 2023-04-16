@@ -1,30 +1,17 @@
-"""Builder class, core of build process.
+"""Docker builder (using dockerfile generated from the nua-config).
 
-Builder instance maintains config and other state information during build.
-
-Typical use::
-
-    builder = get_builder(config_file)
-    builder.run()
 """
 from __future__ import annotations
 
-import abc
 import logging
-import tempfile
-from abc import abstractmethod
 from contextlib import suppress
-from dataclasses import dataclass
 from importlib import resources as rso
 from pathlib import Path
-from pprint import pformat
 from shutil import copy2, copytree
 
 import docker
-from docker.models.images import Image
-
 from nua.agent.constants import NUA_BUILDER_TAG
-from nua.agent.nua_config import NuaConfig, hyphen_get, nua_config_names
+from nua.agent.nua_config import hyphen_get, nua_config_names
 from nua.autobuild.docker_build_utils import (
     display_docker_img,
     docker_build_log_error,
@@ -33,137 +20,15 @@ from nua.autobuild.docker_build_utils import (
 from nua.autobuild.nua_image_builder import NuaImageBuilder
 from nua.autobuild.register_builders import is_builder
 from nua.lib.backports import chdir
-from nua.lib.panic import info, show, title, vfprint, vprint
+from nua.lib.panic import info, vprint
 from nua.lib.shell import rm_fr
 from nua.lib.tool.state import verbosity, verbosity_level
 
-from . import __version__, config
+from .. import __version__
+from .base import Builder, BuilderError
 
 logging.basicConfig(level=logging.INFO)
 CLIENT_TIMEOUT = 600
-
-
-class BuilderError(Exception):
-    """Builder error."""
-
-
-def get_builder(config_path: str | Path | None = None) -> Builder:
-    config = NuaConfig(config_path)
-    factory = BuilderFactory(config)
-    return factory.get_builder()
-
-
-@dataclass(frozen=True)
-class BuilderFactory:
-    """Factory to create a Builder instance."""
-
-    config: NuaConfig
-
-    def get_builder(self) -> Builder:
-        with verbosity(4):
-            vprint(pformat(self.config.as_dict()))
-
-        # Not used at this stage
-        # container_type = self.detect_container_type()
-        build_method = self.detect_build_method()
-
-        if build_method == "build":
-            return DockerBuilder(self.config)
-
-        if build_method == "wrap":
-            return DockerWrapBuilder(self.config)
-
-        raise ValueError(f"Unknown build strategy '{build_method}'")
-
-    # XXX: not used
-    def detect_container_type(self) -> str:
-        """Placeholder for future container technology detection.
-
-        Currently only Docker is supported.
-        """
-        container = self.config.build.get("container") or "docker"
-        if container != "docker":
-            raise BuilderError(f"Unknown container type: '{container}'")
-        return container
-
-    def detect_build_method(self) -> str:
-        """Detect how to build the container.
-
-        For now 2 choices:
-        - build: full build from generated Dockerfile
-        - wrap: use existing Docker image and add Nua metadata
-        """
-        method = self.config.build_method or self.build_method_from_data()
-        if method not in {"build", "wrap"}:
-            raise BuilderError(f"Unknown build method: '{method}'")
-        with verbosity(3):
-            info(f"Build method: {method}")
-        return method
-
-    def build_method_from_data(self) -> str:
-        if self.config.wrap_image:
-            with verbosity(3):
-                info(f"metadata.wrap_image: {self.config.wrap_image}")
-            return "wrap"
-        return "build"
-
-
-class Builder(abc.ABC):
-    """Class to hold config and other state information during build."""
-
-    config: NuaConfig
-    container_type: str
-    build_dir: Path
-    nua_folder: Path
-    nua_base: str
-
-    def __init__(self, config: NuaConfig):
-        assert isinstance(config, NuaConfig)
-
-        self.config = config
-        self.nua_base = ""
-        self.build_dir = self.make_build_dir()
-
-    @abstractmethod
-    def run(self):
-        raise NotImplementedError()
-
-    def _title_build(self):
-        title(f"Building the image for {self.config.app_id}")
-
-    def make_build_dir(self) -> Path:
-        build_dir_parent = Path(
-            config.get("build", {}).get("build_dir", "/var/tmp")  # noqa S108
-        )
-        if not build_dir_parent.is_dir():
-            raise BuilderError(
-                f"Build directory parent not found: '{build_dir_parent}'"
-            )
-
-        with verbosity(1):
-            info(f"Build directory: {self.build_dir}")
-
-        return Path(tempfile.mkdtemp(dir=build_dir_parent))
-
-    def save(self, image: Image, nua_tag: str):
-        dest = f"/var/tmp/{nua_tag}.tar"  # noqa S108
-        chunk_size = 2**22
-        step = round(image.attrs["Size"]) // 20
-        accu = 0
-        with verbosity(1):
-            vfprint("Saving image ")
-        with open(dest, "wb") as tarfile:
-            for chunk in image.save(chunk_size=chunk_size, named=True):
-                tarfile.write(chunk)
-                accu += len(chunk)
-                if accu >= step:
-                    accu -= step
-                    with verbosity(1):
-                        vfprint(".")
-        with verbosity(1):
-            vprint("")
-            show("Docker image saved:")
-            show(dest)
 
 
 class DockerBuilder(Builder):
@@ -348,58 +213,3 @@ class DockerBuilder(Builder):
                 vprint(f"destination path: {destination}")
 
             destination.write_text(content)
-
-
-class DockerWrapBuilder(Builder):
-    def run(self):
-        self._title_build()
-        # FIXME:
-        # if self.container_type != "docker":
-        #     raise NotImplementedError(f"Container type '{self.container_type}'")
-        self.write_wrap_dockerfile()
-        self.build_wrap_with_docker_stream()
-        rm_fr(self.build_dir)
-
-    def write_wrap_dockerfile(self):
-        self.config.dump_json(self.build_dir)
-        docker_file = self.build_dir / "Dockerfile"
-        if self.config.docker_user:
-            content = (
-                "ARG nua_wrap_tag\n"
-                "FROM ${nua_wrap_tag}\n\n"
-                "USER root\n"
-                "RUN mkdir -p /nua/metadata\n"
-                "COPY nua-config.json /nua/metadata/\n"
-                f"USER {self.config.docker_user}\n"
-            )
-        else:
-            content = (
-                "ARG nua_wrap_tag\n"
-                "FROM ${nua_wrap_tag}\n\n"
-                "RUN mkdir -p /nua/metadata\n"
-                "COPY nua-config.json /nua/metadata/\n"
-            )
-        docker_file.write_text(content, encoding="utf8")
-
-    @docker_build_log_error
-    def build_wrap_with_docker_stream(self, save: bool = True):
-        with chdir(self.build_dir):
-            nua_tag = self.config.nua_tag
-            buildargs = {
-                "nua_wrap_tag": self.config.wrap_image,
-            }
-            labels = {
-                "APP_ID": self.config.app_id,
-                "NUA_TAG": nua_tag,
-                "NUA_BUILD_VERSION": __version__,
-            }
-            info(f"Building (wrap) image {nua_tag}")
-            image_id = docker_stream_build(".", nua_tag, buildargs, labels)
-
-            with verbosity(1):
-                display_docker_img(nua_tag)
-
-            if save:
-                client = docker.from_env(timeout=CLIENT_TIMEOUT)
-                image = client.images.get(image_id)
-                self.save(image, nua_tag)
