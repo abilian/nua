@@ -65,7 +65,7 @@ def nomalize_env_values(env: dict) -> dict:
     return deepcopy(validated)
 
 
-def forced_list(content: str | list) -> list:
+def force_list(content: str | list[str]) -> list[str]:
     """Return always a list, if a single string is provided, wrap it into
     list."""
     if isinstance(content, list):
@@ -299,7 +299,7 @@ class NuaConfig:
         return self["build"]
 
     @property
-    def builder(self) -> dict:
+    def builder(self) -> str:
         return self.build.get("builder", "")
 
     @property
@@ -311,15 +311,15 @@ class NuaConfig:
 
     @property
     def manifest(self) -> list:
-        return forced_list(self.build.get("manifest", []))
+        return force_list(self.build.get("manifest", []))
 
     @property
     def meta_packages(self) -> list:
-        return forced_list(hyphen_get(self.build, "meta-packages", []))
+        return force_list(hyphen_get(self.build, "meta-packages", []))
 
     @property
     def build_packages(self) -> list:
-        return forced_list(self.build.get("packages", []))
+        return force_list(self.build.get("packages", []))
 
     @property
     def build_command(self) -> list:
@@ -327,7 +327,7 @@ class NuaConfig:
         metadata."""
         metadata = self.metadata_rendered
         commands = []
-        for cmd in forced_list(hyphen_get(self.build, "build-command", [])):
+        for cmd in force_list(hyphen_get(self.build, "build-command", [])):
             if isinstance(cmd, str):
                 commands.append(cmd.format(**metadata))
             else:
@@ -336,7 +336,7 @@ class NuaConfig:
 
     @property
     def pip_install(self) -> list:
-        return forced_list(hyphen_get(self.build, "pip-install", []))
+        return force_list(hyphen_get(self.build, "pip-install", []))
 
     @property
     def build_method(self) -> str:
@@ -365,11 +365,11 @@ class NuaConfig:
     @property
     def packages(self) -> list:
         "Return list of run packages (packages remanent after build)."
-        return forced_list(self.run.get("packages", []))
+        return force_list(self.run.get("packages", []))
 
     @property
     def start_command(self) -> list:
-        return forced_list(hyphen_get(self.run, "start", []))
+        return force_list(hyphen_get(self.run, "start", []))
 
     # env ###########################################################
 
