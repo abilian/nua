@@ -27,6 +27,7 @@ def docker_build_log_error(func):
     def build_log_error_wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
+
         except BuildError as e:
             print_red("=" * 60)
             print_red("Something went wrong with image build!")

@@ -44,11 +44,13 @@ class NuaImageBuilder:
                 show("Force rebuild of images")
             if self.download:
                 show("Force download of source code")
+
         self.ensure_nua_python()
         self.ensure_nua_builder()
         if all:
             # build all base images
             self.ensure_all_nua_builders()
+
         return self.images_path
 
     def ensure_nua_python(self):
@@ -56,6 +58,7 @@ class NuaImageBuilder:
             if self.force:
                 docker_remove_locally(NUA_PYTHON_TAG)
             self.build_nua_python()
+
         with verbosity(1):
             self.display_once_docker_img(NUA_PYTHON_TAG)
 
@@ -64,6 +67,7 @@ class NuaImageBuilder:
             if self.force:
                 docker_remove_locally(NUA_BUILDER_TAG)
             self.build_nua_builder()
+
         with verbosity(1):
             self.display_once_docker_img(NUA_BUILDER_TAG)
 
@@ -80,16 +84,19 @@ class NuaImageBuilder:
             if self.force:
                 docker_remove_locally(tag)
             self.build_builder_of_name(app_id)
+
         with verbosity(1):
             self.display_once_docker_img(tag)
 
     def ensure_images(self, required: list | str):
         with verbosity(3):
             vprint("ensure_images:", required)
-        # ensure base images
+
         self.ensure_base_image()
+
         if not required:
             return
+
         if isinstance(required, str):
             required = [required]
         for key in required:

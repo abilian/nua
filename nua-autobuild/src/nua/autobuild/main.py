@@ -68,6 +68,7 @@ def main(
     version: Optional[bool] = option_version,
 ):
     """Nua-self-build CLI inferface."""
+    # Called as `nua-self-build`
     set_verbosity(verbose)
     set_color(colorize)
     image_builder = NuaImageBuilder()

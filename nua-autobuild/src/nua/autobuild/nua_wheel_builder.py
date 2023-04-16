@@ -98,9 +98,10 @@ class NuaWheelBuilder:
     def build_from_local(self) -> bool:
         if not self.nua_local_git or not self.nua_local_git.is_dir():
             raise Abort(f"Directory not found '{self.nua_local_git}'")
-            return False  # for the qa
+
         with verbosity(3):
             vprint([f.name for f in self.nua_local_git.iterdir()])
+
         return all((self.build_nua_lib(), self.build_nua_agent()))
 
     def build_nua_lib(self) -> bool:
@@ -134,6 +135,7 @@ class NuaWheelBuilder:
     def poetry_build(self, path: Path) -> bool:
         with verbosity(3):
             vprint(f"Poetry build in '{path}'")
+
         with chdir(path):
             rm_fr(path / "dist")
             cmd = "poetry build -f wheel"
