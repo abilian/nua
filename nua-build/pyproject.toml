@@ -34,6 +34,7 @@ typer = {version = "^0.7.0", extras = ["all"]}
 # Docker client
 docker = {version = "^6", extras = ["ssh"]}
 pyyaml = "^6"
+snoop = "^0.4.3"
 
 
 [tool.poetry.group.dev.dependencies]
