@@ -9,7 +9,7 @@ from nua.agent.nua_config import NuaConfig
 from nua.lib.backports import chdir
 from typer.testing import CliRunner
 
-from nua.build.main import app
+from nua.build.builder import get_builder
 
 runner = CliRunner(mix_stderr=False)
 
@@ -82,24 +82,29 @@ def _build_test(tmpdirname: str, name: str, expect_failure: bool = False):
     # print(os.listdir("."))
     copytree(".", build_dir)
     dock = docker.from_env()
+
     print("----------------------------------------------")
     print(f"Build {name}")
-    # print("Time now:", datetime.now(timezone.utc).isoformat(" "))
-    # print(os.environ)
+
     t0 = perf_counter()
-    result = runner.invoke(app, ["-vv", str(build_dir)])
-    # print("Time now:", datetime.now(timezone.utc).isoformat(" "))
+
+    builder = get_builder()
+    builder.run()
+    # result = runner.invoke(app, ["-vv", str(build_dir)])
+
     print("elapsed (s):", perf_counter() - t0)
-    print(" ========= result.stdout ===========")
-    print(result.stdout)
-    print(result.stderr)
-    print(" ===================================")
 
-    if expect_failure:
-        assert result.exit_code != 0
-        return
+    # print(" ========= result.stdout ===========")
+    # print(result.stdout)
+    # print(result.stderr)
+    # print(" ===================================")
+    #
+    # if expect_failure:
+    #     assert result.exit_code != 0
+    #     return
+    #
+    # assert result.exit_code == 0
 
-    assert result.exit_code == 0
     assert dock.images.list(name)
 
     print("In the container:")

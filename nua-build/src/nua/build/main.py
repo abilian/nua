@@ -9,11 +9,15 @@ See later if move this to "nua ...".
 """
 from typing import Optional
 
+import snoop
 import typer
 from nua.lib.tool.state import set_color, set_verbosity
 
 from . import __version__
-from .builder import Builder, BuilderError
+from .builder import BuilderError, get_builder
+from nua.lib.panic import Abort
+
+snoop.install()
 
 app = typer.Typer()
 
@@ -57,10 +61,6 @@ def _version_string() -> None:
 #     raise typer.Exit(0)
 
 
-def initialization() -> None:
-    pass
-
-
 # @app.callback(invoke_without_command=True)
 @app.command()
 def main(
@@ -73,10 +73,9 @@ def main(
     """Nua-build CLI inferface."""
     set_verbosity(verbose)
     set_color(colorize)
-    initialization()
-    builder = Builder(config_file)
+
+    builder = get_builder(config_file)
     try:
         builder.run()
     except BuilderError as e:
-        typer.echo(f"Error: {e}")
-        raise typer.Exit(1)
+        raise Abort(e)

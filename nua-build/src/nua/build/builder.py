@@ -6,8 +6,12 @@ Typical use:
     builder = Builder(config_file)
     builder.run()
 """
+from __future__ import annotations
+
+import abc
 import logging
 import tempfile
+from abc import abstractmethod
 from contextlib import suppress
 from importlib import resources as rso
 from pathlib import Path
@@ -16,6 +20,7 @@ from shutil import copy2, copytree
 
 import docker
 from docker.models.images import Image
+
 from nua.agent.constants import NUA_BUILDER_TAG
 from nua.agent.nua_config import NuaConfig, hyphen_get, nua_config_names
 from nua.autobuild.docker_build_utils import (
@@ -40,38 +45,83 @@ class BuilderError(Exception):
     """Builder error."""
 
 
-class Builder:
+def get_builder(config_path: str | Path | None = None) -> Builder:
+    config = NuaConfig(config_path)
+
+    with verbosity(4):
+        vprint(pformat(config.as_dict()))
+
+    # Not used at this stage
+    # container_type = detect_container_type(config)
+    build_method = detect_build_method(config)
+
+    if build_method == "build":
+        return DockerBuilder(config)
+
+    if build_method == "wrap":
+        return DockerWrapBuilder(config)
+
+    raise NotImplementedError(
+        f"Unknown build strategy '{build_method}'",
+    )
+
+
+def detect_container_type(config: NuaConfig) -> str:
+    """Placeholder for future container technology detection.
+
+    Currently only Docker is supported.
+    """
+    container = config.build.get("container") or "docker"
+    if container != "docker":
+        raise BuilderError(f"Unknown container type: '{container}'")
+    return container
+
+
+def detect_build_method(config: NuaConfig) -> str:
+    """Detect how to build the container.
+
+    For now 2 choices:
+    - build: full build from generated Dockerfile
+    - wrap: use existing Docker image and add Nua metadata
+    """
+    method = config.build_method or build_method_from_data(config)
+    if method not in {"build", "wrap"}:
+        raise BuilderError(f"Unknown build method: '{method}'")
+    with verbosity(3):
+        info(f"Build method: {method}")
+    return method
+
+
+def build_method_from_data(config: NuaConfig) -> str:
+    if config.wrap_image:
+        with verbosity(3):
+            info(f"metadata.wrap_image: {config.wrap_image}")
+        return "wrap"
+    return "build"
+
+
+class Builder(abc.ABC):
     """Class to hold config and other state information during build."""
 
+    config: NuaConfig
     container_type: str
     build_dir: Path
     nua_folder: Path
     nua_base: str
-    config: NuaConfig
-    build_method: str
 
-    def __init__(self, config_path: str | Path | None = None):
-        self.config = NuaConfig(config_path)
+    def __init__(self, config: NuaConfig):
+        assert isinstance(config, NuaConfig)
+
+        self.config = config
         self.nua_base = ""
         self.build_dir = Path()
-        self.build_method = ""
+
+    @abstractmethod
+    def run(self):
+        raise NotImplementedError()
 
     def _title_build(self):
         title(f"Building the image for {self.config.app_id}")
-
-    def run(self):
-        with verbosity(4):
-            vprint(pformat(self.config.as_dict()))
-        self.detect_container_type()
-        self.detect_build_method()
-        if self.build_method == "build":
-            self.build_from_dockerfile()
-        elif self.build_method == "wrap":
-            self.build_from_wrap_image()
-        else:
-            raise NotImplementedError(
-                f"Unknown build strategy '{self.build_method}'",
-            )
 
     def build_from_dockerfile(self):
         self.check_allowed_base_image()
@@ -86,8 +136,9 @@ class Builder:
 
     def build_from_wrap_image(self):
         self._title_build()
-        if self.container_type != "docker":
-            raise NotImplementedError(f"Container type '{self.container_type}'")
+        # FIXME:
+        # if self.container_type != "docker":
+        #     raise NotImplementedError(f"Container type '{self.container_type}'")
         self.make_build_dir()
         self.write_wrap_dockerfile()
         self.build_wrap_with_docker_stream()
@@ -116,37 +167,6 @@ class Builder:
             content,
             encoding="utf8",
         )
-
-    def detect_container_type(self):
-        """Placeholder for future container technology detection.
-
-        Currently only Docker is supported.
-        """
-        container = self.config.build.get("container") or "docker"
-        if container != "docker":
-            raise BuilderError(f"Unknown container type: '{container}'")
-        self.container_type = container
-
-    def detect_build_method(self):
-        """Detect how to build the container.
-
-        For now 2 choices:
-        - build: full build from generated Dockerfile
-        - wrap: use existing Docker image and add Nua metadata
-        """
-        method = self.config.build_method or self._build_method_from_data()
-        if method not in {"build", "wrap"}:
-            raise BuilderError(f"Unknown build method: '{method}'")
-        self.build_method = method
-        with verbosity(3):
-            info(f"Build mathod: {self.build_method}")
-
-    def _build_method_from_data(self) -> str:
-        if self.config.wrap_image:
-            with verbosity(3):
-                info(f"metadata.wrap_image: {self.config.wrap_image}")
-            return "wrap"
-        return "build"
 
     def check_allowed_base_image(self):
         builder = self.config.builder
@@ -362,3 +382,16 @@ class Builder:
             vprint("")
             show("Docker image saved:")
             show(dest)
+
+
+class DockerBuilder(Builder):
+    # FIXME later
+    container_type = "docker"
+
+    def run(self):
+        self.build_from_dockerfile()
+
+
+class DockerWrapBuilder(Builder):
+    def run(self):
+        self.build_from_wrap_image()
