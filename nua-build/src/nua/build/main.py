@@ -78,4 +78,4 @@ def main(
     try:
         builder.run()
     except BuilderError as e:
-        raise Abort(e)
+        raise Abort from e
