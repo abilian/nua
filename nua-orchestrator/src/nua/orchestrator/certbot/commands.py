@@ -102,7 +102,7 @@ def gen_cert_standalone(domain: str):
 
 def gen_cert_nginx(domain: str):
     with verbosity(3):
-        print("domain exists:", domain)
+        print("known domain, will register with --nginx certbot option:", domain)
     if os.getuid():  # aka not root
         prefix = "sudo "
     else:
