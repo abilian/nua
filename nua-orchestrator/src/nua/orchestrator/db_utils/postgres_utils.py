@@ -11,7 +11,8 @@ from nua.lib.gen_password import gen_password
 from nua.lib.panic import warning
 from nua.lib.shell import chown_r, sh
 
-from .docker_utils import docker_host_gateway_ip
+from ..docker_utils import docker_host_gateway_ip
+
 
 PG_VERSION = "14"
 POSTGRES_CONF_PATH = Path(f"/etc/postgresql/{PG_VERSION}/main")
