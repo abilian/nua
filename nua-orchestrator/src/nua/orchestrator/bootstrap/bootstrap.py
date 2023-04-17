@@ -10,6 +10,7 @@ import multiprocessing as mp
 import os
 import platform
 import shutil
+import sys
 
 # import venv -> this induces bugs (venv from venv...), prefer direct /usr/bin/python3
 from pathlib import Path
@@ -76,6 +77,7 @@ def main():
         info("Not root, trying with sudo...")
         my_path = shutil.which("nua-bootstrap")
         run(["sudo", str(my_path)], check=True)
+        sys.exit(0)
 
     apt_update()
     bootstrap()
@@ -84,15 +86,6 @@ def main():
     print_green("\nNua installation done for user 'nua' on this host.")
     cmd = "nua-orchestrator --help"
     bash_as_nua(cmd)
-
-
-# Not needed anymore
-# def detect_myself() -> str:
-#     venv = os.environ.get("VIRTUAL_ENV")
-#     if venv:
-#         return f"- Possible command:\n    sudo {Path(venv)/'bin'/'nua-bootstrap'}"
-#     else:
-#         return "- Current Python virtual env not detected."
 
 
 def bootstrap():
