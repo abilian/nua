@@ -76,7 +76,7 @@ def main():
     if os.geteuid() != 0:
         info("Not root, trying with sudo...")
         my_path = shutil.which("nua-bootstrap")
-        run(["sudo", str(my_path)], check=True)
+        run(["/usr/bin/sudo", str(my_path)], check=True)
         sys.exit(0)
 
     apt_update()
