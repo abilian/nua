@@ -6,13 +6,11 @@ import tempfile
 from pathlib import Path
 
 import tomli
+from cleez import Command
+from cleez.colors import bold, dim
+from cleez.command import Argument
 
-from nua_cli.base import Argument, Command
-from nua_cli.client import get_client
-from nua_cli.colors import bold, dim
-
-# import toml
-
+from ..client import get_client
 
 client = get_client()
 
@@ -90,7 +88,7 @@ class DeployCommand(Command):
         Argument("domain", nargs="?", help="Domain to deploy to."),
     ]
 
-    def run(domain=None):
+    def run(self, domain=None):
         """Deploy all apps."""
         config = get_config()
         host = NUA_HOST

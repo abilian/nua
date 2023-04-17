@@ -3,9 +3,8 @@ import os
 import sys
 from io import StringIO
 
+from cleez.colors import red
 from fabric import Connection
-
-from nua_cli.colors import red
 
 # Hardcoded for now
 NUA_CMD = "./env/bin/nua-orchestrator"

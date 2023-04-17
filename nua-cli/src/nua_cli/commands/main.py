@@ -1,4 +1,4 @@
-from nua_cli.base import Command
+from cleez.command import Command
 
 
 class MainCommand(Command):

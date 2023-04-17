@@ -1,9 +1,10 @@
 from pprint import pp
 
-from nua_cli.base import Argument, Command
-from nua_cli.client import get_client
-from nua_cli.common import get_current_app_id
-from nua_cli.exceptions import CommandError
+from cleez import Command, CommandError
+from cleez.command import Argument
+
+from ..client import get_client
+from ..common import get_current_app_id
 
 client = get_client()
 

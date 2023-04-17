@@ -26,8 +26,7 @@ TODO:
 from __future__ import annotations
 
 import snoop
-
-from nua_cli.base import CLI
+from cleez import CLI
 
 snoop.install()
 

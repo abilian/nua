@@ -21,6 +21,7 @@ snoop = "*"
 
 # typer = "^0.7.0"
 termcolor = "^2.2.0"
+cleez = {git = "https://github.com/abilian/cleez"}
 
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"

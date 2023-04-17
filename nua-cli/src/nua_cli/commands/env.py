@@ -1,7 +1,8 @@
-from nua_cli.base import Argument, Command
-from nua_cli.client import get_client
-from nua_cli.colors import bold, red
-from nua_cli.common import get_current_app_id
+from cleez.colors import bold, red
+from cleez.command import Argument, Command
+
+from ..client import get_client
+from ..common import get_current_app_id
 
 client = get_client()
 

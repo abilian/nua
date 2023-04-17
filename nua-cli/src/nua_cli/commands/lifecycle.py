@@ -1,6 +1,7 @@
-from nua_cli.base import Argument, Command
-from nua_cli.client import get_client
-from nua_cli.colors import red
+from cleez.colors import red
+from cleez.command import Argument, Command
+
+from ..client import get_client
 
 client = get_client()
 

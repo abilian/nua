@@ -1,9 +1,10 @@
 from operator import itemgetter
 from pprint import pp
 
-from nua_cli.base import Argument, Command
-from nua_cli.client import get_client
-from nua_cli.exceptions import BadArgument
+from cleez import BadArgumentError
+from cleez.command import Argument, Command
+
+from ..client import get_client
 
 client = get_client()
 
@@ -30,7 +31,9 @@ class LogsCommand(Command):
             case "nginx":
                 print("Showing Nginx logs [TODO]")
             case _:
-                raise BadArgument("Service must be one of: nua, letsencrypt, nginx")
+                raise BadArgumentError(
+                    "Service must be one of: nua, letsencrypt, nginx"
+                )
 
 
 class StatusCommand(Command):

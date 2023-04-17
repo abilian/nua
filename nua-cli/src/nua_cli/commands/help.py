@@ -1,4 +1,5 @@
-from nua_cli.base import Command
+from cleez import Command
+
 from nua_cli.client import get_client
 from nua_cli.version import get_version
 
