@@ -78,10 +78,10 @@ def image_labels(reference: str) -> dict:
     return image.labels
 
 
-def display_docker_img(iname: str):
-    vprint_magenta(f"Docker image for '{iname}':")
+def display_docker_img(image_name: str):
+    vprint_magenta(f"Docker image for '{image_name}':")
     client = DockerClient.from_env()
-    result = client.images.list(filters={"reference": iname})
+    result = client.images.list(filters={"reference": image_name})
     if not result:
         vprint("No image found")
         return
