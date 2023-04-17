@@ -8,6 +8,8 @@ In future versions, change this to a standalone script.
 """
 import multiprocessing as mp
 import os
+import platform
+import shutil
 
 # import venv -> this induces bugs (venv from venv...), prefer direct /usr/bin/python3
 from pathlib import Path
@@ -60,32 +62,37 @@ PIP_PACKAGES = [
 
 def main():
     print_blue("Installing Nua bootstrap script on local host...")
+
     if not check_python_version():
         raise Abort("Python 3.10+ is required for Nua installation.")
+
+    if not platform.system() == "Linux":
+        raise Abort("Nua currently only works on Linux.")
+
     if user_exists(NUA):
-        info("Nua was already installed.")
+        info("Nua already installed. Proceeding anyway (overwwriting).")
+
     if os.geteuid() != 0:
-        raise Abort(
-            "Nua bootstrap script requires root privileges.\n"
-            "Please try again, this time using 'sudo'.\n"
-            "- When sudo, use absolute script path.\n"
-            f"{detect_myself()}\n"
-        )
+        info("Not root, trying with sudo...")
+        my_path = shutil.which("nua-bootstrap")
+        run(["sudo", str(my_path)], check=True)
 
     apt_update()
     bootstrap()
     apt_final_clean()
+
     print_green("\nNua installation done for user 'nua' on this host.")
     cmd = "nua-orchestrator --help"
     bash_as_nua(cmd)
 
 
-def detect_myself() -> str:
-    venv = os.environ.get("VIRTUAL_ENV")
-    if venv:
-        return f"- Possible command:\n    sudo {Path(venv)/'bin'/'nua-bootstrap'}"
-    else:
-        return "- Current Python virtual env not detected."
+# Not needed anymore
+# def detect_myself() -> str:
+#     venv = os.environ.get("VIRTUAL_ENV")
+#     if venv:
+#         return f"- Possible command:\n    sudo {Path(venv)/'bin'/'nua-bootstrap'}"
+#     else:
+#         return "- Current Python virtual env not detected."
 
 
 def bootstrap():
