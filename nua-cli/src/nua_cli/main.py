@@ -8,18 +8,18 @@ TODO:
 [x] build             Build app but don't deploy it
 [x] backup            Backup/restore app data
 [x] config            Show/manage config for current app
-[ ] deploy            Deploy app
-[ ] destroy           Destroy app
-[ ] help              Display help
+[x] deploy            Deploy app
+[x] destroy           Destroy app
+[x] help              Display help
 [ ] init              Create a new app
 [x] logs              Tail running logs
-[ ] restart           Restart an app
+[x] restart           Restart an app
 [ ] run               Run a command in the app's environment
 [ ] scale             Scale processes
-[ ] server            Manage the Nua server
-[ ] start             Start an app
-[ ] status            Show app status
-[ ] stop              Stop an app
+[x] server            Manage the Nua server
+[x] start             Start an app
+[x] status            Show app status
+[x] stop              Stop an app
 [ ] update            Update an app
 [x] version           Show Nua version
 """
