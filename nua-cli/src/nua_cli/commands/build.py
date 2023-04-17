@@ -53,7 +53,7 @@ class BuildCommand(Command):
         config = get_config()
         app_id = config["metadata"]["id"]
 
-        build_dir = tempfile.mkdtemp(prefix=f"nua-build-{app_id}-", dir="/tmp")
+        build_dir = tempfile.mkdtemp(prefix=f"nua-build-{app_id}-", dir="/tmp")  # noqa
 
         print(bold(f"Building app {app_id}..."))
 
@@ -105,7 +105,7 @@ class DeployCommand(Command):
             ],
         }
 
-        temp_dir = tempfile.mkdtemp(prefix=f"nua-deploy-{app_id}-", dir="/tmp")
+        temp_dir = tempfile.mkdtemp(prefix=f"nua-deploy-{app_id}-", dir="/tmp")  # noqa
         config_file = Path(temp_dir) / "deploy.json"
         Path(config_file).write_text(json.dumps(deploy_config, indent=2))
 
@@ -130,7 +130,7 @@ def ssh(cmd: str, host: str):
     """Run a ssh command."""
     print(dim(f'Running "{cmd}" on server...'))
     args = shlex.split(cmd)
-    cmd = ["ssh", f"nua@{host}", f"{shlex.join(args)}"]
+    cmd = ["ssh", f"nua@{host}", f"{shlex.join(args)}"]  # type: ignore
     try:
         subprocess.run(cmd, check=True)
     except subprocess.CalledProcessError as e:
