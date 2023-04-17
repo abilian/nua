@@ -7,6 +7,16 @@ from ..common import get_current_app_id
 client = get_client()
 
 
+class EnvCommand(Command):
+    """Manage an app's env variables."""
+
+    name = "env"
+    hide_from_help = True
+
+    def run(self):
+        self.cli.print_help()
+
+
 class EnvShowCommand(Command):
     """Show application env variables."""
 
@@ -46,12 +56,3 @@ class EnvSetCommand(Command):
 
     def run(self, app_id: str = ""):
         print(red("Not implemented yet"))
-
-
-class EnvCommand(Command):
-    """Manage an app's env variables."""
-
-    name = "env"
-
-    def run(self):
-        self.cli.print_help()

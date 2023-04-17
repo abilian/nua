@@ -9,6 +9,16 @@ from ..client import get_client
 client = get_client()
 
 
+class ServerCommand(Command):
+    """Manage the Nua server."""
+
+    name = "server"
+    hide_from_help = True
+
+    def run(self):
+        self.cli.print_help()
+
+
 class LogsCommand(Command):
     """Show server logs."""
 
@@ -98,12 +108,3 @@ class CleanupCommand(Command):
         result = client.ssh("docker system prune -af")
         result = client.ssh("docker volume prune -f")
         print(result.stdout)
-
-
-class ServerCommand(Command):
-    """Manage the Nua server."""
-
-    name = "server"
-
-    def run(self):
-        self.cli.print_help()

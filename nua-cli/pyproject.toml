@@ -9,7 +9,7 @@ packages = [
 ]
 
 [tool.poetry.scripts]
-nua = "nua_cli.main:cli"
+nua = "nua_cli.main:main"
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.12"

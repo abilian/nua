@@ -9,6 +9,16 @@ from ..common import get_current_app_id
 client = get_client()
 
 
+class ConfigCommand(Command):
+    """Show/edit application config."""
+
+    name = "config"
+    hide_from_help = True
+
+    def run(self):
+        self.cli.print_help()
+
+
 class ShowCommand(Command):
     """Show application config."""
 
@@ -32,12 +42,3 @@ class ShowCommand(Command):
                 break
         else:
             raise CommandError(f"App {app_id} not found")
-
-
-class ConfigCommand(Command):
-    """Show/edit application config."""
-
-    name = "config"
-
-    def run(self):
-        self.cli.print_help()

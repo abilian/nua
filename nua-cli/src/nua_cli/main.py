@@ -38,25 +38,24 @@ class MyCli(CLI):
     def get_version(self):
         return importlib.metadata.version("nua.cli")
 
-    def get_command_name(self):
-        return "nua"
 
-
-cli = MyCli()
-cli.add_option(
-    "-h", "--help", default=False, action="store_true", help="Show help and exit"
-)
-cli.add_option(
-    "-V", "--version", default=False, action="store_true", help="Show version and exit"
-)
-cli.add_option(
-    "-d", "--debug", default=False, action="store_true", help="Enable debug mode"
-)
-cli.add_option(
-    "-v", "--verbose", default=False, action="store_true", help="Increase verbosity"
-)
-cli.scan("nua_cli.commands")
+def main():
+    cli = MyCli("nua")
+    cli.add_option(
+        "-h", "--help", default=False, action="store_true", help="Show help and exit"
+    )
+    cli.add_option(
+        "-V", "--version", default=False, action="store_true", help="Show version and exit"
+    )
+    cli.add_option(
+        "-d", "--debug", default=False, action="store_true", help="Enable debug mode"
+    )
+    cli.add_option(
+        "-v", "--verbose", default=False, action="store_true", help="Increase verbosity"
+    )
+    cli.scan("nua_cli.commands")
+    cli.run()
 
 
 if __name__ == "__main__":
-    cli.run()
+    main()

@@ -478,7 +478,7 @@ termcolor = "^2.2.0"
 type = "git"
 url = "https://github.com/abilian/cleez"
 reference = "HEAD"
-resolved_reference = "de6af2089979229fb5606f2bdd9fe1403213ec33"
+resolved_reference = "39103e78415dca46d8d4e4fa17d0595cfc1a000b"
 
 [[package]]
 name = "click"
