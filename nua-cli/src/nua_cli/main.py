@@ -45,7 +45,11 @@ def main():
         "-h", "--help", default=False, action="store_true", help="Show help and exit"
     )
     cli.add_option(
-        "-V", "--version", default=False, action="store_true", help="Show version and exit"
+        "-V",
+        "--version",
+        default=False,
+        action="store_true",
+        help="Show version and exit",
     )
     cli.add_option(
         "-d", "--debug", default=False, action="store_true", help="Enable debug mode"
