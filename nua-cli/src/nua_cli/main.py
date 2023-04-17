@@ -25,13 +25,24 @@ TODO:
 """
 from __future__ import annotations
 
+import importlib.metadata
+
 import snoop
 from cleez import CLI
 
 snoop.install()
 
 
-cli = CLI()
+# Quick hack for now
+class MyCli(CLI):
+    def get_version(self):
+        return importlib.metadata.version("nua.cli")
+
+    def get_command_name(self):
+        return "nua"
+
+
+cli = MyCli()
 cli.add_option(
     "-h", "--help", default=False, action="store_true", help="Show help and exit"
 )
