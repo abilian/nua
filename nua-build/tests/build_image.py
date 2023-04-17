@@ -10,8 +10,11 @@ from nua.lib.backports import chdir
 from typer.testing import CliRunner
 
 from nua.build.builders import get_builder
+from nua.build.main import app
 
 runner = CliRunner(mix_stderr=False)
+
+GET_BUilDER_TEST = False
 
 
 def build_test_image(src_dir: Path | str):
@@ -88,9 +91,15 @@ def _build_test(tmpdirname: str, name: str, expect_failure: bool = False):
 
     t0 = perf_counter()
 
-    builder = get_builder()
-    builder.run()
-    # result = runner.invoke(app, ["-vv", str(build_dir)])
+    if GET_BUilDER_TEST:
+        builder = get_builder()
+        builder.run()
+    else:
+        result = runner.invoke(app, ["-vv", str(build_dir)])
+        if expect_failure:
+            assert result.exit_code != 0
+            return
+        assert result.exit_code == 0
 
     print("elapsed (s):", perf_counter() - t0)
 
@@ -99,11 +108,6 @@ def _build_test(tmpdirname: str, name: str, expect_failure: bool = False):
     # print(result.stderr)
     # print(" ===================================")
     #
-    # if expect_failure:
-    #     assert result.exit_code != 0
-    #     return
-    #
-    # assert result.exit_code == 0
 
     assert dock.images.list(name)
 
