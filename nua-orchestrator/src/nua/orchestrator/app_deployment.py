@@ -530,11 +530,11 @@ class AppDeployment:
         self._filter_miss_located_apps()
         self._update_apps_list()
 
-    def _filter_duplicate_instance_names(self) -> dict:
+    def _filter_duplicate_instance_names(self) -> None:
         """Warn about duplicate instance_name and remove the duplicate.
 
         Note:
-            - It's a basic feature for consistency, not a security featture
+            - It's a basic feature for consistency, not a security feature
               about currently deployed instances.
         """
         filtered = []
@@ -548,7 +548,7 @@ class AppDeployment:
             known_names.add(name)
         self.apps = filtered
 
-    def _make_apps_per_domain(self):
+    def _make_apps_per_domain(self) -> None:
         """Convert dict(hostname:[apps,..]) to list({hostname, apps}).
 
         ouput format:
@@ -605,7 +605,7 @@ class AppDeployment:
             apps_per_domain[dom.hostname].append(site)
         return apps_per_domain
 
-    def _filter_miss_located_apps(self):
+    def _filter_miss_located_apps(self) -> None:
         """Return apps classified for location use.
 
         For a domain:

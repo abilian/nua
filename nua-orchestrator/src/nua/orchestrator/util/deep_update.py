@@ -1,7 +1,7 @@
 from collections.abc import Mapping
 
 
-def deep_update(base: dict, updates: dict, depth: int = 2**10):
+def deep_update(base: dict, updates: Mapping, depth: int = 2**10):
     for key, val in updates.items():
         if (
             key in base

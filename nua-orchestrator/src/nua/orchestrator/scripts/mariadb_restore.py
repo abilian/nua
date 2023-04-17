@@ -5,7 +5,7 @@
 import typer
 from nua.lib.console import print_green
 
-from ..mariadb_utils import set_random_mariadb_pwd
+from ..db_utils.mariadb_utils import set_random_mariadb_pwd
 
 # option_pwd = typer.Option(..., prompt=True, confirmation_prompt=True, hide_input=True)
 
