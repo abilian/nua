@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 import pytest
-from nua.agent.nua_config import NuaConfig
+from nua.agent.nua_config import NuaConfig, NuaConfigError
 
 from .build_image import build_test_image_expect_fail
 
@@ -20,5 +20,5 @@ def test_build_app(dir_name: str):
 
 def test_missing_license():
     config_path = Path(__file__).parent / "data" / "config_missing_licence"
-    with pytest.raises(SystemExit):
+    with pytest.raises(NuaConfigError):
         _config = NuaConfig(config_path)  # noqa F841
