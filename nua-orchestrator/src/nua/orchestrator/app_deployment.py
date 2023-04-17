@@ -190,7 +190,8 @@ class AppDeployment:
     def load_deployed_configuration(self):
         previous_config = self.previous_success_deployment_record()
         if not previous_config:
-            warning("Impossible to find a previous deployment.")
+            with verbosity(2):
+                show("First deployment (no previous deployed configuration found)")
             self.loaded_config = {}
             self.apps = []
             self.deployed_domains = []
@@ -213,7 +214,7 @@ class AppDeployment:
             - next: add and replace if needed (merge)
         """
         with verbosity(3):
-            print(f"merge() {option}")
+            print(f"Deployment merge option: {option}")
         if option == "add":
             return self.merge_add(additional)
         raise RuntimeError("Merge option not implemented")
@@ -252,13 +253,13 @@ class AppDeployment:
     def restore_previous_deploy_config_strict(self):
         """Retrieve last successful deployment configuration (strict mode)."""
         with verbosity(1):
-            info("Deploy apps from previous deployment (strict mode).")
+            show("Deploy apps from previous deployment (strict mode).")
         self.load_deployed_configuration()
 
     def restore_previous_deploy_config_replay(self):
         """Retrieve last successful deployment configuration (replay mode)."""
         with verbosity(1):
-            info("Deploy apps from previous deployment (replay deployment).")
+            show("Deploy apps from previous deployment (replay deployment).")
         self.load_deployed_configuration()
         with verbosity(3):
             self.print_host_list()
@@ -367,7 +368,7 @@ class AppDeployment:
         if not self.deployed_domains:
             return
         with verbosity(1):
-            info("Removing Nginx configuration.")
+            show("Removing Nginx configuration.")
         for domain in self.deployed_domains:
             remove_nginx_configuration_hostname(domain)
         nginx_reload()
@@ -433,7 +434,7 @@ class AppDeployment:
         if not self.apps:
             return
         with verbosity(1):
-            info("Stop all instances.")
+            show("Stop all instances.")
         for site in self.apps:
             stop_one_app_containers(site)
             if store_status:
@@ -464,7 +465,7 @@ class AppDeployment:
         if not self.apps:
             return
         with verbosity(1):
-            info("Remove all instances.")
+            show("Remove all instances.")
         self._mounted_before_removing = store.list_instances_container_active_volumes()
         for site in self.apps:
             deactivate_app(site)
@@ -759,7 +760,7 @@ class AppDeployment:
     def restart_local_services(self):
         with verbosity(2):
             if self.required_services:
-                info("Services to restart:", pformat(self.required_services))
+                show("Services to restart:", pformat(self.required_services))
             else:
                 info("Services to restart: None")
         for service in self.required_services:
