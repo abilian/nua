@@ -1,9 +1,11 @@
-from sqlalchemy import JSON, Column, Integer, String
+from sqlalchemy import JSON
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_serializer import SerializerMixin
 
 from .base import Base
 
 
+# TODO: rename to "Settings" (plural)
 class Setting(Base, SerializerMixin):
     """The settings of an instance of an app.
 
@@ -25,14 +27,17 @@ class Setting(Base, SerializerMixin):
 
     __tablename__ = "setting"
 
-    id = Column(Integer, primary_key=True)
-    app_id = Column(String(80))
-    nua_tag = Column(String(80))
-    instance = Column(String(80), default="")
-    activation = Column(String(80), default="")
+    # TODO add constaints
+    id: Mapped[int] = mapped_column(primary_key=True)
+    app_id: Mapped[str] = mapped_column(default="")
+    nua_tag: Mapped[str] = mapped_column(default="")
+    instance: Mapped[str] = mapped_column(default="")
+    activation: Mapped[str] = mapped_column(default="")
+
     # active = Column(Boolean, nullable=True, default=False)
     # container = Column(String(80), default="")
-    data = Column(JSON)
+    data: Mapped[JSON] = mapped_column(JSON, default={})
+
     #  broken for sqlite: instance = index_property("data", "instance", default="")
 
     def __repr__(self) -> str:

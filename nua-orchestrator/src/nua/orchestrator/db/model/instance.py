@@ -1,4 +1,7 @@
-from sqlalchemy import JSON, Column, Integer, String
+from datetime import datetime
+
+from sqlalchemy import JSON, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_serializer import SerializerMixin
 
 from .base import Base
@@ -73,15 +76,17 @@ class Instance(Base, SerializerMixin):
 
     __tablename__ = "instance"
 
-    id = Column(Integer, primary_key=True)
-    app_id = Column(String(80))
-    nua_tag = Column(String(160))
-    domain = Column(String(160))
-    container = Column(String(160), default="")
-    image = Column(String(160), default="")
-    state = Column(String(16), default=STOPPED)
-    created = Column(String(40))
-    site_config = Column(JSON)
+    # TODO: add constraints
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    app_id: Mapped[str] = mapped_column(String(80), default="")
+    nua_tag: Mapped[str] = mapped_column(String(160), default="")
+    domain: Mapped[str] = mapped_column(String(160), default="")
+    container: Mapped[str] = mapped_column(String(160), default="")
+    image: Mapped[str] = mapped_column(String(160), default="")
+    state: Mapped[str] = mapped_column(String(16), default=STOPPED)
+    created: Mapped[datetime] = mapped_column(default=datetime.now)
+    site_config: Mapped[JSON] = mapped_column(JSON, default={})
+
     #  broken for sqlite: instance = index_property("data", "instance", default="")
 
     def __repr__(self) -> str:

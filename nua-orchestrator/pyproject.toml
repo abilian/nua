@@ -40,28 +40,28 @@ nua-autobuild = { path = "../nua-autobuild/", develop = true }
 
 # Databases
 SQLAlchemy-serializer = "^1.4.1"
-SQLAlchemy = "^1.4.36"
-psycopg2-binary = "^2.9.3"
+SQLAlchemy = "^2.0.9"
+psycopg2-binary = "^2.9.6"
 
 # Other deps
-setuptools = "*"
-wheel = "*"
-tomli = "^2"
-paramiko = "^2.11.0"
-docker = "^6"
+setuptools = "^67.6.1"
+wheel = "^0.40.0"
+tomli = "^2.0.1"
+paramiko = "^3.1.0"
+docker = "^6.0.1"
 typer = {extras = ["all"], version = "^0.7.0"}
-python-dotenv = "^0.21"
-pyyaml = "^6"
+python-dotenv = "^1.0.0"
+pyyaml = "^6.0"
 
 [tool.poetry.group.dev.dependencies]
-abilian-devtools = "*"
-nox = "*"
-devtools = "*"
-types-paramiko = "*"
-types-requests = "*"
+abilian-devtools = "^0.4.18"
+nox = "^2022.11.21"
+devtools = "^0.11.0"
+types-paramiko = "^3.0.0.7"
+types-requests = "^2.28.11.17"
 
 # To please poetry
-platformdirs = "<3.0.0"
+platformdirs = "^3.2.0"
 
 [tool.pytest.ini_options]
 filterwarnings = ["ignore:.*distutils package:DeprecationWarning", "ignore::DeprecationWarning"]

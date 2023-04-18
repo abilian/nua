@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, String
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_serializer import SerializerMixin
 
 from .base import Base
@@ -20,12 +21,12 @@ class Image(Base, SerializerMixin):
 
     __tablename__ = "image"
 
-    id_sha = Column(String(80), primary_key=True, unique=True)
-    nua_tag = Column(String(80), primary_key=True, unique=True)
-    app_id = Column(String(80))
-    nua_version = Column(String(20))
-    created = Column(String(40))
-    size = Column(Integer)
+    id_sha: Mapped[str] = mapped_column(String(80), primary_key=True, unique=True)
+    nua_tag: Mapped[str] = mapped_column(String(80), primary_key=True, unique=True)
+    app_id: Mapped[str] = mapped_column(String(80), default="")
+    nua_version: Mapped[str] = mapped_column(String(20), default="")
+    created: Mapped[str] = mapped_column(String(40), default="")
+    size: Mapped[int] = mapped_column(default=0)
 
     def __repr__(self) -> str:
         return f"Image(sha={self.id_sha[7:13]}, tag={self.nua_tag}"

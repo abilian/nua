@@ -1,4 +1,7 @@
+from datetime import datetime
+
 from sqlalchemy import JSON, Column, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_serializer import SerializerMixin
 
 from .base import Base
@@ -54,12 +57,21 @@ class DeployConfig(Base, SerializerMixin):
 
     __tablename__ = "deployconfig"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    previous = Column(Integer)
-    state = Column(String(16), default=INACTIVE)
-    created = Column(String(40))
-    modified = Column(String(40))
-    deployed = Column(JSON)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    previous: Mapped[int] = mapped_column(default=0)
+    state: Mapped[str] = mapped_column(String(16), default=INACTIVE)
+
+    created: Mapped[datetime] = mapped_column(default=datetime.now)
+    modified: Mapped[datetime] = mapped_column(default=datetime.now)
+
+    deployed: Mapped[JSON] = mapped_column(JSON, default={})
+
+    # id = Column(Integer, primary_key=True, autoincrement=True)
+    # previous = Column(Integer)
+    # state = Column(String(16), default=INACTIVE)
+    # created = Column(String(40))
+    # modified = Column(String(40))
+    # deployed = Column(JSON)
 
     def __repr__(self) -> str:
         return (
