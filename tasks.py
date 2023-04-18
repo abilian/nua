@@ -248,6 +248,7 @@ def release_subrepo(c, sub_repo, version):
     (Path(sub_repo) / "pyproject.toml").write_text(tomlkit.dumps(pyproject_json))
 
     with c.cd(sub_repo):
+        c.run("rm -rf dist/*")
         c.run("poetry build")
         c.run("twine upload dist/*")
 
