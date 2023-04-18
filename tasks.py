@@ -181,13 +181,17 @@ def watch(c, host=None):
         sync()
 
 
+#
+# Release task
+#
+
 @task
 def release(c: Context):
     """Release a new version."""
     pyproject_json = toml.load(Path("pyproject.toml"))
     version = pyproject_json["tool"]["poetry"]["version"]
 
-    return_code = c.run("git diff --quiet", warn=True)
+    return_code = c.run("git diff --quiet")
     if return_code != 0:
         print("Your repo is dirty. Please commit or stash changes first.")
         sys.exit(1)
