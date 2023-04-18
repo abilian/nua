@@ -13,7 +13,6 @@ from textwrap import dedent
 
 from nua.lib.actions import (
     apt_remove_lists,
-    detect_and_install,
     install_build_packages,
     install_git_source,
     install_meta_packages,
@@ -27,6 +26,7 @@ from nua.lib.panic import Abort, info, show, vprint
 from nua.lib.shell import chmod_r, chown_r, mkdir_p, rm_fr, sh
 from nua.lib.tool.state import set_verbosity, verbosity, verbosity_level
 
+from ..auto_install import detect_and_install
 from ..constants import (
     NUA_APP_PATH,
     NUA_BUILD_PATH,

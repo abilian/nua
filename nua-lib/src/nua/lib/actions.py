@@ -28,16 +28,6 @@ SHORT_TIMEOUT = 300
 #
 # Builder for Python projects
 #
-def is_python_source_project(path: str | Path = "") -> bool:
-    root = Path(path).expanduser().resolve()
-    deps_files = ("requirements.txt", "setup.py", "pyproject.toml")
-    result = any((root / f).exists() for f in deps_files)
-    if result:
-        with verbosity(2):
-            show("Python source project detected")
-    return result
-
-
 def build_python(path: str | Path = ""):
     root = Path(path).expanduser().resolve()
     requirements = root / "requirements.txt"
@@ -49,15 +39,6 @@ def build_python(path: str | Path = ""):
         sh("python -m pip install .", cwd=root)
     else:
         warning(f"No method found to build the python project in '{root}'")
-
-
-def is_python_wheel(path: str | Path = "") -> bool:
-    root = Path(path).expanduser().resolve()
-    result = bool(list(root.glob("*.whl")))
-    if result:
-        with verbosity(2):
-            show("Python wheels detected")
-    return result
 
 
 #
@@ -609,25 +590,6 @@ def install_git_source(
         with tmp_install_package_list("git"), chdir(path):
             sh(cmd)
     return path / name
-
-
-def detect_and_install(directory: str | Path | None) -> bool:
-    """Apply automated installation detection heuristics."""
-    if directory:
-        path = Path(directory).resolve()
-    else:
-        path = Path(".").resolve()
-    with verbosity(2):
-        info("Detect and install in ", path)
-    with chdir(path):
-        if is_python_source_project():
-            build_python()
-            return True
-        if is_python_wheel():
-            pip_install(["*.whl"])
-            return True
-        show("No automated installation detection")
-        return False
 
 
 #
