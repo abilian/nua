@@ -23,8 +23,9 @@ nua-build = { path = "nua-build", develop = true }
 nua-orchestrator = { path = "nua-orchestrator", develop = true }
 nua-server = { path = "nua-server", develop = true }
 
+
 [tool.poetry.group.dev.dependencies]
-# Testing / checking
+# Testing / checking / QA tools
 nox = "*"
 abilian-devtools = "*"
 pydeps = "^1.11.1"
@@ -32,7 +33,10 @@ autotyping = "^22.9.0"
 
 # Helper for monorepo
 invoke = "^2.0.0"
-tomli = "^2.0.1"
+tomlkit = "^0.11.7"
+
+# Helper for remote development
+watchfiles = "^0.19.0"
 
 # Debug
 snoop = "*"
@@ -42,9 +46,6 @@ types-setuptools = "*"
 types-paramiko = "*"
 types-requests = "*"
 types-pyyaml = "*"
-
-# Helper for remote development
-watchfiles = "^0.19.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

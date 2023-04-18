@@ -515,18 +515,14 @@ description = "Simple class-based CLI framework."
 category = "main"
 optional = false
 python-versions = ">=3.9,<4"
-files = []
-develop = false
+files = [
+    {file = "cleez-0.1.1-py3-none-any.whl", hash = "sha256:167afef6d956df952f4db842eff0b0b2959418af548b94ea10a68dbec5128fac"},
+    {file = "cleez-0.1.1.tar.gz", hash = "sha256:4b29898a80e17115930b142a0ee901cfede673e2624b4cabe1d8c5cf09466461"},
+]
 
 [package.dependencies]
-snoop = "^0.4.3"
-termcolor = "^2.2.0"
-
-[package.source]
-type = "git"
-url = "https://github.com/abilian/cleez"
-reference = "HEAD"
-resolved_reference = "b60abd26e46a0d032a5617b279d2753fac8a5b84"
+snoop = ">=0.4.3,<0.5.0"
+termcolor = ">=2.2.0,<3.0.0"
 
 [[package]]
 name = "click"
@@ -2055,7 +2051,7 @@ files = []
 develop = true
 
 [package.dependencies]
-cleez = {git = "https://github.com/abilian/cleez"}
+cleez = "*"
 fabric = "^3.0.0"
 snoop = "*"
 termcolor = "^2.2.0"
@@ -3788,4 +3784,4 @@ test = ["pytest (>=6.0.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.12"
-content-hash = "35c4273c76be52aa50886777dde12e1a5aa52b2480c2aff17c2570f5057cd28e"
+content-hash = "8480ff82574716db552ad2b15f725cb4d4ac329d091a8fa2cafb7ab022ee4674"
