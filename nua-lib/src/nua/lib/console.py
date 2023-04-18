@@ -61,3 +61,9 @@ def print_green_cyan(msg: str):
         print(ColorStr.green(parts[0]), ColorStr.cyan(parts[1]))
     else:
         print(ColorStr.green(msg))
+
+
+@if_color
+def print_blue_bright_no_lf(msg: str):
+    """Print specialized for lines including a LF (Docker build log)."""
+    print(ColorStr.blue_bright(msg), end="")

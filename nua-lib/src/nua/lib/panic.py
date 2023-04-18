@@ -3,6 +3,7 @@ from typing import Any
 
 from .console import (
     print_blue,
+    print_blue_bright_no_lf,
     print_bold_yellow,
     print_bold_yellow_white,
     print_green,
@@ -56,6 +57,12 @@ def bold(*args):
 def title(*args):
     if check_verbosity():
         print_bold_yellow_white(" ".join(str(x) for x in args))
+
+
+def print_log_stream(message: str):
+    """Print log stream already containing a LF."""
+    if check_verbosity():
+        print_blue_bright_no_lf(message)
 
 
 def vprint(*args: Any):

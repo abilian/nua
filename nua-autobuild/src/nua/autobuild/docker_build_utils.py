@@ -8,8 +8,8 @@ from docker import DockerClient
 from docker.errors import APIError, BuildError, ImageNotFound
 from docker.models.images import Image
 from docker.utils.json_stream import json_stream
-from nua.lib.console import print_red
-from nua.lib.panic import Abort, vprint, vprint_blue, vprint_magenta
+from nua.lib.console import print_blue_bright_no_lf, print_red
+from nua.lib.panic import Abort, print_log_stream, vprint, vprint_magenta
 from nua.lib.tool.state import verbosity, verbosity_level
 
 LOCAL_CONFIG = {"size_unit_MiB": False}
@@ -147,8 +147,11 @@ def docker_pull(reference: str) -> Image | None:
 
 
 def _print_buffer_log(messages: list[str]):
+    """Print messages buffered, without checking for verbosity.
+
+    Dump retained messages when an error occured."""
     for message in messages:
-        print(message, end="")
+        print_blue_bright_no_lf(message)
 
 
 def _docker_stream_chunk(
@@ -165,7 +168,7 @@ def _docker_stream_chunk(
         if match := RE_SUCCESS.search(message):
             result["image_id"] = match.group(2)
         with verbosity(2):
-            vprint_blue(message)
+            print_log_stream(message)
         if verbosity_level() < 2:
             # store message for printing full log if later an error occurs
             messages_buffer.append(message)
