@@ -7,7 +7,6 @@ try:
 except ImportError:
     import tomli as tomllib
 
-import watchfiles
 from dotenv import load_dotenv
 from invoke import task
 
@@ -162,6 +161,8 @@ def graph(c):
 @task
 def watch(c, host=None):
     """Watch for changes and push to a remote server."""
+    import watchfiles
+
     if not host:
         host = os.environ.get("NUA_HOST")
     if not host:
