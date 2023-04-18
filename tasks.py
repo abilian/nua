@@ -191,8 +191,9 @@ def release(c: Context):
     pyproject_json = toml.load(Path("pyproject.toml"))
     version = pyproject_json["tool"]["poetry"]["version"]
 
-    return_code = c.run("git diff --quiet")
-    if return_code != 0:
+    try:
+        c.run("git diff --quiet")
+    except:
         print("Your repo is dirty. Please commit or stash changes first.")
         sys.exit(1)
 
