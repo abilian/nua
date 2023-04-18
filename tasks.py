@@ -2,9 +2,9 @@ import os
 import sys
 from pathlib import Path
 
-import toml
+import tomlkit
 from dotenv import load_dotenv
-from invoke import Context, task
+from invoke import Context, UnexpectedExit, task
 
 load_dotenv()
 
@@ -137,7 +137,7 @@ def bump_version(c, bump: str = "patch"):
     """Update version - use 'patch' (default), 'minor' or 'major' as an argument."""
 
     c.run(f"poetry version {bump}")
-    project_info = toml.load(Path("pyproject.toml"))
+    project_info = tomlkit.load(Path("pyproject.toml").open())
     version = project_info["tool"]["poetry"]["version"]
     run_in_subrepos(c, f"poetry version {version}")
 
@@ -188,12 +188,12 @@ def watch(c, host=None):
 @task
 def release(c: Context):
     """Release a new version."""
-    pyproject_json = toml.load(Path("pyproject.toml"))
+    pyproject_json = tomlkit.load(Path("pyproject.toml").open())
     version = pyproject_json["tool"]["poetry"]["version"]
 
     try:
         c.run("git diff --quiet")
-    except:
+    except UnexpectedExit:
         print("Your repo is dirty. Please commit or stash changes first.")
         sys.exit(1)
 
@@ -207,15 +207,16 @@ def release(c: Context):
     for sub_repo in SUB_REPOS:
         release_subrepo(c, sub_repo, version)
 
-    # c.run("git commit -a")
-    # c.run("git tag -a v{version} -m 'Release {version}'")
-    # c.run("git push origin release")
-    # c.run("git checkout main")
+    c.run(f"git commit -a -m 'Release {version}'")
+    c.run(f"git tag -a v{version} -m 'Release {version}'")
+    c.run("git push origin release")
+    c.run("git push --tags")
+    c.run("git checkout main")
 
 
 def check_version_subrepo(c, sub_repo, version):
     with c.cd(sub_repo):
-        pyproject_json = toml.load(Path("pyproject.toml"))
+        pyproject_json = tomlkit.load(Path("pyproject.toml").open())
         sub_version = pyproject_json["tool"]["poetry"]["version"]
 
         if sub_version != version:
@@ -230,7 +231,7 @@ def release_subrepo(c, sub_repo, version):
     h1(f"Releasing {sub_repo}...")
 
     old_pyproject = (Path(sub_repo) / "pyproject.toml").read_text()
-    pyproject_json = toml.loads(old_pyproject)
+    pyproject_json = tomlkit.loads(old_pyproject)
 
     if pyproject_json["tool"]["poetry"]["name"] == "nua-cli":
         pyproject_json["tool"]["poetry"]["name"] = "nua"
@@ -244,13 +245,11 @@ def release_subrepo(c, sub_repo, version):
             new_deps[dep] = deps[dep]
 
     pyproject_json["tool"]["poetry"]["dependencies"] = new_deps
-    (Path(sub_repo) / "pyproject.toml").write_text(toml.dumps(pyproject_json))
+    (Path(sub_repo) / "pyproject.toml").write_text(tomlkit.dumps(pyproject_json))
 
     with c.cd(sub_repo):
-        c.run("poetry update")
         c.run("poetry build")
-        # c.run("twine upload dist/*")
-        # c.run("poetry publish")
+        c.run("twine upload dist/*")
 
 
 #
