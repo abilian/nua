@@ -478,7 +478,7 @@ termcolor = "^2.2.0"
 type = "git"
 url = "https://github.com/abilian/cleez"
 reference = "HEAD"
-resolved_reference = "0b35c96c7b5c07ee30666e9ddedcb6dfb45da487"
+resolved_reference = "b60abd26e46a0d032a5617b279d2753fac8a5b84"
 
 [[package]]
 name = "click"
@@ -2458,14 +2458,14 @@ test = ["black (>=22.3.0,<23.0.0)", "coverage (>=6.2,<7.0)", "isort (>=5.0.6,<6.
 
 [[package]]
 name = "types-setuptools"
-version = "67.6.0.7"
+version = "67.6.0.8"
 description = "Typing stubs for setuptools"
 category = "dev"
 optional = false
 python-versions = "*"
 files = [
-    {file = "types-setuptools-67.6.0.7.tar.gz", hash = "sha256:f46b11773b1aeddbd2ef32fd6a6091ef33aa9b32daa124f6ce63f616de59ae51"},
-    {file = "types_setuptools-67.6.0.7-py3-none-any.whl", hash = "sha256:ea2873dc8dd9e8421929dc50617ac7c2054c9a873942c5b5b606e2effef5db12"},
+    {file = "types-setuptools-67.6.0.8.tar.gz", hash = "sha256:df3e084c3b5af782cb81bd516f40213b572d932fa2f1272aef307d15643736f8"},
+    {file = "types_setuptools-67.6.0.8-py3-none-any.whl", hash = "sha256:0b178cab1d5a7487cd410d1b5448d1a85d9da1bf44aa7be7c0d4f33d65041e5a"},
 ]
 
 [[package]]
