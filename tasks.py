@@ -188,6 +188,8 @@ def watch(c, host=None):
 @task
 def release(c: Context):
     """Release a new version."""
+    c.run("make clean")
+
     pyproject_json = tomlkit.load(Path("pyproject.toml").open())
     version = pyproject_json["tool"]["poetry"]["version"]
 
