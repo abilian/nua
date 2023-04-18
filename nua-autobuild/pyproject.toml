@@ -15,15 +15,13 @@ nua-self-build = "nua.autobuild.main:app"
 [tool.poetry.dependencies]
 python = "^3.10"
 setuptools = "*"
-
-nua-lib = { path = "../nua-lib/", develop = true }
-nua-agent = { path = "../nua-agent/", develop = true }
-
+nua-lib = "=0.5.11"
+nua-agent = "=0.5.11"
 tomli = "^2.0.1"
 tomli-w = "^1.0.0"
-typer = {version = "^0.7.0", extras = ["all"]}
 docker = "^6.0"
 paramiko = "*"
+typer = {version = "^0.7.0", extras = ["all"]}
 
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"

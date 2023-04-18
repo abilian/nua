@@ -16,7 +16,7 @@ packages = [
 python = "^3.10"
 setuptools = "*"
 packaging = "*"
-nua-lib = { path = "../nua-lib/", develop = true }
+nua-lib = "=0.5.11"
 tomli = "^2.0.1"
 pyyaml = "^6.0"
 
