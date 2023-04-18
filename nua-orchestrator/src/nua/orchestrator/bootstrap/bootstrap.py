@@ -223,7 +223,9 @@ def pip_safe_install(cwd: Path):
         f"xargs {pip} uninstall -qy 2> /dev/null"
     )
     bash_as_nua(cmd)
-    cmd = f"{pip} install ."
+    cmd = "rm -fr ~/.cache"
+    bash_as_nua(cmd)
+    cmd = f"{pip} install --no-cache-dir ."
     bash_as_nua(cmd, cwd)
 
 
