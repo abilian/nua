@@ -1,7 +1,5 @@
-import tempfile
 from pathlib import Path
 
-from nua.lib import actions
 from nua.lib.backports import chdir
 
 from nua.agent.detectors import PythonSource, PythonWheels
