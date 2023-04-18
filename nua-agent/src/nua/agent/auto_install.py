@@ -6,8 +6,7 @@ from nua.lib.backports import chdir
 from nua.lib.panic import info, show
 from nua.lib.tool.state import verbosity
 
-from .detectors.python_source import PythonSource
-from .detectors.python_wheels import PythonWheels
+from .detectors import PythonSource, PythonWheels
 
 AUTO_INSTALL = [
     PythonSource,

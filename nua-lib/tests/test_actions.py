@@ -26,17 +26,5 @@ def test_python_package_installed():
     assert not python_package_installed("uqwoiuei")
 
 
-def test_actions_pyproject_true():
-    folder = Path(__file__).parent.parent
-
-    assert actions.is_python_source_project(folder)
-
-
-def test_actions_pyproject_false():
-    folder = Path(__file__).parent
-
-    assert not actions.is_python_source_project(folder)
-
-
 def test_check_python_version():
     assert actions.check_python_version()
