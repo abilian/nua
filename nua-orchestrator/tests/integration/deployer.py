@@ -6,9 +6,12 @@ import tempfile
 from pathlib import Path
 
 import requests
+from nua.lib.tool.state import set_color, set_verbosity
 from typer.testing import CliRunner
 
-from nua.orchestrator.cli.main import app
+from nua.orchestrator.cli.commands.deploy_remove import deploy_merge_nua_app
+from nua.orchestrator.cli.init import initialization
+from nua.orchestrator.cli.main import ALLOW_SUFFIX, app
 from nua.orchestrator.utils import parse_any_format
 
 runner = CliRunner(mix_stderr=False)
@@ -28,20 +31,28 @@ def deploy_one_site(deploy_file: str):
             data = data.replace("example.com", domain_name)
             new_file.write(data)
             new_file.flush()
-        cmd = f"deploy -vv {new_file.name}"
 
-        result = runner.invoke(app, cmd)
+        # Was:
+        # cmd = f"deploy -vv {new_file.name}"
+        # result = runner.invoke(app, cmd)
+        path = Path(new_file.name)
+        assert path.suffix in ALLOW_SUFFIX and path.is_file()
 
-        if result.stdout:
-            print(" ========= result.stdout ===========")
-            print(result.stdout)
-        if result.stderr:
-            print(" ========= result.stderr ===========")
-            print(result.stderr)
+        set_verbosity(2)
+        set_color(True)
+        initialization()
+        deploy_merge_nua_app(new_file.name)
 
-        assert result.exit_code == 0
-        assert "Installing App" in result.stdout
-        assert "deployed as" in result.stdout
+        # if result.stdout:
+        #     print(" ========= result.stdout ===========")
+        #     print(result.stdout)
+        # if result.stderr:
+        #     print(" ========= result.stderr ===========")
+        #     print(result.stderr)
+        #
+        # assert result.exit_code == 0
+        # assert "Installing App" in result.stdout
+        # assert "deployed as" in result.stdout
 
         _check_sites(Path(new_file.name))
 
@@ -111,12 +122,13 @@ EXPECT_FCT = {
 }
 
 
-def _apply_check_suite(test: dict, response: requests.Response):
-    for key, value in test.items():
-        if key not in EXPECT_FCT or value is None:
+def _check_sites(deploy_file: Path):
+    content = parse_any_format(deploy_file)
+    for site in content["site"]:
+        if "test" not in site:
             continue
-        expect_fct = EXPECT_FCT[key]
-        expect_fct(value, response)
+        for test in site["test"]:
+            _make_check_test(test)
 
 
 def _make_check_test(test: dict):
@@ -133,10 +145,9 @@ def _make_check_test(test: dict):
     _apply_check_suite(test, response)
 
 
-def _check_sites(deploy_file: Path):
-    content = parse_any_format(deploy_file)
-    for site in content["site"]:
-        if "test" not in site:
+def _apply_check_suite(test: dict, response: requests.Response):
+    for key, value in test.items():
+        if key not in EXPECT_FCT or value is None:
             continue
-        for test in site["test"]:
-            _make_check_test(test)
+        expect_fct = EXPECT_FCT[key]
+        expect_fct(value, response)
