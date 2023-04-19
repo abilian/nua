@@ -5,6 +5,7 @@ import os
 import re
 import sys
 import tempfile
+from collections.abc import Iterable
 from contextlib import contextmanager
 from glob import glob
 from hashlib import sha256
@@ -18,7 +19,7 @@ from jinja2 import Template
 from .backports import chdir
 from .panic import Abort, info, show, warning
 from .shell import chown_r, sh
-from .tool.state import verbosity
+from .tool.state import packages_updated, set_packages_updated, verbosity
 from .unarchiver import unarchive
 
 LONG_TIMEOUT = 1800
@@ -63,16 +64,21 @@ def install_packages(packages: list, keep_lists: bool = False):
 @contextmanager
 def install_build_packages(
     packages: list | str,
-    update: bool = True,
     keep_lists: bool = False,
+    installed: Iterable[str] | None = None,
 ):
     success = True
+    if installed:
+        already = set(installed)
+    else:
+        already = set()
     if isinstance(packages, str):
         packages = packages.strip().split()
-    if packages:
+    needed = [package for package in packages if package not in already]
+    if needed:
         with verbosity(2):
             show("Install temporary build packages")
-        _install_packages(packages, update)
+        _install_packages(needed)
     try:
         yield
     except SystemExit:
@@ -80,10 +86,10 @@ def install_build_packages(
         raise
     finally:
         if success:
-            if packages:
+            if needed:
                 with verbosity(2):
                     show("Remove temporary build packages")
-                _purge_packages(packages)
+                _purge_packages(needed)
             apt_final_clean()
             if not keep_lists:
                 apt_remove_lists()
@@ -125,7 +131,7 @@ def _install_python_packages(version: str):
             f"{py}-venv",
             f"{py}-distutils",
         ]
-    _install_packages(packages, True)
+    _install_packages(packages)
 
 
 def _venv_environ(venv: str) -> dict[str, str]:
@@ -193,6 +199,7 @@ def _glob_extended(packages: list):
 def apt_remove_lists():
     environ = os.environ.copy()
     sh("rm -rf /var/lib/apt/lists/*", env=environ, timeout=SHORT_TIMEOUT)
+    set_packages_updated(False)
 
 
 def apt_update():
@@ -209,13 +216,17 @@ def apt_final_clean():
     sh(cmd, env=environ, timeout=SHORT_TIMEOUT)
 
 
-def _install_packages(packages: list, update: bool):
+def _install_packages(packages: list):
     if packages:
         environ = os.environ.copy()
         environ["DEBIAN_FRONTEND"] = "noninteractive"
-        cmd = "apt-get update --fix-missing; " if update else ""
+        if not packages_updated():
+            cmd = "apt-get update --fix-missing; "
+        else:
+            cmd = ""
         cmd += f"apt-get install --no-install-recommends -y {' '.join(packages)}"
         sh(cmd, env=environ, timeout=LONG_TIMEOUT)
+        set_packages_updated(True)
     else:
         warning("install_package(): nothing to install")
 
@@ -233,13 +244,12 @@ def _purge_packages(packages: list):
 
 def install_package_list(
     packages: list | str,
-    update: bool = True,
     clean: bool = True,
     keep_lists: bool = False,
 ):
     if isinstance(packages, str):
         packages = packages.strip().split()
-    _install_packages(packages, update)
+    _install_packages(packages)
     if clean:
         apt_final_clean()
     if not keep_lists:
@@ -256,12 +266,11 @@ def purge_package_list(packages: list | str):
 @contextmanager
 def tmp_install_package_list(
     packages: list | str,
-    update: bool = True,
-    keep_lists: bool = False,
+    keep_lists: bool = True,
 ):
     if isinstance(packages, str):
         packages = packages.strip().split()
-    _install_packages(packages, update)
+    _install_packages(packages)
     try:
         yield
     finally:
@@ -452,7 +461,8 @@ def install_mariadb_python(version: str = "1.1.4"):
             "mariadb-client",
             "unzip",
             "build-essential",
-        ]
+        ],
+        keep_lists=True,
     )
     with tempfile.TemporaryDirectory(dir="/var/tmp") as tmpdirname:  # noqa S108
         cmd = f"python -m pip download mariadb=={version}"
@@ -485,7 +495,7 @@ def install_mariadb_1_1_5(keep_lists=True):
         pip_install("mariadb")
 
 
-def install_psycopg2_python(keep_lists: bool = False):
+def install_psycopg2_python(keep_lists: bool = True):
     """Connector for PostgreSQL."""
     install_package_list(["libpq-dev"], keep_lists=keep_lists)
     pip_install("psycopg2-binary")

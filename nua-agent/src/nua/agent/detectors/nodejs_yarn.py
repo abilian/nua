@@ -10,6 +10,15 @@ from .base_detector import BaseDetector
 class NodejsYarn(BaseDetector):
     message: str = "Nodejs yarn"
     priority: int = 100
+    build_packages: list[str] = [
+        "build-essential",
+        "python3-dev",
+        "libsqlite3-dev",
+        "netcat",
+        "libicu-dev",
+        "libssl-dev",
+        "git",
+    ]
 
     @classmethod
     def detect(cls) -> bool:

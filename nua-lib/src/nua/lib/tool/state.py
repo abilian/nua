@@ -3,7 +3,12 @@ from contextlib import contextmanager
 from functools import cache
 from pathlib import Path
 
-STATE = {"verbose": 0, "colorize": True, "verbose_threshold": -1}
+STATE = {
+    "verbose": 0,
+    "colorize": True,
+    "verbose_threshold": -1,
+    "packages_updated": False,
+}
 
 
 def set_verbosity(value: int):
@@ -49,3 +54,11 @@ def is_inside_container() -> bool:
         return Path("/nua/metadata/nua-config.json").is_file()
     except PermissionError:
         return False
+
+
+def set_packages_updated(flag: bool):
+    STATE["packages_updated"] = flag
+
+
+def packages_updated() -> bool:
+    return STATE.get("packages_updated", False)

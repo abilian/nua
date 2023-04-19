@@ -114,7 +114,7 @@ def bootstrap_install_mariadb_or_fail():
 
 def install_packages():
     print_blue("Installing base packages...")
-    install_package_list(HOST_PACKAGES, update=False, clean=False, keep_lists=True)
+    install_package_list(HOST_PACKAGES, clean=False, keep_lists=True)
 
 
 def create_nua_user():

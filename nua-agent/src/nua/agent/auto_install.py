@@ -35,7 +35,7 @@ def auto_install() -> bool:
             with verbosity(2):
                 msg = auto_installer.info()
                 show(f"{msg} detected")
-            auto_installer.install()
+            auto_installer.install_with_build_packages()
             return True
     with verbosity(2):
         show("No automated installation found")
