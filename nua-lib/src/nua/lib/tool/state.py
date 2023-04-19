@@ -56,9 +56,9 @@ def is_inside_container() -> bool:
         return False
 
 
-def set_packages_updated(flag: bool):
+def set_packages_updated(flag: bool) -> None:
     STATE["packages_updated"] = flag
 
 
 def packages_updated() -> bool:
-    return STATE.get("packages_updated", False)
+    return bool(STATE.get("packages_updated", False))
