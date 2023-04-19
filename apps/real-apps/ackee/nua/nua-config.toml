@@ -23,7 +23,9 @@ packages = [
     "libssl-dev",
     "git",
 ]
-build-command = "yarn install"
+
+# autodetection of yarn installer
+# build-command = "yarn install"
 
 [run]
 start = "yarn start"
