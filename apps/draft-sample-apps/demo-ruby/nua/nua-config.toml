@@ -20,7 +20,7 @@ build-command = [
     "bundle add tzinfo-data",
     "yarn install",
     "bundle exec rake db:setup"
-    ]
+]
 
 [run]
 start = "bundle exec rails s"
