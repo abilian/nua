@@ -1,5 +1,12 @@
 # Nua orchestrator
 
+[Nua](https://nua.rocks/) is an open source, self-hosted cloud platform project (a PaaS - platform as a service).
+
+This packaged is deployed on the Nua server.
+
+For end-users, the main entry point is the `nua` command line tool (see: [Nua on PyPI](https://pypi.org/project/nua/) or [nua-cli on GitHub](https://github.com/abilian/nua/tree/main/nua-cli)).
+
+
 ## Role of the orchestrator
 
 The orchestrator is in charge of configuring application and resources and deploying them on the host.
@@ -27,8 +34,9 @@ The following Python packages (provided by Ubuntu) are required:
 - `python3.10-venv`
 - `python3.10-dev`
 - `python3-pip`
+- `pipx`
 
-i.e. you should run `apt-get install python3.10 python3.10-venv python3.10-dev python3-pip` before installing Nua.
+i.e. you should run `apt-get install python3.10 python3.10-venv python3.10-dev python3-pip pipx` before installing Nua.
 
 Note: this is temporary, the installation script will take care of this kind of details later.
 
@@ -39,11 +47,22 @@ Note: this is temporary, the installation script will take care of this kind of 
 
 To install, you will need to use the bootstrapping script: `nua-bootstrap`.
 
+### Installation procedure (from released version)
+
+From the root account:
+
+```console
+pipx install nua-orchestrator
+nua-bootstrap
+```
+
+### Installation procedure (from git)
+
 At the moment, this implies a first temporary installation of Nua (which can be done in a temporary directory), from a sudo-able account:
 
 ```console
-git clone https://github.com/abilian/nua
-cd nua/nua-orchestrator
+git clone https://github.com/abilian/nua src
+cd src/nua-orchestrator
 ./install.py
 sudo ./env/bin/nua-bootstrap
 ```
@@ -58,18 +77,6 @@ That command will do many things:
 ### Remarks
 
 - `nua-bootstrap` can be safely launched on an existing configuration,
-- `nua-bootstrap` must be launched as root, if not, a warning is displayed:
-
-```console
-$ nua-bootstrap
-Installing Nua bootstrap on local host.
-Warning: Nua was already installed.
-Nua bootstrap script requires root privileges.
-Please try again, this time using 'sudo'.
-- When sudo, use absolute script path.
-- Possible command:
-    sudo /home/nua/env/bin/nua-bootstrap
-```
 
 ### Installation phases
 
