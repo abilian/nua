@@ -1,2 +1,4 @@
 /.vagrant
 /Vagrantfile
+/apps
+/ssh-config
