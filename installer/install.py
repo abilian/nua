@@ -44,7 +44,6 @@ def main():
     prepare_server()
     install_base_packages()
     install_pipx_packages()
-    install_poetry()
     run_nua_bootstrap()
 
 
@@ -66,10 +65,6 @@ def install_base_packages():
 def install_pipx_packages():
     """Install pipx packages."""
     sh("pipx install nua-orchestrator")
-
-
-def install_poetry():
-    sh("curl -sSL https://install.python-poetry.org | POETRY_HOME=/usr/local python3 -")
 
 
 def run_nua_bootstrap():
