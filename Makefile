@@ -104,6 +104,8 @@ clean:
 ## Clean up cruft and tox/nox virtualenvs
 tidy: clean
 	rm -rf .tox .nox */.nox */.tox
+	cd tests/e2e && vagrant destroy -f
+	rm -rf tests/e2e/.vagrant
 
 ## Update dependencies
 update-deps:

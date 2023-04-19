@@ -54,7 +54,13 @@ build-backend = "poetry.core.masonry.api"
 # ------------------------------------------------------------------------------
 
 [tool.pytest.ini_options]
-filterwarnings = ["ignore:.*distutils package:DeprecationWarning", "ignore::DeprecationWarning"]
+filterwarnings = [
+    "ignore:.*distutils package:DeprecationWarning",
+    "ignore::DeprecationWarning",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+]
 
 # ------------------------------------------------------------------------------
 
