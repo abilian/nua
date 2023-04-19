@@ -4,6 +4,7 @@ from importlib import import_module
 from importlib import resources as rso
 from operator import attrgetter
 from pathlib import Path
+from typing import Any
 
 from nua.lib.backports import chdir
 from nua.lib.panic import info, show
@@ -52,5 +53,5 @@ def register_detectors():
             import_module(module_path)
 
 
-def register_detector(cls: BaseDetector):
+def register_detector(cls: Any):
     detector_classes.add(cls)
