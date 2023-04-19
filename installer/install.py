@@ -14,10 +14,12 @@ curl https://github.com/abilian/nua/raw/main/installer/install.py | sudo python3
 import os
 import shlex
 import subprocess
+from pathlib import Path
 
 HOME = os.environ["HOME"]
 
 DEBIAN_PACKAGES = [
+    "curl",
     "python3.10",
     "python3.10-venv",
     "python3.10-dev",
@@ -25,14 +27,33 @@ DEBIAN_PACKAGES = [
     "pipx",
 ]
 
+APT_CONF = """
+Acquire::http {No-Cache=True;};
+APT::Install-Recommends "0";
+APT::Install-Suggests "0";
+Acquire::GzipIndexes "true";
+Acquire::CompressionTypes::Order:: "gz";
+Dir::Cache { srcpkgcache ""; pkgcache ""; }
+"""
+
 DIM = "\033[2m"
 RESET = "\033[0m"
 
 
 def main():
+    prepare_server()
     install_base_packages()
     install_pipx_packages()
+    install_poetry()
     run_nua_bootstrap()
+
+
+def prepare_server():
+    """Prepare the server."""
+    Path("/etc/apt/apt.conf.d/00-nua").write_text(APT_CONF)
+
+    sh("apt-get update -q")
+    sh("apt-get upgrade -y")
 
 
 def install_base_packages():
@@ -45,6 +66,10 @@ def install_base_packages():
 def install_pipx_packages():
     """Install pipx packages."""
     sh("pipx install nua-orchestrator")
+
+
+def install_poetry():
+    sh("curl -sSL https://install.python-poetry.org | POETRY_HOME=/usr/local python3 -")
 
 
 def run_nua_bootstrap():
