@@ -55,10 +55,15 @@ def run_nua_bootstrap():
 #
 def sh(cmd: str, cwd: str = "."):
     """Run a shell command."""
-    print(dim(f'Running "{cmd}" locally in "{cwd}"...'))
+    if cwd == ".":
+        print(dim(f'Running "{cmd}" locally...'))
+    else:
+        print(dim(f'Running "{cmd}" locally in "{cwd}"...'))
     args = shlex.split(cmd)
+    env = os.environ.copy()
+    env["DEBIAN_FRONTEND"] = "noninteractive"
     try:
-        subprocess.run(args, check=True)
+        subprocess.run(args, check=True, env=env, cwd=cwd)
     except subprocess.CalledProcessError as e:
         print(f"Command failed: {e.cmd}")
 
