@@ -3,9 +3,14 @@ import abc
 
 
 class BaseDetector(abc.ABC):
-    """Base class for detect and install project."""
+    """Base class for detect and install project.
 
-    message = ""
+    BaseDetector.priority: permits to sort the tests order (lower value is higher
+    priority) of each detector upon a source directory. Thus testing dual
+    installation (ie: python+node) before single ones."""
+
+    message: str = ""
+    priority: int = 100
 
     @classmethod
     def info(cls) -> str:
