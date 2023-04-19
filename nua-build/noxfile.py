@@ -3,9 +3,12 @@ from nox import session
 
 # PYTHON_VERSIONS = ["3.10", "3.11"]
 PYTHON_VERSIONS = ["3.10"]
-# DEPS = ["../nua-lib", "../nua-agent", "../nua-autobuild"]
 
 nox.options.reuse_existing_virtualenvs = True
+nox.options.sessions = [
+    "lint",
+    "pytest",
+]
 
 
 @session
@@ -16,6 +19,12 @@ def lint(session: nox.Session):
 
 @session(python=PYTHON_VERSIONS)
 def pytest(session: nox.Session):
+    _install(session)
+    session.run("pytest", "-vvv", "-m", "not slow", "--tb=short", external=True)
+
+
+@session(python=PYTHON_VERSIONS)
+def pytest_all(session: nox.Session):
     _install(session)
     session.run("pytest", "-vvv", "--tb=short", external=True)
 

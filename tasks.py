@@ -185,6 +185,7 @@ def watch(c, host=None):
 # Release task
 #
 
+
 @task
 def release(c: Context):
     """Release a new version."""
