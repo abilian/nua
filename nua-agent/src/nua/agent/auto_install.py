@@ -46,7 +46,7 @@ def auto_install() -> bool:
 def register_detectors():
     for dir in DETECTORS_DIRS:
         for file in rso.files(dir).iterdir():
-            path = Path(file)
+            path = Path(str(file))
             if path.suffix != ".py" or path.stem.startswith("_"):
                 continue
             module_path = f"nua.agent.detectors.{path.stem}"
