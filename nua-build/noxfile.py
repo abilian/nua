@@ -31,6 +31,6 @@ def pytest_all(session: nox.Session):
 
 def _install(session: nox.Session):
     session.install("poetry")
-    session.run("poetry", "install", "--quiet")
+    session.run("poetry", "install")
     session.run("pip", "check")
     session.run("poetry", "check")
