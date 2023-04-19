@@ -2,11 +2,22 @@
 
 Command-line interface for Nua.
 
+[Nua](https://nua.rocks/) is an open source, self-hosted cloud platform project (a PaaS - platform as a service).
+
 Used by developers and devops people to deploy and manage applications.
 
 ## Installation
 
-Nua-cli will be released soon on PyPI.
+### From PyPI
+
+On PyPI the package is called just `nua` (not `nua-cli`) as it is the main interface for Nua users.
+
+```bash
+pipx install nua
+nua
+```
+
+### From source
 
 In the meantime, you can install it from the source repository:
 
