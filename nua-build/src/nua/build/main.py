@@ -11,8 +11,10 @@ from typing import Optional
 
 import snoop
 import typer
+
 from nua.lib.panic import Abort
 from nua.lib.tool.state import set_color, set_verbosity
+from nua.agent.nua_config import NuaConfigError
 
 from . import __version__
 from .builders import BuilderError, get_builder
@@ -74,7 +76,11 @@ def main(
     set_verbosity(verbose)
     set_color(colorize)
 
-    builder = get_builder(config_file)
+    try:
+        builder = get_builder(config_file)
+    except NuaConfigError as e:
+        raise Abort(e.args[0])
+
     try:
         builder.run()
     except BuilderError as e:
