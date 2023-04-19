@@ -43,11 +43,19 @@ Note: this is temporary, the installation script will take care of this kind of 
 
 ## Installation
 
-### The bootstrap command
+### All-in-one command
 
-To install, you will need to use the bootstrapping script: `nua-bootstrap`.
+Simply run:
 
-### Installation procedure (from released version)
+```console
+curl -L https://nua.rocks/install.py | sudo python3
+```
+
+### Using the `nua-bootstrap` command
+
+The `nua-orchestrator` package provides a `nua-bootstrap` command which will install Nua on the host.
+
+#### Installation procedure (from released version)
 
 From the root account:
 
@@ -56,7 +64,7 @@ pipx install nua-orchestrator
 nua-bootstrap
 ```
 
-### Installation procedure (from git)
+#### Installation procedure (from git)
 
 At the moment, this implies a first temporary installation of Nua (which can be done in a temporary directory), from a sudo-able account:
 
