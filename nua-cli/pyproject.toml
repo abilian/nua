@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-cli"
-version = "0.5.12"
+version = "0.5.13"
 description = ""
 authors = ["Stefane Fermigier <sf@abilian.com>"]
 readme = "readme.md"
