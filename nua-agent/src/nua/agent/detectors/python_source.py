@@ -19,7 +19,7 @@ class PythonSource(BaseDetector):
 
     @classmethod
     def install(cls) -> None:
-        build_python(Path("."))
+        build_python(Path("."), "nua")
 
 
 register_detector(PythonSource)

@@ -27,7 +27,7 @@ class NodejsYarn(BaseDetector):
 
     @classmethod
     def install(cls) -> None:
-        sh("yarn install")
+        sh("sudo -nu nua yarn install")
 
 
 register_detector(NodejsYarn)

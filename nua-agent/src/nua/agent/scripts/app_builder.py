@@ -22,7 +22,7 @@ from nua.lib.actions import (
     installed_packages,
 )
 from nua.lib.backports import chdir
-from nua.lib.exec import exec_as_root
+from nua.lib.exec import exec_as_nua, exec_as_root
 from nua.lib.panic import Abort, info, show, vprint, warning
 from nua.lib.shell import chmod_r, chown_r, mkdir_p, rm_fr, sh
 from nua.lib.tool.state import (
@@ -76,9 +76,7 @@ class BuilderApp:
                 installed=installed_packages(),
             ):
                 code_installed = self.install_project_code()
-                print("uid:", os.getuid())
                 chown_r("/nua/build", "nua")
-
                 built = self.run_build_script(code_installed)
                 if (code_installed or built) and os.getuid() == 0:
                     chown_r("/nua/build", "nua")
@@ -228,14 +226,20 @@ class BuilderApp:
             with verbosity(2):
                 show("Execution of build-command")
             env = dict(os.environ)
-            exec_as_root(self.config.build_command, env=env, timeout=1800)
+            if self.config.build.get("build-as-root", False):
+                exec_as_root(self.config.build_command, env=env, timeout=1800)
+            else:
+                exec_as_nua(self.config.build_command, env=env, timeout=1800)
         return True
 
     def build_with_script(self, script_path: Path) -> bool:
         """Build with a python script."""
         env = dict(os.environ)
         cmd = f"python {script_path}"
-        exec_as_root(cmd, env=env, timeout=1800)
+        if self.config.build.get("build-as-root", False):
+            exec_as_root(cmd, env=env, timeout=1800)
+        else:
+            exec_as_nua(cmd, env=env, timeout=1800)
         return True
 
     def build_with_auto_detection(
@@ -243,7 +247,11 @@ class BuilderApp:
         code_installed: bool,
         pip_installed: bool,
     ) -> bool:
-        """Build with a auto detect/install."""
+        """Build with a auto detect/install.
+
+        Rem: detect_and_install() is launched as root (the current user),
+             it's the responsability of auto installer to switch to user nua.
+        """
         if code_installed:
             return detect_and_install(self.source)
         if not any((pip_installed, code_installed)):

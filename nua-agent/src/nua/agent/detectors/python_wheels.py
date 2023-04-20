@@ -18,7 +18,7 @@ class PythonWheels(BaseDetector):
 
     @classmethod
     def install(cls) -> None:
-        pip_install(["*.whl"])
+        pip_install(["*.whl"], user="nua")
 
 
 register_detector(PythonWheels)

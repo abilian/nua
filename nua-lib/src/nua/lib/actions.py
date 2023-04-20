@@ -29,15 +29,19 @@ SHORT_TIMEOUT = 300
 #
 # Builder for Python projects
 #
-def build_python(path: str | Path = ""):
+def build_python(path: str | Path = "", user: str = ""):
     root = Path(path).expanduser().resolve()
     requirements = root / "requirements.txt"
     pyproject = root / "pyproject.toml"
     setup_py = root / "setup.py"
+    if user:
+        prefix = f"sudo -nu {user} "
+    else:
+        prefix = ""
     if requirements.is_file():
-        sh(f"python -m pip install -r {requirements} .", cwd=root)
+        sh(f"{prefix}python -m pip install -r {requirements} .", cwd=root)
     elif setup_py.is_file() or pyproject.is_file():
-        sh("python -m pip install .", cwd=root)
+        sh(f"{prefix}python -m pip install .", cwd=root)
     else:
         warning(f"No method found to build the python project in '{root}'")
 
@@ -416,14 +420,22 @@ def install_ruby(
         apt_remove_lists()
 
 
-def pip_install(packages: list | str, update: bool = False) -> bool:
+def pip_install(
+    packages: list | str,
+    update: bool = False,
+    user: str = "",
+) -> bool:
     if isinstance(packages, str):
         packages = packages.strip().split()
     if not packages:
         warning("pip_install(): nothing to install")
         return False
     option = "-U " if update else " "
-    cmd = f"python -m pip install {option}{' '.join(packages)}"
+    if user:
+        prefix = f"sudo -nu {user} "
+    else:
+        prefix = ""
+    cmd = f"{prefix}python -m pip install {option}{' '.join(packages)}"
     sh(cmd)
     return True
 
