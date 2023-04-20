@@ -2,7 +2,6 @@
 
 import argparse
 import platform
-import shlex
 import subprocess
 from pathlib import Path
 
@@ -30,7 +29,9 @@ def main():
     for app_dir in Path("apps").iterdir():
         app_name = app_dir.name
         ssh(
-            f"cd /vagrant/apps/{app_name} && /home/nua/env/bin/nua-build -vv",
+            f"cd /vagrant/apps/{app_name} "
+            "&& . /home/nua/env/bin/activate "
+            "&& /home/nua/env/bin/nua-build -vv",
             user="nua",
         )
 
@@ -57,21 +58,25 @@ def vagrant_up():
     Path("ssh-config").write_text(ssh_config)
 
 
-def sh(cmd: str, cwd: str = ".", capture=False) -> str:
+def sh(cmd: str, cwd: str = "", capture=False) -> str:
     """Run a shell command."""
     if cwd == ".":
         print(dim(f'Running "{cmd}" locally...'))
     else:
         print(dim(f'Running "{cmd}" locally in "{cwd}"...'))
-    args = shlex.split(cmd)
+    # args = shlex.split(cmd)
     opts = {
         "check": True,
-        "cwd": cwd,
         "capture_output": capture,
         "text": True,
+        "shell": True,
     }
+    if cwd:
+        opts["cwd"] = cwd
+    # args_str = shlex.join(args)
+    # assert args_str == cmd, (args_str, cmd)
     try:
-        result = subprocess.run(args, **opts)
+        result = subprocess.run(cmd, **opts)
         return result.stdout  # type: ignore
     except subprocess.CalledProcessError as e:
         print(f"Command failed: {e.cmd}")
