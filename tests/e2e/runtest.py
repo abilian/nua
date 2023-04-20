@@ -15,7 +15,8 @@ BOXES = {
 }
 
 
-def main():
+def main(verbosity: int = 1):
+    v_flag = verbosity * "-v"
     sh("mkdir -p apps")
     sh("cp -r ../../apps/real-apps/* apps/")
 
@@ -31,7 +32,7 @@ def main():
         ssh(
             f"cd /vagrant/apps/{app_name} "
             "&& . /home/nua/env/bin/activate "
-            "&& /home/nua/env/bin/nua-build -vv",
+            f"&& /home/nua/env/bin/nua-build {v_flag}",
             user="nua",
         )
 
@@ -110,10 +111,13 @@ def red(text: str) -> str:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("command", nargs="?", help="Command to run")
+    parser.add_argument(
+        "-v", "--verbosity", action="count", help="Increase output verbosity"
+    )
     args = parser.parse_args()
     command = args.command
     match command:
         case "main" | None:
-            main()
+            main(verbosity=args.verbosity or 0)
         case _:
             print(red(f"Unknown command {command}"))
