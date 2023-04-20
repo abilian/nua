@@ -23,7 +23,7 @@ from nua.lib.actions import (
 )
 from nua.lib.backports import chdir
 from nua.lib.exec import exec_as_root
-from nua.lib.panic import Abort, info, show, vprint
+from nua.lib.panic import Abort, info, show, vprint, warning
 from nua.lib.shell import chmod_r, chown_r, mkdir_p, rm_fr, sh
 from nua.lib.tool.state import (
     set_packages_updated,
@@ -154,7 +154,10 @@ class BuilderApp:
             copy2(path, script_dir)
             return
         with verbosity(2):
-            vprint("Writing debug start script")
+            warning(
+                "Neither start script or start-command found.\n"
+                "Writing a debug start script showing container's environment."
+            )
             return self._write_start_script(script_dir, ["env"])
 
     def _write_start_script(self, script_dir: Path, start_cmd: list):
