@@ -22,7 +22,7 @@ from nua.lib.actions import (
     installed_packages,
 )
 from nua.lib.backports import chdir
-from nua.lib.exec import exec_as_nua
+from nua.lib.exec import exec_as_root
 from nua.lib.panic import Abort, info, show, vprint
 from nua.lib.shell import chmod_r, chown_r, mkdir_p, rm_fr, sh
 from nua.lib.tool.state import (
@@ -76,9 +76,8 @@ class BuilderApp:
                 installed=installed_packages(),
             ):
                 code_installed = self.install_project_code()
-                pip_installed = install_pip_packages(self.config.pip_install)
-                built = self.run_build_script(code_installed, pip_installed)
-                if (code_installed or pip_installed or built) and os.getuid() == 0:
+                built = self.run_build_script(code_installed)
+                if (code_installed or built) and os.getuid() == 0:
                     chown_r("/nua/build", "nua")
         self.post_build()
         self.test_build()
@@ -201,12 +200,13 @@ class BuilderApp:
             return path
         return None
 
-    def run_build_script(self, code_installed: bool, pip_installed: bool) -> bool:
+    def run_build_script(self, code_installed: bool) -> bool:
         """Process the 'build.py' script if exists or the build-command.
 
         The script is run from the directory of the nua-config.toml
         file.
         """
+        pip_installed = install_pip_packages(self.config.pip_install)
         if self.config.build_command:
             return self.build_with_command()
         if script_path := self.find_build_script():
@@ -221,14 +221,15 @@ class BuilderApp:
         with chdir(self.source):
             with verbosity(2):
                 show("Execution of build-command")
-            exec_as_nua(self.config.build_command)
+            env = dict(os.environ)
+            exec_as_root(self.config.build_command, env=env, timeout=1800)
         return True
 
     def build_with_script(self, script_path: Path) -> bool:
         """Build with a python script."""
         env = dict(os.environ)
         cmd = f"python {script_path}"
-        sh(cmd, env=env, timeout=1800)
+        exec_as_root(cmd, env=env, timeout=1800)
         return True
 
     def build_with_auto_detection(
