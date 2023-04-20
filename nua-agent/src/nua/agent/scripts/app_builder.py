@@ -76,6 +76,9 @@ class BuilderApp:
                 installed=installed_packages(),
             ):
                 code_installed = self.install_project_code()
+                print("uid:", os.getuid())
+                chown_r("/nua/build", "nua")
+
                 built = self.run_build_script(code_installed)
                 if (code_installed or built) and os.getuid() == 0:
                     chown_r("/nua/build", "nua")
