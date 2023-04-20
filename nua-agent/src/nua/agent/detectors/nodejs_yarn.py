@@ -27,7 +27,13 @@ class NodejsYarn(BaseDetector):
 
     @classmethod
     def install(cls) -> None:
-        sh("sudo -nu nua yarn install")
+        # We install nodejs globally, so if install as user nua we got
+        # this error:
+        # EACCES: permission denied, open '/root/.config/yarn'
+        # fixme: fix global installer path for npm
+        #
+        # sh("sudo -nu nua yarn install")
+        sh("yarn install")
 
 
 register_detector(NodejsYarn)
