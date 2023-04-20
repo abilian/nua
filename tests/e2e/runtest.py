@@ -18,7 +18,7 @@ BOXES = {
 
 def main():
     sh("mkdir -p apps")
-    sh("cp -a ../../apps/real-apps/ apps/")
+    sh("cp -r ../../apps/real-apps/* apps/")
 
     generate_vagrantfile()
     vagrant_up()
