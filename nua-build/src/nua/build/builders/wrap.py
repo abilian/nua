@@ -31,6 +31,7 @@ class DockerWrapBuilder(Builder):
         self.write_wrap_dockerfile()
         self.build_wrap_with_docker_stream()
         rm_fr(self.build_dir)
+        self.post_build_notices()
 
     def write_wrap_dockerfile(self):
         self.config.dump_json(self.build_dir)

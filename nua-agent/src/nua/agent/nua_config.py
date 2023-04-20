@@ -230,7 +230,7 @@ class NuaConfig:
         self._data["env"] = nomalize_env_values(self.env)
 
     def __getitem__(self, key: str) -> Any:
-        """will return {} is key not found, assuming some parts are not
+        """will return {} if key not found, assuming some parts are not
         mandatory and first level element are usually dict."""
         return self._data.get(key) or {}
 
@@ -395,6 +395,13 @@ class NuaConfig:
     @property
     def docker(self) -> dict:
         return self["docker"]
+
+    # volumes declaration ###########################################
+
+    @property
+    def volume(self) -> list:
+        """The list of declared volumes."""
+        return self._data.get("volume", [])
 
     # resource ######################################################
 

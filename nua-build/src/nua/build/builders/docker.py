@@ -45,6 +45,7 @@ class DockerBuilder(Builder):
         self._title_build()
         self.detect_nua_folder()
         self.build_docker_image()
+        self.post_build_notices()
 
     def check_allowed_base_image(self):
         builder = self.config.builder
