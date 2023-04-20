@@ -2,8 +2,8 @@
 
 ### Features
 
-- [ ] fix broken packages (dolibarr?) [NB: seems to be broken after several redeployments]
-- [ ] add/remove/stop/start apps one by one
+- [ ] fix broken package(s) (e.g. Galene)
+- [ ] fully tests apps simple lifecycles (deploy/upgrades/destroy)
 - [ ] full working experience using nua-cli
 - [ ] streamline the installation process (make a debian package? or `curl ... | bash`?)
 - [ ] logs & debugs
@@ -11,6 +11,9 @@
 - [ ] more packages
 - [ ] release proper packages on PyPI
 - [ ] orchestrator as a server
+- [ ] better control and sensible defaults for verbosity
+- [ ] additional lifecycle commands (e.g. rollback)]
+- [ ] e2e tests of upgrades, backups, restores
 
 ### Bug fixes
 
@@ -18,6 +21,8 @@
 
 ## Started
 
+- [ ] add/remove/stop/start apps one by one
+- [ ] e2e tests (using Vagrant)
 - [ ] vagrant config -> <https://github.com/abilian/nua-vagrant/> (not working)
 - [ ] web app -> `nua-server`
 - [ ] monitor the system -> (https://github.com/abilian/bafa -> to be integrated)
