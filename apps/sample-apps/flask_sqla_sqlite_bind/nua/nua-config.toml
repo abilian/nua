@@ -1,0 +1,36 @@
+[metadata]
+id = "flask-sqla-sqlite-bind"
+version = "1.0"
+release = 5
+title = "Nua test with sqlalchemy, sqlite on bind volume"
+author = "Nua testers"
+tagline = "Nua test with sqlalchemy, sqlite on bind volume"
+website = "https://nua.rocks/"
+tags = ["test", "html", "web", "flask", "plugin", "sqlite", "sqlalchemy"]
+license = "MIT"
+
+[build]
+document-root = "/nua/app/html"
+test = "python -c 'import flask_sqla_sqlite_bind'"
+
+[env]
+# parameters passed as a dict to docker run: environment dict
+DB_FOLDER = "/nua/app/dbs"
+DB_NAME = "student_test.db"
+
+[docker]
+# parameters passed as a dict to docker run
+auto_remove = true
+
+[port.web]
+container = 5000
+
+[[volume]]
+# The mount type (bind / volume / tmpfs / npipe). Default: volume :
+type = "bind"
+# Name of the driver used to create the volume: (for type == "volume")
+# driver = "local"
+# Mount source (e.g. a volume name or a host path):
+source = "/var/tmp"
+# Container path:
+target = "/nua/app/dbs"
