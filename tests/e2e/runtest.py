@@ -28,6 +28,9 @@ def main(stages: list[str], verbosity: int = 1):
         vagrant_up()
         print()
 
+    # Last chance to rsync
+    sh("vagrant rsync")
+
     if "install" in stages:
         print(bold("Installing Nua..."))
         install_nua()
@@ -132,7 +135,7 @@ def deploy_apps(v_flag):
         if not config_file.exists():
             config_file = app_dir / "nua" / "nua-config.toml"
         app_id = toml.load(config_file)["metadata"]["id"]
-        domain = f"test{i}.example.com"
+        domain = f"test{i}.tests.nua.rocks"
         result = ssh(f"python3 /vagrant/deploy-app.py {app_id} {domain}", user="nua")
 
     # succesful_results = [r for r in build_results if r.success]

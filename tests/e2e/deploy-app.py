@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import os
 import tempfile
 from pathlib import Path
 from subprocess import run
@@ -24,7 +25,9 @@ def main(app_id: str, domain: str):
     Path(config_file).write_text(json.dumps(deploy_config, indent=2))
 
     cmd = f"{NUA_ENV}/bin/nua-orchestrator deploy {config_file}"
-    run(cmd, shell=True, check=True)
+    env = os.environ.copy()
+    env["NUA_CERTBOT_STRATEGY"] = "none"
+    run(cmd, shell=True, check=True, env=env)
 
 
 if __name__ == "__main__":
