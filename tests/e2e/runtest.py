@@ -8,35 +8,48 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
+import toml
 from cleez.colors import bold, dim, green, red
 
 BOXES = {
     "x86_64": "generic/ubuntu2204",
     "arm": "perk/ubuntu-2204-arm64",
 }
+STAGES = ["prepare", "install", "build", "deploy"]
 
 
-def main(verbosity: int = 1):
+def main(stages: list[str], verbosity: int = 1):
     v_flag = verbosity * "-v"
 
-    print(bold("Preparing Vagrant VM and testing environment..."))
-    prepare_vagrant_dir()
-    generate_vagrantfile()
-    vagrant_up()
-    print()
+    if "prepare" in stages:
+        print(bold("Preparing Vagrant VM and testing environment..."))
+        prepare_vagrant_dir()
+        generate_vagrantfile()
+        vagrant_up()
+        print()
 
-    print(bold("Installing Nua..."))
-    install_nua()
-    print()
+    if "install" in stages:
+        print(bold("Installing Nua..."))
+        install_nua()
+        print()
 
-    print(bold("Building apps..."))
-    build_results = build_apps(v_flag)
-    print()
+    if "build" in stages:
+        print(bold("Building apps..."))
+        build_results = build_apps(v_flag)
+        print()
 
-    report_build_results(build_results)
+        report_build_results(build_results)
+
+    if "deploy" in stages:
+        print(bold("Deploying apps..."))
+        deploy_apps(v_flag)
 
     # TODO: deploy apps
     # succesful_results = [r for r in build_results if r.success]
+    # for i, result in enumerate(succesful_results):
+    #     app_id = result.app_name
+    #     domain = f"test{i}.example.com"
+    #     result = ssh(f"/vagrant/deploy-app.py {app_id} {domain}", user="nua")
     # deploy_results = deploy_apps(v_flag, succesful_results)
 
 
@@ -111,6 +124,22 @@ def report_build_results(build_results):
             print()
 
 
+def deploy_apps(v_flag):
+    i = 0
+    for app_dir in Path("apps").iterdir():
+        i += 1
+        config_file = app_dir / "nua-config.toml"
+        if not config_file.exists():
+            config_file = app_dir / "nua" / "nua-config.toml"
+        app_id = toml.load(config_file)["metadata"]["id"]
+        domain = f"test{i}.example.com"
+        result = ssh(f"python3 /vagrant/deploy-app.py {app_id} {domain}", user="nua")
+
+    # succesful_results = [r for r in build_results if r.success]
+    # for i, result in enumerate(succesful_results):
+    #     app_id = result.app_name
+
+
 # @dataclass(frozen=True)
 # class Builder:
 #     app_name: str
@@ -170,14 +199,15 @@ def ssh(cmd: str, user="vagrant") -> subprocess.CompletedProcess:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("command", nargs="?", help="Command to run")
     parser.add_argument(
         "-v", "--verbosity", action="count", help="Increase output verbosity"
     )
+    parser.add_argument(
+        "stages",
+        help=f"Stages to run ({', '.join(STAGES)}). Default: all stages",
+    )
     args = parser.parse_args()
-    command = args.command
-    match command:
-        case "main" | None:
-            main(verbosity=args.verbosity or 0)
-        case _:
-            print(red(f"Unknown command {command}"))
+    stages = args.stages or STAGES
+    verbosity = args.verbosity or 0
+
+    main(stages, verbosity=verbosity)
