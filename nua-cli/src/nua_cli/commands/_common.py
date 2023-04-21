@@ -6,7 +6,9 @@ from pathlib import Path
 import tomli
 from cleez.colors import dim
 
+# Hardcoded for now
 NUA_ENV = "/home/nua/env"
+ORCH_PATH = "/home/nua/env/bin/nua-orchestrator"
 NUA_HOST = os.environ["NUA_HOST"]
 
 
@@ -35,7 +37,8 @@ def ssh(cmd: str, host: str):
 
 
 def get_config() -> dict:
-    config_file = Path("nua/nua-config.toml")
+    config_file = Path("nua-config.toml")
+    if not config_file.exists():
+        config_file = Path("nua/nua-config.toml")
     config_data = config_file.read_text()
     return tomli.loads(config_data)
-    # return toml.loads(config_data)

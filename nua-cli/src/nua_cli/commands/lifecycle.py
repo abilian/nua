@@ -2,11 +2,9 @@ from cleez.colors import red
 from cleez.command import Argument, Command
 
 from ..client import get_client
+from ._common import ORCH_PATH
 
 client = get_client()
-
-# Hardcoded for now
-ORCH_PATH = "/home/nua/env/bin/nua-orchestrator"
 
 
 class StartCommand(Command):
