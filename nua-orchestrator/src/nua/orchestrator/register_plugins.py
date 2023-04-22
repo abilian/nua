@@ -11,7 +11,7 @@ from pathlib import Path
 from pprint import pformat
 
 from nua.agent.nua_config import hyphen_get
-from nua.lib.panic import vprint, vprint_magenta
+from nua.lib.panic import bold_debug, debug
 from nua.lib.tool.state import verbosity
 
 from .utils import dehyphen, hyphen
@@ -38,14 +38,14 @@ def register_plugins():
 
 
 def _show_plugin_info():
-    vprint_magenta("plugins registered:")
-    vprint("PLUGIN_DIRS:", pformat(PLUGIN_DIRS))
-    vprint("LOADED_MODULES:", pformat(LOADED_MODULES))
-    vprint("DOCKER_MODULES:", pformat(DOCKER_MODULES))
-    vprint("ASSIGN_MODULES:", pformat(ASSIGN_MODULES))
-    vprint("NETWORK_MODULES:", pformat(NETWORK_MODULES))
-    vprint("FAMILIES:", pformat(FAMILIES))
-    vprint("FAMILY_SET:", pformat(FAMILY_SET))
+    bold_debug("plugins registered:")
+    debug("PLUGIN_DIRS:", pformat(PLUGIN_DIRS))
+    debug("LOADED_MODULES:", pformat(LOADED_MODULES))
+    debug("DOCKER_MODULES:", pformat(DOCKER_MODULES))
+    debug("ASSIGN_MODULES:", pformat(ASSIGN_MODULES))
+    debug("NETWORK_MODULES:", pformat(NETWORK_MODULES))
+    debug("FAMILIES:", pformat(FAMILIES))
+    debug("FAMILY_SET:", pformat(FAMILY_SET))
 
 
 def load_module(name: str, plugin_dir: str):

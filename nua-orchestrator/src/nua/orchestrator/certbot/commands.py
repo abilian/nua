@@ -13,7 +13,7 @@ Test ENV variables:
 import os
 from pathlib import Path
 
-from nua.lib.panic import show, vprint, vprint_magenta
+from nua.lib.panic import important, show, vprint
 from nua.lib.shell import sh
 from nua.lib.tool.state import verbosity
 
@@ -66,7 +66,7 @@ def certbot_certonly(domain: str, option: str) -> str:
 
 def apply_none_strategy(_top_domain: str, domains: list[str]):
     with verbosity(1):
-        vprint_magenta(f"Use HTTP protocol for: {' '.join(domains)}")
+        important(f"Use HTTP protocol for: {' '.join(domains)}")
     return
 
 
@@ -136,7 +136,7 @@ def apply_auto_strategy(top_domain: str, domains: list[str]):
     """
     sorted_domains = sorted(domains)
     with verbosity(1):
-        vprint_magenta(f"Use HTTPS protocol (Certbot) for: {' '.join(sorted_domains)}")
+        important(f"Use HTTPS protocol (Certbot) for: {' '.join(sorted_domains)}")
     # cmd = certbot_run(top_domain, domains)
     # cmd = certbot_certonly(top_domain, domains)
     #

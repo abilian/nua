@@ -6,7 +6,7 @@ from pprint import pformat
 from typing import Any
 
 from nua.agent.nua_config import nomalize_env_values
-from nua.lib.panic import Abort, vprint, vprint_green, warning
+from nua.lib.panic import Abort, debug, important, vprint, warning
 from nua.lib.tool.state import verbosity
 
 from .backup.backup_engine import backup_resource, backup_volume
@@ -485,11 +485,9 @@ class Resource(dict):
                 vprint(f"configure_fct: {configure_fct}")
             configure_fct(self)
             with verbosity(2):
-                vprint_green(
-                    f"Configure resource DB '{self.resource_name}': {self.type}"
-                )
+                important(f"Configure resource DB '{self.resource_name}': {self.type}")
             with verbosity(3):
-                vprint(pformat(self))
+                debug(pformat(self))
 
     def load_meta_packages_requirements(self):
         """Some plugin may require some meta-packages requirements for main

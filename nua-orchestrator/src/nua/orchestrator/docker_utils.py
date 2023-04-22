@@ -16,7 +16,7 @@ from docker.models.containers import Container
 from docker.models.images import Image
 from nua.autobuild.docker_build_utils import docker_require
 from nua.lib.console import print_red
-from nua.lib.panic import Abort, info, vprint, vprint_green, vprint_magenta, warning
+from nua.lib.panic import Abort, important, info, show, vprint, warning
 from nua.lib.shell import chmod_r, mkdir_p
 from nua.lib.tool.state import verbosity
 
@@ -302,8 +302,8 @@ def docker_run(rsite: Resource, secrets: dict) -> Container:
         info(f"Docker run image: {rsite.image}")
         info(f"        image id: {rsite.image_id_short}")
         with verbosity(2):
-            vprint_green("Docker run parameters:")
-            vprint_magenta(pformat(params))
+            important("Docker run parameters:")
+            show(pformat(params))
 
     docker_remove_prior_container_live(rsite)
     with verbosity(2):

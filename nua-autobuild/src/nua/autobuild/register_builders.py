@@ -8,7 +8,7 @@ from importlib import resources as rso
 from importlib.abc import Traversable
 from pprint import pformat
 
-from nua.lib.panic import vprint, vprint_magenta
+from nua.lib.panic import bold_debug, debug, warning
 from nua.lib.tool.state import verbosity
 
 
@@ -62,9 +62,9 @@ class BuilderRegistry:
         return records
 
     def show_builders_info(self) -> None:
-        vprint_magenta("Builders registered:")
-        vprint("BUILDERS_DIRS:", pformat(self.builders_dirs))
-        vprint("BUILDERS:", pformat(self.builders))
+        bold_debug("Builders registered:")
+        debug("BUILDERS_DIRS:", pformat(self.builders_dirs))
+        debug("BUILDERS:", pformat(self.builders))
 
     def load_builder_configs(self, records: dict[str, Traversable]) -> None:
         for name, file in records.items():
@@ -80,7 +80,7 @@ class BuilderRegistry:
         self, records: dict[str, Traversable], builder_config: dict
     ) -> str:
         if builder_config["container"] != "docker":
-            vprint("Only Docker builders are currently supported.")
+            warning("Only Docker builders are currently supported.")
             return ""
         return records[builder_config["dockerfile"]].read_text(encoding="utf8")
 

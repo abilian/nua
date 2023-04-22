@@ -16,11 +16,12 @@ from typing import Any
 from nua.lib.console import print_green, print_red
 from nua.lib.panic import (
     Abort,
+    bold_debug,
+    debug,
+    important,
     info,
     show,
     vprint,
-    vprint_green,
-    vprint_magenta,
     warning,
 )
 from nua.lib.tool.state import verbosity
@@ -170,7 +171,7 @@ class AppDeployment:
         services.load()
         self.available_services = services.loaded
         with verbosity(2):
-            vprint_magenta(
+            bold_debug(
                 f"Available local services: {pformat(list(services.loaded.keys()))}"
             )
 
@@ -323,8 +324,8 @@ class AppDeployment:
         # deployed.
         register_certbot_domains(self.apps)
         with verbosity(3):
-            vprint_green("AppDeployment .apps:")
-            vprint_magenta(pformat(self.apps))
+            bold_debug("AppDeployment .apps:")
+            debug(pformat(self.apps))
 
     def merge_nginx_configuration(self):
         """Apply configuration to Nginx, when apps are already deployed."""
@@ -347,8 +348,8 @@ class AppDeployment:
         # deployed.
         register_certbot_domains(self.apps)
         with verbosity(3):
-            vprint_green("AppDeployment .apps:")
-            vprint_magenta(self.apps)
+            bold_debug("AppDeployment .apps:")
+            debug(self.apps)
 
     def remove_nginx_configuration(self, stop_domain: str):
         """Remove apps from the nginx configuration.
@@ -904,7 +905,7 @@ class AppDeployment:
 
     def store_container_instance(self, site: AppInstance):
         with verbosity(3):
-            vprint_green("Saving AppInstance configuration in Nua DB")
+            bold_debug("Saving AppInstance configuration in Nua DB")
         store.store_instance(
             app_id=site.app_id,
             nua_tag=site.nua_tag,
@@ -1026,17 +1027,17 @@ class AppDeployment:
         with verbosity(3):
             content = site.persistent_full_dict()
             if content:
-                vprint_green("Persistent generated variables:")
-                vprint(pformat(content))
+                bold_debug("Persistent generated variables:")
+                debug(pformat(content))
 
     def display_used_volumes(self):
         with verbosity(1):
             current_mounted = store.list_instances_container_active_volumes()
             if not current_mounted:
                 return
-            vprint_green("Volumes used by current Nua configuration:")
+            important("Volumes used by current Nua configuration:")
             for volume in current_mounted:
-                vprint_magenta(Volume.string(volume))
+                show(Volume.string(volume))
 
     def display_unused_volumes(self):
         with verbosity(1):
