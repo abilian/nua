@@ -3,8 +3,9 @@ from pathlib import Path
 
 import pytest
 from nua.agent.nua_config import NuaConfig, NuaConfigError
+from nua.lib.panic import Abort
 
-from .build_image import build_test_image, build_test_image_expect_fail
+from .build_image import build_test_image
 
 root_dir = Path(__file__).parent / "data" / "sample-apps-expected-fail"
 app_dirs = [dir.name for dir in root_dir.iterdir() if dir.is_dir()]
@@ -14,8 +15,8 @@ app_dirs = [dir.name for dir in root_dir.iterdir() if dir.is_dir()]
 def test_build_app(dir_name: str):
     orig_path = os.getcwd()
     dir = root_dir / dir_name
-    # Todo: add with exception...
-    build_test_image(dir)
+    with pytest.raises(Abort):
+        build_test_image(dir)
     assert os.getcwd() == orig_path
 
 
