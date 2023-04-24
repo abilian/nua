@@ -35,12 +35,16 @@ class Builder(abc.ABC):
     nua_folder: Path
     nua_base: str
 
-    def __init__(self, config: NuaConfig):
+    save_image: bool = True
+
+    def __init__(self, config: NuaConfig, save_image: bool = True):
         assert isinstance(config, NuaConfig)
 
         self.config = config
         self.nua_base = ""
         self.build_dir = self.make_build_dir()
+
+        self.save_image = save_image
 
     @abstractmethod
     def run(self):

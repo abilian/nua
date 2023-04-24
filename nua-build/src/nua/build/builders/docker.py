@@ -111,7 +111,7 @@ class DockerBuilder(Builder):
         self._copy_default_files()
 
     @docker_build_log_error
-    def build_with_docker_stream(self, save: bool = True):
+    def build_with_docker_stream(self):
         with chdir(self.build_dir):
             with suppress(IOError):
                 copy2(
@@ -134,10 +134,10 @@ class DockerBuilder(Builder):
             with verbosity(1):
                 display_docker_img(nua_tag)
 
-            if save:
-                client = docker.from_env(timeout=CLIENT_TIMEOUT)
-                image = client.images.get(image_id)
-                self.save(image, nua_tag)
+        if self.save_image:
+            client = docker.from_env(timeout=CLIENT_TIMEOUT)
+            image = client.images.get(image_id)
+            self.save(image, nua_tag)
 
     def _copy_local_code(self):
         if any((self.config.src_url, self.config.git_url)):
