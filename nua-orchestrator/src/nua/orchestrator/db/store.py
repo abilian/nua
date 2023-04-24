@@ -218,18 +218,20 @@ def stored_user_data(username: str):
 
 
 def store_instance(
-    app_id="",
-    nua_tag="",
-    domain="",
-    container="",
-    image="",
-    state=STOPPED,
-    site_config=None,
-):
+    app_id: str = "",
+    label_id: str = "",
+    nua_tag: str = "",
+    domain: str = "",
+    container: str = "",
+    image: str = "",
+    state: str = STOPPED,
+    site_config: dict | None = None,
+) -> None:
     """Store a Nua instance in the local DB (table 'instance')."""
 
     new_instance = Instance(
         app_id=app_id,
+        label_id=label_id,
         nua_tag=nua_tag,
         domain=domain,
         container=container,
@@ -241,7 +243,7 @@ def store_instance(
     with Session() as session:
         # Image:
         # enforce unicity
-        existing = session.query(Instance).filter_by(domain=domain).first()
+        existing = session.query(Instance).filter_by(label_id=label_id).first()
         if existing:
             session.delete(existing)
         session.flush()
@@ -422,15 +424,14 @@ def set_instance_container_state(domain: str, state: str):
             session.commit()
 
 
-def instance_persistent(domain: str, app_id: str) -> dict:
-    """Return the persistent dictionary if (or an empty dict if not found)"""
+def instance_persistent(label_id: str) -> dict:
+    """Return the persistent dictionary if (or an empty dict if not found)."""
     persistent = {}
     with Session() as session:
         existing = (
             session.query(Instance)
             .filter_by(
-                domain=domain,
-                app_id=app_id,
+                label_id=label_id,
             )
             .first()
         )

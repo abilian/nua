@@ -261,11 +261,11 @@ def deactivate_containers(container_names: list[str], show_warning: bool = True)
         store.instance_delete_by_container(name)
 
 
-def deactivate_app(site: AppInstance):
+def deactivate_app(app: AppInstance):
     """Deactive containers of AppInstance and all sub Resources (updating
     orchestrator DB)."""
-    container_names = [res.container_name for res in site.resources]
-    container_names.append(site.container_name)
+    container_names = [res.container_name for res in app.resources]
+    container_names.append(app.container_name)
     deactivate_containers(container_names, show_warning=False)
 
 
