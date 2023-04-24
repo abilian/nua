@@ -59,19 +59,18 @@ vulture = "*"
 
 [[package]]
 name = "argcomplete"
-version = "2.1.2"
+version = "3.0.8"
 description = "Bash tab completion for argparse"
 category = "dev"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "argcomplete-2.1.2-py3-none-any.whl", hash = "sha256:4ba9cdaa28c361d251edce884cd50b4b1215d65cdc881bd204426cdde9f52731"},
-    {file = "argcomplete-2.1.2.tar.gz", hash = "sha256:fc82ef070c607b1559b5c720529d63b54d9dcf2dcfc2632b10e6372314a34457"},
+    {file = "argcomplete-3.0.8-py3-none-any.whl", hash = "sha256:e36fd646839933cbec7941c662ecb65338248667358dd3d968405a4506a60d9b"},
+    {file = "argcomplete-3.0.8.tar.gz", hash = "sha256:b9ca96448e14fa459d7450a4ab5a22bbf9cee4ba7adddf03e65c398b5daeea28"},
 ]
 
 [package.extras]
-lint = ["flake8", "mypy"]
-test = ["coverage", "flake8", "mypy", "pexpect", "wheel"]
+test = ["coverage", "mypy", "pexpect", "ruff", "wheel"]
 
 [[package]]
 name = "asttokens"
@@ -461,6 +460,22 @@ files = [
 tests = ["Django", "Django (<2)", "Django (<3)", "chainmap", "numpy (>=1.16.3)", "numpy (>=1.16.3,<1.17)", "numpy (>=1.16.3,<1.19)", "pandas (>=0.24.2)", "pandas (>=0.24.2,<0.25)", "pandas (>=0.24.2,<0.26)", "pytest"]
 
 [[package]]
+name = "cleez"
+version = "0.1.5"
+description = "Simple class-based CLI framework."
+category = "main"
+optional = false
+python-versions = ">=3.9,<4"
+files = [
+    {file = "cleez-0.1.5-py3-none-any.whl", hash = "sha256:64f284efae168e9f8550d95dda16d430ee80f67ba33b8ed64b08584798a26e6f"},
+    {file = "cleez-0.1.5.tar.gz", hash = "sha256:9868739e8bdb856c19905b521b99c2bf11f2fdfba6f3ddcaeae68646cb6e8a8b"},
+]
+
+[package.dependencies]
+snoop = ">=0.4.3,<0.5.0"
+termcolor = ">=2.2.0,<3.0.0"
+
+[[package]]
 name = "click"
 version = "8.1.3"
 description = "Composable command line interface toolkit"
@@ -712,14 +727,14 @@ files = [
 
 [[package]]
 name = "docformatter"
-version = "1.6.0"
+version = "1.6.3"
 description = "Formats docstrings to follow PEP 257"
 category = "dev"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "docformatter-1.6.0-py3-none-any.whl", hash = "sha256:dfad58437b560708eb74ccaccba5c91a0f98f534ed51b7af02aa35225e9eb6c2"},
-    {file = "docformatter-1.6.0.tar.gz", hash = "sha256:2346dcc239b73bc4b62d1035e240d1338d154fb047a7e492f0168a93744222e2"},
+    {file = "docformatter-1.6.3-py3-none-any.whl", hash = "sha256:7d971222d86678e3d699a3e9fdf5dd5b04a027b55642f4628c50180577c63a23"},
+    {file = "docformatter-1.6.3.tar.gz", hash = "sha256:c1377c5a3d01b3f3c325158c6de904d3d6167eb3a0eeeff8d9e66a678177d337"},
 ]
 
 [package.dependencies]
@@ -1651,28 +1666,28 @@ setuptools = "*"
 
 [[package]]
 name = "nox"
-version = "2022.11.21"
+version = "2023.4.22"
 description = "Flexible test automation."
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "nox-2022.11.21-py3-none-any.whl", hash = "sha256:0e41a990e290e274cb205a976c4c97ee3c5234441a8132c8c3fd9ea3c22149eb"},
-    {file = "nox-2022.11.21.tar.gz", hash = "sha256:e21c31de0711d1274ca585a2c5fde36b1aa962005ba8e9322bf5eeed16dcd684"},
+    {file = "nox-2023.4.22-py3-none-any.whl", hash = "sha256:0b1adc619c58ab4fa57d6ab2e7823fe47a32e70202f287d78474adcc7bda1891"},
+    {file = "nox-2023.4.22.tar.gz", hash = "sha256:46c0560b0dc609d7d967dc99e22cb463d3c4caf54a5fda735d6c11b5177e3a9f"},
 ]
 
 [package.dependencies]
-argcomplete = ">=1.9.4,<3.0"
+argcomplete = ">=1.9.4,<4.0"
 colorlog = ">=2.6.1,<7.0.0"
 packaging = ">=20.9"
 virtualenv = ">=14"
 
 [package.extras]
-tox-to-nox = ["jinja2", "tox"]
+tox-to-nox = ["jinja2", "tox (<4)"]
 
 [[package]]
 name = "nua-agent"
-version = "0.5.11"
+version = "0.5.13"
 description = "Nua agent"
 category = "main"
 optional = false
@@ -1693,7 +1708,7 @@ url = "../nua-agent"
 
 [[package]]
 name = "nua-autobuild"
-version = "0.5.11"
+version = "0.5.13"
 description = "Nua self builder"
 category = "main"
 optional = false
@@ -1717,7 +1732,7 @@ url = "../nua-autobuild"
 
 [[package]]
 name = "nua-build"
-version = "0.5.11"
+version = "0.5.13"
 description = "Nua build package (currently: build, core build, agent)"
 category = "main"
 optional = false
@@ -1726,14 +1741,14 @@ files = []
 develop = true
 
 [package.dependencies]
-docker = {version = "^6", extras = ["ssh"]}
+cleez = "^0.1.3"
+docker = {version = "^6.0.1", extras = ["ssh"]}
 nua-agent = {path = "../nua-agent", develop = true}
 nua-autobuild = {path = "../nua-autobuild", develop = true}
 nua-lib = {path = "../nua-lib", develop = true}
-pyyaml = "^6"
+pyyaml = "^6.0"
 snoop = "^0.4.3"
 tomli = "^2.0.1"
-typer = {version = "^0.7.0", extras = ["all"]}
 
 [package.source]
 type = "directory"
@@ -1741,7 +1756,7 @@ url = "../nua-build"
 
 [[package]]
 name = "nua-lib"
-version = "0.5.11"
+version = "0.5.13"
 description = "Nua common library"
 category = "main"
 optional = false
@@ -1836,14 +1851,14 @@ files = [
 
 [[package]]
 name = "pip"
-version = "23.1"
+version = "23.1.1"
 description = "The PyPA recommended tool for installing Python packages."
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pip-23.1-py3-none-any.whl", hash = "sha256:64b1d4528e491aa835ec6ece0c1ac40ce6ab6d886e60740f6519db44b2e9634d"},
-    {file = "pip-23.1.tar.gz", hash = "sha256:408539897ee535dbfb83a153f7bc4d620f990d8bd44a52a986efc0b4d330d34a"},
+    {file = "pip-23.1.1-py3-none-any.whl", hash = "sha256:3d8d72fa0714e93c9d3c2a0ede91e898c64596e0fa7d4523f72dd95728efc418"},
+    {file = "pip-23.1.1.tar.gz", hash = "sha256:c95b53d309f903f33dfe5fd37e502a5c3a05ee3454d518e45df522a4f091b728"},
 ]
 
 [[package]]
@@ -2139,14 +2154,14 @@ diagrams = ["jinja2", "railroad-diagrams"]
 
 [[package]]
 name = "pyright"
-version = "1.1.303"
+version = "1.1.304"
 description = "Command line wrapper for pyright"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pyright-1.1.303-py3-none-any.whl", hash = "sha256:8fe3d122d7e965e2df2cef64e1ceb98cff8200f458e7892d92a4c21ee85689c7"},
-    {file = "pyright-1.1.303.tar.gz", hash = "sha256:7daa516424555681e8974b21a95c108c5def791bf5381522b1410026d4da62c1"},
+    {file = "pyright-1.1.304-py3-none-any.whl", hash = "sha256:70021bbae07fc28ed16e435f5efa65cd71e06a1888d9ca998798c283d4b3d010"},
+    {file = "pyright-1.1.304.tar.gz", hash = "sha256:87adec38081904c939e3657ab23d5fc40b7ccc22709be0af1859fc785ae4ea61"},
 ]
 
 [package.dependencies]
@@ -2517,14 +2532,14 @@ gitlab = ["python-gitlab (>=1.3.0)"]
 
 [[package]]
 name = "setuptools"
-version = "67.6.1"
+version = "67.7.2"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "setuptools-67.6.1-py3-none-any.whl", hash = "sha256:e728ca814a823bf7bf60162daf9db95b93d532948c4c0bea762ce62f60189078"},
-    {file = "setuptools-67.6.1.tar.gz", hash = "sha256:257de92a9d50a60b8e22abfcbb771571fde0dbf3ec234463212027a4eeecbe9a"},
+    {file = "setuptools-67.7.2-py3-none-any.whl", hash = "sha256:23aaf86b85ca52ceb801d32703f12d77517b2556af839621c641fca11287952b"},
+    {file = "setuptools-67.7.2.tar.gz", hash = "sha256:f104fa03692a2602fa0fec6c6a9e63b6c8a968de13e17c026957dd1f53d80990"},
 ]
 
 [package.extras]
@@ -2720,6 +2735,21 @@ files = [
 
 [package.dependencies]
 pbr = ">=2.0.0,<2.1.0 || >2.1.0"
+
+[[package]]
+name = "termcolor"
+version = "2.3.0"
+description = "ANSI color formatting for output in terminal"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "termcolor-2.3.0-py3-none-any.whl", hash = "sha256:3afb05607b89aed0ffe25202399ee0867ad4d3cb4180d98aaf8eefa6a5f7d475"},
+    {file = "termcolor-2.3.0.tar.gz", hash = "sha256:b5b08f68937f138fe92f6c089b99f1e2da0ae56c52b78bf7075fd95420fd9a5a"},
+]
+
+[package.extras]
+tests = ["pytest", "pytest-cov"]
 
 [[package]]
 name = "toml"
