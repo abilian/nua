@@ -1,9 +1,9 @@
 import pytest
-from cleez.testing import CliRunner
-from devtools import debug
+
+# from cleez.testing import CliRunner
+from typer.testing import CliRunner
 
 from nua.build import __version__
-from nua.build.main import main
 
 
 @pytest.fixture()
@@ -15,13 +15,17 @@ def runner():
 def app():
     """Temp workaround while we work on a new CliRunner"""
 
-    class App:
-        name = "nua-build"
+    from nua.build.main import app
 
-        def main(self, *args, **kw):
-            main()
+    return app
 
-    return App()
+    # class App:
+    #     name = "nua-build"
+    #
+    #     def main(self, *args, **kw):
+    #         main()
+    #
+    # return App()
 
 
 def test_version_string():  # noqa
@@ -32,7 +36,6 @@ def test_version_string():  # noqa
 
 def test_version(app, runner):
     result = runner.invoke(app, "--version")
-    debug(result.stdout)
     assert result.exit_code == 0
     assert "nua-build version:" in result.stdout
     assert __version__ in result.stdout

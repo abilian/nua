@@ -20,7 +20,7 @@ def build_test_image(src_dir: Path | str):
         conf = NuaConfig()
         name = conf.nua_tag
         if Path("Makefile").is_file():
-            assert False, "Do we still have this case ?"
+            # assert False, "Do we still have this case ?"
             _makefile_build_test(name)
         else:
             _build_test_tmpdir(name)

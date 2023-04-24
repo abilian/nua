@@ -27,6 +27,9 @@ class BuilderFactory:
 
     config: NuaConfig
 
+    def __post_init__(self) -> None:
+        assert isinstance(self.config, NuaConfig)
+
     def get_builder(self) -> Builder:
         with verbosity(4):
             vprint(pformat(self.config.as_dict()))

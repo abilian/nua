@@ -1,4 +1,4 @@
-"""Script to build a nua package (experimental)
+"""Script to build a nua package
 
 - information come from a mandatory local file: "nua-config" (.toml, .json, .yaml)
 - origin may be a source tar.gz or a git repository or a docker image...
@@ -7,6 +7,7 @@
 Note: **currently use "nua-build ..." for command line**.
 See later if move this to "nua ...".
 """
+import sys
 from typing import Optional
 
 import snoop
@@ -54,15 +55,6 @@ def _version_string() -> None:
     typer.echo(f"nua-build version: {__version__}")
 
 
-# def usage():
-#     _version_string()
-#     typer.echo(
-#         "Usage: nua-build [OPTIONS] COMMAND [ARGS]...\n\n"
-#         "Try 'nua-build --help' for help."
-#     )
-#     raise typer.Exit(0)
-
-
 # @app.callback(invoke_without_command=True)
 @app.command()
 def main(
@@ -73,6 +65,7 @@ def main(
     colorize: bool = option_color,
 ) -> None:
     """Nua-build CLI inferface."""
+
     set_verbosity(verbose)
     set_color(colorize)
 
