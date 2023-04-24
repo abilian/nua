@@ -7,14 +7,8 @@ from time import perf_counter
 import docker
 from nua.agent.nua_config import NuaConfig
 from nua.lib.backports import chdir
-from typer.testing import CliRunner
 
 from nua.build.builders import get_builder
-from nua.build.main import app
-
-runner = CliRunner(mix_stderr=False)
-
-GET_BUilDER_TEST = False
 
 
 def build_test_image(src_dir: Path | str):
@@ -26,6 +20,7 @@ def build_test_image(src_dir: Path | str):
         conf = NuaConfig()
         name = conf.nua_tag
         if Path("Makefile").is_file():
+            assert False, "Do we still have this case ?"
             _makefile_build_test(name)
         else:
             _build_test_tmpdir(name)
@@ -84,22 +79,15 @@ def _build_test(tmpdirname: str, name: str, expect_failure: bool = False):
     # print(f"cwd: {Path.cwd()}")
     # print(os.listdir("."))
     copytree(".", build_dir)
-    dock = docker.from_env()
+    docker_client = docker.from_env()
 
     print("----------------------------------------------")
     print(f"Build {name}")
 
     t0 = perf_counter()
 
-    if GET_BUilDER_TEST:
-        builder = get_builder()
-        builder.run()
-    else:
-        result = runner.invoke(app, ["-vv", str(build_dir)])
-        if expect_failure:
-            assert result.exit_code != 0
-            return
-        assert result.exit_code == 0
+    builder = get_builder()
+    builder.run()
 
     print("elapsed (s):", perf_counter() - t0)
 
@@ -109,18 +97,18 @@ def _build_test(tmpdirname: str, name: str, expect_failure: bool = False):
     # print(" ===================================")
     #
 
-    assert dock.images.list(name)
+    assert docker_client.images.list(name)
 
     print("In the container:")
     # clean previous run if any
-    for previous in dock.containers.list(filters={"ancestor": name}):
+    for previous in docker_client.containers.list(filters={"ancestor": name}):
         previous.kill()
     kwargs = {
         "remove": True,
         "entrypoint": [],
     }
     print(
-        dock.containers.run(name, command="ls -l /nua/metadata/", **kwargs).decode(
-            "utf8"
-        )
+        docker_client.containers.run(
+            name, command="ls -l /nua/metadata/", **kwargs
+        ).decode("utf8")
     )
