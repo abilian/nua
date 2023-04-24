@@ -1,4 +1,4 @@
-"""Script to build a nua package (experimental)
+"""Script to build a nua package
 
 - information come from a mandatory local file: "nua-config" (.toml, .json, .yaml)
 - origin may be a source tar.gz or a git repository or a docker image...
@@ -11,8 +11,10 @@ from typing import Optional
 
 import snoop
 import typer
+
 from nua.lib.panic import Abort
 from nua.lib.tool.state import set_color, set_verbosity
+from nua.agent.nua_config import NuaConfigError
 
 from . import __version__
 from .builders import BuilderError, get_builder
@@ -52,15 +54,6 @@ def _version_string() -> None:
     typer.echo(f"nua-build version: {__version__}")
 
 
-# def usage():
-#     _version_string()
-#     typer.echo(
-#         "Usage: nua-build [OPTIONS] COMMAND [ARGS]...\n\n"
-#         "Try 'nua-build --help' for help."
-#     )
-#     raise typer.Exit(0)
-
-
 # @app.callback(invoke_without_command=True)
 @app.command()
 def main(
@@ -71,10 +64,15 @@ def main(
     colorize: bool = option_color,
 ) -> None:
     """Nua-build CLI inferface."""
+
     set_verbosity(verbose)
     set_color(colorize)
 
-    builder = get_builder(config_file)
+    try:
+        builder = get_builder(config_file)
+    except NuaConfigError as e:
+        raise Abort(e.args[0])
+
     try:
         builder.run()
     except BuilderError as e:

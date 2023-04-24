@@ -1,23 +1,14 @@
-import json
-import os
-import shlex
-import subprocess
 import tempfile
-from pathlib import Path
 
-import tomli
 from cleez import Command
-from cleez.colors import bold, dim
-from cleez.command import Argument
+from cleez.colors import bold
 
 from ..client import get_client
+from ._common import NUA_ENV, NUA_HOST, get_config, sh, ssh
 
 client = get_client()
 
 # Hardcoded for now
-NUA_ENV = "/home/nua/env"
-NUA_HOST = os.environ["NUA_HOST"]
-
 EXCLUDES = [
     ".git",
     ".env",
@@ -77,66 +68,3 @@ class BuildCommand(Command):
 #     else:
 #         subprocess.run(["nua-build"] + verbosity_flags + [path])
 #
-
-
-class DeployCommand(Command):
-    """Deploy app."""
-
-    name = "deploy"
-
-    arguments = [
-        Argument("domain", nargs="?", help="Domain to deploy to."),
-    ]
-
-    def run(self, domain=None):
-        """Deploy all apps."""
-        config = get_config()
-        host = NUA_HOST
-
-        app_id = config["metadata"]["id"]
-        deploy_config = {
-            "site": [
-                {
-                    "image": app_id,
-                    "domain": domain,
-                }
-            ],
-        }
-
-        temp_dir = tempfile.mkdtemp(prefix=f"nua-deploy-{app_id}-", dir="/tmp")  # noqa
-        config_file = Path(temp_dir) / "deploy.json"
-        Path(config_file).write_text(json.dumps(deploy_config, indent=2))
-
-        sh(f"rsync -az --mkpath {config_file} root@{host}:{config_file}")
-        ssh(f"{NUA_ENV}/bin/nua-orchestrator deploy {config_file}", host)
-
-
-#
-# helpers
-#
-def sh(cmd: str, cwd: str = "."):
-    """Run a shell command."""
-    print(dim(f'Running "{cmd}" locally in "{cwd}"...'))
-    args = shlex.split(cmd)
-    try:
-        subprocess.run(args, check=True)
-    except subprocess.CalledProcessError as e:
-        print(f"Command failed: {e.cmd}")
-
-
-def ssh(cmd: str, host: str):
-    """Run a ssh command."""
-    print(dim(f'Running "{cmd}" on server...'))
-    args = shlex.split(cmd)
-    cmd = ["ssh", f"nua@{host}", f"{shlex.join(args)}"]  # type: ignore
-    try:
-        subprocess.run(cmd, check=True)
-    except subprocess.CalledProcessError as e:
-        print(f"Command failed: {e.cmd}")
-
-
-def get_config() -> dict:
-    config_file = Path("nua/nua-config.toml")
-    config_data = config_file.read_text()
-    return tomli.loads(config_data)
-    # return toml.loads(config_data)

@@ -1,8 +1,12 @@
 # Nua Lib
 
-This subproject contains code that is shared between the various Nua subprojects.
+[Nua](https://nua.rocks/) is an open source, self-hosted cloud platform project (a PaaS - platform as a service)
 
-The `nua-lib` code beeing used by `nua-agent`, It should have as little dependencies as possible
+This subproject contains code that is shared between the various [Nua](https://nua.rocks/) subprojects.
+
+It is not intended to be useful outside of Nua, and is not intended to be used as a standalone library.
+
+Since the `nua-lib` code beeing used by `nua-agent`, it should have as little dependencies as possible
 
 ## Content
 

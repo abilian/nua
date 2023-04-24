@@ -100,7 +100,6 @@ def bootstrap_install_postgres() -> bool:
         return False
     install_package_list(
         [f"postgresql-{PG_VERSION}", "libpq-dev"],
-        update=False,
         clean=False,
         keep_lists=True,
     )

@@ -3,11 +3,13 @@ from pathlib import Path
 
 from nua.lib.actions import build_python
 
+from ..auto_install import register_detector
 from .base_detector import BaseDetector
 
 
 class PythonSource(BaseDetector):
-    message = "Python source project"
+    message: str = "Python source project"
+    priority: int = 100
 
     @classmethod
     def detect(cls) -> bool:
@@ -17,4 +19,7 @@ class PythonSource(BaseDetector):
 
     @classmethod
     def install(cls) -> None:
-        build_python(Path("."))
+        build_python(Path("."), "nua")
+
+
+register_detector(PythonSource)

@@ -2,7 +2,7 @@
 import os
 from time import sleep
 
-from nua.lib.panic import show, vprint, vprint_green
+from nua.lib.panic import debug, important, show
 from nua.lib.shell import sh
 from nua.lib.tool.state import verbosity
 
@@ -29,7 +29,7 @@ def nginx_stop():
         show(cmd)
     output = sh(cmd, show_cmd=False, capture_output=True)
     with verbosity(3):
-        vprint(output)
+        debug(output)
     sleep(1)
 
 
@@ -37,7 +37,7 @@ def nginx_restart():
     # assuming some recent ubuntu distribution:
     delay = config.read("host", "nginx_wait_after_restart") or 1
     with verbosity(2):
-        vprint_green("Restart Nginx")
+        important("Restart Nginx")
     cmd = "systemctl restart nginx"
     if os.geteuid() == 0:
         sh(cmd, show_cmd=False)
@@ -52,7 +52,7 @@ def nginx_reload():
         return nginx_restart()
     delay = config.read("host", "nginx_wait_after_restart") or 1
     with verbosity(2):
-        vprint_green("Reload Nginx")
+        important("Reload Nginx")
     cmd = "systemctl reload nginx"
     if os.geteuid() == 0:
         sh(cmd, show_cmd=False)

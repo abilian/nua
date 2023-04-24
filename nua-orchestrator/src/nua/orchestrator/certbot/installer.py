@@ -56,8 +56,8 @@ def _generate_dhparam() -> None:
             "Existing file 'ssl-dhparams.pem' will be used, no dhparam generation."
         )
         return
-    print_magenta("Generating Certbot dhparam (duration: more than 10 minutes...)")
-    cmd = f"openssl dhparam -out {pem_file} 4096"
+    print_magenta("Generating Certbot dhparam")
+    cmd = f"openssl dhparam -dsaparam -out {pem_file} 4096"
     if os.getuid():  # aka not root
         cmd = f"sudo {cmd}"
     output = sh(cmd, timeout=3600, show_cmd=True, capture_output=True)

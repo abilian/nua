@@ -7,14 +7,8 @@ from time import perf_counter
 import docker
 from nua.agent.nua_config import NuaConfig
 from nua.lib.backports import chdir
-from typer.testing import CliRunner
 
 from nua.build.builders import get_builder
-from nua.build.main import app
-
-runner = CliRunner(mix_stderr=False)
-
-GET_BUilDER_TEST = False
 
 
 def build_test_image(src_dir: Path | str):
@@ -26,23 +20,10 @@ def build_test_image(src_dir: Path | str):
         conf = NuaConfig()
         name = conf.nua_tag
         if Path("Makefile").is_file():
+            # assert False, "Do we still have this case ?"
             _makefile_build_test(name)
         else:
             _build_test_tmpdir(name)
-
-
-def build_test_image_expect_fail(src_dir: Path | str):
-    """Build an image and assert failure."""
-    src_path = Path(src_dir)
-    assert src_path.is_dir()
-
-    with chdir(src_path):
-        conf = NuaConfig()
-        name = conf.nua_tag
-        if Path("Makefile").is_file():
-            _makefile_build_test_failure(name)
-        else:
-            _build_test_tmpdir_failure(name)
 
 
 def _makefile_build_test(name):
@@ -52,23 +33,10 @@ def _makefile_build_test(name):
     _run_make("clean")
 
 
-def _makefile_build_test_failure(name):
-    _run_make("build")
-    with chdir("build_dir"):
-        _build_test_tmpdir_failure(name)
-    _run_make("clean")
-
-
 def _build_test_tmpdir(name: str):
     with tempfile.TemporaryDirectory(dir="/tmp") as tmpdirname:
         print("Building in temporary directory", tmpdirname)
         _build_test(tmpdirname, name)
-
-
-def _build_test_tmpdir_failure(name: str):
-    with tempfile.TemporaryDirectory(dir="/tmp") as tmpdirname:
-        print("Building in temporary directory", tmpdirname)
-        _build_test(tmpdirname, name, expect_failure=True)
 
 
 def _run_make(target: str):
@@ -84,22 +52,15 @@ def _build_test(tmpdirname: str, name: str, expect_failure: bool = False):
     # print(f"cwd: {Path.cwd()}")
     # print(os.listdir("."))
     copytree(".", build_dir)
-    dock = docker.from_env()
+    docker_client = docker.from_env()
 
     print("----------------------------------------------")
     print(f"Build {name}")
 
     t0 = perf_counter()
 
-    if GET_BUilDER_TEST:
-        builder = get_builder()
-        builder.run()
-    else:
-        result = runner.invoke(app, ["-vv", str(build_dir)])
-        if expect_failure:
-            assert result.exit_code != 0
-            return
-        assert result.exit_code == 0
+    builder = get_builder()
+    builder.run()
 
     print("elapsed (s):", perf_counter() - t0)
 
@@ -109,18 +70,18 @@ def _build_test(tmpdirname: str, name: str, expect_failure: bool = False):
     # print(" ===================================")
     #
 
-    assert dock.images.list(name)
+    assert docker_client.images.list(name)
 
     print("In the container:")
     # clean previous run if any
-    for previous in dock.containers.list(filters={"ancestor": name}):
+    for previous in docker_client.containers.list(filters={"ancestor": name}):
         previous.kill()
     kwargs = {
         "remove": True,
         "entrypoint": [],
     }
     print(
-        dock.containers.run(name, command="ls -l /nua/metadata/", **kwargs).decode(
-            "utf8"
-        )
+        docker_client.containers.run(
+            name, command="ls -l /nua/metadata/", **kwargs
+        ).decode("utf8")
     )

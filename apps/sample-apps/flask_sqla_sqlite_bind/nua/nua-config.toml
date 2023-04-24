@@ -1,7 +1,7 @@
 [metadata]
 id = "flask-sqla-sqlite-bind"
 version = "1.0"
-release = 4
+release = 5
 title = "Nua test with sqlalchemy, sqlite on bind volume"
 author = "Nua testers"
 tagline = "Nua test with sqlalchemy, sqlite on bind volume"

@@ -1,7 +1,7 @@
 [metadata]
 id = "flask-upload-bind-mount"
 version = "1.0"
-release = 3
+release = 4
 title = "Flask test upload with host local dir (Docker option -v)"
 author = "Nua testers"
 tagline = "Flask test upload with host local dir (Docker option -v)"
