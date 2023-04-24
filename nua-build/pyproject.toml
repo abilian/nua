@@ -20,9 +20,9 @@ nua_test_replace_domain = "nua.build.scripts.test_replace_domain:main"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-nua-lib = "=0.5.11"
-nua-agent = "=0.5.11"
-nua-autobuild = "=0.5.11"
+nua-lib = "=0.5.13"
+nua-agent = "=0.5.13"
+nua-autobuild = "=0.5.13"
 tomli = "^2.0.1"
 pyyaml = "^6"
 snoop = "^0.4.3"
