@@ -5,8 +5,8 @@ test:
 	./runtests.py -v
 
 clean:
-	rm -rf .vagrant apps ssh-config Vagrantfile install.py
 	vagrant --force destroy
+	rm -rf .vagrant apps ssh-config Vagrantfile install.py
 
 
 format:
