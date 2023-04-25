@@ -222,6 +222,192 @@ class AppDeployment:
             return self.merge_add(additional)
         raise RuntimeError("Merge option not implemented")
 
+    def merge_sequential(self, additional: AppDeployment):
+        """Merge a deployment configuration sequentially."""
+        with verbosity(3):
+            debug("Deployment merge sequentially")
+        for app in additional.apps:
+            deploy_strategy = self.evaluate_deploy_strategy(app)
+            method = getattr(self, deploy_strategy)
+            method(app)
+
+    def evaluate_deploy_strategy(self, merged_app: AppInstance) -> str:
+        same_label_app = next(
+            (app for app in self.apps if app.label_id == merged_app.label_id), None
+        )
+        same_domain_app = next(
+            (app for app in self.apps if app.domain == merged_app.domain), None
+        )
+        if same_label_app:
+            return self._deploy_same_label_strategy(
+                merged_app,
+                same_label_app,
+                same_domain_app,
+            )
+        else:
+            if same_domain_app:
+                raise Abort(
+                    f"Domain '{merged_app.domain}' already in use "
+                    f"for another label: {same_domain_app.label}"
+                )
+            # new label on new domain
+            return "deploy_new_app"
+
+    def _deploy_same_label_strategy(
+        self,
+        merged_app: AppInstance,
+        same_label_app: AppInstance,
+        same_domain_app: AppInstance,
+    ) -> str:
+        if same_label_app.domain == merged_app.domain:
+            if same_label_app.app_id == merged_app.app_id:
+                # same app on on same domain
+                return "deploy_update_app"
+            else:
+                # another app on same domain
+                return "deploy_replace_app"
+        else:
+            if merged_app.domain in self.deployed_domains:
+                # but not our domain
+                raise Abort(
+                    f"Domain '{merged_app.domain}' already in use "
+                    f"for another label: {same_domain_app.label}"
+                )
+            else:
+                if same_label_app.app_id == merged_app.app_id:
+                    # same app on another domain
+                    return "deploy_move_domain"
+                else:
+                    # another app on another domain
+                    return "deploy_reuse_label"
+
+    def deploy_new_app(self, app: AppInstance):
+        """Deploy new label and app on new domain"""
+        important(f"Deploy '{app.label}': a new {app.app_id} on '{app.domain}'")
+        self._deploy_new_app(app, load_persistent=False)
+
+    def _deploy_new_app(
+        self,
+        app: AppInstance,
+        load_persistent: bool = False,
+    ):
+        """Deploy an app."""
+        # step 1:
+        app.set_network_name()
+        app.set_resources_names()
+        app.merge_instance_to_resources()
+        for resource in app.resources:
+            resource.configure_db()
+        app.set_volumes_names()
+        for service in app.local_services:
+            if service not in self.available_services:
+                raise Abort(f"Required service '{service}' is not available")
+        if load_persistent:
+            # if really new app, not persistent for now, but some persitent data if
+            # same reusing label
+            self.retrieve_persistent(app)
+        self.evaluate_dynamic_values(app)
+
+        # step 2: ports
+        start_ports = config.read("nua", "ports", "start") or 8100
+        end_ports = config.read("nua", "ports", "end") or 9000
+        allocated_ports = self.configured_ports()
+        ports_instances_domains = store.ports_instances_domains()
+        allocated_ports.update(ports_instances_domains)
+        allocator = port_allocator(start_ports, end_ports, allocated_ports)
+        app.allocate_auto_ports(allocator)
+        for resource in app.resources:
+            resource.allocate_auto_ports(allocator)
+
+        # step 3
+        app.parse_healthcheck()
+        for service in app.local_services:
+            handler = self.available_services[service]
+            if not handler.check_site_configuration(app):
+                raise Abort(
+                    f"Required service '{service}' not configured for "
+                    f"app {app.domain}"
+                )
+        self.store_initial_deployment_state()
+        self.already_deployed_domains = set(self.deployed_domains)
+        self.already_deployed_labels = set(self.deployed_labels)
+        self.apps.append(app)
+        self.sort_apps_per_name_domain()
+        self.deployed_domains = sorted(
+            {apps_dom["hostname"] for apps_dom in self.apps_per_domain}
+        )
+        self.deployed_labels = sorted(a.label_id for a in self.apps)
+        self.merge_nginx_configuration()
+        self.merge_start_apps([app])
+
+    def deploy_update_app(self, app: AppInstance):
+        """Deploy same app on on same domain."""
+        important(f"Deploy '{app.label}': update {app.app_id} on '{app.domain}'")
+        self._deploy_remove_label_domain(app, remove_volumes=False)
+        self.load_deployed_configuration()
+        self._deploy_new_app(app, load_persistent=True)
+
+    def deploy_replace_app(self, merged_app: AppInstance):
+        """Deploy another app on same domain."""
+        same_label_app = next(
+            (app for app in self.apps if app.label_id == merged_app.label_id), None
+        )
+        important(
+            f"Deploy '{merged_app.label}': replace {same_label_app.app_id} "
+            f"by {merged_app.app_id} on '{merged_app.domain}'"
+        )
+        self._deploy_remove_label_domain(merged_app, remove_volumes=True)
+        self.load_deployed_configuration()
+        self._deploy_new_app(merged_app, load_persistent=False)
+
+    def deploy_move_domain(self, merged_app: AppInstance):
+        """Deploy same app on another domain."""
+        same_domain_app = next(
+            (app for app in self.apps if app.domain == merged_app.domain), None
+        )
+        important(
+            f"Deploy '{merged_app.label}': move {merged_app.app_id} "
+            f"from '{same_domain_app.domain}' to '{merged_app.domain}'"
+        )
+        self._deploy_remove_label_domain(same_domain_app, remove_volumes=False)
+        self.load_deployed_configuration()
+        self._deploy_new_app(merged_app, load_persistent=True)
+
+    def deploy_reuse_label(self, merged_app: AppInstance):
+        """Deploy another app on another domain."""
+        same_label_app = next(
+            (app for app in self.apps if app.label_id == merged_app.label_id), None
+        )
+        important(
+            f"Deploy '{merged_app.label}': remove {same_label_app.app_id} and"
+            f"from '{same_label_app.domain}' and\n"
+            f"install {merged_app.app_id} to '{merged_app.domain}'"
+        )
+        # do not keep data:
+        self._deploy_remove_label_domain(same_label_app, remove_volumes=True)
+        self.load_deployed_configuration()
+        self._deploy_new_app(merged_app, load_persistent=True)
+
+    def _deploy_remove_label_domain(
+        self,
+        merged_app: AppInstance,
+        remove_volumes: bool = False,
+    ):
+        # deployed_app = next(
+        #     (a for a in self.apps if a.label_id == merged_app.label_id), None
+        # )
+        domain = merged_app.domain
+        stopping_apps = self.instances_of_domain(domain)
+        self.remove_nginx_configuration(domain)
+        self.stop_deployed_apps(domain, stopping_apps)
+        self.remove_container_and_network(domain, stopping_apps)
+        if remove_volumes:
+            self.remove_managed_volumes(stopping_apps)
+        if verbosity(3):
+            debug("remove_deployed_instance:")
+            debug(" ".join([a.domain for a in stopping_apps]))
+        self.remove_deployed_instance(domain, stopping_apps)
+
     def merge_add(self, additional: AppDeployment):
         """Merge by simple addtion of new domain to list."""
         with verbosity(3):
@@ -509,9 +695,9 @@ class AppDeployment:
     def remove_deployed_instance(self, domain: str, apps: list[AppInstance]):
         """Remove data of stopped app: local managed volumes."""
         with verbosity(1):
-            info(f"Remove app instance of domain '{domain}'.")
-        for site in apps:
-            self.remove_app_instance(site)
+            info(f"Remove app instance of domain '{domain}' from DB.")
+        for app in apps:
+            self.remove_app_instance(app)
 
     def parse_deploy_apps(self):
         """Make the list of AppInstances to be deployed/merged.
