@@ -15,6 +15,8 @@ def cat(filename: str | Path):
 def chown_r(path: str | Path, user: str, group: str | None = None):
     """Apply recursively chown with str arguments.
 
+    Similar to `chown -R`.
+
     example:
         chown_r(document_root, "www-data", "www-data")
     """
@@ -24,16 +26,10 @@ def chown_r(path: str | Path, user: str, group: str | None = None):
     shutil.chown(root, user, group or user)
 
 
-def _dir_chmod_r(root: Path, file_mode: int, dir_mode: int):
-    for subpath in root.rglob(""):
-        if subpath.is_dir():
-            subpath.chmod(dir_mode)
-        else:
-            subpath.chmod(file_mode)
-
-
 def chmod_r(path: str | Path, file_mode: int, dir_mode: int | None = None):
     """Apply recursively chmod with int arguments.
+
+    Similar to `chmod -R` but with int arguments (usually expressed as octal numbers).
 
     example:
         chmod_r(document_root, 0o644, 0o755)
@@ -50,6 +46,15 @@ def chmod_r(path: str | Path, file_mode: int, dir_mode: int | None = None):
         root.chmod(dir_mode)
     else:
         root.chmod(file_mode)
+
+
+# XXX: not used
+def _dir_chmod_r(root: Path, file_mode: int, dir_mode: int):
+    for subpath in root.rglob(""):
+        if subpath.is_dir():
+            subpath.chmod(dir_mode)
+        else:
+            subpath.chmod(file_mode)
 
 
 def echo(text: str, filename: str | Path) -> None:
@@ -137,8 +142,6 @@ def sh(
             raise Abort(msg, status)
     except OSError as e:
         raise Abort(f"Execution failed: {e}\nshell command was: '{cmd}'")
-        # Not used, actually, but silences warnings.
-        raise SystemExit(1)
 
     if capture_output:
         return completed.stdout

@@ -41,9 +41,6 @@ def main():
 
 def get_cli():
     cli = CLI("nua", version=importlib.metadata.version("nua.cli"))
-    # cli.add_option(
-    #     "-h", "--help", default=False, action="store_true", help="Show help and exit"
-    # )
     cli.add_option(
         "-V",
         "--version",
