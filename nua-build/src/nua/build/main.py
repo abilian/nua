@@ -7,10 +7,12 @@
 Note: **currently use "nua-build ..." for command line**.
 See later if move this to "nua ...".
 """
+import traceback
 from typing import Optional
 
 import snoop
 import typer
+from cleez.colors import red
 
 from nua.lib.panic import Abort
 from nua.lib.tool.state import set_color, set_verbosity
@@ -71,9 +73,11 @@ def main(
     try:
         builder = get_builder(config_file)
     except NuaConfigError as e:
-        raise Abort(e.args[0])
+        print(red("Configuration error: " + e.args[0]))
+        raise Abort(status=1) from e
 
     try:
         builder.run()
     except BuilderError as e:
+        print(red("Build error: " + e.args[0]))
         raise Abort from e
