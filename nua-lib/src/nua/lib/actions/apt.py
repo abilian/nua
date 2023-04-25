@@ -14,6 +14,7 @@ def install_build_packages(
     keep_lists: bool = False,
     installed: Iterable[str] | None = None,
 ):
+    """Install packages needed for building a project."""
     success = True
     if installed:
         already = set(installed)
@@ -63,23 +64,25 @@ def apt_final_clean():
 
 
 def _install_packages(packages: list):
-    if packages:
-        environ = os.environ.copy()
-        environ["DEBIAN_FRONTEND"] = "noninteractive"
-        if not packages_updated():
-            cmd = "apt-get update --fix-missing; "
-        else:
-            cmd = ""
-        cmd += f"apt-get install --no-install-recommends -y {' '.join(packages)}"
-        sh(cmd, env=environ, timeout=LONG_TIMEOUT)
-        set_packages_updated(True)
-    else:
+    if not packages:
         warning("install_package(): nothing to install")
+        return
+
+    environ = os.environ.copy()
+    environ["DEBIAN_FRONTEND"] = "noninteractive"
+    if not packages_updated():
+        cmd = "apt-get update --fix-missing; "
+    else:
+        cmd = ""
+    cmd += f"apt-get install --no-install-recommends -y {' '.join(packages)}"
+    sh(cmd, env=environ, timeout=LONG_TIMEOUT)
+    set_packages_updated(True)
 
 
 def _purge_packages(packages: list):
     if not packages:
         return
+
     print(f"Purge packages: {' '.join(packages)}")
     environ = os.environ.copy()
     environ["DEBIAN_FRONTEND"] = "noninteractive"

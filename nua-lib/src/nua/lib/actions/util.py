@@ -22,6 +22,7 @@ from ..unarchiver import unarchive
 
 
 def _glob_extended(packages: list):
+    """Expand glob patterns in a list of packages."""
     extended = []
     for package in packages:
         if not package:
@@ -44,6 +45,7 @@ def download_extract(
     dest_name: str,
     checksum: str = "",
 ) -> Path:
+    """Download and extract a file from a URL."""
     name = Path(url).name
     with verbosity(2):
         print("Download URL:", url)
@@ -106,6 +108,7 @@ def is_local_dir(project: str) -> bool:
 # String and replacement utils
 #
 def set_php_ini_keys(replacements: dict, path: str | Path):
+    """Set keys in a php.ini file."""
     path = Path(path)
     content = path.read_text()
     for key, value in replacements.items():
@@ -114,6 +117,7 @@ def set_php_ini_keys(replacements: dict, path: str | Path):
 
 
 def replace_in(file_pattern: str, string_pattern: str, replacement: str):
+    """Replace a string in a set of files, defined by a glob pattern."""
     with verbosity(2):
         show(f"replace_in() '{string_pattern}' by '{replacement}'")
     counter = 0
@@ -147,6 +151,7 @@ def string_in(file_pattern: str, string_pattern: str) -> list:
 
 
 def environ_replace_in(str_path: str | Path, env: dict | None = None):
+    """Replace environment variables in a file."""
     path = Path(str_path)
     if not path.is_file():
         return
@@ -167,6 +172,7 @@ def environ_replace_in(str_path: str | Path, env: dict | None = None):
 
 
 def append_bashrc(home: str | Path, content: str):
+    """Append content to the bashrc file."""
     path = Path(home) / ".bashrc"
     if not path.is_file():
         raise FileNotFoundError(path)
@@ -176,6 +182,7 @@ def append_bashrc(home: str | Path, content: str):
 
 
 def jinja2_render_file(template: str | Path, dest: str | Path, data: dict) -> bool:
+    """Render a Jinja2 template file."""
     template_path = Path(template)
     if not template_path.is_file():
         raise FileNotFoundError(template_path)
@@ -192,6 +199,7 @@ def jinja2_render_file(template: str | Path, dest: str | Path, data: dict) -> bo
 def jinja2_render_from_str_template(
     template: str, dest: str | Path, data: dict
 ) -> bool:
+    """Render a Jinja2 template from a string."""
     dest_path = Path(dest)
     j2_template = Template(template, keep_trailing_newline=True)
     dest_path.write_text(j2_template.render(data), encoding="utf8")
@@ -201,10 +209,18 @@ def jinja2_render_from_str_template(
 
 
 def snake_format(name: str) -> str:
+    """Convert a string to snake_case format.
+    >>> snake_format("my-project")
+    'my_project'
+    """
     return "_".join(word.lower() for word in name.replace("-", "_").split("_"))
 
 
 def camel_format(name: str) -> str:
+    """Convert a string to CamelCase format.
+    >>> camel_format("my-project")
+    'MyProject'
+    """
     return "".join(word.title() for word in name.replace("-", "_").split("_"))
 
 
@@ -214,6 +230,7 @@ def copy_from_package(
     destdir: Path,
     destname: str = "",
 ):
+    """Copy a file from a package to a destination directory."""
     content = rso.files(package).joinpath(filename).read_text(encoding="utf8")
     if destname:
         target = destdir / destname

@@ -8,12 +8,14 @@ from .util import append_bashrc
 
 
 def npm_install(package: str, force: bool = False) -> None:
+    """Install a node package globally."""
     opt = " --force" if force else ""
     cmd = f"/usr/bin/npm install -g{opt} {package}"
     sh(cmd)
 
 
 def install_nodejs(version: str = "16.x", keep_lists: bool = False):
+    """Install nodejs."""
     purge_package_list("yarn npm nodejs")
     url = f"https://deb.nodesource.com/setup_{version}"
     target = Path("/nua") / "install_node.sh"
@@ -32,7 +34,7 @@ def install_nodejs(version: str = "16.x", keep_lists: bool = False):
 
 
 def install_nodejs_via_nvm(home: Path | str = "/nua"):
-    """Install nodejs (versions recommaended for Frappe/ERPNext)."""
+    """Install nodejs via nvm."""
     node_version_14 = "14.19.3"
     node_version = "16.18.0"
     # nvm_version = "v0.39.0"

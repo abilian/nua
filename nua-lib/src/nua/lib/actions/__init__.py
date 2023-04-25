@@ -16,6 +16,7 @@ from .python import (
     pip_install,
     python_package_installed,
 )
+from .ruby import install_ruby
 from .util import (
     camel_format,
     copy_from_package,
@@ -43,6 +44,7 @@ __all__ = [
     "install_package_list",
     "install_packages",
     "install_pip_packages",
+    "install_ruby",
     "install_source",
     "installed_packages",
     "jinja2_render_file",

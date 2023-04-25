@@ -23,6 +23,8 @@ from .util import _glob_extended
 # Builder for Python projects
 #
 def build_python(path: str | Path = "", user: str = ""):
+    """Build a python project from source."""
+
     root = Path(path).expanduser().resolve()
     requirements = root / "requirements.txt"
     pyproject = root / "pyproject.toml"
@@ -40,6 +42,8 @@ def build_python(path: str | Path = "", user: str = ""):
 
 
 def install_python(version: str = "3.10", venv: str = "", keep_lists: bool = False):
+    """Install a Python version and create a virtual environment."""
+
     PY_UBUNTU = {"2.7", "3.10"}
     PY_DEADSNAKES = {"3.7", "3.8", "3.9", "3.11"}
     if version not in PY_UBUNTU and version not in PY_DEADSNAKES:
@@ -102,11 +106,13 @@ def _make_python_venv_27(venv: str):
 
 @contextmanager
 def python_venv(venv: str):
+    """Activate a Python virtual environment."""
     orig_env = dict(os.environ)
     os.environ["VIRTUAL_ENV"] = venv
     os.environ["PATH"] = f"{venv}/bin:{orig_env['PATH']}"
     with verbosity(2):
         print(f"Using Python venv: '{venv}'")
+
     try:
         yield
     finally:

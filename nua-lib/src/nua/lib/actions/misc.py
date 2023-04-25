@@ -9,6 +9,7 @@ from .util import download_extract, is_local_dir
 
 
 def install_meta_packages(packages: list, keep_lists: bool = False):
+    """Install meta packages."""
     if "psycopg2" in packages or "postgres-client" in packages:
         info("install meta package: psycopg2")
         install_psycopg2_python(keep_lists=keep_lists)
@@ -18,6 +19,11 @@ def install_meta_packages(packages: list, keep_lists: bool = False):
 
 
 def compile_openssl_1_1() -> str:
+    """Compile OpenSSL 1.1.x.
+
+    Returns:
+        str: The path to the compiled OpenSSL.
+    """
     soft = "openssl-1.1.1g"
     info(f"Compiling {soft}")
     dest = f"/nua/.openssl/{soft}"
@@ -43,7 +49,7 @@ def compile_openssl_1_1() -> str:
 
 
 def install_mariadb_1_1_5(keep_lists=True):
-    """Connector for MariaDB, since version 1.1.5post3."""
+    """Python connector for MariaDB, since version 1.1.5post3."""
     install_package_list("libmariadb3 mariadb-client", keep_lists=keep_lists)
     with tmp_install_package_list(
         "libmariadb-dev python3-dev build-essential", keep_lists=True
@@ -52,7 +58,7 @@ def install_mariadb_1_1_5(keep_lists=True):
 
 
 def install_psycopg2_python(keep_lists: bool = True):
-    """Connector for PostgreSQL."""
+    """Python connector for PostgreSQL."""
     install_package_list(["libpq-dev"], keep_lists=keep_lists)
     pip_install("psycopg2-binary")
 
@@ -79,7 +85,7 @@ def install_git_source(
     dest_dir: str | Path,
     name: str,
 ) -> Path:
-    """Git clone a remote repository."""
+    """Install a project from git source."""
     if dest_dir:
         path = Path(dest_dir).resolve()
     else:
