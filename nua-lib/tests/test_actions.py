@@ -2,7 +2,6 @@ import tempfile
 from pathlib import Path
 
 from nua.lib import actions
-from nua.lib.actions import python_package_installed
 
 
 def test_actions_replace():  # noqa
@@ -22,8 +21,8 @@ def test_actions_replace():  # noqa
 
 
 def test_python_package_installed():
-    assert python_package_installed("pip")
-    assert not python_package_installed("uqwoiuei")
+    assert actions.python_package_installed("pip")
+    assert not actions.python_package_installed("uqwoiuei")
 
 
 def test_check_python_version():

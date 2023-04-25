@@ -7,7 +7,6 @@
 Note: **currently use "nua-build ..." for command line**.
 See later if move this to "nua ...".
 """
-import traceback
 from typing import Optional
 
 import snoop
