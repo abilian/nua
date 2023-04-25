@@ -146,9 +146,7 @@ class TestRunner:
                 config_file = app_dir / "nua" / "nua-config.toml"
             app_id = toml.load(config_file)["metadata"]["id"]
             domain = f"test{i}.tests.nua.rocks"
-            ssh(
-                f"python3 /vagrant/deploy-app.py {app_id} {domain}", user="nua"
-            )
+            ssh(f"python3 /vagrant/deploy-app.py {app_id} {domain}", user="nua")
 
 
 @dataclass(frozen=True)
