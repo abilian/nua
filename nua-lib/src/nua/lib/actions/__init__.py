@@ -21,10 +21,10 @@ from .util import (
     download_extract,
     jinja2_render_file,
     jinja2_render_from_str_template,
+    replace_in,
     snake_format,
-    string_in, replace_in,
+    string_in,
 )
-
 
 __all__ = [
     "apt_final_clean",
