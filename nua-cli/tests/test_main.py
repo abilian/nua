@@ -1,35 +1,35 @@
-# import pytest
-#
-# from nua_cli.main import cli
+import pytest
+from cleez.testing import CliRunner
 
-# from typer.testing import CliRunner
-
-
-# @pytest.fixture()
-# def runner():
-#     return CliRunner()
+from nua_cli.main import get_cli
 
 
-def test_phony():
-    pass
+@pytest.fixture()
+def runner():
+    return CliRunner()
 
 
-# TODO: make a test runner
+@pytest.fixture()
+def cli():
+    return get_cli()
 
-# def test_version(runner):
-#     result = runner.invoke(cli, "--version")
-#     assert result.exit_code == 0
-#     assert "Nua CLI version:" in result.stdout
-#
-#
-# def test_bad_arg(runner):
-#     result = runner.invoke(cli, "bad_arg")
-#     assert result.exit_code != 0
-#
-#
-# def test_verbose(runner):
-#     result = runner.invoke(cli, "--verbose")
-#     assert result.exit_code != 0
-#
-#     result = runner.invoke(cli, "-v")
-#     assert result.exit_code != 0
+
+def test_version(cli, runner):
+    cli.run()
+
+    result = runner.invoke(cli, "--version")
+    assert result.exit_code == 0
+    assert "Nua CLI version:" in result.stdout
+
+
+def test_bad_arg(cli, runner):
+    result = runner.invoke(cli, "bad_arg")
+    assert result.exit_code != 0
+
+
+def test_verbose(cli, runner):
+    result = runner.invoke(cli, "--verbose")
+    assert result.exit_code != 0
+
+    result = runner.invoke(cli, "-v")
+    assert result.exit_code != 0
