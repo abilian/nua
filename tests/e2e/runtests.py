@@ -10,7 +10,6 @@ from pathlib import Path
 
 import toml
 from cleez.colors import bold, dim, green, red
-from snoop import pp
 
 BOXES = {
     "x86_64": "generic/ubuntu2204",
@@ -182,7 +181,7 @@ def sh(cmd: str, cwd: str = "", capture=False, **kw) -> subprocess.CompletedProc
     return subprocess.run(cmd, **opts)
 
 
-def ssh(cmd: str, user="vagrant") -> subprocess.CompletedProcess:
+def ssh(cmd: str, user="vagrant", check=True) -> subprocess.CompletedProcess:
     """Run a ssh command."""
     if user == "vagrant":
         print(dim(f'Running "{cmd}" on vagrant...'))
@@ -191,7 +190,7 @@ def ssh(cmd: str, user="vagrant") -> subprocess.CompletedProcess:
 
     # args = shlex.split(cmd)
     cmd = ["ssh", "-F", "ssh-config", f"{user}@default", cmd]  # type: ignore
-    return subprocess.run(cmd, check=True)
+    return subprocess.run(cmd, check=check)
 
 
 #
@@ -227,7 +226,6 @@ class Config:
 
 
 def get_config(args):
-    # _config = toml.load("config.toml")
     return Config.from_args(args)
 
 
@@ -235,6 +233,5 @@ if __name__ == "__main__":
     parser = make_parser()
     args = parser.parse_args()
     config = get_config(args)
-    pp(config)
     test_runner = TestRunner(config)
     test_runner.run()
