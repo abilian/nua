@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 from pprint import pformat
+from typing import Any
 
 from nua.agent.nua_config import NuaConfig
 from nua.lib.panic import info, vprint
@@ -26,7 +27,7 @@ class BuilderFactory:
     """Factory to create a Builder instance."""
 
     config: NuaConfig
-    opts: dict[str] = field(default_factory=dict)
+    opts: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         assert isinstance(self.config, NuaConfig)
