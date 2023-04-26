@@ -34,3 +34,22 @@ For a few complex tasks, we also provide a `tasks.py` file, which can be used wi
 ### Abilian DevTools
 
 Nua uses [Abilian DevTools](https://pypi.org/project/abilian-devtools/) to manage its QA process.
+
+## Release process
+
+To release a new version on PyPI:
+
+1. Run `invoke bump-version` from the main branch. (`invoke bump-version minor` for a minor release, `invoke bump-version major` for a major release)
+
+2. Commit the changes, and push them to the main branch.
+
+3. Run `invoke release`. This will, among other things:
+
+    - Merge the main branch into the release branch.
+    - Replace relative packages paths with PyPI package names.
+    - Replace `nua-cli` by `nua`
+    - Apply the proper tag
+    - Build and publish the package on PyPI.
+    - Build and publish the documentation on GitHub Pages.
+
+The `main` -> `release` merge may fail. In this case, fix the conflicts, commit and push the changes, checkout `main` again then run `invoke release` again. This should work eventually.
