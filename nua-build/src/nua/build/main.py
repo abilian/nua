@@ -9,15 +9,15 @@ See later if move this to "nua ...".
 """
 import argparse
 import sys
-import time
 import traceback
+from time import perf_counter
 
 import snoop
 from cleez.actions import VERSION
-
+from nua.agent.nua_config import NuaConfigError
+from nua.lib.elapsed import elapsed
 from nua.lib.panic import Abort
 from nua.lib.tool.state import set_color, set_verbosity
-from nua.agent.nua_config import NuaConfigError
 
 from . import __version__
 from .builders import BuilderError, get_builder
@@ -26,7 +26,7 @@ snoop.install()
 
 
 def main():
-    t0 = time.time()
+    t0 = perf_counter()
 
     parser = argparse.ArgumentParser()
 
@@ -89,8 +89,8 @@ def main():
         raise Abort from e
 
     if args.time or args.verbose >= 1:
-        t1 = time.time()
-        print(f"Build time (clock): {t1 - t0:.2f} seconds")
+        t1 = perf_counter()
+        print(f"Build time (clock): {elapsed(t1-t0)}")
 
 
 # Backwards compatibility
