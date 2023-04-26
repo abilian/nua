@@ -12,6 +12,7 @@ STATE = {
 
 
 def set_verbosity(value: int):
+    assert isinstance(value, int)
     STATE["verbose"] = value
 
 
@@ -20,6 +21,7 @@ def verbosity_level() -> int:
 
 
 def set_color(flag: bool):
+    assert isinstance(flag, bool)
     STATE["colorize"] = flag
     if flag:
         os.environ.pop("NO_COLOR", None)

@@ -28,6 +28,9 @@ class BuilderFactory:
     config: NuaConfig
     opts: dict[str] = field(default_factory=dict)
 
+    def __post_init__(self) -> None:
+        assert isinstance(self.config, NuaConfig)
+
     def get_builder(self) -> Builder:
         with verbosity(4):
             vprint(pformat(self.config.as_dict()))

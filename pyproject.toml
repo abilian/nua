@@ -23,6 +23,8 @@ nua-build = { path = "nua-build", develop = true }
 nua-orchestrator = { path = "nua-orchestrator", develop = true }
 nua-server = { path = "nua-server", develop = true }
 
+# Pinned for some reason
+
 
 [tool.poetry.group.dev.dependencies]
 # Testing / checking / QA tools

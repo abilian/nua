@@ -27,8 +27,8 @@ nua-autobuild = { path = "../nua-autobuild/", develop = true }
 tomli = "^2.0.1"
 
 # CLI and text ui
-cleez = "^0.1.3"
 snoop = "^0.4.3"
+cleez = "^0.1.8"
 
 # Docker client
 docker = {version = "^6.0.1", extras = ["ssh"]}
@@ -43,6 +43,7 @@ types-pyyaml = "*"
 
 # To please poetry
 platformdirs = "<3.0.0"
+devtools = "^0.11.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

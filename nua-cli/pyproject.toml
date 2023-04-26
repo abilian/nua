@@ -24,7 +24,7 @@ snoop = "*"
 
 # typer = "^0.7.0"
 termcolor = "^2.2.0"
-cleez = "*"
+cleez = "^0.1.7"
 
 # cleez = {git = "https://github.com/abilian/cleez"}
 

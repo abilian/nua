@@ -29,26 +29,24 @@ import importlib.metadata
 
 import snoop
 from cleez import CLI
+from cleez.actions import VERSION
 
 snoop.install()
 
 
-# Quick hack for now
-class MyCli(CLI):
-    def get_version(self):
-        return importlib.metadata.version("nua.cli")
-
-
 def main():
-    cli = MyCli("nua")
-    cli.add_option(
-        "-h", "--help", default=False, action="store_true", help="Show help and exit"
-    )
+    cli = get_cli()
+    cli.run()
+
+
+def get_cli():
+    cli = CLI("nua", version=importlib.metadata.version("nua.cli"))
     cli.add_option(
         "-V",
         "--version",
+        action=VERSION,
+        version=cli.version,
         default=False,
-        action="store_true",
         help="Show version and exit",
     )
     cli.add_option(
@@ -58,7 +56,7 @@ def main():
         "-v", "--verbose", default=False, action="store_true", help="Increase verbosity"
     )
     cli.scan("nua_cli.commands")
-    cli.run()
+    return cli
 
 
 if __name__ == "__main__":
