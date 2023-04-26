@@ -20,6 +20,8 @@ STAGES = ["prepare", "install", "build", "deploy"]
 
 def main(stages: list[str], verbosity: int = 1):
     v_flag = verbosity * "-v"
+    if stages == ["all"]:
+        stages = STAGES
 
     if "prepare" in stages:
         print(bold("Preparing Vagrant VM and testing environment..."))
@@ -136,7 +138,7 @@ def deploy_apps(v_flag):
             config_file = app_dir / "nua" / "nua-config.toml"
         app_id = toml.load(config_file)["metadata"]["id"]
         domain = f"test{i}.tests.nua.rocks"
-        result = ssh(f"python3 /vagrant/deploy-app.py {app_id} {domain}", user="nua")
+        ssh(f"python3 /vagrant/deploy-app.py {app_id} {domain}", user="nua")
 
     # succesful_results = [r for r in build_results if r.success]
     # for i, result in enumerate(succesful_results):
@@ -207,6 +209,8 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "stages",
+        nargs="*",
+        default=["all"],
         help=f"Stages to run ({', '.join(STAGES)}). Default: all stages",
     )
     args = parser.parse_args()

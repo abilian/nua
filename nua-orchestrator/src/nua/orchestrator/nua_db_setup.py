@@ -87,6 +87,7 @@ def setup_first_launch():
             f"First launch: set Nua defaults in '{config.read('nua', 'db', 'url')}'"
         )
         return set_default_settings()
+
     installed_version = settings.get("version", "")
     if installed_version == __version__:
         return set_db_url_in_settings(settings)

@@ -17,7 +17,7 @@ tomli = "^2.0.1"
 fabric = "^3.0.0"
 snoop = "*"
 termcolor = "^2.2.0"
-cleez = "*"
+cleez = "^0.1.7"
 
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"

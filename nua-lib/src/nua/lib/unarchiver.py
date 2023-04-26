@@ -1,9 +1,10 @@
+import abc
 import tarfile
 from pathlib import Path
 from zipfile import ZipFile
 
 
-class Unarchiver:
+class Unarchiver(abc.ABC):
     """ABC for unarchivers."""
 
     accepted_suffixes: list[str] = []
@@ -17,6 +18,7 @@ class Unarchiver:
         return False
 
     @classmethod
+    @abc.abstractmethod
     def extract(cls, src: str, dest_dir: str) -> None:
         raise NotImplementedError()
 

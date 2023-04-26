@@ -111,8 +111,3 @@ tidy: clean
 update-deps:
 	pip install -U pip setuptools wheel
 	poetry update
-
-#publish: clean
-#	git push --tags
-#	poetry build
-#	twine upload dist/*

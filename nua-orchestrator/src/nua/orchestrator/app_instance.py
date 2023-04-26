@@ -6,7 +6,7 @@ from pprint import pformat
 
 from nua.agent.nua_config import hyphen_get
 from nua.agent.nua_tag import nua_tag_string
-from nua.lib.panic import Abort, info, vprint, warning
+from nua.lib.panic import Abort, debug, info, warning
 from nua.lib.tool.state import verbosity
 
 from .db.model.instance import STOPPED
@@ -20,7 +20,6 @@ from .port_normalization import (
 from .resource import Resource
 from .resource_deps import ResourceDeps
 from .search_cmd import search_nua
-from .utils import sanitized_name
 from .volume import Volume
 
 
@@ -50,7 +49,7 @@ class AppInstance(Resource):
         self._nomalize_env_values()
         self._normalize_ports()
         self._normalize_domain()
-        self._set_instance_name()
+        self._set_label_id()
 
     @property
     def resources(self) -> list:
@@ -74,12 +73,12 @@ class AppInstance(Resource):
         self["image_nua_config"] = image_nua_config
 
     @property
-    def instance_name_internal(self) -> str:
-        return self["instance_name_internal"]
+    def label_id(self) -> str:
+        return self["label_id"]
 
     @property
-    def instance_name_user(self) -> str:
-        return self["instance_name_user"]
+    def label(self) -> str:
+        return self["label"]
 
     @property
     def top_domain(self) -> str:
@@ -129,10 +128,11 @@ class AppInstance(Resource):
     @property
     def container_name(self) -> str:
         # override the method of Resource
-        suffix = DomainSplit(self.domain).container_suffix()
-        name = sanitized_name(f"{self.nua_dash_name}-{suffix}")
-        self["container_name"] = name
-        return name
+        # suffix = DomainSplit(self.domain).container_suffix()
+        # name = sanitized_name(f"{self.nua_dash_name}-{suffix}")
+        # self["container_name"] = name
+        # return name
+        return f"{self.label_id}-{self.app_id}"
 
     @property
     def running_status(self) -> str:
@@ -169,7 +169,13 @@ class AppInstance(Resource):
         self._parse_healthcheck(self.image_nua_config.get("healthcheck", {}))
 
     def set_volumes_names(self):
-        suffix = DomainSplit(self.domain).container_suffix()
+        # suffix = DomainSplit(self.domain).container_suffix()
+        # self.volume = [Volume.update_name_dict(v, suffix) for v in self.volume]
+        # for resource in self.resources:
+        #     resource.volume = [
+        #         Volume.update_name_dict(v, suffix) for v in resource.volume
+        #     ]
+        suffix = self.label_id
         self.volume = [Volume.update_name_dict(v, suffix) for v in self.volume]
         for resource in self.resources:
             resource.volume = [
@@ -195,7 +201,7 @@ class AppInstance(Resource):
             for resource in self.resources:
                 resource.network_name = self.network_name
             with verbosity(4):
-                vprint("detect_required_network() network_name =", self.network_name)
+                debug("detect_required_network() network_name =", self.network_name)
 
     def resource_per_name(self, name: str) -> Resource | None:
         for resource in self.resources:
@@ -262,7 +268,7 @@ class AppInstance(Resource):
         ]
         resources = [res for res in resources if res]
         with verbosity(3):
-            vprint(f"Image resources: {pformat(resources)}")
+            debug(f"Image resources: {pformat(resources)}")
         self.resources = resources
 
     def _parse_resource(self, declaration: dict) -> Resource | None:
@@ -284,20 +290,28 @@ class AppInstance(Resource):
         self.domain = dom.full_path()
         self.top_domain = dom.top_domain()
 
-    def _set_instance_name(self):
-        name = hyphen_get(self, "instance-name") or ""
-        if not "_".join(name.split()):
-            name = self.default_instance_name()
+    def _set_label_id(self):
+        label = hyphen_get(self, "label") or ""
+        if not "_".join(label.split()):
+            label = self.default_label()
             with verbosity(0):
-                info(f"Instance name not provided, using default: '{name}'")
-        self.set_instance_name(name)
+                info(f"Label not provided, using default: '{label}'")
+        self.set_instance_label(label)
 
-    def set_instance_name(self, name: str):
-        name_internal = "_".join(name.split())
-        if not name_internal:
-            raise ValueError("Empty name instance is not allowed")
-        self["instance_name_internal"] = name_internal
-        self["instance_name_user"] = name.strip()
+    def default_label(self):
+        """Return a label based on app id and domain.
+
+        To use when the user does not provide an app label or as default
+        value.
+        """
+        return f"{self.image_short}-{self.domain}"
+
+    def set_instance_label(self, label: str):
+        label_id = "_".join(label.split())
+        if not label_id:
+            raise ValueError("Empty label is not allowed")
+        self["label_id"] = label_id
+        self["label"] = label.strip()
 
     def rebase_volumes_upon_nua_conf(self):
         self.volume = self.rebased_volumes_upon_package_conf(self.image_nua_config)
@@ -310,7 +324,7 @@ class AppInstance(Resource):
         base_ports = normalize_ports_list(ports_as_list(nua_config_ports))
         self.port_list = rebase_ports_on_defaults(base_ports, self.port_list)
         with verbosity(4):
-            vprint(f"rebase_ports_upon_nua_config(): ports={pformat(self.port_list)}")
+            debug(f"rebase_ports_upon_nua_config(): ports={pformat(self.port_list)}")
 
     def find_registry_path(self, cached: bool = False) -> bool:
         # list of images sorted by version:
@@ -342,11 +356,3 @@ class AppInstance(Resource):
                 # docker resources are only visible from bridge network, so use
                 # the container name as hostname
                 resource.hostname = name
-
-    def default_instance_name(self):
-        """Return a name based on app id and domain.
-
-        To use when the user does not provide an app name or as default
-        value.
-        """
-        return f"{self.image_short}-{self.domain}"

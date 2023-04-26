@@ -55,7 +55,7 @@ class DockerWrapBuilder(Builder):
         docker_file.write_text(content, encoding="utf8")
 
     @docker_build_log_error
-    def build_wrap_with_docker_stream(self, save: bool = True):
+    def build_wrap_with_docker_stream(self):
         with chdir(self.build_dir):
             nua_tag = self.config.nua_tag
             buildargs = {
@@ -72,7 +72,7 @@ class DockerWrapBuilder(Builder):
             with verbosity(1):
                 display_docker_img(nua_tag)
 
-            if save:
-                client = docker.from_env(timeout=CLIENT_TIMEOUT)
-                image = client.images.get(image_id)
-                self.save(image, nua_tag)
+        if self.save_image:
+            client = docker.from_env(timeout=CLIENT_TIMEOUT)
+            image = client.images.get(image_id)
+            self.save(image, nua_tag)
