@@ -1214,10 +1214,10 @@ class AppDeployment:
 
     def display_deployed_apps(self):
         if not self.apps:
-            show("No app deployed.")
+            important("No app deployed.")
             return
 
-        show("Deployed apps:")
+        important("Deployed apps:")
         protocol = protocol_prefix()
         for app in self.apps:
             msg = f"Label: {app.label_id}"
