@@ -21,6 +21,7 @@ from nua.lib.panic import (
     info,
     red_line,
     show,
+    vprint,
     warning,
 )
 from nua.lib.tool.state import verbosity
@@ -531,11 +532,11 @@ class AppDeployment:
         for host in self.apps_per_domain:
             hostname = host["hostname"]
             with verbosity(3):
-                print(f"merge_nginx_configuration for {hostname}")
+                debug(f"merge_nginx_configuration for {hostname}")
 
             if hostname in self.already_deployed_domains:
                 with verbosity(3):
-                    print("continue, already_deployed_domains")
+                    debug("continue, already_deployed_domains")
                 continue
             with verbosity(1):
                 info(f"Configure Nginx for domain '{hostname}'")
@@ -1216,7 +1217,7 @@ class AppDeployment:
             msg = f"Deployment status: {app.running_status}"
             info(msg)
             self.display_persistent_data(app)
-        print()
+        vprint("")
 
     def display_persistent_data(self, app: AppInstance):
         with verbosity(3):
