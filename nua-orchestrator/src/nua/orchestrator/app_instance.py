@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import string
 from copy import deepcopy
 from pathlib import Path
 from pprint import pformat
@@ -306,8 +307,30 @@ class AppInstance(Resource):
         """
         return f"{self.image_short}-{self.domain}"
 
+    @staticmethod
+    def docker_sanitized_name(name: str) -> str:
+        """Docker valid name.
+
+        https://docs.docker.com/engine/reference/commandline/
+        tag/#extended-description
+        """
+        # first replace spaces per underscores
+        content = "_".join(name.split())
+        # then apply docjer rules
+        allowed = set(string.ascii_lowercase + string.digits + ".-_")
+        content = "".join([c for c in content.strip().lower() if c in allowed])
+        while ("___") in content:
+            content.replace("___", "__")
+        for sep in ".-_":
+            while content.startswith(sep):
+                content = content[1:]
+            while content.endswith(sep):
+                content = content[:-1]
+        content = content[:128]
+        return content
+
     def set_instance_label(self, label: str):
-        label_id = "_".join(label.split())
+        label_id = self.docker_sanitized_name(label)
         if not label_id:
             raise ValueError("Empty label is not allowed")
         self["label_id"] = label_id

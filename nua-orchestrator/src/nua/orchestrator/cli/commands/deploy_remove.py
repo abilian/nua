@@ -28,15 +28,21 @@ def _deactivate_installed_apps():
 def remove_nua_domain(domain: str):
     """Remove some deployed app instance, erasing its data and container.
 
-    WIP: at the moment requires identification of the instance per domain name.
+    Deprecated: requires identification of the instance per domain name.
     """
     deployer = AppDeployment()
     stopping_apps = deployer.instances_of_domain(domain)
     deployer.remove_nginx_configuration(domain)
-    deployer.stop_deployed_apps(domain, stopping_apps)
-    deployer.remove_container_and_network(domain, stopping_apps)
-    deployer.remove_managed_volumes(stopping_apps)
-    deployer.remove_deployed_instance(domain, stopping_apps)
+    deployer.remove_app_list(stopping_apps)
+    deployer.post_deployment()
+
+
+def remove_nua_label(label: str):
+    """Remove some deployed app instance, erasing its data and container."""
+    deployer = AppDeployment()
+    removed_app = deployer.instance_of_label(label)
+    deployer.remove_nginx_configuration(removed_app.domain)
+    deployer.remove_app_list([removed_app])
     deployer.post_deployment()
 
 
