@@ -49,5 +49,5 @@ def deploy_merge_nua_app(merge_config: str):
     additional.local_services_inventory()
     additional.load_deploy_config(merge_config)
     additional.gather_requirements()
-    deployer.merge(additional)
+    deployer.merge_sequential(additional)
     deployer.post_deployment()

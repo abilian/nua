@@ -13,15 +13,14 @@ from pathlib import Path
 from pprint import pformat
 from typing import Any
 
-from nua.lib.console import print_green, print_red
 from nua.lib.panic import (
     Abort,
     bold_debug,
     debug,
     important,
     info,
+    red_line,
     show,
-    vprint,
     warning,
 )
 from nua.lib.tool.state import verbosity
@@ -98,6 +97,8 @@ class AppDeployment:
         self.apps_per_domain = []
         self.deployed_domains = []
         self.already_deployed_domains = set()
+        self.deployed_labels = []
+        self.already_deployed_labels = set()
         self.required_services = set()
         self.available_services = {}
         self.orig_mounted_volumes = []
@@ -183,8 +184,9 @@ class AppDeployment:
         self.parse_deploy_apps()
         self.sort_apps_per_name_domain()
         self.deployed_domains = sorted(
-            {apps_dom["hostname"] for apps_dom in self.apps_per_domain}
+            {apps["hostname"] for apps in self.apps_per_domain}
         )
+        self.deployed_labels = sorted(app.label_id for app in self.apps)
         with verbosity(3):
             self.print_host_list()
 
@@ -208,38 +210,232 @@ class AppDeployment:
         )
 
     def merge(self, additional: AppDeployment, option: str = "add"):
-        """Merge a deployment configuration into the current one.
+        """Merge a deployment configuration into the current deployed configuration.
 
         WIP:
             - first step: 'add', strict, no conflict allowed
             - next: add and replace if needed (merge)
         """
         with verbosity(3):
-            print(f"Deployment merge option: {option}")
+            debug(f"Deployment merge option: {option}")
         if option == "add":
             return self.merge_add(additional)
         raise RuntimeError("Merge option not implemented")
 
+    def merge_sequential(self, additional: AppDeployment):
+        """Merge a deployment configuration sequentially."""
+        with verbosity(3):
+            debug("Deployment merge sequentially")
+        for app in additional.apps:
+            deploy_strategy = self.evaluate_deploy_strategy(app)
+            method = getattr(self, deploy_strategy)
+            method(app)
+
+    def evaluate_deploy_strategy(self, merged_app: AppInstance) -> str:
+        same_label_app = next(
+            (app for app in self.apps if app.label_id == merged_app.label_id), None
+        )
+        same_domain_app = next(
+            (app for app in self.apps if app.domain == merged_app.domain), None
+        )
+        if same_label_app:
+            return self._deploy_same_label_strategy(
+                merged_app,
+                same_label_app,
+                same_domain_app,
+            )
+        else:
+            if same_domain_app:
+                raise Abort(
+                    f"Domain '{merged_app.domain}' already in use "
+                    f"for another label: {same_domain_app.label}"
+                )
+            # new label on new domain
+            return "deploy_new_app"
+
+    def _deploy_same_label_strategy(
+        self,
+        merged_app: AppInstance,
+        same_label_app: AppInstance,
+        same_domain_app: AppInstance,
+    ) -> str:
+        if same_label_app.domain == merged_app.domain:
+            if same_label_app.app_id == merged_app.app_id:
+                # same app on on same domain
+                return "deploy_update_app"
+            else:
+                # another app on same domain
+                return "deploy_replace_app"
+        else:
+            if merged_app.domain in self.deployed_domains:
+                # but not our domain
+                raise Abort(
+                    f"Domain '{merged_app.domain}' already in use "
+                    f"for another label: {same_domain_app.label}"
+                )
+            else:
+                if same_label_app.app_id == merged_app.app_id:
+                    # same app on another domain
+                    return "deploy_move_domain"
+                else:
+                    # another app on another domain
+                    return "deploy_reuse_label"
+
+    def deploy_new_app(self, app: AppInstance):
+        """Deploy new label and app on new domain"""
+        important(f"Deploy '{app.label}': a new {app.app_id} on '{app.domain}'")
+        self._deploy_new_app(app, load_persistent=False)
+
+    def _deploy_new_app(
+        self,
+        app: AppInstance,
+        load_persistent: bool = False,
+    ):
+        """Deploy an app."""
+        # step 1:
+        app.set_network_name()
+        app.set_resources_names()
+        app.merge_instance_to_resources()
+        for resource in app.resources:
+            resource.configure_db()
+        app.set_volumes_names()
+        for service in app.local_services:
+            if service not in self.available_services:
+                raise Abort(f"Required service '{service}' is not available")
+        if load_persistent:
+            # if really new app, not persistent for now, but some persitent data if
+            # same reusing label
+            self.retrieve_persistent(app)
+        self.evaluate_dynamic_values(app)
+
+        # step 2: ports
+        start_ports = config.read("nua", "ports", "start") or 8100
+        end_ports = config.read("nua", "ports", "end") or 9000
+        allocated_ports = self.configured_ports()
+        ports_instances_domains = store.ports_instances_domains()
+        allocated_ports.update(ports_instances_domains)
+        allocator = port_allocator(start_ports, end_ports, allocated_ports)
+        app.allocate_auto_ports(allocator)
+        for resource in app.resources:
+            resource.allocate_auto_ports(allocator)
+
+        # step 3
+        app.parse_healthcheck()
+        for service in app.local_services:
+            handler = self.available_services[service]
+            if not handler.check_site_configuration(app):
+                raise Abort(
+                    f"Required service '{service}' not configured for "
+                    f"app {app.domain}"
+                )
+        self.store_initial_deployment_state()
+        self.already_deployed_domains = set(self.deployed_domains)
+        self.already_deployed_labels = set(self.deployed_labels)
+        self.apps.append(app)
+        self.sort_apps_per_name_domain()
+        self.deployed_domains = sorted(
+            {apps_dom["hostname"] for apps_dom in self.apps_per_domain}
+        )
+        self.deployed_labels = sorted(a.label_id for a in self.apps)
+        self.merge_nginx_configuration()
+        self.merge_start_apps([app])
+
+    def deploy_update_app(self, app: AppInstance):
+        """Deploy same app on on same domain."""
+        important(f"Deploy '{app.label}': update {app.app_id} on '{app.domain}'")
+        self._deploy_remove_label_domain(app, remove_volumes=False)
+        self.load_deployed_configuration()
+        self._deploy_new_app(app, load_persistent=True)
+
+    def deploy_replace_app(self, merged_app: AppInstance):
+        """Deploy another app on same domain."""
+        same_label_app = next(
+            (app for app in self.apps if app.label_id == merged_app.label_id), None
+        )
+        important(
+            f"Deploy '{merged_app.label}': replace {same_label_app.app_id} "
+            f"by {merged_app.app_id} on '{merged_app.domain}'"
+        )
+        self._deploy_remove_label_domain(merged_app, remove_volumes=True)
+        self.load_deployed_configuration()
+        self._deploy_new_app(merged_app, load_persistent=False)
+
+    def deploy_move_domain(self, merged_app: AppInstance):
+        """Deploy same app on another domain."""
+        same_domain_app = next(
+            (app for app in self.apps if app.domain == merged_app.domain), None
+        )
+        important(
+            f"Deploy '{merged_app.label}': move {merged_app.app_id} "
+            f"from '{same_domain_app.domain}' to '{merged_app.domain}'"
+        )
+        self._deploy_remove_label_domain(same_domain_app, remove_volumes=False)
+        self.load_deployed_configuration()
+        self._deploy_new_app(merged_app, load_persistent=True)
+
+    def deploy_reuse_label(self, merged_app: AppInstance):
+        """Deploy another app on another domain."""
+        same_label_app = next(
+            (app for app in self.apps if app.label_id == merged_app.label_id), None
+        )
+        important(
+            f"Deploy '{merged_app.label}': remove {same_label_app.app_id} and"
+            f"from '{same_label_app.domain}' and\n"
+            f"install {merged_app.app_id} to '{merged_app.domain}'"
+        )
+        # do not keep data:
+        self._deploy_remove_label_domain(same_label_app, remove_volumes=True)
+        self.load_deployed_configuration()
+        self._deploy_new_app(merged_app, load_persistent=True)
+
+    def _deploy_remove_label_domain(
+        self,
+        merged_app: AppInstance,
+        remove_volumes: bool = False,
+    ):
+        # deployed_app = next(
+        #     (a for a in self.apps if a.label_id == merged_app.label_id), None
+        # )
+        domain = merged_app.domain
+        stopping_apps = self.instances_of_domain(domain)
+        self.remove_nginx_configuration(domain)
+        self.stop_deployed_apps(domain, stopping_apps)
+        self.remove_container_and_network(domain, stopping_apps)
+        if remove_volumes:
+            self.remove_managed_volumes(stopping_apps)
+        if verbosity(3):
+            debug("remove_deployed_instance:")
+            debug(" ".join([a.domain for a in stopping_apps]))
+        self.remove_deployed_instance(domain, stopping_apps)
+
     def merge_add(self, additional: AppDeployment):
         """Merge by simple addtion of new domain to list."""
         with verbosity(3):
-            print(f"self.deployed_domains       {self.deployed_domains}")
-            print(f"additional.deployed_domains {additional.deployed_domains}")
+            debug(f"self.deployed_domains       {self.deployed_domains}")
+            debug(f"additional.deployed_domains {additional.deployed_domains}")
         conflict = known_strings(self.deployed_domains, additional.deployed_domains)
         if conflict:
             raise Abort(
                 f"Some required domains are already deployed: {', '.join(conflict)}\n"
                 "Merge with strict add do not allow domain conflicts"
             )
+        conflict = known_strings(self.deployed_labels, additional.deployed_labels)
+        if conflict:
+            raise Abort(
+                f"Some required labels are already deployed: {', '.join(conflict)}\n"
+                "Merge with strict add do not allow label conflicts (for now)"
+            )
         # Note: additional should read from DB the already allocated ports:
         additional.configure_apps()
         self.store_initial_deployment_state()
         self.already_deployed_domains = set(self.deployed_domains)
+        self.already_deployed_labels = set(self.deployed_labels)
         self.apps.extend(additional.apps)
         self.sort_apps_per_name_domain()
         self.deployed_domains = sorted(
             {apps_dom["hostname"] for apps_dom in self.apps_per_domain}
         )
+        self.deployed_labels = sorted(app.label_id for app in self.apps)
         self.merge_nginx_configuration()
         self.merge_start_apps(additional.apps)
 
@@ -381,16 +577,16 @@ class AppDeployment:
             return self.start_apps()
         # restarting local services:
         self.restart_local_services()
-        for site in new_apps:
-            deactivate_app(site)
-            self.start_network(site)
-            self.evaluate_container_params(site)
-            self.start_resources_containers(site)
-            self.setup_resources_db(site)
-            self.merge_volume_only_resources(site)
-            self.start_main_app_container(site)
-            site.running_status = RUNNING
-            self.store_container_instance(site)
+        for app in new_apps:
+            deactivate_app(app)
+            self.start_network(app)
+            self.evaluate_container_params(app)
+            self.start_resources_containers(app)
+            self.setup_resources_db(app)
+            self.merge_volume_only_resources(app)
+            self.start_main_app_container(app)
+            app.running_status = RUNNING
+            self.store_container_instance(app)
         chown_r_nua_nginx()
         nginx_reload()
 
@@ -398,16 +594,16 @@ class AppDeployment:
         """Start all apps to deploy."""
         # restarting local services:
         self.restart_local_services()
-        for site in self.apps:
-            deactivate_app(site)
-            self.start_network(site)
-            self.evaluate_container_params(site)
-            self.start_resources_containers(site)
-            self.setup_resources_db(site)
-            self.merge_volume_only_resources(site)
-            self.start_main_app_container(site)
-            site.running_status = RUNNING
-            self.store_container_instance(site)
+        for app in self.apps:
+            deactivate_app(app)
+            self.start_network(app)
+            self.evaluate_container_params(app)
+            self.start_resources_containers(app)
+            self.setup_resources_db(app)
+            self.merge_volume_only_resources(app)
+            self.start_main_app_container(app)
+            app.running_status = RUNNING
+            self.store_container_instance(app)
         chown_r_nua_nginx()
         nginx_restart()
 
@@ -499,12 +695,12 @@ class AppDeployment:
     def remove_deployed_instance(self, domain: str, apps: list[AppInstance]):
         """Remove data of stopped app: local managed volumes."""
         with verbosity(1):
-            info(f"Remove app instance of domain '{domain}'.")
-        for site in apps:
-            self.remove_app_instance(site)
+            info(f"Remove app instance of domain '{domain}' from DB.")
+        for app in apps:
+            self.remove_app_instance(app)
 
     def parse_deploy_apps(self):
-        """Make the list of AppInstances.
+        """Make the list of AppInstances to be deployed/merged.
 
         Check config syntax, replace missing information by defaults.
         """
@@ -518,7 +714,6 @@ class AppDeployment:
 
             app_instance = AppInstance(site_dict)
             app_instance.check_valid()
-            # site.set_ports_as_dict()
             apps.append(app_instance)
         self.apps = apps
 
@@ -527,27 +722,27 @@ class AppDeployment:
 
         The apps per domain are available in self.apps_per_domain
         """
-        self._filter_duplicate_instance_names()
+        self._filter_duplicate_labels()
         self._make_apps_per_domain()
         self._filter_miss_located_apps()
         self._update_apps_list()
 
-    def _filter_duplicate_instance_names(self) -> None:
-        """Warn about duplicate instance_name and remove the duplicate.
+    def _filter_duplicate_labels(self) -> None:
+        """Warn about duplicate label and remove the duplicate.
 
         Note:
             - It's a basic feature for consistency, not a security feature
               about currently deployed instances.
         """
         filtered = []
-        known_names = set()
-        for site in self.apps:
-            name = site.instance_name_internal
-            if name in known_names:
-                warning(f"Duplicate instance name '{name}'. Skipped.")
+        known_labels = set()
+        for app in self.apps:
+            label_id = app.label_id
+            if label_id in known_labels:
+                warning(f"Duplicate label '{label_id}'. Skipped.")
                 continue
-            filtered.append(site)
-            known_names.add(name)
+            filtered.append(app)
+            known_labels.add(label_id)
         self.apps = filtered
 
     def _make_apps_per_domain(self) -> None:
@@ -646,16 +841,16 @@ class AppDeployment:
         self.install_images()
 
     def find_all_apps_images(self) -> bool:
-        for site in self.apps:
-            if not site.find_registry_path():
-                print_red(f"No image found for '{site.image}'")
+        for app in self.apps:
+            if not app.find_registry_path():
+                show(f"No image found for '{app.image}'")
                 return False
         with verbosity(1):
             seen = set()
-            for site in self.apps:
-                if site.image not in seen:
-                    seen.add(site.image)
-                    info(f"Image found: '{site.image}'")
+            for app in self.apps:
+                if app.image not in seen:
+                    seen.add(app.image)
+                    info(f"Image found: '{app.image}'")
         return True
 
     def install_images(self):
@@ -692,14 +887,14 @@ class AppDeployment:
             return True
         if resource.is_docker_type():
             with verbosity(4):
-                vprint("pull docker resource:", resource)
+                debug("pull docker resource:", resource)
             return pull_resource_container(resource)
         return True
 
     def apps_check_local_service_available(self):
         self.required_services = {s for site in self.apps for s in site.local_services}
         with verbosity(3):
-            vprint("required services:", self.required_services)
+            debug("required services:", self.required_services)
         available_services = set(self.available_services.keys())
         for service in self.required_services:
             if service not in available_services:
@@ -716,47 +911,47 @@ class AppDeployment:
                     )
 
     def apps_parse_resources(self):
-        for site in self.apps:
-            site.parse_resources()
+        for app in self.apps:
+            app.parse_resources()
 
     def apps_parse_healthcheck(self):
-        for site in self.apps:
-            site.parse_healthcheck()
+        for app in self.apps:
+            app.parse_healthcheck()
         with verbosity(3):
-            info("apps_parse_healthcheck() done")
+            debug("apps_parse_healthcheck() done")
 
     def apps_set_network_name(self):
-        for site in self.apps:
-            site.set_network_name()
+        for app in self.apps:
+            app.set_network_name()
         with verbosity(3):
-            info("apps_set_network_name() done")
+            debug("apps_set_network_name() done")
 
     def apps_set_resources_names(self):
-        for site in self.apps:
-            site.set_resources_names()
+        for app in self.apps:
+            app.set_resources_names()
         with verbosity(3):
-            info("apps_set_resources_names() done")
+            debug("apps_set_resources_names() done")
 
     def apps_merge_app_instances_to_resources(self):
         """Merge configuration declared in the AppInstance config to original
         nua-config declarations."""
-        for site in self.apps:
-            site.merge_instance_to_resources()
+        for app in self.apps:
+            app.merge_instance_to_resources()
         with verbosity(3):
-            info("apps_merge_instances_to_resources() done")
+            debug("apps_merge_instances_to_resources() done")
 
     def apps_configure_requested_db(self):
-        for site in self.apps:
-            for resource in site.resources:
+        for app in self.apps:
+            for resource in app.resources:
                 resource.configure_db()
         with verbosity(3):
-            info("apps_configure_requested_db() done")
+            debug("apps_configure_requested_db() done")
 
     def apps_set_volumes_names(self):
-        for site in self.apps:
-            site.set_volumes_names()
+        for app in self.apps:
+            app.set_volumes_names()
         with verbosity(3):
-            info("apps_set_volumes_names() done")
+            debug("apps_set_volumes_names() done")
 
     def restart_local_services(self):
         with verbosity(2):
@@ -789,19 +984,19 @@ class AppDeployment:
         end_ports = config.read("nua", "ports", "end") or 9000
         allocated_ports = self.configured_ports()
         with verbosity(4):
-            vprint(f"apps_generate_ports(): {allocated_ports=}")
+            debug(f"apps_generate_ports(): {allocated_ports=}")
         # list of ports used for domains / apps, trying to keep them unchanged
         ports_instances_domains = store.ports_instances_domains()
         with verbosity(4):
-            vprint(f"apps_generate_ports(): {ports_instances_domains=}")
+            debug(f"apps_generate_ports(): {ports_instances_domains=}")
         allocated_ports.update(ports_instances_domains)
         with verbosity(3):
-            vprint(f"apps_generate_ports() used ports:\n {allocated_ports=}")
+            debug(f"apps_generate_ports() used ports:\n {allocated_ports=}")
         self.apps_allocate_ports(
             port_allocator(start_ports, end_ports, allocated_ports)
         )
         with verbosity(3):
-            vprint("apps_generate_ports() done")
+            debug("apps_generate_ports() done")
 
     def configured_ports(self) -> set[int]:
         """Return set of required host ports (aka non auto ports) from
@@ -810,113 +1005,113 @@ class AppDeployment:
         Returns: set of integers
         """
         used = set()
-        for site in self.apps:
-            used.update(site.used_ports())
+        for app in self.apps:
+            used.update(app.used_ports())
         return used
 
     def apps_allocate_ports(self, allocator: Callable):
         """Update site dict with auto generated ports."""
-        for site in self.apps:
-            site.allocate_auto_ports(allocator)
-            for resource in site.resources:
+        for app in self.apps:
+            app.allocate_auto_ports(allocator)
+            for resource in app.resources:
                 resource.allocate_auto_ports(allocator)
 
-    def evaluate_container_params(self, site: AppInstance):
+    def evaluate_container_params(self, app: AppInstance):
         """Compute site run environment parameters except those requiring late
         evaluation (i.e. host names of started containers)."""
-        self.generate_app_container_run_parameters(site)
-        for resource in site.resources:
+        self.generate_app_container_run_parameters(app)
+        for resource in app.resources:
             self.generate_resource_container_run_parameters(resource)
 
     def apps_retrieve_persistent(self):
-        for site in self.apps:
-            self.retrieve_persistent(site)
+        for app in self.apps:
+            self.retrieve_persistent(app)
 
-    def retrieve_persistent(self, site: AppInstance):
-        previous = store.instance_persistent(site.domain, site.app_id)
-        # previous = store.instance_persistent(site.instance_name_internal)
+    def retrieve_persistent(self, app: AppInstance):
+        previous = store.instance_persistent(app.label_id)
         with verbosity(4):
-            vprint(f"persistent previous: {previous=}")
-        previous.update(site.persistent_full_dict())
-        site.set_persistent_full_dict(previous)
+            debug(f"persistent previous: {previous=}")
+        previous.update(app.persistent_full_dict())
+        app.set_persistent_full_dict(previous)
 
     def apps_evaluate_dynamic_values(self):
-        for site in self.apps:
-            self.evaluate_dynamic_values(site)
+        for app in self.apps:
+            self.evaluate_dynamic_values(app)
 
-    def evaluate_dynamic_values(self, site: AppInstance):
-        ordered_resources = site.order_resources_dependencies()
+    def evaluate_dynamic_values(self, app: AppInstance):
+        ordered_resources = app.order_resources_dependencies()
         for resource in ordered_resources:
-            if resource == site:
-                self.generate_app_env_port_values(site)
+            if resource == app:
+                self.generate_app_env_port_values(app)
             else:
-                self.generate_resource_env_port_values(site, resource)
+                self.generate_resource_env_port_values(app, resource=resource)
 
-    def generate_app_env_port_values(self, site: AppInstance):
-        run_env = deepcopy(site.env)
-        run_env.update(instance_key_evaluator(site, late_evaluation=False))
-        site.env = run_env
+    def generate_app_env_port_values(self, app: AppInstance):
+        run_env = deepcopy(app.env)
+        run_env.update(instance_key_evaluator(app, late_evaluation=False))
+        app.env = run_env
         new_port_list = []
-        for port in site.port_list:
+        for port in app.port_list:
             new_port = deepcopy(port)
             new_port.update(
                 instance_key_evaluator(
-                    site,
+                    app,
                     port=port,
                     late_evaluation=False,
                 )
             )
             new_port_list.append(new_port)
-        site.port_list = new_port_list
+        app.port_list = new_port_list
 
-    def generate_resource_env_port_values(self, site: AppInstance, resource: Resource):
+    def generate_resource_env_port_values(self, app: AppInstance, resource: Resource):
         run_env = deepcopy(resource.env)
         run_env.update(
-            instance_key_evaluator(site, resource=resource, late_evaluation=False)
+            instance_key_evaluator(app, resource=resource, late_evaluation=False)
         )
         resource.env = run_env
 
-    def start_network(self, site: AppInstance):
-        if site.network_name:
-            create_container_private_network(site.network_name)
+    def start_network(self, app: AppInstance):
+        if app.network_name:
+            create_container_private_network(app.network_name)
 
-    def start_resources_containers(self, site: AppInstance):
-        for resource in site.resources:
+    def start_resources_containers(self, app: AppInstance):
+        for resource in app.resources:
             if resource.is_docker_type():
                 mounted_volumes = mount_resource_volumes(resource)
                 start_one_container(resource, mounted_volumes)
                 # until we check startup of container or set value in parameters...
                 time.sleep(2)
 
-    def setup_resources_db(self, site: AppInstance):
-        for resource in site.resources:
+    def setup_resources_db(self, app: AppInstance):
+        for resource in app.resources:
             resource.setup_db()
 
-    def merge_volume_only_resources(self, site: AppInstance):
-        for resource in site.resources:
+    def merge_volume_only_resources(self, app: AppInstance):
+        for resource in app.resources:
             if resource.volume_declaration:
-                site.volume = site.volume + resource.volume_declaration
+                app.volume = app.volume + resource.volume_declaration
 
-    def start_main_app_container(self, site: AppInstance):
+    def start_main_app_container(self, app: AppInstance):
         # volumes need to be mounted before beeing passed as arguments to
         # docker.run()
-        mounted_volumes = mount_resource_volumes(site)
-        start_one_container(site, mounted_volumes)
+        mounted_volumes = mount_resource_volumes(app)
+        start_one_container(app, mounted_volumes)
 
-    def store_container_instance(self, site: AppInstance):
+    def store_container_instance(self, app: AppInstance):
         with verbosity(3):
             bold_debug("Saving AppInstance configuration in Nua DB")
         store.store_instance(
-            app_id=site.app_id,
-            nua_tag=site.nua_tag,
-            domain=site.domain,
-            container=site.container_name,
-            image=site.image,
-            state=site.running_status,
-            site_config=dict(site),
+            app_id=app.app_id,
+            label_id=app.label_id,
+            nua_tag=app.nua_tag,
+            domain=app.domain,
+            container=app.container_name,
+            image=app.image,
+            state=app.running_status,
+            site_config=dict(app),
         )
 
-    def generate_app_container_run_parameters(self, site: AppInstance):
+    def generate_app_container_run_parameters(self, app: AppInstance):
         """Return suitable parameters for the docker.run() command.
 
         Does not include the internal_secrets, that are passed only at
@@ -929,21 +1124,21 @@ class AppDeployment:
         run_params.update(nua_docker_default_run)
         # run parameters defined in the image configuration, without the "env"
         # sections:
-        nua_conf_docker = deepcopy(site.image_nua_config.get("docker", {}))
+        nua_conf_docker = deepcopy(app.image_nua_config.get("docker", {}))
         if "env" in nua_conf_docker:
             del nua_conf_docker["env"]
         run_params.update(nua_conf_docker)
         # update with parameters that could be added to AppInstance configuration :
-        run_params.update(site.get("docker", {}))
+        run_params.update(app.get("docker", {}))
         # Add the hostname/IP of local Docker hub (Docker feature) :
         self.add_host_gateway_to_extra_hosts(run_params)
-        run_params["name"] = site.container_name
-        run_params["ports"] = site.ports_as_docker_params()
-        run_params["environment"] = site.env
-        if site.healthcheck:
-            run_params["healthcheck"] = HealthCheck(site.healthcheck).as_docker_params()
+        run_params["name"] = app.container_name
+        run_params["ports"] = app.ports_as_docker_params()
+        run_params["environment"] = app.env
+        if app.healthcheck:
+            run_params["healthcheck"] = HealthCheck(app.healthcheck).as_docker_params()
         self.sanitize_run_params(run_params)
-        site.run_params = run_params
+        app.run_params = run_params
 
     def generate_resource_container_run_parameters(
         self,
@@ -976,17 +1171,17 @@ class AppDeployment:
         if "restart_policy" in run_params:
             run_params["auto_remove"] = False
 
-    def services_environment(self, site: AppInstance) -> dict:
+    def services_environment(self, app: AppInstance) -> dict:
         run_env = {}
-        for service in site.local_services:
+        for service in app.local_services:
             handler = self.available_services[service]
             # function may need or not site param:
-            run_env.update(handler.environment(site))
+            run_env.update(handler.environment(app))
         return run_env
 
-    def resources_environment(self, site: AppInstance) -> dict:
+    def resources_environment(self, app: AppInstance) -> dict:
         run_env = {}
-        for resource in site.resources:
+        for resource in app.resources:
             run_env.update(resource.environment_ports())
         return run_env
 
@@ -1013,19 +1208,19 @@ class AppDeployment:
 
         show("Deployed apps:")
         protocol = protocol_prefix()
-        for site in self.apps:
-            msg = f"Instance name: {site.instance_name_internal}"
+        for app in self.apps:
+            msg = f"Label: {app.label_id}"
             info(msg)
-            msg = f"Image '{site.image}' deployed as {protocol}{site.domain}"
+            msg = f"Image '{app.image}' deployed as {protocol}{app.domain}"
             info(msg)
-            msg = f"Deployment status: {site.running_status}"
+            msg = f"Deployment status: {app.running_status}"
             info(msg)
-            self.display_persistent_data(site)
+            self.display_persistent_data(app)
         print()
 
-    def display_persistent_data(self, site: AppInstance):
+    def display_persistent_data(self, app: AppInstance):
         with verbosity(3):
-            content = site.persistent_full_dict()
+            content = app.persistent_full_dict()
             if content:
                 bold_debug("Persistent generated variables:")
                 debug(pformat(content))
@@ -1044,14 +1239,16 @@ class AppDeployment:
             unused = unused_volumes(self.orig_mounted_volumes)
             if not unused:
                 return
-            print_green(
+            important(
                 "Some volumes are mounted but not used by current Nua configuration:"
             )
             for volume in unused:
-                vprint(Volume.string(volume))
+                show(Volume.string(volume))
 
     def print_host_list(self):
-        vprint("apps per domain:\n", pformat(self.apps_per_domain))
+        # used with verbosity 3
+        bold_debug("apps per domain:\n")
+        debug(pformat(self.apps_per_domain))
 
 
 def _verify_located(host: dict):
@@ -1129,7 +1326,7 @@ def _verify_not_located(host: dict):
         valid_apps = [site]
         for site in host["apps"]:
             image = site.image
-            print_red(f"    {image=} / {site['domain']}")
+            red_line(f"    {image=} / {site['domain']}")
 
     host["apps"] = valid_apps
     host["located"] = False

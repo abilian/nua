@@ -75,6 +75,7 @@ class Instance(Base, SerializerMixin):
 
     id = Column(Integer, primary_key=True)
     app_id = Column(String(80))
+    label_id = Column(String(80))
     nua_tag = Column(String(160))
     domain = Column(String(160))
     container = Column(String(160), default="")
@@ -85,4 +86,7 @@ class Instance(Base, SerializerMixin):
     #  broken for sqlite: instance = index_property("data", "instance", default="")
 
     def __repr__(self) -> str:
-        return f"Instance(app_id={self.app_id}, container='{self.container}', tag={self.nua_tag})"
+        return (
+            f"Instance(label_id={self.label_id}, app_id={self.app_id}, "
+            f"container='{self.container}', tag={self.nua_tag})"
+        )
