@@ -10,6 +10,7 @@ See later if move this to "nua ...".
 import argparse
 import sys
 import time
+import traceback
 
 import snoop
 from cleez.actions import VERSION
@@ -76,11 +77,15 @@ def main():
     try:
         builder = get_builder(args.config_file or ".", **opts)
     except NuaConfigError as e:
+        # FIXME: not for production
+        traceback.print_exc(file=sys.stderr)
         raise Abort(e.args[0])
 
     try:
         builder.run()
     except BuilderError as e:
+        # FIXME: not for production
+        traceback.print_exc(file=sys.stderr)
         raise Abort from e
 
     if args.time or args.verbose >= 1:
