@@ -18,19 +18,14 @@ nua_test_replace_domain = "nua.build.scripts.test_replace_domain:main"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-
-nua-lib = "=0.5.13"
-nua-agent = "=0.5.13"
-nua-autobuild = "=0.5.13"
+nua-lib = "=0.5.14"
+nua-agent = "=0.5.14"
+nua-autobuild = "=0.5.14"
 tomli = "^2.0.1"
-
-# CLI and text ui
 snoop = "^0.4.3"
 cleez = "^0.1.8"
-
-# Docker client
-docker = {version = "^6.0.1", extras = ["ssh"]}
 pyyaml = "^6.0"
+docker = {version = "^6.0.1", extras = ["ssh"]}
 
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
