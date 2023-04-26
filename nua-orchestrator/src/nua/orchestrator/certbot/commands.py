@@ -13,7 +13,7 @@ Test ENV variables:
 import os
 from pathlib import Path
 
-from nua.lib.panic import important, show, vprint
+from nua.lib.panic import debug, important, show, vprint
 from nua.lib.shell import sh
 from nua.lib.tool.state import verbosity
 
@@ -102,7 +102,7 @@ def gen_cert_standalone(domain: str):
 
 def gen_cert_nginx(domain: str):
     with verbosity(3):
-        print("known domain, will register with --nginx certbot option:", domain)
+        debug("known domain, will register with --nginx certbot option:", domain)
     if os.getuid():  # aka not root
         prefix = "sudo "
     else:

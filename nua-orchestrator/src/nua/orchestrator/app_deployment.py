@@ -404,7 +404,7 @@ class AppDeployment:
         self.remove_container_and_network(domain, stopping_apps)
         if remove_volumes:
             self.remove_managed_volumes(stopping_apps)
-        if verbosity(3):
+        with verbosity(3):
             debug("remove_deployed_instance:")
             debug(" ".join([a.domain for a in stopping_apps]))
         self.remove_deployed_instance(domain, stopping_apps)
@@ -652,7 +652,7 @@ class AppDeployment:
     def remove_container_and_network(self, domain: str, apps: list[AppInstance]):
         """Remove stopped app: container, network, but not volumes."""
         with verbosity(1):
-            info(f"Remove instance of domain '{domain}'.")
+            info(f"Remove instance of domain '{domain}'")
         self._mounted_before_removing = store.list_instances_container_active_volumes()
         for site in apps:
             deactivate_app(site)
@@ -696,7 +696,7 @@ class AppDeployment:
     def remove_deployed_instance(self, domain: str, apps: list[AppInstance]):
         """Remove data of stopped app: local managed volumes."""
         with verbosity(1):
-            info(f"Remove app instance of domain '{domain}' from DB.")
+            info(f"Remove app instance of domain '{domain}' from Nua DB")
         for app in apps:
             self.remove_app_instance(app)
 
