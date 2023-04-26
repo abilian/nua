@@ -349,14 +349,14 @@ tests = ["Django", "Django (<2)", "Django (<3)", "chainmap", "numpy (>=1.16.3)",
 
 [[package]]
 name = "cleez"
-version = "0.1.8"
+version = "0.1.9"
 description = "Simple class-based CLI framework."
 category = "dev"
 optional = false
 python-versions = ">=3.9,<4"
 files = [
-    {file = "cleez-0.1.8-py3-none-any.whl", hash = "sha256:697ffccc0a47e7aa6c8c8187082181dbcf5a6a4d347c9365c29fe36dc49e3a69"},
-    {file = "cleez-0.1.8.tar.gz", hash = "sha256:de790bad4e8d808d669e975fbb7b3ae7d8e4a877e3f87f7f231a711b344da13d"},
+    {file = "cleez-0.1.9-py3-none-any.whl", hash = "sha256:4635170847c76b93a63d960967566e526956888d3dff4a661b3db59e037a3857"},
+    {file = "cleez-0.1.9.tar.gz", hash = "sha256:9f6ffda15646874b6024063814595fc9473d28b33a37cea99ffd1058342d57a8"},
 ]
 
 [package.dependencies]
