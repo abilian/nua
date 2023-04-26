@@ -21,8 +21,18 @@ def print_green(msg: str):
 
 
 @if_color
+def print_gray(msg: str):
+    print(ColorStr.gray(msg))
+
+
+@if_color
 def print_blue(msg: str):
     print(ColorStr.blue(msg))
+
+
+@if_color
+def print_bold_blue(msg: str):
+    print(ColorStr.blue_bold(msg))
 
 
 @if_color
@@ -32,6 +42,11 @@ def print_magenta(msg: str):
 
 @if_color
 def print_red(msg: str):
+    print(ColorStr.red(msg))
+
+
+@if_color
+def print_bold_red(msg: str):
     print(ColorStr.red_bold(msg))
 
 
@@ -43,6 +58,11 @@ def print_bold(msg: str):
 @if_color
 def print_bold_yellow(msg: str):
     print(ColorStr.yellow_bold(msg))
+
+
+@if_color
+def print_cyan(msg: str):
+    print(ColorStr.cyan(msg))
 
 
 @if_color
@@ -61,3 +81,9 @@ def print_green_cyan(msg: str):
         print(ColorStr.green(parts[0]), ColorStr.cyan(parts[1]))
     else:
         print(ColorStr.green(msg))
+
+
+@if_color
+def print_magenta_no_lf(msg: str):
+    """Print specialized for lines including a LF (Docker build log)."""
+    print(ColorStr.magenta(msg), end="")

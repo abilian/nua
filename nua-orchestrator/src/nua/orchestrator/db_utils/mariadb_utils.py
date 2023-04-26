@@ -144,7 +144,6 @@ def bootstrap_install_mariadb() -> bool:
             "libmariadb-dev",
             # "mariadb-client",
         ],
-        update=False,
         clean=False,
         keep_lists=True,
     )

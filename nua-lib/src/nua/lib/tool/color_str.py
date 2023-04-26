@@ -70,6 +70,7 @@ class ColorStr:
         return f"{cmd}{txt}{cls.COL['reset']}"
 
     black = partialmethod(colorize, color="black")
+    gray = partialmethod(colorize, color="black", bright=True)
     red = partialmethod(colorize, color="red")
     green = partialmethod(colorize, color="green")
     yellow = partialmethod(colorize, color="yellow")

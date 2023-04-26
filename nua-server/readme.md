@@ -1,9 +1,12 @@
 Nua Server
 ==========
 
-Prototype of the Web UI for Nua.
+Prototype of the Web UI for Nua. Not intended for immediate use.
 
-Currently:
+[Nua](https://nua.rocks/) is an open source, self-hosted cloud platform project (a PaaS - platform as a service).
+
+
+## Currently:
 
 - Uses the orchestator as a backend, with SSH as a transport (like nua-cli)
   - This will change to use a web API (REST or RPC, TBD)

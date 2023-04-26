@@ -7,7 +7,7 @@ import docker
 import docker.types
 from nua.autobuild.docker_build_utils import display_one_docker_img, docker_require
 from nua.build.archive_search import ArchiveSearch
-from nua.lib.panic import Abort, info, vprint, vprint_blue, vprint_green, warning
+from nua.lib.panic import Abort, important, info, vprint, warning
 from nua.lib.tool.state import verbosity
 
 from .app_instance import AppInstance
@@ -58,7 +58,7 @@ def load_install_image(image_path: str | Path) -> tuple:
     metadata = image_nua_config["metadata"]
     msg = "Installing App: {id} {version}, {title}".format(**metadata)
     if verbosity(0):
-        vprint_blue(msg)
+        important(msg)
 
     client = docker.from_env()
     # images_before = {img.id for img in client.images.list()}
@@ -70,7 +70,7 @@ def load_install_image(image_path: str | Path) -> tuple:
     # images_after = {img.id for img in client.images.list()}
     # new = images_after - images_before
     with verbosity(1):
-        vprint_green("Installing image:")
+        important("Installing image:")
         display_one_docker_img(loaded_img)
     return loaded_img.id, image_nua_config
 
@@ -261,11 +261,11 @@ def deactivate_containers(container_names: list[str], show_warning: bool = True)
         store.instance_delete_by_container(name)
 
 
-def deactivate_app(site: AppInstance):
+def deactivate_app(app: AppInstance):
     """Deactive containers of AppInstance and all sub Resources (updating
     orchestrator DB)."""
-    container_names = [res.container_name for res in site.resources]
-    container_names.append(site.container_name)
+    container_names = [res.container_name for res in app.resources]
+    container_names.append(app.container_name)
     deactivate_containers(container_names, show_warning=False)
 
 

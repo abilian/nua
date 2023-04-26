@@ -2,20 +2,16 @@ import os
 import sys
 from pathlib import Path
 
-try:
-    import tomllib
-except ImportError:
-    import tomli as tomllib
-
-import watchfiles
+import tomlkit
 from dotenv import load_dotenv
-from invoke import task
+from invoke import Context, UnexpectedExit, task
 
 load_dotenv()
 
 RESET = "\033[0m"
 BOLD = "\033[1m"
 DIM = "\033[2m"
+RED = "\033[31m"
 
 
 SUB_REPOS = [
@@ -141,7 +137,7 @@ def bump_version(c, bump: str = "patch"):
     """Update version - use 'patch' (default), 'minor' or 'major' as an argument."""
 
     c.run(f"poetry version {bump}")
-    project_info = tomllib.load(Path("pyproject.toml").open("rb"))
+    project_info = tomlkit.load(Path("pyproject.toml").open())
     version = project_info["tool"]["poetry"]["version"]
     run_in_subrepos(c, f"poetry version {version}")
 
@@ -162,6 +158,8 @@ def graph(c):
 @task
 def watch(c, host=None):
     """Watch for changes and push to a remote server."""
+    import watchfiles
+
     if not host:
         host = os.environ.get("NUA_HOST")
     if not host:
@@ -184,10 +182,82 @@ def watch(c, host=None):
 
 
 #
-# Helpers
+# Release task
 #
 
 
+@task
+def release(c: Context):
+    """Release a new version."""
+    c.run("make clean")
+
+    pyproject_json = tomlkit.load(Path("pyproject.toml").open())
+    version = pyproject_json["tool"]["poetry"]["version"]
+
+    try:
+        c.run("git diff --quiet")
+    except UnexpectedExit:
+        print("Your repo is dirty. Please commit or stash changes first.")
+        sys.exit(1)
+
+    h1("Checking versions are all set properly...")
+    for sub_repo in SUB_REPOS:
+        check_version_subrepo(c, sub_repo, version)
+
+    c.run("git checkout release")
+    c.run("git merge main")
+
+    for sub_repo in SUB_REPOS:
+        release_subrepo(c, sub_repo, version)
+
+    c.run(f"git commit -a -m 'Release {version}'")
+    c.run(f"git tag -a v{version} -m 'Release {version}'")
+    c.run("git push origin release")
+    c.run("git push --tags")
+    c.run("git checkout main")
+
+
+def check_version_subrepo(c, sub_repo, version):
+    with c.cd(sub_repo):
+        pyproject_json = tomlkit.load(Path("pyproject.toml").open())
+        sub_version = pyproject_json["tool"]["poetry"]["version"]
+
+        if sub_version != version:
+            print(
+                f"{RED}ERROR: version mismatch for {sub_repo}: "
+                f"expected {version}, got {sub_version}{RESET}"
+            )
+            sys.exit(1)
+
+
+def release_subrepo(c, sub_repo, version):
+    h1(f"Releasing {sub_repo}...")
+
+    old_pyproject = (Path(sub_repo) / "pyproject.toml").read_text()
+    pyproject_json = tomlkit.loads(old_pyproject)
+
+    if pyproject_json["tool"]["poetry"]["name"] == "nua-cli":
+        pyproject_json["tool"]["poetry"]["name"] = "nua"
+
+    deps = pyproject_json["tool"]["poetry"]["dependencies"]
+    new_deps = {}
+    for dep in deps:
+        if dep.startswith("nua-"):
+            new_deps[dep] = f"={version}"
+        else:
+            new_deps[dep] = deps[dep]
+
+    pyproject_json["tool"]["poetry"]["dependencies"] = new_deps
+    (Path(sub_repo) / "pyproject.toml").write_text(tomlkit.dumps(pyproject_json))
+
+    with c.cd(sub_repo):
+        c.run("poetry build")
+        c.run("twine upload dist/*")
+
+
+#
+# Helpers
+#
 def h1(msg):
     print()
     print(BOLD + msg + RESET)

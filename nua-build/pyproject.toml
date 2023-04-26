@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-build"
-version = "0.5.8"
+version = "0.5.14"
 description = "Nua build package (currently: build, core build, agent)"
 authors = [
     "Stefane Fermigier <sf@abilian.com>",
@@ -12,11 +12,9 @@ packages = [
   { include = "nua", from = "src" }
 ]
 
-
 [tool.poetry.scripts]
 nua-build = "nua.build.main:app"
 nua_test_replace_domain = "nua.build.scripts.test_replace_domain:main"
-
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -29,13 +27,12 @@ nua-autobuild = { path = "../nua-autobuild/", develop = true }
 tomli = "^2.0.1"
 
 # CLI and text ui
-typer = {version = "^0.7.0", extras = ["all"]}
+snoop = "^0.4.3"
+cleez = "^0.1.8"
 
 # Docker client
-docker = {version = "^6", extras = ["ssh"]}
-pyyaml = "^6"
-snoop = "^0.4.3"
-
+docker = {version = "^6.0.1", extras = ["ssh"]}
+pyyaml = "^6.0"
 
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
@@ -46,6 +43,7 @@ types-pyyaml = "*"
 
 # To please poetry
 platformdirs = "<3.0.0"
+devtools = "^0.11.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -54,7 +52,13 @@ build-backend = "poetry.core.masonry.api"
 # ------------------------------------------------------------------------------
 
 [tool.pytest.ini_options]
-filterwarnings = ["ignore:.*distutils package:DeprecationWarning", "ignore::DeprecationWarning"]
+filterwarnings = [
+    "ignore:.*distutils package:DeprecationWarning",
+    "ignore::DeprecationWarning",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+]
 
 # ------------------------------------------------------------------------------
 

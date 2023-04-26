@@ -2,9 +2,10 @@
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from pprint import pformat
+from typing import Any
 
 from nua.agent.nua_config import NuaConfig
 from nua.lib.panic import info, vprint
@@ -15,9 +16,9 @@ from .docker import DockerBuilder
 from .wrap import DockerWrapBuilder
 
 
-def get_builder(config_path: str | Path | None = None) -> Builder:
+def get_builder(config_path: str | Path | None = None, **opts) -> Builder:
     config = NuaConfig(config_path)
-    factory = BuilderFactory(config)
+    factory = BuilderFactory(config, opts)
     return factory.get_builder()
 
 
@@ -26,6 +27,10 @@ class BuilderFactory:
     """Factory to create a Builder instance."""
 
     config: NuaConfig
+    opts: dict[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        assert isinstance(self.config, NuaConfig)
 
     def get_builder(self) -> Builder:
         with verbosity(4):
@@ -36,10 +41,10 @@ class BuilderFactory:
         build_method = self.detect_build_method()
 
         if build_method == "build":
-            return DockerBuilder(self.config)
+            return DockerBuilder(self.config, **self.opts)
 
         if build_method == "wrap":
-            return DockerWrapBuilder(self.config)
+            return DockerWrapBuilder(self.config, **self.opts)
 
         raise ValueError(f"Unknown build strategy '{build_method}'")
 

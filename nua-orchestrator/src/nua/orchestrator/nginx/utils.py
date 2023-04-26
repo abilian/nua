@@ -5,7 +5,7 @@ from pathlib import Path
 from pprint import pformat
 
 from nua.lib.actions import jinja2_render_from_str_template
-from nua.lib.panic import info, vprint, vprint_magenta, warning
+from nua.lib.panic import bold_debug, debug, info, warning
 from nua.lib.shell import chown_r, mkdir_p, rm_fr
 from nua.lib.tool.state import verbosity
 
@@ -104,8 +104,8 @@ def configure_nginx_hostname(host: dict):
                    ...
     """
     with verbosity(4):
-        vprint("configure_nginx_hostname: host")
-        vprint(pformat(host))
+        bold_debug("configure_nginx_hostname: host")
+        debug(pformat(host))
     _set_instances_proxy_auto_port(host)
     _set_located_port_list(host)
     nua_nginx_path = nua_env.nginx_path()
@@ -124,8 +124,8 @@ def remove_nginx_configuration_hostname(stop_domain: str):
     warning: only for user 'nua' or 'root'
     """
     with verbosity(4):
-        vprint("remove_nginx_configuration_hostname:")
-        vprint(stop_domain)
+        bold_debug("remove_nginx_configuration_hostname:")
+        debug(stop_domain)
     nua_nginx_path = nua_env.nginx_path()
     dest_path = nua_nginx_path / "sites" / stop_domain
     dest_path.unlink(missing_ok=True)
@@ -137,16 +137,16 @@ def _actual_configure_nginx_hostname(
     host: dict,
 ):
     with verbosity(4):
-        vprint_magenta(f"{host['hostname']} template:")
-        vprint(template)
+        bold_debug(f"{host['hostname']} template:")
+        debug(template)
     with verbosity(2):
         info("Nginx configuration:", dest_path)
     jinja2_render_from_str_template(template, dest_path, host)
     if dest_path.exists():
         with verbosity(3):
-            vprint("Nginx configuration content:")
+            bold_debug("Nginx configuration content:")
             with open(dest_path, encoding="utf8") as rfile:
-                vprint(rfile.read())
+                debug(rfile.read())
     else:
         warning(f"host '{host['hostname']}', Nginx configuration not created")
     os.chmod(dest_path, 0o644)

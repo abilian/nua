@@ -7,10 +7,15 @@
 Note: **currently use "nua-build ..." for command line**.
 See later if move this to "nua ...".
 """
-from typing import Optional
+import argparse
+import sys
+import traceback
+from time import perf_counter
 
 import snoop
-import typer
+from cleez.actions import VERSION
+from nua.agent.nua_config import NuaConfigError
+from nua.lib.elapsed import elapsed
 from nua.lib.panic import Abort
 from nua.lib.tool.state import set_color, set_verbosity
 
@@ -19,63 +24,77 @@ from .builders import BuilderError, get_builder
 
 snoop.install()
 
-app = typer.Typer()
 
+def main():
+    t0 = perf_counter()
 
-def version_callback(value: bool) -> None:
-    if value:
-        _version_string()
-        raise typer.Exit(0)
+    parser = argparse.ArgumentParser()
 
+    # Generic / classic options
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        default=0,
+        action="count",
+        help="Show more informations, until -vvv.",
+    )
+    parser.add_argument(
+        "--color",
+        default=True,
+        action=argparse.BooleanOptionalAction,
+        help="Enable (default) / disable colorized messages.",
+    )
+    parser.add_argument(
+        "--version",
+        "-V",
+        action=VERSION,
+        version=f"nua-build version: {__version__}",
+        help="Show nua-build version and exit.",
+    )
 
-argument_config = typer.Argument(
-    None, metavar="config", help="Path to the package dir or 'nua-config' file."
-)
+    # Specific options / arguments
+    parser.add_argument(
+        "config_file", help="Path to the package dir or 'nua-config' file."
+    )
+    parser.add_argument("-t", "--time", action="store_true", help="Print timing info")
+    parser.add_argument(
+        "-s",
+        "--save",
+        default=True,
+        action=argparse.BooleanOptionalAction,
+        help="Save image locally after the build (defaults to True).",
+    )
 
-option_version = typer.Option(
-    None,
-    "--version",
-    "-V",
-    help="Show nua-build version and exit.",
-    callback=version_callback,
-    is_eager=True,
-)
+    args = parser.parse_args(sys.argv[1:])
 
-option_verbose = typer.Option(
-    0, "--verbose", "-v", help="Show more informations, until -vvv. ", count=True
-)
+    set_verbosity(args.verbose)
+    set_color(args.color)
 
-option_color = typer.Option(True, "--color/--no-color", help="Colorize messages. ")
+    opts = {
+        "save_image": args.save,
+    }
 
+    try:
+        builder = get_builder(args.config_file or ".", **opts)
+    except NuaConfigError as e:
+        # FIXME: not for production
+        traceback.print_exc(file=sys.stderr)
+        raise Abort(e.args[0])
 
-def _version_string() -> None:
-    typer.echo(f"nua-build version: {__version__}")
-
-
-# def usage():
-#     _version_string()
-#     typer.echo(
-#         "Usage: nua-build [OPTIONS] COMMAND [ARGS]...\n\n"
-#         "Try 'nua-build --help' for help."
-#     )
-#     raise typer.Exit(0)
-
-
-# @app.callback(invoke_without_command=True)
-@app.command()
-def main(
-    # ctx: typer.Context,
-    config_file: Optional[str] = argument_config,
-    version: Optional[bool] = option_version,
-    verbose: int = option_verbose,
-    colorize: bool = option_color,
-) -> None:
-    """Nua-build CLI inferface."""
-    set_verbosity(verbose)
-    set_color(colorize)
-
-    builder = get_builder(config_file)
     try:
         builder.run()
     except BuilderError as e:
+        # FIXME: not for production
+        traceback.print_exc(file=sys.stderr)
         raise Abort from e
+
+    if args.time or args.verbose >= 1:
+        t1 = perf_counter()
+        print(f"Build time (clock): {elapsed(t1-t0)}")
+
+
+# Backwards compatibility
+app = main
+
+if __name__ == "__main__":
+    main()

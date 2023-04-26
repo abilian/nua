@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-cli"
-version = "0.5.8"
+version = "0.5.14"
 description = ""
 authors = ["Stefane Fermigier <sf@abilian.com>"]
 readme = "readme.md"
@@ -15,13 +15,18 @@ nua = "nua_cli.main:main"
 python = ">=3.10,<3.12"
 
 tomli = "^2.0.1"
+
+# Used only for its SSH support
 fabric = "^3.0.0"
+
 # Temp: use snoop in prod code
 snoop = "*"
 
 # typer = "^0.7.0"
 termcolor = "^2.2.0"
-cleez = {git = "https://github.com/abilian/cleez"}
+cleez = "^0.1.7"
+
+# cleez = {git = "https://github.com/abilian/cleez"}
 
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"

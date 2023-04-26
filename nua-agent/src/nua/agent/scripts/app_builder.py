@@ -13,20 +13,26 @@ from textwrap import dedent
 
 from nua.lib.actions import (
     apt_remove_lists,
-    detect_and_install,
     install_build_packages,
     install_git_source,
     install_meta_packages,
     install_packages,
     install_pip_packages,
     install_source,
+    installed_packages,
 )
 from nua.lib.backports import chdir
-from nua.lib.exec import exec_as_nua
-from nua.lib.panic import Abort, info, show, vprint
+from nua.lib.exec import exec_as_nua, exec_as_root
+from nua.lib.panic import Abort, info, show, vprint, warning
 from nua.lib.shell import chmod_r, chown_r, mkdir_p, rm_fr, sh
-from nua.lib.tool.state import set_verbosity, verbosity, verbosity_level
+from nua.lib.tool.state import (
+    set_packages_updated,
+    set_verbosity,
+    verbosity,
+    verbosity_level,
+)
 
+from ..auto_install import detect_and_install
 from ..constants import (
     NUA_APP_PATH,
     NUA_BUILD_PATH,
@@ -49,6 +55,7 @@ class BuilderApp:
             set_verbosity(int(os.environ["nua_verbosity"]))
             with verbosity(3):
                 info("verbosity:", verbosity_level())
+        set_packages_updated(False)
 
         self.build_dir = Path(NUA_BUILD_PATH)
         if not self.build_dir.is_dir():
@@ -64,24 +71,15 @@ class BuilderApp:
             self.pre_build()
             with verbosity(1):
                 info("******** Stage: build")
-            with install_build_packages(self.config.build_packages):
+            with install_build_packages(
+                self.config.build_packages,
+                installed=installed_packages(),
+            ):
                 code_installed = self.install_project_code()
-                pip_installed = install_pip_packages(self.config.pip_install)
-                built = False
-                if code_installed:
-                    built = detect_and_install(self.source)
-                if not any((pip_installed, code_installed)):
-                    # no package installed through install_pip_packages and
-                    # no other way. Let's assume there is a local project.
-                    show("Try install from some local project")
-                    built = detect_and_install(".")
-                if (code_installed or pip_installed or built) and os.getuid() == 0:
+                chown_r("/nua/build", "nua")
+                built = self.run_build_script(code_installed)
+                if (code_installed or built) and os.getuid() == 0:
                     chown_r("/nua/build", "nua")
-                # if code_installed:
-                # always run build script: maybe no code source,
-                # but only configuration of standard .deb packages
-                self.run_build_script()
-
         self.post_build()
         self.test_build()
         with verbosity(1):
@@ -157,7 +155,10 @@ class BuilderApp:
             copy2(path, script_dir)
             return
         with verbosity(2):
-            vprint("Writing debug start script")
+            warning(
+                "Neither start script or start-command found.\n"
+                "Writing a debug start script showing container's environment."
+            )
             return self._write_start_script(script_dir, ["env"])
 
     def _write_start_script(self, script_dir: Path, start_cmd: list):
@@ -203,36 +204,62 @@ class BuilderApp:
             return path
         return None
 
-    def run_build_script(self):
+    def run_build_script(self, code_installed: bool) -> bool:
         """Process the 'build.py' script if exists or the build-command.
 
         The script is run from the directory of the nua-config.toml
         file.
         """
+        pip_installed = install_pip_packages(self.config.pip_install)
         if self.config.build_command:
-            return self.build_command()
-        script_path = self.find_build_script()
-        if not script_path:
-            return
-        # assuming it is a python script
-        env = dict(os.environ)
-        with verbosity(2):
-            cmd = "python --version"
-            sh(cmd, env=env)
-        cmd = f"python {script_path}"
-        sh(cmd, env=env, timeout=1800)
+            return self.build_with_command()
+        if script_path := self.find_build_script():
+            return self.build_with_script(script_path)
+        return self.build_with_auto_detection(code_installed, pip_installed)
 
-    def build_command(self):
+    def build_with_command(self) -> bool:
         """Process the 'build-command' commands.
 
         The script is run from the source directory.
         """
-        if not self.config.build_command:
-            return
         with chdir(self.source):
             with verbosity(2):
                 show("Execution of build-command")
-            exec_as_nua(self.config.build_command)
+            env = dict(os.environ)
+            if self.config.build.get("build-as-root", False):
+                exec_as_root(self.config.build_command, env=env, timeout=1800)
+            else:
+                exec_as_nua(self.config.build_command, env=env, timeout=1800)
+        return True
+
+    def build_with_script(self, script_path: Path) -> bool:
+        """Build with a python script."""
+        env = dict(os.environ)
+        cmd = f"python {script_path}"
+        if self.config.build.get("build-as-root", False):
+            exec_as_root(cmd, env=env, timeout=1800)
+        else:
+            exec_as_nua(cmd, env=env, timeout=1800)
+        return True
+
+    def build_with_auto_detection(
+        self,
+        code_installed: bool,
+        pip_installed: bool,
+    ) -> bool:
+        """Build with a auto detect/install.
+
+        Rem: detect_and_install() is launched as root (the current user),
+             it's the responsability of auto installer to switch to user nua.
+        """
+        if code_installed:
+            return detect_and_install(self.source)
+        if not any((pip_installed, code_installed)):
+            # no package installed through install_pip_packages and
+            # no other way. Let's assume there is a local project.
+            show("Try install from some local project")
+            return detect_and_install(".")
+        return False
 
     def install_project_code(self) -> bool:
         installed = False

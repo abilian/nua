@@ -12,6 +12,8 @@
 
 ### Vision
 
+[Nua](https://nua.rocks/) is an open source, self-hosted cloud platform project (a PaaS - platform as a service).
+
 Nua streamlines the development, selection, installation and resilient operation of web applications in a self-hosted cloud environment.
 
 It is primarily aimed at users (SMEs, associations, public services, etc.) who wish to benefit from the simplicity of the cloud at the lowest cost without compromising the principles of digital sovereignty.
@@ -43,11 +45,12 @@ See: <https://speakerdeck.com/sfermigier/nua-a-self-hosted-resilient-paas>
 The Nua project is a monorepo, split into several subpackages:
 
 - `nua-lib`: common code for all Nua packages ([details](./nua-lib/README.md)).
-- `nua-cli`: command-line interface for Nua  ([details](./nua-cli/README.md)).
-- `nua-agent`: agent for Nua apps  ([details](./nua-agent/README.md)).
-- `nua-autobuild`: build Docker images used by Nua  ([details](./nua-autobuild/README.md)).
-- `nua-build`: build system for Nua packages  ([details](./nua-build/README.md)).
-- `nua-orchestrator`: orchestrator for Nua applications  ([details](./nua-orchestrator/README.md)).
+- `nua-cli`: command-line interface for Nua ([details](./nua-cli/README.md)).
+- `nua-agent`: agent for Nua apps ([details](./nua-agent/README.md)).
+- `nua-autobuild`: build Docker images used by Nua ([details](./nua-autobuild/README.md)).
+- `nua-build`: build system for Nua packages ([details](./nua-build/README.md)).
+- `nua-orchestrator`: orchestrator for Nua applications ([details](./nua-orchestrator/README.md)).
+- `nua-server`: web UI for a Nua iserver ([details](./nua-server/README.md)). Not ready yet.
 
 It also comprises several example applications, as well as a few real-world applications: [`apps`](./apps).
 
@@ -71,36 +74,47 @@ As of 2023/02/08, we have a:
 - We have started packaging some applications (HedgeDoc, Dolibarr, simple demos).
 - Work has started on a common `nua` CLI:
 
-```
-$ nua --help
+```console
+$ nua
+nua (0.5.11)
 
- Usage: nua [OPTIONS] COMMAND [ARGS]...
+Usage:
+  nua <command> [options] [arguments]
 
- Nua local CLI.
+Options:
+  -h  Show help and exit
+  -V  Show version and exit
+  -d  Enable debug mode
+  -v  Increase verbosity
 
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --version             -V        Show Nua version and exit.                   │
-│ --install-completion            Install completion for the current shell.    │
-│ --show-completion               Show completion for the current shell, to    │
-│                                 copy it or customize the installation.       │
-│ --help                          Show this message and exit.                  │
-╰──────────────────────────────────────────────────────────────────────────────╯
-╭─ Commands ───────────────────────────────────────────────────────────────────╮
-│ apps         List applications.                                              │
-│ backup       Backup a deployed application.                                  │
-│ build        Build app but don't deploy it.                                  │
-│ config       Show / edit app config                                          │
-│ deploy       Deploy an application.                                          │
-│ destroy      Destroy an application.                                         │
-│ help         Show help.                                                      │
-│ logs         Show application logs.                                          │
-│ restore      Restore backup data of a deployed application.                  │
-│ server       Manage the Nua server                                           │
-│ start        Start an application.                                           │
-│ stop         Stop an application.                                            │
-│ update       Update an application.                                          │
-│ version      Show Nua version.                                               │
-╰──────────────────────────────────────────────────────────────────────────────╯
+Available commands:
+  apps     List applications.
+  backup   Backup a deployed application.
+  build    Build app but don't deploy it.
+  deploy   Deploy app.
+  destroy  Destroy an application.
+  help     Show help.
+  logs     Show application logs.
+  restart  Restart an application.
+  restore  Restore backup data of a deployed application.
+  start    Start an application.
+  stop     Stop an application.
+  update   Update an application.
+
+ config
+  config show      Show application config.
+
+ env
+  env set          Show application env variables.
+  env show         Show application env variables.
+
+ server
+  server cleanup   Cleanup server (remove inactive docker images and containers).
+  server logs      Show server logs.
+  server ps        List all server processes.
+  server settings  Show server settings.
+  server status    Show Nua status.
+  server uptime    Show server uptime.
 ```
 
 ### REUSE (licensing compliance)

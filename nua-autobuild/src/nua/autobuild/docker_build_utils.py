@@ -8,18 +8,17 @@ from docker import DockerClient
 from docker.errors import APIError, BuildError, ImageNotFound
 from docker.models.images import Image
 from docker.utils.json_stream import json_stream
-from nua.lib.console import print_red
-from nua.lib.panic import Abort, vprint, vprint_blue, vprint_magenta
+from nua.lib.panic import Abort, debug, important, print_stream, red_line, vprint
 from nua.lib.tool.state import verbosity, verbosity_level
 
 LOCAL_CONFIG = {"size_unit_MiB": False}
 RE_SUCCESS = re.compile(r"(^Successfully built |sha256:)([0-9a-f]+)$")
 
 
-def vprint_log_stream(docker_log: list):
-    for line in docker_log:
-        if "stream" in line:
-            vprint("    ", line["stream"].strip())
+# def vprint_log_stream(docker_log: list):
+#     for line in docker_log:
+#         if "stream" in line:
+#             vprint("    ", line["stream"].strip())
 
 
 def docker_build_log_error(func):
@@ -29,25 +28,27 @@ def docker_build_log_error(func):
             return func(*args, **kwargs)
 
         except BuildError as e:
-            print_red("=" * 60)
-            print_red("Something went wrong with image build!")
-            print_red(str(e))
-            print_red("=" * 60)
+            with verbosity(0):
+                red_line("=" * 60)
+                red_line("Something went wrong with image build!")
+                red_line(str(e))
+                red_line("=" * 60)
             raise Abort("Exiting.")
 
         except APIError as e:
-            message = ["=" * 60]
-            message.append("Something went wrong with image build!")
-            if e.is_client_error():
-                message.append(f"{e.response.status_code} Client Error")
-            elif e.is_server_error():
-                message.append(f"{e.response.status_code} Server Error")
-            message.append(f"URL: {e.response.url}")
-            message.append(f"Reason: {e.response.reason}")
-            message.append(f"Explanation: {e.explanation}")
-            message.append("=" * 60)
-            for line in message:
-                print_red(line)
+            with verbosity(0):
+                message = ["=" * 60]
+                message.append("Something went wrong with image build!")
+                if e.is_client_error():
+                    message.append(f"{e.response.status_code} Client Error")
+                elif e.is_server_error():
+                    message.append(f"{e.response.status_code} Server Error")
+                message.append(f"URL: {e.response.url}")
+                message.append(f"Reason: {e.response.reason}")
+                message.append(f"Explanation: {e.explanation}")
+                message.append("=" * 60)
+                for line in message:
+                    red_line(line)
             raise Abort("Exiting.")
 
     return build_log_error_wrapper
@@ -79,11 +80,11 @@ def image_labels(reference: str) -> dict:
 
 
 def display_docker_img(image_name: str):
-    vprint_magenta(f"Docker image for '{image_name}':")
+    important(f"Docker image for '{image_name}':")
     client = DockerClient.from_env()
     result = client.images.list(filters={"reference": image_name})
     if not result:
-        vprint("No image found")
+        red_line("No image found")
         return
     for img in result:
         display_one_docker_img(img)
@@ -111,7 +112,7 @@ def docker_remove_locally(reference: str):
         image = client.images.get(reference)
         if image:
             with verbosity(3):
-                vprint(f"Image '{reference}' found in local Docker instance: remove it")
+                debug(f"Image '{reference}' found in local Docker instance: remove it")
             client.images.remove(image=image.id, force=True, noprune=False)
     except (APIError, ImageNotFound):
         pass
@@ -147,8 +148,12 @@ def docker_pull(reference: str) -> Image | None:
 
 
 def _print_buffer_log(messages: list[str]):
+    """Print messages buffered, without checking for verbosity.
+
+    Dump retained messages when an error occured."""
     for message in messages:
-        print(message, end="")
+        with verbosity(0):
+            print_stream(message)
 
 
 def _docker_stream_chunk(
@@ -165,7 +170,7 @@ def _docker_stream_chunk(
         if match := RE_SUCCESS.search(message):
             result["image_id"] = match.group(2)
         with verbosity(2):
-            vprint_blue(message)
+            print_stream(message)
         if verbosity_level() < 2:
             # store message for printing full log if later an error occurs
             messages_buffer.append(message)

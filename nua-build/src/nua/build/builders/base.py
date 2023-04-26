@@ -13,7 +13,7 @@ from pathlib import Path
 
 from docker.models.images import Image
 from nua.agent.nua_config import NuaConfig
-from nua.lib.panic import info, show, title, vfprint, vprint
+from nua.lib.panic import info, show, title, vfprint, vprint, warning
 from nua.lib.tool.state import verbosity
 
 from .. import config as build_config
@@ -35,16 +35,42 @@ class Builder(abc.ABC):
     nua_folder: Path
     nua_base: str
 
-    def __init__(self, config: NuaConfig):
+    save_image: bool = True
+
+    def __init__(self, config: NuaConfig, save_image: bool = True):
         assert isinstance(config, NuaConfig)
 
         self.config = config
         self.nua_base = ""
         self.build_dir = self.make_build_dir()
 
+        self.save_image = save_image
+
     @abstractmethod
     def run(self):
         raise NotImplementedError()
+
+    def post_build_notices(self):
+        """Post build analysis and possible usefull information."""
+        self._notice_local_volumes()
+
+    def _notice_local_volumes(self) -> None:
+        bind_volumes = [
+            volume.get("source", "unknown")
+            for volume in self.config.volume
+            if volume.get("type") == "bind"
+        ]
+        if not bind_volumes:
+            return
+        lines = [
+            "Declaration of volume of type Docker 'bind'.",
+            "The contents of these volumes will NOT be deleted when removing the ",
+            "application instance:",
+        ]
+        for volume in bind_volumes:
+            lines.append(f"    {volume}")
+        with verbosity(0):
+            warning("\n".join(lines))
 
     def _title_build(self):
         title(f"Building the image for {self.config.app_id}")

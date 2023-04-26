@@ -4,11 +4,11 @@ title = "nocodb"
 author = "nocodb authors"
 description = "🔥 🔥 🔥 Open Source Airtable Alternative"
 website = "https://nocodb.com"
-version = "0.10.0"
+version = "0.106.1"
 release = 1
 license = "AGPL-3.0"
 
-src-url = "https://github.com/nocodb/nocodb/archive/v{version}.tar.gz"
+src-url = "https://github.com/nocodb/nocodb/archive/refs/tags/{version}.tar.gz"
 
 [build]
 packages = []
