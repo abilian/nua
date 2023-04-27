@@ -337,11 +337,11 @@ class AppDeployment:
         self.already_deployed_labels = set(self.deployed_labels)
         self.apps.append(app)
         self.sort_apps_per_name_domain()
+        self.merge_nginx_configuration()
         self.deployed_domains = sorted(
             {apps_dom["hostname"] for apps_dom in self.apps_per_domain}
         )
         self.deployed_labels = sorted(a.label_id for a in self.apps)
-        self.merge_nginx_configuration()
         self._start_apps([app], deactivate=False)
 
     def deploy_update_app(self, merged_app: AppInstance):
@@ -402,6 +402,9 @@ class AppDeployment:
         remove_volumes: bool = False,
     ):
         self.remove_nginx_configuration(current_app.domain)
+        self.deployed_domains = [
+            d for d in self.deployed_domains if d != current_app.domain
+        ]
         self.stop_deployed_apps([current_app])
         self.remove_container_and_network([current_app])
         if remove_volumes:
@@ -544,12 +547,11 @@ class AppDeployment:
             hostname = host["hostname"]
             with verbosity(3):
                 debug(f"merge_nginx_configuration for {hostname}")
-
             if hostname in self.already_deployed_domains:
                 with verbosity(3):
                     debug("continue, already_deployed_domains")
                 continue
-            with verbosity(0):
+            with verbosity(1):
                 info(f"Configure Nginx for domain '{hostname}'")
             configure_nginx_hostname(host)
         # registering https apps with certbot requires that the base nginx config is
@@ -565,7 +567,8 @@ class AppDeployment:
         To stop nginx redirection before actually stopping the apps.
         """
         with verbosity(0):
-            info(f"Remove domain from Nginx: '{stop_domain}'")
+            info(f"Remove Nginx configuration: '{stop_domain}'")
+
         remove_nginx_configuration_hostname(stop_domain)
         nginx_reload()
 
