@@ -1633,30 +1633,6 @@ type = "directory"
 url = "../nua-agent"
 
 [[package]]
-name = "nua-autobuild"
-version = "0.5.14"
-description = "Nua self builder"
-category = "main"
-optional = false
-python-versions = "^3.10"
-files = []
-develop = true
-
-[package.dependencies]
-docker = "^6.0"
-nua-agent = {path = "../nua-agent", develop = true}
-nua-lib = {path = "../nua-lib", develop = true}
-paramiko = "*"
-setuptools = "*"
-tomli = "^2.0.1"
-tomli-w = "^1.0.0"
-typer = {version = "^0.7.0", extras = ["all"]}
-
-[package.source]
-type = "directory"
-url = "../nua-autobuild"
-
-[[package]]
 name = "nua-lib"
 version = "0.5.14"
 description = "Nua common library"
@@ -2681,4 +2657,4 @@ test = ["websockets"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "8bfb07f2e23671dd337b77d1b72daf8fdd0736bb219aff70de1f0599f95922a0"
+content-hash = "890de38e5210e39b03937ac7c47a64d3b0b0df4653981ec3771e6aa8012e6d1c"

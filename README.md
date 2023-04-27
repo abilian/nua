@@ -47,7 +47,6 @@ The Nua project is a monorepo, split into several subpackages:
 - `nua-lib`: common code for all Nua packages ([details](./nua-lib/README.md)).
 - `nua-cli`: command-line interface for Nua ([details](./nua-cli/README.md)).
 - `nua-agent`: agent for Nua apps ([details](./nua-agent/README.md)).
-- `nua-autobuild`: build Docker images used by Nua ([details](./nua-autobuild/README.md)).
 - `nua-build`: build system for Nua packages ([details](./nua-build/README.md)).
 - `nua-orchestrator`: orchestrator for Nua applications ([details](./nua-orchestrator/README.md)).
 - `nua-server`: web UI for a Nua iserver ([details](./nua-server/README.md)). Not ready yet.

@@ -1707,30 +1707,6 @@ type = "directory"
 url = "../nua-agent"
 
 [[package]]
-name = "nua-autobuild"
-version = "0.5.14"
-description = "Nua self builder"
-category = "main"
-optional = false
-python-versions = "^3.10"
-files = []
-develop = true
-
-[package.dependencies]
-docker = "^6.0"
-nua-agent = {path = "../nua-agent", develop = true}
-nua-lib = {path = "../nua-lib", develop = true}
-paramiko = "*"
-setuptools = "*"
-tomli = "^2.0.1"
-tomli-w = "^1.0.0"
-typer = {version = "^0.7.0", extras = ["all"]}
-
-[package.source]
-type = "directory"
-url = "../nua-autobuild"
-
-[[package]]
 name = "nua-build"
 version = "0.5.14"
 description = "Nua build package (currently: build, core build, agent)"
@@ -1744,10 +1720,11 @@ develop = true
 cleez = "^0.1.8"
 docker = {version = "^6.0.1", extras = ["ssh"]}
 nua-agent = {path = "../nua-agent", develop = true}
-nua-autobuild = {path = "../nua-autobuild", develop = true}
 nua-lib = {path = "../nua-lib", develop = true}
 snoop = "^0.4.3"
 tomli = "^2.0.1"
+tomli-w = "^1.0.0"
+typer = {version = "^0.7.0", extras = ["all"]}
 
 [package.source]
 type = "directory"
@@ -2989,4 +2966,4 @@ test = ["pytest (>=6.0.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "25e9f2900fedf716f914526b987df1b2359a55e3f882480f64f683033ab3e15a"
+content-hash = "491037a06d86b3115ab8b8a8e2432c94457f6095da91cbba110825823efc3d6c"

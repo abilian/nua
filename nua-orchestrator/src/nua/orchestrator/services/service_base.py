@@ -1,4 +1,4 @@
-from nua.autobuild.docker_build_utils import display_one_docker_img
+from nua.build.autobuild.docker_build_utils import display_one_docker_img
 from nua.lib.panic import vprint
 from nua.lib.tool.state import verbosity
 

@@ -18,7 +18,6 @@ SUB_REPOS = [
     "nua-lib",
     "nua-cli",
     "nua-agent",
-    # "nua-autobuild",
     "nua-build",
     "nua-orchestrator",
 ]

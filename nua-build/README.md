@@ -69,7 +69,3 @@ Some other base images are available to facilitate builds in other programming e
 
     - `nua_config`: library to read the embedded `nua-config` file (introspection),
     - `app_builder`: actual builder of the application inside the Docker image.
-
-- `nua-autobuild`: build Docker images used by Nua. It provides:
-
-    - `nua_image_builder`:  tool to build locally the Nua standard base images if needed
