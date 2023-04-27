@@ -50,6 +50,7 @@ lint:
 	ruff nua*/src/ nua*/tests/
 	# This takes longer
 	invoke lint
+	lint-imports
 
 
 #
@@ -90,7 +91,7 @@ clean:
 	-invoke clean
 	find . -name __pycache__ -print0 | xargs -0 rm -rf
 	find . -type d -empty -delete
-	rm -rf .mypy_cache .pytest_cache .ruff_cache
+	rm -rf .mypy_cache .pytest_cache .ruff_cache .import_linter_cache
 	rm -rf */.mypy_cache */.pytest_cache */.ruff_cache
 	rm -f .coverage */.coverage
 	rm -rf dist nua-*/dist

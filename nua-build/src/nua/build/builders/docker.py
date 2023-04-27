@@ -12,7 +12,7 @@ from shutil import copy2, copytree
 import docker
 from nua.lib.constants import NUA_BUILDER_TAG
 from nua.lib.nua_config import hyphen_get, nua_config_names
-from nua.build.autobuild.docker_build_utils import (
+from nua.lib.docker import (
     display_docker_img,
     docker_build_log_error,
     docker_stream_build,

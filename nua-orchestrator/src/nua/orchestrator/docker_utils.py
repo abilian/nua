@@ -14,8 +14,8 @@ from docker import DockerClient
 from docker.errors import APIError, NotFound
 from docker.models.containers import Container
 from docker.models.images import Image
-from nua.build.autobuild.docker_build_utils import docker_require
 from nua.lib.console import print_red
+from nua.lib.docker import docker_require
 from nua.lib.panic import Abort, bold_debug, important, info, show, vprint, warning
 from nua.lib.shell import chmod_r, mkdir_p
 from nua.lib.tool.state import verbosity

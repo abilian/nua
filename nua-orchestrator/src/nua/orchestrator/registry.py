@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 import docker
-from nua.build.autobuild.docker_build_utils import image_created_as_iso
+from nua.lib.docker import image_created_as_iso
 
 from . import config
 from .db import store

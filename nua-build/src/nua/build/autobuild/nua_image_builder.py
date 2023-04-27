@@ -11,7 +11,7 @@ from nua.lib.tool.state import verbosity
 
 from . import __version__ as nua_version
 from .constants import DOCKERFILE_BUILDER, DOCKERFILE_PYTHON, NUA_LINUX_BASE
-from .docker_build_utils import (
+from nua.lib.docker import (
     display_docker_img,
     docker_remove_locally,
     docker_require,

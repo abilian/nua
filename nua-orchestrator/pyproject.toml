@@ -34,8 +34,9 @@ nua_test_services = "nua.orchestrator.service:test"
 python = "^3.10"
 
 nua-lib = { path = "../nua-lib/", develop = true }
+
+# Last one to remove
 nua-agent = { path = "../nua-agent/", develop = true }
-nua-build = { path = "../nua-build/", develop = true }
 
 # Databases
 SQLAlchemy-serializer = "^1.4.1"
