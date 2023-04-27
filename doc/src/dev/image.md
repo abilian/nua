@@ -53,13 +53,13 @@ Based on the above, a web app image has a `nua-builder` image as its parent imag
     # app build:
     COPY . /nua/build
     ARG nua_verbosity
-    RUN app_builder
+    RUN app-builder
 
     CMD ["python", "/nua/scripts/start.py"]
 
--   During the build phase, the source code of the application is copied into the `/nua/build` folder
--   The `app_builder` Nua application drives the actual build of the web app based on directives from the `nua-config` file
--   Depending on the type of application, the executable code of the web app is in `/nua/build` or dispatched in `/nua/scripts` or `/nua/bin`. For Python applications, the code is installed in the virtual env of the `nua` user, in the `/nua/venv/bin` folder.
+- During the build phase, the source code of the application is copied into the `/nua/build` folder
+- The `app-builder` Nua application drives the actual build of the web app based on directives from the `nua-config` file
+- Depending on the type of application, the executable code of the web app is in `/nua/build` or dispatched in `/nua/scripts` or `/nua/bin`. For Python applications, the code is installed in the virtual env of the `nua` user, in the `/nua/venv/bin` folder.
 
 ### Metadata
 

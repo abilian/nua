@@ -13,7 +13,7 @@ Note: don't depend on `nua-agent` beeing installed in the Docker image. It is no
 
 `nua-agent` provides:
 
-- The `app_builder` script: actual builder of the application inside the Docker image.
+- The `app-builder` script: actual builder of the application inside the Docker image.
 
 
 ## Dependency graph

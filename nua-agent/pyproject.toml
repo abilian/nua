@@ -26,7 +26,7 @@ types-setuptools = "*"
 platformdirs = "<3.0.0"
 
 [tool.poetry.scripts]
-app_builder = "nua.agent.scripts.app_builder:main"
+app-builder = "nua.agent.scripts.app_builder:main"
 
 [build-system]
 requires = [

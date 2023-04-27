@@ -67,8 +67,7 @@ Some other base images are available to facilitate builds in other programming e
 
 - `nua-agent`: agent for building Nua apps. It provides:
 
-    - `nua_config`: library to read the embedded `nua-config` file (introspection),
-    - `app_builder`: actual builder of the application inside the Docker image.
+    - `app-builder`: actual builder of the application inside the Docker image.
 
 ## Dependency graph
 
