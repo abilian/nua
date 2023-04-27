@@ -8,9 +8,9 @@ from typing import Any, Union
 import tomli
 import yaml
 from nua.lib.actions import download_extract
+from nua.lib.constants import NUA_CONFIG_EXT, NUA_CONFIG_STEM
 from nua.lib.shell import chown_r
 
-from .constants import NUA_CONFIG_EXT, NUA_CONFIG_STEM
 from .nua_tag import nua_tag_string
 
 REQUIRED_BLOCKS = ["metadata"]

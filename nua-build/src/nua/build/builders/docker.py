@@ -10,7 +10,7 @@ from pathlib import Path
 from shutil import copy2, copytree
 
 import docker
-from nua.agent.constants import NUA_BUILDER_TAG
+from nua.lib.constants import NUA_BUILDER_TAG
 from nua.agent.nua_config import hyphen_get, nua_config_names
 from nua.autobuild.docker_build_utils import (
     display_docker_img,

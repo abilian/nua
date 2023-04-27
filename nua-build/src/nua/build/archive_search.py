@@ -5,7 +5,7 @@ from tarfile import TarFile, TarInfo
 
 import tomli
 import yaml
-from nua.agent.constants import NUA_METADATA_PATH
+from nua.lib.constants import NUA_METADATA_PATH
 from nua.agent.nua_config import nua_config_names
 
 

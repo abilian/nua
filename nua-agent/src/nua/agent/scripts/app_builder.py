@@ -22,6 +22,12 @@ from nua.lib.actions import (
     installed_packages,
 )
 from nua.lib.backports import chdir
+from nua.lib.constants import (
+    NUA_APP_PATH,
+    NUA_BUILD_PATH,
+    NUA_METADATA_PATH,
+    NUA_SCRIPTS_PATH,
+)
 from nua.lib.exec import exec_as_nua, exec_as_root
 from nua.lib.panic import Abort, info, show, vprint, warning
 from nua.lib.shell import chmod_r, chown_r, mkdir_p, rm_fr, sh
@@ -33,14 +39,8 @@ from nua.lib.tool.state import (
 )
 
 from ..auto_install import detect_and_install
-from ..constants import (
-    NUA_APP_PATH,
-    NUA_BUILD_PATH,
-    NUA_METADATA_PATH,
-    NUA_SCRIPTS_PATH,
-)
 
-# most inferred meta packages will provided by plugins in the future:
+# most inferred meta packages will be provided by plugins in the future:
 from ..meta_packages import meta_packages_requirements
 from ..nua_config import NuaConfig, hyphen_get
 

@@ -2,9 +2,9 @@
 import tempfile
 from pathlib import Path
 
-from nua.agent.constants import NUA_BUILDER_TAG, NUA_PYTHON_TAG
 from nua.lib.actions import copy_from_package
 from nua.lib.backports import chdir
+from nua.lib.constants import NUA_BUILDER_TAG, NUA_PYTHON_TAG
 from nua.lib.panic import Abort, show, title, vprint
 from nua.lib.shell import mkdir_p
 from nua.lib.tool.state import verbosity

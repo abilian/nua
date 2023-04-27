@@ -1,5 +1,6 @@
 from .version import __version__
 
+# NB: this assumes that all the nua packages have the same version
 NUA_PYTHON_TAG = f"nua-python:{__version__}"
 NUA_BUILDER_TAG = f"nua-builder:{__version__}"
 

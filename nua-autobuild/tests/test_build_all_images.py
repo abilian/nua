@@ -1,7 +1,7 @@
 from contextlib import suppress
 
 import docker
-from nua.agent.constants import NUA_BUILDER_TAG, NUA_PYTHON_TAG
+from nua.lib.constants import NUA_BUILDER_TAG, NUA_PYTHON_TAG
 
 # from subprocess import run
 # import shlex
