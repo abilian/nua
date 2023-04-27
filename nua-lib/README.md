@@ -4,9 +4,9 @@
 
 This subproject contains code that is shared between the various [Nua](https://nua.rocks/) subprojects.
 
-It is not intended to be useful outside of Nua, and is not intended to be used as a standalone library.
+It is not intended to be useful outside Nua, and is not intended to be used as a standalone library.
 
-Since the `nua-lib` code beeing used by `nua-agent`, it should have as little dependencies as possible
+Since the `nua-lib` code being used by `nua-agent`, it should have as little dependencies as possible
 
 ## Content
 

@@ -6,7 +6,7 @@ This packaged is used internally. The main entry point is the `nua` command line
 
 The `nua-agent` package provides the agent that runs inside the Docker image *during the build of the application*.
 
-Note: don't depend on `nua-agent` beeing installed in the Docker image. It is not a runtime dependency.
+Note: don't depend on `nua-agent` being installed in the Docker image. It is not a runtime dependency.
 
 
 ## Content

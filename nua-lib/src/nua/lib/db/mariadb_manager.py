@@ -95,7 +95,7 @@ class MariaDbManager(DbManager):
         exec_as_root(cmd)
 
     def wait_for_db(self, timeout: int = 120):
-        """Wait for the DB beeing up."""
+        """Wait for the DB being up."""
         when = time()
         limit = when + timeout
         while time() < limit:

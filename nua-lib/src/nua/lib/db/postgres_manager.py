@@ -126,7 +126,7 @@ class PostgresManager(DbManager):
         mp_exec_as_postgres(cmd)
 
     def wait_for_db(self, timeout: int = 120):
-        """Wait for the DB beeing up."""
+        """Wait for the DB being up."""
         when = time()
         limit = when + timeout
         while time() < limit:
