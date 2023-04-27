@@ -147,7 +147,7 @@ def graph(c):
     run_in_subrepos(c, "mkdir -p doc")
     for sub_repo in SUB_REPOS:
         output = "doc/dependency-graph.png"
-        target = f"src/nua/{sub_repo[4:]}"
+        target = "src/nua_cli" if sub_repo == "nua-cli" else f"src/nua/{sub_repo[4:]}"
         cmd = f"pydeps --max-bacon 2 --cluster -o {output} -T png {target}"
         h1(f"Running '{cmd}' in subrepos: {sub_repo}")
         with c.cd(sub_repo):
