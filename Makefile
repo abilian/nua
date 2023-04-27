@@ -40,6 +40,11 @@ test:
 	@echo ""
 
 
+test-e2e:
+	@echo "--> Running E2E tests"
+	cd tests/e2e && make clean && sleep 5 && make test
+
+
 #
 # Linting
 #
