@@ -304,6 +304,8 @@ class AppDeployment:
             if service not in self.available_services:
                 raise Abort(f"Required service '{service}' is not available")
         if persistent:
+            with verbosity(2):
+                debug(pformat(persistent))
             # if really new app, not persistent for now, but some persitent data if
             # reusing same label_id for a new app: then try to retrieve the persistent
             # data of previous Appinstance:
