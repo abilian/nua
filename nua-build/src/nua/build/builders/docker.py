@@ -12,13 +12,13 @@ from shutil import copy2, copytree
 import docker
 from nua.lib.constants import NUA_BUILDER_TAG
 from nua.agent.nua_config import hyphen_get, nua_config_names
-from nua.autobuild.docker_build_utils import (
+from nua.build.autobuild.docker_build_utils import (
     display_docker_img,
     docker_build_log_error,
     docker_stream_build,
 )
-from nua.autobuild.nua_image_builder import NuaImageBuilder
-from nua.autobuild.register_builders import is_builder
+from nua.build.autobuild.nua_image_builder import NuaImageBuilder
+from nua.build.autobuild.register_builders import is_builder
 from nua.lib.backports import chdir
 from nua.lib.panic import info, vprint
 from nua.lib.shell import rm_fr
