@@ -19,3 +19,7 @@ It will provide the following features (TBC):
 - `nua_config`: library to read the embedded `nua-config` file (introspection),
 - `app_builder`: actual builder of the application inside the Docker image.
 - `db`: collection of tools to manage databases
+
+## Dependency graph
+
+![Dependency graph](./doc/dependency-graph.png)

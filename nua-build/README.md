@@ -65,7 +65,11 @@ Some other base images are available to facilitate builds in other programming e
     - `exec`: shortcuts to execute sub commands like `exec_as_root()`, `exec_as_root()`
     - `actions`: higher level commands, related to the installation of packages and dependencies (wrappers above `apt`, `pip`, ...)
 
-- `nua-agent`: agent for Nua apps. It provides:
+- `nua-agent`: agent for building Nua apps. It provides:
 
     - `nua_config`: library to read the embedded `nua-config` file (introspection),
     - `app_builder`: actual builder of the application inside the Docker image.
+
+## Dependency graph
+
+![Dependency graph](./doc/dependency-graph.png)

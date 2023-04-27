@@ -120,3 +120,9 @@ Command 'nua --help':
 ```
 
 At the end of the installation, the available commands are displayed.
+
+## Development
+
+### Dependency graph
+
+![Dependency graph](./doc/dependency-graph.png)
