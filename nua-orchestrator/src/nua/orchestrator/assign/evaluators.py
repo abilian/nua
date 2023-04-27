@@ -51,7 +51,7 @@ def persistent_value(func):
 
 
 def no_persistent_value(func):
-    """Dummy wrapper to remove thirf argument."""
+    """Wrapper to mask of the persistent argument."""
 
     @wraps(func)
     def wrapper(

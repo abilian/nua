@@ -283,7 +283,7 @@ class AppDeployment:
                     return "deploy_reuse_label"
 
     def deploy_new_app(self, app: AppInstance):
-        """Deploy new label and app on new domain"""
+        """Deploy new label and app on new domain."""
         important(f"Deploy '{app.label}': a new {app.app_id} on '{app.domain}'")
         self._deploy_new_app(app, load_persistent=False)
 
@@ -305,7 +305,8 @@ class AppDeployment:
                 raise Abort(f"Required service '{service}' is not available")
         if load_persistent:
             # if really new app, not persistent for now, but some persitent data if
-            # same reusing label
+            # reusing same label_id for a new app: then try to retrieve the persistent
+            # data of previous Appinstance:
             self.retrieve_persistent(app)
         self.evaluate_dynamic_values(app)
 
@@ -386,7 +387,7 @@ class AppDeployment:
         # do not keep data:
         self._remove_per_label(same_label_app, remove_volumes=True)
         # self.load_deployed_configuration()
-        self._deploy_new_app(merged_app, load_persistent=True)
+        self._deploy_new_app(merged_app, load_persistent=False)
 
     def _remove_per_label(
         self,
