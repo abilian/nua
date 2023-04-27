@@ -13,6 +13,8 @@ packages = [
 python = "^3.10"
 setuptools = "*"
 jinja2 = "^3.1.2"
+pyyaml = "^6.0"
+tomli = "^2.0.1"
 
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
@@ -47,6 +49,7 @@ ignore_obsolete = [
     "setuptools",
 ]
 ignore_missing = [
+    "nua",
 ]
 ignore_transitive = [
 ]

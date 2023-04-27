@@ -11,3 +11,8 @@ NUA_BUILD_PATH = "/nua/build"
 NUA_APP_PATH = "/nua/app"
 NUA_METADATA_PATH = "/nua/metadata"
 NUA_SCRIPTS_PATH = "/nua/scripts"
+
+
+def nua_config_names():
+    for suffix in NUA_CONFIG_EXT:
+        yield f"{NUA_CONFIG_STEM}.{suffix}"

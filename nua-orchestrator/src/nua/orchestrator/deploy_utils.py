@@ -6,7 +6,7 @@ from pprint import pformat
 import docker
 import docker.types
 from nua.autobuild.docker_build_utils import display_one_docker_img, docker_require
-from nua.build.archive_search import ArchiveSearch
+from nua.lib.archive_search import ArchiveSearch
 from nua.lib.panic import Abort, important, info, vprint, warning
 from nua.lib.tool.state import verbosity
 
@@ -49,7 +49,7 @@ def load_install_image(image_path: str | Path) -> tuple:
         raise FileNotFoundError(path)
 
     arch_search = ArchiveSearch(path)
-    image_nua_config = arch_search.nua_config_dict()
+    image_nua_config = arch_search.get_nua_config_dict()
     if not image_nua_config:
         raise Abort(
             f"image non compatible Nua: {path}.", explanation="No Nua config found"

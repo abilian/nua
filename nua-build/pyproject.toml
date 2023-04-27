@@ -32,7 +32,6 @@ cleez = "^0.1.8"
 
 # Docker client
 docker = {version = "^6.0.1", extras = ["ssh"]}
-pyyaml = "^6.0"
 
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"

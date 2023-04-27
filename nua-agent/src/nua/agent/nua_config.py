@@ -8,7 +8,7 @@ from typing import Any, Union
 import tomli
 import yaml
 from nua.lib.actions import download_extract
-from nua.lib.constants import NUA_CONFIG_EXT, NUA_CONFIG_STEM
+from nua.lib.constants import NUA_CONFIG_STEM, nua_config_names
 from nua.lib.shell import chown_r
 
 from .nua_tag import nua_tag_string
@@ -31,11 +31,6 @@ COMPLETE_BLOCKS = ["build", "run", "env", "docker"]
 
 class NuaConfigError(ValueError):
     pass
-
-
-def nua_config_names():
-    for suffix in NUA_CONFIG_EXT:
-        yield f"{NUA_CONFIG_STEM}.{suffix}"
 
 
 def hyphen_get(data: dict, key: str, default: Any = None) -> Any:
