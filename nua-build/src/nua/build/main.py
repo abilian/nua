@@ -14,7 +14,7 @@ from time import perf_counter
 
 import snoop
 from cleez.actions import VERSION, COUNT, STORE_TRUE
-from nua.agent.nua_config import NuaConfigError
+from nua.agent.nua_config import NuaConfigError, NuaConfig
 from nua.lib.elapsed import elapsed
 from nua.lib.panic import Abort
 from nua.lib.tool.state import set_color, set_verbosity
@@ -75,11 +75,13 @@ def main():
     }
 
     try:
-        builder = get_builder(args.config_file or ".", **opts)
+        config = NuaConfig(args.config_file or ".")
     except NuaConfigError as e:
         # FIXME: not for production
         traceback.print_exc(file=sys.stderr)
         raise Abort(e.args[0])
+
+    builder = get_builder(config, **opts)
 
     try:
         builder.run()

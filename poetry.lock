@@ -783,14 +783,14 @@ files = [
 
 [[package]]
 name = "docformatter"
-version = "1.6.3"
+version = "1.6.4"
 description = "Formats docstrings to follow PEP 257"
 category = "dev"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "docformatter-1.6.3-py3-none-any.whl", hash = "sha256:7d971222d86678e3d699a3e9fdf5dd5b04a027b55642f4628c50180577c63a23"},
-    {file = "docformatter-1.6.3.tar.gz", hash = "sha256:c1377c5a3d01b3f3c325158c6de904d3d6167eb3a0eeeff8d9e66a678177d337"},
+    {file = "docformatter-1.6.4-py3-none-any.whl", hash = "sha256:d2fb49627f7707c6d323fe0eb36744df007119fa300b2e02b5aaa56bcefcbaea"},
+    {file = "docformatter-1.6.4.tar.gz", hash = "sha256:69838eca8b9f7106a28a4621b7f604a48260a5da6dba94a368d8060ac9315fe0"},
 ]
 
 [package.dependencies]
@@ -1972,7 +1972,7 @@ tox-to-nox = ["jinja2", "tox (<4)"]
 
 [[package]]
 name = "nua-agent"
-version = "0.5.13"
+version = "0.5.14"
 description = "Nua agent"
 category = "main"
 optional = false
@@ -1993,7 +1993,7 @@ url = "nua-agent"
 
 [[package]]
 name = "nua-autobuild"
-version = "0.5.13"
+version = "0.5.14"
 description = "Nua self builder"
 category = "main"
 optional = false
@@ -2017,7 +2017,7 @@ url = "nua-autobuild"
 
 [[package]]
 name = "nua-build"
-version = "0.5.13"
+version = "0.5.14"
 description = "Nua build package (currently: build, core build, agent)"
 category = "main"
 optional = false
@@ -2041,7 +2041,7 @@ url = "nua-build"
 
 [[package]]
 name = "nua-cli"
-version = "0.5.13"
+version = "0.5.14"
 description = ""
 category = "main"
 optional = false
@@ -2062,7 +2062,7 @@ url = "nua-cli"
 
 [[package]]
 name = "nua-lib"
-version = "0.5.13"
+version = "0.5.14"
 description = "Nua common library"
 category = "main"
 optional = false
@@ -2080,7 +2080,7 @@ url = "nua-lib"
 
 [[package]]
 name = "nua-orchestrator"
-version = "0.5.13"
+version = "0.5.14"
 description = "Nua orchestrator - local implementation"
 category = "main"
 optional = false
@@ -2211,14 +2211,14 @@ files = [
 
 [[package]]
 name = "pip"
-version = "23.1.1"
+version = "23.1.2"
 description = "The PyPA recommended tool for installing Python packages."
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pip-23.1.1-py3-none-any.whl", hash = "sha256:3d8d72fa0714e93c9d3c2a0ede91e898c64596e0fa7d4523f72dd95728efc418"},
-    {file = "pip-23.1.1.tar.gz", hash = "sha256:c95b53d309f903f33dfe5fd37e502a5c3a05ee3454d518e45df522a4f091b728"},
+    {file = "pip-23.1.2-py3-none-any.whl", hash = "sha256:3ef6ac33239e4027d9a5598a381b9d30880a1477e50039db2eac6e8a8f6d1b18"},
+    {file = "pip-23.1.2.tar.gz", hash = "sha256:0e7c86f486935893c708287b30bd050a36ac827ec7fe5e43fe7cb198dd835fba"},
 ]
 
 [[package]]
@@ -2286,14 +2286,14 @@ testing = ["aboutcode-toolkit (>=6.0.0)", "black", "pytest (>=6,!=7.0.0)", "pyte
 
 [[package]]
 name = "platformdirs"
-version = "3.3.0"
+version = "3.4.0"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "platformdirs-3.3.0-py3-none-any.whl", hash = "sha256:ea61fd7b85554beecbbd3e9b37fb26689b227ffae38f73353cbcc1cf8bd01878"},
-    {file = "platformdirs-3.3.0.tar.gz", hash = "sha256:64370d47dc3fca65b4879f89bdead8197e93e05d696d6d1816243ebae8595da5"},
+    {file = "platformdirs-3.4.0-py3-none-any.whl", hash = "sha256:01437886022decaf285d8972f9526397bfae2ac55480ed372ed6d9eca048870a"},
+    {file = "platformdirs-3.4.0.tar.gz", hash = "sha256:a5e1536e5ea4b1c238a1364da17ff2993d5bd28e15600c2c8224008aff6bbcad"},
 ]
 
 [package.extras]
@@ -2461,14 +2461,14 @@ files = [
 
 [[package]]
 name = "pydeps"
-version = "1.12.1"
+version = "1.12.2"
 description = "Display module dependencies"
 category = "dev"
 optional = false
 python-versions = "*"
 files = [
-    {file = "pydeps-1.12.1-py3-none-any.whl", hash = "sha256:aa8d307b31434e451f4b505ffc3cf280996eaae35bee85b59c8e80a3f8d51014"},
-    {file = "pydeps-1.12.1.tar.gz", hash = "sha256:fc3aa0c02c0ac2d7a0caea869d47b6b4aaf4b15d41a1b79a1c529189efb86e13"},
+    {file = "pydeps-1.12.2-py3-none-any.whl", hash = "sha256:a26fcc047258cae115b5f662ba593442770b29b293badb2707dc4c8e948503e4"},
+    {file = "pydeps-1.12.2.tar.gz", hash = "sha256:aa9a3c7641c895ba260e51968ef1ffca15d8c99a919f0b87448a9ac25e93e43b"},
 ]
 
 [package.dependencies]
@@ -2545,14 +2545,14 @@ diagrams = ["jinja2", "railroad-diagrams"]
 
 [[package]]
 name = "pyright"
-version = "1.1.304"
+version = "1.1.305"
 description = "Command line wrapper for pyright"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pyright-1.1.304-py3-none-any.whl", hash = "sha256:70021bbae07fc28ed16e435f5efa65cd71e06a1888d9ca998798c283d4b3d010"},
-    {file = "pyright-1.1.304.tar.gz", hash = "sha256:87adec38081904c939e3657ab23d5fc40b7ccc22709be0af1859fc785ae4ea61"},
+    {file = "pyright-1.1.305-py3-none-any.whl", hash = "sha256:147da3aac44ba0516423613cad5fbb7a0abba6b71c53718a1e151f456d4ab12e"},
+    {file = "pyright-1.1.305.tar.gz", hash = "sha256:924d554253ecc4fafdfbfa76989d173cc15d426aa808630c0dd669fdc3227ef7"},
 ]
 
 [package.dependencies]
@@ -2746,14 +2746,14 @@ files = [
 
 [[package]]
 name = "requests"
-version = "2.28.2"
+version = "2.29.0"
 description = "Python HTTP for Humans."
 category = "main"
 optional = false
-python-versions = ">=3.7, <4"
+python-versions = ">=3.7"
 files = [
-    {file = "requests-2.28.2-py3-none-any.whl", hash = "sha256:64299f4909223da747622c030b781c0d7811e359c37124b4bd368fb8c6518baa"},
-    {file = "requests-2.28.2.tar.gz", hash = "sha256:98b1b2782e3c6c4904938b84c0eb932721069dfdb9134313beff7c83c2df24bf"},
+    {file = "requests-2.29.0-py3-none-any.whl", hash = "sha256:e8f3c9be120d3333921d213eef078af392fba3933ab7ed2d1cba3b56f2568c3b"},
+    {file = "requests-2.29.0.tar.gz", hash = "sha256:f2e34a75f4749019bb0e3effb66683630e4ffeaf75819fb51bebef1bf5aef059"},
 ]
 
 [package.dependencies]
@@ -3360,14 +3360,14 @@ files = [
 
 [[package]]
 name = "types-urllib3"
-version = "1.26.25.10"
+version = "1.26.25.11"
 description = "Typing stubs for urllib3"
 category = "dev"
 optional = false
 python-versions = "*"
 files = [
-    {file = "types-urllib3-1.26.25.10.tar.gz", hash = "sha256:c44881cde9fc8256d05ad6b21f50c4681eb20092552351570ab0a8a0653286d6"},
-    {file = "types_urllib3-1.26.25.10-py3-none-any.whl", hash = "sha256:12c744609d588340a07e45d333bf870069fc8793bcf96bae7a96d4712a42591d"},
+    {file = "types-urllib3-1.26.25.11.tar.gz", hash = "sha256:697102ddf4f781eed6f692353f40cee1098643526f5a8b99f49d2ede90fd3754"},
+    {file = "types_urllib3-1.26.25.11-py3-none-any.whl", hash = "sha256:04235e792139cf3624b25d38faab593456738fbdb7439634046172e3b1339400"},
 ]
 
 [[package]]

@@ -16,8 +16,11 @@ from .docker import DockerBuilder
 from .wrap import DockerWrapBuilder
 
 
-def get_builder(config_path: str | Path | None = None, **opts) -> Builder:
-    config = NuaConfig(config_path)
+def get_builder(config_or_path: NuaConfig | str | Path = "", **opts) -> Builder:
+    if isinstance(config_or_path, NuaConfig):
+        config = config_or_path
+    else:
+        config = NuaConfig(config_or_path)
     factory = BuilderFactory(config, opts)
     return factory.get_builder()
 
