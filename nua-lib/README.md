@@ -16,3 +16,7 @@ Since the `nua-lib` code beeing used by `nua-agent`, it should have as little de
 - `exec`: shortcuts to execute sub commands like exec_as_root(), exec_as_root()
 - `action`: higher level commands, related to the installation of packages and dependencies (wrappers above apt, pip, ...)
 - and a few utilities of minor importance.
+
+## Dependency graph
+
+![Dependency graph](./doc/dependency-graph.png)
