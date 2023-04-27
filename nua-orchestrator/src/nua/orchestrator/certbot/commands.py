@@ -65,7 +65,7 @@ def certbot_certonly(domain: str, option: str) -> str:
 
 
 def apply_none_strategy(_top_domain: str, domains: list[str]):
-    with verbosity(1):
+    with verbosity(0):
         important(f"Use HTTP protocol for: {' '.join(domains)}")
     return
 
@@ -90,14 +90,9 @@ def gen_cert_standalone(domain: str):
     with verbosity(2):
         show(cmd)
     output = sh(cmd, show_cmd=False, capture_output=True)
-    with verbosity(2):
-        vprint(output)
-    # cmd = f"{prefix}systemctl start nginx"
-    # with verbosity(2):
-    #     show(cmd)
-    # output = sh(cmd, show_cmd=False, capture_output=True)
-    # with verbosity(3):
-    #     vprint(output)
+    if output:
+        with verbosity(2):
+            debug(output)
 
 
 def gen_cert_nginx(domain: str):
@@ -112,15 +107,9 @@ def gen_cert_nginx(domain: str):
     with verbosity(2):
         show(cmd)
     output = sh(cmd, show_cmd=False, capture_output=True)
-    with verbosity(2):
-        vprint(output)
-    # replaced by deploy-hook tag in cli.ini :
-    # cmd = f"{prefix}systemctl reload-or-restart nginx"
-    # with verbosity(2):
-    #     show(cmd)
-    # output = sh(cmd, show_cmd=False, capture_output=True)
-    # with verbosity(3):
-    #     vprint(output)
+    if output:
+        with verbosity(2):
+            debug(output)
 
 
 def apply_auto_strategy(top_domain: str, domains: list[str]):
@@ -135,7 +124,7 @@ def apply_auto_strategy(top_domain: str, domains: list[str]):
         - apply "auto" rules and parameters.
     """
     sorted_domains = sorted(domains)
-    with verbosity(1):
+    with verbosity(0):
         important(f"Use HTTPS protocol (Certbot) for: {' '.join(sorted_domains)}")
     # cmd = certbot_run(top_domain, domains)
     # cmd = certbot_certonly(top_domain, domains)

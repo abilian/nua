@@ -2,7 +2,7 @@
 from collections.abc import Callable
 from pprint import pformat
 
-from nua.lib.panic import info, show, warning
+from nua.lib.panic import debug, show, warning
 from nua.lib.tool.state import verbosity
 
 from ..app_instance import AppInstance
@@ -32,26 +32,27 @@ EVALUATOR_LATE_FCT = {}
 
 
 def instance_key_evaluator(
-    site: AppInstance,
+    app: AppInstance,
     resource: Resource | None = None,
     late_evaluation: bool = False,
     port: dict | None = None,
 ) -> dict:
     """Evaluate value for 'env' values declared as dict with dynamic
     parameters, through retrieving persistent value or compute value from
-    specialized functions."""
+    specialized functions.
+    """
     result = {}
     if resource is None:
-        resource = site
-        persistent = site.persistent("")
+        resource = app
+        persistent = app.persistent("")
     else:
-        persistent = site.persistent(resource.resource_name)
+        persistent = app.persistent(resource.resource_name)
     if port is None:
         dynamics = {k: v for k, v in resource.env.items() if isinstance(v, dict)}
     else:
         dynamics = {k: v for k, v in port.items() if isinstance(v, dict)}
     with verbosity(3):
-        info(f"instance_key_evaluator ({late_evaluation=}):\n    {pformat(dynamics)}")
+        debug(f"instance_key_evaluator ({late_evaluation=}):\n    {pformat(dynamics)}")
     if not dynamics:
         return {}
     for destination_key, requirement in dynamics.items():
@@ -63,7 +64,7 @@ def instance_key_evaluator(
             result,
             late_evaluation,
         )
-    site.set_persistent(persistent)
+    app.set_persistent(persistent)
     return result
 
 
@@ -87,7 +88,7 @@ def evaluate_requirement(
             persistent,
         )
         with verbosity(3):
-            show(f"generated value: {result}")
+            debug(f"generated value: {result}")
     else:
         warning(f"Requirement maybe not valid for {destination_key}, key set to empty")
         result = {destination_key: ""}
