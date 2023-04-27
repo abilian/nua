@@ -388,7 +388,7 @@ class AppDeployment:
             (app for app in self.apps if app.label_id == merged_app.label_id), None
         )
         important(
-            f"Deploy '{merged_app.label}': remove {same_label_app.app_id} and"
+            f"Deploy '{merged_app.label}': remove {same_label_app.app_id} "
             f"from '{same_label_app.domain}' and\n"
             f"install {merged_app.app_id} to '{merged_app.domain}'"
         )

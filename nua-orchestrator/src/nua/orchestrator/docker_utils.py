@@ -15,8 +15,16 @@ from docker.errors import APIError, NotFound
 from docker.models.containers import Container
 from docker.models.images import Image
 from nua.lib.console import print_red
-from nua.lib.docker import docker_require
-from nua.lib.panic import Abort, bold_debug, important, info, show, vprint, warning
+from nua.lib.panic import (
+    Abort,
+    bold_debug,
+    debug,
+    important,
+    info,
+    show,
+    vprint,
+    warning,
+)
 from nua.lib.shell import chmod_r, mkdir_p
 from nua.lib.tool.state import verbosity
 
@@ -259,7 +267,10 @@ def docker_remove_prior_container_live(rsite: Resource):
         return
 
     for container in docker_container_of_name(previous_name):
-        print_red(f"Try removing a container not listed in Nua DB: {container.name}")
+        with verbosity(3):
+            debug(
+                f"For security, try to remove a container not listed in Nua DB: {container.name}"
+            )
         docker_stop_container_name(container.name)
         docker_remove_container(container.name)
 
