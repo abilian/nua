@@ -1668,7 +1668,9 @@ develop = true
 
 [package.dependencies]
 jinja2 = "^3.1.2"
+pyyaml = "^6.0"
 setuptools = "*"
+tomli = "^2.0.1"
 
 [package.source]
 type = "directory"
@@ -2513,14 +2515,14 @@ files = [
 
 [[package]]
 name = "tomlkit"
-version = "0.11.7"
+version = "0.11.8"
 description = "Style preserving TOML library"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "tomlkit-0.11.7-py3-none-any.whl", hash = "sha256:5325463a7da2ef0c6bbfefb62a3dc883aebe679984709aee32a317907d0a8d3c"},
-    {file = "tomlkit-0.11.7.tar.gz", hash = "sha256:f392ef70ad87a672f02519f99967d28a4d3047133e2d1df936511465fbb3791d"},
+    {file = "tomlkit-0.11.8-py3-none-any.whl", hash = "sha256:8c726c4c202bdb148667835f68d68780b9a003a9ec34167b6c673b38eff2a171"},
+    {file = "tomlkit-0.11.8.tar.gz", hash = "sha256:9330fc7faa1db67b541b28e62018c17d20be733177d290a13b24c62d1614e0c3"},
 ]
 
 [[package]]
@@ -2679,4 +2681,4 @@ test = ["websockets"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "cbb39514c43dbf749d75236dfeb812ccbe6fa17dd838ca70f287640302c9fc88"
+content-hash = "8bfb07f2e23671dd337b77d1b72daf8fdd0736bb219aff70de1f0599f95922a0"
