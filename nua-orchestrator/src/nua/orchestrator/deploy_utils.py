@@ -69,7 +69,7 @@ def load_install_image(image_path: str | Path) -> tuple:
     loaded_img = loaded[0]
     # images_after = {img.id for img in client.images.list()}
     # new = images_after - images_before
-    with verbosity(1):
+    with verbosity(0):
         important("Installing image:")
         display_one_docker_img(loaded_img)
     return loaded_img.id, image_nua_config
@@ -184,7 +184,7 @@ def start_one_container(rsite: Resource, mounted_volumes: list):
     rsite.container_id = new_container.id
     if mounted_volumes:
         rsite.run_params["mounts"] = True
-    with verbosity(1):
+    with verbosity(0):
         info(f"    -> container of name: {rsite.container_name}")
         info(f"            container id: {rsite.container_id_short}")
         if rsite.network_name:
@@ -212,7 +212,7 @@ def restart_one_app_containers(site: AppInstance):
 
 
 def stop_one_container(rsite: Resource):
-    with verbosity(1):
+    with verbosity(0):
         info(f"    -> stop container of name: {rsite.container_name}")
         info(f"                 container id: {rsite.container_id_short}")
     stop_containers([rsite.container_name])
@@ -226,14 +226,14 @@ def stop_containers(container_names: list[str]):
 
 
 def start_one_deployed_container(rsite: Resource):
-    with verbosity(1):
+    with verbosity(0):
         info(f"    -> start container of name: {rsite.container_name}")
         info(f"                  container id: {rsite.container_id_short}")
     start_containers([rsite.container_name])
 
 
 def restart_one_deployed_container(rsite: Resource):
-    with verbosity(1):
+    with verbosity(0):
         info(f"    -> restart container of name: {rsite.container_name}")
         info(f"                    container id: {rsite.container_id_short}")
     restart_containers([rsite.container_name])
@@ -276,7 +276,7 @@ def deactivate_all_instances():
     - remove site from DB
     """
     for instance in store.list_instances_all():
-        with verbosity(2):
+        with verbosity(1):
             msg = f"Removing instance '{instance.app_id}' on '{instance.domain}'"
             info(msg)
         site_config = instance.site_config
@@ -362,11 +362,11 @@ def _pull_resource_docker(resource: Resource) -> bool:
 
 def _actual_pull_container(resource: Resource):
     """Retrieve a resource container."""
-    with verbosity(1):
+    with verbosity(0):
         info(f"Pulling image '{resource.image}'")
 
     docker_image = docker_require(resource.image)
     if docker_image:
         PULLED_IMAGES[resource.image] = docker_image.id
-        with verbosity(1):
+        with verbosity(0):
             display_one_docker_img(docker_image)

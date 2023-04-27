@@ -29,7 +29,7 @@ def remove_containers():
 
 
 def main():
-    set_verbosity(2)
+    set_verbosity(1)
     print("Docker containers:")
     list_containers()
     stop_containers()

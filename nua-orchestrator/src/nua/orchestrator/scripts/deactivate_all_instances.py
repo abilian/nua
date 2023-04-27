@@ -7,7 +7,7 @@ from ..nua_db_setup import setup_nua_db
 
 def main():
     setup_nua_db()
-    set_verbosity(2)
+    set_verbosity(1)
     deactivate_all_instances()
 
 

@@ -172,14 +172,14 @@ class AppDeployment:
         services = Services()
         services.load()
         self.available_services = services.loaded
-        with verbosity(2):
+        with verbosity(1):
             bold_debug(
                 f"Available local services: {pformat(list(services.loaded.keys()))}"
             )
 
     def load_deploy_config(self, deploy_config: str):
         config_path = Path(deploy_config).expanduser().resolve()
-        with verbosity(1):
+        with verbosity(0):
             info(f"Deploy apps from: {config_path}")
         self.loaded_config = parse_any_format(config_path)
         self.parse_deploy_apps()
@@ -194,7 +194,7 @@ class AppDeployment:
     def load_deployed_configuration(self):
         previous_config = self.previous_success_deployment_record()
         if not previous_config:
-            with verbosity(2):
+            with verbosity(1):
                 show("First deployment (no previous deployed configuration found)")
             self.loaded_config = {}
             self.apps = []
@@ -454,13 +454,13 @@ class AppDeployment:
 
     def restore_previous_deploy_config_strict(self):
         """Retrieve last successful deployment configuration (strict mode)."""
-        with verbosity(1):
+        with verbosity(0):
             show("Deploy apps from previous deployment (strict mode).")
         self.load_deployed_configuration()
 
     def restore_previous_deploy_config_replay(self):
         """Retrieve last successful deployment configuration (replay mode)."""
-        with verbosity(1):
+        with verbosity(0):
             show("Deploy apps from previous deployment (replay deployment).")
         self.load_deployed_configuration()
         with verbosity(3):
@@ -542,7 +542,7 @@ class AppDeployment:
                 with verbosity(3):
                     debug("continue, already_deployed_domains")
                 continue
-            with verbosity(1):
+            with verbosity(0):
                 info(f"Configure Nginx for domain '{hostname}'")
             configure_nginx_hostname(host)
         # registering https apps with certbot requires that the base nginx config is
@@ -557,7 +557,7 @@ class AppDeployment:
 
         To stop nginx redirection before actually stopping the apps.
         """
-        with verbosity(1):
+        with verbosity(0):
             info(f"Remove domain from Nginx: '{stop_domain}'")
         remove_nginx_configuration_hostname(stop_domain)
         nginx_reload()
@@ -569,7 +569,7 @@ class AppDeployment:
         """
         if not self.deployed_domains:
             return
-        with verbosity(1):
+        with verbosity(0):
             show("Removing Nginx configuration.")
         for domain in self.deployed_domains:
             remove_nginx_configuration_hostname(domain)
@@ -614,7 +614,7 @@ class AppDeployment:
 
     def start_deployed_apps(self, domain: str, apps: list[AppInstance]):
         """Start deployed instances previously stopped."""
-        with verbosity(1):
+        with verbosity(0):
             info(f"Start instance of domain '{domain}'.")
         for site in apps:
             # self.start_network(site)
@@ -630,7 +630,7 @@ class AppDeployment:
 
     def stop_deployed_apps(self, apps: list[AppInstance]):
         """Stop deployed app instances."""
-        with verbosity(1):
+        with verbosity(0):
             for app in apps:
                 info(f"Stop app '{app.label_id}'")
         for app in apps:
@@ -642,7 +642,7 @@ class AppDeployment:
         """Stop all deployed app instances."""
         if not self.apps:
             return
-        with verbosity(1):
+        with verbosity(0):
             show("Stop all instances.")
         for site in self.apps:
             stop_one_app_containers(site)
@@ -652,7 +652,7 @@ class AppDeployment:
 
     def restart_deployed_apps(self, domain: str, apps: list[AppInstance]):
         """Restart deployed instances."""
-        with verbosity(1):
+        with verbosity(0):
             info(f"Restart instance of domain '{domain}'.")
         for site in apps:
             # self.start_network(site)
@@ -673,7 +673,7 @@ class AppDeployment:
         """Remove all (stopped) apps container, network, but not volumes."""
         if not self.apps:
             return
-        with verbosity(1):
+        with verbosity(0):
             show("Remove all instances.")
         self._mounted_before_removing = store.list_instances_container_active_volumes()
         for site in self.apps:
@@ -857,7 +857,7 @@ class AppDeployment:
             if not app.find_registry_path():
                 show(f"No image found for '{app.image}'")
                 return False
-        with verbosity(1):
+        with verbosity(0):
             seen = set()
             for app in self.apps:
                 if app.image not in seen:
@@ -966,7 +966,7 @@ class AppDeployment:
             debug("apps_set_volumes_names() done")
 
     def restart_local_services(self):
-        with verbosity(2):
+        with verbosity(1):
             if self.required_services:
                 show("Services to restart:", pformat(self.required_services))
             else:
@@ -978,7 +978,7 @@ class AppDeployment:
     def configure_nginx(self):
         clean_nua_nginx_default_site()
         for host in self.apps_per_domain:
-            with verbosity(1):
+            with verbosity(0):
                 info(f"Configure Nginx for domain '{host['hostname']}'")
             configure_nginx_hostname(host)
 
@@ -986,7 +986,7 @@ class AppDeployment:
         for host in self.apps_per_domain:
             if host["hostname"] != domain:
                 continue
-            with verbosity(1):
+            with verbosity(0):
                 info(f"Configure Nginx for domain '{host['hostname']}'")
             configure_nginx_hostname(host)
         nginx_reload()
@@ -1238,7 +1238,7 @@ class AppDeployment:
                 debug(pformat(content))
 
     def display_used_volumes(self):
-        with verbosity(1):
+        with verbosity(0):
             current_mounted = store.list_instances_container_active_volumes()
             if not current_mounted:
                 return
@@ -1247,7 +1247,7 @@ class AppDeployment:
                 show(Volume.string(volume))
 
     def display_unused_volumes(self):
-        with verbosity(1):
+        with verbosity(0):
             unused = unused_volumes(self.orig_mounted_volumes)
             if not unused:
                 return

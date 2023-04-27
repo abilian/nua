@@ -5,7 +5,7 @@ from ..docker_utils import list_containers
 
 
 def main():
-    set_verbosity(2)
+    set_verbosity(1)
     print("Docker containers:")
     list_containers()
 
