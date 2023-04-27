@@ -22,6 +22,77 @@ This single environment can be used to develop all packages (i.e. you don't need
 
 But since all subpackages have different sets of dependencies, you can use [Nox](https://nox.thea.codes/en/stable/) to run lint and tests for each subpackage:
 
+```shell
+nox -e lint
+nox -e test
+# Or just
+nox
+```
+
+## Testing and static analysis
+
+### Unit tests
+
+You can run unit tests with:
+
+```shell
+make test
+```
+
+or:
+
+```shell
+nox -e test
+```
+
+### End-to-end tests (e2e)
+
+We also provide a script to run the end-to-end tests, which are located in the `tests/e2e` directory.
+
+These tests leverage a virtual machine managed by Vagrant, to start from a clean state each time. They take quite a bit of time, though.
+
+You can run them with either:
+
+```shell
+make test-e2e
+```
+
+from the top level directory, or:
+
+```shell
+make
+```
+
+from the `tests/e2e` directory.
+
+
+### Static analysis
+
+We leverage several Python tools to perform static analysis:
+
+- Ruff
+- Flake8
+- Mypy
+- Pyright
+- Bandit
+- Safety
+- Deptry
+- Vulture
+
+Each tool is configured in the `pyproject.toml` file or `setup.cfg` file of each package, or from the top level `pyproject.toml` file.
+
+You can run all static analysis tools with:
+
+```shell
+nox -e lint
+```
+
+or:
+
+```shell
+make lint
+```
+
 
 ## Additional tools
 
