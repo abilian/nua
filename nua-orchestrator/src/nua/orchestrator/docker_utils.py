@@ -16,7 +16,7 @@ from docker.models.containers import Container
 from docker.models.images import Image
 from nua.build.autobuild.docker_build_utils import docker_require
 from nua.lib.console import print_red
-from nua.lib.panic import Abort, important, info, show, vprint, warning
+from nua.lib.panic import Abort, bold_debug, important, info, show, vprint, warning
 from nua.lib.shell import chmod_r, mkdir_p
 from nua.lib.tool.state import verbosity
 
@@ -266,8 +266,8 @@ def docker_remove_prior_container_live(rsite: Resource):
 
 def erase_previous_container(client: DockerClient, name: str):
     try:
-        with verbosity(1):
-            info(f"Search previous container of name: {name}")
+        with verbosity(4):
+            bold_debug(f"Search previous container of name: {name}")
         container = client.containers.get(name)
         info(f"    -> Remove existing container '{container.name}'")
         container.remove(force=True)
