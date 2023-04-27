@@ -13,7 +13,7 @@ import traceback
 from time import perf_counter
 
 import snoop
-from cleez.actions import VERSION
+from cleez.actions import VERSION, COUNT, STORE_TRUE
 from nua.agent.nua_config import NuaConfigError
 from nua.lib.elapsed import elapsed
 from nua.lib.panic import Abort
@@ -35,7 +35,7 @@ def main():
         "-v",
         "--verbose",
         default=0,
-        action="count",
+        action=COUNT,
         help="Show more informations, until -vvv.",
     )
     parser.add_argument(
@@ -54,9 +54,9 @@ def main():
 
     # Specific options / arguments
     parser.add_argument(
-        "config_file", help="Path to the package dir or 'nua-config' file."
+        "config_file", nargs="?", default=".", help="Path to the package dir or 'nua-config' file."
     )
-    parser.add_argument("-t", "--time", action="store_true", help="Print timing info")
+    parser.add_argument("-t", "--time", action=STORE_TRUE, help="Print timing info")
     parser.add_argument(
         "-s",
         "--save",
