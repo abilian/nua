@@ -2178,6 +2178,18 @@ files = [
 ]
 
 [[package]]
+name = "types-pyyaml"
+version = "6.0.12.9"
+description = "Typing stubs for PyYAML"
+category = "dev"
+optional = false
+python-versions = "*"
+files = [
+    {file = "types-PyYAML-6.0.12.9.tar.gz", hash = "sha256:c51b1bd6d99ddf0aa2884a7a328810ebf70a4262c292195d3f4f9a0005f9eeb6"},
+    {file = "types_PyYAML-6.0.12.9-py3-none-any.whl", hash = "sha256:5aed5aa66bd2d2e158f75dda22b059570ede988559f030cf294871d3b647e3e8"},
+]
+
+[[package]]
 name = "types-setuptools"
 version = "67.7.0.0"
 description = "Typing stubs for setuptools"
@@ -2280,4 +2292,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "5275006d6ca047f0b19f80e8e7af6401508321954b47eec0368d88d6b9703584"
+content-hash = "7ac7b945b27731dd02a2284203cc8ec08489396ba32b4adda8f63a3bbb3a79c8"

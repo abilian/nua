@@ -23,6 +23,7 @@ types-setuptools = "*"
 
 # To please poetry
 platformdirs = "<3.0.0"
+types-pyyaml = "^6.0.12.9"
 
 [tool.pytest.ini_options]
 filterwarnings = ["ignore:.*distutils package:DeprecationWarning", "ignore::DeprecationWarning"]
