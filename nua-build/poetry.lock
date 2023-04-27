@@ -1612,27 +1612,6 @@ virtualenv = ">=14"
 tox-to-nox = ["jinja2", "tox (<4)"]
 
 [[package]]
-name = "nua-agent"
-version = "0.5.14"
-description = "Nua agent"
-category = "main"
-optional = false
-python-versions = "^3.10"
-files = []
-develop = true
-
-[package.dependencies]
-nua-lib = {path = "../nua-lib", develop = true}
-packaging = "*"
-pyyaml = "^6.0"
-setuptools = "*"
-tomli = "^2.0.1"
-
-[package.source]
-type = "directory"
-url = "../nua-agent"
-
-[[package]]
 name = "nua-lib"
 version = "0.5.14"
 description = "Nua common library"
@@ -1643,6 +1622,7 @@ files = []
 develop = true
 
 [package.dependencies]
+docker = "^6.0.1"
 jinja2 = "^3.1.2"
 pyyaml = "^6.0"
 setuptools = "*"
@@ -2657,4 +2637,4 @@ test = ["websockets"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "890de38e5210e39b03937ac7c47a64d3b0b0df4653981ec3771e6aa8012e6d1c"
+content-hash = "22a703068477b689eb04f1907c69dafb6ab28e5884080c99157d22ae2f6cba8e"

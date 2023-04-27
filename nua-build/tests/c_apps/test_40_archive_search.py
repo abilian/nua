@@ -7,13 +7,13 @@ from shutil import copytree
 from docker import DockerClient
 from nua.lib.archive_search import ArchiveSearch
 from nua.lib.nua_config import NuaConfig
-from typer.testing import CliRunner
+from cleez.testing import CliRunner
 
 from nua.build.main import app as nua_build
 
 from .common import get_apps_root_dir
 
-runner = CliRunner(mix_stderr=False)
+runner = CliRunner()
 
 
 def test_archive_search():

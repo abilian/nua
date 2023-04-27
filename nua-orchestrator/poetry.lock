@@ -76,7 +76,7 @@ test = ["coverage", "mypy", "pexpect", "ruff", "wheel"]
 name = "asttokens"
 version = "2.2.1"
 description = "Annotate AST trees with source code positions"
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 files = [
@@ -448,7 +448,7 @@ files = [
 name = "cheap-repr"
 version = "0.5.1"
 description = "Better version of repr/reprlib for short, cheap string representations."
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 files = [
@@ -463,7 +463,7 @@ tests = ["Django", "Django (<2)", "Django (<3)", "chainmap", "numpy (>=1.16.3)",
 name = "cleez"
 version = "0.1.9"
 description = "Simple class-based CLI framework."
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.9,<4"
 files = [
@@ -758,7 +758,6 @@ files = [
 
 [package.dependencies]
 packaging = ">=14.0"
-paramiko = {version = ">=2.4.3", optional = true, markers = "extra == \"ssh\""}
 pywin32 = {version = ">=304", markers = "sys_platform == \"win32\""}
 requests = ">=2.26.0"
 urllib3 = ">=1.26.0"
@@ -821,7 +820,7 @@ testing = ["pre-commit"]
 name = "executing"
 version = "1.2.0"
 description = "Get the currently executing AST node of a frame, and other information"
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 files = [
@@ -1698,37 +1697,11 @@ develop = true
 [package.dependencies]
 nua-lib = {path = "../nua-lib", develop = true}
 packaging = "*"
-pyyaml = "^6.0"
 setuptools = "*"
-tomli = "^2.0.1"
 
 [package.source]
 type = "directory"
 url = "../nua-agent"
-
-[[package]]
-name = "nua-build"
-version = "0.5.14"
-description = "Nua build package (currently: build, core build, agent)"
-category = "main"
-optional = false
-python-versions = "^3.10"
-files = []
-develop = true
-
-[package.dependencies]
-cleez = "^0.1.8"
-docker = {version = "^6.0.1", extras = ["ssh"]}
-nua-agent = {path = "../nua-agent", develop = true}
-nua-lib = {path = "../nua-lib", develop = true}
-snoop = "^0.4.3"
-tomli = "^2.0.1"
-tomli-w = "^1.0.0"
-typer = {version = "^0.7.0", extras = ["all"]}
-
-[package.source]
-type = "directory"
-url = "../nua-build"
 
 [[package]]
 name = "nua-lib"
@@ -1741,6 +1714,7 @@ files = []
 develop = true
 
 [package.dependencies]
+docker = "^6.0.1"
 jinja2 = "^3.1.2"
 pyyaml = "^6.0"
 setuptools = "*"
@@ -2565,7 +2539,7 @@ files = [
 name = "snoop"
 version = "0.4.3"
 description = "Powerful debugging tools for Python"
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 files = [
@@ -2718,7 +2692,7 @@ pbr = ">=2.0.0,<2.1.0 || >2.1.0"
 name = "termcolor"
 version = "2.3.0"
 description = "ANSI color formatting for output in terminal"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -2751,18 +2725,6 @@ python-versions = ">=3.7"
 files = [
     {file = "tomli-2.0.1-py3-none-any.whl", hash = "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc"},
     {file = "tomli-2.0.1.tar.gz", hash = "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"},
-]
-
-[[package]]
-name = "tomli-w"
-version = "1.0.0"
-description = "A lil' TOML writer"
-category = "main"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "tomli_w-1.0.0-py3-none-any.whl", hash = "sha256:9f2a07e8be30a0729e533ec968016807069991ae2fd921a78d42f429ae5f4463"},
-    {file = "tomli_w-1.0.0.tar.gz", hash = "sha256:f463434305e0336248cac9c2dc8076b707d8a12d019dd349f5c1e382dd1ae1b9"},
 ]
 
 [[package]]
@@ -2966,4 +2928,4 @@ test = ["pytest (>=6.0.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "491037a06d86b3115ab8b8a8e2432c94457f6095da91cbba110825823efc3d6c"
+content-hash = "e203bf6c1920f8a97bcef01041454ff1f0753476450a9f6f5e9f4522fe449db1"
