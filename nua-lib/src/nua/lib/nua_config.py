@@ -7,11 +7,11 @@ from typing import Any, Union
 
 import tomli
 import yaml
-from nua.lib.actions import download_extract
-from nua.lib.constants import NUA_CONFIG_STEM, nua_config_names
-from nua.lib.shell import chown_r
 
+from .actions import download_extract
+from .constants import NUA_CONFIG_STEM, nua_config_names
 from .nua_tag import nua_tag_string
+from .shell import chown_r
 
 REQUIRED_BLOCKS = ["metadata"]
 REQUIRED_METADATA = ["id", "version", "title", "author", "license"]

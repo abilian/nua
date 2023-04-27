@@ -17,14 +17,11 @@ python = "^3.10"
 setuptools = "*"
 packaging = "*"
 nua-lib = { path = "../nua-lib/", develop = true }
-tomli = "^2.0.1"
-pyyaml = "^6.0"
 
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
 nox = "*"
 types-setuptools = "*"
-types-pyyaml = "*"
 
 platformdirs = "<3.0.0"
 

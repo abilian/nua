@@ -5,8 +5,8 @@ from pathlib import Path
 from shutil import copytree
 
 from docker import DockerClient
-from nua.agent.nua_config import NuaConfig
 from nua.lib.archive_search import ArchiveSearch
+from nua.lib.nua_config import NuaConfig
 from typer.testing import CliRunner
 
 from nua.build.main import app as nua_build

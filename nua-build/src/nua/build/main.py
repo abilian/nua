@@ -14,7 +14,7 @@ from time import perf_counter
 
 import snoop
 from cleez.actions import VERSION, COUNT, STORE_TRUE
-from nua.agent.nua_config import NuaConfigError, NuaConfig
+from nua.lib.nua_config import NuaConfigError, NuaConfig
 from nua.lib.elapsed import elapsed
 from nua.lib.panic import Abort
 from nua.lib.tool.state import set_color, set_verbosity

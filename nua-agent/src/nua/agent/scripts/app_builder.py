@@ -29,6 +29,7 @@ from nua.lib.constants import (
     NUA_SCRIPTS_PATH,
 )
 from nua.lib.exec import exec_as_nua, exec_as_root
+from nua.lib.nua_config import NuaConfig, hyphen_get
 from nua.lib.panic import Abort, info, show, vprint, warning
 from nua.lib.shell import chmod_r, chown_r, mkdir_p, rm_fr, sh
 from nua.lib.tool.state import (
@@ -42,7 +43,6 @@ from ..auto_install import detect_and_install
 
 # most inferred meta packages will be provided by plugins in the future:
 from ..meta_packages import meta_packages_requirements
-from ..nua_config import NuaConfig, hyphen_get
 
 logging.basicConfig(level=logging.INFO)
 

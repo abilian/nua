@@ -26,7 +26,6 @@ python = "^3.10"
 
 # Internal deps = "poor man's monorepo"
 nua-lib = { path = "../nua-lib/", develop = true }
-nua-agent = { path = "../nua-agent/", develop = true }
 
 tomli = "^2.0.1"
 tomli-w = "^1.0.0"

@@ -5,7 +5,7 @@ from copy import deepcopy
 from pprint import pformat
 from typing import Any
 
-from nua.agent.nua_config import nomalize_env_values
+from nua.lib.nua_config import nomalize_env_values
 from nua.lib.panic import Abort, debug, important, vprint, warning
 from nua.lib.tool.state import verbosity
 

@@ -5,8 +5,8 @@ from copy import deepcopy
 from pathlib import Path
 from pprint import pformat
 
-from nua.agent.nua_config import hyphen_get
-from nua.agent.nua_tag import nua_tag_string
+from nua.lib.nua_config import hyphen_get
+from nua.lib.nua_tag import nua_tag_string
 from nua.lib.panic import Abort, debug, info, warning
 from nua.lib.tool.state import verbosity
 

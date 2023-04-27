@@ -7,7 +7,7 @@ from pathlib import Path
 from pprint import pformat
 from typing import Any
 
-from nua.agent.nua_config import NuaConfig
+from nua.lib.nua_config import NuaConfig
 from nua.lib.panic import info, vprint
 from nua.lib.tool.state import verbosity
 

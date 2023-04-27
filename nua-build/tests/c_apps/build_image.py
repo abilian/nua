@@ -5,8 +5,8 @@ from shutil import copytree
 from time import perf_counter
 
 import docker
-from nua.agent.nua_config import NuaConfig
 from nua.lib.backports import chdir
+from nua.lib.nua_config import NuaConfig
 
 from nua.build.builders import get_builder
 
@@ -48,9 +48,6 @@ def _run_make(target: str):
 
 def _build_test(tmpdirname: str, name: str, expect_failure: bool = False):
     build_dir = Path(tmpdirname) / "build"
-    # print("in _build_test()")
-    # print(f"cwd: {Path.cwd()}")
-    # print(os.listdir("."))
     copytree(".", build_dir)
     docker_client = docker.from_env()
 
@@ -59,16 +56,10 @@ def _build_test(tmpdirname: str, name: str, expect_failure: bool = False):
 
     t0 = perf_counter()
 
-    builder = get_builder()
+    builder = get_builder(save_image=False)
     builder.run()
 
     print("elapsed (s):", perf_counter() - t0)
-
-    # print(" ========= result.stdout ===========")
-    # print(result.stdout)
-    # print(result.stderr)
-    # print(" ===================================")
-    #
 
     assert docker_client.images.list(name)
 
