@@ -35,9 +35,6 @@ python = "^3.10"
 
 nua-lib = { path = "../nua-lib/", develop = true }
 
-# Last one to remove
-nua-agent = { path = "../nua-agent/", develop = true }
-
 # Databases
 SQLAlchemy-serializer = "^1.4.1"
 SQLAlchemy = "^1.4.36"

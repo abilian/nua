@@ -4,10 +4,10 @@ import tempfile
 from pathlib import Path
 from shutil import copytree
 
+from cleez.testing import CliRunner
 from docker import DockerClient
 from nua.lib.archive_search import ArchiveSearch
 from nua.lib.nua_config import NuaConfig
-from cleez.testing import CliRunner
 
 from nua.build.main import app as nua_build
 

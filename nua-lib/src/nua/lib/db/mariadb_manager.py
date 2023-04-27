@@ -170,7 +170,7 @@ class MariaDbManager(DbManager):
         )
         cursor = connection.cursor()
         query = (
-            "SELECT count(*) FROM information_schema.TABLES WHERE "
+            "SELECT count(*) FROM information_schema.TABLES WHERE "  # noqa S608
             f"(TABLE_SCHEMA = '{dbname}') AND (TABLE_NAME = '{table}')"
         )
         # cursor.execute(query, (dbname, table))
