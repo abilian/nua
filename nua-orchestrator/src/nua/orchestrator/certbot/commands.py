@@ -13,7 +13,7 @@ Test ENV variables:
 import os
 from pathlib import Path
 
-from nua.lib.panic import debug, important, show, vprint
+from nua.lib.panic import debug, important, show
 from nua.lib.shell import sh
 from nua.lib.tool.state import verbosity
 
