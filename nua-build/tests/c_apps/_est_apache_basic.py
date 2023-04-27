@@ -14,7 +14,7 @@ from shutil import copytree
 from time import perf_counter, sleep
 
 import docker
-from nua.autobuild.constants import NUA_LINUX_BASE
+from nua.build.autobuild.constants import NUA_LINUX_BASE
 from nua.lib.constants import NUA_BUILDER_TAG, NUA_PYTHON_TAG
 
 from nua.build import __version__ as nua_version

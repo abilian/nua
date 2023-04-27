@@ -16,7 +16,7 @@ packages = [
 nua-build = "nua.build.main:app"
 
 # Do we need this?
-nua-build-base-images = "nua.autobuild.main:app"
+nua-build-base-images = "nua.build.autobuild.main:app"
 
 # FIXME: remove
 nua_test_replace_domain = "nua.build.scripts.test_replace_domain:main"

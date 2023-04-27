@@ -125,7 +125,7 @@ class NuaImageBuilder:
             with verbosity(3):
                 show(f"build directory: {build_path}")
             copy_from_package(
-                "nua.autobuild.dockerfiles",
+                "nua.build.autobuild.dockerfiles",
                 DOCKERFILE_PYTHON,
                 build_path,
                 "Dockerfile",
@@ -148,7 +148,7 @@ class NuaImageBuilder:
             with verbosity(3):
                 show(f"build directory: {build_path}")
             copy_from_package(
-                "nua.autobuild.dockerfiles",
+                "nua.build.autobuild.dockerfiles",
                 DOCKERFILE_BUILDER,
                 build_path,
                 "Dockerfile",
