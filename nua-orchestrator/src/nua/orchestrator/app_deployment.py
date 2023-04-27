@@ -342,12 +342,18 @@ class AppDeployment:
         self.merge_nginx_configuration()
         self.merge_start_apps([app])
 
-    def deploy_update_app(self, app: AppInstance):
+    def deploy_update_app(self, merged_app: AppInstance):
         """Deploy same app on on same domain."""
-        important(f"Deploy '{app.label}': update {app.app_id} on '{app.domain}'")
-        self._remove_per_label(app, remove_volumes=False)
+        important(
+            f"Deploy '{merged_app.label}': update {merged_app.app_id} "
+            f"on '{merged_app.domain}'"
+        )
+        same_label_app = next(
+            (app for app in self.apps if app.label_id == merged_app.label_id), None
+        )
+        self._remove_per_label(same_label_app, remove_volumes=False)
         # self.load_deployed_configuration()
-        self._deploy_new_app(app, load_persistent=True)
+        self._deploy_new_app(merged_app, load_persistent=True)
 
     def deploy_replace_app(self, merged_app: AppInstance):
         """Deploy another app on same domain."""
@@ -391,18 +397,18 @@ class AppDeployment:
 
     def _remove_per_label(
         self,
-        merged_app: AppInstance,
+        current_app: AppInstance,
         remove_volumes: bool = False,
     ):
-        self.remove_nginx_configuration(merged_app.domain)
-        self.stop_deployed_apps([merged_app])
-        self.remove_container_and_network([merged_app])
+        self.remove_nginx_configuration(current_app.domain)
+        self.stop_deployed_apps([current_app])
+        self.remove_container_and_network([current_app])
         if remove_volumes:
-            self.remove_managed_volumes([merged_app])
+            self.remove_managed_volumes([current_app])
         with verbosity(3):
             debug("remove_deployed_instance:")
-            debug(merged_app.label_id)
-        self.remove_deployed_instance([merged_app])
+            debug(current_app.label_id)
+        self.remove_deployed_instance([current_app])
 
     def merge_add(self, additional: AppDeployment):
         """Merge by simple addtion of new domain to list."""

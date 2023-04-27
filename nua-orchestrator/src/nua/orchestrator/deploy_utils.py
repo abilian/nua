@@ -191,9 +191,9 @@ def start_one_container(rsite: Resource, mounted_volumes: list):
             info(f"    connected to network: {rsite.network_name}")
 
 
-def stop_one_app_containers(site: AppInstance):
-    stop_one_container(site)
-    for resource in site.resources:
+def stop_one_app_containers(app: AppInstance):
+    stop_one_container(app)
+    for resource in app.resources:
         stop_one_container(resource)
     # docker_network_prune() : no, need to keep same network to easily restart the
     # container with same network.
