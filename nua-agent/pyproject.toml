@@ -23,10 +23,11 @@ abilian-devtools = "*"
 nox = "*"
 types-setuptools = "*"
 
+# Pinned for now
 platformdirs = "<3.0.0"
 
 [tool.poetry.scripts]
-app-builder = "nua.agent.scripts.app_builder:main"
+app_builder = "nua.agent.scripts.app_builder:main"
 
 [build-system]
 requires = [

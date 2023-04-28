@@ -53,7 +53,7 @@ Based on the above, a web app image has a `nua-builder` image as its parent imag
     # app build:
     COPY . /nua/build
     ARG nua_verbosity
-    RUN app-builder
+    RUN app_builder
 
     CMD ["python", "/nua/scripts/start.py"]
 
