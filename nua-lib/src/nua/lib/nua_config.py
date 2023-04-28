@@ -65,12 +65,19 @@ def nomalize_env_values(env: dict[str, Union[str, int, float, list]]) -> dict[st
 
 def force_list(content: str | list[str]) -> list[str]:
     """Return always a list, if a single string is provided, wrap it into
-    list."""
-    if isinstance(content, list):
-        return content
-    if isinstance(content, str) and content:
-        return [content]
-    return []
+    list.
+    >>> force_list("foo")
+    ['foo']
+    >>> force_list(["foo"])
+    ['foo']
+    """
+    match content:
+        case [_]:
+            return content
+        case str(s):
+            return [s]
+        case _:
+            raise ValueError(f"Not a tring or list of strings: {type(content)}")
 
 
 class NuaConfig:

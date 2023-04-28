@@ -29,8 +29,11 @@ platformdirs = "<3.0.0"
 types-pyyaml = "^6.0.12.9"
 
 [tool.pytest.ini_options]
-filterwarnings = ["ignore:.*distutils package:DeprecationWarning", "ignore::DeprecationWarning"]
-
+filterwarnings = [
+  "ignore:.*distutils package:DeprecationWarning",
+  "ignore::DeprecationWarning",
+]
+addopts = "--tb=short --doctest-modules"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
