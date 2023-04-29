@@ -42,7 +42,7 @@ test:
 
 test-e2e:
 	@echo "--> Running E2E tests"
-	cd tests/e2e && make clean && sleep 5 && make test
+	cd tests/e2e && make clean && sleep 10 && make test
 
 
 #

@@ -2,4 +2,7 @@ import importlib.metadata
 
 
 def get_version() -> str:
-    return importlib.metadata.version("nua.cli")
+    try:
+        return importlib.metadata.version("nua.cli")
+    except importlib.metadata.PackageNotFoundError:
+        return importlib.metadata.version("nua")

@@ -31,6 +31,8 @@ import snoop
 from cleez import CLI
 from cleez.actions import VERSION
 
+from nua_cli.version import get_version
+
 snoop.install()
 
 
@@ -40,7 +42,7 @@ def main():
 
 
 def get_cli():
-    cli = CLI("nua", version=importlib.metadata.version("nua.cli"))
+    cli = CLI("nua", version=get_version())
     cli.add_option(
         "-V",
         "--version",

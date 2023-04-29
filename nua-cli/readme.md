@@ -19,14 +19,12 @@ nua
 
 ### From source
 
-In the meantime, you can install it from the source repository:
-
+When developing nua-cli, you can install it from the source repository:
 ```bash
 pipx install --force "git+https://github.com/abilian/nua.git#subdirectory=nua-cli"
 ```
 
-Alternatively, if you're hacking on nua-cli, you can install it in editable mode from your local clone:
-
+Or, in editable mode, from your local clone:
 ```bash
 pipx install --force -e path/to/nua/nua-cli
 ```
@@ -41,27 +39,32 @@ nua [command] [options]
 
 ### Main commands and subcommands
 
-Here's the list of commands we should support, eventually (TBC):
+Here's the list of commands and subcommands provided by nua-cli (some of them are not yet implemented):
 
 ```
 Available commands:
-  apps             List applications.
-  backup           Backup a deployed application.
-  config           Show/edit application config.
-  destroy          Destroy an application.
-  help             Show help.
-  logs             Show application logs.
-  restart          Restart an application.
-  restore          Restore backup data of a deployed application.
-  server           Manage the Nua server.
-  start            Start an application.
-  stop             Stop an application.
-  update           Update an application.
+  apps     List applications.
+  backup   Backup a deployed application.
+  build    Build app but don't deploy it.
+  deploy   Deploy app.
+  destroy  Destroy an application.
+  help     Show help.
+  logs     Show application logs.
+  restart  Restart an application.
+  restore  Restore backup data of a deployed application.
+  start    Start an application.
+  stop     Stop an application.
+  update   Update an application.
 
  config
   config show      Show application config.
 
+ env
+  env set          Show application env variables.
+  env show         Show application env variables.
+
  server
+  server cleanup   Cleanup server (remove inactive docker images and containers).
   server logs      Show server logs.
   server ps        List all server processes.
   server settings  Show server settings.
@@ -70,21 +73,8 @@ Available commands:
 ```
 
 
-### Generic options
+<!-- TODO: add more specific examples -->
 
-- `--help` - Show help
-- `--version` - Show version number
-
-### Examples (TBC)
-
-```bash
-nua deploy --help
-nua deploy --app-id appid --domain fqdn
-nua deploy --app-id appid --domain fqdn --env SOMEVAR=value
-nua deploy --app-id appid --domain fqdn --env SOMEVAR=value --env-file .env
-nua deploy --app-id appid --domain fqdn --env SOMEVAR=value --env-file .env --config config-path
-nua deploy --app-id hedgedoc-1.9.6-10 --domain hdoc.example.com --env NODE_ENV=production
-```
 
 ## Development
 
