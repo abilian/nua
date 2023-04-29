@@ -32,23 +32,18 @@ nua_test_services = "nua.orchestrator.service:test"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-
-nua-lib = { path = "../nua-lib/", develop = true }
-
-# Databases
+nua-lib = "=0.5.15"
 SQLAlchemy-serializer = "^1.4.1"
 SQLAlchemy = "^1.4.36"
 psycopg2-binary = "^2.9.3"
-
-# Other deps
 setuptools = "*"
 wheel = "*"
 tomli = "^2"
 paramiko = "^2.11.0"
 docker = "^6"
-typer = {extras = ["all"], version = "^0.7.0"}
 python-dotenv = "^0.21"
 pyyaml = "^6"
+typer = {extras = ["all"], version = "^0.7.0"}
 
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
