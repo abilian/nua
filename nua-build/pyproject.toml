@@ -23,20 +23,12 @@ nua_test_replace_domain = "nua.build.scripts.test_replace_domain:main"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-
-# Internal deps = "poor man's monorepo"
-nua-lib = { path = "../nua-lib/", develop = true }
-
+nua-lib = "=0.5.17"
 tomli = "^2.0.1"
 tomli-w = "^1.0.0"
-
-# CLI and text ui
 snoop = "^0.4.3"
 cleez = "^0.1.8"
-# TODO: remove
 typer = {version = "^0.7.0", extras = ["all"]}
-
-# Docker client
 docker = {version = "^6.0.1", extras = ["ssh"]}
 
 [tool.poetry.group.dev.dependencies]
