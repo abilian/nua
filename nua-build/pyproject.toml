@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-build"
-version = "0.5.14"
+version = "0.5.17"
 description = "Nua build package (currently: build, core build, agent)"
 authors = [
     "Stefane Fermigier <sf@abilian.com>",
@@ -14,29 +14,33 @@ packages = [
 
 [tool.poetry.scripts]
 nua-build = "nua.build.main:app"
+
+# Do we need this?
+nua-build-base-images = "nua.build.autobuild.main:app"
+
+# FIXME: remove
 nua_test_replace_domain = "nua.build.scripts.test_replace_domain:main"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-nua-lib = "=0.5.14"
-nua-agent = "=0.5.14"
-nua-autobuild = "=0.5.14"
+nua-lib = "=0.5.17"
 tomli = "^2.0.1"
+tomli-w = "^1.0.0"
 snoop = "^0.4.3"
 cleez = "^0.1.8"
-pyyaml = "^6.0"
+typer = {version = "^0.7.0", extras = ["all"]}
 docker = {version = "^6.0.1", extras = ["ssh"]}
 
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
 nox = "*"
-devtools = "^0.11.0"
 
 types-setuptools = "*"
 types-pyyaml = "*"
 
 # To please poetry
 platformdirs = "<3.0.0"
+devtools = "^0.11.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -67,7 +71,6 @@ exclude = [
     "noxfile.py"
 ]
 ignore_obsolete = [
-    "nua-autobuild",
     "nua-lib",
     "nua-agent",
 ]

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-agent"
-version = "0.5.14"
+version = "0.5.17"
 description = "Nua agent"
 authors = [
     "Stefane Fermigier <sf@abilian.com>",
@@ -16,16 +16,14 @@ packages = [
 python = "^3.10"
 setuptools = "*"
 packaging = "*"
-nua-lib = "=0.5.14"
-tomli = "^2.0.1"
-pyyaml = "^6.0"
+nua-lib = "=0.5.17"
 
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
 nox = "*"
 types-setuptools = "*"
-types-pyyaml = "*"
 
+# Pinned for now
 platformdirs = "<3.0.0"
 
 [tool.poetry.scripts]

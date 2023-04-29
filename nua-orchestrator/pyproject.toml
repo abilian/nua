@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-orchestrator"
-version = "0.5.14"
+version = "0.5.17"
 description = "Nua orchestrator - local implementation"
 authors = [
     "Stefane Fermigier <sf@abilian.com>",
@@ -32,10 +32,7 @@ nua_test_services = "nua.orchestrator.service:test"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-nua-lib = "=0.5.14"
-nua-agent = "=0.5.14"
-nua-build = "=0.5.14"
-nua-autobuild = "=0.5.14"
+nua-lib = "=0.5.17"
 SQLAlchemy-serializer = "^1.4.1"
 SQLAlchemy = "^1.4.36"
 psycopg2-binary = "^2.9.3"
@@ -81,7 +78,6 @@ exclude = [
 ignore_obsolete = [
     "nua-lib",
     "nua-agent",
-    "nua-autobuild",
     "nua-build",
     "setuptools",
     "wheel",

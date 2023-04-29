@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "nua"
-version = "0.5.14"
-description = ""
+version = "0.5.17"
+description = "Command line interface for the Nua self-hosted PaaS (Platform as a Service)"
 authors = ["Stefane Fermigier <sf@abilian.com>"]
 readme = "readme.md"
 packages = [
@@ -14,10 +14,11 @@ nua = "nua_cli.main:main"
 [tool.poetry.dependencies]
 python = ">=3.10,<3.12"
 tomli = "^2.0.1"
-fabric = "^3.0.0"
+fabric = "~3.0"
+invoke = "~2.0"
 snoop = "*"
-termcolor = "^2.2.0"
-cleez = "^0.1.7"
+termcolor = "^2.3.0"
+cleez = "^0.1.9"
 
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
