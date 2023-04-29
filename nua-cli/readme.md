@@ -42,6 +42,16 @@ nua [command] [options]
 Here's the list of commands and subcommands provided by nua-cli (some of them are not yet implemented):
 
 ```
+nua (0.5.17)
+
+Usage:
+  nua <command> [options] [arguments]
+
+Options:
+  -V  Show version and exit
+  -d  Enable debug mode
+  -v  Increase verbosity
+
 Available commands:
   apps     List applications.
   backup   Backup a deployed application.

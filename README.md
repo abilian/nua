@@ -66,22 +66,26 @@ You also need a Docker server.
 
 The roadmap for the projet is kept up to date on [this kanban board](https://github.com/abilian/nua/projects/1).
 
-As of 2023/02/08, we have a:
+See also: [TODO.md](./TODO.md) and [HISTORY.md](./HISTORY.md).
 
-- The "builder" CLI that can build container images.
+
+As of 2023/04/29, we have the following components:
+
+- The "builder" CLI that can build container images from high level specifications (`nua-config.tom` files).
 - The "orchestrator" CLI that can deploy and manage container images.
-- We have started packaging some applications (HedgeDoc, Dolibarr, simple demos).
-- Work has started on a common `nua` CLI:
+- The `nua` CLI that provides a unified interface to the builder and orchestrator.
+- We have started packaging some applications (HedgeDoc, Dolibarr, Galene, Dolibarr, Etherpad-lite).
+
+### Nua CLI
 
 ```console
 $ nua
-nua (0.5.11)
+nua (0.5.17)
 
 Usage:
   nua <command> [options] [arguments]
 
 Options:
-  -h  Show help and exit
   -V  Show version and exit
   -d  Enable debug mode
   -v  Increase verbosity
