@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 
 import tomlkit
+from cleez.colors import red
 from dotenv import load_dotenv
 from invoke import Context, UnexpectedExit, task
 
@@ -204,10 +205,11 @@ def release(c: Context):
         check_version_subrepo(c, sub_repo, version)
 
     c.run(f"git checkout -b release-{version}")
-    c.run("git merge main")
 
     for sub_repo in SUB_REPOS:
         release_subrepo(c, sub_repo, version)
+
+    c.run(f"git commit -a -m 'Release {version}'")
 
     c.run("git checkout release")
     c.run(f"git merge release-{version}")
@@ -254,7 +256,10 @@ def release_subrepo(c, sub_repo, version):
 
     with c.cd(sub_repo):
         c.run("poetry build")
-        c.run("twine upload dist/*")
+        try:
+            c.run("twine upload dist/*")
+        except:
+            print(red("ERROR: Release failed. Continuing anyway"))
 
 
 #
