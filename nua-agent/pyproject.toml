@@ -16,7 +16,7 @@ packages = [
 python = "^3.10"
 setuptools = "*"
 packaging = "*"
-nua-lib = { path = "../nua-lib/", develop = true }
+nua-lib = "=0.5.16"
 
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
