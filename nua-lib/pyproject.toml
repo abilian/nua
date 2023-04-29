@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-lib"
-version = "0.5.14"
+version = "0.5.15"
 description = "Nua common library"
 authors = ["Stefane Fermigier <sf@abilian.com>", "Jerome Dumonteil <jd@abilian.com>"]
 license = "AGPL"
@@ -14,6 +14,11 @@ python = "^3.10"
 setuptools = "*"
 jinja2 = "^3.1.2"
 
+# Temporary: these should be removed or made optional
+pyyaml = "^6.0"
+tomli = "^2.0.1"
+docker = "^6.0.1"
+
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
 nox = "*"
@@ -21,10 +26,14 @@ types-setuptools = "*"
 
 # To please poetry
 platformdirs = "<3.0.0"
+types-pyyaml = "^6.0.12.9"
 
 [tool.pytest.ini_options]
-filterwarnings = ["ignore:.*distutils package:DeprecationWarning", "ignore::DeprecationWarning"]
-
+filterwarnings = [
+  "ignore:.*distutils package:DeprecationWarning",
+  "ignore::DeprecationWarning",
+]
+addopts = "--tb=short --doctest-modules"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -47,6 +56,7 @@ ignore_obsolete = [
     "setuptools",
 ]
 ignore_missing = [
+    "nua",
 ]
 ignore_transitive = [
 ]

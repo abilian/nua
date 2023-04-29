@@ -21,6 +21,7 @@ from nua.lib.panic import (
     info,
     red_line,
     show,
+    vprint,
     warning,
 )
 from nua.lib.tool.state import verbosity
@@ -151,16 +152,16 @@ class AppDeployment:
         )
 
     def remove_app_instance(self, removed_app: AppInstance):
-        domain = removed_app.hostname
-        apps = [app for app in self.apps if app != removed_app]
+        label_id = removed_app.label_id
+        apps = [app for app in self.apps if app.label_id != label_id]
         self.apps = apps
         self.sort_apps_per_name_domain()
-        self.remove_domain_from_config(domain)
+        self.remove_domain_from_config(removed_app.domain)
 
     def remove_domain_from_config(self, domain: str):
-        sites = self.loaded_config.get("site", [])
-        new_sites = [item for item in sites if item.get("domain", "") != domain]
-        self.loaded_config["site"] = new_sites
+        apps = self.loaded_config.get("site", [])
+        filtered = [app for app in apps if app.get("domain", "") != domain]
+        self.loaded_config["site"] = filtered
 
     def local_services_inventory(self):
         """Initialization step: inventory of available resources available on
@@ -171,14 +172,14 @@ class AppDeployment:
         services = Services()
         services.load()
         self.available_services = services.loaded
-        with verbosity(2):
+        with verbosity(1):
             bold_debug(
                 f"Available local services: {pformat(list(services.loaded.keys()))}"
             )
 
     def load_deploy_config(self, deploy_config: str):
         config_path = Path(deploy_config).expanduser().resolve()
-        with verbosity(1):
+        with verbosity(0):
             info(f"Deploy apps from: {config_path}")
         self.loaded_config = parse_any_format(config_path)
         self.parse_deploy_apps()
@@ -193,7 +194,7 @@ class AppDeployment:
     def load_deployed_configuration(self):
         previous_config = self.previous_success_deployment_record()
         if not previous_config:
-            with verbosity(2):
+            with verbosity(1):
                 show("First deployment (no previous deployed configuration found)")
             self.loaded_config = {}
             self.apps = []
@@ -282,14 +283,14 @@ class AppDeployment:
                     return "deploy_reuse_label"
 
     def deploy_new_app(self, app: AppInstance):
-        """Deploy new label and app on new domain"""
+        """Deploy new label and app on new domain."""
         important(f"Deploy '{app.label}': a new {app.app_id} on '{app.domain}'")
-        self._deploy_new_app(app, load_persistent=False)
+        self._deploy_new_app(app)
 
     def _deploy_new_app(
         self,
         app: AppInstance,
-        load_persistent: bool = False,
+        persistent: dict | None = None,
     ):
         """Deploy an app."""
         # step 1:
@@ -302,10 +303,13 @@ class AppDeployment:
         for service in app.local_services:
             if service not in self.available_services:
                 raise Abort(f"Required service '{service}' is not available")
-        if load_persistent:
+        if persistent:
+            with verbosity(2):
+                debug(pformat(persistent))
             # if really new app, not persistent for now, but some persitent data if
-            # same reusing label
-            self.retrieve_persistent(app)
+            # reusing same label_id for a new app: then try to retrieve the persistent
+            # data of previous Appinstance:
+            app.set_persistent_full_dict(persistent)
         self.evaluate_dynamic_values(app)
 
         # step 2: ports
@@ -333,19 +337,25 @@ class AppDeployment:
         self.already_deployed_labels = set(self.deployed_labels)
         self.apps.append(app)
         self.sort_apps_per_name_domain()
+        self.merge_nginx_configuration()
         self.deployed_domains = sorted(
             {apps_dom["hostname"] for apps_dom in self.apps_per_domain}
         )
         self.deployed_labels = sorted(a.label_id for a in self.apps)
-        self.merge_nginx_configuration()
-        self.merge_start_apps([app])
+        self._start_apps([app], deactivate=False)
 
-    def deploy_update_app(self, app: AppInstance):
+    def deploy_update_app(self, merged_app: AppInstance):
         """Deploy same app on on same domain."""
-        important(f"Deploy '{app.label}': update {app.app_id} on '{app.domain}'")
-        self._deploy_remove_label_domain(app, remove_volumes=False)
-        self.load_deployed_configuration()
-        self._deploy_new_app(app, load_persistent=True)
+        important(
+            f"Deploy '{merged_app.label}': update {merged_app.app_id} "
+            f"on '{merged_app.domain}'"
+        )
+        same_label_app = next(
+            (app for app in self.apps if app.label_id == merged_app.label_id), None
+        )
+        persistent_data = same_label_app.persistent_full_dict()
+        self._remove_per_label(same_label_app, remove_volumes=False)
+        self._deploy_new_app(merged_app, persistent=persistent_data)
 
     def deploy_replace_app(self, merged_app: AppInstance):
         """Deploy another app on same domain."""
@@ -356,22 +366,21 @@ class AppDeployment:
             f"Deploy '{merged_app.label}': replace {same_label_app.app_id} "
             f"by {merged_app.app_id} on '{merged_app.domain}'"
         )
-        self._deploy_remove_label_domain(merged_app, remove_volumes=True)
-        self.load_deployed_configuration()
-        self._deploy_new_app(merged_app, load_persistent=False)
+        self._remove_per_label(merged_app, remove_volumes=True)
+        self._deploy_new_app(merged_app)
 
     def deploy_move_domain(self, merged_app: AppInstance):
         """Deploy same app on another domain."""
-        same_domain_app = next(
-            (app for app in self.apps if app.domain == merged_app.domain), None
+        same_label_app = next(
+            (app for app in self.apps if app.label_id == merged_app.label_id), None
         )
         important(
             f"Deploy '{merged_app.label}': move {merged_app.app_id} "
-            f"from '{same_domain_app.domain}' to '{merged_app.domain}'"
+            f"from '{same_label_app.domain}' to '{merged_app.domain}'"
         )
-        self._deploy_remove_label_domain(same_domain_app, remove_volumes=False)
-        self.load_deployed_configuration()
-        self._deploy_new_app(merged_app, load_persistent=True)
+        persistent_data = same_label_app.persistent_full_dict()
+        self._remove_per_label(same_label_app, remove_volumes=False)
+        self._deploy_new_app(merged_app, persistent=persistent_data)
 
     def deploy_reuse_label(self, merged_app: AppInstance):
         """Deploy another app on another domain."""
@@ -379,34 +388,31 @@ class AppDeployment:
             (app for app in self.apps if app.label_id == merged_app.label_id), None
         )
         important(
-            f"Deploy '{merged_app.label}': remove {same_label_app.app_id} and"
+            f"Deploy '{merged_app.label}': remove {same_label_app.app_id} "
             f"from '{same_label_app.domain}' and\n"
             f"install {merged_app.app_id} to '{merged_app.domain}'"
         )
         # do not keep data:
-        self._deploy_remove_label_domain(same_label_app, remove_volumes=True)
-        self.load_deployed_configuration()
-        self._deploy_new_app(merged_app, load_persistent=True)
+        self._remove_per_label(same_label_app, remove_volumes=True)
+        self._deploy_new_app(merged_app)
 
-    def _deploy_remove_label_domain(
+    def _remove_per_label(
         self,
-        merged_app: AppInstance,
+        current_app: AppInstance,
         remove_volumes: bool = False,
     ):
-        # deployed_app = next(
-        #     (a for a in self.apps if a.label_id == merged_app.label_id), None
-        # )
-        domain = merged_app.domain
-        stopping_apps = self.instances_of_domain(domain)
-        self.remove_nginx_configuration(domain)
-        self.stop_deployed_apps(domain, stopping_apps)
-        self.remove_container_and_network(domain, stopping_apps)
+        self.remove_nginx_configuration(current_app.domain)
+        self.deployed_domains = [
+            d for d in self.deployed_domains if d != current_app.domain
+        ]
+        self.stop_deployed_apps([current_app])
+        self.remove_container_and_network([current_app])
         if remove_volumes:
-            self.remove_managed_volumes(stopping_apps)
-        if verbosity(3):
+            self.remove_managed_volumes([current_app])
+        with verbosity(3):
             debug("remove_deployed_instance:")
-            debug(" ".join([a.domain for a in stopping_apps]))
-        self.remove_deployed_instance(domain, stopping_apps)
+            debug(current_app.label_id)
+        self.remove_deployed_instance([current_app])
 
     def merge_add(self, additional: AppDeployment):
         """Merge by simple addtion of new domain to list."""
@@ -437,7 +443,7 @@ class AppDeployment:
         )
         self.deployed_labels = sorted(app.label_id for app in self.apps)
         self.merge_nginx_configuration()
-        self.merge_start_apps(additional.apps)
+        self._start_apps(additional.apps, deactivate=True)
 
     def instances_of_domain(self, domain: str) -> list[AppInstance]:
         """Select deployed instances of domain."""
@@ -447,15 +453,24 @@ class AppDeployment:
                 return apps_dom["apps"]
         raise Abort(f"No instance found for domain '{domain}'")
 
+    def instance_of_label(self, label: str) -> AppInstance:
+        """Select deployed instances per label."""
+        label_id = AppInstance.docker_sanitized_name(label)
+        self.load_deployed_configuration()
+        for app in self.apps:
+            if app.label_id == label_id:
+                return app
+        raise Abort(f"No instance found for label_id '{label_id}'")
+
     def restore_previous_deploy_config_strict(self):
         """Retrieve last successful deployment configuration (strict mode)."""
-        with verbosity(1):
+        with verbosity(0):
             show("Deploy apps from previous deployment (strict mode).")
         self.load_deployed_configuration()
 
     def restore_previous_deploy_config_replay(self):
         """Retrieve last successful deployment configuration (replay mode)."""
-        with verbosity(1):
+        with verbosity(0):
             show("Deploy apps from previous deployment (replay deployment).")
         self.load_deployed_configuration()
         with verbosity(3):
@@ -531,11 +546,10 @@ class AppDeployment:
         for host in self.apps_per_domain:
             hostname = host["hostname"]
             with verbosity(3):
-                print(f"merge_nginx_configuration for {hostname}")
-
+                debug(f"merge_nginx_configuration for {hostname}")
             if hostname in self.already_deployed_domains:
                 with verbosity(3):
-                    print("continue, already_deployed_domains")
+                    debug("continue, already_deployed_domains")
                 continue
             with verbosity(1):
                 info(f"Configure Nginx for domain '{hostname}'")
@@ -552,8 +566,9 @@ class AppDeployment:
 
         To stop nginx redirection before actually stopping the apps.
         """
-        with verbosity(1):
-            info(f"Remove domain from Nginx: '{stop_domain}'")
+        with verbosity(0):
+            info(f"Remove Nginx configuration: '{stop_domain}'")
+
         remove_nginx_configuration_hostname(stop_domain)
         nginx_reload()
 
@@ -564,13 +579,13 @@ class AppDeployment:
         """
         if not self.deployed_domains:
             return
-        with verbosity(1):
+        with verbosity(0):
             show("Removing Nginx configuration.")
         for domain in self.deployed_domains:
             remove_nginx_configuration_hostname(domain)
         nginx_reload()
 
-    def merge_start_apps(self, new_apps: list[AppInstance]):
+    def _start_apps(self, new_apps: list[AppInstance], deactivate: bool = False):
         """Start new deployed apps."""
         if not self.already_deployed_domains:
             # easy, either first deployment or all apps removed, start from zero:
@@ -578,7 +593,8 @@ class AppDeployment:
         # restarting local services:
         self.restart_local_services()
         for app in new_apps:
-            deactivate_app(app)
+            if deactivate:
+                deactivate_app(app)
             self.start_network(app)
             self.evaluate_container_params(app)
             self.start_resources_containers(app)
@@ -609,7 +625,7 @@ class AppDeployment:
 
     def start_deployed_apps(self, domain: str, apps: list[AppInstance]):
         """Start deployed instances previously stopped."""
-        with verbosity(1):
+        with verbosity(0):
             info(f"Start instance of domain '{domain}'.")
         for site in apps:
             # self.start_network(site)
@@ -617,20 +633,27 @@ class AppDeployment:
             site.running_status = RUNNING
             self.store_container_instance(site)
 
-    def stop_deployed_apps(self, domain: str, apps: list[AppInstance]):
+    def remove_app_list(self, apps: list[AppInstance]):
+        self.stop_deployed_apps(apps)
+        self.remove_container_and_network(apps)
+        self.remove_managed_volumes(apps)
+        self.remove_deployed_instance(apps)
+
+    def stop_deployed_apps(self, apps: list[AppInstance]):
         """Stop deployed app instances."""
-        with verbosity(1):
-            info(f"Stop instance of domain '{domain}'.")
-        for site in apps:
-            stop_one_app_containers(site)
-            site.running_status = STOPPED
-            self.store_container_instance(site)
+        with verbosity(0):
+            for app in apps:
+                info(f"Stop app '{app.label_id}'")
+        for app in apps:
+            stop_one_app_containers(app)
+            app.running_status = STOPPED
+            self.store_container_instance(app)
 
     def stop_all_deployed_apps(self, store_status: bool = False):
         """Stop all deployed app instances."""
         if not self.apps:
             return
-        with verbosity(1):
+        with verbosity(0):
             show("Stop all instances.")
         for site in self.apps:
             stop_one_app_containers(site)
@@ -640,7 +663,7 @@ class AppDeployment:
 
     def restart_deployed_apps(self, domain: str, apps: list[AppInstance]):
         """Restart deployed instances."""
-        with verbosity(1):
+        with verbosity(0):
             info(f"Restart instance of domain '{domain}'.")
         for site in apps:
             # self.start_network(site)
@@ -648,20 +671,20 @@ class AppDeployment:
             site.running_status = RUNNING
             self.store_container_instance(site)
 
-    def remove_container_and_network(self, domain: str, apps: list[AppInstance]):
+    def remove_container_and_network(self, apps: list[AppInstance]):
         """Remove stopped app: container, network, but not volumes."""
-        with verbosity(1):
-            info(f"Remove instance of domain '{domain}'.")
+        with verbosity(3):
+            debug(f"Remove instances '{apps}'")
         self._mounted_before_removing = store.list_instances_container_active_volumes()
-        for site in apps:
-            deactivate_app(site)
-            remove_container_private_network(site.network_name)
+        for app in apps:
+            deactivate_app(app)
+            remove_container_private_network(app.network_name)
 
     def remove_all_deployed_container_and_network(self):
         """Remove all (stopped) apps container, network, but not volumes."""
         if not self.apps:
             return
-        with verbosity(1):
+        with verbosity(0):
             show("Remove all instances.")
         self._mounted_before_removing = store.list_instances_container_active_volumes()
         for site in self.apps:
@@ -692,10 +715,10 @@ class AppDeployment:
         for source in before:
             remove_volume_by_source(source)
 
-    def remove_deployed_instance(self, domain: str, apps: list[AppInstance]):
+    def remove_deployed_instance(self, apps: list[AppInstance]):
         """Remove data of stopped app: local managed volumes."""
-        with verbosity(1):
-            info(f"Remove app instance of domain '{domain}' from DB.")
+        with verbosity(3):
+            info(f"Remove instance '{apps}' from loaded configuration")
         for app in apps:
             self.remove_app_instance(app)
 
@@ -845,7 +868,7 @@ class AppDeployment:
             if not app.find_registry_path():
                 show(f"No image found for '{app.image}'")
                 return False
-        with verbosity(1):
+        with verbosity(0):
             seen = set()
             for app in self.apps:
                 if app.image not in seen:
@@ -954,7 +977,7 @@ class AppDeployment:
             debug("apps_set_volumes_names() done")
 
     def restart_local_services(self):
-        with verbosity(2):
+        with verbosity(1):
             if self.required_services:
                 show("Services to restart:", pformat(self.required_services))
             else:
@@ -966,7 +989,7 @@ class AppDeployment:
     def configure_nginx(self):
         clean_nua_nginx_default_site()
         for host in self.apps_per_domain:
-            with verbosity(1):
+            with verbosity(0):
                 info(f"Configure Nginx for domain '{host['hostname']}'")
             configure_nginx_hostname(host)
 
@@ -974,7 +997,7 @@ class AppDeployment:
         for host in self.apps_per_domain:
             if host["hostname"] != domain:
                 continue
-            with verbosity(1):
+            with verbosity(0):
                 info(f"Configure Nginx for domain '{host['hostname']}'")
             configure_nginx_hostname(host)
         nginx_reload()
@@ -1203,10 +1226,10 @@ class AppDeployment:
 
     def display_deployed_apps(self):
         if not self.apps:
-            show("No app deployed.")
+            important("No app deployed.")
             return
 
-        show("Deployed apps:")
+        important("Deployed apps:")
         protocol = protocol_prefix()
         for app in self.apps:
             msg = f"Label: {app.label_id}"
@@ -1216,7 +1239,7 @@ class AppDeployment:
             msg = f"Deployment status: {app.running_status}"
             info(msg)
             self.display_persistent_data(app)
-        print()
+        vprint("")
 
     def display_persistent_data(self, app: AppInstance):
         with verbosity(3):
@@ -1226,7 +1249,7 @@ class AppDeployment:
                 debug(pformat(content))
 
     def display_used_volumes(self):
-        with verbosity(1):
+        with verbosity(0):
             current_mounted = store.list_instances_container_active_volumes()
             if not current_mounted:
                 return
@@ -1235,7 +1258,7 @@ class AppDeployment:
                 show(Volume.string(volume))
 
     def display_unused_volumes(self):
-        with verbosity(1):
+        with verbosity(0):
             unused = unused_volumes(self.orig_mounted_volumes)
             if not unused:
                 return

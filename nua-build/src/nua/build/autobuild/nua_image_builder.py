@@ -2,16 +2,16 @@
 import tempfile
 from pathlib import Path
 
-from nua.agent.constants import NUA_BUILDER_TAG, NUA_PYTHON_TAG
 from nua.lib.actions import copy_from_package
 from nua.lib.backports import chdir
+from nua.lib.constants import NUA_BUILDER_TAG, NUA_PYTHON_TAG
 from nua.lib.panic import Abort, show, title, vprint
 from nua.lib.shell import mkdir_p
 from nua.lib.tool.state import verbosity
 
 from . import __version__ as nua_version
 from .constants import DOCKERFILE_BUILDER, DOCKERFILE_PYTHON, NUA_LINUX_BASE
-from .docker_build_utils import (
+from nua.lib.docker import (
     display_docker_img,
     docker_remove_locally,
     docker_require,
@@ -125,7 +125,7 @@ class NuaImageBuilder:
             with verbosity(3):
                 show(f"build directory: {build_path}")
             copy_from_package(
-                "nua.autobuild.dockerfiles",
+                "nua.build.autobuild.dockerfiles",
                 DOCKERFILE_PYTHON,
                 build_path,
                 "Dockerfile",
@@ -148,7 +148,7 @@ class NuaImageBuilder:
             with verbosity(3):
                 show(f"build directory: {build_path}")
             copy_from_package(
-                "nua.autobuild.dockerfiles",
+                "nua.build.autobuild.dockerfiles",
                 DOCKERFILE_BUILDER,
                 build_path,
                 "Dockerfile",

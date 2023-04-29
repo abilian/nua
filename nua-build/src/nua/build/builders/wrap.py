@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 
 import docker
-from nua.autobuild.docker_build_utils import (
+from nua.lib.docker import (
     display_docker_img,
     docker_build_log_error,
     docker_stream_build,

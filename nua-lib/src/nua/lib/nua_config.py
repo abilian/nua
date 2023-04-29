@@ -7,11 +7,11 @@ from typing import Any, Union
 
 import tomli
 import yaml
-from nua.lib.actions import download_extract
-from nua.lib.shell import chown_r
 
-from .constants import NUA_CONFIG_EXT, NUA_CONFIG_STEM
+from .actions import download_extract
+from .constants import NUA_CONFIG_STEM, nua_config_names
 from .nua_tag import nua_tag_string
+from .shell import chown_r
 
 REQUIRED_BLOCKS = ["metadata"]
 REQUIRED_METADATA = ["id", "version", "title", "author", "license"]
@@ -31,11 +31,6 @@ COMPLETE_BLOCKS = ["build", "run", "env", "docker"]
 
 class NuaConfigError(ValueError):
     pass
-
-
-def nua_config_names():
-    for suffix in NUA_CONFIG_EXT:
-        yield f"{NUA_CONFIG_STEM}.{suffix}"
 
 
 def hyphen_get(data: dict, key: str, default: Any = None) -> Any:
@@ -70,12 +65,19 @@ def nomalize_env_values(env: dict[str, Union[str, int, float, list]]) -> dict[st
 
 def force_list(content: str | list[str]) -> list[str]:
     """Return always a list, if a single string is provided, wrap it into
-    list."""
-    if isinstance(content, list):
-        return content
-    if isinstance(content, str) and content:
-        return [content]
-    return []
+    list.
+    >>> force_list("foo")
+    ['foo']
+    >>> force_list(["foo"])
+    ['foo']
+    """
+    match content:
+        case [_]:
+            return content
+        case str(s):
+            return [s]
+        case _:
+            raise ValueError(f"Not a tring or list of strings: {type(content)}")
 
 
 class NuaConfig:

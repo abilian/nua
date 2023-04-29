@@ -1,15 +1,15 @@
 from contextlib import suppress
 
 import docker
-from nua.agent.constants import NUA_BUILDER_TAG, NUA_PYTHON_TAG
+from nua.lib.constants import NUA_BUILDER_TAG, NUA_PYTHON_TAG
+
+from nua.build.autobuild.nua_image_builder import NuaImageBuilder
 
 # from subprocess import run
 # import shlex
 
 
 def test_force_build():  # noqa
-    from nua.autobuild.nua_image_builder import NuaImageBuilder
-
     client = docker.from_env()
 
     # empty docker cache
@@ -32,8 +32,6 @@ def test_force_build():  # noqa
 
 
 def test_quick_build():  # noqa
-    from nua.autobuild.nua_image_builder import NuaImageBuilder
-
     client = docker.from_env()
 
     image_builder = NuaImageBuilder()

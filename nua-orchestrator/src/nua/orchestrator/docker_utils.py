@@ -14,9 +14,18 @@ from docker import DockerClient
 from docker.errors import APIError, NotFound
 from docker.models.containers import Container
 from docker.models.images import Image
-from nua.autobuild.docker_build_utils import docker_require
 from nua.lib.console import print_red
-from nua.lib.panic import Abort, important, info, show, vprint, warning
+from nua.lib.docker import docker_require
+from nua.lib.panic import (
+    Abort,
+    bold_debug,
+    debug,
+    important,
+    info,
+    show,
+    vprint,
+    warning,
+)
 from nua.lib.shell import chmod_r, mkdir_p
 from nua.lib.tool.state import verbosity
 
@@ -149,8 +158,9 @@ def _docker_restart_container(container: Container):
 
 
 def _docker_remove_container(name: str, force=False, volume=False):
-    if force and verbosity(1):
-        warning(f"removing container with '--force': {name}")
+    if force:
+        with verbosity(0):
+            warning(f"removing container with '--force': {name}")
     for cont in docker_container_of_name(name):
         cont.remove(v=volume, force=force)
 
@@ -208,7 +218,7 @@ def docker_remove_prior_container_db(rsite: Resource):
     if not previous_name:
         return
 
-    with verbosity(1):
+    with verbosity(0):
         info(f"    -> remove previous container: {previous_name}")
 
     docker_stop_container_name(previous_name)
@@ -229,15 +239,15 @@ def docker_remove_container_previous(name: str, show_warning: bool = True):
 
     if not containers:
         if show_warning:
-            with verbosity(2):
+            with verbosity(1):
                 warning(f"no previous container to stop '{name}'")
         return
 
     container = containers[0]
-    with verbosity(2):
+    with verbosity(1):
         info(f"Stopping container '{container.name}'")
     _docker_stop_container(container)
-    with verbosity(2):
+    with verbosity(1):
         info(f"Removing container '{container.name}'")
     try:
         container.remove(v=False, force=True)
@@ -258,15 +268,18 @@ def docker_remove_prior_container_live(rsite: Resource):
         return
 
     for container in docker_container_of_name(previous_name):
-        print_red(f"Try removing a container not listed in Nua DB: {container.name}")
+        with verbosity(3):
+            debug(
+                f"For security, try to remove a container not listed in Nua DB: {container.name}"
+            )
         docker_stop_container_name(container.name)
         docker_remove_container(container.name)
 
 
 def erase_previous_container(client: DockerClient, name: str):
     try:
-        with verbosity(2):
-            info(f"Search previous container of name: {name}")
+        with verbosity(4):
+            bold_debug(f"Search previous container of name: {name}")
         container = client.containers.get(name)
         info(f"    -> Remove existing container '{container.name}'")
         container.remove(force=True)
@@ -297,7 +310,7 @@ def docker_run(rsite: Resource, secrets: dict) -> Container:
         The new started container.
     """
     params = docker_run_params(rsite)
-    with verbosity(1):
+    with verbosity(0):
         # info(f"Docker run image: {rsite.image_id}")
         info(f"Docker run image: {rsite.image}")
         info(f"        image id: {rsite.image_id_short}")
@@ -306,7 +319,7 @@ def docker_run(rsite: Resource, secrets: dict) -> Container:
             show(pformat(params))
 
     docker_remove_prior_container_live(rsite)
-    with verbosity(2):
+    with verbosity(1):
         if "network" in params:
             info("Network:", params["network"])
 

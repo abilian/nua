@@ -8,7 +8,7 @@ https://www.digitalocean.com/community/tutorials/
 # RUN echo "host all  all    0.0.0.0/0  trust" >> /etc/postgresql/9.3/main/pg_hba.conf
 
 import mariadb
-from nua.agent.db.mariadb_manager import MariaDbManager
+from nua.lib.db.mariadb_manager import MariaDbManager
 
 from .constants import DB_HOST, DB_PORT, USER_DB, USER_NAME, USER_PASSWORD
 

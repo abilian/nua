@@ -13,8 +13,7 @@ Test ENV variables:
 import os
 from pprint import pformat
 
-from nua.lib.console import print_red
-from nua.lib.panic import Abort, vprint
+from nua.lib.panic import Abort, bold_debug, debug, red_line
 from nua.lib.tool.state import verbosity
 
 from nua.orchestrator import config
@@ -49,14 +48,14 @@ def register_certbot_domains(apps: list):
         domains.add(site.hostname)
         tops[site.top_domain] = domains
     with verbosity(3):
-        print("certbot registration for:")
-        print(pformat(tops))
+        bold_debug("certbot registration for:")
+        debug(pformat(tops))
     strategy = get_certbot_strategy()
     strategy_function = ALLOWED_STRATEGY[strategy]
     for top_domain, domains in tops.items():
         strategy_function(top_domain, list(domains))
     with verbosity(3):
-        vprint("register_certbot_domains() done")
+        debug("register_certbot_domains() done")
 
 
 def get_certbot_strategy() -> str:
@@ -74,6 +73,7 @@ def protocol_prefix() -> str:
 
 def assert_valid_certbot_strategy(strategy: str):
     if strategy not in ALLOWED_STRATEGY:
-        print_red("Allowed values for certbot_strategy are:")
-        print_red(f"{ALLOWED_STRATEGY}")
-        raise Abort(f"Unknown certbot_strategy: {strategy}")
+        with verbosity(0):
+            red_line("Allowed values for certbot_strategy are:")
+            red_line(f"{ALLOWED_STRATEGY}")
+        raise Abort(f"Unknown certbot strategy: {strategy}")

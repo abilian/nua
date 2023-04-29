@@ -95,7 +95,7 @@ class MariaDbManager(DbManager):
         exec_as_root(cmd)
 
     def wait_for_db(self, timeout: int = 120):
-        """Wait for the DB beeing up."""
+        """Wait for the DB being up."""
         when = time()
         limit = when + timeout
         while time() < limit:
@@ -170,7 +170,7 @@ class MariaDbManager(DbManager):
         )
         cursor = connection.cursor()
         query = (
-            "SELECT count(*) FROM information_schema.TABLES WHERE "
+            "SELECT count(*) FROM information_schema.TABLES WHERE "  # noqa S608
             f"(TABLE_SCHEMA = '{dbname}') AND (TABLE_NAME = '{table}')"
         )
         # cursor.execute(query, (dbname, table))

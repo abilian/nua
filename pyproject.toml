@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-monorepo"
-version = "0.5.14"
+version = "0.5.15"
 description = ""
 authors = [
     "Stefane Fermigier <sf@abilian.com>",
@@ -18,7 +18,6 @@ python = ">=3.10,<3.12"
 nua-lib = { path = "nua-lib", develop = true }
 nua-cli = { path = "nua-cli", develop = true }
 nua-agent = { path = "nua-agent", develop = true }
-nua-autobuild = { path = "nua-autobuild", develop = true }
 nua-build = { path = "nua-build", develop = true }
 nua-orchestrator = { path = "nua-orchestrator", develop = true }
 nua-server = { path = "nua-server", develop = true }
@@ -48,6 +47,7 @@ types-setuptools = "*"
 types-paramiko = "*"
 types-requests = "*"
 types-pyyaml = "*"
+import-linter = "^1.8.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

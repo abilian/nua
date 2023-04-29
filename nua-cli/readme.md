@@ -39,7 +39,7 @@ nua --help
 nua [command] [options]
 ```
 
-## Main commands and subcommands
+### Main commands and subcommands
 
 Here's the list of commands we should support, eventually (TBC):
 
@@ -70,12 +70,12 @@ Available commands:
 ```
 
 
-## Generic options
+### Generic options
 
 - `--help` - Show help
 - `--version` - Show version number
 
-## Examples (TBC)
+### Examples (TBC)
 
 ```bash
 nua deploy --help
@@ -85,3 +85,9 @@ nua deploy --app-id appid --domain fqdn --env SOMEVAR=value --env-file .env
 nua deploy --app-id appid --domain fqdn --env SOMEVAR=value --env-file .env --config config-path
 nua deploy --app-id hedgedoc-1.9.6-10 --domain hdoc.example.com --env NODE_ENV=production
 ```
+
+## Development
+
+### Dependency graph
+
+![Dependency graph](./doc/dependency-graph.png)

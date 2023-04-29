@@ -5,8 +5,8 @@ from tarfile import TarFile, TarInfo
 
 import tomli
 import yaml
-from nua.agent.constants import NUA_METADATA_PATH
-from nua.agent.nua_config import nua_config_names
+
+from nua.lib.constants import NUA_METADATA_PATH, nua_config_names
 
 
 class ArchiveSearch:
@@ -23,6 +23,23 @@ class ArchiveSearch:
         self.tar_file = TarFile(arch_path)
         self.equal_match = False
 
+    #
+    # Public API
+    #
+    def get_nua_config_dict(self) -> dict:
+        """Return the nua-config.toml of the archive as a dict."""
+        for name in nua_config_names():
+            found = self.find_one(f"{NUA_METADATA_PATH}/{name}")
+            if found:
+                content = found[0]["content"]
+                if name.endswith("toml"):
+                    return tomli.loads(content)
+                return yaml.safe_load(content)
+        return {}
+
+    #
+    # Internal methods
+    #
     def find_one(self, path_pattern: str) -> list:
         if path_pattern.startswith("/"):
             self.equal_match = True
@@ -62,14 +79,3 @@ class ArchiveSearch:
         """Return the content of a file on the archive."""
         result = self.find_one(str(path))
         return result[0]["content"].decode("utf8")
-
-    def nua_config_dict(self) -> dict:
-        """Return the nua-config.toml of the archive as a dict."""
-        for name in nua_config_names():
-            found = self.find_one(f"{NUA_METADATA_PATH}/{name}")
-            if found:
-                content = found[0]["content"]
-                if name.endswith("toml"):
-                    return tomli.loads(content)
-                return yaml.safe_load(content)
-        return {}

@@ -251,6 +251,18 @@ def store_instance(
         session.commit()
 
 
+# for future use
+# def load_instance_config(label_id: str = "") -> dict:
+#     """Load nua instance configuration dict from local DB (table 'instance')."""
+#     with Session() as session:
+#         existing = session.query(Instance).filter_by(label_id=label_id).first()
+#         if existing:
+#             site_config = existing.site_config
+#         else:
+#             site_config = {}
+#         return site_config
+
+
 def list_instances_all() -> list[Instance]:
     with Session() as session:
         return session.query(Instance).all()

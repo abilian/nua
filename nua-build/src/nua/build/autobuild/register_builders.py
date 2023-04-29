@@ -38,7 +38,7 @@ class BuilderRegistry:
 
     def __init__(self):
         self.is_initialized = False
-        self.builders_dirs = ("nua.autobuild.builders",)
+        self.builders_dirs = ("nua.build.autobuild.builders",)
         self.builders = {}
         self.builder_names = {}
 

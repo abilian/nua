@@ -4,16 +4,16 @@ import tempfile
 from pathlib import Path
 from shutil import copytree
 
+from cleez.testing import CliRunner
 from docker import DockerClient
-from nua.agent.nua_config import NuaConfig
-from typer.testing import CliRunner
+from nua.lib.archive_search import ArchiveSearch
+from nua.lib.nua_config import NuaConfig
 
-from nua.build.archive_search import ArchiveSearch
 from nua.build.main import app as nua_build
 
 from .common import get_apps_root_dir
 
-runner = CliRunner(mix_stderr=False)
+runner = CliRunner()
 
 
 def test_archive_search():
@@ -41,7 +41,7 @@ def _build_test_search(tmpdirname, src_path, image_target, app_id):
     cmd = shlex.split(f"docker save {image_target} -o {archive}")
     sp.run(cmd)  # noqa S603
     arch_search = ArchiveSearch(archive)
-    internal_config = arch_search.nua_config_dict()
+    internal_config = arch_search.get_nua_config_dict()
     assert internal_config["metadata"]["id"] == app_id
 
 

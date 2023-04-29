@@ -12,7 +12,7 @@ from abc import abstractmethod
 from pathlib import Path
 
 from docker.models.images import Image
-from nua.agent.nua_config import NuaConfig
+from nua.lib.nua_config import NuaConfig
 from nua.lib.panic import info, show, title, vfprint, vprint, warning
 from nua.lib.tool.state import verbosity
 

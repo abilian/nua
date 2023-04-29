@@ -8,7 +8,13 @@ from typing import Any
 
 @dataclass
 class Persistent:
-    """Management of persistent generated values (like passwords)."""
+    """Management of persistent generated values (like passwords).
+
+    Persistent data is stored in the AppInstance. A Persistent object contains
+    persitent values for the AppInstance and its ressources. The 'name'
+    attribute identifies the resource owning the data, use '' as resource_name for
+    the data own by the AppInstance itself.
+    """
 
     name: str
     _dict: dict = field(default_factory=dict)
