@@ -68,8 +68,8 @@ def force_list(content) -> list:
     list.
     >>> force_list("foo")
     ['foo']
-    >>> force_list(["foo"])
-    ['foo']
+    >>> force_list(["foo", "bar"])
+    ['foo', 'bar']
     >>> force_list([])
     []
     """
