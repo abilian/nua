@@ -5,8 +5,7 @@
 [![codecov](https://codecov.io/github/abilian/nua/branch/main/graph/badge.svg?token=0PCZNVDRE8)](https://codecov.io/github/abilian/nua)
 
 > **Warning**
-> This code is currently highly experimental, and not meant for public consumption.
-> We hope to have a usable, alpha or beta quality, release, by the end of Q1 2023.
+> This code is still evolving quickly, and not meant for production yet.
 
 ## What is Nua?
 
