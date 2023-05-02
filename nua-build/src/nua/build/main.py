@@ -25,8 +25,10 @@ from .builders import BuilderError, get_builder
 snoop.install()
 
 
-def main():
+def app(argv: list | None = None):
     t0 = perf_counter()
+    if argv is None:
+        argv = sys.argv[1:]
 
     parser = argparse.ArgumentParser()
 
@@ -54,7 +56,10 @@ def main():
 
     # Specific options / arguments
     parser.add_argument(
-        "config_file", nargs="?", default=".", help="Path to the package dir or 'nua-config' file."
+        "config_file",
+        nargs="?",
+        default=".",
+        help="Path to the package dir or 'nua-config' file.",
     )
     parser.add_argument("-t", "--time", action=STORE_TRUE, help="Print timing info")
     parser.add_argument(
@@ -65,7 +70,7 @@ def main():
         help="Save image locally after the build (defaults to True).",
     )
 
-    args = parser.parse_args(sys.argv[1:])
+    args = parser.parse_args(argv)
 
     set_verbosity(args.verbose)
     set_color(args.color)
@@ -95,8 +100,9 @@ def main():
         print(f"Build time (clock): {elapsed(t1-t0)}")
 
 
-# Backwards compatibility
-app = main
+def main():
+    app(sys.argv)
+
 
 if __name__ == "__main__":
     main()
