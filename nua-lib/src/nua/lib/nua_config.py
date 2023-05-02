@@ -75,9 +75,7 @@ def force_list(content) -> list:
     """
 
     match content:
-        case []:
-            return content
-        case [_]:
+        case list():
             return content
         case _:
             return [content]
