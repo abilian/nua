@@ -1,12 +1,8 @@
 # Nua Documentation
 
-
-!!! danger "Do not use yet (in production)!"
-    This code is still experimental, and not meant for public consumption.
-
-    We plan to have a first usable release, by the end of Q1 2023, and a stable release by the end of Q2 2023.
-
-    You can accelerate this process by [funding](./funding/) the project.
+{%
+   include-markdown "snippets/no-production.md"
+%}
 
 
 ## What is Nua?
@@ -14,6 +10,10 @@
 Nua is an open source, self-hosted cloud platform project (a *PaaS* - *platform as a service*). More than just a technical platform, it aims to cover the entire life cycle of web applications, from development (and packaging) to deployment and maintenance, including security.
 
 It is particularly aimed at organisations (SMEs, associations, public services, etc.) that wish, or need, to implement a digital autonomy strategy, and as such are moving towards open source software as a priority.
+
+{%
+   include-markdown "snippets/support.md"
+%}
 
 
 ## Concept Map
