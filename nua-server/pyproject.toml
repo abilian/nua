@@ -3,6 +3,15 @@ name = "nua-server"
 version = "0.1.0"
 description = "Nua (web) server"
 authors = []
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "Intended Audience :: Information Technology",
+]
+
 packages = [
     { include = "nua_server", from = "src" },
 ]

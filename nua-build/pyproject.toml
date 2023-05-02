@@ -6,8 +6,18 @@ authors = [
     "Stefane Fermigier <sf@abilian.com>",
     "Jerome Dumonteil <jd@abilian.com>",
 ]
-license = "AGPL"
-readme = "README.md"
+license = "Apache-2.0"
+
+readme = "readme.md"
+documentation = "https://nua.rocks/"
+repository = "https://github.com/abilian/nua"
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+]
+
 packages = [
   { include = "nua", from = "src" }
 ]

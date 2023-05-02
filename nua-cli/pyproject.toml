@@ -3,7 +3,21 @@ name = "nua-cli"
 version = "0.5.17"
 description = "Command line interface for the Nua self-hosted PaaS (Platform as a Service)"
 authors = ["Stefane Fermigier <sf@abilian.com>"]
-readme = "readme.md"
+
+license = "Apache-2.0"
+
+readme = "README.md"
+documentation = "https://nua.rocks/"
+repository = "https://github.com/abilian/nua"
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+]
+
+
 packages = [
   { include = "nua_cli", from = "src" }
 ]
