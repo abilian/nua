@@ -14,7 +14,7 @@ classifiers = [
     "Intended Audience :: Developers",
 ]
 
-readme = "readme.md"
+readme = "README.md"
 documentation = "https://nua.rocks/"
 repository = "https://github.com/abilian/nua"
 
