@@ -85,8 +85,8 @@ class Builder(abc.ABC):
                 f"Build directory parent not found: '{build_dir_parent}'"
             )
 
-        with verbosity(1):
-            info(f"Build directory: {build_dir_parent}")
+        with verbosity(2):
+            info("Build directory: {build_dir_parent}")
 
         return Path(tempfile.mkdtemp(dir=build_dir_parent))
 
