@@ -44,14 +44,14 @@ def app(argv: list | None = None):
         "-q",
         "--quiet",
         default=False,
-        action=argparse.BooleanOptionalAction,
+        action="store_true",
         help="Suppress non-error messages.",
     )
     parser.add_argument(
         "--color",
         default=True,
         action=argparse.BooleanOptionalAction,
-        help="Enable (default) / disable colorized messages.",
+        help="Enable / disable colorized messages.",
     )
     parser.add_argument(
         "--version",
@@ -68,7 +68,7 @@ def app(argv: list | None = None):
         default=".",
         help="Path to the package dir or 'nua-config' file.",
     )
-    parser.add_argument("-t", "--time", action=STORE_TRUE, help="Print timing info")
+    parser.add_argument("-t", "--time", action=STORE_TRUE, help="Print timing info.")
     parser.add_argument(
         "-s",
         "--save",
