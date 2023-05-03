@@ -1,3 +1,8 @@
+
+IMPORTANT: Work in progress, currently not useable
+
+
+
 Tests require existing docker images: run pytest on nua_build to generate those images.
 
 Test with nginx and certbot require DNS known domain with subdomaine:
