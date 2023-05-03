@@ -74,7 +74,7 @@ def app(argv: list | None = None):
         "--save",
         default=True,
         action=argparse.BooleanOptionalAction,
-        help="Save image locally after the build (defaults to True).",
+        help="Save image locally after the build.",
     )
 
     args = parser.parse_args(argv)
