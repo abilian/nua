@@ -72,8 +72,9 @@ class Builder(abc.ABC):
         with verbosity(0):
             warning("\n".join(lines))
 
-    def _title_build(self):
-        title(f"Building the image for {self.config.app_id}")
+    def title_build(self):
+        with verbosity(0):
+            title(f"Building the image for {self.config.app_id}")
 
     def make_build_dir(self) -> Path:
         build_dir_parent = Path(

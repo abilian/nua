@@ -24,7 +24,7 @@ CLIENT_TIMEOUT = 600
 
 class DockerWrapBuilder(Builder):
     def run(self):
-        self._title_build()
+        self.title_build()
         # FIXME:
         # if self.container_type != "docker":
         #     raise NotImplementedError(f"Container type '{self.container_type}'")

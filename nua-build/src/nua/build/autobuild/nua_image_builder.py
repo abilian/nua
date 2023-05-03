@@ -111,7 +111,8 @@ class NuaImageBuilder:
         self.build(force=False, all=False)
 
     def build_nua_python(self):
-        title(f"Building the docker image {NUA_PYTHON_TAG}")
+        with verbosity(0):
+            title(f"Building the docker image {NUA_PYTHON_TAG}")
         info = {
             "app_id": "nua-python",
             "tag": NUA_PYTHON_TAG,
@@ -133,7 +134,8 @@ class NuaImageBuilder:
             docker_build_custom(info, build_path)
 
     def build_nua_builder(self):
-        title(f"Building the docker image {NUA_BUILDER_TAG}")
+        with verbosity(0):
+            title(f"Building the docker image {NUA_BUILDER_TAG}")
         info = {
             "app_id": "nua-builder",
             "tag": NUA_BUILDER_TAG,
@@ -165,7 +167,8 @@ class NuaImageBuilder:
             "nua_builder_tag": NUA_BUILDER_TAG,
             "nua_version": nua_version,
         }
-        title(f"Building the docker image {tag}")
+        with verbosity(0):
+            title(f"Building the docker image {tag}")
         with tempfile.TemporaryDirectory() as build_dir:
             build_path = Path(build_dir)
             with verbosity(3):

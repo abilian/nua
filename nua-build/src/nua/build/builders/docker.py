@@ -42,7 +42,7 @@ class DockerBuilder(Builder):
         self.check_allowed_base_image()
         self.ensure_base_image_profile_availability()
         self.select_base_image()
-        self._title_build()
+        self.title_build()
         self.detect_nua_folder()
         self.build_docker_image()
         self.post_build_notices()
@@ -128,7 +128,8 @@ class DockerBuilder(Builder):
                 "NUA_TAG": nua_tag,
                 "NUA_BUILD_VERSION": __version__,
             }
-            info(f"Building image {nua_tag}")
+            with verbosity(0):
+                info(f"Building image {nua_tag}")
             image_id = docker_stream_build(".", nua_tag, buildargs, labels)
 
             with verbosity(1):
