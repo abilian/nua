@@ -41,6 +41,13 @@ def app(argv: list | None = None):
         help="Show more informations, until -vvv.",
     )
     parser.add_argument(
+        "-q",
+        "--quiet",
+        default=False,
+        action=argparse.BooleanOptionalAction,
+        help="Suppress non-error messages.",
+    )
+    parser.add_argument(
         "--color",
         default=True,
         action=argparse.BooleanOptionalAction,
@@ -72,7 +79,10 @@ def app(argv: list | None = None):
 
     args = parser.parse_args(argv)
 
-    set_verbosity(args.verbose)
+    if args.quiet:
+        set_verbosity(-1)
+    else:
+        set_verbosity(args.verbose)
     set_color(args.color)
 
     opts = {
