@@ -30,7 +30,7 @@ from nua.lib.shell import chmod_r, mkdir_p
 from nua.lib.tool.state import verbosity
 
 from . import config
-from .db import store
+
 from .resource import Resource
 from .volume import Volume
 
@@ -205,30 +205,6 @@ def docker_check_container_listed(name: str) -> bool:
         for cont in docker_container_of_name(name):
             print_red(f"         {cont.name}  {cont.status}")
         return False
-
-
-def docker_remove_prior_container_db(rsite: Resource):
-    """Search & remove containers already configured for this same AppInstance
-    or Resource (running or stopped), from DB."""
-    if rsite.type != "nua-site":
-        # FIXME for resource containers
-        return
-
-    previous_name = store.instance_container(rsite.domain)
-    if not previous_name:
-        return
-
-    with verbosity(0):
-        info(f"    -> remove previous container: {previous_name}")
-
-    docker_stop_container_name(previous_name)
-    docker_remove_container(previous_name)
-
-    with verbosity(4):
-        containers = docker_container_of_name(previous_name)
-        vprint("docker_remove_container after", containers)
-
-    store.instance_delete_by_domain(rsite.domain)
 
 
 def docker_remove_container_previous(name: str, show_warning: bool = True):

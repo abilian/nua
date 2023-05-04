@@ -1,7 +1,8 @@
 {
     "site": [
         {
-            "image": "nua-echo-two-ports",
+            "label": "test-minimal",
+            "image": "echo-two-ports-json",
             "domain": "test1.example.com",
             "test": [
                 {

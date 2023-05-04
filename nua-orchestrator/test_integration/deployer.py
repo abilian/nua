@@ -4,12 +4,14 @@ import socket
 import subprocess as sp
 import tempfile
 from pathlib import Path
-
+import shutil
 import requests
 from typer.testing import CliRunner
 
 from nua.orchestrator.cli.main import app
 from nua.orchestrator.utils import parse_any_format
+from nua.lib.exec import is_current_user
+from subprocess import run
 
 runner = CliRunner(mix_stderr=False)
 
@@ -21,16 +23,35 @@ def deploy_one_site(deploy_file: str):
     if not domain_name:
         domain_name = socket.gethostname()
     print(f"replacing 'example.com' by: '{domain_name}'")
+    orchestrator = shutil.which("nua-orchestrator")
+    assert orchestrator is not None
     suffix = Path(deploy_file).suffix
+
     with tempfile.NamedTemporaryFile("w", suffix=suffix) as new_file:
         with open(deploy_file) as old_file:
             data = old_file.read()
             data = data.replace("example.com", domain_name)
             new_file.write(data)
             new_file.flush()
-        cmd = f"deploy -vv {new_file.name}"
 
-        result = runner.invoke(app, cmd)
+        # shutil
+
+        # deploy_merge_nua_app
+
+        if os.getuid() == 0 or is_current_user("nua"):
+            cmd = f"{orchestrator} deploy -vv {new_file.name}"
+        else:
+            os.chmod(new_file.name, 0o644)
+            cmd = f"sudo {orchestrator} deploy -vv {new_file.name}"
+
+        result = run(
+            cmd,
+            shell=True,  # noqa: S602
+            timeout=600,
+            executable="/bin/bash",
+            text=True,
+            capture_output=True,
+        )
 
         if result.stdout:
             print(" ========= result.stdout ===========")
@@ -39,7 +60,7 @@ def deploy_one_site(deploy_file: str):
             print(" ========= result.stderr ===========")
             print(result.stderr)
 
-        assert result.exit_code == 0
+        assert result.returncode == 0
         assert "Installing App" in result.stdout
         assert "deployed as" in result.stdout
 
