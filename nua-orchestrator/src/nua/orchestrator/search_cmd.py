@@ -12,6 +12,22 @@ from packaging.version import Version
 from packaging.version import parse as parse_version
 
 from . import config
+from .docker_utils import local_nua_images
+
+
+def image_available_locally(app_name: str) -> bool:
+    """Return True if image of app_name is available in local Docker daemon."""
+    app, tag = parse_app_name(app_name)
+    if tag:
+        nua_tag = f"nua-{app}:{tag}"
+        for image in local_nua_images():
+            if image.labels["NUA_TAG"] == nua_tag:
+                return True
+    else:
+        for image in local_nua_images():
+            if image.labels["APP_ID"] == app:
+                return True
+    return False
 
 
 def search_nua(app_name: str) -> list[Path]:
@@ -92,14 +108,10 @@ def search_docker_tar_local(app, tag) -> list[Path]:
     results: list[Path] = []
     if tag:
         for registry in list_registry_docker_tar_local():
-            results.extend(
-                path for path in find_local_tar_tagged(registry, app, tag)
-            )
+            results.extend(path for path in find_local_tar_tagged(registry, app, tag))
     else:
         for registry in list_registry_docker_tar_local():
-            results.extend(
-                path for path in find_local_tar_untagged(registry, app)
-            )
+            results.extend(path for path in find_local_tar_untagged(registry, app))
     with verbosity(4):
         vprint(f"search_docker_tar_local list: {results}")
     version_path = sorted((_path_tar_version(p), p) for p in results)

@@ -11,7 +11,7 @@ from subprocess import run  # noqa: S404
 from time import sleep
 
 from docker import DockerClient
-from docker.errors import APIError, NotFound
+from docker.errors import APIError, NotFound, ImageNotFound
 from docker.models.containers import Container
 from docker.models.images import Image
 from nua.lib.console import print_red
@@ -615,3 +615,12 @@ def list_containers():
             f"{ctn.name}\n"
             f"    status: {ctn.status}  id: {ctn.short_id}  image: {name}"
         )
+
+
+def local_nua_images() -> list[Image]:
+    client = DockerClient.from_env()
+    try:
+        images = [image for image in client.images.list() if "NUA_TAG" in image.labels]
+    except (APIError, ImageNotFound):
+        images = []
+    return images
