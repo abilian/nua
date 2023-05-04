@@ -104,6 +104,7 @@ class BuilderApp:
         install_meta_packages(self.infer_meta_packages(), keep_lists=True)
         install_meta_packages(self.config.meta_packages, keep_lists=True)
         install_packages(self.config.packages, keep_lists=True)
+        chown_r("/nua/venv", "nua")
 
     def make_dirs(self):
         self._make_dir_user_nua(NUA_APP_PATH)
