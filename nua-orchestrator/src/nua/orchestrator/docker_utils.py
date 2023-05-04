@@ -11,7 +11,7 @@ from subprocess import run  # noqa: S404
 from time import sleep
 
 from docker import DockerClient
-from docker.errors import APIError, NotFound, ImageNotFound
+from docker.errors import APIError, ImageNotFound, NotFound
 from docker.models.containers import Container
 from docker.models.images import Image
 from nua.lib.console import print_red
@@ -30,7 +30,6 @@ from nua.lib.shell import chmod_r, mkdir_p
 from nua.lib.tool.state import verbosity
 
 from . import config
-
 from .resource import Resource
 from .volume import Volume
 
