@@ -60,7 +60,7 @@ def parse_app_name(app_name: str) -> tuple:
 
 
 def list_registry_docker_tar_local() -> list:
-    registries = config.read("nua", "registry")
+    registries = config.read("nua", "registry") or []
     return [
         reg
         for reg in sorted(registries, key=itemgetter("priority"))
@@ -92,10 +92,14 @@ def search_docker_tar_local(app, tag) -> list[Path]:
     results: list[Path] = []
     if tag:
         for registry in list_registry_docker_tar_local():
-            results.extend(path for path in find_local_tar_tagged(registry, app, tag))
+            results.extend(
+                path for path in find_local_tar_tagged(registry, app, tag)
+            )
     else:
         for registry in list_registry_docker_tar_local():
-            results.extend(path for path in find_local_tar_untagged(registry, app))
+            results.extend(
+                path for path in find_local_tar_untagged(registry, app)
+            )
     with verbosity(4):
         vprint(f"search_docker_tar_local list: {results}")
     version_path = sorted((_path_tar_version(p), p) for p in results)
