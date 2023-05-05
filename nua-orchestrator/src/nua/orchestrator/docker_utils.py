@@ -78,6 +78,16 @@ def docker_container_of_name(name: str) -> list[Container]:
         return []
 
 
+def docker_container_status(container_id: str) -> str:
+    """Get container status per Id."""
+    client = DockerClient.from_env()
+    try:
+        cont = client.containers.get(container_id)
+    except (NotFound, APIError):
+        return "App is down: container not found (probably removed)"
+    return f"Container ID: {cont.short_id}, status:{cont.status}"
+
+
 def docker_start_container_name(name: str):
     if not name:
         return
