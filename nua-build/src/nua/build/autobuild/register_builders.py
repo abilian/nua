@@ -9,7 +9,7 @@ from importlib.abc import Traversable
 from pprint import pformat
 
 from nua.lib.nua_config import force_list
-from nua.lib.panic import bold_debug, debug, warning, vprint
+from nua.lib.panic import bold_debug, warning, vprint
 from nua.lib.tool.state import verbosity
 
 
