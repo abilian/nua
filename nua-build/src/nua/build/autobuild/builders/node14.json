@@ -8,6 +8,11 @@
         "nodejs-14",
         "nodejs_14"
     ],
+    "language_name": [
+        "nodejs",
+        "node"
+    ],
+    "language_version": "14",
     "container": "docker",
     "dockerfile": "Dockerfile_nua_builder_node14",
     "labels": {

@@ -1,8 +1,15 @@
 {
     "app_id": "nua-builder-ruby277",
     "name": [
-        "ruby277", "ruby-277", "ruby27", "ruby-27"
+        "ruby277",
+        "ruby-277",
+        "ruby27",
+        "ruby-27"
     ],
+    "language_name": [
+        "ruby"
+    ],
+    "language_version": "2.7",
     "container": "docker",
     "dockerfile": "Dockerfile_nua_builder_ruby27",
     "labels": {
