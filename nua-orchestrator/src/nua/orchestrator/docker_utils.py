@@ -4,6 +4,7 @@ import json
 import re
 from contextlib import suppress
 from copy import deepcopy
+from datetime import datetime, timezone
 from functools import cache
 from pathlib import Path
 from pprint import pformat
@@ -16,6 +17,7 @@ from docker.models.containers import Container
 from docker.models.images import Image
 from nua.lib.console import print_red
 from nua.lib.docker import docker_require
+from nua.lib.elapsed import elapsed
 from nua.lib.panic import (
     Abort,
     bold_debug,
@@ -85,7 +87,16 @@ def docker_container_status(container_id: str) -> str:
         cont = client.containers.get(container_id)
     except (NotFound, APIError):
         return "App is down: container not found (probably removed)"
-    return f"Container ID: {cont.short_id}, status:{cont.status}"
+    return (
+        f"Container ID: {cont.short_id}, status: {cont.status}, "
+        f"created: {elapsed(docker_container_since(cont))} ago"
+    )
+
+
+def docker_container_since(container: Container) -> int:
+    created = datetime.fromisoformat(container.attrs["Created"][:19])
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    return (now - created).total_seconds()
 
 
 def docker_start_container_name(name: str):
