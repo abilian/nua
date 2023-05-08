@@ -8,6 +8,11 @@
         "nodejs-16",
         "nodejs_16"
     ],
+    "language_name": [
+        "nodejs",
+        "node"
+    ],
+    "language_version": "16",
     "container": "docker",
     "dockerfile": "Dockerfile_nua_builder_node16",
     "labels": {

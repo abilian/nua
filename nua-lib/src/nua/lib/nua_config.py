@@ -315,7 +315,7 @@ class NuaConfig:
         return self["build"]
 
     @property
-    def builder(self) -> str:
+    def builder(self) -> str | dict[str, str] | list[dict]:
         return self.build.get("builder", "")
 
     @property

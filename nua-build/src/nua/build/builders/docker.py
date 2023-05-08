@@ -1,6 +1,4 @@
-"""Docker builder (using dockerfile generated from the nua-config).
-
-"""
+"""Docker builder (using dockerfile generated from the nua-config)."""
 from __future__ import annotations
 
 import logging
@@ -57,8 +55,9 @@ class DockerBuilder(Builder):
     def ensure_base_image_profile_availability(self):
         """Ensure the required Nua images are available.
 
-        The tag 'builder' will determine the required base image. If
-        empty, the standard Nua base image is used.
+        The tag 'builder' will determine the required base image if it
+        represents an Image. If empty, the standard Nua base image is used.
+        The builder also be an installation recipe.
         """
         image_builder = NuaImageBuilder()
         image_builder.ensure_images(self.config.builder)

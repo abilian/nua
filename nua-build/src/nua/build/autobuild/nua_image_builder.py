@@ -1,7 +1,7 @@
 """Script to build Nua own images."""
 import tempfile
 from pathlib import Path
-
+from pprint import pformat
 from nua.lib.actions import copy_from_package
 from nua.lib.backports import chdir
 from nua.lib.constants import NUA_BUILDER_TAG, NUA_PYTHON_TAG
@@ -11,7 +11,8 @@ from nua.lib.docker import (
     docker_require,
     docker_stream_build,
 )
-from nua.lib.panic import Abort, show, title, vprint
+from nua.lib.nua_config import force_list
+from nua.lib.panic import Abort, show, title, debug, vprint
 from nua.lib.shell import mkdir_p
 from nua.lib.tool.state import verbosity
 
@@ -71,8 +72,12 @@ class NuaImageBuilder:
         for app_id in builder_ids():
             self.ensure_nua_builder_custom(app_id)
 
-    def ensure_nua_builder_custom(self, name: str):
+    def ensure_nua_builder_custom(self, name: str | dict):
         info = builder_info(name)
+        with verbosity(3):
+            debug("ensure_nua_builder_custom:", pformat(info))
+        if info.get("container", "") != "docker":
+            return
         app_id = info["app_id"]
         tag = self.builder_tag(name)
         if self.force or not docker_require(tag):
@@ -88,17 +93,18 @@ class NuaImageBuilder:
             display_docker_img(image_tag)
             self.displayed.add(image_tag)
 
-    def ensure_images(self, required: list | str):
+    def ensure_images(self, required: list | str | dict):
         with verbosity(3):
-            vprint("ensure_images:", required)
+            debug("ensure_images:", required)
 
         self.ensure_base_image()
 
         if not required:
+            with verbosity(3):
+                vprint("no image required")
             return
 
-        if isinstance(required, str):
-            required = [required]
+        required = force_list(required)
         for key in required:
             if not is_builder(key):
                 raise Abort(f"'{key}' is not a known Nua builder.")
@@ -107,7 +113,7 @@ class NuaImageBuilder:
 
     def ensure_base_image(self):
         with verbosity(3):
-            vprint("ensure_base_image()")
+            debug("ensure_base_image()")
         self.build(force=False, all=False)
 
     def build_nua_python(self):
@@ -158,7 +164,7 @@ class NuaImageBuilder:
             self.copy_wheels(build_path)
             docker_build_custom(info, build_path)
 
-    def build_builder_of_name(self, name: str):
+    def build_builder_of_name(self, name: str | dict):
         """Build a specific environmanet builder."""
         info = builder_info(name)
         tag = self.builder_tag(name)
@@ -178,7 +184,7 @@ class NuaImageBuilder:
             docker_build_custom(info, build_path)
 
     @staticmethod
-    def builder_tag(name: str) -> str:
+    def builder_tag(name: str | dict) -> str:
         info = builder_info(name)
         app_id = info["app_id"]
         return f"{app_id}:{nua_version}"

@@ -51,6 +51,7 @@ from .deploy_utils import (
     stop_one_app_containers,
     unused_volumes,
 )
+from .docker_utils import docker_container_status
 from .domain_split import DomainSplit
 from .healthcheck import HealthCheck
 from .nginx.cmd import nginx_reload, nginx_restart
@@ -1238,8 +1239,21 @@ class AppDeployment:
             info(msg)
             msg = f"Deployment status: {app.running_status}"
             info(msg)
+            self.display_container_status(app)
             self.display_persistent_data(app)
         vprint("")
+
+    @staticmethod
+    def display_container_status(app: AppInstance):
+        """Dsiplay current state of the caontainer (running, exited...).
+
+        To be moved in docker utils.
+        """
+        container_id = app.get("container_id")
+        if not container_id:
+            warning("No container Id for this app.")
+            return
+        show(docker_container_status(container_id))
 
     def display_persistent_data(self, app: AppInstance):
         with verbosity(3):
