@@ -25,7 +25,7 @@ def nginx_stop():
         cmd = stop_cmd
     else:
         cmd = f"sudo {stop_cmd}"
-    with verbosity(2):
+    with verbosity(1):
         show(cmd)
     output = sh(cmd, show_cmd=False, capture_output=True)
     with verbosity(3):
@@ -36,7 +36,7 @@ def nginx_stop():
 def nginx_restart():
     # assuming some recent ubuntu distribution:
     delay = config.read("host", "nginx_wait_after_restart") or 1
-    with verbosity(2):
+    with verbosity(1):
         important("Restart Nginx")
     cmd = "systemctl restart nginx"
     if os.geteuid() == 0:
@@ -51,7 +51,7 @@ def nginx_reload():
     if not nginx_is_active():
         return nginx_restart()
     delay = config.read("host", "nginx_wait_after_restart") or 1
-    with verbosity(2):
+    with verbosity(1):
         important("Reload Nginx")
     cmd = "systemctl reload nginx"
     if os.geteuid() == 0:

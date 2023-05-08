@@ -13,8 +13,8 @@ import traceback
 from time import perf_counter
 
 import snoop
-from cleez.actions import VERSION
-from nua.agent.nua_config import NuaConfigError
+from cleez.actions import VERSION, COUNT, STORE_TRUE
+from nua.lib.nua_config import NuaConfigError, NuaConfig
 from nua.lib.elapsed import elapsed
 from nua.lib.panic import Abort
 from nua.lib.tool.state import set_color, set_verbosity
@@ -25,8 +25,10 @@ from .builders import BuilderError, get_builder
 snoop.install()
 
 
-def main():
+def app(argv: list | None = None):
     t0 = perf_counter()
+    if argv is None:
+        argv = sys.argv[1:]
 
     parser = argparse.ArgumentParser()
 
@@ -35,14 +37,21 @@ def main():
         "-v",
         "--verbose",
         default=0,
-        action="count",
+        action=COUNT,
         help="Show more informations, until -vvv.",
+    )
+    parser.add_argument(
+        "-q",
+        "--quiet",
+        default=False,
+        action="store_true",
+        help="Suppress non-error messages.",
     )
     parser.add_argument(
         "--color",
         default=True,
         action=argparse.BooleanOptionalAction,
-        help="Enable (default) / disable colorized messages.",
+        help="Enable / disable colorized messages.",
     )
     parser.add_argument(
         "--version",
@@ -54,20 +63,26 @@ def main():
 
     # Specific options / arguments
     parser.add_argument(
-        "config_file", help="Path to the package dir or 'nua-config' file."
+        "config_file",
+        nargs="?",
+        default=".",
+        help="Path to the package dir or 'nua-config' file.",
     )
-    parser.add_argument("-t", "--time", action="store_true", help="Print timing info")
+    parser.add_argument("-t", "--time", action=STORE_TRUE, help="Print timing info.")
     parser.add_argument(
         "-s",
         "--save",
         default=True,
         action=argparse.BooleanOptionalAction,
-        help="Save image locally after the build (defaults to True).",
+        help="Save image locally after the build.",
     )
 
-    args = parser.parse_args(sys.argv[1:])
+    args = parser.parse_args(argv)
 
-    set_verbosity(args.verbose)
+    if args.quiet:
+        set_verbosity(-1)
+    else:
+        set_verbosity(args.verbose)
     set_color(args.color)
 
     opts = {
@@ -75,11 +90,13 @@ def main():
     }
 
     try:
-        builder = get_builder(args.config_file or ".", **opts)
+        config = NuaConfig(args.config_file or ".")
     except NuaConfigError as e:
         # FIXME: not for production
         traceback.print_exc(file=sys.stderr)
         raise Abort(e.args[0])
+
+    builder = get_builder(config, **opts)
 
     try:
         builder.run()
@@ -93,8 +110,9 @@ def main():
         print(f"Build time (clock): {elapsed(t1-t0)}")
 
 
-# Backwards compatibility
-app = main
+def main():
+    app(sys.argv)
+
 
 if __name__ == "__main__":
     main()

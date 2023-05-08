@@ -113,7 +113,7 @@ class TestRunner:
             completed_process = ssh(
                 f"cd /vagrant/apps/{app_name} "
                 "&& . /home/nua/env/bin/activate "
-                f"&& /home/nua/env/bin/nua-build {v_flag}",
+                f"&& /home/nua/env/bin/nua-build {v_flag} .",
                 user="nua",
             )
             status = completed_process.returncode == 0

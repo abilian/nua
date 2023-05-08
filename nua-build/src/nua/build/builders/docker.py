@@ -1,6 +1,4 @@
-"""Docker builder (using dockerfile generated from the nua-config).
-
-"""
+"""Docker builder (using dockerfile generated from the nua-config)."""
 from __future__ import annotations
 
 import logging
@@ -10,15 +8,15 @@ from pathlib import Path
 from shutil import copy2, copytree
 
 import docker
-from nua.agent.constants import NUA_BUILDER_TAG
-from nua.agent.nua_config import hyphen_get, nua_config_names
-from nua.autobuild.docker_build_utils import (
+from nua.lib.constants import NUA_BUILDER_TAG
+from nua.lib.nua_config import hyphen_get, nua_config_names
+from nua.lib.docker import (
     display_docker_img,
     docker_build_log_error,
     docker_stream_build,
 )
-from nua.autobuild.nua_image_builder import NuaImageBuilder
-from nua.autobuild.register_builders import is_builder
+from nua.build.autobuild.nua_image_builder import NuaImageBuilder
+from nua.build.autobuild.register_builders import is_builder
 from nua.lib.backports import chdir
 from nua.lib.panic import info, vprint
 from nua.lib.shell import rm_fr
@@ -42,7 +40,7 @@ class DockerBuilder(Builder):
         self.check_allowed_base_image()
         self.ensure_base_image_profile_availability()
         self.select_base_image()
-        self._title_build()
+        self.title_build()
         self.detect_nua_folder()
         self.build_docker_image()
         self.post_build_notices()
@@ -57,8 +55,9 @@ class DockerBuilder(Builder):
     def ensure_base_image_profile_availability(self):
         """Ensure the required Nua images are available.
 
-        The tag 'builder' will determine the required base image. If
-        empty, the standard Nua base image is used.
+        The tag 'builder' will determine the required base image if it
+        represents an Image. If empty, the standard Nua base image is used.
+        The builder also be an installation recipe.
         """
         image_builder = NuaImageBuilder()
         image_builder.ensure_images(self.config.builder)
@@ -128,7 +127,8 @@ class DockerBuilder(Builder):
                 "NUA_TAG": nua_tag,
                 "NUA_BUILD_VERSION": __version__,
             }
-            info(f"Building image {nua_tag}")
+            with verbosity(0):
+                info(f"Building image {nua_tag}")
             image_id = docker_stream_build(".", nua_tag, buildargs, labels)
 
             with verbosity(1):

@@ -5,8 +5,7 @@
 [![codecov](https://codecov.io/github/abilian/nua/branch/main/graph/badge.svg?token=0PCZNVDRE8)](https://codecov.io/github/abilian/nua)
 
 > **Warning**
-> This code is currently highly experimental, and not meant for public consumption.
-> We hope to have a usable, alpha or beta quality, release, by the end of Q1 2023.
+> This code is still evolving quickly, and not meant for production yet.
 
 ## What is Nua?
 
@@ -47,7 +46,6 @@ The Nua project is a monorepo, split into several subpackages:
 - `nua-lib`: common code for all Nua packages ([details](./nua-lib/README.md)).
 - `nua-cli`: command-line interface for Nua ([details](./nua-cli/README.md)).
 - `nua-agent`: agent for Nua apps ([details](./nua-agent/README.md)).
-- `nua-autobuild`: build Docker images used by Nua ([details](./nua-autobuild/README.md)).
 - `nua-build`: build system for Nua packages ([details](./nua-build/README.md)).
 - `nua-orchestrator`: orchestrator for Nua applications ([details](./nua-orchestrator/README.md)).
 - `nua-server`: web UI for a Nua iserver ([details](./nua-server/README.md)). Not ready yet.
@@ -67,22 +65,26 @@ You also need a Docker server.
 
 The roadmap for the projet is kept up to date on [this kanban board](https://github.com/abilian/nua/projects/1).
 
-As of 2023/02/08, we have a:
+See also: [TODO.md](./TODO.md) and [HISTORY.md](./HISTORY.md).
 
-- The "builder" CLI that can build container images.
+
+As of 2023/04/29, we have the following components:
+
+- The "builder" CLI that can build container images from high level specifications (`nua-config.tom` files).
 - The "orchestrator" CLI that can deploy and manage container images.
-- We have started packaging some applications (HedgeDoc, Dolibarr, simple demos).
-- Work has started on a common `nua` CLI:
+- The `nua` CLI that provides a unified interface to the builder and orchestrator.
+- We have started packaging some applications (HedgeDoc, Dolibarr, Galene, Dolibarr, Etherpad-lite).
+
+### Nua CLI
 
 ```console
 $ nua
-nua (0.5.11)
+nua (0.5.17)
 
 Usage:
   nua <command> [options] [arguments]
 
 Options:
-  -h  Show help and exit
   -V  Show version and exit
   -d  Enable debug mode
   -v  Increase verbosity

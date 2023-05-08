@@ -100,12 +100,14 @@ markdown_extensions:
 
 plugins:
   - search
+  - include-markdown
   - roamlinks
   - blogging:
       dirs:
         - news
       features:
         tags: {}
+      template: templates/blog-nua.html
   - with-pdf:
       author: Stefane Fermigier / Jérôme Dumonteil
       copyright: © 2022 Abilian

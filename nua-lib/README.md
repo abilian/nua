@@ -4,9 +4,9 @@
 
 This subproject contains code that is shared between the various [Nua](https://nua.rocks/) subprojects.
 
-It is not intended to be useful outside of Nua, and is not intended to be used as a standalone library.
+It is not intended to be useful outside Nua, and is not intended to be used as a standalone library.
 
-Since the `nua-lib` code beeing used by `nua-agent`, it should have as little dependencies as possible
+Since the `nua-lib` code being used by `nua-agent`, it should have as little dependencies as possible
 
 ## Content
 
@@ -16,3 +16,7 @@ Since the `nua-lib` code beeing used by `nua-agent`, it should have as little de
 - `exec`: shortcuts to execute sub commands like exec_as_root(), exec_as_root()
 - `action`: higher level commands, related to the installation of packages and dependencies (wrappers above apt, pip, ...)
 - and a few utilities of minor importance.
+
+## Dependency graph
+
+![Dependency graph](./doc/dependency-graph.png)

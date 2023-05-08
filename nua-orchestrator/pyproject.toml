@@ -1,13 +1,24 @@
 [tool.poetry]
 name = "nua-orchestrator"
-version = "0.5.14"
+version = "0.5.17"
 description = "Nua orchestrator - local implementation"
 authors = [
     "Stefane Fermigier <sf@abilian.com>",
     "Jerome Dumonteil <jd@abilian.com>",
 ]
-license = "AGPL"
+license = "Apache-2.0"
+
 readme = "README.md"
+documentation = "https://nua.rocks/"
+repository = "https://github.com/abilian/nua"
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+]
+
 packages = [
   { include = "nua", from = "src" }
 ]
@@ -34,9 +45,6 @@ nua_test_services = "nua.orchestrator.service:test"
 python = "^3.10"
 
 nua-lib = { path = "../nua-lib/", develop = true }
-nua-agent = { path = "../nua-agent/", develop = true }
-nua-build = { path = "../nua-build/", develop = true }
-nua-autobuild = { path = "../nua-autobuild/", develop = true }
 
 # Databases
 SQLAlchemy-serializer = "^1.4.1"
@@ -86,7 +94,6 @@ exclude = [
 ignore_obsolete = [
     "nua-lib",
     "nua-agent",
-    "nua-autobuild",
     "nua-build",
     "setuptools",
     "wheel",

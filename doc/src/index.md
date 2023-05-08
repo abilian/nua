@@ -1,12 +1,8 @@
 # Nua Documentation
 
-
-!!! danger "Do not use yet (in production)!"
-    This code is still experimental, and not meant for public consumption.
-
-    We plan to have a first usable release, by the end of Q1 2023, and a stable release by the end of Q2 2023.
-
-    You can accelerate this process by [funding](./funding/) the project.
+{%
+   include-markdown "snippets/no-production.md"
+%}
 
 
 ## What is Nua?
@@ -14,6 +10,10 @@
 Nua is an open source, self-hosted cloud platform project (a *PaaS* - *platform as a service*). More than just a technical platform, it aims to cover the entire life cycle of web applications, from development (and packaging) to deployment and maintenance, including security.
 
 It is particularly aimed at organisations (SMEs, associations, public services, etc.) that wish, or need, to implement a digital autonomy strategy, and as such are moving towards open source software as a priority.
+
+{%
+   include-markdown "snippets/support.md"
+%}
 
 
 ## Concept Map
@@ -48,6 +48,10 @@ This vision is based on a set of principles:
 ### Python-focused presentation (given at PyConFr 2023 in Bordeaux)
 
 <iframe class="speakerdeck-iframe" style="border: 0px none; background: rgba(0, 0, 0, 0.1) padding-box; margin: 0px; padding: 0px; border-radius: 6px; box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 40px; width: 100%; height: auto; aspect-ratio: 560 / 314;" src="https://speakerdeck.com/player/b69f33062ebb48a3b884b7b2bc5f0a4a" title="Nua, un PaaS open source en Python pour l'auto-hébergement de vos applications" allowfullscreen="true" data-ratio="1.78343949044586" frameborder="0"></iframe>
+
+#### Video (in French)
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/DrQ9Yttc0Pk" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
 ### Presentation at IMPULSE 2023 (1 slide, in French)
 

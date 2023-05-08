@@ -4,18 +4,18 @@
 
 This packaged is used internally. The main entry point is the `nua` command line tool (see: [Nua on PyPI](https://pypi.org/project/nua/) or [nua-cli on GitHub](https://github.com/abilian/nua/tree/main/nua-cli)).
 
-The `nua-agent` package is included in every Nua application image.
+The `nua-agent` package provides the agent that runs inside the Docker image *during the build of the application*.
 
-It will provide the following features (TBC):
+Note: don't depend on `nua-agent` being installed in the Docker image. It is not a runtime dependency.
 
--   Application licycle management
--   Smoke tests and health checks
--   Logging and monitoring
 
 ## Content
 
 `nua-agent` provides:
 
-- `nua_config`: library to read the embedded `nua-config` file (introspection),
-- `app_builder`: actual builder of the application inside the Docker image.
-- `db`: collection of tools to manage databases
+- The `app-builder` script: actual builder of the application inside the Docker image.
+
+
+## Dependency graph
+
+![Dependency graph](./doc/dependency-graph.png)

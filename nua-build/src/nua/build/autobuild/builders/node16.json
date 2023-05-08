@@ -1,0 +1,21 @@
+{
+    "app_id": "nua-builder-nodejs16",
+    "name": [
+        "node16",
+        "node-16",
+        "node_16",
+        "nodejs16",
+        "nodejs-16",
+        "nodejs_16"
+    ],
+    "language_name": [
+        "nodejs",
+        "node"
+    ],
+    "language_version": "16",
+    "container": "docker",
+    "dockerfile": "Dockerfile_nua_builder_node16",
+    "labels": {
+        "node_version": "16"
+    }
+}

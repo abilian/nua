@@ -10,7 +10,7 @@ from importlib import resources as rso
 from pathlib import Path
 from pprint import pformat
 
-from nua.agent.nua_config import hyphen_get
+from nua.lib.nua_config import hyphen_get
 from nua.lib.panic import bold_debug, debug
 from nua.lib.tool.state import verbosity
 

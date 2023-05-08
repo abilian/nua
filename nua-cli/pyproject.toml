@@ -1,9 +1,23 @@
 [tool.poetry]
 name = "nua-cli"
-version = "0.5.14"
-description = ""
+version = "0.5.17"
+description = "Command line interface for the Nua self-hosted PaaS (Platform as a Service)"
 authors = ["Stefane Fermigier <sf@abilian.com>"]
-readme = "readme.md"
+
+license = "Apache-2.0"
+
+readme = "README.md"
+documentation = "https://nua.rocks/"
+repository = "https://github.com/abilian/nua"
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+]
+
+
 packages = [
   { include = "nua_cli", from = "src" }
 ]
@@ -17,16 +31,16 @@ python = ">=3.10,<3.12"
 tomli = "^2.0.1"
 
 # Used only for its SSH support
-fabric = "^3.0.0"
+fabric = "~3.0"
+# Pinned
+invoke = "~2.0"
 
 # Temp: use snoop in prod code
 snoop = "*"
 
-# typer = "^0.7.0"
-termcolor = "^2.2.0"
-cleez = "^0.1.7"
-
-# cleez = {git = "https://github.com/abilian/cleez"}
+# CLI
+termcolor = "^2.3.0"
+cleez = "^0.1.9"
 
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"

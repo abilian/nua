@@ -18,6 +18,7 @@ from .commands.deploy_remove import (
     deploy_merge_nua_app,
     deploy_nua_apps,
     remove_nua_domain,
+    remove_nua_label,
 )
 from .commands.restore import restore_nua_apps_replay, restore_nua_apps_strict
 from .commands.start_stop import (
@@ -65,6 +66,7 @@ option_json = typer.Option(False, "--json", help="Output result as JSON.")
 option_short = typer.Option(False, help="Show short text result.")
 option_raw = typer.Option(False, "--raw", help="Return raw result (not JSON).")
 option_domain = typer.Option("", "--domain", "-d", help="Select domain to stop.")
+option_label = typer.Option("", "--label", "-l", help="Select label to stop.")
 
 
 def _print_version():
@@ -81,7 +83,7 @@ def usage():
 def status_local():
     """Status of orchestrator."""
     initialization()
-    set_verbosity(1)
+    set_verbosity(0)
     status()
 
 
@@ -141,16 +143,19 @@ def deploy_replace_local(
 def remove_local(
     verbose: int = opt_verbose,
     colorize: bool = option_color,
+    label: str = option_label,
     domain: str = option_domain,
 ):
     """Remove a deployed instance and all its data."""
     set_verbosity(verbose)
     set_color(colorize)
     initialization()
-    if domain:
+    if label:
+        remove_nua_label(label)
+    elif domain:
         remove_nua_domain(domain)
     else:
-        print("WIP: currently a domain must be provided.")
+        print("WIP: currently a label or domain must be provided.")
 
 
 @app.command("restore")

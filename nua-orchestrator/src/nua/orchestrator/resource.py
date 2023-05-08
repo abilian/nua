@@ -5,7 +5,7 @@ from copy import deepcopy
 from pprint import pformat
 from typing import Any
 
-from nua.agent.nua_config import nomalize_env_values
+from nua.lib.nua_config import nomalize_env_values
 from nua.lib.panic import Abort, debug, important, vprint, warning
 from nua.lib.tool.state import verbosity
 
@@ -468,7 +468,7 @@ class Resource(dict):
             return
         if setup_fct := load_plugin_function(self.type, "setup_db"):
             setup_fct(self)
-            with verbosity(2):
+            with verbosity(1):
                 vprint(f"setup_db() for resource '{self.resource_name}': {self.type}")
             with verbosity(3):
                 vprint(pformat(self.env))
@@ -484,7 +484,7 @@ class Resource(dict):
             with verbosity(4):
                 vprint(f"configure_fct: {configure_fct}")
             configure_fct(self)
-            with verbosity(2):
+            with verbosity(1):
                 important(f"Configure resource DB '{self.resource_name}': {self.type}")
             with verbosity(3):
                 debug(pformat(self))

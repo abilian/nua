@@ -4,6 +4,7 @@ import json
 import re
 from contextlib import suppress
 from copy import deepcopy
+from datetime import datetime, timezone
 from functools import cache
 from pathlib import Path
 from pprint import pformat
@@ -11,17 +12,26 @@ from subprocess import run  # noqa: S404
 from time import sleep
 
 from docker import DockerClient
-from docker.errors import APIError, NotFound
+from docker.errors import APIError, ImageNotFound, NotFound
 from docker.models.containers import Container
 from docker.models.images import Image
-from nua.autobuild.docker_build_utils import docker_require
 from nua.lib.console import print_red
-from nua.lib.panic import Abort, important, info, show, vprint, warning
+from nua.lib.docker import docker_require
+from nua.lib.elapsed import elapsed
+from nua.lib.panic import (
+    Abort,
+    bold_debug,
+    debug,
+    important,
+    info,
+    show,
+    vprint,
+    warning,
+)
 from nua.lib.shell import chmod_r, mkdir_p
 from nua.lib.tool.state import verbosity
 
 from . import config
-from .db import store
 from .resource import Resource
 from .volume import Volume
 
@@ -68,6 +78,25 @@ def docker_container_of_name(name: str) -> list[Container]:
         ]
     except NotFound:
         return []
+
+
+def docker_container_status(container_id: str) -> str:
+    """Get container status per Id."""
+    client = DockerClient.from_env()
+    try:
+        cont = client.containers.get(container_id)
+    except (NotFound, APIError):
+        return "App is down: container not found (probably removed)"
+    return (
+        f"Container ID: {cont.short_id}, status: {cont.status}, "
+        f"created: {elapsed(docker_container_since(cont))} ago"
+    )
+
+
+def docker_container_since(container: Container) -> int:
+    created = datetime.fromisoformat(container.attrs["Created"][:19])
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    return (now - created).total_seconds()
 
 
 def docker_start_container_name(name: str):
@@ -149,8 +178,9 @@ def _docker_restart_container(container: Container):
 
 
 def _docker_remove_container(name: str, force=False, volume=False):
-    if force and verbosity(1):
-        warning(f"removing container with '--force': {name}")
+    if force:
+        with verbosity(0):
+            warning(f"removing container with '--force': {name}")
     for cont in docker_container_of_name(name):
         cont.remove(v=volume, force=force)
 
@@ -197,30 +227,6 @@ def docker_check_container_listed(name: str) -> bool:
         return False
 
 
-def docker_remove_prior_container_db(rsite: Resource):
-    """Search & remove containers already configured for this same AppInstance
-    or Resource (running or stopped), from DB."""
-    if rsite.type != "nua-site":
-        # FIXME for resource containers
-        return
-
-    previous_name = store.instance_container(rsite.domain)
-    if not previous_name:
-        return
-
-    with verbosity(1):
-        info(f"    -> remove previous container: {previous_name}")
-
-    docker_stop_container_name(previous_name)
-    docker_remove_container(previous_name)
-
-    with verbosity(4):
-        containers = docker_container_of_name(previous_name)
-        vprint("docker_remove_container after", containers)
-
-    store.instance_delete_by_domain(rsite.domain)
-
-
 def docker_remove_container_previous(name: str, show_warning: bool = True):
     """Remove container of full domain name from running container and DB."""
     containers = docker_container_of_name(name)
@@ -229,15 +235,15 @@ def docker_remove_container_previous(name: str, show_warning: bool = True):
 
     if not containers:
         if show_warning:
-            with verbosity(2):
+            with verbosity(1):
                 warning(f"no previous container to stop '{name}'")
         return
 
     container = containers[0]
-    with verbosity(2):
+    with verbosity(1):
         info(f"Stopping container '{container.name}'")
     _docker_stop_container(container)
-    with verbosity(2):
+    with verbosity(1):
         info(f"Removing container '{container.name}'")
     try:
         container.remove(v=False, force=True)
@@ -258,15 +264,18 @@ def docker_remove_prior_container_live(rsite: Resource):
         return
 
     for container in docker_container_of_name(previous_name):
-        print_red(f"Try removing a container not listed in Nua DB: {container.name}")
+        with verbosity(3):
+            debug(
+                f"For security, try to remove a container not listed in Nua DB: {container.name}"
+            )
         docker_stop_container_name(container.name)
         docker_remove_container(container.name)
 
 
 def erase_previous_container(client: DockerClient, name: str):
     try:
-        with verbosity(2):
-            info(f"Search previous container of name: {name}")
+        with verbosity(4):
+            bold_debug(f"Search previous container of name: {name}")
         container = client.containers.get(name)
         info(f"    -> Remove existing container '{container.name}'")
         container.remove(force=True)
@@ -297,7 +306,7 @@ def docker_run(rsite: Resource, secrets: dict) -> Container:
         The new started container.
     """
     params = docker_run_params(rsite)
-    with verbosity(1):
+    with verbosity(0):
         # info(f"Docker run image: {rsite.image_id}")
         info(f"Docker run image: {rsite.image}")
         info(f"        image id: {rsite.image_id_short}")
@@ -306,7 +315,7 @@ def docker_run(rsite: Resource, secrets: dict) -> Container:
             show(pformat(params))
 
     docker_remove_prior_container_live(rsite)
-    with verbosity(2):
+    with verbosity(1):
         if "network" in params:
             info("Network:", params["network"])
 
@@ -602,3 +611,12 @@ def list_containers():
             f"{ctn.name}\n"
             f"    status: {ctn.status}  id: {ctn.short_id}  image: {name}"
         )
+
+
+def local_nua_images() -> list[Image]:
+    client = DockerClient.from_env()
+    try:
+        images = [image for image in client.images.list() if "NUA_TAG" in image.labels]
+    except (APIError, ImageNotFound):
+        images = []
+    return images

@@ -12,7 +12,7 @@ from abc import abstractmethod
 from pathlib import Path
 
 from docker.models.images import Image
-from nua.agent.nua_config import NuaConfig
+from nua.lib.nua_config import NuaConfig
 from nua.lib.panic import info, show, title, vfprint, vprint, warning
 from nua.lib.tool.state import verbosity
 
@@ -72,8 +72,9 @@ class Builder(abc.ABC):
         with verbosity(0):
             warning("\n".join(lines))
 
-    def _title_build(self):
-        title(f"Building the image for {self.config.app_id}")
+    def title_build(self):
+        with verbosity(0):
+            title(f"Building the image for {self.config.app_id}")
 
     def make_build_dir(self) -> Path:
         build_dir_parent = Path(
@@ -84,7 +85,7 @@ class Builder(abc.ABC):
                 f"Build directory parent not found: '{build_dir_parent}'"
             )
 
-        with verbosity(1):
+        with verbosity(2):
             info(f"Build directory: {build_dir_parent}")
 
         return Path(tempfile.mkdtemp(dir=build_dir_parent))

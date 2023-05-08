@@ -1,5 +1,9 @@
 # Development intro
 
+{%
+   include-markdown "../snippets/support.md"
+%}
+
 ## The Nua application life cycle
 
 Nua is a set of Python applications that can be controlled from the command line and that allow the management of the entire application life cycle:

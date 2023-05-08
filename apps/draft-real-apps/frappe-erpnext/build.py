@@ -5,7 +5,6 @@ sudo privileges, but without using sudo or pass --user=USER')
 """
 import os
 
-from nua.agent.nua_config import NuaConfig
 from nua.lib.actions import install_package_list, pip_install, pip_install_glob
 from nua.lib.shell import sh
 

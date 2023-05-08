@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from nua.agent.db.mariadb_manager import NUA_MARIADB_PWD_FILE
-from nua.agent.db.postgres_manager import NUA_PG_PWD_FILE
+from nua.lib.db.mariadb_manager import NUA_MARIADB_PWD_FILE
+from nua.lib.db.postgres_manager import NUA_PG_PWD_FILE
 
 
 def secrets_dict(key_list: list) -> dict:

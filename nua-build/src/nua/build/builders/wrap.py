@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 
 import docker
-from nua.autobuild.docker_build_utils import (
+from nua.lib.docker import (
     display_docker_img,
     docker_build_log_error,
     docker_stream_build,
@@ -24,7 +24,7 @@ CLIENT_TIMEOUT = 600
 
 class DockerWrapBuilder(Builder):
     def run(self):
-        self._title_build()
+        self.title_build()
         # FIXME:
         # if self.container_type != "docker":
         #     raise NotImplementedError(f"Container type '{self.container_type}'")

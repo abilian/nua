@@ -1,13 +1,23 @@
 [tool.poetry]
 name = "nua-agent"
-version = "0.5.14"
+version = "0.5.17"
 description = "Nua agent"
 authors = [
     "Stefane Fermigier <sf@abilian.com>",
     "Jerome Dumonteil <jd@abilian.com>",
 ]
-license = "AGPL"
+license = "Apache-2.0"
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+]
+
 readme = "README.md"
+documentation = "https://nua.rocks/"
+repository = "https://github.com/abilian/nua"
+
 packages = [
     { include = "nua", from = "src" },
 ]
@@ -17,15 +27,13 @@ python = "^3.10"
 setuptools = "*"
 packaging = "*"
 nua-lib = { path = "../nua-lib/", develop = true }
-tomli = "^2.0.1"
-pyyaml = "^6.0"
 
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
 nox = "*"
 types-setuptools = "*"
-types-pyyaml = "*"
 
+# Pinned for now
 platformdirs = "<3.0.0"
 
 [tool.poetry.scripts]

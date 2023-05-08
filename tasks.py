@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 
 import tomlkit
+from cleez.colors import red
 from dotenv import load_dotenv
 from invoke import Context, UnexpectedExit, task
 
@@ -18,7 +19,6 @@ SUB_REPOS = [
     "nua-lib",
     "nua-cli",
     "nua-agent",
-    "nua-autobuild",
     "nua-build",
     "nua-orchestrator",
 ]
@@ -148,7 +148,7 @@ def graph(c):
     run_in_subrepos(c, "mkdir -p doc")
     for sub_repo in SUB_REPOS:
         output = "doc/dependency-graph.png"
-        target = f"src/nua/{sub_repo[4:]}"
+        target = "src/nua_cli" if sub_repo == "nua-cli" else f"src/nua/{sub_repo[4:]}"
         cmd = f"pydeps --max-bacon 2 --cluster -o {output} -T png {target}"
         h1(f"Running '{cmd}' in subrepos: {sub_repo}")
         with c.cd(sub_repo):
@@ -204,16 +204,20 @@ def release(c: Context):
     for sub_repo in SUB_REPOS:
         check_version_subrepo(c, sub_repo, version)
 
-    c.run("git checkout release")
-    c.run("git merge main")
+    c.run(f"git checkout -b release-{version}")
 
     for sub_repo in SUB_REPOS:
         release_subrepo(c, sub_repo, version)
 
     c.run(f"git commit -a -m 'Release {version}'")
+
+    c.run("git checkout release")
+    c.run(f"git merge release-{version}")
+    c.run(f"git commit -a -m 'Release {version}'")
     c.run(f"git tag -a v{version} -m 'Release {version}'")
     c.run("git push origin release")
     c.run("git push --tags")
+
     c.run("git checkout main")
 
 
@@ -252,7 +256,10 @@ def release_subrepo(c, sub_repo, version):
 
     with c.cd(sub_repo):
         c.run("poetry build")
-        c.run("twine upload dist/*")
+        try:
+            c.run("twine upload dist/*")
+        except:
+            print(red("ERROR: Release failed. Continuing anyway"))
 
 
 #

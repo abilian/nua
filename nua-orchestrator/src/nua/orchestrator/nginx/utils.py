@@ -139,7 +139,7 @@ def _actual_configure_nginx_hostname(
     with verbosity(4):
         bold_debug(f"{host['hostname']} template:")
         debug(template)
-    with verbosity(2):
+    with verbosity(1):
         info("Nginx configuration:", dest_path)
     jinja2_render_from_str_template(template, dest_path, host)
     if dest_path.exists():
