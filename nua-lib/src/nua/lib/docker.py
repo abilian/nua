@@ -1,5 +1,6 @@
 """Docker scripting utils."""
 import re
+import string
 from datetime import datetime
 from functools import wraps
 
@@ -71,6 +72,28 @@ def image_size_repr(image_bytes):
 
 def size_unit():
     return "MiB" if LOCAL_CONFIG.get("size_unit_MiB") else "MB"
+
+
+def docker_sanitized_name(name: str) -> str:
+    """Docker valid name.
+
+    https://docs.docker.com/engine/reference/commandline/
+    tag/#extended-description
+    """
+    # first replace spaces per underscores
+    content = "_".join(name.split())
+    # then apply docjer rules
+    allowed = set(string.ascii_lowercase + string.digits + ".-_")
+    content = "".join([c for c in content.strip().lower() if c in allowed])
+    while ("___") in content:
+        content.replace("___", "__")
+    for sep in ".-_":
+        while content.startswith(sep):
+            content = content[1:]
+        while content.endswith(sep):
+            content = content[:-1]
+    content = content[:128]
+    return content
 
 
 def image_labels(reference: str) -> dict:
