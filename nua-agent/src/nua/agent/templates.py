@@ -50,3 +50,15 @@ def _render_template(template: Path, dest: Path, data: dict[str, Any]):
     dest.parent.mkdir(mode=0o755, parents=True, exist_ok=True)
     jinja2_render_file(template, dest, data)
     dest.chmod(0o644)
+
+
+def is_requiring_templates() -> bool:
+    templates_folder = Path("/nua/templates")
+    if templates_folder.is_dir():
+        for file in templates_folder.rglob("*"):
+            if not file.is_file():
+                continue
+            if file.name.startswith("."):
+                continue
+            return True
+    return False

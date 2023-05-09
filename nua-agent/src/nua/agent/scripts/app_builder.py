@@ -4,6 +4,7 @@
 - origin may be a source tar.gz or a git repository, python wheel
 - build locally if source is python package
 """
+import json
 import logging
 import os
 from copy import deepcopy
@@ -43,6 +44,7 @@ from ..auto_install import detect_and_install
 
 # most inferred meta packages will be provided by plugins in the future:
 from ..meta_packages import meta_packages_requirements
+from ..templates import is_requiring_templates
 
 logging.basicConfig(level=logging.INFO)
 
@@ -180,6 +182,19 @@ class BuilderApp:
         )
         script_path = script_dir / "start.py"
         script_path.write_text(cmd)
+        # anticipate future change for start script:
+        if is_requiring_templates():
+            with verbosity(1):
+                vprint("debug: this app is requiring templates")
+            Path("/nua/metadata/template.json").write_text(
+                json.dumps(
+                    self.config.metadata_rendered,
+                    ensure_ascii=False,
+                    indent=4,
+                    sort_keys=True,
+                ),
+                encoding="utf8",
+            )
 
     def find_start_script(self) -> Path | None:
         name = hyphen_get(self.config.build, "start-script")
