@@ -1,21 +1,9 @@
-import psycopg2
 from flask import Flask, redirect, render_template, request, url_for
 from psycopg2.sql import SQL
 
-from .constants import DB_HOST, DB_PORT, USER_DB, USER_NAME, USER_PASSWORD
-from .init_db import init_db
+from .db import db_connection
 
 app = Flask(__name__)
-
-
-def db_connection():
-    return psycopg2.connect(
-        host=DB_HOST,
-        port=DB_PORT,
-        database=USER_DB,
-        user=USER_NAME,
-        password=USER_PASSWORD,
-    )
 
 
 @app.route("/")
@@ -53,6 +41,9 @@ def create():
     return render_template("create.html")
 
 
-if __name__ == "__main__":
-    init_db()
-    app.run(host="0.0.0.0")  # noqa S104
+@app.cli.command("init-db")
+def init_db():
+    """Initialize database (create table if needed)."""
+    from .init_db import main
+
+    main()

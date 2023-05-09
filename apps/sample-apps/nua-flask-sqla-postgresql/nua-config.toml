@@ -1,0 +1,38 @@
+[metadata]
+id = "flask-sqla-postgresql"
+version = "1.0"
+release = 7
+title = "Flask + SQLA + Postgres demo app"
+author = "Nua developers"
+tagline = "postgres docker configured via orchestrator"
+website = "https://nua.rocks/"
+tags = ["test", "html", "web", "static", "plugin", "PostgreSQL", "docker", "SQLA", "psycopg2"]
+license = "MIT"
+
+[build]
+document_root = "/nua/app/html"
+test = "python -c 'import flask_app'"
+
+[run]
+start = 'gunicorn --workers 2 -b :5000 "flask_app.app:create_app()"'
+
+[env]
+DB_HOST = { from="database", key="hostname" }
+DB_PORT = { from="database", key="POSTGRES_PORT" }
+DB_NAME = { from="database", key="POSTGRES_DB" }
+DB_USERNAME = { from="database", key="POSTGRES_USER" }
+DB_PASSWORD = { from="database", key="POSTGRES_PASSWORD" }
+
+[docker]
+restart_policy.name = "always"
+
+[port.web]
+# publication port of the app inside the container
+container = 5000
+
+[[resource]]
+# declaration of the required image for the resource, here the official Postgres
+# Docker image
+name = "database"
+type = "postgres"
+version = ">=14, <15"

@@ -5,6 +5,6 @@ import os
 
 DB_HOST = os.environ.get("DB_HOST")
 DB_PORT = os.environ.get("DB_PORT")
-USER_DB = os.environ.get("USER_DB")
-USER_NAME = os.environ.get("USER_NAME")
-USER_PASSWORD = os.environ.get("USER_PASSWORD")
+DB_NAME = os.environ.get("DB_NAME")
+DB_USERNAME = os.environ.get("DB_USERNAME")
+DB_PASSWORD = os.environ.get("DB_PASSWORD")
