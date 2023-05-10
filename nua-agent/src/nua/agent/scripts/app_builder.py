@@ -150,7 +150,7 @@ class BuilderApp:
         if self.config.start_command:
             with verbosity(2):
                 vprint("Writing start script from 'start-command'")
-            return self._write_start_script(script_dir, self.config.start_command)
+            return self._write_start_script(self.config.start_command)
         path = self.find_start_script()
         if path:
             with verbosity(2):
@@ -162,9 +162,9 @@ class BuilderApp:
                 "Neither start script or start-command found.\n"
                 "Writing a debug start script showing container's environment."
             )
-            return self._write_start_script(script_dir, ["env"])
+            return self._write_start_script(["env"])
 
-    def _write_start_script(self, script_dir: Path, start_cmd: list):
+    def _write_start_script(self, start_cmd: list):
         data = deepcopy(self.config.metadata_rendered)
         cwd = repr(str(self.source))
         cmd = dedent(
@@ -180,21 +180,43 @@ class BuilderApp:
                     env=os.environ,)
         """
         )
-        script_path = script_dir / "start.py"
+        script_path = Path(NUA_SCRIPTS_PATH) / "start.py"
         script_path.write_text(cmd)
         # anticipate future change for start script:
         if is_requiring_templates():
-            with verbosity(1):
-                vprint("debug: this app is requiring templates")
-            Path("/nua/metadata/template.json").write_text(
-                json.dumps(
-                    self.config.metadata_rendered,
-                    ensure_ascii=False,
-                    indent=4,
-                    sort_keys=True,
-                ),
-                encoding="utf8",
-            )
+            self._dump_template_data()
+        else:
+            self._write_shell_start_script(start_cmd)
+
+    def _dump_template_data(self):
+        with verbosity(1):
+            vprint("debug: this app is requiring templates")
+        Path("/nua/metadata/template.json").write_text(
+            json.dumps(
+                self.config.metadata_rendered,
+                ensure_ascii=False,
+                indent=4,
+                sort_keys=True,
+            ),
+            encoding="utf8",
+        )
+
+    def _write_shell_start_script(self, start_cmd: list):
+        """Experimental, write a shell start command for dedicated dockerfile."""
+        with verbosity(1):
+            vprint("debug: write start.sh script")
+        work_dir = repr(str(self.source.resolve()))
+        # note: /bin/sh (dash on debian) does not support 'source', so using '.'
+        cmd = [
+            '# executed via "sh -c" as user nua',
+            "[ -d /nua/venv ] && . /nua/venv/bin/activate",
+            f"cd {work_dir}",
+        ]
+        cmd.extend(start_cmd)
+        script_path = Path(NUA_SCRIPTS_PATH) / "start.sh"
+        script_path.write_text("\n".join(cmd), encoding="utf8")
+        chown_r(script_path, "nua")
+        chmod_r(script_path, 0o755)
 
     def find_start_script(self) -> Path | None:
         name = hyphen_get(self.config.build, "start-script")

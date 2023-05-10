@@ -1,0 +1,27 @@
+[metadata]
+id = "sh-flask-show"
+version = "1.0"
+release = 1
+title = "Flask show IP, start.sh"
+author = "Nua testers"
+tagline = "Nua test with Flask - IP"
+website = "https://nua.rocks/"
+tags = ["test", "html", "web", "IP"]
+license = "MIT"
+
+[build]
+document-root = "/nua/app/html"
+test = "python -c 'import flask_show'"
+
+[run]
+start = "gunicorn --worker-tmp-dir /dev/shm --workers 1 -b :3000 flask_show.wsgi:app"
+
+[env]
+MY_IP = { external_ip='true' }
+
+[docker]
+# parameters passed as a dict to docker run
+# auto_remove = true
+
+[port.web]
+container = 3000

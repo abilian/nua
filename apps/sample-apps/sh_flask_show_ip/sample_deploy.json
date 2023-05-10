@@ -1,0 +1,9 @@
+{
+    "site": [
+        {
+            "label": "sh-test",
+            "domain": "test1.example.com",
+            "image": "sh-flask-show"
+        }
+    ]
+}
