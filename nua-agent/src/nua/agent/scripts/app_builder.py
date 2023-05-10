@@ -216,7 +216,7 @@ class BuilderApp:
         script_path = Path(NUA_SCRIPTS_PATH) / "start.sh"
         script_path.write_text("\n".join(cmd), encoding="utf8")
         chown_r(script_path, "nua")
-        chmod_r(script_path, 0o755)
+        chmod_r(script_path, 0o755)  # noqa S103
 
     def find_start_script(self) -> Path | None:
         name = hyphen_get(self.config.build, "start-script")
