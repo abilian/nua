@@ -1,12 +1,12 @@
 [metadata]
 id = "flask-sqla-postgresql"
 version = "1.0"
-release = 7
+release = 8
 title = "Flask + SQLA + Postgres demo app"
+description = "A demo app using Flask, SQLAlchemy and PostgreSQL"
 author = "Nua developers"
-tagline = "postgres docker configured via orchestrator"
 website = "https://nua.rocks/"
-tags = ["test", "html", "web", "static", "plugin", "PostgreSQL", "docker", "SQLA", "psycopg2"]
+tags = ["Demo", "Python", "Flask", "PostgreSQL", "SQLAlchemy", "psycopg2"]
 license = "MIT"
 
 [build]
@@ -14,7 +14,13 @@ document_root = "/nua/app/html"
 test = "python -c 'import flask_app'"
 
 [run]
-start = 'gunicorn --workers 2 -b :5000 "flask_app.app:create_app()"'
+start = [
+	# TODO: --app 'flask_app.app:create_app()' is not really elegant.
+	# We should put the wsgi.py file somewhere and use it instead.
+	"flask --app 'flask_app.app:create_app()' dump-config",
+	"flask --app 'flask_app.app:create_app()' init-db",
+	"gunicorn --workers 2 -b :5000 'flask_app.app:create_app()'",
+]
 
 [env]
 DB_HOST = { from="database", key="hostname" }

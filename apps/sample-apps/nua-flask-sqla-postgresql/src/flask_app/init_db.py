@@ -12,10 +12,6 @@ BOOKS = [
 ]
 
 
-# def register_cli(app):
-#     @app.cli.command("init-db")
-
-
 def init_db(app):
     """Initialize database (create table if needed)."""
     with app.app_context():
