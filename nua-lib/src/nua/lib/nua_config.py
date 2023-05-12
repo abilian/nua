@@ -21,7 +21,6 @@ OPTIONAL_METADATA = [
     "tags",
     "profile",
     "release",
-    "changelog",
     "name",
     "image",
 ]
