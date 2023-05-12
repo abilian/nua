@@ -150,6 +150,13 @@ Notes:
 - String to display as replacement of the `id` field
 - Note: may be merged with title in future versions
 
+#### `release`
+
+- **Optional**
+- Integer
+- Release number of this nua-config file
+- If present, the release number is used to form the name of the builded image
+
 #### `base-image`
 
 - **Optional**

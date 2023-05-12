@@ -11,19 +11,25 @@ import yaml
 from .actions import download_extract
 from .constants import NUA_CONFIG_STEM, nua_config_names
 from .nua_tag import nua_tag_string
+from .panic import warning
 from .shell import chown_r
+from .tool.state import verbosity
 
 REQUIRED_BLOCKS = ["metadata"]
-REQUIRED_METADATA = ["id", "version", "title", "author", "license"]
-OPTIONAL_METADATA = [
+REQUIRED_METADATA = {"id", "version", "title", "author", "license"}
+OPTIONAL_METADATA = {
     "tagline",
     "website",
     "tags",
     "profile",
-    "release",
     "name",
+    "release",
     "base-image",
-]
+    "src-url",
+    "checksum",
+    "git-url",
+    "git-branch",
+}
 # blocks added (empty) if not present in orig file:
 COMPLETE_BLOCKS = ["build", "run", "env", "docker"]
 
@@ -101,6 +107,7 @@ class NuaConfig:
         self._complete_missing_blocks()
         self._fix_spelling()
         self._check_required_metadata()
+        self._check_unknown_metadata()
         self._check_checksum_format()
         self._nomalize_env_values()
 
@@ -215,6 +222,12 @@ class NuaConfig:
                 raise NuaConfigError(
                     f"Missing mandatory metadata in {self.path}: '{key}'"
                 )
+
+    def _check_unknown_metadata(self):
+        for key in self._data["metadata"]:
+            if key not in REQUIRED_METADATA and key not in OPTIONAL_METADATA:
+                with verbosity(1):
+                    warning(f"Unknown metadata in {self.path}: '{key}'")
 
     def _check_checksum_format(self):
         checksum = self.checksum
