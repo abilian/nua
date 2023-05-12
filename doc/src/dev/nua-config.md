@@ -6,7 +6,7 @@ For global explanation of usage of the nua-config file based on an example, read
 
 This document aims to describe exhaustively the possible fields of a `nua-config` file. The nua-config file is intended to contain only a limited set of metadata, it is usefully supplemented with descriptive files (readme, changelog, info on the packager).
 
-Last revision: `nua-build version 0.5.17`
+Last revision: `nua-build version 0.5.18`
 
 The syntax used by default and through this document examples is the TOML language, but `nua-config` file can also be written with YAML and JSON formats.
 
@@ -150,12 +150,12 @@ Notes:
 - String to display as replacement of the `id` field
 - Note: may be merged with title in future versions
 
-#### `image`
+#### `base-image`
 
 - **Optional**
 - String containing a valid Docker Hub reference
 - For packages using a docker base image, the reference of the image (currently Docker Hub reference)
-- Example `image = "tuxgasy/dolibarr:{version}"`
+- Example `base-image = "tuxgasy/dolibarr:{version}"`
 
 #### `src-url`
 
@@ -193,10 +193,11 @@ Notes:
 - All fields are optional
 
 #### `method`
-- Selection of the build method, possible values are 'build' and 'wrap'
-- Default to 'build'
-- Used only to select the special 'wrap' method that convert an existing Dockerfile to a Nua compliant one by adding metadata to the Docker image. For a real case, see the `Dolibarr` sample application in the apps folder of Nua code source.
+- Force selection of the build method, possible values are 'build' or 'wrap'
+- If value is not set, default to 'build' or 'wrap' if a 'metadata/base-image' is found
+- Used to force selection of the special 'wrap' method that convert an existing Dockerfile to a Nua compliant one by adding metadata to the Docker image. For a real case, see the `Dolibarr` sample application in the apps folder of Nua code source.
 - Example `method = "wrap"`
+
 
 #### `builder`
 
@@ -267,7 +268,7 @@ build-command = [
 - Example `project = "./alternate/src"`
 
 
-#### `document_root`
+#### `document-root`
 - For some web application requiring a preexisting folder to store html content like `/var/www/html`
 - May be deprecated in a future version, replaced either by a `volume` declaration or an explicit build step
 - Example `document_root = "/nua/app/html"`

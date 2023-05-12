@@ -1,7 +1,7 @@
 [metadata]
 id = "dolibarr-mariadb-wrap"
 version = "16.0.4"
-release = 2
+release = 3
 title = "Dolibarr (for mariadb), wrap build based on tuxgazy Docker image"
 author = "Dolibarr developers"
 tagline = "Open Source ERP & CRM for business"
@@ -9,10 +9,11 @@ website = "https://www.dolibarr.org/"
 tags = ["test", "php", "web", "Dolibarr"]
 licence = "GPLv3"
 # here the wrapped Docker declaration:
-image = "tuxgasy/dolibarr:{version}"
+base-image = "tuxgasy/dolibarr:{version}"
 
 [build]
-method = "wrap"
+# test auto detection of base-image:
+# method = "wrap"
 
 [env]
 DOLI_DB_HOST = { from="database", key="hostname" }

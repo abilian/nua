@@ -22,7 +22,7 @@ OPTIONAL_METADATA = [
     "profile",
     "release",
     "name",
-    "image",
+    "base-image",
 ]
 # blocks added (empty) if not present in orig file:
 COMPLETE_BLOCKS = ["build", "run", "env", "docker"]
@@ -278,13 +278,13 @@ class NuaConfig:
 
     @property
     def wrap_image(self) -> str:
-        """Optional  Docker 'image' to be used as base for 'wrap' strategy.
+        """Optional  Docker image to be used as base for 'wrap' strategy.
 
-        If the 'image' metadata is defined, the build strategy is to add
+        If the 'base-image' metadata is defined, the build strategy is to add
         the '/nua/metadata/nua-config.json' file on the declared image,
         when build method is 'wrap'.
         """
-        if base := self.metadata.get("image", ""):
+        if base := hyphen_get(self.metadata, "base-image"):
             return base.format(**self.metadata)
         return ""
 
