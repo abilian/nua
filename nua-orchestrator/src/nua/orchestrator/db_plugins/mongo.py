@@ -44,7 +44,7 @@ def _make_volume(resource: Resource) -> dict:
     volume.type = "volume"
     volume.driver = "local"
     # at this stage, network_name is defined
-    volume.source = f"{resource.resource_name}_{resource.network_name}"
+    volume.source = f"{resource.container_name}-data"
     # target of MongoDB images default configuration
     volume.target = "/data/db"
     return volume.as_dict()

@@ -89,9 +89,9 @@ class Volume:
         return [cls.parse(data).as_dict() for data in volume_list]
 
     @classmethod
-    def update_name_dict(cls, data: dict, suffix: str) -> dict:
+    def update_name_dict(cls, data: dict, label: str) -> dict:
         volume = cls.parse(data)
-        volume.update_name(suffix)
+        volume.update_name(label)
         return volume.as_dict()
 
     @classmethod
@@ -179,10 +179,10 @@ class Volume:
     def backup(self, backup: dict):
         self._dict["backup"] = backup
 
-    def update_name(self, suffix: str):
+    def update_name(self, label: str):
         if not (prefix := self.prefix):
             return
-        self.source = sanitized_name(f"{prefix}-{suffix}")
+        self.source = sanitized_name(f"{label}-{prefix}")
 
     def _check_type(self, data: dict):
         tpe = data.get("type", "volume")
