@@ -13,6 +13,7 @@ from pathlib import Path
 from pprint import pformat
 from typing import Any
 
+from nua.lib.docker import docker_sanitized_name
 from nua.lib.panic import (
     Abort,
     bold_debug,
@@ -456,7 +457,7 @@ class AppDeployment:
 
     def instance_of_label(self, label: str) -> AppInstance:
         """Select deployed instances per label."""
-        label_id = AppInstance.docker_sanitized_name(label)
+        label_id = docker_sanitized_name(label)
         self.load_deployed_configuration()
         for app in self.apps:
             if app.label_id == label_id:
