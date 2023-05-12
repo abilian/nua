@@ -268,17 +268,6 @@ build-command = [
 - Example `project = "./alternate/src"`
 
 
-#### `document-root`
-- For some web application requiring a preexisting folder to store html content like `/var/www/html`
-- May be deprecated in a future version, replaced either by a `volume` declaration or an explicit build step
-- Example `document_root = "/nua/app/html"`
-
-
-#### `nua_dir`
-- Relative path of the folder containing the Nua files, in the case it is not named `nua`
-- Example `nua_dir = "nua_files"
-
-
 ## Section `run`
 
 Notes:
