@@ -9,8 +9,6 @@ from nua.lib.nua_config import nomalize_env_values
 from nua.lib.panic import Abort, debug, important, vprint, warning
 from nua.lib.tool.state import verbosity
 
-from .backup.backup_engine import backup_resource, backup_volume
-from .backup.backup_report import global_backup_report
 from .healthcheck import HealthCheck
 from .port_normalization import (
     normalize_ports_list,
@@ -438,30 +436,6 @@ class Resource(dict):
         self.requested_secrets.append(key)
         for resource in self.resources:
             resource.add_requested_secrets(key)
-
-    def do_full_backup(self) -> str:
-        """Execute a full backup.
-
-         backup order:
-        1 - resources
-        2 - site
-        for each:
-        a) backup tag of each volume
-        b) backup tag of main resource
-        """
-        reports = []
-        for resource in self.resources:
-            reports.extend(resource.do_backup())
-        reports.extend(self.do_backup())
-        return global_backup_report(reports)
-
-    def do_backup(self) -> list:
-        reports = []
-        for volume_dict in self.volume:
-            volume = Volume.from_dict(volume_dict)
-            reports.append(backup_volume(volume))
-        reports.append(backup_resource(self))
-        return reports
 
     def setup_db(self):
         if not is_db_plugins(self.type):

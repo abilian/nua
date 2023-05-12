@@ -378,7 +378,7 @@ def _check_run_container(container: Container, name: str):
     # test_docker_exec(container)
 
 
-def docker_exec_stdout(container: Container, params: dict, output: io.BufferedWriter):
+def docker_exec_stdout(container: Container, params: dict, output: io.BufferedIOBase):
     """Wrapper on top of the py-docker exec_run() command, capturing the
     output.
 
@@ -402,6 +402,7 @@ def docker_exec_stdout(container: Container, params: dict, output: io.BufferedWr
         demux=True,
     )
     for data in stream:
+        print(data)
         output.write(data[0])
 
 

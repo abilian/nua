@@ -1,6 +1,5 @@
 """Function to auto configure a Postgres container DB."""
 # from nua.agent.db.postgres_manager import PostgresManager
-
 from ..resource import Resource
 from ..volume import Volume
 
@@ -10,7 +9,7 @@ NUA_PROPERTIES = {
     "family": "db",  # plugin family
     "assign": True,  # receives dynamic assignment of ENV
     "network": True,  # require docker bridge network
-    "meta-packages": ["postgres-client"],  # for app-builder (future use))
+    "backup_cmd": ["]bck_pg_dumpall"],  # list of available backup commands
 }
 
 
