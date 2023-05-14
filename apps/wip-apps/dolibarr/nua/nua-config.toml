@@ -7,7 +7,7 @@ author = "Dolibarr developers"
 tagline = "Open Source ERP & CRM for business"
 website = "https://www.dolibarr.org/"
 tags = ["test", "php", "web", "Dolibarr"]
-licence = "GPLv3"
+license = "GPLv3"
 
 [build]
 default-files = false

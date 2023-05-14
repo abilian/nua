@@ -6,15 +6,9 @@ author = "The Apache Software Foundation"
 tagline = "Apache basic config with static content"
 website = "https://httpd.apache.org/"
 tags = ["html", "web", "static"]
-licence = "Apache-2.0"
+license = "Apache-2.0"
 profile = ["generic"]
 release = 2
-changelog ="""
-* Jun 08 2022 Jerome Dumonteil <jd@abilian.com>
-    - more tests
-* Jun 06 2022 Jerome Dumonteil <jd@abilian.com>
-    - trying some test with apache
-"""
 
 [build]
 # optional manifest.

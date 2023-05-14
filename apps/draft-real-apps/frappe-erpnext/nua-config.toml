@@ -6,7 +6,7 @@ author = "Nua testers"
 tagline = "Nua test with ERPNext"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "MariaDB"]
-licence = "MIT"
+license = "MIT"
 profile = ["test"]
 release = 1
 

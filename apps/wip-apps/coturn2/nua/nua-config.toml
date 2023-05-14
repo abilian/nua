@@ -7,7 +7,7 @@ author = "Coturn authors"
 tagline = "VoIP media traffic NAT traversal server and gateway"
 website = "https://galene.org/"
 tags = ["udp", "turn", "voip"]
-licence = "TURN Server license"
+license = "TURN Server license"
 
 [build]
 packages = ["coturn"]
@@ -41,7 +41,7 @@ type = "tmpfs"
 # Container path:
 target = "/var/lib/coturn"
 # tmpfs_size = "4G"
-tmpfs_mode = 1777
+tmpfs_mode = "1777"
 
 [[volume]]
 # The mount type (bind / volume / tmpfs / npipe). Default: volume :

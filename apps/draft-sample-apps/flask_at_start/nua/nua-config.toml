@@ -34,4 +34,4 @@ container = 3000
 type = "tmpfs"
 target = "/var/lib/sample_www"
 tmpfs_size = "2G"
-tmpfs_mode = 1777
+tmpfs_mode = "1777"
