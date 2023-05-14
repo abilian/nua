@@ -176,11 +176,10 @@ class AppInstance(Resource):
         #     resource.volume = [
         #         Volume.update_name_dict(v, suffix) for v in resource.volume
         #     ]
-        suffix = self.label_id
-        self.volume = [Volume.update_name_dict(v, suffix) for v in self.volume]
+        self.volume = [Volume.update_name_dict(v, self.label_id) for v in self.volume]
         for resource in self.resources:
             resource.volume = [
-                Volume.update_name_dict(v, suffix) for v in resource.volume
+                Volume.update_name_dict(v, self.label_id) for v in resource.volume
             ]
 
     @property
@@ -352,7 +351,7 @@ class AppInstance(Resource):
         """
         for resource in self.resources:
             if resource.is_docker_type():
-                name = f"{self.container_name}-{resource.base_name}"
+                name = f"{self.label_id}-{resource.resource_name}-{resource.base_name}"
                 resource.container_name = name
                 # docker resources are only visible from bridge network, so use
                 # the container name as hostname

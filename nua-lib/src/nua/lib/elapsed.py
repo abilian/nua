@@ -6,7 +6,7 @@ def elapsed(delta: float) -> str:
     hours, seconds = divmod(seconds, 3600)
     minutes, seconds = divmod(seconds, 60)
     if days > 0:
-        message = f"{days}d {hours}h {minutes}min {seconds}s"
+        message = f"{days}d {hours}h {minutes}min"
     elif hours > 0:
         message = f"{hours}h {minutes}min {seconds}s"
     elif minutes > 0:
