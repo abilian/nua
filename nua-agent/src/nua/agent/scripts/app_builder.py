@@ -318,10 +318,7 @@ class BuilderApp:
             installed = True
         elif self.config.git_url:
             self.source = install_git_source(
-                self.config.git_url,
-                self.config.git_branch,
-                "/nua/build",
-                self.config.name,
+                self.config.git_url, self.config.git_branch, "/nua/build"
             )
             installed = True
         return installed
