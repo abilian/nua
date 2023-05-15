@@ -20,10 +20,13 @@ def chown_r(path: str | Path, user: str, group: str | None = None):
     example:
         chown_r(document_root, "www-data", "www-data")
     """
-    root = Path(path)
-    for item in root.rglob("*"):
-        shutil.chown(item, user, group or user)
-    shutil.chown(root, user, group or user)
+    root = Path(path).absolute()
+    # broken on symlinks ?
+    # for item in root.rglob("*"):
+    #     print(item, item.is_file())
+    #     shutil.chown(item, user, group or user)
+    # shutil.chown(root, user, group or user)
+    sh(f"chown -R {user}:{group or user} {root}", show_cmd=False)
 
 
 def chmod_r(path: str | Path, file_mode: int, dir_mode: int | None = None):
