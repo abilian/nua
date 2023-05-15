@@ -61,6 +61,8 @@ format-py:
 .PHONY: clean
 clean:
 	find . -name __pycache__ -print0 | xargs -0 rm -rf
+	find nua-lib -type d -name dist -print0 | xargs -0 rm -rf
+	find nua-agent -type d -name dist -print0 | xargs -0 rm -rf
 	find . -type d -empty -delete
 	rm -rf .mypy_cache .pytest_cache .ruff_cache
 
