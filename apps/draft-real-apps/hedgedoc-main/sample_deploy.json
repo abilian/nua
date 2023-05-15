@@ -1,0 +1,18 @@
+{
+    "site": [
+        {
+            "image": "hedgedoc-main",
+            "domain": "test1.example.com",
+            "env": {
+                "CMD_PROTOCOL_USESSL": "true"
+            }
+        },
+        {
+            "image": "hedgedoc-main",
+            "domain": "test2.example.com",
+            "env": {
+                "CMD_PROTOCOL_USESSL": "true"
+            }
+        }
+    ]
+}
