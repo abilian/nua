@@ -75,6 +75,12 @@ As of 2023/04/29, we have the following components:
 - The `nua` CLI that provides a unified interface to the builder and orchestrator.
 - We have started packaging some applications (HedgeDoc, Dolibarr, Galene, Dolibarr, Etherpad-lite).
 
+### Repo activity
+
+
+<img width="100%" src="https://repobeats.axiom.co/api/embed/8fe302059db532a7068842d282c248795a4ec477.svg" />
+
+
 ### Nua CLI
 
 ```console
