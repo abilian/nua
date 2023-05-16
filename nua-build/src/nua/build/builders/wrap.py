@@ -75,4 +75,4 @@ class DockerWrapBuilder(Builder):
         if self.save_image:
             client = docker.from_env(timeout=CLIENT_TIMEOUT)
             image = client.images.get(image_id)
-            self.save(image, nua_tag)
+            self.save(image, nua_tag)  # pyright: ignore

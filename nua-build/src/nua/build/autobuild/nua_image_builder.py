@@ -164,7 +164,7 @@ class NuaImageBuilder:
             self.copy_wheels(build_path)
             docker_build_custom(info, build_path)
 
-    def build_builder_of_name(self, name: str | dict):
+    def build_builder_of_name(self, name: str | dict | list):
         """Build a specific environmanet builder."""
         info = builder_info(name)
         tag = self.builder_tag(name)
@@ -184,7 +184,7 @@ class NuaImageBuilder:
             docker_build_custom(info, build_path)
 
     @staticmethod
-    def builder_tag(name: str | dict) -> str:
+    def builder_tag(name: str | dict | list) -> str:
         info = builder_info(name)
         app_id = info["app_id"]
         return f"{app_id}:{nua_version}"

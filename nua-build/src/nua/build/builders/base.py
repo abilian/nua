@@ -93,7 +93,7 @@ class Builder(abc.ABC):
     def save(self, image: Image, nua_tag: str):
         dest = f"/var/tmp/{nua_tag}.tar"  # noqa S108
         chunk_size = 2**22
-        step = round(image.attrs["Size"]) // 20
+        step = round(image.attrs["Size"]) // 20  # pyright: ignore
         accu = 0
 
         with verbosity(1):

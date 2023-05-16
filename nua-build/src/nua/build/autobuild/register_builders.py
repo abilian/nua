@@ -29,13 +29,18 @@ def _is_builder(name: str | dict) -> bool:
     return bool(builder_registry.builder_languages.get(lang, {}).get(version, None))
 
 
-def builder_info(name: str | dict) -> dict:
+def builder_info(name: str | dict | list) -> dict:
     register_builders()
-    if isinstance(name, str):
-        return builder_registry.builders[builder_registry.builder_names[name]]
+    if isinstance(name, list):
+        # fixme: list not managed
+        actual_name = name[0]
+    else:
+        actual_name = name
+    if isinstance(actual_name, str):
+        return builder_registry.builders[builder_registry.builder_names[actual_name]]
     # for builder expressed as a dict:
-    lang = name["name"]
-    version = name["version"]
+    lang = actual_name["name"]
+    version = actual_name["version"]
     app_id = builder_registry.builder_languages.get(lang, {}).get(version, "")
     return builder_registry.builders[app_id]
 

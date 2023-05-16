@@ -6,7 +6,6 @@ from contextlib import suppress
 from importlib import resources as rso
 from pathlib import Path
 from shutil import copy2, copytree
-
 import docker
 from nua.lib.constants import NUA_BUILDER_TAG
 from nua.lib.nua_config import hyphen_get, nua_config_names
@@ -70,7 +69,7 @@ class DockerBuilder(Builder):
         """
         builder = self.config.builder
         if builder:
-            self.nua_base = NuaImageBuilder.builder_tag(builder)
+            self.nua_base = NuaImageBuilder.builder_tag(builder)  # pyright: ignore
         else:
             self.nua_base = NUA_BUILDER_TAG
         with verbosity(2):
@@ -137,7 +136,7 @@ class DockerBuilder(Builder):
         if self.save_image:
             client = docker.from_env(timeout=CLIENT_TIMEOUT)
             image = client.images.get(image_id)
-            self.save(image, nua_tag)
+            self.save(image, nua_tag)  # pyright: ignore
 
     def _copy_local_code(self):
         if any((self.config.src_url, self.config.git_url)):

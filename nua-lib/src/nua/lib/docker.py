@@ -111,11 +111,11 @@ def display_docker_img(image_name: str):
         red_line("No image found")
         return
     for img in result:
-        display_one_docker_img(img)
+        display_one_docker_img(img)  # pyright: ignore
 
 
 def display_one_docker_img(image: Image):
-    sid = image.id.split(":")[-1][:10]
+    sid = str, image.id.split(":")[-1][:10]  # pyright: ignore
     tags = "|".join(image.tags)
     crea = datetime.fromisoformat(image_created_as_iso(image)).isoformat(" ")
     # Note on size of image: Docker uses 10**6 for MB, not 2**20
@@ -150,7 +150,7 @@ def docker_get_locally(reference: str) -> Image | None:
         if image:
             with verbosity(3):
                 vprint(f"Image '{reference}' found in local Docker instance")
-        return image
+        return image  # pyright: ignore
     except (APIError, ImageNotFound):
         with verbosity(4):
             vprint(f"Image '{reference}' not found in local Docker instance")
@@ -164,7 +164,7 @@ def docker_pull(reference: str) -> Image | None:
         if image:
             with verbosity(3):
                 vprint(f"Image '{reference}' pulled from Docker hub")
-        return image
+        return image  # pyright: ignore
     except (APIError, ImageNotFound):
         with verbosity(3):
             vprint(f"Image '{reference}' not found in Docker hub")

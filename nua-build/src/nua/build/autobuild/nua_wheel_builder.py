@@ -140,7 +140,7 @@ class NuaWheelBuilder:
             rm_fr(path / "dist")
             cmd = "poetry build -f wheel"
             result = sh(cmd, capture_output=True, show_cmd=False)
-            if not (done := re.search("- Built(.*)\n", result)):
+            if not (done := re.search("- Built(.*)\n", result)):  # pyright: ignore
                 warning(f"Wheel not found for '{path}'")
                 return False
             built = done.group(1).strip()
