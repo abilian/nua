@@ -18,6 +18,7 @@ nav:
     - Command Line Interface: user/cli.md
   - Developers:
     - Introduction: dev/index.md
+    - "Nua as a R&D project": dev/r-and-d.md
     - Architecture: dev/architecture.md
     - "Specifications: Configuration": dev/configuration.md
     - "Specification: App Images": dev/image.md
@@ -102,6 +103,11 @@ plugins:
   - search
   - include-markdown
   - roamlinks
+  # - git-revision-date-localized:
+  #     type: timeago
+  # - autolinks
+  # - section-index
+  # - mkdocs-newsletter
   - blogging:
       dirs:
         - news
