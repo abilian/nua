@@ -3,12 +3,19 @@ from pathlib import Path
 
 from nua.lib.dates import backup_date
 
-from ..docker_utils import docker_container_of_name, docker_exec_stdout
+from ..docker_utils import docker_container_of_name, docker_exec_checked
 from ..resource import Resource
 from .backup_report import BackupReport
 
 
 def bck_pg_dumpall(resource: Resource) -> BackupReport:
+    """Backup the Resource with pg_dumpall.
+
+    Resource is expected to be a Postgres database.
+
+    Returns:
+        BackupReport instance
+    """
     backup_conf = resource.get("backup")
     backup_destination = backup_conf.get("destination", "local")
 
@@ -26,23 +33,31 @@ def bck_pg_dumpall(resource: Resource) -> BackupReport:
     folder.mkdir(exist_ok=True, parents=True)
     dest_file = folder / file_name
     container = docker_container_of_name(resource.container_name)[0]
-    cmd = r'sh -c "/usr/bin/pg_dumpall -U \${POSTGRES_USER}"'
+    cmd = "/usr/bin/pg_dumpall -U ${POSTGRES_USER}"
 
     print(f"Start backup: {dest_file}")
-
-    with dest_file.open("wb") as output:
-        docker_exec_stdout(
-            container,
-            {"cmd": cmd, "user": "root", "workdir": "/"},
-            output,
+    try:
+        with dest_file.open("wb") as output:
+            docker_exec_checked(
+                container,
+                {"cmd": cmd, "user": "root", "workdir": "/"},
+                output,
+            )
+            output.flush()
+    except RuntimeError as e:
+        result = BackupReport(
+            node=resource.container_name,
+            task=True,
+            success=False,
+            message=f"Backup failed: {e}",
         )
-        output.flush()
-
-    print(f"End backup: {dest_file}")
-
-    return BackupReport(
-        node=resource.container_name,
-        task=True,
-        success=True,
-        message=dest_file,
-    )
+    else:
+        result = BackupReport(
+            node=resource.container_name,
+            task=True,
+            success=True,
+            message=dest_file.name,
+        )
+    finally:
+        print(result)
+        return result

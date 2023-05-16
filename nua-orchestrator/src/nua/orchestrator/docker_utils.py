@@ -406,6 +406,42 @@ def docker_exec_stdout(container: Container, params: dict, output: io.BufferedIO
         output.write(data[0])
 
 
+def docker_exec_checked(container: Container, params: dict, output: io.BufferedIOBase):
+    """Wrapper on top of the py-docker exec_run() command, capturing the
+    output.
+
+    Write the binary output of run_exec to output buffered io, or raise Runtime Error.
+
+    Defaults are:
+    cmd, stdout=True, stderr=True, stdin=False, tty=False, privileged=False,
+    user='', detach=False, stream=False, socket=False, environment=None,
+    workdir=None, demux=False
+
+    Returns: None
+    """
+    cmd = params["cmd"]
+    shcmd = f'sh -c "{cmd}"'
+    user = params.get("user", "root")
+    workdir = params.get("workdir", "/")
+    _, stream = container.exec_run(
+        cmd=shcmd,
+        user=user,
+        workdir=workdir,
+        stream=True,
+        stdout=True,
+        stderr=True,
+        demux=False,
+    )
+    # will test the first line only:
+    test_passed = False
+    for data in stream:
+        if not test_passed:
+            if b"OCI runtime exec failed" in data:
+                raise RuntimeError(data.decode("utf8"))
+            test_passed = True
+        output.write(data)
+
+
 # def docker_exec(container: Container, params: dict):
 #     """Wrapper on top of the py-docker exec_run() command, without capturing
 #     the output.

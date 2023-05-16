@@ -8,6 +8,12 @@ class BackupReport:
     success: bool = True
     message: str = ""
 
+    def __str__(self) -> str:
+        if self.success:
+            return f"Backup done for {self.node} to {self.message}"
+        else:
+            return f"Backup failed for {self.node} : {self.message}"
+
 
 def global_backup_report(reports: list[BackupReport]) -> str:
     if not reports:
