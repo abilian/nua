@@ -625,15 +625,15 @@ class AppDeployment:
         chown_r_nua_nginx()
         nginx_restart()
 
-    def start_deployed_apps(self, domain: str, apps: list[AppInstance]):
+    def start_deployed_apps(self, apps: list[AppInstance]):
         """Start deployed instances previously stopped."""
-        with verbosity(0):
-            info(f"Start instance of domain '{domain}'.")
-        for site in apps:
+        for app in apps:
             # self.start_network(site)
-            start_one_app_containers(site)
-            site.running_status = RUNNING
-            self.store_container_instance(site)
+            with verbosity(0):
+                info(f"Start instance of domain '{app.domain}'.")
+            start_one_app_containers(app)
+            app.running_status = RUNNING
+            self.store_container_instance(app)
 
     def remove_app_list(self, apps: list[AppInstance]):
         self.stop_deployed_apps(apps)
@@ -663,15 +663,15 @@ class AppDeployment:
                 site.running_status = STOPPED
                 self.store_container_instance(site)
 
-    def restart_deployed_apps(self, domain: str, apps: list[AppInstance]):
+    def restart_deployed_apps(self, apps: list[AppInstance]):
         """Restart deployed instances."""
-        with verbosity(0):
-            info(f"Restart instance of domain '{domain}'.")
-        for site in apps:
+        for app in apps:
+            with verbosity(0):
+                info(f"Restart instance of domain '{app.domain}'.")
             # self.start_network(site)
-            restart_one_app_containers(site)
-            site.running_status = RUNNING
-            self.store_container_instance(site)
+            restart_one_app_containers(app)
+            app.running_status = RUNNING
+            self.store_container_instance(app)
 
     def remove_container_and_network(self, apps: list[AppInstance]):
         """Remove stopped app: container, network, but not volumes."""

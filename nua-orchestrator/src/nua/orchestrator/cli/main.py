@@ -13,18 +13,18 @@ from ..search_cmd import search_nua_print
 from . import configuration as config_cmd
 from . import debug
 from .commands.api import API
-from .commands.backup import backup_all
+from .commands.backup_restore import backup_all, restore_last
 from .commands.deploy_remove import (
     deploy_merge_nua_app,
     deploy_nua_apps,
     remove_nua_domain,
     remove_nua_label,
 )
-from .commands.restore import restore_nua_apps_replay, restore_nua_apps_strict
+from .commands.restore_deployed import restore_nua_apps_replay, restore_nua_apps_strict
 from .commands.start_stop import (
-    restart_nua_instance_domain,
-    start_nua_instance_domain,
-    stop_nua_instance_domain,
+    restart_nua_instance,
+    start_nua_instance,
+    stop_nua_instance,
 )
 from .commands.status import status
 from .init import initialization
@@ -158,7 +158,7 @@ def remove_local(
         print("WIP: currently a label or domain must be provided.")
 
 
-@app.command("restore")
+@app.command("restore-deployed")
 def restore_local(
     verbose: int = opt_verbose,
     colorize: bool = option_color,
@@ -178,48 +178,57 @@ def restore_local(
 def stop_local(
     verbose: int = opt_verbose,
     colorize: bool = option_color,
+    label: str = option_label,
     domain: str = option_domain,
 ):
     """Stop a deployed instance."""
     set_verbosity(verbose)
     set_color(colorize)
     initialization()
-    if domain:
-        stop_nua_instance_domain(domain)
+    if label:
+        stop_nua_instance(label=label)
+    elif domain:
+        stop_nua_instance(domain=domain)
     else:
-        print("WIP: currently a domain must be provided.")
+        print("WIP: currently a label or domain must be provided.")
 
 
 @app.command("start")
 def start_local(
     verbose: int = opt_verbose,
     colorize: bool = option_color,
+    label: str = option_label,
     domain: str = option_domain,
 ):
     """Start a deployed instance."""
     set_verbosity(verbose)
     set_color(colorize)
     initialization()
-    if domain:
-        start_nua_instance_domain(domain)
+    if label:
+        start_nua_instance(label=label)
+    elif domain:
+        start_nua_instance(domain=domain)
     else:
-        print("WIP: currently a domain must be provided.")
+        print("WIP: currently a label or domain must be provided.")
 
 
 @app.command("restart")
 def restart_local(
     verbose: int = opt_verbose,
     colorize: bool = option_color,
+    label: str = option_label,
     domain: str = option_domain,
 ):
     """Restart a deployed instance."""
     set_verbosity(verbose)
     set_color(colorize)
     initialization()
-    if domain:
-        restart_nua_instance_domain(domain)
+    if label:
+        restart_nua_instance(label=label)
+    elif domain:
+        restart_nua_instance(domain=domain)
     else:
-        print("WIP: currently a domain must be provided.")
+        print("WIP: currently a label or domain must be provided.")
 
 
 @app.command("backup")
@@ -232,6 +241,25 @@ def backup_all_cmd(
     set_color(colorize)
     initialization()
     backup_all()
+
+
+@app.command("restore")
+def restore_last_cmd(
+    verbose: int = opt_verbose,
+    colorize: bool = option_color,
+    label: str = option_label,
+    domain: str = option_domain,
+):
+    """Restore the last backup for the app instance."""
+    set_verbosity(verbose)
+    set_color(colorize)
+    initialization()
+    if label:
+        restore_last(label=label)
+    elif domain:
+        restore_last(domain=domain)
+    else:
+        print("WIP: currently a label or domain must be provided.")
 
 
 @app.command("rpc", hidden=True)
