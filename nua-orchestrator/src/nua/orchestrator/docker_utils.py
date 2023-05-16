@@ -96,7 +96,7 @@ def docker_container_status(container_id: str) -> str:
 def docker_container_since(container: Container) -> int:
     created = datetime.fromisoformat(container.attrs["Created"][:19])
     now = datetime.now(timezone.utc).replace(tzinfo=None)
-    return (now - created).total_seconds()
+    return int((now - created).total_seconds())
 
 
 def docker_start_container_name(name: str):
