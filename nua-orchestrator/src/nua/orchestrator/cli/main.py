@@ -13,7 +13,7 @@ from ..search_cmd import search_nua_print
 from . import configuration as config_cmd
 from . import debug
 from .commands.api import API
-from .commands.backup_restore import backup_all, restore_last
+from .commands.backup_restore import backup_all_apps, backup_one_app, restore_last
 from .commands.deploy_remove import (
     deploy_merge_nua_app,
     deploy_nua_apps,
@@ -65,8 +65,9 @@ option_restore_strict = typer.Option(
 option_json = typer.Option(False, "--json", help="Output result as JSON.")
 option_short = typer.Option(False, help="Show short text result.")
 option_raw = typer.Option(False, "--raw", help="Return raw result (not JSON).")
-option_domain = typer.Option("", "--domain", "-d", help="Select domain to stop.")
-option_label = typer.Option("", "--label", "-l", help="Select label to stop.")
+option_all_apps = typer.Option("", "--all", "-a", help="Select all apps.")
+option_label = typer.Option("", "--label", "-l", help="Select app by label.")
+option_domain = typer.Option("", "--domain", "-d", help="Select app by domain.")
 
 
 def _print_version():
@@ -232,15 +233,25 @@ def restart_local(
 
 
 @app.command("backup")
-def backup_all_cmd(
+def backup_cmd(
     verbose: int = opt_verbose,
     colorize: bool = option_color,
+    all_apps: str = option_all_apps,
+    label: str = option_label,
+    domain: str = option_domain,
 ):
-    """Backup now all instance having a backup rules."""
+    """Backup app instance(s) having a backup rules."""
     set_verbosity(verbose)
     set_color(colorize)
     initialization()
-    backup_all()
+    if all_apps:
+        backup_all_apps()
+    elif label:
+        backup_one_app(label=label)
+    elif domain:
+        backup_one_app(domain=domain)
+    else:
+        print("WIP: a label or domain must be provided or --all.")
 
 
 @app.command("restore")
