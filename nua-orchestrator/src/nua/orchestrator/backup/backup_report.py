@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from .backup_record import BackupItem
+
 
 @dataclass
 class BackupReport:
@@ -7,6 +9,7 @@ class BackupReport:
     task: bool = False
     success: bool = True
     message: str = ""
+    backup_item: BackupItem | None = None
 
     def __str__(self) -> str:
         if self.success:

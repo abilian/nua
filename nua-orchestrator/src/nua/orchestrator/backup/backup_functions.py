@@ -5,7 +5,9 @@ from nua.lib.dates import backup_date
 
 from ..docker_utils import docker_container_of_name, docker_exec_checked
 from ..resource import Resource
+from .backup_record import BackupItem
 from .backup_report import BackupReport
+from .restore_engine import restore_fct_id
 
 
 def bck_pg_dumpall(resource: Resource) -> BackupReport:
@@ -24,8 +26,11 @@ def bck_pg_dumpall(resource: Resource) -> BackupReport:
             node=resource.container_name,
             task=True,
             success=False,
-            message="Only local backup is currently implemented",
+            message="WIP: Only local backup is currently implemented",
+            backup_item=None,
         )
+
+    restore_id = restore_fct_id("pg_dumpall")
 
     # _backup_dir = store.installed_nua_settings()["backup"]["location"]
     file_name = f"{backup_date()}-{resource.container_name}.sql"
@@ -50,13 +55,16 @@ def bck_pg_dumpall(resource: Resource) -> BackupReport:
             task=True,
             success=False,
             message=f"Backup failed: {e}",
+            backup_item=None,
         )
     else:
+        backup_item = BackupItem(path=str(dest_file), restore=restore_id)
         result = BackupReport(
             node=resource.container_name,
             task=True,
             success=True,
             message=dest_file.name,
+            backup_item=backup_item,
         )
     finally:
         print(result)
