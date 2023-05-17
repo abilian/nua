@@ -65,7 +65,7 @@ option_restore_strict = typer.Option(
 option_json = typer.Option(False, "--json", help="Output result as JSON.")
 option_short = typer.Option(False, help="Show short text result.")
 option_raw = typer.Option(False, "--raw", help="Return raw result (not JSON).")
-option_all_apps = typer.Option("", "--all", "-a", help="Select all apps.")
+option_all_apps = typer.Option(False, "--all", "-a", help="Select all apps.")
 option_label = typer.Option("", "--label", "-l", help="Select app by label.")
 option_domain = typer.Option("", "--domain", "-d", help="Select app by domain.")
 
@@ -236,7 +236,7 @@ def restart_local(
 def backup_cmd(
     verbose: int = opt_verbose,
     colorize: bool = option_color,
-    all_apps: str = option_all_apps,
+    all_apps: bool = option_all_apps,
     label: str = option_label,
     domain: str = option_domain,
 ):
