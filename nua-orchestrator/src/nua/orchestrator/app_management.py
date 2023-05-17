@@ -4,14 +4,12 @@ General use:
     - load active configuration
     - loop over apps to perform an action (example: backup)
 """
-
-
 from nua.lib.docker import docker_sanitized_name
-from nua.lib.panic import Abort, warning
+from nua.lib.panic import Abort, vprint, warning
+from nua.lib.tool.state import verbosity
 
 from .app_instance import AppInstance
-from .backup.backup_engine import backup_resource, backup_volume
-from .backup.backup_report import global_backup_report
+from .backup.app_backup import AppBackup
 from .db import store
 from .domain_split import DomainSplit
 from .resource import Resource
@@ -86,7 +84,7 @@ class AppManagement:
         app = self.instance_of_label(label)
         return self.backup_one_app(app)
 
-    def backup_one_app(self, app: Resource) -> str:
+    def backup_one_app(self, app: AppInstance):
         """Execute a full backup of an app (all volumes).
 
         Backup order:
@@ -96,19 +94,32 @@ class AppManagement:
             a) backup tag of each volume
             b) backup tag of main resource
         """
-        reports = []
-        for resource in app.resources:
-            reports.extend(self.do_backup(resource))
-        reports.extend(self.do_backup(app))
-        return global_backup_report(reports)
+        app_backup = AppBackup(app)
+        app_backup.run()
+        if app_backup.success:
+            self._store_app_instance(app)
+        return app_backup.result
 
-    def do_backup(self, resource: Resource) -> list:
-        reports = []
-        for volume_dict in resource.volume:
-            volume = Volume.from_dict(volume_dict)
-            reports.append(backup_volume(volume))
-        reports.append(backup_resource(resource))
-        return reports
+        # reports: list[BackupReport] = []
+        # for resource in app.resources:
+        #     reports.extend(self.backup_resource_parts(resource))
+        # reports.extend(self.backup_resource_parts(app))
+        # store_backup_reports(reports)
+        # return global_backup_report(reports)
+
+    def _store_app_instance(self, app: AppInstance):
+        with verbosity(3):
+            vprint("Saving AppInstance configuration in Nua DB")
+        store.store_instance(
+            app_id=app.app_id,
+            label_id=app.label_id,
+            nua_tag=app.nua_tag,
+            domain=app.domain,
+            container=app.container_name,
+            image=app.image,
+            state=app.running_status,
+            site_config=dict(app),
+        )
 
     def restore_app_label(self, label: str):
         """Execute a backup restoration.

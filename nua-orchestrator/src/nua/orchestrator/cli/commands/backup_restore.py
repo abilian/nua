@@ -14,7 +14,7 @@ def backup_all_apps():
 
 def backup_one_app(*, label: str = "", domain: str = ""):
     """Execute a one-time backup for the app instance identified by its label."""
-    print(f"Execute a one-time backup for for the app '{label or domain}'")
+    print(f"Execute a one-time backup for the app '{label or domain}'")
     manager = AppManagement()
     if label:
         result = manager.backup_app_label(label)

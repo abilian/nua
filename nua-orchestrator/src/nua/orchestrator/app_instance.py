@@ -139,6 +139,16 @@ class AppInstance(Resource):
     def running_status(self) -> str:
         return self.get("running_status", STOPPED)
 
+    @property
+    def backup_records(self) -> list[dict]:
+        if "backup_records" not in self:
+            self["backup_records"] = []
+        return self["backup_records"]
+
+    @backup_records.setter
+    def backup_records(self, backup_records: list[dict]):
+        self["backup_records"] = backup_records
+
     @running_status.setter
     def running_status(self, status: str):
         self["running_status"] = status

@@ -29,7 +29,7 @@ def backup_resource(resource: dict) -> BackupReport:
 
 
 def backup_volume(volume) -> BackupReport:
-    """Execute a backup from mais backup tag of a Resource."""
+    """Execute a backup from backup tag of a volume of a Resource."""
     backup_conf = volume.get("backup")
     if not backup_conf or not isinstance(backup_conf, dict):
         return BackupReport(
