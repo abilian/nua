@@ -1,7 +1,7 @@
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pprint import pformat
 
-from nua.lib.dates import backup_date
 from nua.lib.panic import vprint, warning
 from nua.lib.tool.state import verbosity
 
@@ -9,30 +9,8 @@ from ..app_instance import AppInstance
 from ..resource import Resource
 from ..volume import Volume
 from .backup_engine import backup_resource, backup_volume
-from .backup_record import BackupItem
+from .backup_record import BackupRecord
 from .backup_report import BackupReport
-
-
-@dataclass(kw_only=True)
-class BackupRecord:
-    """Record of a successful backup of the data of an instance.
-
-    One record has
-      - a unique reference date (start date)
-      - a list of backuped items and their restore method
-
-    wip: maybe store start/end date of backup for long duration backups
-    """
-
-    label_id: str = ""
-    ref_date: str = ""
-    items: list[BackupItem] = field(init=False, default_factory=list)
-
-    def as_dict(self) -> dict:
-        return asdict(self)
-
-    def append_item(self, backup_item: BackupItem):
-        self.items.append(backup_item)
 
 
 @dataclass
@@ -76,15 +54,19 @@ class AppBackup:
             result.append(f"  {rep.node}, {success_str[rep.success]}: {rep.message}")
         self.result = "\n".join(result)
 
+    def _make_backup_record(self) -> BackupRecord:
+        now = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+        record = BackupRecord(label_id=self.app.label_id, date=now)
+        for rep in self.reports:
+            if rep.task and rep.success and rep.backup_item is not None:
+                record.append_item(rep.backup_item)
+        return record
+
     def _store_in_app(self):
         if not self.success:
             warning("Backup unsuccessful: not stored in app valid backups")
             return
-        # maybe datetime.now(timezone.utc).replace(microsecond=0).isoformat()
-        record = BackupRecord(label_id=self.app.label_id, ref_date=backup_date())
-        for rep in self.reports:
-            if rep.task and rep.success and rep.backup_item is not None:
-                record.append_item(rep.backup_item)
+        record = self._make_backup_record()
         with verbosity(2):
             vprint(pformat(record.as_dict()))
         self.app.backup_records.append(record.as_dict())

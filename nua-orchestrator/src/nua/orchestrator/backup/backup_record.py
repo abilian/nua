@@ -1,34 +1,20 @@
 from dataclasses import asdict, dataclass, field
 
-
-@dataclass(frozen=True, kw_only=True)
-class BackupItem:
-    """Single backuped item (a file).
-
-    One item has:
-        - a path (or url)
-        - a restore method
-        # - a container reference ?
-    """
-
-    # container_name: str = ""
-    path: str = ""
-    restore: str = ""
+from .backup_item import BackupItem
 
 
 @dataclass(kw_only=True)
 class BackupRecord:
     """Record of a successful backup of the data of an instance.
 
-    One record has
-      - a unique reference date (start date)
-      - a list of backuped items and their restore method
-
-    wip: maybe store start/end date of backup for long duration backups
+    One record:
+      - label_id of the app
+      - unique reference date (end date, iso format)
+      - list of backuped items and their restore method
     """
 
     label_id: str = ""
-    ref_date: str = ""
+    date: str = ""  # datetime.now(timezone.utc).replace(microsecond=0).isoformat()
     items: list[BackupItem] = field(init=False, default_factory=list)
 
     def as_dict(self) -> dict:
