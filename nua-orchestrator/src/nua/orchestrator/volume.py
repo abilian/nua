@@ -10,28 +10,33 @@ from nua.lib.panic import Abort
 from .utils import get_alias, hyphenized_set, sanitized_name
 
 # later, add 'npipe' when managed:
-ALLOWED_TYPE = {"volume", "bind", "tmpfs"}
+MANAGED = "managed"
+DIRECTORY = "directory"
+TMPFS = "tmpfs"
+ALLOWED_TYPE = {MANAGED, DIRECTORY, TMPFS}
 CHECKED_KEYS = {
     "_checked_",
-    "dest",
-    "destination",
+    # "dest",
+    # "destination",
     "domains",
     "driver",
     "backup",
     "options",
-    "source",
-    "src",
-    "prefix",
-    "source-prefix",
-    "src-prefix",
+    # "source",
+    "name",
+    "_label",
+    # "src",
+    # "prefix",
+    # "source-prefix",
+    # "src-prefix",
     "target",
     "type",
 }
 
 
 class Volume:
-    """Representation of a volume attached to a container, either main
-    container or Resource container."""
+    """Representation of a volume attached to a container, either the main app
+    container or a Resource container."""
 
     def __init__(self):
         self._dict = {}
@@ -53,7 +58,7 @@ class Volume:
 
     @classmethod
     def parse(cls, data: dict) -> Volume:
-        """Parse a dict to obtain a Volume.
+        """Parse a python dict to obtain a Volume instance.
 
         Apply sanity checks if _checked_ is not present.
         """
@@ -69,7 +74,7 @@ class Volume:
     def check_load(self, data: dict):
         try:
             self._check_type(data)
-            self._check_prefix(data)
+            self._check_name(data)
             self._check_source(data)
             self._check_target(data)
             self._parse_domains(data)
@@ -91,7 +96,7 @@ class Volume:
     @classmethod
     def update_name_dict(cls, data: dict, label: str) -> dict:
         volume = cls.parse(data)
-        volume.update_name(label)
+        volume.update_label(label)
         return volume.as_dict()
 
     @classmethod
@@ -117,7 +122,7 @@ class Volume:
 
     @property
     def type(self) -> str:
-        return self._dict.get("type", "")
+        return self._dict.get("type", MANAGED)
 
     @type.setter
     def type(self, tpe: str):
@@ -125,27 +130,28 @@ class Volume:
 
     @property
     def driver(self) -> str:
-        return self._dict.get("driver", "")
+        driver = self._dict.get("driver", "")
+        if not driver and self.type == MANAGED:
+            driver = "docker"
+        return driver
 
     @driver.setter
     def driver(self, driver: str):
         self._dict["driver"] = driver
 
     @property
-    def prefix(self) -> str:
-        return self._dict.get("prefix", "")
+    def name(self) -> str:
+        return self._dict.get("name", "")
 
-    @prefix.setter
-    def prefix(self, prefix: str):
-        self._dict["prefix"] = prefix
+    @name.setter
+    def name(self, name: str):
+        self._dict["name"] = name
 
     @property
-    def source(self) -> str:
-        return self._dict.get("source", "")
-
-    @source.setter
-    def source(self, source: str):
-        self._dict["source"] = source
+    def full_name(self) -> str:
+        if not self.name:
+            return ""
+        return sanitized_name(f"{self._label}-{self.name}")
 
     @property
     def target(self) -> str:
@@ -179,40 +185,28 @@ class Volume:
     def backup(self, backup: dict):
         self._dict["backup"] = backup
 
-    def update_name(self, label: str):
-        if not (prefix := self.prefix):
-            return
-        self.source = sanitized_name(f"{label}-{prefix}")
+    def update_label(self, label: str):
+        self._label = label
 
     def _check_type(self, data: dict):
-        tpe = data.get("type", "volume")
+        tpe = data.get("type", MANAGED)
         if tpe not in ALLOWED_TYPE:
-            raise ValueError("unknown value for 'volume.type'")
+            raise ValueError(f"Unknown value for 'volume.type': {tpe}")
         self.type = tpe
-        if tpe == "volume":
-            self.driver = data.get("driver", "local")
+        if tpe == MANAGED:
+            self.driver = data.get("driver", "docker")
 
-    def _check_prefix(self, data: dict):
-        if self.type == "tmpfs":
+    def _check_name(self, data: dict):
+        if self.type == TMPFS:
             # no source defined for "tmpfs" type
+            self.name = ""
             return
-        aliases = ("prefix", "source-prefix", "src-prefix")
+        aliases = ("prefix",)
         value = get_alias(data, aliases)
         if value:
-            self.prefix = value
-
-    def _check_source(self, data: dict):
-        if self.type == "tmpfs":
-            # no source for tmpfs
-            self.prefix = ""
-            self.source = ""
-            return
-        aliases = ("source", "src")
-        value = get_alias(data, aliases)
-        if value:
-            self.source = value
-        elif not self.prefix:
-            raise ValueError("missing key 'volume.source' or 'volume.prefix'")
+            self.name = value
+        elif not self.name:
+            raise ValueError("Missing key 'volume.name'")
 
     def _check_target(self, data: dict):
         aliases = ("target", "dest", "destination")
@@ -231,6 +225,3 @@ class Volume:
         self.options = {
             k: v for k, v in data.items() if k not in hyphenized_set(CHECKED_KEYS)
         }
-        # mode = 'rw' is only at mount time
-        if "mode" in self.options:
-            del self.options["mode"]

@@ -6,7 +6,7 @@ For global explanation of usage of the nua-config file based on an example, read
 
 This document aims to describe exhaustively the possible fields of a `nua-config` file. The nua-config file is intended to contain only a limited set of metadata, it is usefully supplemented with descriptive files (readme, changelog, info on the packager).
 
-Last revision: `nua-build version 0.5.18`
+Last revision: `nua-build version 0.5.19`
 
 The syntax used by default and through this document examples is the TOML language, but `nua-config` file can also be written with YAML and JSON formats.
 
@@ -449,36 +449,34 @@ Work in progress.
 
 ## Section `volume`
 
-Volumes can be either of type `bind`, managed by the user on the host, or of type `volume`, managed by a driver.
-A third type is `tmpfs` for RAM disks.
+Volumes can be either of 3 types
+    - `managed`, using a driver, for example the Docker volume management, the default type
+    - `directory`, using a directory local to the host, configured and managed by the user. It is equivalent to the Docker concept of `bind` volume,
+    - `tmpfs`, using a volatile RAM disk.
 
-- `volume` type using default `local` driver
-    - The volume is managed by the local Docker daemon
-    - `prefix` will be completed with the container instance identification to obtain the name of the volume in Docker list of volumes
-    - `target` is the path of the related folder inside the container
+- Parameters for `managed` type:
+    - `driver`: name of the driver. By default the value is `docker`, to use the Docker's "local" volume driver.
+    - `name`: for the `directory` type, path of the directory. For `managed` base name for the volume that will be completed with the container instance identification. The `tmpfs`type does not require a name.
+    - `target`: is the path of the related folder inside the container.
+    - `options`: optional dictionary of options specific to the driver.
+
+    - Example with a Docker managed volume:
 
     ```
     [[volume]]
-    type = "volume"
-    # driver = "local"  # default for "volume" type
     # Mount source (e.g. a volume name or a host path):
-    prefix = "hedgedoc_uploads"
+    name = "hedgedoc-uploads"
     # Container path:
     target = "/hedgedoc/public/uploads"
     ```
 
-- `volume` type using a driver
-    - The volume is managed by the driver, which requires specific options like remote address...
-    - `prefix` will be completed with the container instance identification to obtain the name of the volume in Docker list of volumes
-    - `target` is the path of the related folder inside the container
-
-    - Example with a remote `SSHFS` volume
+    - Example with a remote `SSHFS` volume, using docker driver "sshfs"
 
     ```
     [[volume]]
-    type = "volume"
+    type = "managed"
     driver = "sshfs"
-    prefix = "flask_uploads"
+    name = "flask_uploads"
     target = "/var/tmp/uploads"
         [[volume.options]]
         sshcmd = "user@example.com:/var/test"
@@ -486,29 +484,24 @@ A third type is `tmpfs` for RAM disks.
         IdentityFile= "/nua/some_private_key"
     ```
 
+    - Example with a local directory
 
-- `bind` type
-    - The volume is locally managed.
-    - `source` is the path to local directory
-    - `target` is the path of the related folder inside the container
     ```
     [[volume]]
-    type = "bind"
-    source = "/var/tmp/nua_test"
+    type = "directory"
+    name = "/var/nua/nua_test"
     target = "/var/tmp/mount_point"
     ```
 
+    - Example of a `tmpfs` volume
 
-- `tmpfs` type
-    - The volume is a RAM disk
-    - The size and mode of the disk must be configured
-    - `target` is the path of the related folder inside the container
     ```
     [[volume]]
     type = "tmpfs"
     target = "/var/lib/sample_www"
-    tmpfs_size = "2G"
-    tmpfs_mode = 1777
+        [[volume.options]]
+        tmpfs_size = "2G"
+        tmpfs_mode = 1777
     ```
 
 
