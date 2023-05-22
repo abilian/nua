@@ -5,7 +5,7 @@
 Should be run as:
 
 ```
-curl https://nua.rocks/install.py | sudo python3
+curl -L https://nua.rocks/install.py | sudo python3
 # or
 curl https://github.com/abilian/nua/raw/main/installer/install.py | sudo python3
 ```
