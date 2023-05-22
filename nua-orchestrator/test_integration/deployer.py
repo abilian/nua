@@ -8,7 +8,7 @@ import shutil
 import requests
 from typer.testing import CliRunner
 
-from nua.orchestrator.cli.main import app
+# from nua.orchestrator.cli.main import app
 from nua.orchestrator.utils import parse_any_format
 from nua.lib.exec import is_current_user
 from subprocess import run

@@ -2,7 +2,7 @@ from .backup_functions import bck_pg_dumpall
 from .backup_report import BackupReport
 
 # from .resource import Resource
-# from .volume import Volume
+from ..volume import Volume
 
 BCK_FUNCTION = {"pg_dumpall": bck_pg_dumpall}
 
@@ -28,7 +28,7 @@ def backup_resource(resource: dict) -> BackupReport:
     return function(resource)
 
 
-def backup_volume(volume) -> BackupReport:
+def backup_volume(volume: Volume) -> BackupReport:
     """Execute a backup from backup tag of a volume of a Resource."""
     backup_conf = volume.get("backup")
     if not backup_conf or not isinstance(backup_conf, dict):
