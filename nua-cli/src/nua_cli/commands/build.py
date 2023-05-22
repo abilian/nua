@@ -4,7 +4,7 @@ from cleez import Command
 from cleez.colors import bold
 
 from ..client import get_client
-from ._common import NUA_ENV, get_config, get_nua_host, sh, ssh
+from .common import NUA_ENV, get_config, get_nua_host, sh, ssh
 
 client = get_client()
 

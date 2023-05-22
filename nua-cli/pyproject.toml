@@ -32,15 +32,19 @@ tomli = "^2.0.1"
 
 # Used only for its SSH support
 fabric = "~3.0"
-# Pinned
-invoke = "~2.0"
+
+## Pinned
+#invoke = "~2.0"
 
 # Temp: use snoop in prod code
 snoop = "*"
 
 # CLI
-termcolor = "^2.3.0"
+#termcolor = "^2.3.0"
 cleez = "^0.1.9"
+
+# Temp: due to a mismatch between invoke and fabric
+decorator = "^5.1.1"
 
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
@@ -79,12 +83,11 @@ exclude = [
     '.nox', 'noxfile.py', 'tests',
 ]
 ignore_unused = [
-#    "setuptools",
-#    "wheel",
+    "decorator",
 ]
 ignore_missing = [
 ]
 ignore_transitive = [
-#    "packaging",
-#    "requests",
+    "nua_cli",
+    "invoke",
 ]

@@ -3,12 +3,20 @@ import sys
 from io import StringIO
 
 from cleez.colors import red
-from fabric import Connection
+from fabric import Connection as BaseConnection
+from invoke.runners import Result
 
-from nua_cli.commands._common import get_nua_host, get_nua_user
+from nua_cli.commands.common import get_nua_host, get_nua_user
 
 # Hardcoded for now
 NUA_CMD = "./env/bin/nua-orchestrator"
+
+
+class Connection(BaseConnection):
+    def run(self, command, **kwargs) -> Result:
+        result = super().run(command, **kwargs)
+        assert result
+        return result
 
 
 class Client:
@@ -22,11 +30,14 @@ class Client:
     #
     # Low level API
     #
-    def call_raw(self, method: str, **kw):
+    def call_raw(self, method: str, **kw) -> str:
         args = StringIO(json.dumps(kw))
         cmd = f"{NUA_CMD} rpc --raw {method}"
         r = self.connection.run(cmd, hide=True, in_stream=args)
-        return r.stdout
+        if r:
+            return r.stdout
+        else:
+            return ""
 
     def call(self, method: str, **kw):
         args = StringIO(json.dumps(kw))
