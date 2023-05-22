@@ -32,11 +32,13 @@ docker = "^6.0.1"
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
 nox = "*"
-types-setuptools = "*"
 
 # To please poetry
 platformdirs = "<3.0.0"
+
+# Types
 types-pyyaml = "^6.0.12.9"
+types-setuptools = "*"
 
 [tool.pytest.ini_options]
 filterwarnings = ["ignore:.*distutils package:DeprecationWarning", "ignore::DeprecationWarning"]
@@ -59,7 +61,7 @@ exclude = [
     'tests',
     "noxfile.py"
 ]
-ignore_obsolete = [
+ignore_unused = [
     "setuptools",
 ]
 ignore_missing = [

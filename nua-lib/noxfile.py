@@ -10,6 +10,8 @@ nox.options.reuse_existing_virtualenvs = True
 def lint(session: nox.Session) -> None:
     session.install(".")
     session.install("abilian-devtools")
+    # Temp (hopefully)
+    session.install("types-PyYAML")
     session.run("make", "lint", external=True)
 
 
