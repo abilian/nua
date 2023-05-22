@@ -1,6 +1,7 @@
 import os
 import shlex
 import subprocess
+import sys
 from pathlib import Path
 
 import tomli
@@ -9,6 +10,10 @@ from cleez.colors import dim
 # Hardcoded for now
 NUA_ENV = "/home/nua/env"
 ORCH_PATH = "/home/nua/env/bin/nua-orchestrator"
+
+if "NUA_HOST" not in os.environ:
+    print("NUA_HOST environment variable is not set.")
+    sys.exit(1)
 NUA_HOST = os.environ["NUA_HOST"]
 
 
