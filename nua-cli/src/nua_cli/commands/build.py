@@ -4,7 +4,7 @@ from cleez import Command
 from cleez.colors import bold
 
 from ..client import get_client
-from ._common import NUA_ENV, NUA_HOST, get_config, sh, ssh
+from ._common import NUA_ENV, get_config, get_nua_host, sh, ssh
 
 client = get_client()
 
@@ -38,7 +38,7 @@ class BuildCommand(Command):
     name = "build"
 
     def run(self):
-        host = NUA_HOST
+        host = get_nua_host()
         config = get_config()
         app_id = config["metadata"]["id"]
 

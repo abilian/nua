@@ -1,7 +1,6 @@
 import os
 import shlex
 import subprocess
-import sys
 from pathlib import Path
 
 import tomli
@@ -10,11 +9,6 @@ from cleez.colors import dim
 # Hardcoded for now
 NUA_ENV = "/home/nua/env"
 ORCH_PATH = "/home/nua/env/bin/nua-orchestrator"
-
-if "NUA_HOST" not in os.environ:
-    print("NUA_HOST environment variable is not set.")
-    sys.exit(1)
-NUA_HOST = os.environ["NUA_HOST"]
 
 
 #
@@ -47,3 +41,13 @@ def get_config() -> dict:
         config_file = Path("nua/nua-config.toml")
     config_data = config_file.read_text()
     return tomli.loads(config_data)
+
+
+def get_nua_host() -> str:
+    """Return the nua host."""
+    return os.environ.get("NUA_HOST", "localhost")
+
+
+def get_nua_user() -> str:
+    """Return the nua user on the Nua host."""
+    return os.environ.get("NUA_USER", "nua")

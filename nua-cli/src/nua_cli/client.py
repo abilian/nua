@@ -1,10 +1,11 @@
 import json
-import os
 import sys
 from io import StringIO
 
 from cleez.colors import red
 from fabric import Connection
+
+from nua_cli.commands._common import get_nua_host, get_nua_user
 
 # Hardcoded for now
 NUA_CMD = "./env/bin/nua-orchestrator"
@@ -14,11 +15,6 @@ class Client:
     connection: Connection
 
     def __init__(self, host: str = "", user: str = ""):
-        if not host:
-            host = os.environ.get("NUA_HOST", "localhost")
-        if not user:
-            user = os.environ.get("NUA_USER", "nua")
-
         self.host = host
         self.user = user
         self.connection = Connection(self.host, self.user)
@@ -72,6 +68,11 @@ _CLIENT = None
 
 def get_client(host: str = "", user: str = ""):
     global _CLIENT
+
+    if not host:
+        host = get_nua_host()
+    if not user:
+        user = get_nua_user()
 
     if not _CLIENT:
         _CLIENT = Client(host, user)
