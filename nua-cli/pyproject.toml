@@ -45,10 +45,7 @@ cleez = "^0.1.9"
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
 devtools = "*"
-types-setuptools = "*"
 
-# To please poetry
-platformdirs = "<3.0.0"
 
 [build-system]
 requires = ["poetry-core"]
@@ -81,7 +78,7 @@ exclude = [
 exclude = [
     '.nox', 'noxfile.py', 'tests',
 ]
-ignore_obsolete = [
+ignore_unused = [
 #    "setuptools",
 #    "wheel",
 ]

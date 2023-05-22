@@ -64,8 +64,8 @@ pyyaml = "^6"
 
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
-nox = "*"
 devtools = "*"
+
 types-paramiko = "*"
 types-requests = "*"
 
@@ -92,7 +92,7 @@ extend-ignore = [
 exclude = [
     '.nox', 'noxfile.py', 'tests',
 ]
-ignore_obsolete = [
+ignore_unused = [
     "nua-lib",
     "nua-agent",
     "nua-build",
