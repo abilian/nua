@@ -24,17 +24,11 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.10"
-setuptools = "*"
-packaging = "*"
+
 nua-lib = { path = "../nua-lib/", develop = true }
 
 [tool.poetry.group.dev.dependencies]
 abilian-devtools = "*"
-nox = "*"
-types-setuptools = "*"
-
-# Pinned for now
-platformdirs = "<3.0.0"
 
 [tool.poetry.scripts]
 app_builder = "nua.agent.scripts.app_builder:main"
@@ -65,7 +59,7 @@ exclude = [
     "tests",
     "noxfile.py",
 ]
-ignore_obsolete = [
+ignore_unused = [
     "setuptools",
     "nua-lib",
 ]
