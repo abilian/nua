@@ -10,11 +10,10 @@ tags = ["test", "html", "web", "static", "tmpfs"]
 license = "MIT"
 
 [build]
-document-root = "/nua/app/html"
-test = "python -c 'import flask_upload_tmpfs'"
+test = "python -c 'import flask_upload_tmpfs.main'"
 
 [run]
-start = "gunicorn --worker-tmp-dir /dev/shm --workers 2 -b :8000 flask_upload_tmpfs.wsgi:app"
+start = "gunicorn --worker-tmp-dir /dev/shm --workers 2 -b :8000 flask_upload_tmpfs.main:app"
 
 [port.web]
 container = 8000

@@ -1,9 +1,9 @@
 [[site]]
-image = "nua-flask-hello"
+image = "nua-flask-upload-tmpfs"
 domain = "test1.example.com"
 
 [[site]]
-image = "nua-flask-pg-via-orch"
+image = "nua-flask-upload-tmpfs"
 domain = "test2.example.com"
 
 [[site]]

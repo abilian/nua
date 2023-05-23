@@ -1,5 +1,3 @@
-from ..resource import Resource
-
 # from .resource import Resource
 from ..volume import Volume
 from .backup_functions import bck_pg_dumpall
