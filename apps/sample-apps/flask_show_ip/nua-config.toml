@@ -14,7 +14,7 @@ document-root = "/nua/app/html"
 test = "python -c 'import flask_show'"
 
 [run]
-start = "gunicorn --worker-tmp-dir /dev/shm --workers 1 -b :3000 flask_show.wsgi:app"
+start = "gunicorn --worker-tmp-dir /dev/shm --workers 1 -b :3000 flask_show:app"
 
 [env]
 MY_IP = { external_ip='true' }
