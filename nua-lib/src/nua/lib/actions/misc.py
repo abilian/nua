@@ -76,6 +76,7 @@ def install_source(
     """
     if is_local_dir(url):
         return Path(url).resolve()
+
     return download_extract(url, dest_dir, name, checksum)
 
 

@@ -9,18 +9,15 @@ from pathlib import Path
 from urllib.parse import urlparse
 from urllib.request import urlopen
 
-from jinja2 import Template
-
 from ..panic import Abort, info, show, warning
 from ..shell import sh
 from ..tool.state import verbosity
 from ..unarchiver import unarchive
 
+
 #
 # Other stuff
 #
-
-
 def _glob_extended(packages: list):
     """Expand glob patterns in a list of packages."""
     extended = []
@@ -179,33 +176,6 @@ def append_bashrc(home: str | Path, content: str):
     lines = f"# added by Nua script:\n{content}\n\n"
     with open(path, mode="a", encoding="utf8") as wfile:
         wfile.write(lines)
-
-
-def jinja2_render_file(template: str | Path, dest: str | Path, data: dict) -> bool:
-    """Render a Jinja2 template file."""
-    template_path = Path(template)
-    if not template_path.is_file():
-        raise FileNotFoundError(template_path)
-    dest_path = Path(dest)
-    j2_template = Template(
-        template_path.read_text(encoding="utf8"), keep_trailing_newline=True
-    )
-    dest_path.write_text(j2_template.render(data), encoding="utf8")
-    with verbosity(3):
-        show("Jinja2 render template from:", template)
-    return True
-
-
-def jinja2_render_from_str_template(
-    template: str, dest: str | Path, data: dict
-) -> bool:
-    """Render a Jinja2 template from a string."""
-    dest_path = Path(dest)
-    j2_template = Template(template, keep_trailing_newline=True)
-    dest_path.write_text(j2_template.render(data), encoding="utf8")
-    with verbosity(3):
-        show("Jinja2 render template from string")
-    return True
 
 
 def snake_format(name: str) -> str:

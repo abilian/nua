@@ -21,6 +21,7 @@ def install_nodejs(version: str = "16.x", keep_lists: bool = False):
     target = Path("/nua") / "install_node.sh"
     with urlopen(url) as remote:  # noqa S310
         target.write_bytes(remote.read())
+
     for cmd in (
         "bash /nua/install_node.sh",
         "apt-get install -y nodejs",
@@ -29,6 +30,7 @@ def install_nodejs(version: str = "16.x", keep_lists: bool = False):
         "/usr/bin/npm install -g --force node-gyp",
     ):
         sh(cmd)
+
     if not keep_lists:
         apt_remove_lists()
 

@@ -7,6 +7,7 @@ from .apt import (
     install_packages,
     installed_packages,
 )
+from .jinja import jinja2_render_file, jinja2_render_from_str_template
 from .misc import install_git_source, install_meta_packages, install_source
 from .nodejs import install_nodejs
 from .python import (
@@ -21,8 +22,6 @@ from .util import (
     camel_format,
     copy_from_package,
     download_extract,
-    jinja2_render_file,
-    jinja2_render_from_str_template,
     replace_in,
     snake_format,
     string_in,
