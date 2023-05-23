@@ -126,6 +126,7 @@ class DockerBuilder(Builder):
                 "NUA_TAG": nua_tag,
                 "NUA_BUILD_VERSION": __version__,
             }
+
             with verbosity(0):
                 info(f"Building image {nua_tag}")
             image_id = docker_stream_build(".", nua_tag, buildargs, labels)
@@ -139,21 +140,27 @@ class DockerBuilder(Builder):
             self.save(image, nua_tag)  # pyright: ignore
 
     def _copy_local_code(self):
-        if any((self.config.src_url, self.config.git_url)):
+        if self.config.src_url or self.config.git_url:
             return
-        files = [
-            item
-            for item in self.config.root_dir.glob("*")
-            if not item.name.startswith(".")
-            and item.name != "__pycache__"
-            and item.name != "nua"
-            and item.name not in set(nua_config_names())
-        ]
+
+        # TODO: more precise filtering based on .dockerignore
+        def keep(item):
+            if item.name == ".dockerignore":
+                return True
+            return (
+                not item.name.startswith(".")
+                and item.name != "__pycache__"
+                and item.name != "nua"
+                and item.name not in set(nua_config_names())
+            )
+
+        files = [item for item in self.config.root_dir.glob("*") if keep(item)]
         self._copy_items(files, self.build_dir)
 
     def _copy_manifest_files(self):
         if not self.config.manifest:
             return
+
         files = [self.config.root_dir / name for name in self.config.manifest]
         self._copy_items(files, self.build_dir)
 
@@ -169,14 +176,14 @@ class DockerBuilder(Builder):
         self._copy_items(files, self.build_dir / "nua")
 
     def _copy_items(self, paths: list[Path], dest_dir: Path):
-        for path in paths:
+        for path in sorted(paths):
             if path.is_file():
                 with verbosity(1):
-                    info("Copying file:", path.name)
+                    info(f"Copying: {path.name}")
                 copy2(path, dest_dir)
             elif path.is_dir():
                 with verbosity(1):
-                    info("Copying directory:", path.name)
+                    info(f"Copying: {path.name}/")
                 copytree(path, dest_dir / path.name, dirs_exist_ok=True)
             else:
                 raise BuilderError(f"File not found: {path}")
