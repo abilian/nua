@@ -1,5 +1,11 @@
 def elapsed(delta: float) -> str:
-    """Readable time string from duration in seconds."""
+    """Readable time string from duration in seconds.
+    >>> elapsed(123.456)
+    '2min 3s'
+    >>> elapsed(23.456)
+    '23.46s'
+    """
+
     seconds = int(delta)
     cent = int(round((delta - seconds) * 100))
     days, seconds = divmod(seconds, 86400)

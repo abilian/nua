@@ -5,7 +5,7 @@ future use in other message dispatching.
 
 
 red bold: only for errors or serious warnings
-    Abort()
+    raise Abort()
     warning()  # got a Warning: prefix
 
 red bold: warning lines

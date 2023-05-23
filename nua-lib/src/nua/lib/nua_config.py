@@ -291,7 +291,7 @@ class NuaConfig:
 
     @property
     def wrap_image(self) -> str:
-        """Optional  Docker image to be used as base for 'wrap' strategy.
+        """Optional container image to be used as base for 'wrap' strategy.
 
         If the 'base-image' metadata is defined, the build strategy is to add
         the '/nua/metadata/nua-config.json' file on the declared image,
