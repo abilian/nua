@@ -5,7 +5,6 @@ from pathlib import Path
 
 from nua.lib.actions import install_package_list, installed_packages
 from nua.lib.console import print_magenta, print_red
-from nua.lib.db.postgres_manager import NUA_PG_PWD_FILE
 from nua.lib.exec import mp_exec_as_postgres
 from nua.lib.gen_password import gen_password
 from nua.lib.panic import warning
@@ -18,6 +17,9 @@ POSTGRES_CONF_PATH = Path(f"/etc/postgresql/{PG_VERSION}/main")
 RE_5432 = re.compile(r"\s*port\s*=\s*5432\D")
 RE_COMMENT = re.compile(r"\s*#")
 RE_LISTEN = re.compile(r"\s*listen_addresses\s*=(.*)$")
+
+# S105 Possible hardcoded password
+NUA_PG_PWD_FILE = ".postgres_pwd"  # noqa S105
 
 
 def postgres_pwd() -> str:

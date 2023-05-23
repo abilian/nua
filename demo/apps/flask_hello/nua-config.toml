@@ -11,15 +11,10 @@ profile = ["test"]
 release = 3
 
 [build]
-document_root = "/nua/app/html"
 test = "python -c 'import flask_hello'"
 
 [run]
-start = "gunicorn --worker-tmp-dir /dev/shm --workers 2 -b :8000 flask_hello.wsgi:app"
-
-[docker]
-# parameters passed as a dict to docker run
-auto_remove = true
+start = "gunicorn --worker-tmp-dir /dev/shm --workers 2 -b :8000 flask_hello.main:app"
 
 [port.web]
 container = 8000

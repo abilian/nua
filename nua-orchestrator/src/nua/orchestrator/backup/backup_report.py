@@ -15,4 +15,4 @@ class BackupReport:
         if self.success:
             return f"Backup done for {self.node} to {self.message}"
         else:
-            return f"Backup failed for {self.node} : {self.message}"
+            return f"Backup failed for {self.node}: {self.message}"

@@ -4,9 +4,6 @@ from .service_base import ServiceBase
 
 
 class Mariadb(ServiceBase):
-    def __init__(self, options: dict):
-        super().__init__(options)
-
     def restart(self) -> bool:
         mariadb_restart_service()
         return True

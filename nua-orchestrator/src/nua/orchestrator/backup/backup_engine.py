@@ -1,8 +1,7 @@
-from .backup_functions import bck_pg_dumpall
-from .backup_report import BackupReport
-
 # from .resource import Resource
 from ..volume import Volume
+from .backup_functions import bck_pg_dumpall
+from .backup_report import BackupReport
 
 BCK_FUNCTION = {"pg_dumpall": bck_pg_dumpall}
 

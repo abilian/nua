@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 from nua.lib.docker import display_one_docker_img
 from nua.lib.panic import vprint
 from nua.lib.tool.state import verbosity
@@ -5,9 +7,9 @@ from nua.lib.tool.state import verbosity
 from ..docker_utils import pull_docker_image
 
 
+@dataclass(frozen=True)
 class ServiceBase:
-    def __init__(self, options: dict):
-        self.options = options
+    options: dict
 
     def aliases(self) -> list:
         return []
