@@ -44,19 +44,14 @@ from ..auto_install import detect_and_install
 
 # most inferred meta packages will be provided by plugins in the future:
 from ..meta_packages import meta_packages_requirements
-from ..templates import is_requiring_templates
 
 logging.basicConfig(level=logging.INFO)
 
 
-class BuilderApp:
+class AppBuilder:
     """Class to hold config and other state information during build."""
 
     def __init__(self):
-        if "nua_verbosity" in os.environ:
-            set_verbosity(int(os.environ["nua_verbosity"]))
-            with verbosity(3):
-                info("verbosity:", verbosity_level())
         set_packages_updated(False)
 
         self.build_dir = Path(NUA_BUILD_PATH)
@@ -82,6 +77,7 @@ class BuilderApp:
                 built = self.run_build_script(code_installed)
                 if (code_installed or built) and os.getuid() == 0:
                     chown_r("/nua/build", "nua")
+
         self.post_build()
         self.test_build()
         with verbosity(1):
@@ -166,6 +162,7 @@ class BuilderApp:
 
     def _write_start_script(self, start_cmd: list):
         data = deepcopy(self.config.metadata_rendered)
+        data_str = json.dumps(data, indent=4)
         cwd = repr(str(self.source))
         cmd = dedent(
             f"""\
@@ -174,7 +171,7 @@ class BuilderApp:
         from nua.lib.exec import exec_as_nua
         from nua.agent.templates import render_config_templates
 
-        render_config_templates({data})
+        render_config_templates({data_str})
         exec_as_nua({start_cmd},
                     cwd={cwd},
                     env=os.environ,)
@@ -182,15 +179,32 @@ class BuilderApp:
         )
         script_path = Path(NUA_SCRIPTS_PATH) / "start.py"
         script_path.write_text(cmd)
+
         # anticipate future change for start script:
-        if is_requiring_templates():
+        if self.is_requiring_templates():
             self._dump_template_data()
         else:
             self._write_shell_start_script(start_cmd)
 
+    def is_requiring_templates(self) -> bool:
+        templates_folder = Path("/nua/templates")
+
+        if not templates_folder.is_dir():
+            return False
+
+        for file in templates_folder.rglob("*"):
+            if not file.is_file():
+                continue
+            if file.name.startswith("."):
+                continue
+            return True
+
+        return False
+
     def _dump_template_data(self):
         with verbosity(1):
             vprint("debug: this app is requiring templates")
+
         Path("/nua/metadata/template.json").write_text(
             json.dumps(
                 self.config.metadata_rendered,
@@ -205,6 +219,7 @@ class BuilderApp:
         """Experimental, write a shell start command for dedicated dockerfile."""
         with verbosity(1):
             vprint("debug: write start.sh script")
+
         work_dir = repr(str(self.source.resolve()))
         # note: /bin/sh (dash on debian) does not support 'source', so using '.'
         cmd = [
@@ -245,14 +260,16 @@ class BuilderApp:
     def run_build_script(self, code_installed: bool) -> bool:
         """Process the 'build.py' script if exists or the build-command.
 
-        The script is run from the directory of the nua-config.toml
-        file.
+        The script is run from the directory of the nua-config.toml file.
         """
         pip_installed = install_pip_packages(self.config.pip_install)
+
         if self.config.build_command:
             return self.build_with_command()
+
         if script_path := self.find_build_script():
             return self.build_with_script(script_path)
+
         return self.build_with_auto_detection(code_installed, pip_installed)
 
     def build_with_command(self) -> bool:
@@ -268,6 +285,7 @@ class BuilderApp:
                 exec_as_root(self.config.build_command, env=env, timeout=1800)
             else:
                 exec_as_nua(self.config.build_command, env=env, timeout=1800)
+
         return True
 
     def build_with_script(self, script_path: Path) -> bool:
@@ -278,6 +296,7 @@ class BuilderApp:
             exec_as_root(cmd, env=env, timeout=1800)
         else:
             exec_as_nua(cmd, env=env, timeout=1800)
+
         return True
 
     def build_with_auto_detection(
@@ -292,15 +311,16 @@ class BuilderApp:
         """
         if code_installed:
             return detect_and_install(self.source)
+
         if not any((pip_installed, code_installed)):
             # no package installed through install_pip_packages and
             # no other way. Let's assume there is a local project.
             show("Try install from some local project")
             return detect_and_install(".")
+
         return False
 
     def install_project_code(self) -> bool:
-        installed = False
         if self.config.src_url:
             self.source = install_source(
                 self.config.src_url,
@@ -308,20 +328,23 @@ class BuilderApp:
                 self.config.name,
                 self.config.checksum,
             )
-            installed = True
-        elif self.config.project:
+            return True
+
+        if self.config.project:
             self.source = install_source(
                 self.config.project,
                 "/nua/build",
                 self.config.name,
             )
-            installed = True
-        elif self.config.git_url:
+            return True
+
+        if self.config.git_url:
             self.source = install_git_source(
                 self.config.git_url, self.config.git_branch, "/nua/build"
             )
-            installed = True
-        return installed
+            return True
+
+        return False
 
     def merge_files(self):
         """Copy content of various /nua/build/nua subfolders in /nua."""
@@ -330,6 +353,7 @@ class BuilderApp:
             with verbosity(3):
                 print("not a directory: /nua/build/nua")
             return
+
         for item in root.iterdir():
             if item.name == "nua" or not item.is_dir():
                 continue
@@ -348,11 +372,17 @@ class BuilderApp:
         command = self.config.build.get("test", default)
         if not command:
             return
+
         show("Execution of build test command:", command)
         sh(command, show_cmd=False)
 
 
 def main() -> None:
     """Setup app in Nua container."""
-    builder = BuilderApp()
+    if "nua_verbosity" in os.environ:
+        set_verbosity(int(os.environ["nua_verbosity"]))
+        with verbosity(3):
+            info("verbosity:", verbosity_level())
+
+    builder = AppBuilder()
     builder.build()
