@@ -104,7 +104,7 @@ def image_labels(reference: str) -> dict:
 
 
 def display_docker_img(image_name: str):
-    important(f"Docker image for '{image_name}':")
+    important(f"Container image for '{image_name}':")
     client = DockerClient.from_env()
     result = client.images.list(filters={"reference": image_name})
     if not result:
