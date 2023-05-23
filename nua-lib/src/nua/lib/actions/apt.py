@@ -16,17 +16,21 @@ def install_build_packages(
 ):
     """Install packages needed for building a project."""
     success = True
+
     if installed:
         already = set(installed)
     else:
         already = set()
+
     if isinstance(packages, str):
         packages = packages.strip().split()
+
     needed = [package for package in packages if package not in already]
     if needed:
         with verbosity(2):
             show("Install temporary build packages")
         _install_packages(needed)
+
     try:
         yield
     except SystemExit:
