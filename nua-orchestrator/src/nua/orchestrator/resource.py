@@ -329,7 +329,9 @@ class Resource(dict):
         return self._merge_volumes_lists(base_list, self.volumes)
 
     def _merge_volumes_lists(
-        self, base_list: list[dict], update_list: list[dict]
+        self,
+        base_list: list[dict],
+        update_list: list[dict],
     ) -> list[dict]:
         # filter empty elements
         base = [v for v in base_list if v]

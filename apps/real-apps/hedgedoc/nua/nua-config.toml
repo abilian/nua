@@ -2,7 +2,7 @@
 id = "hedgedoc"
 version = "1.9.7"
 # Nota: version 1.9.6 seems broken since 1.9.7
-release = 3
+release = 4
 title = "HedgeDoc"
 author = "HedgeDoc authors"
 tagline = "The best platform to write and share markdown"
@@ -89,14 +89,7 @@ interval = 10
 
 [[volume]]
 # declare a local volume for plublic uploads
-# bind example: type = "bind"
-type = "volume"
-
-# Name of the driver used to create the volume: (for type == "volume")
-# driver = "local"  # default for "volume" type
-# Mount source (e.g. a volume name or a host path):
-prefix = "hedgedoc_uploads"
-# Container path:
+name = "hedgedoc_uploads"
 target = "/hedgedoc/public/uploads"
 
 [volume.backup]

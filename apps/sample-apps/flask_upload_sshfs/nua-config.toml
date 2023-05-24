@@ -1,7 +1,7 @@
 [metadata]
 id = "flask-upload-sshfs"
 version = "1.0"
-release = 3
+release = 4
 title = "Flask test upload on sshfs volume"
 author = "Nua testers"
 tagline = "Nua test with Flask and mount - sshfs"
@@ -24,11 +24,11 @@ auto_remove = true
 container = 80
 
 [[volume]]
-name = "flask_uploads"
+type = "managed"
 driver = "sshfs"
-type = "volume"
-dst = "/var/tmp/uploads"
-[[volume.options]]
-sshcmd = "user@remote.com:/var/test"
-# password = "testpassword"  # if passaword auth
-IdentityFile= "/nua/some_private_key"
+name = "flask_uploads"
+target = "/var/tmp/uploads"
+    [[volume.options]]
+    sshcmd = "user@remote.com:/var/test"
+    # password = "testpassword"  # if passaword auth
+    IdentityFile= "/nua/some_private_key"

@@ -16,7 +16,8 @@ NUA_PROPERTIES = {
 def configure_db(resource: Resource):
     # resource.image was set earlier at detect requirement stage
     # create volume:
-    resource.volumes = [_make_volume(resource)]
+    volume = _make_volume(resource)
+    resource.volumes = [volume.as_dict()]
     # other options
     # docker params:
     resource.docker = {
@@ -39,12 +40,13 @@ def configure_db(resource: Resource):
     }
 
 
-def _make_volume(resource: Resource) -> dict:
+def _make_volume(resource: Resource) -> Volume:
     volume = Volume()
-    volume.type = "volume"
-    volume.driver = "local"
+    volume.type = "managed"
+    volume.driver = "docker"
     # at this stage, network_name is defined
-    volume.source = f"{resource.container_name}-data"
+    volume.name = "data"
+    volume.label = resource.container_name
     # target of MongoDB images default configuration
     volume.target = "/data/db"
-    return volume.as_dict()
+    return volume

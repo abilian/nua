@@ -30,7 +30,7 @@ class AppBackup:
     def _backup_resource_parts(self, resource: Resource):
         for volume_dict in resource.volumes:
             volume = Volume.from_dict(volume_dict)
-            self.reports.append(backup_volume(volume))
+            self.reports.append(backup_volume(resource, volume))
         self.reports.append(backup_resource(resource))
 
     def _summarize(self):

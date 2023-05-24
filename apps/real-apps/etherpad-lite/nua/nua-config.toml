@@ -1,7 +1,7 @@
 [metadata]
 id = "etherpad-lite"
 version = "1.8.18"
-release = 1
+release = 2
 title = "etherpad-lite"
 author = "etherpad-lite authors"
 tagline = "A real-time collaborative editor for the web"

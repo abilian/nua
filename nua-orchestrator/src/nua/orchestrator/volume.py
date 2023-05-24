@@ -7,7 +7,7 @@ from typing import Any
 from nua.lib.console import print_red
 from nua.lib.panic import Abort
 
-from .utils import get_alias, hyphenized_set, sanitized_name
+from .utils import get_alias, sanitized_name
 
 # later, add 'npipe' when managed:
 MANAGED = "managed"
@@ -39,21 +39,29 @@ class Volume:
     container or a Resource container."""
 
     def __init__(self):
-        self._dict = {}
+        self._dict: dict[str, Any] = {}
 
     def __str__(self) -> str:
-        return pformat(self._dict)
+        lst = ["  "]
+        lst.append(f"type={self.type}")
+        if self.driver:
+            lst.append(f"driver={self.driver}")
+        if self.full_name:
+            lst.append(f"full_name={self.full_name}")
+        if self.domains:
+            lst.append("\n   domains: " + ", ".join(self.domains))
+        return " ".join(lst)
 
-    def __setitem__(self, key: int | str, item: Any):
+    def __setitem__(self, key: str, item: Any):
         self._dict[key] = item
 
-    def __getitem__(self, key: int | str) -> Any:
+    def __getitem__(self, key: str) -> Any:
         return self._dict[key]
 
     def has_key(self, key: int | str) -> bool:
         return key in self._dict
 
-    def get(self, key: int | str, default=None) -> Any:
+    def get(self, key: str, default=None) -> Any:
         return self._dict.get(key, default)
 
     @classmethod
@@ -75,7 +83,6 @@ class Volume:
         try:
             self._check_type(data)
             self._check_name(data)
-            self._check_source(data)
             self._check_target(data)
             self._parse_domains(data)
             self._parse_options(data)
@@ -96,20 +103,13 @@ class Volume:
     @classmethod
     def update_name_dict(cls, data: dict, label: str) -> dict:
         volume = cls.parse(data)
-        volume.update_label(label)
+        volume.label = label
         return volume.as_dict()
 
     @classmethod
     def string(cls, data: dict) -> str:
         volume = cls.parse(data)
-        lst = ["  "]
-        lst.append(f"type={volume.type}")
-        if volume.driver:
-            lst.append(f"driver={volume.driver}")
-        lst.append(f"source={volume.source}")
-        if volume.domains:
-            lst.append("\n   domains: " + ", ".join(volume.domains))
-        return " ".join(lst)
+        return str(volume)
 
     @classmethod
     def from_dict(cls, data: dict) -> Volume:
@@ -127,6 +127,10 @@ class Volume:
     @type.setter
     def type(self, tpe: str):
         self._dict["type"] = tpe
+
+    @property
+    def is_managed(self) -> bool:
+        return self.type == MANAGED
 
     @property
     def driver(self) -> str:
@@ -148,10 +152,20 @@ class Volume:
         self._dict["name"] = name
 
     @property
+    def label(self) -> str:
+        return self._dict.get("label", "")
+
+    @label.setter
+    def label(self, label: str):
+        self._dict["label"] = label
+
+    @property
     def full_name(self) -> str:
         if not self.name:
             return ""
-        return sanitized_name(f"{self._label}-{self.name}")
+        if self.type == DIRECTORY:
+            return self.name
+        return sanitized_name(f"{self.label}-{self.name}")
 
     @property
     def target(self) -> str:
@@ -184,9 +198,6 @@ class Volume:
     @backup.setter
     def backup(self, backup: dict):
         self._dict["backup"] = backup
-
-    def update_label(self, label: str):
-        self._label = label
 
     def _check_type(self, data: dict):
         tpe = data.get("type", MANAGED)
@@ -222,6 +233,4 @@ class Volume:
         self.backup = data.get("backup", {})
 
     def _parse_options(self, data: dict):
-        self.options = {
-            k: v for k, v in data.items() if k not in hyphenized_set(CHECKED_KEYS)
-        }
+        self.options = data.get("option", {})

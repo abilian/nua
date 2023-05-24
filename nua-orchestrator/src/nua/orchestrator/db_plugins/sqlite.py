@@ -15,24 +15,25 @@ NUA_PROPERTIES = {
 def configure_db(resource: Resource):
     # create volume:
     sqlite_volume = _make_volume(resource)
-    resource.volume_declaration = [sqlite_volume]
+    resource.volume_declaration = [sqlite_volume.as_dict()]
     # assign keys in (env) for create or retrieve persistent values
     resource.env = {
-        "SQLITE_DIR": sqlite_volume["target"],
-        "SQLITE_SOURCE": sqlite_volume["source"],
+        "SQLITE_DIR": sqlite_volume.target,
+        "SQLITE_SOURCE": sqlite_volume.full_name,
         "SQLITE_DB": {"unique_db": True, "persist": True},
     }
 
 
-def _make_volume(resource: Resource) -> dict:
+def _make_volume(resource: Resource) -> Volume:
     volume = Volume()
-    volume.type = "volume"
-    volume.driver = "local"
+    volume.type = "managed"
+    volume.driver = "docker"
     # at this stage, network_name is defined
-    volume.source = f"{resource.container_name}-data"
+    volume.name = "data"
+    volume.label = resource.container_name
     # target of SQLite
     volume.target = "/nua/app/sqlite"
-    return volume.as_dict()
+    return volume
 
 
 # def setup_db(resource: Resource):

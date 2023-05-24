@@ -13,6 +13,7 @@ from .. import config
 from ..app_instance import AppInstance
 from ..constants import NUA_ORCH_ID, NUA_ORCHESTRATOR_TAG
 from ..utils import image_size_repr, size_unit
+from ..volume import Volume
 from .model.auth import User
 from .model.deployconfig import (
     ACTIVE,
@@ -295,16 +296,13 @@ def list_instances_container_running():
     return [inst.container for inst in list_instances_all() if inst.state == RUNNING]
 
 
-def list_instances_container_local_active_volumes() -> list:
+def list_instances_container_local_active_volumes() -> list[Volume]:
     """Return list of local mounted volumes.
 
     Volumes with properties:
     - required by active instances,
-    - locally mounted ('local' driver), 'volume' type)
+    - locally mounted ('docker' driver), 'managed' type)
     - unique per 'source' key.
-
-    A 'source' volume may be mounted on several instances. So, if still required by
-    another instance, should not be unmounted when unmounting an instance.
     """
     volumes_dict = {}
     for instance in list_instances_all_active():
@@ -312,56 +310,56 @@ def list_instances_container_local_active_volumes() -> list:
         app = AppInstance(instance.site_config)
 
         # for volume in site.rebased_volumes_upon_nua_conf():
-        for volume in app.volumes:
-            if volume["type"] == "volume" and volume.get("driver", "") == "local":
+        for volume_definition in app.volumes:
+            volume = Volume.parse(volume_definition)
+            if volume.is_managed and volume.driver == "docker":
                 _update_volumes_domains(volumes_dict, volume, instance.domain)
     return list(volumes_dict.values())
 
 
-def _update_volumes_domains(volumes_dict: dict, volume: dict, domain: str):
-    source = volume["source"]
-    known_volume = volumes_dict.get(source, volume)
+def _update_volumes_domains(volumes_dict: dict, volume: Volume, domain: str):
+    name = volume.full_name
+    known_volume = volumes_dict.get(name, volume)
     domains = known_volume.get("domains", [])
     domains.append(domain)
     known_volume["domains"] = domains
-    volumes_dict[source] = known_volume
+    volumes_dict[name] = known_volume
 
 
-def list_instances_container_active_volumes() -> list:
-    """Return list of mounted volumes or binds.
+def list_instances_container_active_volumes() -> list[Volume]:
+    """Return list of mounted volumes or mounted local directories.
 
     Volumes with properties:
     - required by active instances,
-    - unique per 'source' key.
-
-    A 'source' volume may be mounted on several instances. So, if still required by
-    another instance, should not be unmounted when unmounting an instance.
+    - unique per 'full_name' key.
     """
     volumes_dict = {}
     containers_dict = {}
     for instance in list_instances_all_active():
         # for volume in volumes_merge_config(instance.site_config):
         app = AppInstance.from_dict(instance.site_config)
-        for volume in app.volumes:
-            if volume["type"] == "tmpfs":
+        for volume_definition in app.volumes:
+            volume = Volume.parse(volume_definition)
+            if volume.type == "tmpfs":
                 continue
-            source = volume["source"]
+            source = volume.full_name
             volumes_dict[source] = volume
             domains = containers_dict.get(source, [])
             domains.append(instance.domain)
             containers_dict[source] = domains
         for resource in app.resources:
-            for volume in resource.volumes:
-                if volume["type"] == "tmpfs":
+            for volume_definition in resource.volumes:
+                volume = Volume.parse(volume_definition)
+                if volume.type == "tmpfs":
                     continue
-                source = volume["source"]
+                source = volume.full_name
                 volumes_dict[source] = volume
                 domains = containers_dict.get(source, [])
                 domains.append(instance.domain)
                 containers_dict[source] = domains
 
     for source, volume in volumes_dict.items():
-        volume["domains"] = containers_dict[source]
+        volume.domains = containers_dict[source]
     return list(volumes_dict.values())
 
 

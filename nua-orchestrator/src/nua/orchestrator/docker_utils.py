@@ -15,6 +15,7 @@ from docker import DockerClient
 from docker.errors import APIError, ImageNotFound, NotFound
 from docker.models.containers import Container
 from docker.models.images import Image
+from docker.models.volumes import Volume as DockerVolume
 from nua.lib.console import print_red
 from nua.lib.docker import docker_require
 from nua.lib.elapsed import elapsed
@@ -177,7 +178,7 @@ def _docker_restart_container(container: Container):
         warning(f"Restarting container error: {e}")
 
 
-def _docker_remove_container(name: str, force=False, volume=False):
+def _docker_remove_container(name: str, force: bool = False, volume: bool = False):
     if force:
         with verbosity(0):
             warning(f"removing container with '--force': {name}")
@@ -481,11 +482,11 @@ def docker_exec_checked(container: Container, params: dict, output: io.BufferedI
 #         raise RuntimeError(f"Test of container failed:\ndocker logs {container.id}")
 
 
-def docker_volume_list(name: str) -> list:
+def docker_volume_list(name: str) -> list[DockerVolume]:
     client = DockerClient.from_env()
-    lst = client.volumes.list(filters={"name": name})
+    pre_list = client.volumes.list(filters={"name": name})
     # filter match is not equality
-    return [vol for vol in lst if vol.name == name]
+    return [vol for vol in pre_list if vol.name == name]
 
 
 def docker_remove_volume_by_source(source: str):
@@ -497,36 +498,41 @@ def docker_remove_volume_by_source(source: str):
 
 
 def docker_volume_create(volume: Volume):
-    found = docker_volume_list(volume.source)
+    found = docker_volume_list(volume.full_name)
     if not found:
         docker_volume_create_new(volume)
 
 
 def docker_volume_create_new(volume: Volume):
-    """Create a new volume of type "volume"."""
-    if volume.driver != "local" and not install_plugin(volume.driver):
-        # assuming it is the name of a plugin
-        raise Abort(f"Install of Docker's plugin '{volume.driver}' failed.")
+    """Create a new volume of type "managed"."""
+    if volume.driver in {"docker", "local"}:
+        driver = "local"
+    else:
+        driver = volume.driver
 
+    if driver != "local" and not install_plugin(driver):
+        # assuming it is the name of a plugin
+        raise Abort(f"Install of Docker's plugin '{driver}' failed.")
     client = DockerClient.from_env()
     client.volumes.create(
-        name=volume.source,
-        driver=volume.driver,
+        name=volume.full_name,
+        driver=driver,
         # driver's options, using format of python-docker:
         driver_opts=volume.options,
     )
 
 
 def docker_volume_create_local_dir(volume: Volume):
-    """For volumes of type "bind", create a local directory on the host if
+    """For volumes of type "directory", create a local directory on the host if
     needed.
 
-    This my use more options in future versions.
+    May use more options.
     """
-    if Path(volume.source).exists():
+    path = volume.full_name
+    if Path(path).exists():
         return
-    mkdir_p(volume.source)
-    chmod_r(volume.source, 0o644, 0o755)
+    mkdir_p(path)
+    chmod_r(path, 0o644, 0o755)
 
 
 # def docker_tmpfs_create(volume_opt: dict):
@@ -544,13 +550,13 @@ def docker_volume_create_local_dir(volume: Volume):
 def docker_volume_create_or_use(volume_params: dict):
     """Return an useable/mountable docker volume.
 
-    The strategy depends on the volume type: "bind", "volume", or
+    The strategy depends on the volume type: "managed", "directory", or
     "tmpfs".
     """
     volume = Volume.parse(volume_params)
-    if volume.type == "volume":
+    if volume.is_managed:
         return docker_volume_create(volume)
-    if volume.type == "bind":
+    if volume.type == "directory":
         return docker_volume_create_local_dir(volume)
     # for "tmpfs", volumes do not need to be created before
     # container loading
@@ -562,15 +568,15 @@ def docker_volume_prune(volume_opt: dict):
     Beware: deleting data !
     """
     volume = Volume.parse(volume_opt)
-    if volume.type != "volume" or volume.driver != "local":
-        # todo: later, manage bind volumes
+    if not volume.is_managed or volume.driver not in {"docker", "local"}:
+        # maybe later manage directory volumes
         return
-    name = volume.source
+    name = volume.full_name
     try:
         client = DockerClient.from_env()
-        lst = client.volumes.list(filters={"name": name})
+        pre_list = client.volumes.list(filters={"name": name})
         # beware: filter match is not equality
-        found = [vol for vol in lst if vol.name == name]
+        found = [vol for vol in pre_list if vol.name == name]
         if found:
             # shoud be only one.
             docker_volume = found[0]
