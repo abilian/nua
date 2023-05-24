@@ -12,7 +12,7 @@ test, test1, test2
   - or, simply do something like:
        perl -pi -e 's/example.com/my-test-domain.com/g' *.toml
 
-s
+
 Also remove certbot/ssl:
     export NUA_CERTBOT_STRATEGY="none"
 
