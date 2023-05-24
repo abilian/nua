@@ -130,11 +130,11 @@ class Resource(dict):
         self["port_list"] = port_list
 
     @property
-    def volumes(self) -> list:
+    def volume(self) -> list:
         return self.get("volume", [])
 
-    @volumes.setter
-    def volumes(self, volumes: list):
+    @volume.setter
+    def volume(self, volumes: list):
         self["volume"] = volumes
 
     @property
@@ -314,19 +314,19 @@ class Resource(dict):
 
     def _normalize_volumes(self):
         if "volume" not in self:
-            self.volumes = []
+            self.volume = []
             return
-        if not isinstance(self.volumes, list):
+        if not isinstance(self.volume, list):
             raise Abort("AppInstance['volume'] must be a list")
 
         # filter empty elements
-        volume_list = [v for v in self.volumes if v]
-        self.volumes = Volume.normalize_list(volume_list)
+        volume_list = [v for v in self.volume if v]
+        self.volume = Volume.normalize_list(volume_list)
 
     def rebased_volumes_upon_package_conf(self, package_dict: dict) -> list:
         """warning: here, no update of self data"""
         base_list = package_dict.get("volume") or []
-        return self._merge_volumes_lists(base_list, self.volumes)
+        return self._merge_volumes_lists(base_list, self.volume)
 
     def _merge_volumes_lists(
         self, base_list: list[dict], update_list: list[dict]
@@ -381,11 +381,11 @@ class Resource(dict):
             )
 
         vol_dic = {}
-        for orig_vol in self.volumes:
+        for orig_vol in self.volume:
             vol_dic[orig_vol["target"]] = orig_vol
         for update_vol in value:
             vol_dic[update_vol["target"]] = update_vol
-        self.volumes = list(vol_dic.values())
+        self.volume = list(vol_dic.values())
 
     def _update_from_site_declaration_env(self, env_update_dict: Any):
         """For Resource only, make 'env' dict from AppInstance declaration and

@@ -152,7 +152,7 @@ class AppManagement:
 
     def do_restore(self, resource: Resource) -> list:
         reports = []
-        for volume_dict in resource.volumes:
+        for volume_dict in resource.volume:
             volume = Volume.from_dict(volume_dict)
             # reports.append(backup_volume(volume))
             print("WIP pseudo restore", volume)

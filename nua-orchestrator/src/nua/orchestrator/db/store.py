@@ -309,10 +309,10 @@ def list_instances_container_local_active_volumes() -> list:
     volumes_dict = {}
     for instance in list_instances_all_active():
         # for volume in volumes_merge_config(instance.site_config):
-        app = AppInstance(instance.site_config)
+        site = AppInstance(instance.site_config)
 
         # for volume in site.rebased_volumes_upon_nua_conf():
-        for volume in app.volumes:
+        for volume in site.volume:
             if volume["type"] == "volume" and volume.get("driver", "") == "local":
                 _update_volumes_domains(volumes_dict, volume, instance.domain)
     return list(volumes_dict.values())
@@ -341,8 +341,8 @@ def list_instances_container_active_volumes() -> list:
     containers_dict = {}
     for instance in list_instances_all_active():
         # for volume in volumes_merge_config(instance.site_config):
-        app = AppInstance.from_dict(instance.site_config)
-        for volume in app.volumes:
+        site = AppInstance.from_dict(instance.site_config)
+        for volume in site.volume:
             if volume["type"] == "tmpfs":
                 continue
             source = volume["source"]
@@ -350,8 +350,8 @@ def list_instances_container_active_volumes() -> list:
             domains = containers_dict.get(source, [])
             domains.append(instance.domain)
             containers_dict[source] = domains
-        for resource in app.resources:
-            for volume in resource.volumes:
+        for resource in site.resources:
+            for volume in resource.volume:
                 if volume["type"] == "tmpfs":
                     continue
                 source = volume["source"]

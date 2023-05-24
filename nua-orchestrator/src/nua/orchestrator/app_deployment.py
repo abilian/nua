@@ -1114,7 +1114,7 @@ class AppDeployment:
     def merge_volume_only_resources(self, app: AppInstance):
         for resource in app.resources:
             if resource.volume_declaration:
-                app.volumes = app.volumes + resource.volume_declaration
+                app.volume = app.volume + resource.volume_declaration
 
     def start_main_app_container(self, app: AppInstance):
         # volumes need to be mounted before beeing passed as arguments to

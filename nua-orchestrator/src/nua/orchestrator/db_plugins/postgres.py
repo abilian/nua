@@ -16,7 +16,7 @@ NUA_PROPERTIES = {
 def configure_db(resource: Resource):
     # resource.image was set earlier at detect requirement stage
     # create volume:
-    resource.volumes = [_make_volume(resource)]
+    resource.volume = [_make_volume(resource)]
     # other options
     # docker params:
     resource.docker = {

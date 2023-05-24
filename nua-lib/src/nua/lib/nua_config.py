@@ -414,7 +414,7 @@ class NuaConfig:
     # volumes declaration ###########################################
 
     @property
-    def volumes(self) -> list:
+    def volume(self) -> list:
         """The list of declared volumes."""
         return self._data.get("volume", [])
 

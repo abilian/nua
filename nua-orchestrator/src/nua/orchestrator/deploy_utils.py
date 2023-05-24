@@ -99,9 +99,9 @@ def port_allocator(start_ports: int, end_ports: int, allocated_ports: set) -> Ca
 
 
 def mount_resource_volumes(rsite: Resource) -> list:
-    create_docker_volumes(rsite.volumes)
+    create_docker_volumes(rsite.volume)
     mounted_volumes = []
-    for volume_params in rsite.volumes:
+    for volume_params in rsite.volume:
         mounted_volumes.append(new_docker_mount(volume_params))
     return mounted_volumes
 

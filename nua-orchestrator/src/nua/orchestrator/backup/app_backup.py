@@ -28,7 +28,7 @@ class AppBackup:
         self._store_in_app()
 
     def _backup_resource_parts(self, resource: Resource):
-        for volume_dict in resource.volumes:
+        for volume_dict in resource.volume:
             volume = Volume.from_dict(volume_dict)
             self.reports.append(backup_volume(volume))
         self.reports.append(backup_resource(resource))
