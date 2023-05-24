@@ -1,7 +1,7 @@
 [metadata]
 id = "flask-sqla-sqlite-bind"
 version = "1.0"
-release = 5
+release = 6
 title = "Nua test with sqlalchemy, sqlite on bind volume"
 author = "Nua testers"
 tagline = "Nua test with sqlalchemy, sqlite on bind volume"
@@ -26,11 +26,6 @@ auto_remove = true
 container = 5000
 
 [[volume]]
-# The mount type (bind / volume / tmpfs / npipe). Default: volume :
-type = "bind"
-# Name of the driver used to create the volume: (for type == "volume")
-# driver = "local"
-# Mount source (e.g. a volume name or a host path):
-source = "/var/tmp"
-# Container path:
+type = "directory"
+name = "/var/tmp"
 target = "/nua/app/dbs"

@@ -1,7 +1,7 @@
 [metadata]
 id = "dolibarr-mariadb-wrap"
 version = "16.0.4"
-release = 3
+release = 4
 title = "Dolibarr (for mariadb), wrap build based on tuxgazy Docker image"
 author = "Dolibarr developers"
 tagline = "Open Source ERP & CRM for business"
@@ -38,24 +38,12 @@ timeout = 30
 retries = 3
 
 [[volume]]
-# declare a local volume for plublic uploads
-# type = "bind"
-# type = "volume" -> the default
-# Name of the driver used to create the volume: (for type == "volume")
-# driver = "local" -> the default
-# Mount source (e.g. a volume name or a host path):
-prefix = "dolibarr_custom"
+name = "dolibarr_custom"
 # Container path:
 target = "/var/www/html/custom"
 
 [[volume]]
-# declare a local volume for plublic uploads
-# type = "bind"
-# type = "volume" -> the default
-# Name of the driver used to create the volume: (for type == "volume")
-# driver = "local" -> the default
-# Mount source (e.g. a volume name or a host path):
-prefix = "dolibarr_documents"
+name = "dolibarr_documents"
 # Container path:
 target = "/var/www/documents"
 
