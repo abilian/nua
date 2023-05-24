@@ -115,7 +115,7 @@ def display_docker_img(image_name: str):
 
 
 def display_one_docker_img(image: Image):
-    sid = str, image.id.split(":")[-1][:10]  # pyright: ignore
+    sid = image.id.split(":")[-1][:10]  # pyright: ignore
     tags = "|".join(image.tags)
     crea = datetime.fromisoformat(image_created_as_iso(image)).isoformat(" ")
     # Note on size of image: Docker uses 10**6 for MB, not 2**20
