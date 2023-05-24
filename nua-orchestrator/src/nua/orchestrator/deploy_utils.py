@@ -114,10 +114,10 @@ def extra_host_gateway() -> dict:
     return {"host.docker.internal": docker_host_gateway_ip()}
 
 
-def unused_volumes(orig_mounted_volumes: list) -> list:
+def unused_volumes(orig_mounted_volumes: list[Volume]) -> list[Volume]:
     current_mounted = store.list_instances_container_active_volumes()
-    current_sources = {vol["source"] for vol in current_mounted}
-    return [vol for vol in orig_mounted_volumes if vol["source"] not in current_sources]
+    current_sources = {vol.full_name for vol in current_mounted}
+    return [vol for vol in orig_mounted_volumes if vol.full_name not in current_sources]
 
 
 def create_docker_volumes(volumes_config: list):

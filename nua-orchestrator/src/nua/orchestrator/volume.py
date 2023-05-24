@@ -7,53 +7,66 @@ from typing import Any
 from nua.lib.console import print_red
 from nua.lib.panic import Abort
 
-from .utils import get_alias, hyphenized_set, sanitized_name
+from .utils import get_alias, sanitized_name
 
 # later, add 'npipe' when managed:
-ALLOWED_TYPE = {"volume", "bind", "tmpfs"}
+MANAGED = "managed"
+DIRECTORY = "directory"
+TMPFS = "tmpfs"
+ALLOWED_TYPE = {MANAGED, DIRECTORY, TMPFS}
 CHECKED_KEYS = {
     "_checked_",
-    "dest",
-    "destination",
+    # "dest",
+    # "destination",
     "domains",
     "driver",
     "backup",
     "options",
-    "source",
-    "src",
-    "prefix",
-    "source-prefix",
-    "src-prefix",
+    # "source",
+    "name",
+    "_label",
+    # "src",
+    # "prefix",
+    # "source-prefix",
+    # "src-prefix",
     "target",
     "type",
 }
 
 
 class Volume:
-    """Representation of a volume attached to a container, either main
-    container or Resource container."""
+    """Representation of a volume attached to a container, either the main app
+    container or a Resource container."""
 
     def __init__(self):
-        self._dict = {}
+        self._dict: dict[str, Any] = {}
 
     def __str__(self) -> str:
-        return pformat(self._dict)
+        lst = ["  "]
+        lst.append(f"type={self.type}")
+        if self.driver:
+            lst.append(f"driver={self.driver}")
+        if self.full_name:
+            lst.append(f"full_name={self.full_name}")
+        if self.domains:
+            lst.append("\n   domains: " + ", ".join(self.domains))
+        return " ".join(lst)
 
-    def __setitem__(self, key: int | str, item: Any):
+    def __setitem__(self, key: str, item: Any):
         self._dict[key] = item
 
-    def __getitem__(self, key: int | str) -> Any:
+    def __getitem__(self, key: str) -> Any:
         return self._dict[key]
 
     def has_key(self, key: int | str) -> bool:
         return key in self._dict
 
-    def get(self, key: int | str, default=None) -> Any:
+    def get(self, key: str, default=None) -> Any:
         return self._dict.get(key, default)
 
     @classmethod
     def parse(cls, data: dict) -> Volume:
-        """Parse a dict to obtain a Volume.
+        """Parse a python dict to obtain a Volume instance.
 
         Apply sanity checks if _checked_ is not present.
         """
@@ -69,8 +82,7 @@ class Volume:
     def check_load(self, data: dict):
         try:
             self._check_type(data)
-            self._check_prefix(data)
-            self._check_source(data)
+            self._check_name(data)
             self._check_target(data)
             self._parse_domains(data)
             self._parse_options(data)
@@ -91,20 +103,13 @@ class Volume:
     @classmethod
     def update_name_dict(cls, data: dict, label: str) -> dict:
         volume = cls.parse(data)
-        volume.update_name(label)
+        volume.label = label
         return volume.as_dict()
 
     @classmethod
     def string(cls, data: dict) -> str:
         volume = cls.parse(data)
-        lst = ["  "]
-        lst.append(f"type={volume.type}")
-        if volume.driver:
-            lst.append(f"driver={volume.driver}")
-        lst.append(f"source={volume.source}")
-        if volume.domains:
-            lst.append("\n   domains: " + ", ".join(volume.domains))
-        return " ".join(lst)
+        return str(volume)
 
     @classmethod
     def from_dict(cls, data: dict) -> Volume:
@@ -117,35 +122,50 @@ class Volume:
 
     @property
     def type(self) -> str:
-        return self._dict.get("type", "")
+        return self._dict.get("type", MANAGED)
 
     @type.setter
     def type(self, tpe: str):
         self._dict["type"] = tpe
 
     @property
+    def is_managed(self) -> bool:
+        return self.type == MANAGED
+
+    @property
     def driver(self) -> str:
-        return self._dict.get("driver", "")
+        driver = self._dict.get("driver", "")
+        if not driver and self.type == MANAGED:
+            driver = "docker"
+        return driver
 
     @driver.setter
     def driver(self, driver: str):
         self._dict["driver"] = driver
 
     @property
-    def prefix(self) -> str:
-        return self._dict.get("prefix", "")
+    def name(self) -> str:
+        return self._dict.get("name", "")
 
-    @prefix.setter
-    def prefix(self, prefix: str):
-        self._dict["prefix"] = prefix
+    @name.setter
+    def name(self, name: str):
+        self._dict["name"] = name
 
     @property
-    def source(self) -> str:
-        return self._dict.get("source", "")
+    def label(self) -> str:
+        return self._dict.get("label", "")
 
-    @source.setter
-    def source(self, source: str):
-        self._dict["source"] = source
+    @label.setter
+    def label(self, label: str):
+        self._dict["label"] = label
+
+    @property
+    def full_name(self) -> str:
+        if not self.name:
+            return ""
+        if self.type == DIRECTORY:
+            return self.name
+        return sanitized_name(f"{self.label}-{self.name}")
 
     @property
     def target(self) -> str:
@@ -179,40 +199,25 @@ class Volume:
     def backup(self, backup: dict):
         self._dict["backup"] = backup
 
-    def update_name(self, label: str):
-        if not (prefix := self.prefix):
-            return
-        self.source = sanitized_name(f"{label}-{prefix}")
-
     def _check_type(self, data: dict):
-        tpe = data.get("type", "volume")
+        tpe = data.get("type", MANAGED)
         if tpe not in ALLOWED_TYPE:
-            raise ValueError("unknown value for 'volume.type'")
+            raise ValueError(f"Unknown value for 'volume.type': {tpe}")
         self.type = tpe
-        if tpe == "volume":
-            self.driver = data.get("driver", "local")
+        if tpe == MANAGED:
+            self.driver = data.get("driver", "docker")
 
-    def _check_prefix(self, data: dict):
-        if self.type == "tmpfs":
+    def _check_name(self, data: dict):
+        if self.type == TMPFS:
             # no source defined for "tmpfs" type
+            self.name = ""
             return
-        aliases = ("prefix", "source-prefix", "src-prefix")
+        aliases = ("prefix",)
         value = get_alias(data, aliases)
         if value:
-            self.prefix = value
-
-    def _check_source(self, data: dict):
-        if self.type == "tmpfs":
-            # no source for tmpfs
-            self.prefix = ""
-            self.source = ""
-            return
-        aliases = ("source", "src")
-        value = get_alias(data, aliases)
-        if value:
-            self.source = value
-        elif not self.prefix:
-            raise ValueError("missing key 'volume.source' or 'volume.prefix'")
+            self.name = value
+        elif not self.name:
+            raise ValueError("Missing key 'volume.name'")
 
     def _check_target(self, data: dict):
         aliases = ("target", "dest", "destination")
@@ -228,9 +233,4 @@ class Volume:
         self.backup = data.get("backup", {})
 
     def _parse_options(self, data: dict):
-        self.options = {
-            k: v for k, v in data.items() if k not in hyphenized_set(CHECKED_KEYS)
-        }
-        # mode = 'rw' is only at mount time
-        if "mode" in self.options:
-            del self.options["mode"]
+        self.options = data.get("option", {})

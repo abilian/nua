@@ -5,12 +5,13 @@ from nua.lib.dates import backup_date
 
 from ..docker_utils import docker_container_of_name, docker_exec_checked
 from ..resource import Resource
+from ..volume import Volume
 from .backup_record import BackupItem
 from .backup_report import BackupReport
 from .restore_engine import restore_fct_id
 
 
-def bck_pg_dumpall(resource: Resource) -> BackupReport:
+def bck_pg_dumpall(resource: Resource, volume: Volume | None = None) -> BackupReport:
     """Backup the Resource with pg_dumpall.
 
     Resource is expected to be a Postgres database.

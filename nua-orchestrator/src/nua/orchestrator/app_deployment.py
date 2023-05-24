@@ -65,7 +65,8 @@ from .nginx.utils import (
 from .resource import Resource
 from .services import Services
 from .utils import parse_any_format
-from .volume import Volume
+
+# from .volume import Volume
 
 # parameters passed as a dict to docker run
 RUN_BASE: dict[str, Any] = {}  # see also nua_config
@@ -355,9 +356,10 @@ class AppDeployment:
         same_label_app = next(
             (app for app in self.apps if app.label_id == merged_app.label_id), None
         )
-        persistent_data = same_label_app.persistent_full_dict()
-        self._remove_per_label(same_label_app, remove_volumes=False)
-        self._deploy_new_app(merged_app, persistent=persistent_data)
+        if same_label_app is not None:
+            persistent_data = same_label_app.persistent_full_dict()
+            self._remove_per_label(same_label_app, remove_volumes=False)
+            self._deploy_new_app(merged_app, persistent=persistent_data)
 
     def deploy_replace_app(self, merged_app: AppInstance):
         """Deploy another app on same domain."""
@@ -376,6 +378,8 @@ class AppDeployment:
         same_label_app = next(
             (app for app in self.apps if app.label_id == merged_app.label_id), None
         )
+        if same_label_app is None:
+            return
         important(
             f"Deploy '{merged_app.label}': move {merged_app.app_id} "
             f"from '{same_label_app.domain}' to '{merged_app.domain}'"
@@ -389,6 +393,8 @@ class AppDeployment:
         same_label_app = next(
             (app for app in self.apps if app.label_id == merged_app.label_id), None
         )
+        if same_label_app is None:
+            return
         important(
             f"Deploy '{merged_app.label}': remove {same_label_app.app_id} "
             f"from '{same_label_app.domain}' and\n"
@@ -698,7 +704,7 @@ class AppDeployment:
         return {
             item["source"]: item
             for item in volume_list
-            if item["type"] == "volume" and item["driver"] == "local"
+            if item["type"] == "managed" and item["driver"] in {"docker", "local"}
         }
 
     def remove_managed_volumes(self, apps: list[AppInstance]):
@@ -1270,7 +1276,7 @@ class AppDeployment:
                 return
             important("Volumes used by current Nua configuration:")
             for volume in current_mounted:
-                show(Volume.string(volume))
+                show(str(volume))
 
     def display_unused_volumes(self):
         with verbosity(0):
@@ -1281,7 +1287,7 @@ class AppDeployment:
                 "Some volumes are mounted but not used by current Nua configuration:"
             )
             for volume in unused:
-                show(Volume.string(volume))
+                show(str(volume))
 
     def print_host_list(self):
         # used with verbosity 3

@@ -17,7 +17,8 @@ NUA_PROPERTIES = {
 def configure_db(resource: Resource):
     # resource.image was set earlier at detect requirement stage
     # create volume:
-    resource.volumes = [_make_volume(resource)]
+    volume = _make_volume(resource)
+    resource.volumes = [volume.as_dict()]
     # other options
     # docker params:
     resource.docker = {"detach": True, "restart_policy": {"name": "always"}}
@@ -55,15 +56,16 @@ def configure_db(resource: Resource):
     resource.env = env
 
 
-def _make_volume(resource: Resource) -> dict:
+def _make_volume(resource: Resource) -> Volume:
     volume = Volume()
-    volume.type = "volume"
-    volume.driver = "local"
+    volume.type = "managed"
+    volume.driver = "docker"
     # at this stage, network_name is defined
-    volume.source = f"{resource.container_name}-data"
+    volume.name = "data"
+    volume.label = resource.container_name
     # target of Mariadb images default configuration
     volume.target = "/var/lib/mysql"
-    return volume.as_dict()
+    return volume
 
 
 # def setup_db(resource: Resource):

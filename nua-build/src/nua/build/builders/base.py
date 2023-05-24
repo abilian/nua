@@ -58,12 +58,12 @@ class Builder(abc.ABC):
         bind_volumes = [
             volume.get("source", "unknown")
             for volume in self.config.volumes
-            if volume.get("type") == "bind"
+            if volume.get("type") == "directory"
         ]
         if not bind_volumes:
             return
         lines = [
-            "Declaration of volume of type Docker 'bind'.",
+            "Declaration of volume of type 'directory'.",
             "The contents of these volumes will NOT be deleted when removing the ",
             "application instance:",
         ]
