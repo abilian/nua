@@ -67,6 +67,9 @@ exclude = [
 ignore_unused = [
     "setuptools",
 ]
+ignore_obsolete = [
+    "setuptools",
+]
 ignore_missing = [
     "nua",
 ]
