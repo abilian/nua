@@ -6,7 +6,7 @@ For global explanation of usage of the nua-config file based on an example, read
 
 This document aims to describe exhaustively the possible fields of a `nua-config` file. The nua-config file is intended to contain only a limited set of metadata, it is usefully supplemented with descriptive files (readme, changelog, info on the packager).
 
-Last revision: `nua-build version 0.5.19`
+Last revision: `nua-build version 0.5.20`
 
 The syntax used by default and through this document examples is the TOML language, but `nua-config` file can also be written with YAML and JSON formats.
 
