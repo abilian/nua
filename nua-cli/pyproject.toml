@@ -84,9 +84,6 @@ exclude = [
 ignore_unused = [
     "decorator",
 ]
-ignore_obsolete = [
-    "decorator",
-]
 ignore_missing = [
 ]
 ignore_transitive = [
