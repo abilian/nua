@@ -57,7 +57,7 @@ class Builder(abc.ABC):
     def _notice_local_volumes(self) -> None:
         bind_volumes = [
             volume.get("source", "unknown")
-            for volume in self.config.volume
+            for volume in self.config.volumes
             if volume.get("type") == "bind"
         ]
         if not bind_volumes:

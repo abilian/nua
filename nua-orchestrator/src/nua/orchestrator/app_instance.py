@@ -186,10 +186,10 @@ class AppInstance(Resource):
         #     resource.volume = [
         #         Volume.update_name_dict(v, suffix) for v in resource.volume
         #     ]
-        self.volume = [Volume.update_name_dict(v, self.label_id) for v in self.volume]
+        self.volumes = [Volume.update_name_dict(v, self.label_id) for v in self.volumes]
         for resource in self.resources:
-            resource.volume = [
-                Volume.update_name_dict(v, self.label_id) for v in resource.volume
+            resource.volumes = [
+                Volume.update_name_dict(v, self.label_id) for v in resource.volumes
             ]
 
     @property
@@ -324,7 +324,7 @@ class AppInstance(Resource):
         self["label"] = label.strip()
 
     def rebase_volumes_upon_nua_conf(self):
-        self.volume = self.rebased_volumes_upon_package_conf(self.image_nua_config)
+        self.volumes = self.rebased_volumes_upon_package_conf(self.image_nua_config)
 
     def rebase_ports_upon_nua_config(self):
         nua_config_ports = deepcopy(self.image_nua_config.get("port", {}))
