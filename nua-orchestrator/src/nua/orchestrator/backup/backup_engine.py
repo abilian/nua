@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import typing
 
 from .backup_functions import bck_pg_dumpall
