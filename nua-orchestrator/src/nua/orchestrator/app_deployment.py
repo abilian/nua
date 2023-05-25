@@ -63,6 +63,7 @@ from .nginx.utils import (
     remove_nginx_configuration_hostname,
 )
 from .resource import Resource
+from .volume import Volume
 from .services import Services
 from .utils import parse_any_format
 
@@ -700,28 +701,26 @@ class AppDeployment:
             remove_container_private_network(site.network_name)
 
     @staticmethod
-    def _local_volumes_dict(volume_list: list) -> dict:
+    def _local_volumes(volumes: list[Volume]) -> dict[str, Volume]:
         return {
-            item["source"]: item
-            for item in volume_list
-            if item["type"] == "managed" and item["driver"] in {"docker", "local"}
+            volume.full_name: volume
+            for volume in volumes
+            if volume.is_managed and volume.driver in {"docker", "local"}
         }
 
     def remove_managed_volumes(self, apps: list[AppInstance]):
         """Remove data of stopped app: local managed volumes."""
-        before = self._local_volumes_dict(self._mounted_before_removing)
-        now_used = self._local_volumes_dict(
-            store.list_instances_container_active_volumes()
-        )
-        for source in before:
-            if source not in now_used:
-                remove_volume_by_source(source)
+        before = self._local_volumes(self._mounted_before_removing)
+        now_used = self._local_volumes(store.list_instances_container_active_volumes())
+        for path in before:
+            if path not in now_used:
+                remove_volume_by_source(path)
 
     def remove_all_deployed_managed_volumes(self):
         """Remove local volumes of all (stopped) apps."""
-        before = self._local_volumes_dict(self._mounted_before_removing)
-        for source in before:
-            remove_volume_by_source(source)
+        before = self._local_volumes(self._mounted_before_removing)
+        for path in before:
+            remove_volume_by_source(path)
 
     def remove_deployed_instance(self, apps: list[AppInstance]):
         """Remove data of stopped app: local managed volumes."""
