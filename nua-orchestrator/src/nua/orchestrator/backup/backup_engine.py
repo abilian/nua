@@ -1,7 +1,14 @@
-# from .resource import Resource
-from ..volume import Volume
+from __future__ import annotations
+
+import typing
+
 from .backup_functions import bck_pg_dumpall
 from .backup_report import BackupReport
+
+if typing.TYPE_CHECKING:
+    from ..resource import Resource
+    from ..volume import Volume
+
 
 BCK_FUNCTION = {"pg_dumpall": bck_pg_dumpall}
 
