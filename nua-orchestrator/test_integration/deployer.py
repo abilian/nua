@@ -1,17 +1,19 @@
 import os
 import shlex
+import shutil
 import socket
 import subprocess as sp
 import tempfile
 from pathlib import Path
-import shutil
+from subprocess import run
+
 import requests
 from typer.testing import CliRunner
 
+from nua.lib.exec import is_current_user
+
 # from nua.orchestrator.cli.main import app
 from nua.orchestrator.utils import parse_any_format
-from nua.lib.exec import is_current_user
-from subprocess import run
 
 runner = CliRunner(mix_stderr=False)
 

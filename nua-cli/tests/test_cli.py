@@ -1,6 +1,5 @@
 import pytest
 from cleez.testing import CliRunner
-
 from nua_cli.main import get_cli
 
 

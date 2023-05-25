@@ -3,6 +3,7 @@
 (Later: replace by flask ui access).
 """
 import typer
+
 from nua.lib.console import print_green, print_red
 
 from ..db_utils.postgres_utils import set_postgres_pwd

@@ -1,9 +1,9 @@
 from contextlib import suppress
 
 import docker
-from nua.lib.constants import NUA_BUILDER_TAG, NUA_PYTHON_TAG
 
 from nua.build.autobuild.nua_image_builder import NuaImageBuilder
+from nua.lib.constants import NUA_BUILDER_TAG, NUA_PYTHON_TAG
 
 # from subprocess import run
 # import shlex

@@ -7,6 +7,7 @@ how-to-use-a-postgresql-database-in-a-flask-application
 import os
 
 from flask_pg_via_orch.init_db import init_db
+
 from nua.lib.exec import exec_as_nua
 
 init_db()

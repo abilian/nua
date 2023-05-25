@@ -1,12 +1,11 @@
 import json
 import os
+import shutil
 import socket
 from pathlib import Path
 
-import shutil
 from nua.lib.panic import warning
 from nua.lib.shell import sh
-
 from nua.orchestrator.search_cmd import image_available_locally
 
 os.environ["NUA_CERTBOT_TEST"] = "1"

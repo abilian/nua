@@ -5,7 +5,6 @@ from io import StringIO
 from cleez.colors import red
 from fabric import Connection as BaseConnection
 from invoke.runners import Result
-
 from nua_cli.commands.common import get_nua_host, get_nua_user
 
 # Hardcoded for now

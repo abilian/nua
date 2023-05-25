@@ -46,10 +46,10 @@ from typing import Any
 from .console import (
     print_bold,
     print_bold_blue,
+    print_bold_cyan,
     print_bold_red,
     print_bold_yellow,
     print_bold_yellow_white,
-    print_bold_cyan,
     print_cyan,
     print_green,
     print_green_cyan,

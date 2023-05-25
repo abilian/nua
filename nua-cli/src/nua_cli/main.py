@@ -28,7 +28,6 @@ from __future__ import annotations
 import snoop
 from cleez import CLI
 from cleez.actions import VERSION
-
 from nua_cli.version import get_version
 
 snoop.install()

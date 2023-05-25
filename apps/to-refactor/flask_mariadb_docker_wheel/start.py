@@ -1,6 +1,7 @@
 import os
 
 from flask_mariadb_docker_wheel.init_db import init_db
+
 from nua.lib.exec import exec_as_root
 
 init_db()
