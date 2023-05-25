@@ -145,7 +145,7 @@ class AppBuilder:
         script_dir.mkdir(mode=0o755, parents=True, exist_ok=True)
         if self.config.start_command:
             with verbosity(2):
-                vprint("Writing start script from 'start-command'")
+                vprint("Writing start script from 'start' content")
             return self._write_start_script(self.config.start_command)
         path = self.find_start_script()
         if path:
@@ -164,21 +164,21 @@ class AppBuilder:
         data = deepcopy(self.config.metadata_rendered)
         data_str = json.dumps(data, indent=4)
         cwd = repr(str(self.source))
-        cmd = dedent(
-            f"""\
-        import os
+        cmd = f"""\
+import os
 
-        from nua.lib.exec import exec_as_nua
-        from nua.agent.templates import render_config_templates
+from nua.lib.exec import exec_as_nua
+from nua.agent.templates import render_config_templates
 
-        render_config_templates({data_str})
-        exec_as_nua({start_cmd},
-                    cwd={cwd},
-                    env=os.environ,)
-        """
-        )
+render_config_templates({data_str})
+exec_as_nua({start_cmd},
+            cwd={cwd},
+            env=os.environ,)
+"""
         script_path = Path(NUA_SCRIPTS_PATH) / "start.py"
         script_path.write_text(cmd)
+        with verbosity(2):
+            vprint(cmd)
 
         # anticipate future change for start script:
         if self.is_requiring_templates():

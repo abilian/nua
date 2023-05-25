@@ -9,45 +9,68 @@ https://www.digitalocean.com/community/tutorials/
 
 import mariadb
 
-from nua.lib.db.mariadb_manager import MariaDbManager
+from time import sleep, time
+from datetime import datetime, timezone
 
 from .constants import DB_HOST, DB_PORT, USER_DB, USER_NAME, USER_PASSWORD
 
 
-def init_db():
+def main():
     wait_for_db()
-    load_content()
+    if not db_table_exist("books"):
+        add_content()
 
 
-def wait_for_db():
-    manager = MariaDbManager(
+def wait_for_db(timeout: int = 120):
+    """Wait for the DB being up."""
+    when = time()
+    limit = when + timeout
+    while time() < limit:
+        while time() < when:
+            sleep(0.1)
+        try:
+            mariadb.connect(
+                host=DB_HOST,
+                port=int(DB_PORT),
+                database=USER_DB,
+                user=USER_NAME,
+                password=USER_PASSWORD,
+            )
+            now = datetime.now(timezone.utc).isoformat(" ")
+            print(f"{now} - Connection ok")
+            return
+        except mariadb.Error:
+            now = datetime.now(timezone.utc).isoformat(" ")
+            print(f"{now} - Connection failed")
+            when += 1.0
+    raise RuntimeError(f"DB not available after {timeout} seconds.")
+
+
+def db_table_exist(table: str) -> bool:
+    connection = mariadb.connect(
         host=DB_HOST,
-        port=DB_PORT,
+        port=int(DB_PORT),
+        database=USER_DB,
         user=USER_NAME,
         password=USER_PASSWORD,
     )
-    manager.wait_for_db()
-
-
-def load_content():
-    manager = MariaDbManager(
-        host=DB_HOST,
-        port=DB_PORT,
-        user=USER_DB,
-        password=USER_PASSWORD,
+    cursor = connection.cursor()
+    query = (
+        "SELECT count(*) FROM information_schema.TABLES WHERE "  # noqa S608
+        f"(TABLE_SCHEMA = '{USER_DB}') AND (TABLE_NAME = '{table}')"
     )
-    if not manager.db_table_exist(
-        USER_DB,
-        USER_NAME,
-        USER_PASSWORD,
-        "books",
-    ):
-        add_content()
+    # cursor.execute(query, (dbname, table))
+    cursor.execute(query)
+    result = cursor.fetchone()
+    count = result[0] if result else 0
+    connection.close()
+    return count > 0
 
 
 def add_content():
     connection = mariadb.connect(
         host=DB_HOST,
+        port=int(DB_PORT),
         database=USER_DB,
         user=USER_NAME,
         password=USER_PASSWORD,

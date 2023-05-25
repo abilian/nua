@@ -1,7 +1,7 @@
 [metadata]
 id = "flask-mariadb-docker-wheel"
 version = "1.0"
-release = 4
+release = 7
 title = "Flask/MariaDB-docker test wheel"
 author = "Nua testers"
 tagline = "Nua test with Flask/MariaDB-docker"
@@ -14,6 +14,12 @@ pip-install = ["*.whl"]
 document-root = "/nua/app/html"
 test = "python -c 'import flask_mariadb_docker_wheel'"
 
+[run]
+start = [
+    "init-db",
+    "gunicorn --worker-tmp-dir /dev/shm --workers 2 -b :5000 flask_mariadb_docker_wheel.wsgi:app"
+    ]
+
 [env]
 DB_HOST = { from="database", key="hostname" }
 USER_DB = { from="database", key="MARIADB_DATABASE" }
@@ -25,17 +31,9 @@ restart_policy.name = "always"
 
 [port.web]
 # publication port of the app inside the container
-container = 80
+container = 5000
 
 [[resource]]
-# A resource is another container required by the main app container, its
-# configuration is described below, under the key of name of the resource. Several
-# resources can be declared. The resource host will appear in the local network
-# with a hostname equal to the container name. The name of the resource hostname
-# is available in the environment variable NUA_${name_of_the_resource}_HOST, ie in
-# this example: NUA_MARIADB_HOST
 name = "database"
-# declaration of the required image for the resurce, here the official Mariadb
-# Docker image
 type = "mariadb"
 version = ">=10.6, <10.7"
