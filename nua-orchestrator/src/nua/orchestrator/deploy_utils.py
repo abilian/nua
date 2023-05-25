@@ -5,6 +5,7 @@ from pprint import pformat
 
 import docker
 import docker.types
+
 from nua.lib.archive_search import ArchiveSearch
 from nua.lib.docker import display_one_docker_img, docker_require
 from nua.lib.panic import Abort, important, info, vprint, warning
@@ -25,6 +26,7 @@ from .docker_utils import (  # docker_volume_prune,
     docker_start_container_name,
     docker_stop_container_name,
     docker_volume_create_or_use,
+    docker_volume_type,
 )
 from .higher_package import higher_package
 from .internal_secrets import secrets_dict
@@ -134,10 +136,11 @@ def remove_volume_by_source(source: str):
 
 def new_docker_mount(volume_params: dict) -> docker.types.Mount:
     volume = Volume.parse(volume_params)
-    if volume.type == "volume":
+    if volume.is_managed:
         driver_config = new_docker_driver_config(volume)
     else:
         driver_config = None
+    volume_type = docker_volume_type(volume)
     read_only = bool(volume.options.get("read_only", False))
     if volume.type == "tmpfs":
         tmpfs_size = size_to_bytes(volume.options.get("tmpfs_size")) or None
@@ -147,8 +150,8 @@ def new_docker_mount(volume_params: dict) -> docker.types.Mount:
 
     return docker.types.Mount(
         volume.target,
-        volume.source or None,
-        volume.type,
+        volume.full_name or None,
+        volume_type,
         driver_config=driver_config,
         read_only=read_only,
         tmpfs_size=tmpfs_size,
@@ -161,7 +164,7 @@ def new_docker_driver_config(volume: Volume) -> docker.types.DriverConfig | None
 
     Only valid for the 'volume' type.
     """
-    if not volume.driver or volume.driver == "local":
+    if not volume.driver or volume.driver in {"local", "docker"}:
         return None
     # to be completed
     return docker.types.DriverConfig(volume.driver)

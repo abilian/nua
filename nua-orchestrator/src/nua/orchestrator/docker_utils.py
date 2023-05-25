@@ -16,6 +16,7 @@ from docker.errors import APIError, ImageNotFound, NotFound
 from docker.models.containers import Container
 from docker.models.images import Image
 from docker.models.volumes import Volume as DockerVolume
+
 from nua.lib.console import print_red
 from nua.lib.docker import docker_require
 from nua.lib.elapsed import elapsed
@@ -480,6 +481,14 @@ def docker_exec_checked(container: Container, params: dict, output: io.BufferedI
 #     except APIError as e:
 #         print(e)
 #         raise RuntimeError(f"Test of container failed:\ndocker logs {container.id}")
+
+
+def docker_volume_type(volume: Volume) -> str:
+    if volume.is_managed:
+        return "volume"
+    elif volume.type == "directory":
+        return "bind"
+    return "tmpfs"
 
 
 def docker_volume_list(name: str) -> list[DockerVolume]:

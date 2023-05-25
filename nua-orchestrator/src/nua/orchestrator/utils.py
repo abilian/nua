@@ -6,6 +6,7 @@ from pathlib import Path
 
 import tomli
 import yaml
+
 from nua.lib.panic import Abort
 
 RE_NB_UNIT = re.compile(r"(\d+\.?\d*)\s*(\S*)")
@@ -28,7 +29,7 @@ def size_unit(as_mib: bool) -> str:
     return "MB"
 
 
-def size_to_bytes(size: str) -> int:
+def size_to_bytes(size: str | None) -> int:
     """Convert string representing size to bytes value.
 
     It uses basic regex to get results like: size_to_bytes("2k") 2048
