@@ -212,7 +212,7 @@ class Volume:
             # no source defined for "tmpfs" type
             self.name = ""
             return
-        aliases = ("prefix",)
+        aliases = ("name", "prefix")
         value = get_alias(data, aliases)
         if value:
             self.name = value
