@@ -6,7 +6,6 @@ from pathlib import Path
 
 import tomli
 import yaml
-
 from nua.lib.panic import Abort
 
 RE_NB_UNIT = re.compile(r"(\d+\.?\d*)\s*(\S*)")

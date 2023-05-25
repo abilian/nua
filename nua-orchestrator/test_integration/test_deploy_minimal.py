@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 
 from .deployer import deploy_one_site

@@ -15,6 +15,7 @@ from pprint import pformat
 
 from nua.lib.panic import Abort, bold_debug, debug, red_line
 from nua.lib.tool.state import verbosity
+
 from nua.orchestrator import config
 
 from .commands import apply_auto_strategy, apply_none_strategy

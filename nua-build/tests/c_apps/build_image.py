@@ -5,10 +5,10 @@ from shutil import copytree
 from time import perf_counter
 
 import docker
-
-from nua.build.builders import get_builder
 from nua.lib.backports import chdir
 from nua.lib.nua_config import NuaConfig
+
+from nua.build.builders import get_builder
 
 
 def build_test_image(src_dir: Path | str):

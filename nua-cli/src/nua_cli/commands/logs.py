@@ -1,4 +1,5 @@
 from cleez.command import Argument, Command
+
 from nua_cli.client import get_client
 from nua_cli.common import get_current_app_id
 

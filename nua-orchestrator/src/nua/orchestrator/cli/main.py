@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Optional
 
 import typer
-
 from nua.lib.panic import warning
 from nua.lib.tool.state import set_color, set_verbosity
 

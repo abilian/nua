@@ -5,12 +5,11 @@ from operator import itemgetter
 from pathlib import Path
 from urllib.parse import urlparse
 
-from packaging.version import Version
-from packaging.version import parse as parse_version
-
 from nua.lib.console import print_green, print_magenta, print_red
 from nua.lib.panic import vprint
 from nua.lib.tool.state import verbosity
+from packaging.version import Version
+from packaging.version import parse as parse_version
 
 from . import config
 from .docker_utils import local_nua_images

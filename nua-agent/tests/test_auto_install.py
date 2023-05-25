@@ -1,10 +1,11 @@
 from pathlib import Path
 
+from nua.lib.backports import chdir
+
 from nua.agent.auto_install import detector_classes, register_detectors
 from nua.agent.detectors.base_detector import BaseDetector
 from nua.agent.detectors.python_source import PythonSource
 from nua.agent.detectors.python_wheels import PythonWheels
-from nua.lib.backports import chdir
 
 
 def test_register_detectors_loading():

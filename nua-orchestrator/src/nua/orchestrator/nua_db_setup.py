@@ -12,7 +12,6 @@ from importlib import resources as rso
 from pathlib import Path
 
 import tomli
-
 from nua.lib.console import print_green, print_red
 
 from . import __version__, config

@@ -3,9 +3,9 @@ import sys
 from pathlib import Path
 from pprint import pformat
 
+from nua.lib.panic import Abort
 from paramiko import RSAKey
 
-from nua.lib.panic import Abort
 from nua.orchestrator.db import store
 from nua.orchestrator.nua_db_setup import setup_nua_db
 

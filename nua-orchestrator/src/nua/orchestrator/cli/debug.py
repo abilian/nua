@@ -2,7 +2,6 @@
 from pprint import pformat
 
 import typer
-
 from nua.lib.tool.state import set_color, set_verbosity
 
 from ..app_management import AppManagement
