@@ -14,10 +14,10 @@ from ..db import store
 #     s.list()
 
 
-class Services:
+class LocalServices:
     def __init__(self):
-        self.configuration_services = {}
-        self.loaded = {}
+        self.configuration_services: list[str] = []
+        self.loaded: dict[str, type] = {}
 
     def load(self):
         self.load_configuration_services()
@@ -29,32 +29,28 @@ class Services:
     def load_configuration_services(self):
         settings = store.installed_nua_settings()
         listed = settings.get("services", [])
-        for conf_service in listed:
-            name = conf_service.get("name")
+        for service_dict in listed:
+            name = service_dict.get("name")
             if not name:
                 print_red(
                     "A service in nua configuration is missing mandatory key 'name'."
                 )
                 continue
-            self.configuration_services[name] = conf_service
+            if not service_dict.get("enable", True):
+                continue
+            self.configuration_services.append(name)
 
     def load_services_modules(self):
-        base = __name__.split(".")[:-1]
-        base.append("services")
-        base_name = ".".join(base)
-        for service_options in self.configuration_services.values():
-            if not service_options.get("enable", True):
-                continue
-            name = snake_format(service_options["name"])
-            module_name = service_options.get("module", name)
-            class_name = camel_format(service_options.get("class", name))
-            module_path = f"{base_name}.{module_name}"
+        for service_name in self.configuration_services:
+            module_name = snake_format(service_name)
+            class_name = camel_format(service_name)
+            module_path = f"nua.orchestrator.services.{module_name}"
             try:
                 module = import_module(module_path)
                 cls = getattr(module, class_name)
-            except Exception:
+            except (ModuleNotFoundError, ImportError) as e:
                 print_red(
-                    f"error loading local service: {name=} {module_name=} {class_name=}"
+                    f"Error loading local service: {module_name=} {class_name=}\n{e}"
                 )
                 continue
-            self.loaded[name] = cls(service_options)
+            self.loaded[service_name] = cls

@@ -4,10 +4,10 @@ from ..db_utils.postgres_utils import (
     pg_restart_service,
     postgres_pwd,
 )
-from .service_base import ServiceBase
+from .local_service_base import LocalServiceBase
 
 
-class Postgres(ServiceBase):
+class Postgres(LocalServiceBase):
     def aliases(self) -> list:
         return ["postgresql"]
 

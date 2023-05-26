@@ -8,9 +8,7 @@ from ..docker_utils import pull_docker_image
 
 
 @dataclass(frozen=True)
-class ServiceBase:
-    options: dict
-
+class LocalServiceBase:
     def aliases(self) -> list:
         return []
 
@@ -24,13 +22,6 @@ class ServiceBase:
             return True
         else:
             return False
-
-    def check_site_configuration(self, _site: dict | None = None) -> bool:
-        required_image = self.options.get("image")
-        opt_format = self.options.get("format")
-        if required_image and opt_format == "docker":
-            return self._pull_docker_image(required_image)
-        return True
 
     def restart(self) -> bool:
         return True

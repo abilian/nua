@@ -55,6 +55,7 @@ from .deploy_utils import (
 from .docker_utils import docker_container_status
 from .domain_split import DomainSplit
 from .healthcheck import HealthCheck
+from .local_services import LocalServices
 from .nginx.cmd import nginx_reload, nginx_restart
 from .nginx.utils import (
     chown_r_nua_nginx,
@@ -63,7 +64,6 @@ from .nginx.utils import (
     remove_nginx_configuration_hostname,
 )
 from .resource import Resource
-from .services import Services
 from .utils import parse_any_format
 from .volume import Volume
 
@@ -173,12 +173,12 @@ class AppDeployment:
         # See later
         return
         # assuming nua_db_setup was run at initialization of the command
-        services = Services()
-        services.load()
-        self.available_services = services.loaded
+        local_services = LocalServices()
+        local_services.load()
+        self.available_services = local_services.loaded
         with verbosity(1):
             bold_debug(
-                f"Available local services: {pformat(list(services.loaded.keys()))}"
+                f"Available local services: {pformat(list(self.available_services.keys()))}"
             )
 
     def load_deploy_config(self, deploy_config: str):

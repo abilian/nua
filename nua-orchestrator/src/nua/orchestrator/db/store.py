@@ -141,7 +141,9 @@ def installed_nua_settings() -> dict:
         )
         if not setting:
             return {}
-        return setting.data or {}
+        if not setting.data:
+            return {}
+        return deepcopy(setting.data)
 
 
 def set_nua_settings(setting_dict):

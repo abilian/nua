@@ -1,9 +1,9 @@
 """Nua mariadb as a service."""
 from ..db_utils.mariadb_utils import mariadb_pwd, mariadb_restart_service
-from .service_base import ServiceBase
+from .local_service_base import LocalServiceBase
 
 
-class Mariadb(ServiceBase):
+class Mariadb(LocalServiceBase):
     def restart(self) -> bool:
         mariadb_restart_service()
         return True
