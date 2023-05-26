@@ -1,24 +1,26 @@
 [metadata]
-id = "flask-pg-via-orch"
+id = "flask-postgresql"
 version = "1.0"
-release = 1
-title = "Postgres docker configured via orchestrator"
-author = "Nua testers"
-tagline = "Postgres docker configured via orchestrator"
+release = 4
+title = "Flask + Postgres demo app"
+author = "Nua developers"
+tagline = "postgres docker configured via orchestrator"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static", "plugin", "PostgreSQL", "docker", "psycopg2"]
 license = "MIT"
 
 [build]
-document_root = "/nua/app/html"
-test = "python -c 'import flask_pg_via_orch'"
+test = "python -c 'import flask_app'"
+
+[run]
+start = ["init-db", "gunicorn --workers 2 -b :5000 flask_app.app:app"]
 
 [env]
 DB_HOST = { from="database", key="hostname" }
 DB_PORT = { from="database", key="POSTGRES_PORT" }
-USER_DB = { from="database", key="POSTGRES_DB" }
-USER_NAME = { from="database", key="POSTGRES_USER" }
-USER_PASSWORD = { from="database", key="POSTGRES_PASSWORD" }
+DB_NAME = { from="database", key="POSTGRES_DB" }
+DB_USERNAME = { from="database", key="POSTGRES_USER" }
+DB_PASSWORD = { from="database", key="POSTGRES_PASSWORD" }
 
 [docker]
 restart_policy.name = "always"
