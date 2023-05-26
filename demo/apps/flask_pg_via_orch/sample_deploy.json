@@ -1,6 +1,7 @@
 {
     "site": [
         {
+            "label": "test-pg",
             "domain": "test1.example.com",
             "image": "flask-pg-via-orch"
         }

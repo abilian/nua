@@ -99,8 +99,16 @@ class AppBuilder:
         with verbosity(1):
             info("******** Stage: pre-build")
         install_meta_packages(self.infer_meta_packages(), keep_lists=True)
-        install_meta_packages(self.config.meta_packages, keep_lists=True)
-        install_packages(self.config.packages, keep_lists=True)
+        if self.config.meta_packages:
+            with verbosity(2):
+                vprint(f"Configured meta packages: {self.config.meta_packages}")
+            install_meta_packages(self.config.meta_packages, keep_lists=True)
+        if self.config.packages:
+            with verbosity(1):
+                vprint(f"Install packages: {self.config.packages}")
+            install_packages(self.config.packages, keep_lists=True)
+        with verbosity(1):
+            vprint("venv ownership to nua user")
         chown_r("/nua/venv", "nua")
 
     def make_dirs(self):
