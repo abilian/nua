@@ -1,7 +1,7 @@
 [metadata]
 id = "flask-upload-tmpfs"
 version = "1.0"
-release = 4
+release = 5
 title = "Flask test upload with container tmpfs"
 author = "Nua testers"
 tagline = "Flask test upload with with container tmpfs"
@@ -19,9 +19,8 @@ start = "gunicorn --worker-tmp-dir /dev/shm --workers 2 -b :8000 flask_upload_tm
 container = 8000
 
 [[volume]]
-# The mount type (bind / volume / tmpfs / npipe). Default: volume :
 type = "tmpfs"
-# Name of the driver used to create the volume: (for type == "volume")
 target = "/var/tmp/mount_point"
-tmpfs_size = "10G"
-tmpfs_mode = 0o1777
+    [[volume.options]]
+    tmpfs_size = "1G"
+    tmpfs_mode = 0o1777

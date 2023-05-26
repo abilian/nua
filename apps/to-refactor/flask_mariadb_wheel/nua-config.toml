@@ -1,7 +1,7 @@
 [metadata]
 id = "flask-mariadb-wheel"
 version = "1.0"
-release = 3
+release = 4
 title = "Flask/MariaDB test wheel"
 author = "Nua testers"
 tagline = "Nua test with Flask/MariaDB"
@@ -10,11 +10,11 @@ tags = ["test", "html", "web", "MariaDB"]
 license = "MIT"
 
 [build]
-# no need of build.py for this test, all should be
 meta-packages = ["mariadb-client"]
 pip-install = ["*.whl"]
-document-root = "/nua/app/html"
 test = "python -c 'import flask_mariadb_wheel'"
+
+
 
 [[assign]]
 key = "MARIADB_PASSWORD"

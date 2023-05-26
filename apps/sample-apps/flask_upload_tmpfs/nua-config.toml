@@ -23,4 +23,4 @@ type = "tmpfs"
 target = "/var/tmp/mount_point"
     [[volume.options]]
     tmpfs_size = "10G"
-    tmpfs_mode = "1777"
+    tmpfs_mode = 0o1777

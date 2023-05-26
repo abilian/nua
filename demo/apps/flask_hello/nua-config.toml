@@ -8,7 +8,7 @@ website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static"]
 license = "MIT"
 profile = ["test"]
-release = 3
+release = 4
 
 [build]
 test = "python -c 'import flask_hello'"
