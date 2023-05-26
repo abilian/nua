@@ -1,8 +1,0 @@
-{
-    "site": [
-        {
-            "image": "coturn",
-            "domain": "test2.example.com"
-        }
-    ]
-}
