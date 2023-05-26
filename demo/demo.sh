@@ -45,7 +45,8 @@ GIT_LOCAL="${HOME}/gits2"
 #######################################################################
 
 HERE="$PWD"
-NUA_ENV="${HOME}/env"
+#NUA_ENV="${HOME}/env"
+NUA_ENV="/home/nua/env"
 NUA_CERTBOT_STRATEGY="none"
 NUA_ORC="${GIT_LOCAL}/nua/nua-orchestrator"
 NUA_REPOSITORY="https://github.com/abilian/nua.git"
@@ -124,7 +125,9 @@ exe $APT_GET autoremove -y
         exe cd ${HOME}
         exe python3.10 -m venv p3nua
         exe source p3nua/bin/activate
-        exe pip install -qq -U pip setuptools wheel poetry invoke
+        exe pip install -qq -U pip
+        exe pip install -qq -U setuptools
+        exe pip install -qq -U wheel poetry python-dotenv invoke cleez
     }
 }
 
@@ -154,9 +157,9 @@ yesno "Erase all local docker images (not mandatory, but it ensures a clean rebu
 
 yesno "Build docker images for Nua demo" && {
     exe cd "${HERE}/apps"
-    exe nua-build -vv flask_hello
-    exe nua-build -vv flask_upload_tmpfs
-    exe nua-build -vv flask_pg_via_orch
+    exe nua-build -vv flask-hello
+    exe nua-build -vv flask-upload-tmpfs
+    exe nua-build -vv flask-postgresql
 }
 
 
@@ -177,9 +180,9 @@ yesno "Provide actual domain names for the 3 'example.com' domains" && {
         echo "${d}.example.com ${response}" >> "${HERE}/REPLACE_DOMAIN"
     done
 } || {
-    echo "test1.example.com test1.example.com" > "${HERE}/REPLACE_DOMAIN"
-    echo "test2.example.com test2.example.com" >> "${HERE}/REPLACE_DOMAIN"
-    echo "test3.example.com test3.example.com" >> "${HERE}/REPLACE_DOMAIN"
+    echo "test1.example.com test1.yerom.xyz" > "${HERE}/REPLACE_DOMAIN"
+    echo "test2.example.com test2.yerom.xyz" >> "${HERE}/REPLACE_DOMAIN"
+    echo "test3.example.com test3.yerom.xyz" >> "${HERE}/REPLACE_DOMAIN"
 }
 
 yesno "Demo 1: start 2 basic flask apps" && {
@@ -197,7 +200,7 @@ yesno "Demo 1: start 2 basic flask apps" && {
     cat <<EOF > /tmp/test.sh
 #!/bin/bash
 export NUA_CERTBOT_STRATEGY="${NUA_CERTBOT_STRATEGY}"
-${NUA_ENV}/bin/nua-orchestrator deploy -v /tmp/${file}
+${NUA_ENV}/bin/nua-orchestrator deploy-replace -v /tmp/${file}
 EOF
     chmod a+x /tmp/test.sh
     sudo -u nua bash /tmp/test.sh
@@ -219,7 +222,7 @@ yesno "Demo 2: start 3 instances of an app using a postgres DB" && {
     cat <<EOF > /tmp/test.sh
 #!/bin/bash
 export NUA_CERTBOT_STRATEGY="${NUA_CERTBOT_STRATEGY}"
-${NUA_ENV}/bin/nua-orchestrator deploy -v /tmp/${file}
+${NUA_ENV}/bin/nua-orchestrator deploy-replace -v /tmp/${file}
 EOF
     chmod a+x /tmp/test.sh
     sudo -u nua bash /tmp/test.sh
@@ -241,7 +244,7 @@ yesno "Demo 3: start 2 instances of an app using postgres and some tmpfs apps" &
     cat <<EOF > /tmp/test.sh
 #!/bin/bash
 export NUA_CERTBOT_STRATEGY="${NUA_CERTBOT_STRATEGY}"
-${NUA_ENV}/bin/nua-orchestrator deploy -v /tmp/${file}
+${NUA_ENV}/bin/nua-orchestrator deploy-replace -v /tmp/${file}
 EOF
     chmod a+x /tmp/test.sh
     sudo -u nua bash /tmp/test.sh
@@ -263,7 +266,7 @@ yesno "Demo 4: start 1 instances of 3 different apps" && {
     cat <<EOF > /tmp/test.sh
 #!/bin/bash
 export NUA_CERTBOT_STRATEGY="${NUA_CERTBOT_STRATEGY}"
-${NUA_ENV}/bin/nua-orchestrator deploy -v /tmp/${file}
+${NUA_ENV}/bin/nua-orchestrator deploy-replace -v /tmp/${file}
 EOF
     chmod a+x /tmp/test.sh
     sudo -u nua bash /tmp/test.sh

@@ -1,0 +1,14 @@
+[[site]]
+label = "postgres1"
+image = "nua-flask-postgresql"
+domain = "test1.example.com"
+
+[[site]]
+label = "postgres2"
+image = "nua-flask-postgresql"
+domain = "test2.example.com"
+
+[[site]]
+label = "postgres3"
+image = "nua-flask-postgresql"
+domain = "test3.example.com"
