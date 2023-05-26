@@ -418,10 +418,10 @@ class NuaConfig:
         """The list of declared volumes."""
         return self._data.get("volume", [])
 
-    # resource ######################################################
+    # resources #####################################################
 
     @property
-    def resource(self) -> list:
+    def resources(self) -> list:
         """The list of resources (tag 'resource')."""
         return self._data.get("resource", [])
 

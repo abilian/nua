@@ -85,7 +85,7 @@ class AppBuilder:
     def infer_meta_packages(self) -> list:
         """Return packages inferred from the nua-config requirements."""
         inferred = []
-        for resource in self.config.resource:
+        for resource in self.config.resources:
             inferred.extend(meta_packages_requirements(resource.get("type", "")))
         # if self.config.git_url:
         #     inferred.extend(meta_packages_requirements("git"))

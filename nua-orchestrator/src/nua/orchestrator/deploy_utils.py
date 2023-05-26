@@ -201,16 +201,16 @@ def stop_one_app_containers(app: AppInstance):
     # container with same network.
 
 
-def start_one_app_containers(site: AppInstance):
-    for resource in site.resources:
+def start_one_app_containers(app: AppInstance):
+    for resource in app.resources:
         start_one_deployed_container(resource)
-    start_one_deployed_container(site)
+    start_one_deployed_container(app)
 
 
-def restart_one_app_containers(site: AppInstance):
-    for resource in site.resources:
+def restart_one_app_containers(app: AppInstance):
+    for resource in app.resources:
         restart_one_deployed_container(resource)
-    restart_one_deployed_container(site)
+    restart_one_deployed_container(app)
 
 
 def stop_one_container(rsite: Resource):

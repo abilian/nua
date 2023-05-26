@@ -907,8 +907,8 @@ class AppDeployment:
 
     def pull_all_resources_images(self) -> bool:
         return all(
-            all(self._pull_resource(resource) for resource in site.resources)
-            for site in self.apps
+            all(self._pull_resource(resource) for resource in app.resources)
+            for app in self.apps
         )
 
     def _pull_resource(self, resource: Resource) -> bool:
