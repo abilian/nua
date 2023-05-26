@@ -10,7 +10,6 @@ tags = ["test", "html", "web", "static", "plugin", "PostgreSQL", "docker", "psyc
 license = "MIT"
 
 [build]
-document_root = "/nua/app/html"
 test = "python -c 'import flask_app'"
 
 [run]
