@@ -26,7 +26,7 @@ OPTIONAL_METADATA = {
     "release",
     "base-image",
     "src-url",
-    "checksum",
+    "src-checksum",
     "git-url",
     "git-branch",
 }
@@ -230,16 +230,18 @@ class NuaConfig:
                     warning(f"Unknown metadata in {self.path}: '{key}'")
 
     def _check_checksum_format(self):
-        checksum = self.checksum
+        checksum = self.src_checksum
         if not checksum:
             return
         if checksum.startswith("sha256:"):
             checksum = checksum[7:]
         if len(checksum) != 64:
             raise NuaConfigError(
-                f"Wrong checksum content (expecting 64 length sha256): {checksum}"
+                f"Wrong src-checksum content (expecting 64 length sha256): {checksum}"
             )
-        self.metadata["checksum"] = checksum
+        if "src-checksum" in self.metadata:
+            del self.metadata["src-checksum"]
+        self.metadata["src_checksum"] = checksum
 
     def _nomalize_env_values(self):
         self._data["env"] = nomalize_env_values(self.env)
@@ -302,9 +304,11 @@ class NuaConfig:
         return ""
 
     @property
-    def checksum(self) -> str:
+    def src_checksum(self) -> str:
         """Return checksum associated to 'src-url' or null string."""
-        return self.metadata.get("checksum", "").strip().lower()
+        if checksum := hyphen_get(self.metadata, "src-checksum"):
+            return checksum.strip().lower()
+        return ""
 
     @property
     def app_id(self) -> str:

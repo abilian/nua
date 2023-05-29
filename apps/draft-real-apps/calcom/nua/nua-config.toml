@@ -9,7 +9,7 @@ website = "https://cal.com"
 tags = ["scheduling"]
 license = "AGPL-3.0"
 src-url = "https://github.com/calcom/cal.com/archive/refs/tags/v{version}.zip"
-checksum = "ea39828e96786069027df4e56a1fbf722630248ee77a4f556fc4893b62c9cb2e"
+src-checksum = "ea39828e96786069027df4e56a1fbf722630248ee77a4f556fc4893b62c9cb2e"
 
 [build]
 # use a specific docker image containing nodejs:

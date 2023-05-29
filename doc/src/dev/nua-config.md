@@ -147,8 +147,7 @@ Notes:
 #### `name`
 
 - **Optional**
-- String to display as replacement of the `id` field
-- Note: may be merged with title in future versions
+- deprecated: use the `title` tag
 
 #### `release`
 
@@ -171,12 +170,12 @@ Notes:
 - URL of the source code of the application
 - Example `src-url = "https://github.com/hedgedoc/hedgedoc/releases/download/{version}/hedgedoc-{version}.tar.gz"`
 
-#### `checksum`
+#### `src-checksum`
 
 - **Optional**
 - If provided, the checksum will be enforced upon the downloaded source code.
 - Supported format: SHA256 only.
-- Example `checksum = 'c9bd99c65cf45fa1d7808855b46abbfa13b24400254d8da5e81dae2965494bb3'`
+- Example `src-checksum = 'c9bd99c65cf45fa1d7808855b46abbfa13b24400254d8da5e81dae2965494bb3'`
 
 #### `git-url`
 

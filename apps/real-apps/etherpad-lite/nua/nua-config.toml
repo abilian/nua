@@ -9,7 +9,7 @@ description = "Etherpad: A modern really-real-time collaborative document editor
 website = "https://etherpad.org"
 license = "Apache-2.0"
 src-url = "https://github.com/ether/etherpad-lite/archive/{version}.tar.gz"
-checksum = "67ccc0bac94e146b26fbddcf8330e0f543a4ff82213c420a376644614a7ff2c4"
+src-checksum = "67ccc0bac94e146b26fbddcf8330e0f543a4ff82213c420a376644614a7ff2c4"
 
 [build]
 builder = "node-14"

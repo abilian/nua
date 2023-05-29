@@ -331,7 +331,7 @@ exec_as_nua({start_cmd},
                 self.config.src_url,
                 "/nua/build",
                 self.config.name,
-                self.config.checksum,
+                self.config.src_checksum,
             )
             return True
 
