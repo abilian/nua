@@ -21,12 +21,12 @@ from .ruby import install_ruby
 from .util import (
     camel_format,
     copy_from_package,
-    to_kebab_cases,
-    to_snake_cases,
     download_extract,
     replace_in,
     snake_format,
     string_in,
+    to_kebab_cases,
+    to_snake_cases,
 )
 
 __all__ = [
