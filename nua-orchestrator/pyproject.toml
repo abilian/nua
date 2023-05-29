@@ -25,7 +25,6 @@ classifiers = [
 packages = [
   { include = "nua", from = "src" }
 ]
-
 [tool.poetry.scripts]
 nua-orchestrator = "nua.orchestrator.cli.main:app"
 # Install Nua account and configure orchestrator on local host:
