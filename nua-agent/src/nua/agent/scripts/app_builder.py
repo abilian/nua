@@ -330,7 +330,7 @@ exec_as_nua({start_cmd},
             self.source = install_source(
                 self.config.src_url,
                 "/nua/build",
-                self.config.name,
+                self.config.app_id,
                 self.config.src_checksum,
             )
             return True
@@ -339,7 +339,7 @@ exec_as_nua({start_cmd},
             self.source = install_source(
                 self.config.project,
                 "/nua/build",
-                self.config.name,
+                self.config.app_id,
             )
             return True
 

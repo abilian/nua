@@ -315,10 +315,8 @@ class NuaConfig:
         return self.metadata.get("id", "")
 
     @property
-    def name(self) -> str:
-        if name := self.metadata.get("name", ""):
-            return name
-        return self.app_id
+    def title(self) -> str:
+        return self.metadata.get("title", "")
 
     @property
     def nua_tag(self) -> str:
@@ -437,10 +435,10 @@ class NuaConfig:
         Set ownership to 'nua' user if launched by 'root'.
         """
         if not name:
-            name = self.name
+            name = self.app_id
             if name.startswith("nua-"):
                 name = name[4:]
-        path = download_extract(self.src_url, "/nua/build", name, self.checksum)
+        path = download_extract(self.src_url, "/nua/build", name, self.src_checksum)
         if os.getuid() == 0:
             chown_r(path, "nua")
         return path
