@@ -8,8 +8,9 @@ from pathlib import Path
 from subprocess import run
 
 import requests
-from nua.lib.exec import is_current_user
 from typer.testing import CliRunner
+
+from nua.lib.exec import is_current_user
 
 # from nua.orchestrator.cli.main import app
 from nua.orchestrator.utils import parse_any_format

@@ -7,10 +7,10 @@ https://www.digitalocean.com/community/tutorials/
 # RUN echo "listen_addresses='*'" >> /etc/postgresql/9.3/main/postgresql.conf
 # RUN echo "host all  all    0.0.0.0/0  trust" >> /etc/postgresql/9.3/main/pg_hba.conf
 
-import mariadb
-
-from time import sleep, time
 from datetime import datetime, timezone
+from time import sleep, time
+
+import mariadb
 
 from .constants import DB_HOST, DB_PORT, USER_DB, USER_NAME, USER_PASSWORD
 

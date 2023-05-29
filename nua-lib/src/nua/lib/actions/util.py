@@ -2,10 +2,12 @@ import mmap
 import os
 import re
 import tempfile
+from collections.abc import Callable
 from glob import glob
 from hashlib import sha256
 from importlib import resources as rso
 from pathlib import Path
+from typing import Any
 from urllib.parse import urlparse
 from urllib.request import urlopen
 
@@ -186,12 +188,48 @@ def snake_format(name: str) -> str:
     return "_".join(word.lower() for word in name.replace("-", "_").split("_"))
 
 
+def kebab_format(name: str) -> str:
+    """Convert a string to kebab_case format.
+    >>> kebab_format("my_project")
+    'my-project'
+    """
+    return "-".join(word.lower() for word in name.replace("_", "-").split("-"))
+
+
 def camel_format(name: str) -> str:
     """Convert a string to CamelCase format.
     >>> camel_format("my-project")
     'MyProject'
     """
     return "".join(word.title() for word in name.replace("-", "_").split("_"))
+
+
+def _to_format_cases(
+    formatter: Callable,
+    data: dict[str, Any],
+    recurse: int = 999,
+) -> None:
+    """Converts all keys in a dict to "formatter" format, recursion level,
+    in place."""
+    for key, value in list(data.items()):
+        new_key = formatter(key)
+        if new_key != key:
+            data[new_key] = value
+            del data[key]
+        if recurse > 0 and isinstance(value, dict):
+            _to_format_cases(formatter, value, recurse - 1)
+
+
+def to_snake_cases(data: dict[str, Any], recurse: int = 999) -> None:
+    """Converts all keys in a dict to snake_case, recursion level,
+    in place."""
+    _to_format_cases(snake_format, data, recurse)
+
+
+def to_kebab_cases(data: dict[str, Any], recurse: int = 999) -> None:
+    """Converts all keys in a dict to snake_case, recursion level,
+    in place."""
+    _to_format_cases(kebab_format, data, recurse)
 
 
 def copy_from_package(

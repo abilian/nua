@@ -53,9 +53,9 @@ class Run(BaseModel):
 
 
 class Port(BaseModel):
-    container: str  #
-    host: str | None  #
-    proxy: str | None  #
+    container: int | dict  #
+    host: int | dict | None  #
+    proxy: int | dict | None  #
     protocol: str | None  #
     ssl: str | None  #
 

@@ -7,11 +7,13 @@ from typing import Any, Union
 
 import tomli
 import yaml
+from dictdiffer import diff
 
-from .actions import download_extract
+from .actions import download_extract, to_kebab_cases, to_snake_cases
 from .constants import NUA_CONFIG_STEM, nua_config_names
+from .nua_config_format import NuaConfigFormat
 from .nua_tag import nua_tag_string
-from .panic import warning
+from .panic import red_line, vprint
 from .shell import chown_r
 from .tool.state import verbosity
 
@@ -95,7 +97,7 @@ class NuaConfig:
     path: Path
     root_dir: Path
     nua_dir_exists: bool
-    _data: dict
+    _data: NuaConfigFormat
 
     def __init__(self, path: str | Path | None = None):
         if not path:
@@ -103,11 +105,6 @@ class NuaConfig:
         self._find_root_dir(path)
         self._find_config_file()
         self._loads_config()
-        self._check_required_blocks()
-        self._complete_missing_blocks()
-        self._fix_spelling()
-        self._check_required_metadata()
-        self._check_unknown_metadata()
         self._check_checksum_format()
         self._nomalize_env_values()
 
@@ -182,15 +179,60 @@ class NuaConfig:
             f"Nua config file not found in '{self.root_dir}' and sub folders"
         )
 
-    def _loads_config(self):
+    def _read_config_data(self) -> dict[str, Any]:
         if self.path.suffix == ".toml":
-            self._data = tomli.loads(self.path.read_text(encoding="utf8"))
+            return tomli.loads(self.path.read_text(encoding="utf8"))
         elif self.path.suffix in {".json", ".yaml", ".yml"}:
-            self._data = yaml.safe_load(self.path.read_text(encoding="utf8"))
+            return yaml.safe_load(self.path.read_text(encoding="utf8"))
         else:
             raise NuaConfigError(f"Unknown file extension for '{self.path}'")
 
-    def as_dict(self) -> dict:
+    def _loads_config(self) -> None:
+        def unchanged_dict(_data: dict) -> dict:
+            _unchanged = {}
+            for key in {"docker", "env"}:
+                if key in _data:
+                    _unchanged[key] = _data[key]
+                    del _data[key]
+            return _unchanged
+
+        read_data = self._read_config_data()
+        data = deepcopy(read_data)
+        unchanged = unchanged_dict(data)
+        to_snake_cases(data, recurse=1)
+        data.update(unchanged)
+        # store internally as a dict() after pydantic validation:
+        data = NuaConfigFormat(**data).dict()
+        unchanged = unchanged_dict(data)
+        to_kebab_cases(data, recurse=1)
+        data.update(unchanged)
+        self._data = data
+        with verbosity(1):
+            self._show_config_differences(read_data)
+
+    def _show_config_differences(self, data: dict[str, Any]) -> None:
+        """Print the difference between original data and actual loaded config.
+
+        This shows the diff between the original TOML and the parsed config once
+        it has been converted to a Pydantic model.
+        Pydantic doesn't check (AFAIK) for extra (just for missing keys or values
+        of the wrong type), so this is a way to check for typos in the keys, etc.
+        """
+        header_displayed = False
+        for key, section, changes in diff(data, self._data):
+            if len(changes) == 2 and not isinstance(changes[0], tuple):
+                change_list = [changes]
+            else:
+                change_list = changes
+            for change_key, value in change_list:
+                if value is None:
+                    continue
+                if not header_displayed:
+                    red_line("NuaConfig data changes:")
+                    header_displayed = True
+                vprint(f"    {key}: {section}.{change_key}: {repr(value)}")
+
+    def as_dict(self) -> dict[str, Any]:
         return self._data
 
     def dump_json(self, folder: Path | str) -> None:
@@ -199,35 +241,6 @@ class NuaConfig:
             json.dumps(self._data, sort_keys=False, ensure_ascii=False, indent=4),
             encoding="utf8",
         )
-
-    def _check_required_blocks(self):
-        for block in REQUIRED_BLOCKS:
-            if block not in self._data:
-                raise NuaConfigError(
-                    f"Missing mandatory block in {self.path}: '{block}'"
-                )
-
-    def _complete_missing_blocks(self):
-        for block in COMPLETE_BLOCKS:
-            if block not in self._data:
-                self._data[block] = {}
-
-    def _fix_spelling(self):
-        if "license" not in self.metadata and "licence" in self.metadata:
-            self.metadata["license"] = self.metadata["licence"]
-
-    def _check_required_metadata(self):
-        for key in REQUIRED_METADATA:
-            if key not in self._data["metadata"]:
-                raise NuaConfigError(
-                    f"Missing mandatory metadata in {self.path}: '{key}'"
-                )
-
-    def _check_unknown_metadata(self):
-        for key in self._data["metadata"]:
-            if key not in REQUIRED_METADATA and key not in OPTIONAL_METADATA:
-                with verbosity(1):
-                    warning(f"Unknown metadata in {self.path}: '{key}'")
 
     def _check_checksum_format(self):
         checksum = self.src_checksum
@@ -239,9 +252,6 @@ class NuaConfig:
             raise NuaConfigError(
                 f"Wrong src-checksum content (expecting 64 length sha256): {checksum}"
             )
-        if "src-checksum" in self.metadata:
-            del self.metadata["src-checksum"]
-        self.metadata["src_checksum"] = checksum
 
     def _nomalize_env_values(self):
         self._data["env"] = nomalize_env_values(self.env)
