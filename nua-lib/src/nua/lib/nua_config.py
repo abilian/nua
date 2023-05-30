@@ -15,7 +15,6 @@ from .nua_config_format import NuaConfigFormat
 from .nua_tag import nua_tag_string
 from .panic import red_line, vprint
 from .shell import chown_r
-from .tool.state import verbosity
 
 REQUIRED_BLOCKS = ["metadata"]
 REQUIRED_METADATA = {"id", "version", "title", "author", "license"}
