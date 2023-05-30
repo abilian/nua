@@ -120,7 +120,7 @@ def parse_nua_config(config_file: str | None, validate_only: bool) -> NuaConfig:
 
 
 def build_app(config: NuaConfig, opts: dict[str, Any]):
-    builder = get_builder(config, **opts)
+    builder = get_builder(config, save_image=opts["save_image"])
     try:
         builder.run()
     except BuilderError as e:
