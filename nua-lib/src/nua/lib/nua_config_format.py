@@ -61,12 +61,19 @@ class Healthcheck(BaseModel):
     interval: int
 
 
+class Backup(BaseModel):
+    method: str
+    destination: str
+    frequency: str
+    options: dict[str, Any] | None
+
+
 class Resource(BaseModel):
     name: str
     type: str
     version: str | None
     # TODO
-    backup: Any
+    backup: Backup | None
 
 
 class Volume(BaseModel):
@@ -74,7 +81,7 @@ class Volume(BaseModel):
     target: str
     driver: str | None
     options: dict | None
-    backup: Any
+    backup: Backup | None
 
 
 class NuaConfigFormat(BaseModel):
