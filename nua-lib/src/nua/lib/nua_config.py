@@ -97,7 +97,7 @@ class NuaConfig:
     path: Path
     root_dir: Path
     nua_dir_exists: bool
-    _data: NuaConfigFormat
+    _data: dict[str, Any]
 
     def __init__(self, path: str | Path | None = None):
         if not path:
