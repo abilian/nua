@@ -15,7 +15,7 @@ builder = "ruby-272"
 # rems: compilation of ruby-2.7.2 breaks openSSL (old version 1.0 required)
 #       So build of the ruby-272 image includes the build of a deprecated version of
 #       openSLL.
-build-command = [
+build = [
     "cp .env.example .env",
     "bundle install",
     "bundle add tzinfo-data",

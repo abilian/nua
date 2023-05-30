@@ -263,7 +263,7 @@ exec_as_nua({start_cmd},
         return None
 
     def run_build_script(self, code_installed: bool) -> bool:
-        """Process the 'build.py' script if exists or the build-command.
+        """Process the 'build.py' script if exists or the 'build' command.
 
         The script is run from the directory of the nua-config.toml file.
         """
@@ -278,13 +278,13 @@ exec_as_nua({start_cmd},
         return self.build_with_auto_detection(code_installed, pip_installed)
 
     def build_with_command(self) -> bool:
-        """Process the 'build-command' commands.
+        """Process the 'build' commands.
 
         The script is run from the source directory.
         """
         with chdir(self.source):
             with verbosity(2):
-                show("Execution of build-command")
+                show("Execution of 'build' command")
             env = dict(os.environ)
             if self.config.build.get("build-as-root", False):
                 exec_as_root(self.config.build_command, env=env, timeout=1800)

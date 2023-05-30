@@ -13,7 +13,7 @@ src-checksum = "67ccc0bac94e146b26fbddcf8330e0f543a4ff82213c420a376644614a7ff2c4
 
 [build]
 builder = "node-14"
-build-command = "true"  # aka do nothing
+build = "true"  # aka do nothing
 
 [run]
 # need to check if git really needed

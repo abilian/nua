@@ -144,11 +144,6 @@ Notes:
 - **Optional**
 - Usage profile (WIP)
 
-#### `name`
-
-- **Optional**
-- deprecated: use the `title` tag
-
 #### `release`
 
 - **Optional**
@@ -232,17 +227,17 @@ Notes:
 - Example `meta-packages = ["postgres-client"]`
 
 
-#### `build-command`
+#### `build`
 
 - String or list of string (alternate syntax)
 - string must contain sh code that will be executed as root in the Dockerfile environment.
 - Important: if not present, an auto-detection algorithm will try to do the standard installation using project configuration (implemented for Python and NodeJs).
 - If a `build.py` file is found in the `./nua` folder, it is executed
-- Example of a do-nothing command `build-command = "true"`
+- Example of a do-nothing command `build = "true"`
 - Example of a long command
 
 ```
-build-command = [
+build = [
     "CGO_ENABLED=0 go build -ldflags='-s -w'",
     "cp galene /nua/app",
     "cp LICENCE /nua/app",

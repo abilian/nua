@@ -26,7 +26,7 @@ packages = [
     "git",
 ]
 
-build-command = [
+build = [
     "bin/setup",
     "yarn cache clean; rm -fr /tmp/*"
 ]

@@ -26,7 +26,7 @@ builder = "node-16"
 # ]
 
 # autodetection of yarn installer
-# build-command = "yarn install"
+# build = "yarn install"
 
 [run]
 start = "yarn start"

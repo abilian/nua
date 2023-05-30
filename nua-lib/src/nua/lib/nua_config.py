@@ -365,7 +365,7 @@ class NuaConfig:
         metadata."""
         metadata = self.metadata_rendered
         commands = []
-        for cmd in force_list(hyphen_get(self.build, "build-command", [])):
+        for cmd in force_list(self.build.get("build", [])):
             if isinstance(cmd, str):
                 commands.append(cmd.format(**metadata))
             else:
