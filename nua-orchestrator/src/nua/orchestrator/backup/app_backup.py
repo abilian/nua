@@ -8,13 +8,16 @@ from nua.lib.tool.state import verbosity
 from ..app_instance import AppInstance
 from ..resource import Resource
 from ..volume import Volume
-from .backup_engine import backup_resource, backup_volume
 from .backup_record import BackupRecord
 from .backup_report import BackupReport
+from .resource_backup import backup_resource
+from .volume_backup import backup_volume
 
 
 @dataclass
 class AppBackup:
+    """Class to control the backup of an app and its volumes."""
+
     app: AppInstance
     reports: list[BackupReport] = field(init=False, default_factory=list)
     result: str = ""

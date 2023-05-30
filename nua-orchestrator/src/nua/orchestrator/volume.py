@@ -192,11 +192,11 @@ class Volume:
         self._dict["options"] = options
 
     @property
-    def backup(self) -> dict:
-        return self._dict.get("backup", {})
+    def backup(self) -> dict[str, Any]:
+        return self._dict.get("backup", None)
 
     @backup.setter
-    def backup(self, backup: dict):
+    def backup(self, backup: dict[str, Any]):
         self._dict["backup"] = backup
 
     def _check_type(self, data: dict):

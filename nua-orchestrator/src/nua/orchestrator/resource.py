@@ -138,6 +138,14 @@ class Resource(dict):
         self["volume"] = volumes
 
     @property
+    def backup(self) -> dict[str, Any]:
+        return self.get("backup", None)
+
+    @backup.setter
+    def backup(self, backup: dict[str, Any]):
+        self["backup"] = backup
+
+    @property
     def volume_declaration(self) -> list:
         """Docker volume declared on a non-container resource.
 
