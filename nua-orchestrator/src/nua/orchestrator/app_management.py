@@ -92,10 +92,8 @@ class AppManagement:
 
     def _backup_apps(self, apps: list[AppInstance]) -> str:
         """Execute a one-time backup for list of apps."""
-        result = []
-        for app in apps:
-            result.append(self.backup_one_app(app))
-        return "\n".join(result)
+        results = [self.backup_one_app(app) for app in apps]
+        return "\n".join(results)
 
     def backup_app_label(self, label: str) -> str:
         """Execute a one-time backup for the app instance."""
