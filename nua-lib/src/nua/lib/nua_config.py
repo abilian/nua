@@ -207,8 +207,7 @@ class NuaConfig:
         to_kebab_cases(data, recurse=1)
         data.update(unchanged)
         self._data = data
-        with verbosity(1):
-            self._show_config_differences(read_data)
+        self._show_config_differences(read_data)
 
     def _show_config_differences(self, data: dict[str, Any]) -> None:
         """Print the difference between original data and actual loaded config.

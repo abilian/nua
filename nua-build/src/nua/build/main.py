@@ -11,13 +11,14 @@ import argparse
 import sys
 import traceback
 from time import perf_counter
-
+from typing import Any
 import snoop
 from cleez.actions import VERSION, COUNT, STORE_TRUE
 from nua.lib.nua_config import NuaConfigError, NuaConfig
 from nua.lib.elapsed import elapsed
-from nua.lib.panic import Abort
+from nua.lib.panic import Abort, red_line, show
 from nua.lib.tool.state import set_color, set_verbosity
+import pydantic
 
 from . import __version__
 from .builders import BuilderError, get_builder
@@ -76,6 +77,12 @@ def app(argv: list | None = None):
         action=argparse.BooleanOptionalAction,
         help="Save image locally after the build.",
     )
+    parser.add_argument(
+        "--validate",
+        default=False,
+        action=argparse.BooleanOptionalAction,
+        help="Validate the nconfig.toml file, no build.",
+    )
 
     args = parser.parse_args(argv)
 
@@ -85,19 +92,35 @@ def app(argv: list | None = None):
         set_verbosity(args.verbose)
     set_color(args.color)
 
+    config = parse_nua_config(args.config_file, args.validate)
     opts = {
         "save_image": args.save,
+        "show_elapsed_time": args.time,
+        "verbosity": args.verbose,
+        "start_time": t0,
     }
+    build_app(config, opts)
 
+
+def parse_nua_config(config_file: str | None, validate_only: bool) -> NuaConfig:
     try:
-        config = NuaConfig(args.config_file or ".")
+        config = NuaConfig(config_file or ".")
+    except pydantic.error_wrappers.ValidationError as valid_error:
+        print(valid_error)
+        red_line("Some error in nua config file.")
+        raise SystemExit(1)
     except NuaConfigError as e:
         # FIXME: not for production
         traceback.print_exc(file=sys.stderr)
         raise Abort(e.args[0])
+    if validate_only:
+        show("No error in nua config file.")
+        raise SystemExit(0)
+    return config
 
+
+def build_app(config: NuaConfig, opts: dict[str, Any]):
     builder = get_builder(config, **opts)
-
     try:
         builder.run()
     except BuilderError as e:
@@ -105,9 +128,9 @@ def app(argv: list | None = None):
         traceback.print_exc(file=sys.stderr)
         raise Abort from e
 
-    if args.time or args.verbose >= 1:
+    if opts["show_elapsed_time"] or opts["verbosity"] >= 1:
         t1 = perf_counter()
-        print(f"Build time (clock): {elapsed(t1-t0)}")
+        print(f"Build time (clock): {elapsed(t1-opts['start_time'])}")
 
 
 def main():
