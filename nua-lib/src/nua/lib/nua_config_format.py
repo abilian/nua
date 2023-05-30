@@ -50,15 +50,18 @@ class Run(BaseModel):
 
 class Port(BaseModel):
     container: int | dict
-    host: int | dict | None
+    host: int | str | dict | None
     proxy: int | dict | None
     protocol: str | None
-    ssl: str | None
+    ssl: bool | None
 
 
 class Healthcheck(BaseModel):
     command: str
     interval: int
+    start_period: int | None
+    timeout: int | None
+    retries: int | None
 
 
 class Backup(BaseModel):
@@ -77,7 +80,7 @@ class Resource(BaseModel):
 
 
 class Volume(BaseModel):
-    name: str
+    name: str | None
     target: str
     driver: str | None
     options: dict | None

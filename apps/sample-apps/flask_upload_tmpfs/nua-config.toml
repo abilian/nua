@@ -10,15 +10,13 @@ tags = ["test", "html", "web", "static", "tmpfs"]
 license = "MIT"
 
 [build]
-document-root = "/nua/app/html"
-# - should auto detect local python project
-
 test = "python -c 'import flask_upload_tmpfs'"
 
 [port.web]
 container = 80
 
 [[volume]]
+
 type = "tmpfs"
 target = "/var/tmp/mount_point"
     [[volume.options]]

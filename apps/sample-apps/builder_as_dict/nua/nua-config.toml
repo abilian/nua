@@ -15,5 +15,3 @@ builder =  {name = "ruby", version = "3.2" }
 [run]
 
 [env]
-
-[port.web]
