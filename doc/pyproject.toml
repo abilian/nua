@@ -27,5 +27,6 @@ sqla2uml = "^0.1.4"
 pygments = "^2.15.1"
 modulegraph = "^0.19.3"
 pydeps = "^1.12.1"
+urllib3 = "<2.0"
 
 docformatter = "^1.6.1"

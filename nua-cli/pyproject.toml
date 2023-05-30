@@ -46,6 +46,7 @@ cleez = "^0.1.9"
 
 
 [tool.poetry.group.dev.dependencies]
+urllib3 = "<2.0"
 abilian-devtools = "*"
 devtools = "*"
 

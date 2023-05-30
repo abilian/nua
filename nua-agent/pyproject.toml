@@ -31,6 +31,7 @@ python = "^3.10"
 nua-lib = { path = "../nua-lib/", develop = true }
 
 [tool.poetry.group.dev.dependencies]
+urllib3 = "<2.0"
 abilian-devtools = "*"
 
 [tool.poetry.scripts]

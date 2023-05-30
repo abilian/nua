@@ -53,6 +53,7 @@ typer = {version = "^0.7.0", extras = ["all"]}
 docker = {version = "^6.0.1", extras = ["ssh"]}
 
 [tool.poetry.group.dev.dependencies]
+urllib3 = "<2.0"
 abilian-devtools = "*"
 devtools = "^0.11.0"
 

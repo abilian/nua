@@ -31,6 +31,7 @@ prettyprinter = "^0.18.0"
 webbits = {git = "https://github.com/abilian/webbits.git"}
 
 [tool.poetry.group.dev.dependencies]
+urllib3 = "<2.0"
 abilian-devtools = "*"
 nox = "*"
 devtools = "*"

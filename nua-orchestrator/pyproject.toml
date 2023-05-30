@@ -65,6 +65,7 @@ python-dotenv = "^0.21"
 pyyaml = "^6"
 
 [tool.poetry.group.dev.dependencies]
+urllib3 = "<2.0"
 abilian-devtools = "*"
 devtools = "*"
 

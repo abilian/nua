@@ -23,11 +23,12 @@ nua-orchestrator = { path = "nua-orchestrator", develop = true }
 nua-server = { path = "nua-server", develop = true }
 
 # Pinned for some reason
-urllib3 = "<=2.0"
+urllib3 = "<2.0"
 
 
 [tool.poetry.group.dev.dependencies]
 # Testing / checking / QA tools
+urllib3 = "<2.0"
 nox = "*"
 abilian-devtools = "*"
 pydeps = "^1.11.1"
