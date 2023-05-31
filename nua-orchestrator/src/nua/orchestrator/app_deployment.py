@@ -1154,7 +1154,7 @@ class AppDeployment:
         run_params.update(nua_docker_default_run)
         # run parameters defined in the image configuration, without the "env"
         # sections:
-        nua_conf_docker = deepcopy(app.image_nua_config.get("docker", {}))
+        nua_conf_docker = deepcopy(app.image_nua_config.get("docker") or {})
         if "env" in nua_conf_docker:
             del nua_conf_docker["env"]
         run_params.update(nua_conf_docker)

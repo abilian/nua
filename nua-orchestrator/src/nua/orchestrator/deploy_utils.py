@@ -282,9 +282,8 @@ def deactivate_all_instances():
             msg = f"Removing instance '{instance.app_id}' on '{instance.domain}'"
             info(msg)
         site_config = instance.site_config
-        container_names = [
-            res.get("container_name", "") for res in site_config.get("resources", [])
-        ]
+        resources_list = site_config.get("resources") or []
+        container_names = [res.get("container_name", "") for res in resources_list]
         container_names.append(site_config.get("container_name", ""))
         container_names = [name for name in container_names if name]
         deactivate_containers(container_names)

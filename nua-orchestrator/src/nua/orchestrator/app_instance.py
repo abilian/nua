@@ -177,7 +177,7 @@ class AppInstance(Resource):
         self["persistent"] = persist_dict
 
     def parse_healthcheck(self):
-        self._parse_healthcheck(self.image_nua_config.get("healthcheck", {}))
+        self._parse_healthcheck(self.image_nua_config.get("healthcheck") or {})
 
     def set_volumes_names(self):
         # suffix = DomainSplit(self.domain).container_suffix()
@@ -232,7 +232,7 @@ class AppInstance(Resource):
     def rebase_env_upon_nua_conf(self):
         """Merge AppInstance declared env at deploy time upon base declaration
         of nua-config."""
-        base_env = deepcopy(self.image_nua_config.get("env", {}))
+        base_env = deepcopy(self.image_nua_config.get("env") or {})
         base_env.update(self.env)
         self.env = base_env
 
@@ -272,9 +272,10 @@ class AppInstance(Resource):
         resource.update_from_site_declaration(resource_updates)
 
     def parse_resources(self):
+        resources_list = self.image_nua_config.get("resource") or []
         resources = [
             self._parse_resource(resource_declaration)
-            for resource_declaration in self.image_nua_config.get("resource", [])
+            for resource_declaration in resources_list
         ]
         resources = [res for res in resources if res]
         with verbosity(3):
@@ -327,7 +328,7 @@ class AppInstance(Resource):
         self.volumes = self.rebased_volumes_upon_package_conf(self.image_nua_config)
 
     def rebase_ports_upon_nua_config(self):
-        nua_config_ports = deepcopy(self.image_nua_config.get("port", {}))
+        nua_config_ports = deepcopy(self.image_nua_config.get("port") or {})
         if not isinstance(nua_config_ports, dict):
             raise Abort("nua_config['port'] must be a dict")
 

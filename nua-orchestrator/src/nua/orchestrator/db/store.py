@@ -371,7 +371,7 @@ def ports_instances_domains() -> dict[int, str]:
     used_domain_ports = {}
     for inst in list_instances_all():
         site_config = inst.site_config
-        ports = site_config.get("port")  # a dict
+        ports = site_config.get("port")  # a dict or None
         if ports:
             for port in ports.values():
                 used_domain_ports[port["host_use"]] = site_config["domain"]
