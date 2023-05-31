@@ -66,7 +66,6 @@ class Healthcheck(BaseModel):
 
 class Backup(BaseModel):
     method: str
-    destination: str
     frequency: str
     options: dict[str, Any] | None
 

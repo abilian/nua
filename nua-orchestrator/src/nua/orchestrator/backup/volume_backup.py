@@ -26,4 +26,5 @@ def backup_volume(resource: Resource, volume: Volume) -> BackupReport:
         report.message = f"Unknown backup method '{backup_class}'"
         return report
     backup = backup_class(resource, volume)
-    return backup.run()
+    report = backup.run()
+    return report

@@ -1,15 +1,15 @@
 from dataclasses import dataclass
 
-from .backup_record import BackupItem
+from .backup_component import BackupComponent
 
 
 @dataclass
 class BackupReport:
     node: str = ""
     task: bool = False
-    success: bool = True
+    success: bool = False
     message: str = ""
-    backup_item: BackupItem | None = None
+    component: BackupComponent | None = None
 
     def __str__(self) -> str:
         if self.success:

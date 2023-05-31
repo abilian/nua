@@ -94,8 +94,8 @@ target = "/hedgedoc/public/uploads"
 
 [volume.backup]
 method = "sync"
-destination = "local"
 frequency = "24h"
+options = { destination = "local" }
 
 [[resource]]
 # A resource is another container required by the main app container, its
@@ -110,5 +110,5 @@ version = ">=14, <15"
 
 [resource.backup]
 method = "pg_dumpall"
-destination = "local"
 frequency = "24h"
+options = { destination = "local" }

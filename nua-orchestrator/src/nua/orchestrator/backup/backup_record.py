@@ -1,6 +1,6 @@
 from dataclasses import asdict, dataclass, field
 
-from .backup_item import BackupItem
+from .backup_component import BackupComponent
 
 
 @dataclass(kw_only=True)
@@ -15,10 +15,10 @@ class BackupRecord:
 
     label_id: str = ""
     date: str = ""  # datetime.now(timezone.utc).replace(microsecond=0).isoformat()
-    items: list[BackupItem] = field(init=False, default_factory=list)
+    items: list[BackupComponent] = field(init=False, default_factory=list)
 
     def as_dict(self) -> dict:
         return asdict(self)
 
-    def append_item(self, backup_item: BackupItem):
+    def append_item(self, backup_item: BackupComponent):
         self.items.append(backup_item)

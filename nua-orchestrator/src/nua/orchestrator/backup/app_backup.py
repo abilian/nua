@@ -37,8 +37,8 @@ class AppBackup:
         self.reports.append(backup_resource(resource))
 
     def _summarize(self):
-        if any(rep.task for rep in self.reports):
-            if all(rep.success for rep in self.reports if rep.task):
+        if any(report.task for report in self.reports):
+            if all(report.success for report in self.reports if report.task):
                 self.result = f"Backup tasks successful for {self.app.container_name}"
                 self.success = True
             else:
@@ -51,18 +51,20 @@ class AppBackup:
     def _failed_result(self) -> str:
         result = ["Some task did fail:"]
         success_str = {True: "succeed", False: "failed"}
-        for rep in self.reports:
-            if not rep.task:
+        for report in self.reports:
+            if not report.task:
                 continue
-            result.append(f"  {rep.node}, {success_str[rep.success]}: {rep.message}")
+            result.append(
+                f"  {report.node}, {success_str[report.success]}: {report.message}"
+            )
         self.result = "\n".join(result)
 
     def _make_backup_record(self) -> BackupRecord:
         now = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
         record = BackupRecord(label_id=self.app.label_id, date=now)
-        for rep in self.reports:
-            if rep.task and rep.success and rep.backup_item is not None:
-                record.append_item(rep.backup_item)
+        for report in self.reports:
+            if report.task and report.success and report.backup_item is not None:
+                record.append_item(report.backup_item)
         return record
 
     def _store_in_app(self):

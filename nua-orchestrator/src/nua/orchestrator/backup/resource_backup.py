@@ -25,4 +25,5 @@ def backup_resource(resource: Resource) -> BackupReport:
         report.message = f"Unknown backup method '{backup_class}'"
         return report
     backup = backup_class(resource)
-    return backup.run()
+    report = backup.run()
+    return report
