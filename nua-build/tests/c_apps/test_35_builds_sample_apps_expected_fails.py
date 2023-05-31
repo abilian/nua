@@ -20,7 +20,9 @@ def test_build_app(dir_name: str):
     assert os.getcwd() == orig_path
 
 
-def test_missing_license():
+def test_missing_license_is_proprietary_license():
     config_path = Path(__file__).parent / "data" / "config_missing_licence"
-    with pytest.raises(NuaConfigError):
-        _config = NuaConfig(config_path)  # noqa F841
+    config = NuaConfig(config_path)  # noqa F841
+    expected = "Proprietary"
+    result = config.metadata["license"]
+    assert result == expected
