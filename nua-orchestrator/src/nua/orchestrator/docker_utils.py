@@ -68,17 +68,17 @@ def docker_service_start_if_needed():
         docker_service_start()
 
 
-def docker_container_of_name(name: str) -> list[Container]:
-    """Send a list of 0 or 1 Container of the given name."""
+def docker_container_of_name(name: str) -> Container | None:
+    """Return the Container of the given name or None if not found."""
     client = DockerClient.from_env()
     try:
         return [
             cont
             for cont in client.containers.list(all=True, filters={"name": name})
             if cont.name == name
-        ]
+        ][0]
     except NotFound:
-        return []
+        return None
 
 
 def docker_container_status(container_id: str) -> str:
@@ -103,34 +103,32 @@ def docker_container_since(container: Container) -> int:
 def docker_start_container_name(name: str):
     if not name:
         return
-    containers = docker_container_of_name(name)
-    with verbosity(3):
-        vprint("docker_start_container_name():", containers)
-    if not containers:
+    container = docker_container_of_name(name)
+    if container is None:
         warning(f"docker_start_container_name(): no container of name '{name}'")
         return
-    for ctn in containers:
-        _docker_start_container(ctn)
+    with verbosity(3):
+        vprint("docker_start_container_name():", container)
+    _docker_start_container(container)
 
 
 def docker_restart_container_name(name: str):
     if not name:
         return
-    containers = docker_container_of_name(name)
-    with verbosity(3):
-        vprint("docker_restart_container_name():", containers)
-    if not containers:
+    container = docker_container_of_name(name)
+    if container is None:
         warning(f"docker_restart_container_name(): no container of name '{name}'")
         return
-    for ctn in containers:
-        _docker_restart_container(ctn)
+    with verbosity(3):
+        vprint("docker_restart_container_name():", container)
+    _docker_restart_container(container)
 
 
 def _docker_wait_empty_container_list(name: str, timeout: int) -> bool:
     if not timeout:
         timeout = 1
     count = timeout * 10
-    while docker_container_of_name(name):
+    while docker_container_of_name(name) is not None:
         if count <= 0:
             return False
         count -= 1
@@ -141,14 +139,13 @@ def _docker_wait_empty_container_list(name: str, timeout: int) -> bool:
 def docker_stop_container_name(name: str):
     if not name:
         return
-    containers = docker_container_of_name(name)
-    with verbosity(3):
-        vprint("docker_stop_container_name():", containers)
-    if not containers:
+    container = docker_container_of_name(name)
+    if container is None:
         warning(f"docker_stop_container_name(): no container of name '{name}'")
         return
-    for ctn in containers:
-        _docker_stop_container(ctn)
+    with verbosity(3):
+        vprint("docker_stop_container_name():", container)
+    _docker_stop_container(container)
     if not _docker_wait_empty_container_list(
         name, config.read("host", "docker_kill_timeout")
     ):
@@ -182,21 +179,23 @@ def _docker_remove_container(name: str, force: bool = False, volume: bool = Fals
     if force:
         with verbosity(0):
             warning(f"removing container with '--force': {name}")
-    for cont in docker_container_of_name(name):
-        cont.remove(v=volume, force=force)
+    container = docker_container_of_name(name)
+    if container is not None:
+        container.remove(v=volume, force=force)
 
 
 def _docker_display_not_removed(name: str):
-    for remain in docker_container_of_name(name):
-        warning(f"container not removed: {remain}")
+    container = docker_container_of_name(name)
+    if container is not None:
+        warning(f"container not removed: {container}")
 
 
 def docker_remove_container(name: str, force=False):
     if not name:
         return
     with verbosity(3):
-        containers = docker_container_of_name(name)
-        vprint("docker_remove_container", containers)
+        container = docker_container_of_name(name)
+        vprint("docker_remove_container", container)
     _docker_remove_container(name, force=force)
     if _docker_wait_empty_container_list(
         name, config.read("host", "docker_remove_timeout")
@@ -210,7 +209,7 @@ def docker_remove_container(name: str, force=False):
 def _docker_wait_container_listed(name: str) -> bool:
     timeout = config.read("host", "docker_run_timeout") or 30
     count = timeout * 10
-    while not docker_container_of_name(name):
+    while docker_container_of_name(name) is not None:
         if count <= 0:
             return False
         count -= 1
@@ -223,24 +222,24 @@ def docker_check_container_listed(name: str) -> bool:
         return True
     else:
         warning(f"container not seen in running list: {name}", "container listed:")
-        for cont in docker_container_of_name(name):
-            print_red(f"         {cont.name}  {cont.status}")
+        container = docker_container_of_name(name)
+        if container is not None:
+            print_red(f"         {container.name}  {container.status}")
         return False
 
 
 def docker_remove_container_previous(name: str, show_warning: bool = True):
     """Remove container of full domain name from running container and DB."""
-    containers = docker_container_of_name(name)
+    container = docker_container_of_name(name)
     with verbosity(4):
-        vprint(f"Stopping container: {pformat(containers)}")
+        vprint(f"Stopping container: {container}")
 
-    if not containers:
+    if container is None:
         if show_warning:
             with verbosity(1):
                 warning(f"no previous container to stop '{name}'")
         return
 
-    container = containers[0]
     with verbosity(1):
         info(f"Stopping container '{container.name}'")
     _docker_stop_container(container)
@@ -264,13 +263,15 @@ def docker_remove_prior_container_live(rsite: Resource):
     if not previous_name:
         return
 
-    for container in docker_container_of_name(previous_name):
-        with verbosity(3):
-            debug(
-                f"For security, try to remove a container not listed in Nua DB: {container.name}"
-            )
-        docker_stop_container_name(container.name)
-        docker_remove_container(container.name)
+    container = docker_container_of_name(previous_name)
+    if container is None:
+        return
+    with verbosity(3):
+        debug(
+            f"For security, try to remove a container not listed in Nua DB: {container.name}"
+        )
+    docker_stop_container_name(container.name)
+    docker_remove_container(container.name)
 
 
 def erase_previous_container(client: DockerClient, name: str):
