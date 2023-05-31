@@ -16,21 +16,6 @@ from .nua_tag import nua_tag_string
 from .panic import red_line, vprint
 from .shell import chown_r
 
-REQUIRED_BLOCKS = ["metadata"]
-REQUIRED_METADATA = {"id", "version", "title", "author", "license"}
-OPTIONAL_METADATA = {
-    "tagline",
-    "website",
-    "tags",
-    "profile",
-    "name",
-    "release",
-    "base-image",
-    "src-url",
-    "src-checksum",
-    "git-url",
-    "git-branch",
-}
 # blocks added (empty) if not present in orig file:
 COMPLETE_BLOCKS = ["build", "run", "env", "docker"]
 
@@ -51,7 +36,7 @@ def hyphen_get(data: dict, key: str, default: Any = None) -> Any:
     return result
 
 
-def nomalize_env_values(env: dict[str, Union[str, int, float, list]]) -> dict[str, str]:
+def nomalize_env_values(env: dict[str, Union[str, int, float, list]]) -> dict[str, Any]:
     def normalize_env_leaf(value: Any) -> str:
         if isinstance(value, str):
             return value
@@ -66,10 +51,10 @@ def nomalize_env_values(env: dict[str, Union[str, int, float, list]]) -> dict[st
         else:
             validated[key] = normalize_env_leaf(value)
 
-    return deepcopy(validated)  # type: ignore
+    return deepcopy(validated)
 
 
-def force_list(content) -> list:
+def force_list(content: Any) -> list[Any]:
     """Return always a list, if a single string is provided, wrap it into
     list.
     >>> force_list("foo")
@@ -79,7 +64,8 @@ def force_list(content) -> list:
     >>> force_list([])
     []
     """
-
+    if content is None:
+        return []
     match content:
         case list():
             return content
@@ -334,7 +320,7 @@ class NuaConfig:
 
     @property
     def build(self) -> dict:
-        return self["build"]
+        return self._data.get("build") or {}
 
     @property
     def builder(self) -> str | dict[str, str] | list[dict]:
@@ -398,7 +384,7 @@ class NuaConfig:
 
     @property
     def run(self) -> dict:
-        return self["run"]
+        return self._data.get("run") or {}
 
     @property
     def packages(self) -> list:
@@ -413,13 +399,13 @@ class NuaConfig:
 
     @property
     def env(self) -> dict:
-        return self["env"]
+        return self._data.get("env") or {}
 
     # docker env ####################################################
 
     @property
     def docker(self) -> dict:
-        return self["docker"]
+        return self._data.get("docker") or {}
 
     # volumes declaration ###########################################
 
