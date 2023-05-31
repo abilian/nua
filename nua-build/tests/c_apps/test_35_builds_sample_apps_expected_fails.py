@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 import pytest
-from nua.lib.nua_config import NuaConfig, NuaConfigError
+from nua.lib.nua_config import NuaConfig
 from nua.lib.panic import Abort
 
 from .build_image import build_test_image
