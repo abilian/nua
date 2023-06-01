@@ -209,7 +209,7 @@ def docker_remove_container(name: str, force=False):
 def _docker_wait_container_listed(name: str) -> bool:
     timeout = config.read("host", "docker_run_timeout") or 30
     count = timeout * 10
-    while docker_container_of_name(name) is not None:
+    while docker_container_of_name(name) is None:
         if count <= 0:
             return False
         count -= 1
