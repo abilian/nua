@@ -122,7 +122,7 @@ class Volume:
 
     @property
     def type(self) -> str:
-        return self._dict.get("type", MANAGED)
+        return self._dict.get("type") or MANAGED
 
     @type.setter
     def type(self, tpe: str):
@@ -145,7 +145,7 @@ class Volume:
 
     @property
     def name(self) -> str:
-        return self._dict.get("name", "")
+        return self._dict.get("name") or ""
 
     @name.setter
     def name(self, name: str):
@@ -153,7 +153,7 @@ class Volume:
 
     @property
     def label(self) -> str:
-        return self._dict.get("label", "")
+        return self._dict.get("label") or ""
 
     @label.setter
     def label(self, label: str):
@@ -169,7 +169,7 @@ class Volume:
 
     @property
     def target(self) -> str:
-        return self._dict.get("target", "")
+        return self._dict.get("target") or ""
 
     @target.setter
     def target(self, target: str):
@@ -177,7 +177,7 @@ class Volume:
 
     @property
     def domains(self) -> list[str]:
-        return self._dict.get("domains", [])
+        return self._dict.get("domains") or []
 
     @domains.setter
     def domains(self, domains: list[str]):
@@ -185,7 +185,7 @@ class Volume:
 
     @property
     def options(self) -> dict:
-        return self._dict.get("options", {})
+        return self._dict.get("options") or {}
 
     @options.setter
     def options(self, options: dict):
@@ -200,12 +200,12 @@ class Volume:
         self._dict["backup"] = backup
 
     def _check_type(self, data: dict):
-        tpe = data.get("type", MANAGED)
+        tpe = data.get("type") or MANAGED
         if tpe not in ALLOWED_TYPE:
             raise ValueError(f"Unknown value for 'volume.type': {tpe}")
         self.type = tpe
         if tpe == MANAGED:
-            self.driver = data.get("driver", "docker")
+            self.driver = data.get("driver") or "docker"
 
     def _check_name(self, data: dict):
         if self.type == TMPFS:
@@ -227,10 +227,10 @@ class Volume:
         self.target = value
 
     def _parse_domains(self, data: dict):
-        self.domains = data.get("domains", [])
+        self.domains = data.get("domains") or []
 
     def _parse_backup(self, data: dict):
-        self.backup = data.get("backup", {})
+        self.backup = data.get("backup") or {}
 
     def _parse_options(self, data: dict):
-        self.options = data.get("option", {})
+        self.options = data.get("option") or {}
