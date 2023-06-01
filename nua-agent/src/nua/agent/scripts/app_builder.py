@@ -9,6 +9,7 @@ import logging
 import os
 from copy import deepcopy
 from pathlib import Path
+from pprint import pformat
 from shutil import copy2
 
 from nua.lib.actions import (
@@ -167,7 +168,7 @@ class AppBuilder:
 
     def _write_start_script(self, start_cmd: list):
         data = deepcopy(self.config.metadata_rendered)
-        data_str = json.dumps(data, indent=4)
+        # data_str = json.dumps(data, indent=4)
         cwd = repr(str(self.source))
         cmd = f"""\
 import os
@@ -175,7 +176,7 @@ import os
 from nua.lib.exec import exec_as_nua
 from nua.agent.templates import render_config_templates
 
-render_config_templates({data_str})
+render_config_templates({pformat(data)})
 exec_as_nua({start_cmd},
             cwd={cwd},
             env=os.environ,)
