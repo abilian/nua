@@ -3,7 +3,7 @@ import json
 import os
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, Union
+from typing import Any
 
 import tomli
 import yaml
@@ -11,6 +11,8 @@ from dictdiffer import diff
 
 from .actions import download_extract, to_kebab_cases, to_snake_cases
 from .constants import NUA_CONFIG_STEM, nua_config_names
+from .exceptions import NuaConfigError
+from .normalization import normalize_env_values, normalize_ports, ports_as_list
 from .nua_config_format import NuaConfigFormat
 from .nua_tag import nua_tag_string
 from .panic import red_line, vprint
@@ -18,10 +20,6 @@ from .shell import chown_r
 
 # blocks added (empty) if not present in orig file:
 COMPLETE_BLOCKS = ["build", "run", "env", "docker"]
-
-
-class NuaConfigError(ValueError):
-    pass
 
 
 def hyphen_get(data: dict, key: str, default: Any = None) -> Any:
@@ -34,24 +32,6 @@ def hyphen_get(data: dict, key: str, default: Any = None) -> Any:
     else:
         result = default
     return result
-
-
-def nomalize_env_values(env: dict[str, Union[str, int, float, list]]) -> dict[str, Any]:
-    def normalize_env_leaf(value: Any) -> str:
-        if isinstance(value, str):
-            return value
-        if isinstance(value, (int, float, list)):
-            return str(value)
-        raise NuaConfigError(f"ENV value has wrong type: '{value}'")
-
-    validated: dict[str, str | dict] = {}
-    for key, value in env.items():
-        if isinstance(value, dict):
-            validated[key] = {k: normalize_env_leaf(v) for k, v in value.items()}
-        else:
-            validated[key] = normalize_env_leaf(value)
-
-    return deepcopy(validated)
 
 
 def force_list(content: Any) -> list[Any]:
@@ -91,7 +71,8 @@ class NuaConfig:
         self._find_config_file()
         self._loads_config()
         self._check_checksum_format()
-        self._nomalize_env_values()
+        self._normalize_env_values()
+        self._normalize_ports()
 
     def __repr__(self):
         return f"NuaConfig(path={self.path}, id={id(self)})"
@@ -237,8 +218,16 @@ class NuaConfig:
                 f"Wrong src-checksum content (expecting 64 length sha256): {checksum}"
             )
 
-    def _nomalize_env_values(self):
-        self._data["env"] = nomalize_env_values(self.env)
+    def _normalize_env_values(self):
+        self._data["env"] = normalize_env_values(self.env)
+
+    def _normalize_ports(self):
+        normalized_ports = normalize_ports(ports_as_list(self.ports))
+        self._data["port"] = {}
+        for port in normalized_ports:
+            name = port["name"]
+            del port["name"]
+            self._data["port"][name] = port
 
     def __getitem__(self, key: str) -> Any:
         """will return {} if key not found, assuming some parts are not
@@ -420,6 +409,12 @@ class NuaConfig:
     def resources(self) -> list:
         """The list of resources (tag 'resource')."""
         return self._data.get("resource") or []
+
+    # ports #########################################################
+
+    @property
+    def ports(self) -> dict[str, dict]:
+        return self._data.get("port") or {}
 
     # actions #######################################################
 

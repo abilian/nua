@@ -10,8 +10,6 @@ tags = ["test", "html", "web", "static"]
 license = "MIT"
 
 [build]
-# auto dedtection of some .whl file
-document-root = "/nua/app/html"
 test = "python -c 'import flask_one_wheel'"
 
 [port.web]

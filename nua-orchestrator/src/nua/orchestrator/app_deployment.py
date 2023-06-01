@@ -814,7 +814,7 @@ class AppDeployment:
         image = "nua-flask-upload-one:1.0-1"
 
 
-        ouput format: dict of hostnames, with explicit port = "auto".
+        ouput format: dict of hostnames
 
         {'sloop.example.com': [{'domain': 'sloop.example.com',
                               'image': 'nua-flask-upload-one:1.0-1',

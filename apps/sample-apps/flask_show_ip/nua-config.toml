@@ -10,7 +10,6 @@ tags = ["test", "html", "web", "IP"]
 license = "MIT"
 
 [build]
-document-root = "/nua/app/html"
 test = "python -c 'import flask_show'"
 
 [run]

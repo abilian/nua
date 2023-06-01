@@ -10,11 +10,7 @@ tags = ["test", "html", "web", "static", "mount", "plugin", "sshfs"]
 license = "MIT"
 
 [build]
-document-root = "/nua/app/html"
-# - should auto detect local python project
-
 test = "python -c 'import flask_upload_sshfs'"
-
 
 [docker]
 # parameters passed as a dict to docker run
@@ -28,7 +24,5 @@ type = "managed"
 driver = "sshfs"
 name = "flask_uploads"
 target = "/var/tmp/uploads"
-    [[volume.options]]
-    sshcmd = "user@remote.com:/var/test"
-    # password = "testpassword"  # if passaword auth
-    IdentityFile= "/nua/some_private_key"
+# password = "testpassword"  # if passaword auth
+options = { sshcmd = "user@remote.com:/var/test", IdentityFile = "/nua/some_private_key" }

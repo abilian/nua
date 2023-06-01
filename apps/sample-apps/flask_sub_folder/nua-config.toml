@@ -10,7 +10,6 @@ tags = ["test", "html", "web", "static"]
 license = "MIT"
 
 [build]
-project = "."
 test = "python -c 'import flask_sub_folder'"
 
 [docker]

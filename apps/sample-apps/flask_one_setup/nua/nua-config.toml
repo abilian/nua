@@ -11,8 +11,6 @@ profile = ["test"]
 release = 3
 
 [build]
-document_root = "/nua/app/html"
-project = "."
 test = "python -c 'import flask_one_setup'"
 
 [run]

@@ -10,7 +10,6 @@ tags = ["test", "html", "web", "static"]
 license = "MIT"
 
 [build]
-document-root = "/nua/app/html"
 test = "python -c 'import flask_sub_folder2'"
 
 [docker]

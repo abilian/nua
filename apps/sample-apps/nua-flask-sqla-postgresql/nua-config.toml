@@ -10,7 +10,6 @@ tags = ["Demo", "Python", "Flask", "PostgreSQL", "SQLAlchemy", "psycopg2"]
 license = "MIT"
 
 [build]
-document_root = "/nua/app/html"
 test = "python -c 'import flask_app'"
 
 [run]

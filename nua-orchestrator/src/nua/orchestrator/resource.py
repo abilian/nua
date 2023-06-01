@@ -5,17 +5,12 @@ from copy import deepcopy
 from pprint import pformat
 from typing import Any
 
-from nua.lib.nua_config import nomalize_env_values
+from nua.lib.normalization import normalize_env_values, normalize_ports, ports_as_list
 from nua.lib.panic import Abort, debug, important, vprint, warning
 from nua.lib.tool.state import verbosity
 
 from .healthcheck import HealthCheck
-from .port_normalization import (
-    normalize_ports_list,
-    ports_as_docker_parameters,
-    ports_as_list,
-    ports_assigned,
-)
+from .port_utils import ports_as_docker_parameters, ports_assigned
 from .register_plugins import (
     is_assignable_plugin,
     is_db_plugins,
@@ -50,7 +45,7 @@ class Resource(dict):
     def check_valid(self):
         self._check_mandatory()
         self._parse_healthcheck()
-        self._nomalize_env_values()
+        self._normalize_env_values()
         self._normalize_ports()
         self._normalize_volumes()
 
@@ -294,8 +289,8 @@ class Resource(dict):
         else:
             self["healthcheck"] = {}
 
-    def _nomalize_env_values(self):
-        self.env = nomalize_env_values(self.env)
+    def _normalize_env_values(self):
+        self.env = normalize_env_values(self.env)
 
     def _normalize_ports(self):
         if "port" not in self:
@@ -305,14 +300,14 @@ class Resource(dict):
         if not isinstance(self.port, dict):
             raise Abort("AppInstance['port'] must be a dict")
 
-        self.port_list = normalize_ports_list(ports_as_list(self.port))
+        self.port_list = normalize_ports(ports_as_list(self.port))
 
     def used_ports(self) -> set[int]:
         return ports_assigned(self.port_list)
 
     def allocate_auto_ports(self, allocator: Callable):
         for port in self.port_list:
-            if port["host"] == "auto":
+            if port["host"] is None:
                 port["host_use"] = allocator()
             else:
                 port["host_use"] = port["host"]

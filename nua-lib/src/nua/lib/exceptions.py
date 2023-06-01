@@ -1,0 +1,2 @@
+class NuaConfigError(ValueError):
+    pass

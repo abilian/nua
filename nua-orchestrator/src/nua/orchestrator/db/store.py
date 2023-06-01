@@ -406,7 +406,7 @@ def _fetch_instance_port_site(site_config: dict) -> int | None:
         return None
     for port in ports.values():
         proxy = port["proxy"]
-        if proxy == "auto":
+        if proxy is None:
             return port["host_use"]
     return None
 

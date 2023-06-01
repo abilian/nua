@@ -5,6 +5,7 @@ from pathlib import Path
 from pprint import pformat
 
 from nua.lib.docker import docker_sanitized_name
+from nua.lib.normalization import normalize_ports, ports_as_list
 from nua.lib.nua_config import hyphen_get
 from nua.lib.nua_tag import nua_tag_string
 from nua.lib.panic import Abort, debug, info, warning
@@ -13,11 +14,7 @@ from nua.lib.tool.state import verbosity
 from .db.model.instance import STOPPED
 from .domain_split import DomainSplit
 from .persistent import Persistent
-from .port_normalization import (
-    normalize_ports_list,
-    ports_as_list,
-    rebase_ports_on_defaults,
-)
+from .port_utils import rebase_ports_on_defaults
 from .resource import Resource
 from .resource_deps import ResourceDeps
 from .search_cmd import search_nua
@@ -47,7 +44,7 @@ class AppInstance(Resource):
 
     def check_valid(self):
         self._check_mandatory()
-        self._nomalize_env_values()
+        self._normalize_env_values()
         self._normalize_ports()
         self._normalize_domain()
         self._set_label_id()
@@ -332,7 +329,7 @@ class AppInstance(Resource):
         if not isinstance(nua_config_ports, dict):
             raise Abort("nua_config['port'] must be a dict")
 
-        base_ports = normalize_ports_list(ports_as_list(nua_config_ports))
+        base_ports = normalize_ports(ports_as_list(nua_config_ports))
         self.port_list = rebase_ports_on_defaults(base_ports, self.port_list)
         with verbosity(4):
             debug(f"rebase_ports_upon_nua_config(): ports={pformat(self.port_list)}")

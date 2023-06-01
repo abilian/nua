@@ -386,13 +386,13 @@ A special value is the networking mode of the container. The `nua-orchestrator` 
 
 ## Section `port`
 
-Each element of this section must be declared with a name used as a key. The `web` key name is special and has default values (default to proxy port 443 or 80). Other port declaration must provide the proxyed port (port seen from the outside).
+Each element of this section must be declared with a name used as a key. The `web` key name is special and has default values (default to proxy port 443 or 80). Other ports declarations must provide the proxyed port (port seen from the outside).
 keys for a port are:
-- `container` : port used by the application to publish its web data (in the container). Must be configured.
-- `host` : port used in local network. By default this port is chosen by the orchestrator and should not be defined by the configuration file.
-- `proxy` : public port proxyed by `nginx`. For the `web` port its default is 443. For other declared port the `proxy` value must be configured
-- `protocol` : one of `tcp` or `udp`, default to `tcp`.
-- `ssl` : one of `true` or `false`, default to `true` (if using `https` protocol for the published domain).
+- `container` : mandatory, port used by the application to publish its web data (in the container). Must be configured.
+- `host` : optional, port used in local network. By default this port is chosen by the orchestrator and should not be defined by the configuration file.
+- `proxy` : public port proxyed by `nginx`. For the `web` port its default is 443. For other declared port the `proxy` value must be configured.
+- `protocol` : optional, one of `tcp` or `udp`, default to `tcp`.
+- `ssl` : optional, one of `true` or `false`, default to `true` (if using `https` protocol for the published domain).
 
 
 - Example of the most common configuration structure

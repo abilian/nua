@@ -21,7 +21,6 @@ run:
 port:
   web:
     container: 8765
-ports:
   abcd:
     container: 8764
     proxy: 8764

@@ -1,7 +1,7 @@
 """Class to manage NuaConfig format."""
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, PositiveInt
 
 
 class Metadata(BaseModel):
@@ -12,7 +12,7 @@ class Metadata(BaseModel):
     tagline: str | None
     website: str | None
     version: str
-    release: int | None
+    release: PositiveInt | None
     license: str = "Proprietary"
     src_url: str | None
     src_checksum: str | None
@@ -49,19 +49,19 @@ class Run(BaseModel):
 
 
 class Port(BaseModel):
-    container: int | dict
-    host: int | str | dict | None
-    proxy: int | dict | None
+    container: PositiveInt | dict
+    host: PositiveInt | dict | None
+    proxy: PositiveInt | dict | None
     protocol: str | None
     ssl: bool | None
 
 
 class Healthcheck(BaseModel):
     command: str
-    interval: int
-    start_period: int | None
-    timeout: int | None
-    retries: int | None
+    interval: PositiveInt
+    start_period: PositiveInt | None
+    timeout: PositiveInt | None
+    retries: PositiveInt | None
 
 
 class Backup(BaseModel):
@@ -80,6 +80,7 @@ class Resource(BaseModel):
 
 class Volume(BaseModel):
     name: str | None
+    type: str | None
     target: str
     driver: str | None
     options: dict | None

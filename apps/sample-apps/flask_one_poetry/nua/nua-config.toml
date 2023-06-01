@@ -10,8 +10,6 @@ tags = ["test", "html", "web", "static"]
 license = "MIT"
 
 [build]
-document-root = "/nua/app/html"
-project = "."
 test = "python -c 'import flask_one_poetry'"
 
 [run]

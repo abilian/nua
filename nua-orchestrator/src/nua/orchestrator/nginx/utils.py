@@ -51,7 +51,7 @@ def _set_instances_proxy_auto_port(host: dict):
     for site in host["apps"]:
         ports = site["port_list"]
         for port in ports:
-            if port["proxy"] == "auto":
+            if port["proxy"] is None:
                 site["host_use"] = port["host_use"]
                 break
 

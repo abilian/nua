@@ -10,7 +10,6 @@ tags = ["test", "html", "web", "flask", "plugin", "sqlite", "sqlalchemy"]
 license = "MIT"
 
 [build]
-document-root = "/nua/app/html"
 test = "python -c 'import flask_sqla_sqlite_volume'"
 
 [env]

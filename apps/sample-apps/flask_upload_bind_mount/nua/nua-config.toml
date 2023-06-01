@@ -10,10 +10,6 @@ tags = ["test", "html", "web", "static", "bind", "--volume"]
 license = "MIT"
 
 [build]
-document-root = "/nua/app/html"
-# - should auto detect local python project
-# - should create automatically the source volume if needed
-
 test = "python -c 'import flask_upload_bind_mount'"
 
 [env]
