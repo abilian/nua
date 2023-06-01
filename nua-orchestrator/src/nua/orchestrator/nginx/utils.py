@@ -94,11 +94,11 @@ def configure_nginx_hostname(host: dict):
                  'location': 'instance1'
                  'port': {},
                  'port_list': [{'container': 3000,
-                                  'host': 'auto',
+                                  'host': None,
                                   'host_use': 8101,
                                   'name': 'web',
                                   'protocol': 'tcp',
-                                  'proxy': 'auto',
+                                  'proxy': None,
                                   'ssl': True}],
 
                    ...
