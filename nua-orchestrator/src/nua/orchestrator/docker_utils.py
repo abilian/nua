@@ -77,7 +77,7 @@ def docker_container_of_name(name: str) -> Container | None:
             for cont in client.containers.list(all=True, filters={"name": name})
             if cont.name == name
         ][0]
-    except NotFound:
+    except (NotFound, IndexError):
         return None
 
 
