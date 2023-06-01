@@ -13,7 +13,7 @@ def get_backup_plugin(identifier: str) -> Callable | None:
 
 
 def register_backup_plugins():
-    plugin_folder = "nua.orchestrator.backups.plugins"
+    plugin_folder = "nua.orchestrator.backup.plugins"
     for file in rso.files(plugin_folder).iterdir():
         with rso.as_file(file) as path:
             if path.suffix != ".py" or path.stem.startswith("_"):

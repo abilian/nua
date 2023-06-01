@@ -48,7 +48,7 @@ class AppBackup:
             self.result = f"No backup task for {self.app.container_name}"
             self.success = True
 
-    def _failed_result(self) -> str:
+    def _failed_result(self) -> None:
         result = ["Some task did fail:"]
         success_str = {True: "succeed", False: "failed"}
         for report in self.reports:
@@ -63,8 +63,8 @@ class AppBackup:
         now = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
         record = BackupRecord(label_id=self.app.label_id, date=now)
         for report in self.reports:
-            if report.task and report.success and report.backup_item is not None:
-                record.append_item(report.backup_item)
+            if report.task and report.success and report.component is not None:
+                record.append_component(report.component)
         return record
 
     def _store_in_app(self):
