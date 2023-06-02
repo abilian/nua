@@ -71,10 +71,6 @@ class AppInstance(Resource):
         self["image_nua_config"] = image_nua_config
 
     @property
-    def label_id(self) -> str:
-        return self["label_id"]
-
-    @property
     def label(self) -> str:
         return self["label"]
 
@@ -318,7 +314,7 @@ class AppInstance(Resource):
         label_id = docker_sanitized_name(label)
         if not label_id:
             raise ValueError("Empty label is not allowed")
-        self["label_id"] = label_id
+        self.label_id = label_id
         self["label"] = label.strip()
 
     def rebase_volumes_upon_nua_conf(self):
@@ -358,6 +354,7 @@ class AppInstance(Resource):
         AppInstance.container_name is always available.
         """
         for resource in self.resources:
+            resource.label_id = self.label_id
             if resource.is_docker_type():
                 name = f"{self.label_id}-{resource.resource_name}-{resource.base_name}"
                 resource.container_name = name

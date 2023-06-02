@@ -63,6 +63,20 @@ class Resource(dict):
         pass
 
     @property
+    def label_id(self) -> str:
+        """Sanitized version of the app label.
+
+        For resources, label_id is the label_id of the main app.
+        """
+        if "label_id" not in self:
+            self["label_id"] = ""
+        return self["label_id"]
+
+    @label_id.setter
+    def label_id(self, label_id: str) -> None:
+        self["label_id"] = label_id
+
+    @property
     def type(self) -> str:
         return self["type"]
 

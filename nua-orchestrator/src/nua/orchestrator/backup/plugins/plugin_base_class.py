@@ -7,6 +7,7 @@ from nua.lib.dates import backup_date
 
 from ...resource import Resource
 from ...volume import Volume
+from ..backup_component import BackupComponent
 from ..backup_report import BackupReport
 
 
@@ -24,6 +25,7 @@ class PluginBaseClass(abc.ABC):
     def __init__(self, resource: Resource, volume: Volume | None = None):
         self.resource: Resource = resource
         self.volume: Volume | None = volume
+        self.label: str = self.resource.label_id
         self.node: str = self.resource.container_name
         self.options: dict[str, Any] = {}
         if self.volume:
@@ -32,21 +34,17 @@ class PluginBaseClass(abc.ABC):
             backup_dict = self.resource.get("backup") or {}
         self.options = backup_dict.get("options") or {}
         self.date: str = ""
-        self.report = BackupReport(node=self.node, task=True)
+        self.report: BackupReport = BackupReport(node=self.node, task=True)
+        self.backup_folder: Path = Path()
 
     def restore(self) -> None:
         pass
         # restore_id = restore_fct_id("pg_dumpall")
 
-    def make_nua_local_folder(self) -> Path:
-        """For local backup, make the destination local folder.
-
-        Returns:
-            folder path
-        """
-        folder = Path("/home/nua/backups") / self.node
-        folder.mkdir(exist_ok=True, parents=True)
-        return folder
+    def make_nua_local_folder(self) -> None:
+        """For local backup, make the destination local folder."""
+        self.folder = Path("/home/nua/backups") / self.label / self.node / self.date
+        self.folder.mkdir(exist_ok=True, parents=True)
 
     def set_date(self) -> None:
         self.date = backup_date()
@@ -57,6 +55,15 @@ class PluginBaseClass(abc.ABC):
     def do_backup(self) -> None:
         pass
 
+    def finalize(self, file_name: str) -> None:
+        self.report.message = file_name
+        self.report.component = BackupComponent.generate(
+            folder=str(self.folder),
+            file_name=file_name,
+            restore=self.identifier,
+            date=self.date,
+        )
+
     def run(self) -> BackupReport:
         """Backup the Resource or Volume.
 
@@ -64,6 +71,7 @@ class PluginBaseClass(abc.ABC):
             BackupReport instance
         """
         self.set_date()
+        self.make_nua_local_folder()
         try:
             self.do_backup()
         except (BackupErrorException, RuntimeError) as e:

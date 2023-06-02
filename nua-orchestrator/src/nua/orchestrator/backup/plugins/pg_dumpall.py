@@ -2,7 +2,6 @@
 
 
 from ...docker_utils import docker_container_of_name, docker_exec_checked
-from ..backup_component import BackupComponent
 from ..backup_registry import register_plugin
 from .plugin_base_class import BackupErrorException, PluginBaseClass
 
@@ -31,9 +30,8 @@ class BckPostgresDumpall(PluginBaseClass):
         """
         self.check_local_destination()
 
-        folder = self.make_nua_local_folder()
         file_name = f"{self.base_name()}.sql"
-        dest_file = folder / file_name
+        dest_file = self.folder / file_name
 
         container = docker_container_of_name(self.node)
         if container is None:
@@ -49,11 +47,7 @@ class BckPostgresDumpall(PluginBaseClass):
                 output,
             )
             output.flush()
-        component = BackupComponent(
-            path=str(dest_file), restore=self.identifier, date=self.date
-        )
-        self.report.message = dest_file.name
-        self.report.component = component
+        self.finalize(file_name)
 
 
 register_plugin(BckPostgresDumpall)
