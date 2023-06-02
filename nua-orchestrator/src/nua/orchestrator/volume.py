@@ -86,6 +86,7 @@ class Volume:
             self._check_target(data)
             self._parse_domains(data)
             self._parse_options(data)
+            self._parse_backup(data)
             self._dict["_checked_"] = True
         except ValueError as e:
             print_red(str(e))
@@ -193,7 +194,7 @@ class Volume:
 
     @property
     def backup(self) -> dict[str, Any]:
-        return self._dict.get("backup", None)
+        return self._dict.get("backup") or {}
 
     @backup.setter
     def backup(self, backup: dict[str, Any]):

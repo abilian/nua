@@ -19,11 +19,12 @@ def backup_volume(resource: Resource, volume: Volume) -> BackupReport:
         report.success = False
         report.message = "No backup configuration"
         return report
-    backup_class = get_backup_plugin(config.get("method", ""))
+    method = config.get("method") or ""
+    backup_class = get_backup_plugin(method)
     if backup_class is None:
         report.task = True
         report.success = False
-        report.message = f"Unknown backup method '{backup_class}'"
+        report.message = f"Unknown backup method '{method}'"
         return report
     backup = backup_class(resource, volume)
     report = backup.run()

@@ -21,6 +21,7 @@ class AppBackup:
     app: AppInstance
     reports: list[BackupReport] = field(init=False, default_factory=list)
     result: str = ""
+    detailed_result: str = ""
     success: bool = False
 
     def run(self):
@@ -28,6 +29,7 @@ class AppBackup:
             self._backup_resource_parts(resource)
         self._backup_resource_parts(self.app)
         self._summarize()
+        self._make_detailed_result()
         self._store_in_app()
 
     def _backup_resource_parts(self, resource: Resource):
@@ -47,6 +49,11 @@ class AppBackup:
         else:
             self.result = f"No backup task for {self.app.container_name}"
             self.success = True
+
+    def _make_detailed_result(self):
+        self.detailed_result = "\n".join(
+            str(report) for report in self.reports if report.task
+        )
 
     def _failed_result(self) -> None:
         result = ["Some task did fail:"]
@@ -68,6 +75,8 @@ class AppBackup:
         return record
 
     def _store_in_app(self):
+        # with verbosity(1):
+        #     vprint(self.detailed_result)
         if not self.success:
             warning("Backup unsuccessful: not stored in app valid backups")
             return
