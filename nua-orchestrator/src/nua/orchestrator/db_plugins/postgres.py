@@ -45,8 +45,8 @@ def _make_volume(resource: Resource) -> Volume:
     volume.type = "managed"
     volume.driver = "docker"
     # at this stage, network_name is defined
-    volume.name = "data"
-    volume.label = resource.container_name
+    volume.name = f"{resource.container_name}-data"
+    volume.label = volume.name
     # target of Postgres images default configuration
     volume.target = "/var/lib/postgresql/data"
     return volume
