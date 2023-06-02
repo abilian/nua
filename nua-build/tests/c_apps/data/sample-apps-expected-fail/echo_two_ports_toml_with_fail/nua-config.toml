@@ -15,10 +15,9 @@ test = "python -c 'import non_existing_module'"
 
 [port.web]
 container = 8765
-host = "auto" # default
-protocol = "tcp" # default
+protocol = "tcp"
 
 [ports.abcd]
 container = 8764
 host = 8764
-protocol = "tcp" # default
+protocol = "tcp"
