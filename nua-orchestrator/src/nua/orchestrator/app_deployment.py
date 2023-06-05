@@ -329,6 +329,7 @@ class AppDeployment:
 
         # step 3
         app.parse_healthcheck()
+        app.parse_backup()
         for service in app.local_services:
             handler = self.available_services[service]
             if not handler.check_site_configuration(app):
@@ -512,6 +513,7 @@ class AppDeployment:
     def configure_apps_step3(self):
         """ "Last part of app configuration: requiring ports."""
         self.apps_parse_healthcheck()
+        self.apps_parse_backup()
         self.apps_check_host_services_configuration()
 
     def restore_configure(self):
@@ -949,6 +951,12 @@ class AppDeployment:
             app.parse_healthcheck()
         with verbosity(3):
             debug("apps_parse_healthcheck() done")
+
+    def apps_parse_backup(self):
+        for app in self.apps:
+            app.parse_backup()
+        with verbosity(3):
+            debug("apps_parse_backup() done")
 
     def apps_set_network_name(self):
         for app in self.apps:

@@ -33,10 +33,18 @@ class AppBackup:
         self._store_in_app()
 
     def _backup_resource_parts(self, resource: Resource):
+        with verbosity(2):
+            print("_backup_resource_parts()", resource.container_name)
         for volume_dict in resource.volumes:
             volume = Volume.from_dict(volume_dict)
-            self.reports.append(backup_volume(resource, volume))
-        self.reports.append(backup_resource(resource))
+            report = backup_volume(resource, volume)
+            with verbosity(2):
+                print("report volume", report)
+            self.reports.append(report)
+        report = backup_resource(resource)
+        with verbosity(2):
+            print("report resource", report)
+        self.reports.append(report)
 
     def _summarize(self):
         if any(report.task for report in self.reports):

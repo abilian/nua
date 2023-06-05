@@ -74,7 +74,6 @@ class Resource(BaseModel):
     name: str
     type: str
     version: str | None
-    # TODO
     backup: Backup | None
 
 
@@ -96,5 +95,6 @@ class NuaConfigFormat(BaseModel):
     volume: list[Volume] | None  #
     port: dict[str, Port] | None
     docker: dict | None
+    backup: Backup | None
     # Should it be in `run` ?
     healthcheck: Healthcheck | None  #

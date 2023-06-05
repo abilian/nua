@@ -172,6 +172,9 @@ class AppInstance(Resource):
     def parse_healthcheck(self):
         self._parse_healthcheck(self.image_nua_config.get("healthcheck") or {})
 
+    def parse_backup(self):
+        self._parse_backup(self.image_nua_config.get("backup") or {})
+
     def set_volumes_names(self):
         # suffix = DomainSplit(self.domain).container_suffix()
         # self.volume = [Volume.update_name_dict(v, suffix) for v in self.volume]
@@ -285,8 +288,10 @@ class AppInstance(Resource):
                 )
                 return None
         resource = Resource(declaration)
+        # debug backup print(declaration)
         resource.resource_name = declaration["name"]
         resource.check_valid()
+        # debug backup print(dict(resource))
         return resource
 
     def _normalize_domain(self):

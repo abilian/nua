@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from typing import Any
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -20,13 +21,23 @@ class BackupComponent:
     file_name: str = ""
     restore: str = ""
     date: str = ""
+    volume_info: dict[str, Any] | None = None
 
     @classmethod
     def generate(
-        cls, folder: str, file_name: str, restore: str, date: str
+        cls,
+        folder: str,
+        file_name: str,
+        restore: str,
+        date: str,
+        volume_info: dict[str, Any] | None,
     ) -> BackupComponent:
         component = BackupComponent(
-            folder=folder, file_name=file_name, restore=restore, date=date
+            folder=folder,
+            file_name=file_name,
+            restore=restore,
+            date=date,
+            volume_info=volume_info,
         )
         component.save()
         return component
@@ -40,6 +51,7 @@ class BackupComponent:
             file_name=content["file_name"],
             restore=content["restore"],
             date=content["date"],
+            volume_info=content["volume_info"],
         )
 
     def save(self) -> None:

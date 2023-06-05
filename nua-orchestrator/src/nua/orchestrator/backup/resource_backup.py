@@ -12,6 +12,7 @@ if typing.TYPE_CHECKING:
 def backup_resource(resource: Resource) -> BackupReport:
     """Execute a backup from main 'backup' configuration of a Resource."""
     config = resource.backup
+    # debug backup print(config)
     report = BackupReport(node=resource.container_name)
     if not config or not isinstance(config, dict):
         report.task = False

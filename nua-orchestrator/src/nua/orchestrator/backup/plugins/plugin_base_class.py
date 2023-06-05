@@ -3,6 +3,7 @@ import abc
 from pathlib import Path
 from typing import Any
 
+import docker
 from nua.lib.dates import backup_date
 
 from ...resource import Resource
@@ -21,10 +22,12 @@ class PluginBaseClass(abc.ABC):
     By default, the base class can apply to either Resource or Volume."""
 
     identifier = "plugin_identifier"
+    nua_backup_dir = "/nua_backup_dir"
 
     def __init__(self, resource: Resource, volume: Volume | None = None):
         self.resource: Resource = resource
         self.volume: Volume | None = volume
+        self.volume_info: dict[str, Any] | None = None
         self.label: str = self.resource.label_id
         self.node: str = self.resource.container_name
         self.options: dict[str, Any] = {}
@@ -38,8 +41,8 @@ class PluginBaseClass(abc.ABC):
         self.backup_folder: Path = Path()
 
     def restore(self) -> None:
+        """Resore the Resource and or Volue."""
         pass
-        # restore_id = restore_fct_id("pg_dumpall")
 
     def make_nua_local_folder(self) -> None:
         """For local backup, make the destination local folder."""
@@ -52,6 +55,19 @@ class PluginBaseClass(abc.ABC):
     def base_name(self) -> str:
         return f"{self.date}-{self.node}"
 
+    def docker_run_ubuntu(self, command: str) -> str:
+        client = docker.DockerClient.from_env()
+        return client.containers.run(
+            "ubuntu",
+            command=command,
+            # mounts=
+            remove=True,
+            detach=False,
+            stream=False,
+            volumes_from=[self.node],
+            volumes={str(self.folder): {"bind": self.nua_backup_dir, "mode": "rw"}},
+        )
+
     def do_backup(self) -> None:
         pass
 
@@ -62,6 +78,7 @@ class PluginBaseClass(abc.ABC):
             file_name=file_name,
             restore=self.identifier,
             date=self.date,
+            volume_info=self.volume_info,
         )
 
     def run(self) -> BackupReport:

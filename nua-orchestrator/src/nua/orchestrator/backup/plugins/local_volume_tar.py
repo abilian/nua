@@ -34,7 +34,8 @@ class BckLocalTar(PluginBaseClass):
                 f"Error: No container/volume found for {self.node}/{self.volume.full_name}"
             )
 
-        source = docker_volume.attrs["Mountpoint"]
+        self.volume_info = docker_volume.attrs
+        source = self.volume_info["Mountpoint"]
         cmd = f"tar czf {dest_file} {source}"
         print(f"Start backup: {dest_file}")
         exec_as_root(cmd)

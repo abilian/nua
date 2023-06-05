@@ -98,6 +98,13 @@ def _docker_container_mounts(container: Container) -> list[dict]:
     return container.attrs["Mounts"]
 
 
+def docker_mount_point(container: Container, volume_name: str) -> str:
+    for record in _docker_container_mounts(container):
+        if record["Name"] == volume_name:
+            return record["Destination"]
+    return ""
+
+
 def docker_container_volumes(container_name: str) -> list[DockerVolume]:
     volumes = []
     client = DockerClient.from_env()

@@ -2,7 +2,7 @@
 id = "hedgedoc"
 version = "1.9.7"
 # Nota: version 1.9.6 seems broken since 1.9.7
-release = 5
+release = 6
 title = "HedgeDoc"
 author = "HedgeDoc authors"
 tagline = "The best platform to write and share markdown"
@@ -87,15 +87,22 @@ container = 3000
 command = "node /nua/build/hedgedoc/healthcheck.mjs"
 interval = 10
 
+
+[backup]
+method = "container_volumes"
+frequency = "24h"
+options = { destination = "local" }
+
+
 [[volume]]
 # declare a local volume for plublic uploads
 name = "hedgedoc_uploads"
 target = "/hedgedoc/public/uploads"
 
-[volume.backup]
-method = "tar"
-frequency = "24h"
-options = { destination = "local" }
+# [volume.backup]
+# method = "tar"
+# frequency = "24h"
+# options = { destination = "local" }
 
 [[resource]]
 # A resource is another container required by the main app container, its
@@ -108,7 +115,7 @@ name = "database"
 type = "postgres"
 version = ">=14, <15"
 
-[resource.backup]
-method = "pg_dumpall"
-frequency = "24h"
-options = { destination = "local" }
+# [resource.backup]
+# method = "pg_dumpall"
+# frequency = "24h"
+# options = { destination = "local" }

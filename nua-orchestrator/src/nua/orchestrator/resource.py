@@ -33,6 +33,7 @@ class Resource(dict):
         super().__init__(declaration)
         if "requested_secrets" not in self:
             self.requested_secrets = []
+        # debug backup print("resource_decl", declaration)
 
     @classmethod
     def from_dict(cls, resource_dict: dict) -> Resource:
@@ -302,6 +303,12 @@ class Resource(dict):
             self["healthcheck"] = HealthCheck(config).as_dict()
         else:
             self["healthcheck"] = {}
+
+    def _parse_backup(self, config: dict | None = None):
+        if config:
+            self.backup = config
+        else:
+            self.backup = {}
 
     def _normalize_env_values(self):
         self.env = normalize_env_values(self.env)
