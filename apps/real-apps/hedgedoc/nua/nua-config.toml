@@ -2,7 +2,7 @@
 id = "hedgedoc"
 version = "1.9.7"
 # Nota: version 1.9.6 seems broken since 1.9.7
-release = 4
+release = 5
 title = "HedgeDoc"
 author = "HedgeDoc authors"
 tagline = "The best platform to write and share markdown"
@@ -93,7 +93,7 @@ name = "hedgedoc_uploads"
 target = "/hedgedoc/public/uploads"
 
 [volume.backup]
-method = "sync"
+method = "tar"
 frequency = "24h"
 options = { destination = "local" }
 
