@@ -39,6 +39,7 @@ from .volume import Volume
 RE_VAR = re.compile(r"\{[^\{\}]+\}")
 
 
+# local daemon ######################################################
 @cache
 def docker_host_gateway_ip() -> str:
     cmd = ["ip", "-j", "route"]
@@ -68,17 +69,56 @@ def docker_service_start_if_needed():
         docker_service_start()
 
 
-def docker_container_of_name(name: str) -> Container | None:
+# container #########################################################
+
+
+def docker_container_of_name(
+    name: str,
+    client: DockerClient | None = None,
+) -> Container | None:
     """Return the Container of the given name or None if not found."""
-    client = DockerClient.from_env()
+    if client is None:
+        actual_client = DockerClient.from_env()
+    else:
+        actual_client = client
     try:
         return [
             cont
-            for cont in client.containers.list(all=True, filters={"name": name})
+            for cont in actual_client.containers.list(all=True, filters={"name": name})
             if cont.name == name
         ][0]
     except (NotFound, IndexError):
         return None
+
+
+# container action ##################################################
+
+
+def _docker_container_mounts(container: Container) -> list[dict]:
+    return container.attrs["Mounts"]
+
+
+def docker_container_volumes(container_name: str) -> list[DockerVolume]:
+    volumes = []
+    client = DockerClient.from_env()
+    container = docker_container_of_name(container_name, client)
+    if container is None:
+        return volumes
+    for mounted in _docker_container_mounts(container):
+        volume = docker_volume_of_name(mounted["Name"], client)
+        if volume is not None:
+            volumes.append(volume)
+    return volumes
+
+
+def docker_container_named_volume(
+    container_name: str,
+    volume_name: str,
+) -> DockerVolume | None:
+    for volume in docker_container_volumes(container_name):
+        if volume.attrs["Name"] == volume_name:
+            return volume
+    return None
 
 
 def docker_container_status(container_id: str) -> str:
@@ -482,6 +522,23 @@ def docker_exec_checked(container: Container, params: dict, output: io.BufferedI
 #         print(e)
 #         raise RuntimeError(f"Test of container failed:\ndocker logs {container.id}")
 
+# Volumes ###########################################################
+
+
+def docker_volume_of_name(
+    name: str,
+    client: DockerClient | None = None,
+) -> DockerVolume | None:
+    """Return the DockerVolume of the given name or None if not found."""
+    if client is None:
+        actual_client = DockerClient.from_env()
+    else:
+        actual_client = client
+    try:
+        return actual_client.volumes.get(name)
+    except (NotFound, APIError):
+        return None
+
 
 def docker_volume_type(volume: Volume) -> str:
     if volume.is_managed:
@@ -594,6 +651,9 @@ def docker_volume_prune(volume_opt: dict):
         print("Error while unmounting volume:")
         print(pformat(volume_opt))
         print(e)
+
+
+# network ###########################################################
 
 
 def docker_network_create_bridge(network_name: str):
