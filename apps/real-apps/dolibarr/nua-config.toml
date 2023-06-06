@@ -1,7 +1,7 @@
 [metadata]
 id = "dolibarr-mariadb-wrap"
 version = "16.0.4"
-release = 4
+release = 5
 title = "Dolibarr (for mariadb), wrap build based on tuxgazy Docker image"
 author = "Dolibarr developers"
 tagline = "Open Source ERP & CRM for business"
@@ -47,6 +47,11 @@ name = "dolibarr_documents"
 # Container path:
 target = "/var/www/documents"
 
+[backup]
+method = "container_volumes"
+frequency = "24h"
+options = { destination = "local" }
+
 
 [[resource]]
 # A resource is another container required by the main app container, its
@@ -60,3 +65,7 @@ type = "mariadb"
 version = ">=10.6, <10.7"
 # create_user = true -> the default
 # create_db = true   -> the default
+
+[resource.backup]
+method = "mysqldump"
+options = { destination = "local" }
