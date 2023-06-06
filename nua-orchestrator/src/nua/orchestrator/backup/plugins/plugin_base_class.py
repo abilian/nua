@@ -46,7 +46,8 @@ class PluginBaseClass(abc.ABC):
         self.options = backup_dict.get("options") or {}
         self.date: str = ref_date
         self.report: BackupReport = BackupReport(node=self.node, task=True)
-        self.backup_folder: Path = Path()
+        self.folder: Path = Path()
+        self.file_name: str = ""
 
     def restore(self) -> None:
         """Restore the Resource and or Volume. To be implemented by sub class."""
@@ -60,9 +61,6 @@ class PluginBaseClass(abc.ABC):
     def set_date(self) -> None:
         if not self.date:
             self.date = backup_date()
-
-    def base_name(self) -> str:
-        return f"{self.date}-{self.node}"
 
     def docker_run_ubuntu(self, command: str) -> str:
         docker_require(BACKUP_CONTAINER)
@@ -82,11 +80,11 @@ class PluginBaseClass(abc.ABC):
         """To be implemented by sub class"""
         raise NotImplementedError
 
-    def finalize(self, file_name: str) -> None:
-        self.report.message = file_name
+    def finalize(self) -> None:
+        self.report.message = self.file_name
         self.report.component = BackupComponent.generate(
             folder=str(self.folder),
-            file_name=file_name,
+            file_name=self.file_name,
             restore=self.identifier,
             date=self.date,
             volume_info=self.volume_info,

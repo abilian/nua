@@ -24,14 +24,11 @@ class BckPostgresDumpall(PluginBaseClass):
         """Backup the Resource with pg_dumpall.
 
         Resource is expected to be a Postgres database.
-
-        Returns:
-            BackupReport instance
         """
         self.check_local_destination()
 
-        file_name = f"{self.base_name()}.sql"
-        dest_file = self.folder / file_name
+        self.file_name = f"{self.date}-{self.node}.sql"
+        dest_file = self.folder / self.file_name
 
         container = docker_container_of_name(self.node)
         if container is None:
@@ -47,7 +44,8 @@ class BckPostgresDumpall(PluginBaseClass):
                 output,
             )
             output.flush()
-        self.finalize(file_name)
+        self.container_info = None
+        self.finalize()
 
 
 register_plugin(BckPostgresDumpall)
