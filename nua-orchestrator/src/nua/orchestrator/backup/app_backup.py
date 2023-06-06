@@ -39,12 +39,12 @@ class AppBackup:
         #     print("_backup_resource_parts()", resource.container_name)
         for volume_dict in resource.volumes:
             volume = Volume.from_dict(volume_dict)
-            report = backup_volume(resource, volume, ref_date)
+            report = backup_volume(resource, volume, ref_date=ref_date)
             if report.task:
                 with verbosity(2):
                     print(report)
             self.reports.append(report)
-        report = backup_resource(resource)
+        report = backup_resource(resource, ref_date=ref_date)
         with verbosity(2):
             print(report)
         self.reports.append(report)
