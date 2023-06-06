@@ -34,7 +34,7 @@ class AppBackup:
         self._make_detailed_result()
         self._store_in_app()
 
-    def _backup_resource_parts(self, resource: Resource, ref_date: str):
+    def _backup_resource_parts(self, resource: Resource, ref_date: str) -> None:
         # with verbosity(3):
         #     print("_backup_resource_parts()", resource.container_name)
         for volume_dict in resource.volumes:
@@ -49,7 +49,7 @@ class AppBackup:
             print(report)
         self.reports.append(report)
 
-    def _summarize(self):
+    def _summarize(self) -> None:
         if any(report.task for report in self.reports):
             if all(report.success for report in self.reports if report.task):
                 self.result = f"Backup tasks successful for {self.app.container_name}"
@@ -61,7 +61,7 @@ class AppBackup:
             self.result = f"No backup task for {self.app.container_name}"
             self.success = True
 
-    def _make_detailed_result(self):
+    def _make_detailed_result(self) -> None:
         self.detailed_result = "\n".join(
             str(report) for report in self.reports if report.task
         )
@@ -85,7 +85,7 @@ class AppBackup:
                 record.append_component(report.component)
         return record
 
-    def _store_in_app(self):
+    def _store_in_app(self) -> None:
         # with verbosity(1):
         #     vprint(self.detailed_result)
         if not self.success:
