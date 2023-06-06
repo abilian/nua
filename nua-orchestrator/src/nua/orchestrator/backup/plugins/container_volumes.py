@@ -54,7 +54,7 @@ class BckContainerVolumes(PluginBaseClass):
                 f"Error: No volume {volume_name} in its container"
             )
 
-        cmd = f"tar cvf {self.nua_backup_dir}/{file_name} {mount_point}"
+        cmd = f"tar cvzf {self.nua_backup_dir}/{file_name} {mount_point}"
         print(f"Start backup: {dest_file}")
         self.docker_run_ubuntu(cmd)
         self.finalize(file_name)
