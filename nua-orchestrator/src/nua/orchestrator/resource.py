@@ -45,7 +45,6 @@ class Resource(dict):
 
     def check_valid(self):
         self._check_mandatory()
-        self._parse_healthcheck()
         self._normalize_env_values()
         self._normalize_ports()
         self._normalize_volumes()

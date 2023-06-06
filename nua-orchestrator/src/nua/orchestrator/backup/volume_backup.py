@@ -10,7 +10,11 @@ if typing.TYPE_CHECKING:
     from ..volume import Volume
 
 
-def backup_volume(resource: Resource, volume: Volume) -> BackupReport:
+def backup_volume(
+    resource: Resource,
+    volume: Volume,
+    ref_date: str = "",
+) -> BackupReport:
     """Execute a backup from backup tag of a Volume of a Resource."""
     config = volume.backup
     report = BackupReport(node=volume.full_name)
@@ -26,6 +30,6 @@ def backup_volume(resource: Resource, volume: Volume) -> BackupReport:
         report.success = False
         report.message = f"Unknown backup method '{method}'"
         return report
-    backup = backup_class(resource, volume)
+    backup = backup_class(resource, volume, ref_date=ref_date)
     report = backup.run()
     return report

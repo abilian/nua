@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pprint import pformat
 
+from nua.lib.dates import backup_date
 from nua.lib.panic import vprint, warning
 from nua.lib.tool.state import verbosity
 
@@ -25,19 +26,20 @@ class AppBackup:
     success: bool = False
 
     def run(self):
+        ref_date = backup_date()
         for resource in self.app.resources:
-            self._backup_resource_parts(resource)
-        self._backup_resource_parts(self.app)
+            self._backup_resource_parts(resource, ref_date)
+        self._backup_resource_parts(self.app, ref_date)
         self._summarize()
         self._make_detailed_result()
         self._store_in_app()
 
-    def _backup_resource_parts(self, resource: Resource):
+    def _backup_resource_parts(self, resource: Resource, ref_date: str):
         with verbosity(2):
             print("_backup_resource_parts()", resource.container_name)
         for volume_dict in resource.volumes:
             volume = Volume.from_dict(volume_dict)
-            report = backup_volume(resource, volume)
+            report = backup_volume(resource, volume, ref_date)
             with verbosity(2):
                 print("report volume", report)
             self.reports.append(report)

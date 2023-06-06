@@ -24,7 +24,12 @@ class PluginBaseClass(abc.ABC):
     identifier = "plugin_identifier"
     nua_backup_dir = "/nua_backup_dir"
 
-    def __init__(self, resource: Resource, volume: Volume | None = None):
+    def __init__(
+        self,
+        resource: Resource,
+        volume: Volume | None = None,
+        ref_date: str = "",
+    ):
         self.resource: Resource = resource
         self.volume: Volume | None = volume
         self.volume_info: dict[str, Any] | None = None
@@ -36,7 +41,7 @@ class PluginBaseClass(abc.ABC):
         else:
             backup_dict = self.resource.get("backup") or {}
         self.options = backup_dict.get("options") or {}
-        self.date: str = ""
+        self.date: str = ref_date
         self.report: BackupReport = BackupReport(node=self.node, task=True)
         self.backup_folder: Path = Path()
 
@@ -46,11 +51,12 @@ class PluginBaseClass(abc.ABC):
 
     def make_nua_local_folder(self) -> None:
         """For local backup, make the destination local folder."""
-        self.folder = Path("/home/nua/backups") / self.label / self.node / self.date
+        self.folder = Path("/home/nua/backups") / self.label / self.date
         self.folder.mkdir(exist_ok=True, parents=True)
 
     def set_date(self) -> None:
-        self.date = backup_date()
+        if not self.date:
+            self.date = backup_date()
 
     def base_name(self) -> str:
         return f"{self.date}-{self.node}"

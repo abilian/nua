@@ -115,7 +115,7 @@ name = "database"
 type = "postgres"
 version = ">=14, <15"
 
-# [resource.backup]
-# method = "pg_dumpall"
-# frequency = "24h"
-# options = { destination = "local" }
+[resource.backup]
+method = "pg_dumpall"
+frequency = "24h"
+options = { destination = "local" }
