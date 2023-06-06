@@ -5,11 +5,14 @@ from typing import Any
 
 import docker
 from nua.lib.dates import backup_date
+from nua.lib.docker import docker_require
 
 from ...resource import Resource
 from ...volume import Volume
 from ..backup_component import BackupComponent
 from ..backup_report import BackupReport
+
+BACKUP_CONTAINER = "ubuntu:jammy-20230425"
 
 
 class BackupErrorException(Exception):
@@ -46,8 +49,8 @@ class PluginBaseClass(abc.ABC):
         self.backup_folder: Path = Path()
 
     def restore(self) -> None:
-        """Resore the Resource and or Volue."""
-        pass
+        """Restore the Resource and or Volume. To be implemented by sub class."""
+        raise NotImplementedError
 
     def make_nua_local_folder(self) -> None:
         """For local backup, make the destination local folder."""
@@ -62,9 +65,10 @@ class PluginBaseClass(abc.ABC):
         return f"{self.date}-{self.node}"
 
     def docker_run_ubuntu(self, command: str) -> str:
+        docker_require(BACKUP_CONTAINER)
         client = docker.DockerClient.from_env()
         return client.containers.run(
-            "ubuntu",
+            BACKUP_CONTAINER,
             command=command,
             # mounts=
             remove=True,
@@ -75,7 +79,8 @@ class PluginBaseClass(abc.ABC):
         )
 
     def do_backup(self) -> None:
-        pass
+        """To be implemented by sub class"""
+        raise NotImplementedError
 
     def finalize(self, file_name: str) -> None:
         self.report.message = file_name
