@@ -107,5 +107,6 @@ class PluginBaseClass(abc.ABC):
         else:
             self.report.success = True
         finally:
-            print(self.report)
+            pass
+            # print(self.report)
         return self.report
