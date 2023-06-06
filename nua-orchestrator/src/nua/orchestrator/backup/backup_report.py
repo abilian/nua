@@ -12,6 +12,8 @@ class BackupReport:
     component: BackupComponent | None = None
 
     def __str__(self) -> str:
+        if not self.task:
+            return f"No backup task for {self.node}"
         if self.success:
             return f"Backup done for {self.node} to {self.message}"
         else:
