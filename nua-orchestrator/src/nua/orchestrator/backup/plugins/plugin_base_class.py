@@ -87,6 +87,11 @@ class PluginBaseClass(abc.ABC):
             file_name=self.file_name,
             restore=self.identifier,
             date=self.date,
+            resource_info={
+                "label_id": self.resource.label_id,
+                "container_name": self.resource.container_name,
+                "domain": self.resource.domain,
+            },
             volume_info=self.volume_info,
         )
 

@@ -21,6 +21,7 @@ class BackupComponent:
     file_name: str = ""
     restore: str = ""
     date: str = ""
+    resource_info: dict[str, Any] | None = None
     volume_info: dict[str, Any] | None = None
 
     @classmethod
@@ -30,6 +31,7 @@ class BackupComponent:
         file_name: str,
         restore: str,
         date: str,
+        resource_info: dict[str, Any] | None,
         volume_info: dict[str, Any] | None,
     ) -> BackupComponent:
         component = BackupComponent(
@@ -37,6 +39,7 @@ class BackupComponent:
             file_name=file_name,
             restore=restore,
             date=date,
+            resource_info=resource_info,
             volume_info=volume_info,
         )
         component.save()
@@ -55,6 +58,7 @@ class BackupComponent:
                 file_name=item["file_name"],
                 restore=item["restore"],
                 date=item["date"],
+                resource_info=item["resource_info"],
                 volume_info=item["volume_info"],
             )
             for item in components_json
