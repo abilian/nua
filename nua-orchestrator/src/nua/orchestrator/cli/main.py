@@ -13,7 +13,11 @@ from ..search_cmd import search_nua_print
 from . import configuration as config_cmd
 from . import debug
 from .commands.api import API
-from .commands.backup_restore import backup_all_apps, backup_one_app, restore_last
+from .commands.backup_restore import (
+    backup_all_apps,
+    backup_one_app,
+    restore_last_backup,
+)
 from .commands.deploy_remove import (
     deploy_merge_nua_app,
     deploy_nua_apps,
@@ -254,21 +258,21 @@ def backup_cmd(
         print("WIP: a label or domain must be provided or --all.")
 
 
-@app.command("restore")
-def restore_last_cmd(
+@app.command("restore-backup")
+def restore_last_backup_cmd(
     verbose: int = opt_verbose,
     colorize: bool = option_color,
     label: str = option_label,
     domain: str = option_domain,
 ):
-    """Restore the last backup for the app instance."""
+    """Restore the last backuped data for the app instance."""
     set_verbosity(verbose)
     set_color(colorize)
     initialization()
     if label:
-        restore_last(label=label)
+        restore_last_backup(label=label)
     elif domain:
-        restore_last(domain=domain)
+        restore_last_backup(domain=domain)
     else:
         print("WIP: currently a label or domain must be provided.")
 

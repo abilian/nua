@@ -131,7 +131,7 @@ class AppManagement:
             site_config=dict(app),
         )
 
-    def restore_app_label(self, label: str):
+    def restore_backup_app_per_label(self, label: str):
         """Execute a backup restoration.
 
         It is assumed that the app is stopped."""
@@ -142,7 +142,7 @@ class AppManagement:
         reports.extend(self.do_restore(app))
         # return global_backup_report(reports)
 
-    def restore_app_domain(self, domain: str):
+    def restore_backup_app_per_domain(self, domain: str):
         """Execute a backup restoration.
 
         It is assumed that the app is stopped."""
