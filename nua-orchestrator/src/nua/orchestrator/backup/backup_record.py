@@ -37,7 +37,7 @@ class BackupRecord:
     def info(self) -> str:
         text = [
             f"label: {self.label_id}",
-            f"ref date: {self.ref_date}",
+            f"reference: {self.ref_date}",
             f"date: {self.date}",
             "components:",
         ]

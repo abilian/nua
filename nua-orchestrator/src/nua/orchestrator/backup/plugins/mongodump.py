@@ -48,6 +48,8 @@ class BckMongodump(PluginBaseClass):
             )
             output.flush()
         self.finalize()
+        self.report.success = True
+        self.reports.append(self.report)
 
 
 register_plugin(BckMongodump)

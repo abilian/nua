@@ -1,7 +1,7 @@
 [metadata]
 id = "dolibarr-mariadb-wrap"
 version = "16.0.4"
-release = 5
+release = 6
 title = "Dolibarr (for mariadb), wrap build based on tuxgazy Docker image"
 author = "Dolibarr developers"
 tagline = "Open Source ERP & CRM for business"
@@ -48,7 +48,7 @@ name = "dolibarr_documents"
 target = "/var/www/documents"
 
 [backup]
-method = "container_volumes"
+method = "tgz_volumes"
 frequency = "24h"
 options = { destination = "local" }
 

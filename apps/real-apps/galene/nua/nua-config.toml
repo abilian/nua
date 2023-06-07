@@ -1,7 +1,7 @@
 [metadata]
 id = "galene"
 version = "0.6.2"
-release = 5
+release = 6
 title = "Galène videoconference server "
 author = "Galene authors"
 tagline = "Galène videoconference server"
@@ -71,3 +71,8 @@ target = "/nua/app/groups"
 [[volume]]
 name = "galene_data"
 target = "/nua/app/data"
+
+[backup]
+method = "tgz_volumes"
+frequency = "24h"
+options = { destination = "local" }

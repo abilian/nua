@@ -2,7 +2,7 @@
 id = "hedgedoc"
 version = "1.9.7"
 # Nota: version 1.9.6 seems broken since 1.9.7
-release = 7
+release = 9
 title = "HedgeDoc"
 author = "HedgeDoc authors"
 tagline = "The best platform to write and share markdown"
@@ -89,7 +89,7 @@ interval = 10
 
 
 [backup]
-method = "container_volumes"
+method = "tgz_volumes"
 frequency = "24h"
 options = { destination = "local" }
 
@@ -117,5 +117,4 @@ version = ">=14, <15"
 
 [resource.backup]
 method = "pg_dumpall"
-frequency = "24h"
 options = { destination = "local" }

@@ -46,6 +46,7 @@ class PluginBaseClass(abc.ABC):
         self.options = backup_dict.get("options") or {}
         self.date: str = ref_date
         self.report: BackupReport = BackupReport(node=self.node, task=True)
+        self.reports: list[BackupReport] = []
         self.folder: Path = Path()
         self.file_name: str = ""
 
@@ -90,17 +91,13 @@ class PluginBaseClass(abc.ABC):
             resource_info={
                 "label_id": self.resource.label_id,
                 "container_name": self.resource.container_name,
-                "domain": self.resource.domain,
+                # "domain": self.resource.domain,
             },
             volume_info=self.volume_info,
         )
 
     def run(self) -> BackupReport:
-        """Backup the Resource or Volume.
-
-        Returns:
-            BackupReport instance
-        """
+        """Backup the Resource or Volume."""
         self.set_date()
         self.make_nua_local_folder()
         try:
@@ -113,3 +110,18 @@ class PluginBaseClass(abc.ABC):
             pass
             # print(self.report)
         return self.report
+
+    def run_on_resource(self) -> list[BackupReport]:
+        """Backup the Volumes of the resource."""
+        self.set_date()
+        self.make_nua_local_folder()
+        self.reports = []
+        try:
+            self.do_backup()
+        except (BackupErrorException, RuntimeError) as e:
+            self.report.message = f"Backup failed: {e}"
+            self.reports.append(self.report)
+        finally:
+            pass
+            # print(self.report)
+        return self.reports

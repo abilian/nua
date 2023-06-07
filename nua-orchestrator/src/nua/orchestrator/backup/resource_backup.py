@@ -12,7 +12,7 @@ if typing.TYPE_CHECKING:
 def backup_resource(
     resource: Resource,
     ref_date: str = "",
-) -> BackupReport:
+) -> list[BackupReport]:
     """Execute a backup from main 'backup' configuration of a Resource."""
     config = resource.backup
     # debug backup print(config)
@@ -21,14 +21,14 @@ def backup_resource(
         report.task = False
         report.success = False
         report.message = "No backup configuration"
-        return report
+        return [report]
     method = config.get("method") or ""
     backup_class = get_backup_plugin(method)
     if backup_class is None:
         report.task = True
         report.success = False
         report.message = f"Unknown backup method '{method}'"
-        return report
+        return [report]
     backup = backup_class(resource, ref_date=ref_date)
-    report = backup.run()
-    return report
+    reports = backup.run_on_resource()
+    return reports

@@ -7,16 +7,17 @@ from ...docker_utils import (
     docker_mount_point,
 )
 from ..backup_registry import register_plugin
+from ..backup_report import BackupReport
 from .plugin_base_class import BackupErrorException, PluginBaseClass
 
 
-class BckContainerVolumes(PluginBaseClass):
+class BckTgzVolumes(PluginBaseClass):
     """Backup plugin to backup all volumes of a container.
 
     To be used at Resource level or AppInstance level.
     """
 
-    identifier = "container_volumes"
+    identifier = "tgz_volumes"
 
     def check_local_destination(self) -> None:
         backup_destination = self.options.get("destination", "local")
@@ -38,8 +39,11 @@ class BckContainerVolumes(PluginBaseClass):
 
         for dock_volume in docker_volumes:
             self._backup_one_volume(dock_volume)
+            self.report.success = True
+            self.reports.append(self.report)
 
     def _backup_one_volume(self, dock_volume: DockerVolume):
+        self.report = BackupReport(node=self.node, task=True)
         volume_name = dock_volume.name
         # volume_target =
         self.file_name = f"{self.date}-{volume_name}.tar.gz"
@@ -61,4 +65,4 @@ class BckContainerVolumes(PluginBaseClass):
         self.finalize()
 
 
-register_plugin(BckContainerVolumes)
+register_plugin(BckTgzVolumes)

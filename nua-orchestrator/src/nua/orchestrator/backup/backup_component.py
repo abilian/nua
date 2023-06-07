@@ -34,16 +34,16 @@ class BackupComponent:
             container_name = self.resource_info.get("container_name", "")
             if container_name:
                 text.append(f"container name: {container_name}")
-            domain = self.resource_info.get("domain", "")
-            if domain:
-                text.append(f"domain: {domain}")
+            # domain = self.resource_info.get("domain", "")
+            # if domain:
+            #     text.append(f"domain: {domain}")
         if self.volume_info:
             name = self.volume_info.get("Name", "")
             if name:
                 text.append(f"name: {name}")
-            mount = self.volume_info.get("Mountpoint", "")
-            if mount:
-                text.append(f"mount point: {mount}")
+            # mount = self.volume_info.get("Mountpoint", "")
+            # if mount:
+            #     text.append(f"mount point: {mount}")
         return text
 
     @classmethod

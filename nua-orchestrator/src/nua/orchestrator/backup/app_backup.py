@@ -45,10 +45,10 @@ class AppBackup:
                 with verbosity(2):
                     print(report)
             self.reports.append(report)
-        report = backup_resource(resource, ref_date=self.ref_date)
-        with verbosity(2):
-            print(report)
-        self.reports.append(report)
+        reports = backup_resource(resource, ref_date=self.ref_date)
+        # with verbosity(2):
+        #     print(reports)
+        self.reports.extend(reports)
 
     def _summarize(self) -> None:
         if any(report.task for report in self.reports):
