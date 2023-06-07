@@ -157,3 +157,13 @@ class AppManagement:
         print("WIP pseudo restore", resource.resource_name, resource.container_name)
         # reports.append(backup_resource(resource))
         return reports
+
+    def restore_list_backups_app_per_label(self, label: str) -> str:
+        """List available backups for the app."""
+        app = self.instance_of_label(label)
+        text = [bck_record.info() for bck_record in app.backup_records_objects]
+        return "\n\n".join(text)
+
+    def restore_list_backups_app_per_domain(self, domain: str) -> str:
+        """List available backups for the app."""
+        return "WIP, nothing"

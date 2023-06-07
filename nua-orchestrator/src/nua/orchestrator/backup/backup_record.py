@@ -18,21 +18,37 @@ class BackupRecord:
     """
 
     label_id: str = ""
+    ref_date: str = ""  # reference backup date
     date: str = ""  # datetime.now(timezone.utc).replace(microsecond=0).isoformat()
     components: list[BackupComponent] = field(init=False, default_factory=list)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> BackupRecord:
+        record = cls(
+            label_id=data["label_id"], date=data["date"], ref_date=data["ref_date"]
+        )
+        record.components = BackupComponent.from_dict_list(data)
+        return record
 
     @property
     def date_time(self) -> datetime:
         return datetime.fromisoformat(self.date)
+
+    def info(self) -> str:
+        text = [
+            f"label: {self.label_id}",
+            f"ref date: {self.ref_date}",
+            f"date: {self.date}",
+            "components:",
+        ]
+        for component in self.components:
+            for txt in component.info_list():
+                text.append(f"    {txt}")
+            text.append("")
+        return "\n".join(text)
 
     def as_dict(self) -> dict:
         return asdict(self)
 
     def append_component(self, component: BackupComponent):
         self.components.append(component)
-
-    @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> BackupRecord:
-        record = cls(label_id=data["label_id"], date=data["date"])
-        record.components = BackupComponent.from_dict_list(data)
-        return record

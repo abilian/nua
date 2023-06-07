@@ -24,27 +24,28 @@ class AppBackup:
     result: str = ""
     detailed_result: str = ""
     success: bool = False
+    ref_date: str = ""
 
     def run(self):
-        ref_date = backup_date()
+        self.ref_date = backup_date()
         for resource in self.app.resources:
-            self._backup_resource_parts(resource, ref_date)
-        self._backup_resource_parts(self.app, ref_date)
+            self._backup_resource_parts(resource)
+        self._backup_resource_parts(self.app)
         self._summarize()
         self._make_detailed_result()
         self._store_in_app()
 
-    def _backup_resource_parts(self, resource: Resource, ref_date: str) -> None:
+    def _backup_resource_parts(self, resource: Resource) -> None:
         # with verbosity(3):
         #     print("_backup_resource_parts()", resource.container_name)
         for volume_dict in resource.volumes:
             volume = Volume.from_dict(volume_dict)
-            report = backup_volume(resource, volume, ref_date=ref_date)
+            report = backup_volume(resource, volume, ref_date=self.ref_date)
             if report.task:
                 with verbosity(2):
                     print(report)
             self.reports.append(report)
-        report = backup_resource(resource, ref_date=ref_date)
+        report = backup_resource(resource, ref_date=self.ref_date)
         with verbosity(2):
             print(report)
         self.reports.append(report)
@@ -79,7 +80,9 @@ class AppBackup:
 
     def _make_backup_record(self) -> BackupRecord:
         now = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
-        record = BackupRecord(label_id=self.app.label_id, date=now)
+        record = BackupRecord(
+            label_id=self.app.label_id, ref_date=self.ref_date, date=now
+        )
         for report in self.reports:
             if report.task and report.success and report.component is not None:
                 record.append_component(report.component)

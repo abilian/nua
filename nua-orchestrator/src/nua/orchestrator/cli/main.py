@@ -17,6 +17,7 @@ from .commands.backup_restore import (
     backup_all_apps,
     backup_one_app,
     restore_last_backup,
+    restore_list_backups,
 )
 from .commands.deploy_remove import (
     deploy_merge_nua_app,
@@ -72,6 +73,7 @@ option_raw = typer.Option(False, "--raw", help="Return raw result (not JSON).")
 option_all_apps = typer.Option(False, "--all", "-a", help="Select all apps.")
 option_label = typer.Option("", "--label", "-l", help="Select app by label.")
 option_domain = typer.Option("", "--domain", "-d", help="Select app by domain.")
+option_list_backup = typer.Option(False, "--list", help="List available backups.")
 
 
 def _print_version():
@@ -264,15 +266,19 @@ def restore_last_backup_cmd(
     colorize: bool = option_color,
     label: str = option_label,
     domain: str = option_domain,
+    list_flag: bool = option_list_backup,
 ):
     """Restore the last backuped data for the app instance."""
     set_verbosity(verbose)
     set_color(colorize)
     initialization()
+    if list_flag:
+        restore_list_backups(label=label, domain=domain)
+        return
     if label:
-        restore_last_backup(label=label)
+        restore_last_backup(label=label, list_flag=list_flag)
     elif domain:
-        restore_last_backup(domain=domain)
+        restore_last_backup(domain=domain, list_flag=list_flag)
     else:
         print("WIP: currently a label or domain must be provided.")
 
