@@ -74,6 +74,9 @@ option_all_apps = typer.Option(False, "--all", "-a", help="Select all apps.")
 option_label = typer.Option("", "--label", "-l", help="Select app by label.")
 option_domain = typer.Option("", "--domain", "-d", help="Select app by domain.")
 option_list_backup = typer.Option(False, "--list", help="List available backups.")
+option_last_backup = typer.Option(
+    False, "--last", help="Restore from last available backup."
+)
 
 
 def _print_version():
@@ -267,20 +270,19 @@ def restore_last_backup_cmd(
     label: str = option_label,
     domain: str = option_domain,
     list_flag: bool = option_list_backup,
+    last_flag: bool = option_list_backup,
 ):
     """Restore the last backuped data for the app instance."""
     set_verbosity(verbose)
     set_color(colorize)
     initialization()
     if list_flag:
-        restore_list_backups(label=label, domain=domain)
-        return
-    if label:
-        restore_last_backup(label=label, list_flag=list_flag)
-    elif domain:
-        restore_last_backup(domain=domain, list_flag=list_flag)
-    else:
-        print("WIP: currently a label or domain must be provided.")
+        return restore_list_backups(label=label, domain=domain)
+    last_flag = True  # WIP
+    if last_flag:
+        if label or domain:
+            return restore_last_backup(label=label, domain=domain, list_flag=list_flag)
+    print("WIP: currently a label or domain must be provided.")
 
 
 @app.command("rpc", hidden=True)
