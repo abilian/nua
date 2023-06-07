@@ -25,7 +25,7 @@ def backup_one_app(*, label: str = "", domain: str = ""):
 
 def restore_last_backup(*, label: str = "", domain: str = ""):
     """Restore last backuped data for the app instance identified by its label or domain."""
-    print(f"Restore last backup for the app '{label or domain}'")
+    print(f"Restore last backup for the app identified by '{label or domain}'")
     stop_nua_instance(label=label, domain=domain)
     manager = AppManagement()
     if label:

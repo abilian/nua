@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from datetime import datetime, timedelta, timezone
+from operator import attrgetter
 from pathlib import Path
 from pprint import pformat
 
@@ -11,6 +13,7 @@ from nua.lib.nua_tag import nua_tag_string
 from nua.lib.panic import Abort, debug, info, warning
 from nua.lib.tool.state import verbosity
 
+from .backup.backup_record import BackupRecord
 from .db.model.instance import STOPPED
 from .domain_split import DomainSplit
 from .persistent import Persistent
@@ -141,6 +144,24 @@ class AppInstance(Resource):
     @backup_records.setter
     def backup_records(self, backup_records: list[dict]):
         self["backup_records"] = backup_records
+
+    @property
+    def backup_records_objects(self) -> list[BackupRecord]:
+        records = [BackupRecord.from_dict(data) for data in self.backup_records]
+        records.sort(key=attrgetter("date_time"))
+        return records
+
+    def backup_records_crop(self, max_length: int = 7, max_age: int = 31) -> None:
+        """Kepp in the backup_records list the last max_length elements and remove
+        the elements olders than max_age
+
+        Note: clean also the local backup directory?"""
+        limit_date = datetime.now(timezone.utc).replace(microsecond=0) - timedelta(
+            days=max_age
+        )
+        records = self.backup_records_objects[-max_length:]
+        records = [record for record in records if record.date_time >= limit_date]
+        self.backup_records = [record.as_dict() for record in records]
 
     @running_status.setter
     def running_status(self, status: str):

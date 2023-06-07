@@ -95,3 +95,4 @@ class AppBackup:
         with verbosity(2):
             vprint(pformat(record.as_dict()))
         self.app.backup_records.append(record.as_dict())
+        self.app.backup_records_crop()

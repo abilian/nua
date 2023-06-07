@@ -46,24 +46,28 @@ class BackupComponent:
         return component
 
     @classmethod
+    def from_dict(cls, item: dict[str, Any]) -> BackupComponent:
+        return cls(
+            folder=item["folder"],
+            file_name=item["file_name"],
+            restore=item["restore"],
+            date=item["date"],
+            resource_info=item["resource_info"],
+            volume_info=item["volume_info"],
+        )
+
+    @classmethod
+    def from_dict_list(cls, content: dict[str, Any]) -> list[BackupComponent]:
+        components_json = content.get("components") or []
+        return [BackupComponent.from_dict(item) for item in components_json]
+
+    @classmethod
     def from_dir(cls, folder: Path | str) -> list[BackupComponent]:
         path = Path(folder) / "description.json"
         if not path.is_file():
             return []
         content = json.loads(path.read_text(encoding="utf8"))
-        components_json = content.get("component") or []
-        components = [
-            BackupComponent(
-                folder=item["folder"],
-                file_name=item["file_name"],
-                restore=item["restore"],
-                date=item["date"],
-                resource_info=item["resource_info"],
-                volume_info=item["volume_info"],
-            )
-            for item in components_json
-        ]
-        return components
+        return BackupComponent.from_dict_list(content)
 
     def save(self) -> None:
         bc_list = BackupComponent.from_dir(self.folder)
