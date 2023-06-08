@@ -69,43 +69,43 @@ class BckTgzVolumes(PluginBaseClass):
 
     def restore(self, component: BackupComponent) -> str:
         """Restore the Resource and or Volume."""
-        print("restore()")
-        container_name = self.node
+        volume_name = self._volume_name(component)
+        mount_point = self._target_volume_mount_point(component, volume_name)
+        bck_file = self._backup_file(component)
+        return self._restore_volume(volume_name, mount_point, bck_file)
 
-        docker_volumes = docker_container_volumes(container_name)
+    def _volume_name(self, component) -> str:
         volume_info = component.volume_info
         if not volume_info:
             # this plugin only works with volumes
-            return "no volume info"
-        print(volume_info)
-        volume_name = volume_info.get("Name", "")
-        docker_volumes = docker_container_volumes(container_name)
-        if not docker_volumes:
-            raise RuntimeError(
-                f"Warning: No volume found for the container {self.node}"
-            )
-        target_volume = None
-        for dock_volume in docker_volumes:
-            if dock_volume.name == volume_name:
-                target_volume = dock_volume
-                break
-        if not target_volume:
-            raise RuntimeError(f"Warning: No volume {volume_name}")
-        bck_file = Path(component.folder) / component.file_name
-        if not bck_file.exists():
-            raise RuntimeError(f"Warning: No backup file {bck_file}")
-        print(bck_file)
-        return self._restore_volume(target_volume, bck_file)
+            raise RuntimeError("no volume info")
+        return volume_info.get("Name", "")
 
-    def _restore_volume(self, dock_volume: DockerVolume, bck_file: Path) -> str:
+    def _target_volume_mount_point(
+        self,
+        component: BackupComponent,
+        volume_name: str,
+    ) -> str:
         container = docker_container_of_name(self.node)
         if container is None:
             raise RuntimeError(f"Error: No container found for {self.node}")
-        volume_name = dock_volume.name
-        # volume_target =
         mount_point = docker_mount_point(container, volume_name)
         if not mount_point:
             raise RuntimeError(f"Error: No volume {volume_name} in container")
+        return mount_point
+
+    def _backup_file(self, component: BackupComponent) -> Path:
+        bck_file = Path(component.folder) / component.file_name
+        if not bck_file.exists():
+            raise RuntimeError(f"Warning: No backup file {bck_file}")
+        return bck_file
+
+    def _restore_volume(
+        self,
+        volume_name: str,
+        mount_point: str,
+        bck_file: Path,
+    ) -> str:
         file_name = bck_file.name
         folder = str(bck_file.parent)
         bash_cmd = (
@@ -113,7 +113,6 @@ class BckTgzVolumes(PluginBaseClass):
         )
         cmd = f"bash -c '{bash_cmd}'"
         print(f"Start restore: {bck_file}")
-        print(cmd)
         result = self.docker_run_ubuntu_restore(cmd, folder).decode("utf8")
         print("run result:", result)
         return result

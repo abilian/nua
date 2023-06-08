@@ -40,6 +40,8 @@ RE_VAR = re.compile(r"\{[^\{\}]+\}")
 
 
 # local daemon ######################################################
+
+
 @cache
 def docker_host_gateway_ip() -> str:
     cmd = ["ip", "-j", "route"]

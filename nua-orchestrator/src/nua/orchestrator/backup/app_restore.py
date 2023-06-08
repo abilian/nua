@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-from ..resource import Resource
 
 from ..app_instance import AppInstance
+from ..resource import Resource
 from .backup_component import BackupComponent
 from .backup_record import BackupRecord
 from .backup_registry import get_backup_plugin
