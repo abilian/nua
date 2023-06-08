@@ -47,7 +47,7 @@ class BckMongodump(PluginBaseClass):
                 output,
             )
             output.flush()
-        self.finalize()
+        self.finalize_component()
         self.report.success = True
         self.reports.append(self.report)
 

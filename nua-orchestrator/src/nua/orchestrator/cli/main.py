@@ -255,33 +255,29 @@ def backup_cmd(
     initialization()
     if all_apps:
         backup_all_apps()
-    elif label:
-        backup_one_app(label=label)
-    elif domain:
-        backup_one_app(domain=domain)
+    elif label or domain:
+        backup_one_app(label=label, domain=domain)
     else:
         print("WIP: a label or domain must be provided or --all.")
 
 
-@app.command("restore-backup")
+@app.command("backup-restore")
 def restore_last_backup_cmd(
     verbose: int = opt_verbose,
     colorize: bool = option_color,
     label: str = option_label,
     domain: str = option_domain,
     list_flag: bool = option_list_backup,
-    last_flag: bool = option_list_backup,
+    last_flag: bool = option_last_backup,
 ):
-    """Restore the last backuped data for the app instance."""
+    """Restore backuped data for the app instance."""
     set_verbosity(verbose)
     set_color(colorize)
     initialization()
     if list_flag:
         return restore_list_backups(label=label, domain=domain)
-    last_flag = True  # WIP
-    if last_flag:
-        if label or domain:
-            return restore_last_backup(label=label, domain=domain, list_flag=list_flag)
+    if label or domain:
+        return restore_last_backup(label=label, domain=domain)
     print("WIP: currently a label or domain must be provided.")
 
 

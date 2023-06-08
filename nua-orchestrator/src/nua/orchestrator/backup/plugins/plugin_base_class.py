@@ -50,9 +50,11 @@ class PluginBaseClass(abc.ABC):
         self.folder: Path = Path()
         self.file_name: str = ""
 
-    def restore(self) -> None:
+    def restore(self, component: BackupComponent) -> str:
         """Restore the Resource and or Volume. To be implemented by sub class."""
-        raise NotImplementedError
+        message = "NotImplemented"
+        print(message)
+        return message
 
     def make_nua_local_folder(self) -> None:
         """For local backup, make the destination local folder."""
@@ -77,11 +79,25 @@ class PluginBaseClass(abc.ABC):
             volumes={str(self.folder): {"bind": self.nua_backup_dir, "mode": "rw"}},
         )
 
+    def docker_run_ubuntu_restore(self, command: str, bck_folder: str) -> bytes:
+        docker_require(BACKUP_CONTAINER)
+        client = docker.DockerClient.from_env()
+        return client.containers.run(
+            BACKUP_CONTAINER,
+            command=command,
+            # mounts=
+            remove=True,
+            detach=False,
+            stream=False,
+            volumes_from=[self.node],
+            volumes={bck_folder: {"bind": self.nua_backup_dir, "mode": "rw"}},
+        )
+
     def do_backup(self) -> None:
         """To be implemented by sub class"""
         raise NotImplementedError
 
-    def finalize(self) -> None:
+    def finalize_component(self) -> None:
         self.report.message = self.file_name
         self.report.component = BackupComponent.generate(
             folder=str(self.folder),

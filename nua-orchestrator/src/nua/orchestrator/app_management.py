@@ -12,6 +12,7 @@ from nua.lib.tool.state import verbosity
 
 from .app_instance import AppInstance
 from .backup.app_backup import AppBackup
+from .backup.app_restore import AppRestore
 from .db import store
 from .db.model.deployconfig import ACTIVE, INACTIVE
 from .domain_split import DomainSplit
@@ -131,15 +132,17 @@ class AppManagement:
             site_config=dict(app),
         )
 
-    def restore_backup_app_per_label(self, label: str) -> None:
+    def restore_backup_app_per_label(self, label: str) -> str:
         """Execute a backup restoration.
 
         It is assumed that the app is stopped."""
         app = self.instance_of_label(label)
-        reports = []
-        for resource in app.resources:
-            reports.extend(self.do_restore(resource))
-        reports.extend(self.do_restore(app))
+        app_restore = AppRestore(app)
+        app_restore.run(reference="")
+        if app_restore.success:
+            self._store_app_instance(app)
+            self.store_active_config()
+        return app_restore.result
         # return global_backup_report(reports)
 
     def restore_backup_app_per_domain(self, domain: str) -> None:
