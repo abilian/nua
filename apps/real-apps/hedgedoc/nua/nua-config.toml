@@ -2,7 +2,7 @@
 id = "hedgedoc"
 version = "1.9.7"
 # Nota: version 1.9.6 seems broken since 1.9.7
-release = 9
+release = 10
 title = "HedgeDoc"
 author = "HedgeDoc authors"
 tagline = "The best platform to write and share markdown"
@@ -97,7 +97,7 @@ options = { destination = "local" }
 [[volume]]
 # declare a local volume for plublic uploads
 name = "hedgedoc_uploads"
-target = "/hedgedoc/public/uploads"
+target = "/nua/build/hedgedoc/public/uploads"
 
 # [volume.backup]
 # method = "tar"
