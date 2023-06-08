@@ -109,7 +109,8 @@ class BckTgzVolumes(PluginBaseClass):
         file_name = bck_file.name
         folder = str(bck_file.parent)
         bash_cmd = (
-            f"cd {mount_point} && tar xvzf {self.nua_backup_dir}/{file_name} --strip 1"
+            f"cd {mount_point} && tar xvzf {self.nua_backup_dir}/{file_name} "
+            "--strip-components=1"
         )
         cmd = f"bash -c '{bash_cmd}'"
         print(f"Start restore: {bck_file}")
