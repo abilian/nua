@@ -90,15 +90,6 @@ def port_allocator(start_ports: int, end_ports: int, allocated_ports: set) -> Ca
     return allocator
 
 
-# def mount_site_volumes(site: AppInstance) -> list:
-#     volumes = site.rebased_volumes_upon_nua_conf()
-#     create_docker_volumes(volumes)
-#     mounted_volumes = []
-#     for volume_params in volumes:
-#         mounted_volumes.append(new_docker_mount(volume_params))
-#     return mounted_volumes
-
-
 def mount_resource_volumes(rsite: Resource) -> list:
     create_docker_volumes(rsite.volumes)
     mounted_volumes = []
