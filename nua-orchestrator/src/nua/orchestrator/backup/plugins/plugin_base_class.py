@@ -79,10 +79,10 @@ class PluginBaseClass(abc.ABC):
             volumes={str(self.folder): {"bind": self.nua_backup_dir, "mode": "rw"}},
         )
 
-    def docker_run_ubuntu_restore(self, command: str, bck_folder: str) -> bytes:
+    def docker_run_ubuntu_restore(self, command: str, bck_folder: str) -> str:
         docker_require(BACKUP_CONTAINER)
         client = docker.DockerClient.from_env()
-        return client.containers.run(
+        result = client.containers.run(
             BACKUP_CONTAINER,
             command=command,
             # mounts=
@@ -92,6 +92,7 @@ class PluginBaseClass(abc.ABC):
             volumes_from=[self.node],
             volumes={bck_folder: {"bind": self.nua_backup_dir, "mode": "rw"}},
         )
+        return result.decode("utf8")
 
     def do_backup(self) -> None:
         """To be implemented by sub class"""
@@ -111,6 +112,12 @@ class PluginBaseClass(abc.ABC):
             },
             volume_info=self.volume_info,
         )
+
+    def backup_file(self, component: BackupComponent) -> Path:
+        bck_file = Path(component.folder) / component.file_name
+        if not bck_file.exists():
+            raise RuntimeError(f"Warning: No backup file {bck_file}")
+        return bck_file
 
     def run(self) -> BackupReport:
         """Backup the Resource or Volume."""

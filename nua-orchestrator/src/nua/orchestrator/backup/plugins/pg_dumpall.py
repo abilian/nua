@@ -1,7 +1,12 @@
 """Class to backup a database."""
 
 
-from ...docker_utils import docker_container_of_name, docker_exec_checked
+from ...docker_utils import (
+    docker_container_of_name,
+    docker_exec_checked,
+    docker_exec_stdin,
+)
+from ..backup_component import BackupComponent
 from ..backup_registry import register_plugin
 from .plugin_base_class import BackupErrorException, PluginBaseClass
 
@@ -47,6 +52,15 @@ class BckPostgresDumpall(PluginBaseClass):
         self.finalize_component()
         self.report.success = True
         self.reports.append(self.report)
+
+    def restore(self, component: BackupComponent) -> str:
+        """Restore the Resource."""
+        container = docker_container_of_name(self.node)
+        bck_file = self.backup_file(component)
+        cmd = "psql -U root"
+        print(f"Restore: {bck_file}")
+        result = docker_exec_stdin(container, cmd, bck_file).strip()
+        return result or "    done"
 
 
 register_plugin(BckPostgresDumpall)

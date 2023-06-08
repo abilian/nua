@@ -71,7 +71,7 @@ class BckTgzVolumes(PluginBaseClass):
         """Restore the Resource and or Volume."""
         volume_name = self._volume_name(component)
         mount_point = self._target_volume_mount_point(component, volume_name)
-        bck_file = self._backup_file(component)
+        bck_file = self.backup_file(component)
         return self._restore_volume(volume_name, mount_point, bck_file)
 
     def _volume_name(self, component) -> str:
@@ -94,12 +94,6 @@ class BckTgzVolumes(PluginBaseClass):
             raise RuntimeError(f"Error: No volume {volume_name} in container")
         return mount_point
 
-    def _backup_file(self, component: BackupComponent) -> Path:
-        bck_file = Path(component.folder) / component.file_name
-        if not bck_file.exists():
-            raise RuntimeError(f"Warning: No backup file {bck_file}")
-        return bck_file
-
     def _restore_volume(
         self,
         volume_name: str,
@@ -113,10 +107,10 @@ class BckTgzVolumes(PluginBaseClass):
             "--strip-components=1"
         )
         cmd = f"bash -c '{bash_cmd}'"
-        print(f"Start restore: {bck_file}")
-        result = self.docker_run_ubuntu_restore(cmd, folder).decode("utf8")
-        print("run result:", result)
-        return result
+        print(f"Restore: {bck_file}")
+        result = self.docker_run_ubuntu_restore(cmd, folder).strip().split("\n")
+        txt_result = "    " + "\n    ".join(result)
+        return txt_result
 
 
 register_plugin(BckTgzVolumes)

@@ -2,7 +2,7 @@
 id = "hedgedoc"
 version = "1.9.7"
 # Nota: version 1.9.6 seems broken since 1.9.7
-release = 10
+release = 13
 title = "HedgeDoc"
 author = "HedgeDoc authors"
 tagline = "The best platform to write and share markdown"
@@ -37,7 +37,7 @@ packages = [
     "fontconfig",
     "fonts-noto"
 ]
-start = "node app.js"
+start = "sudo node app.js"
 
 [env]
 # Generic environment variables

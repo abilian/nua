@@ -49,8 +49,7 @@ class AppRestore:
         if self.backup_record is None:
             return
         for component in self.backup_record.components:
-            self.result += self.restore_component(component)
-            self.result += "\n"
+            self.restore_component(component)
 
     def resource_from_container_name(self, container_name: str) -> Resource:
         if self.app.container_name == container_name:
@@ -61,19 +60,16 @@ class AppRestore:
         self.result = f"Unknown container '{container_name}'"
         raise RuntimeError
 
-    def restore_component(self, component: BackupComponent) -> str:
+    def restore_component(self, component: BackupComponent) -> None:
         resource = self.resource_from_container_name(
             component.resource_info.get("container_name", "")
         )
         method = component.restore
-        print("component:", method)
         backup_class = get_backup_plugin(method)
-        print(backup_class)
         if backup_class is None:
             message = f"Unknown backup method '{method}'"
             self.result = message
             print(message)
             raise RuntimeError
         restorator = backup_class(resource)
-        print(restorator)
-        return restorator.restore(component)
+        print(restorator.restore(component))

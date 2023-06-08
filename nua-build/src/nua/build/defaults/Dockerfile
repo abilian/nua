@@ -6,5 +6,4 @@ COPY . /nua/build
 ARG nua_verbosity
 RUN app_builder
 
-USER nua
 CMD ["python", "/nua/scripts/start.py"]

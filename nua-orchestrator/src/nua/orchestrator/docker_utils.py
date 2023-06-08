@@ -2,6 +2,7 @@
 import io
 import json
 import re
+import shlex
 from contextlib import suppress
 from copy import deepcopy
 from datetime import datetime, timezone
@@ -9,6 +10,7 @@ from functools import cache
 from pathlib import Path
 from pprint import pformat
 from subprocess import run  # noqa: S404
+from subprocess import PIPE, Popen
 from time import sleep
 
 from docker import DockerClient
@@ -455,6 +457,26 @@ def docker_exec_stdout(container: Container, params: dict, output: io.BufferedIO
     for data in stream:
         print(data)
         output.write(data[0])
+
+
+def docker_exec_stdin(container: Container, cmd: str, input_file: Path) -> str:
+    """Wrapper on top of the py-docker exec_run() command, capturing file to stdin.
+
+    Defaults are:
+    cmd, stdout=True, stderr=True, stdin=False, tty=False, privileged=False,
+    user='', detach=False, stream=False, socket=False, environment=None,
+    workdir=None, demux=False
+    """
+    docker_cmd = shlex.split(f"docker exec -i {container.id} {cmd}")
+    with open(input_file, "rb") as rfile:
+        proc = Popen(
+            docker_cmd,
+            stdin=rfile,
+            stdout=PIPE,
+            stderr=PIPE,
+        )
+        result, err = proc.communicate()
+    return result.decode("utf8")
 
 
 def docker_exec_checked(container: Container, params: dict, output: io.BufferedIOBase):
