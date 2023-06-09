@@ -40,7 +40,7 @@ class BckMysqldump(PluginBaseClass):
             raise BackupErrorException(f"Error: No container found for {self.node}")
 
         cmd = (
-            "/usr/bin/mysqldump -U -p${MARIADB_ROOT_PASSWORD} "
+            "/usr/bin/mysqldump -p${MARIADB_ROOT_PASSWORD} "
             "--databases ${MARIADB_DATABASE}"
         )
 
