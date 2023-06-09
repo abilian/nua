@@ -5,6 +5,7 @@ from .base import Base
 
 RUNNING = "started"
 STOPPED = "stopped"
+PAUSE = "pause"
 
 
 class Instance(Base, SerializerMixin):

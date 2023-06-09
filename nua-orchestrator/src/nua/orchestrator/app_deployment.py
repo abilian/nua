@@ -33,7 +33,7 @@ from .assign.engine import instance_key_evaluator
 from .certbot import protocol_prefix, register_certbot_domains
 from .db import store
 from .db.model.deployconfig import ACTIVE, INACTIVE, PREVIOUS
-from .db.model.instance import RUNNING, STOPPED
+from .db.model.instance import PAUSE, RUNNING, STOPPED
 from .deploy_utils import (
     create_container_private_network,
     deactivate_all_instances,
@@ -41,6 +41,7 @@ from .deploy_utils import (
     extra_host_gateway,
     load_install_image,
     mount_resource_volumes,
+    pause_one_app_containers,
     port_allocator,
     pull_resource_container,
     remove_container_private_network,
@@ -50,6 +51,7 @@ from .deploy_utils import (
     start_one_app_containers,
     start_one_container,
     stop_one_app_containers,
+    unpause_one_app_containers,
     unused_volumes,
 )
 from .docker_utils import docker_container_status
@@ -671,6 +673,26 @@ class AppDeployment:
             if store_status:
                 site.running_status = STOPPED
                 self.store_container_instance(site)
+
+    def pause_deployed_apps(self, apps: list[AppInstance]):
+        """Pause deployed app instances."""
+        with verbosity(0):
+            for app in apps:
+                info(f"Pause app '{app.label_id}'")
+        for app in apps:
+            pause_one_app_containers(app)
+            app.running_status = PAUSE
+            self.store_container_instance(app)
+
+    def unpause_deployed_apps(self, apps: list[AppInstance]):
+        """Unpause deployed app instances."""
+        with verbosity(0):
+            for app in apps:
+                info(f"Unause app '{app.label_id}'")
+        for app in apps:
+            unpause_one_app_containers(app)
+            app.running_status = RUNNING
+            self.store_container_instance(app)
 
     def restart_deployed_apps(self, apps: list[AppInstance]):
         """Restart deployed instances."""

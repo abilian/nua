@@ -1,7 +1,11 @@
 """Class to backup a MongoDB database."""
 
-
-from ...docker_utils import docker_container_of_name, docker_exec_checked
+from ...docker_utils import (
+    docker_container_of_name,
+    docker_exec_checked,
+    docker_exec_stdin,
+)
+from ..backup_component import BackupComponent
 from ..backup_registry import register_plugin
 from .plugin_base_class import BackupErrorException, PluginBaseClass
 
@@ -28,6 +32,7 @@ class BckMongodump(PluginBaseClass):
         self.check_local_destination()
 
         self.file_name = f"{self.date}-{self.node}.archive"
+        # self.file_name = f"{self.date}-{self.node}.archive.gz"
         dest_file = self.folder / self.file_name
 
         container = docker_container_of_name(self.node)
@@ -37,6 +42,7 @@ class BckMongodump(PluginBaseClass):
         cmd = (
             "/usr/bin/mongodump -u ${MONGO_INITDB_ROOT_USERNAME} "
             "-p ${MONGO_INITDB_ROOT_PASSWORD} --archive"
+            # "-p ${MONGO_INITDB_ROOT_PASSWORD} --gzip --archive"
         )
 
         print(f"Start backup: {dest_file}")
@@ -50,6 +56,21 @@ class BckMongodump(PluginBaseClass):
         self.finalize_component()
         self.report.success = True
         self.reports.append(self.report)
+
+    def restore(self, component: BackupComponent) -> str:
+        """Restore the Resource."""
+        container = docker_container_of_name(self.node)
+        bck_file = self.backup_file(component)
+        bash_cmd = (
+            "/usr/bin/mongorestore -u '${MONGO_INITDB_ROOT_USERNAME}' "
+            "-p '${MONGO_INITDB_ROOT_PASSWORD}' --archive"
+            # "-p '${MONGO_INITDB_ROOT_PASSWORD}' --archive --drop"
+            # "-p '${MONGO_INITDB_ROOT_PASSWORD}' --gzip --archive --drop"
+        )
+        cmd = f"bash -c '{bash_cmd}'"
+        print(f"Restore: {bck_file}")
+        result = docker_exec_stdin(container, cmd, bck_file).strip()
+        return result or "    done"
 
 
 register_plugin(BckMongodump)

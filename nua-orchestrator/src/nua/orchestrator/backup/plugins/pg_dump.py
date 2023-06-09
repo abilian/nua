@@ -11,13 +11,13 @@ from ..backup_registry import register_plugin
 from .plugin_base_class import BackupErrorException, PluginBaseClass
 
 
-class BckPostgresDumpall(PluginBaseClass):
+class BckPostgresDump(PluginBaseClass):
     """Backup plugin for Postgres Docker continaer using pg_dumpall.
 
     To be used at Resource level, on a Postgres container.
     """
 
-    identifier = "pg_dumpall"
+    identifier = "pg_dump"
 
     def check_local_destination(self) -> None:
         backup_destination = self.options.get("destination", "local")
@@ -39,7 +39,7 @@ class BckPostgresDumpall(PluginBaseClass):
         if container is None:
             raise BackupErrorException(f"Error: No container found for {self.node}")
 
-        cmd = "/usr/bin/pg_dumpall -U ${POSTGRES_USER}"
+        cmd = "/usr/bin/pg_dump -U ${POSTGRES_USER} -d ${POSTGRES_DB}  --clean"
 
         print(f"Start backup: {dest_file}")
         with dest_file.open("wb") as output:
@@ -57,10 +57,14 @@ class BckPostgresDumpall(PluginBaseClass):
         """Restore the Resource."""
         container = docker_container_of_name(self.node)
         bck_file = self.backup_file(component)
-        cmd = "psql -U root"
+        bash_cmd = (
+            r"PGOPTIONS='--client-min-messages=warning' /usr/bin/psql -q "
+            "-U '${POSTGRES_USER}' -d '${POSTGRES_DB}'"
+        )
+        cmd = f"bash -c '{bash_cmd}'"
         print(f"Restore: {bck_file}")
         result = docker_exec_stdin(container, cmd, bck_file).strip()
         return result or "    done"
 
 
-register_plugin(BckPostgresDumpall)
+register_plugin(BckPostgresDump)

@@ -61,7 +61,7 @@ class BckTgzVolumes(PluginBaseClass):
                 f"Error: No volume {volume_name} in its container"
             )
 
-        cmd = f"tar cvzf {self.nua_backup_dir}/{self.file_name} {mount_point}"
+        cmd = f"tar cvzf {self.nua_backup_dir}/{self.file_name} -C {mount_point} ."
         print(f"Start backup: {dest_file}")
         self.docker_run_ubuntu(cmd)
         self.volume_info = dock_volume.attrs
@@ -104,7 +104,7 @@ class BckTgzVolumes(PluginBaseClass):
         folder = str(bck_file.parent)
         bash_cmd = (
             f"cd {mount_point} && tar xvzf {self.nua_backup_dir}/{file_name} "
-            "--strip-components=1"
+            # "--strip-components=1"
         )
         cmd = f"bash -c '{bash_cmd}'"
         print(f"Restore: {bck_file}")

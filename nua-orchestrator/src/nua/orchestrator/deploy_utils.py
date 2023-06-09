@@ -17,6 +17,7 @@ from .docker_utils import (  # docker_volume_prune,
     docker_network_create_bridge,
     docker_network_prune,
     docker_network_remove_one,
+    docker_pause_container_name,
     docker_remove_container_previous,
     docker_remove_volume_by_source,
     docker_restart_container_name,
@@ -24,6 +25,7 @@ from .docker_utils import (  # docker_volume_prune,
     docker_service_start_if_needed,
     docker_start_container_name,
     docker_stop_container_name,
+    docker_unpause_container_name,
     docker_volume_create_or_use,
     docker_volume_type,
 )
@@ -192,6 +194,18 @@ def stop_one_app_containers(app: AppInstance):
     # container with same network.
 
 
+def pause_one_app_containers(app: AppInstance):
+    pause_one_container(app)
+    for resource in app.resources:
+        pause_one_container(resource)
+
+
+def unpause_one_app_containers(app: AppInstance):
+    unpause_one_container(app)
+    for resource in app.resources:
+        unpause_one_container(resource)
+
+
 def start_one_app_containers(app: AppInstance):
     for resource in app.resources:
         start_one_deployed_container(resource)
@@ -211,11 +225,39 @@ def stop_one_container(rsite: Resource):
     stop_containers([rsite.container_name])
 
 
+def pause_one_container(rsite: Resource):
+    with verbosity(0):
+        info(f"    -> pause container of name: {rsite.container_name}")
+        info(f"                  container id: {rsite.container_id_short}")
+    pause_containers([rsite.container_name])
+
+
+def unpause_one_container(rsite: Resource):
+    with verbosity(0):
+        info(f"    -> unpause container of name: {rsite.container_name}")
+        info(f"                    container id: {rsite.container_id_short}")
+    unpause_containers([rsite.container_name])
+
+
 def stop_containers(container_names: list[str]):
     for name in container_names:
         if not name:
             continue
         docker_stop_container_name(name)
+
+
+def pause_containers(container_names: list[str]):
+    for name in container_names:
+        if not name:
+            continue
+        docker_pause_container_name(name)
+
+
+def unpause_containers(container_names: list[str]):
+    for name in container_names:
+        if not name:
+            continue
+        docker_unpause_container_name(name)
 
 
 def start_one_deployed_container(rsite: Resource):

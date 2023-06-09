@@ -2,7 +2,7 @@
 id = "hedgedoc"
 version = "1.9.7"
 # Nota: version 1.9.6 seems broken since 1.9.7
-release = 13
+release = 14
 title = "HedgeDoc"
 author = "HedgeDoc authors"
 tagline = "The best platform to write and share markdown"
@@ -116,5 +116,5 @@ type = "postgres"
 version = ">=14, <15"
 
 [resource.backup]
-method = "pg_dumpall"
+method = "pg_dump"
 options = { destination = "local" }

@@ -1,7 +1,7 @@
 """Execute backup commands."""
 
 from ...app_management import AppManagement
-from .start_stop import start_nua_instance, stop_nua_instance
+from .start_stop import pause_nua_instance, unpause_nua_instance
 
 
 def backup_all_apps():
@@ -30,16 +30,16 @@ def restore_last_backup(
 ):
     """Restore last backuped data for the app instance identified by its label or domain."""
     print(f"Restore last backup for the app identified by '{label or domain}'")
-    stop_nua_instance(label=label, domain=domain)
-    print("-" * 60)
+    # pause_nua_instance(label=label, domain=domain)
+    # print("-" * 60)
     manager = AppManagement()
     if label:
         result = manager.restore_backup_app_per_label(label)
     else:
         result = manager.restore_backup_app_per_domain(domain)
     print(result)
-    print("-" * 60)
-    start_nua_instance(label=label, domain=domain)
+    # print("-" * 60)
+    # unpause_nua_instance(label=label, domain=domain)
 
 
 def restore_list_backups(

@@ -10,7 +10,7 @@ from functools import cache
 from pathlib import Path
 from pprint import pformat
 from subprocess import run  # noqa: S404
-from subprocess import PIPE, Popen
+from subprocess import PIPE, STDOUT, Popen
 from time import sleep
 
 from docker import DockerClient
@@ -205,11 +205,49 @@ def docker_stop_container_name(name: str):
         #     warning(f"container not killed: {remain.name}")
 
 
+def docker_pause_container_name(name: str):
+    if not name:
+        return
+    container = docker_container_of_name(name)
+    if container is None:
+        warning(f"docker_pause_container_name(): no container of name '{name}'")
+        return
+    with verbosity(3):
+        vprint("docker_pause_container_name():", container)
+    _docker_pause_container(container)
+
+
+def docker_unpause_container_name(name: str):
+    if not name:
+        return
+    container = docker_container_of_name(name)
+    if container is None:
+        warning(f"docker_unpause_container_name(): no container of name '{name}'")
+        return
+    with verbosity(3):
+        vprint("docker_unpause_container_name():", container)
+    _docker_unpause_container(container)
+
+
 def _docker_stop_container(container: Container):
     try:
         container.stop()
     except APIError as e:
         warning(f"Stopping container error: {e}")
+
+
+def _docker_pause_container(container: Container):
+    try:
+        container.pause()
+    except APIError as e:
+        warning(f"Pausing container error: {e}")
+
+
+def _docker_unpause_container(container: Container):
+    try:
+        container.unpause()
+    except APIError as e:
+        warning(f"Unpausing container error: {e}")
 
 
 def _docker_start_container(container: Container):
@@ -467,15 +505,15 @@ def docker_exec_stdin(container: Container, cmd: str, input_file: Path) -> str:
     user='', detach=False, stream=False, socket=False, environment=None,
     workdir=None, demux=False
     """
-    docker_cmd = shlex.split(f"docker exec -i {container.id} {cmd}")
+    docker_cmd = shlex.split(f"/usr/bin/docker exec -i {container.id} {cmd}")
     with open(input_file, "rb") as rfile:
         proc = Popen(
             docker_cmd,
             stdin=rfile,
             stdout=PIPE,
-            stderr=PIPE,
+            stderr=STDOUT,
         )
-        result, err = proc.communicate()
+        result, _ = proc.communicate()
     return result.decode("utf8")
 
 
