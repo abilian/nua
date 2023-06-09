@@ -1,7 +1,6 @@
 """Execute backup commands."""
 
 from ...app_management import AppManagement
-from .start_stop import pause_nua_instance, unpause_nua_instance
 
 
 def backup_all_apps():
