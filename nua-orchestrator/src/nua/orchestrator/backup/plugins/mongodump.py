@@ -31,7 +31,7 @@ class BckMongodump(PluginBaseClass):
         """
         self.check_local_destination()
 
-        self.file_name = f"{self.date}-{self.node}.archive"
+        self.file_name = f"{self.date}-{self.node}.gz"
         # self.file_name = f"{self.date}-{self.node}.archive.gz"
         dest_file = self.folder / self.file_name
 
@@ -40,16 +40,16 @@ class BckMongodump(PluginBaseClass):
             raise BackupErrorException(f"Error: No container found for {self.node}")
 
         cmd = (
-            "/usr/bin/mongodump -u ${MONGO_INITDB_ROOT_USERNAME} "
-            "-p ${MONGO_INITDB_ROOT_PASSWORD} --archive"
-            # "-p ${MONGO_INITDB_ROOT_PASSWORD} --gzip --archive"
+            "/usr/bin/mongodump "
+            "-u ${MONGO_INITDB_ROOT_USERNAME} "
+            "-p ${MONGO_INITDB_ROOT_PASSWORD} --gzip --archive"
         )
 
         print(f"Start backup: {dest_file}")
         with dest_file.open("wb") as output:
             docker_exec_checked(
                 container,
-                {"cmd": cmd, "user": "root", "workdir": "/"},
+                {"cmd": cmd, "user": "root", "workdir": "/", "stderr": False},
                 output,
             )
             output.flush()
@@ -62,10 +62,9 @@ class BckMongodump(PluginBaseClass):
         container = docker_container_of_name(self.node)
         bck_file = self.backup_file(component)
         bash_cmd = (
-            "/usr/bin/mongorestore -u '${MONGO_INITDB_ROOT_USERNAME}' "
-            "-p '${MONGO_INITDB_ROOT_PASSWORD}' --archive"
-            # "-p '${MONGO_INITDB_ROOT_PASSWORD}' --archive --drop"
-            # "-p '${MONGO_INITDB_ROOT_PASSWORD}' --gzip --archive --drop"
+            "/usr/bin/mongorestore --authenticationDatabase=admin "
+            '-u "${MONGO_INITDB_ROOT_USERNAME}" '
+            '-p "${MONGO_INITDB_ROOT_PASSWORD}" --gzip --quiet --drop --archive'
         )
         cmd = f"bash -c '{bash_cmd}'"
         print(f"Restore: {bck_file}")

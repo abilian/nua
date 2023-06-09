@@ -534,13 +534,14 @@ def docker_exec_checked(container: Container, params: dict, output: io.BufferedI
     shcmd = f'sh -c "{cmd}"'
     user = params.get("user", "root")
     workdir = params.get("workdir", "/")
+    stderr = params.get("stderr", True)
     _, stream = container.exec_run(
         cmd=shcmd,
         user=user,
         workdir=workdir,
         stream=True,
         stdout=True,
-        stderr=True,
+        stderr=stderr,
         demux=False,
     )
     # will test the first line only:
