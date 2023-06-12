@@ -9,7 +9,7 @@ NUA_PROPERTIES = {
     "family": "db",  # plugin family
     "assign": True,  # receives dynamic assignment of ENV
     "network": True,  # require docker bridge network
-    "backup_cmd": ["]bck_pg_dumpall"],  # list of available backup commands
+    "meta-packages": ["postgres-client"],
 }
 
 

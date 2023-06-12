@@ -87,8 +87,8 @@ def load_plugin_function(name: str, function_name: str) -> Callable | None:
 
 
 def load_plugin_meta_packages_requirement(name: str) -> list:
-    "(for future use)"
-    properties = hyphen_get(MODULES_PROPERTIES, "name", {})
+    """(for future use)"""
+    properties = hyphen_get(MODULES_PROPERTIES, name, {})
     return properties.get("meta-packages", [])
 
 
