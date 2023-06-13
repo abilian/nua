@@ -14,9 +14,8 @@ class PluginDefinitions:
 
     def __init__(self):
         self.definitions: dict[str, dict] = {}
-        self.register_definittions()
 
-    def register_definittions(self):
+    def register_definitions(self):
         for file in rso.files(self.DEFINITIONS_DIR).iterdir():
             with rso.as_file(file) as path:
                 if path.suffix != ".toml" or path.stem.startswith("_"):
@@ -28,8 +27,11 @@ class PluginDefinitions:
         plugin = content["plugin"]
         self.definitions[plugin["name"]] = content
 
-    def plugin(self, name: str) -> dict[str, Any]:
-        return self.definitions[name]
+    @classmethod
+    def plugin(cls, name: str) -> dict[str, Any]:
+        plugin_definitions = cls()
+        plugin_definitions.register_definitions()
+        return plugin_definitions.definitions[name]
 
 
 # def _is_family_plugins(name: str, family: str) -> bool:
