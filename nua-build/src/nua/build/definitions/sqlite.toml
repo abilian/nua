@@ -7,8 +7,8 @@ meta-packages = []
 options = []
 
 [env]
-SQLITE_DIR = "/nua/app/sqlite"
-SQLITE_SOURCE = "{RESOURCE_NAME}-data"
+SQLITE_DIR = { from = "data", key ="target" }
+SQLITE_SOURCE = { from = "data", key = "full_name" }
 
 [env.SQLITE_DB]
 unique_db = true
@@ -21,7 +21,7 @@ detach = true
 name = "always"
 
 [[volume]]
-name = "{RESOURCE_NAME}-data"
+name = "data"
 type = "managed"
 driver = "docker"
 target = "/nua/app/sqlite"

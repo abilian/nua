@@ -14,6 +14,7 @@ from nua.lib.tool.state import verbosity
 from ..net_utils.external_ip import external_ip
 from ..persistent import Persistent
 from ..resource import Resource
+from ..volume import Volume
 from .db_utils import generate_new_db_id, generate_new_user_id
 
 SITE_ENVIRONMENT = "environment"
@@ -126,6 +127,15 @@ def _query_resource(source_name: str, rsite: Resource) -> Resource | None:
     return None
 
 
+def _query_volume(source_name: str, rsite: Resource) -> Volume | None:
+    if not source_name:
+        return None
+    for volume_dict in rsite.resources:
+        if volume_dict.get("name", "") == source_name:
+            return Volume.parse(volume_dict)
+    return None
+
+
 @no_persistent_value
 def resource_property(
     rsite: Resource,
@@ -145,11 +155,30 @@ def resource_property(
     if not property:
         raise Abort(f"Bad requirement, missing 'key' key : {requirement}")
 
+    # first evaluate against the ressource own volumes:
+    volume = _query_volume(source_name, rsite)
+    if volume is not None:
+        return actual_volume_property(
+            volume,
+            property,
+            destination_key,
+            requirement,
+        )
     resource = _query_resource(source_name, rsite)
-    if not resource:
-        warning(f"Unknown resource name for {requirement}")
-        return {}
+    if resource is not None:
+        return actual_resource_property(
+            resource, property, destination_key, requirement
+        )
+    warning(f"Unknown resource name for {requirement}")
+    return {}
 
+
+def actual_resource_property(
+    resource: Resource,
+    property: str,
+    destination_key: str,
+    requirement: dict,
+) -> dict:
     # first try in environ variables of differnt kinds
     if property in resource.env:
         value = resource.env[property]
@@ -165,7 +194,31 @@ def resource_property(
         raise Abort(f"Unknown property for: {requirement}")
 
     with verbosity(4):
-        show(f"resource_property {source_name}:{property} ->")
+        show(f"resource_property {property} ->")
+        show(f"    result {destination_key}:{value}")
+    return {destination_key: value}
+
+
+def actual_volume_property(
+    volume: Volume,
+    property: str,
+    destination_key: str,
+    requirement: dict,
+) -> dict:
+    # first try in environ variables of differnt kinds
+    if hasattr(volume, property):
+        attr = getattr(volume, property)
+        if callable(attr):
+            value = str(attr())
+        else:
+            value = str(attr)
+    else:
+        warning("Volume:")
+        warning(str(volume))
+        raise Abort(f"Unknown property for: {requirement}")
+
+    with verbosity(4):
+        show(f"volume_property {property} ->")
         show(f"    result {destination_key}:{value}")
     return {destination_key: value}
 
