@@ -73,7 +73,7 @@ from .volume import Volume
 
 # parameters passed as a dict to docker run
 RUN_BASE: dict[str, Any] = {}  # see also nua_config
-RUN_BASE_RESOURCE = {"restart_policy": {"name": "always"}}
+RUN_BASE_RESOURCE: dict[str, Any] = {"restart_policy": {"name": "always"}}
 
 
 def known_strings(current: list[str], new: list[str]) -> list[str]:

@@ -1,0 +1,27 @@
+[plugin]
+name = "sqlite"
+format = "package"
+family = "db"
+network = true
+meta-packages = []
+options = []
+
+[env]
+SQLITE_DIR = "/nua/app/sqlite"
+SQLITE_SOURCE = "{RESOURCE_NAME}-data"
+
+[env.SQLITE_DB]
+unique_db = true
+persist = true
+
+[docker]
+detach = true
+
+[docker.restart_policy]
+name = "always"
+
+[[volume]]
+name = "{RESOURCE_NAME}-data"
+type = "managed"
+driver = "docker"
+target = "/nua/app/sqlite"
