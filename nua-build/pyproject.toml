@@ -52,6 +52,7 @@ typer = {version = "^0.7.0", extras = ["all"]}
 # Docker client
 docker = {version = "^6.0.1", extras = ["ssh"]}
 pydantic = "^1.10.8"
+packaging = "^23.1"
 
 [tool.poetry.group.dev.dependencies]
 urllib3 = "<2.0"

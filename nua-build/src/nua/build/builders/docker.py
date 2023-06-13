@@ -1,12 +1,15 @@
 """Docker builder (using dockerfile generated from the nua-config)."""
 from __future__ import annotations
-
+from packaging.specifiers import SpecifierSet
+from packaging.version import parse
 import logging
+from typing import Any
 from contextlib import suppress
 from importlib import resources as rso
 from pathlib import Path
 from shutil import copy2, copytree
 import docker
+from ..plugins_definitions import PluginDefinitions
 from nua.lib.constants import NUA_BUILDER_TAG
 from nua.lib.nua_config import hyphen_get, nua_config_names
 from nua.lib.docker import (
@@ -87,6 +90,7 @@ class DockerBuilder(Builder):
 
     def build_docker_image(self):
         self.copy_project_files()
+        self.merge_plugins_in_config()
         with verbosity(1):
             info("Copying Nua config file:", self.config.path.name)
         copy2(self.config.path, self.build_dir)
@@ -107,6 +111,49 @@ class DockerBuilder(Builder):
         self._copy_manifest_files()
         self._copy_nua_folder()
         self._copy_default_files()
+
+    def merge_plugins_in_config(self) -> None:
+        """Merge the plugin detailed definition in resources based on plugins.
+
+        Plugins are currently specialized images for DBs (postrgres, mariadb, ...)
+        """
+        for resource in self.config.resources:
+            plugin_name = resource.get("type", "")
+            if not plugin_name:
+                continue
+            plugin_detail = PluginDefinitions.plugin(plugin_name)
+            if plugin_detail is None:
+                continue
+            required_version = resource.get("version", "")
+            if required_version:
+                plugin_detail["docker_url"] = self._higher_package(
+                    plugin_detail, required_version
+                )
+            resource.update(plugin_detail)
+
+    def _higher_package(
+        self,
+        plugin_detail: dict,
+        required_version: str,
+        arch: str = "amd64",
+    ) -> str:
+        options = plugin_detail["plugins"].get("options", [])
+        available_packages = [
+            image
+            for image in options
+            if image.get("version") and image.get("arch") == arch
+        ]
+        specifier = SpecifierSet(required_version)
+        found_package: dict[str, Any] = {}
+        found_version = None
+        for package in available_packages:
+            version = parse(package["version"])
+            if version not in specifier:
+                continue
+            if not found_package or found_version is None or version > found_version:
+                found_package = package
+                found_version = version
+        return found_package.get("link", "")
 
     @docker_build_log_error
     def build_with_docker_stream(self):

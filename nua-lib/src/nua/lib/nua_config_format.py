@@ -70,19 +70,24 @@ class Backup(BaseModel):
     options: dict[str, Any] | None
 
 
-class Resource(BaseModel):
-    name: str
-    type: str
-    version: str | None
-    backup: Backup | None
-
-
 class Volume(BaseModel):
     name: str | None
     type: str | None
     target: str
     driver: str | None
     options: dict | None
+    backup: Backup | None
+
+
+class Resource(BaseModel):
+    name: str
+    type: str
+    version: str | None
+    plugin: dict[str, Any] | None
+    build: Build | None
+    env: dict[str, Any] | None
+    volume: list[Volume] | None
+    docker: dict | None
     backup: Backup | None
 
 

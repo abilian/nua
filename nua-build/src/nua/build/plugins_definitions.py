@@ -8,12 +8,11 @@ from typing import Any
 
 import tomli
 
+PLUGIN_DEFINITIONS = {}
+
 
 class PluginDefinitions:
     DEFINITIONS_DIR = "nua.build.definitions"
-
-    def __init__(self):
-        self.definitions: dict[str, dict] = {}
 
     def register_definitions(self):
         for file in rso.files(self.DEFINITIONS_DIR).iterdir():
@@ -23,15 +22,16 @@ class PluginDefinitions:
                 self._definitions_add(path)
 
     def _definitions_add(self, path: Path):
-        content = tomli.lods(path.read_text(encoding="utf8"))
+        content = tomli.loads(path.read_text(encoding="utf8"))
         plugin = content["plugin"]
-        self.definitions[plugin["name"]] = content
+        PLUGIN_DEFINITIONS[plugin["name"]] = content
 
     @classmethod
-    def plugin(cls, name: str) -> dict[str, Any]:
+    def plugin(cls, name: str) -> dict[str, Any] | None:
         plugin_definitions = cls()
-        plugin_definitions.register_definitions()
-        return plugin_definitions.definitions[name]
+        if not PLUGIN_DEFINITIONS:
+            plugin_definitions.register_definitions()
+        return PLUGIN_DEFINITIONS.get(name)
 
 
 # def _is_family_plugins(name: str, family: str) -> bool:
