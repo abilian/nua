@@ -83,6 +83,7 @@ class Volume:
         try:
             self._check_type(data)
             self._check_name(data)
+            self._check_label(data)
             self._check_target(data)
             self._parse_domains(data)
             self._parse_options(data)
@@ -219,6 +220,9 @@ class Volume:
             self.name = value
         elif not self.name:
             raise ValueError("Missing key 'volume.name'")
+
+    def _check_label(self, data: dict):
+        self.label = data.get("label", "")
 
     def _check_target(self, data: dict):
         aliases = ("target", "dest", "destination")

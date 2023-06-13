@@ -1,7 +1,7 @@
 [metadata]
 id = "new-flask-sqla-sqlite-volume"
 version = "1.1"
-release = 1
+release = 3
 title = "Nua test with sqlalchemy, sqlite on docker managed volume"
 author = "Nua testers"
 tagline = "Nua test with sqlalchemy, sqlite on docker managed volume"
@@ -13,7 +13,10 @@ license = "MIT"
 test = "python -c 'import flask_sqla_sqlite_volume'"
 
 [run]
-start = ["init-db", "gunicorn --workers 2 -b :5000 flask_sqla_sqlite_volume.wsgi:app"]
+start = [
+    "sudo init-db",
+    "sudo gunicorn --workers 2 -b :5000 flask_sqla_sqlite_volume.wsgi:app"
+    ]
 
 [env]
 "DB_NAME" = { from="database", key="SQLITE_DB" }

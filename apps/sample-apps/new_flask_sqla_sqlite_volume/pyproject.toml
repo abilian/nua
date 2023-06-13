@@ -6,7 +6,7 @@ authors = ["Jerome Dumonteil <jd@abilian.com>"]
 license = "MIT"
 
 [tool.poetry.scripts]
-init-db = "flask-sqla-sqlite-volume.init_db:main"
+init-db = "flask_sqla_sqlite_volume.init_db:main"
 
 [tool.poetry.dependencies]
 python = "^3.10"

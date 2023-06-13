@@ -85,6 +85,14 @@ class Resource(dict):
         self["type"] = tpe
 
     @property
+    def name(self) -> str:
+        return self["name"]
+
+    @name.setter
+    def name(self, name: str):
+        self["name"] = name
+
+    @property
     def image(self) -> str:
         return self.get("image") or ""
 

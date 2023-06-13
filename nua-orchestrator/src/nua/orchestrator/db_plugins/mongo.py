@@ -45,8 +45,8 @@ def _make_volume(resource: Resource) -> Volume:
     volume.type = "managed"
     volume.driver = "docker"
     # at this stage, network_name is defined
-    volume.name = f"{resource.resource_name}-data"
-    volume.label = volume.name
+    volume.name = f"{resource.name}-data"
+    volume.label = resource.label_id
     # target of MongoDB images default configuration
     volume.target = "/data/db"
     return volume

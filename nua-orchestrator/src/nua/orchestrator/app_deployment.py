@@ -303,9 +303,9 @@ class AppDeployment:
         app.set_network_name()
         app.set_resources_names()
         app.merge_instance_to_resources()
+        app.set_volumes_names()
         for resource in app.resources:
             resource.configure_db()
-        app.set_volumes_names()
         for service in app.local_services:
             if service not in self.available_services:
                 raise Abort(f"Required service '{service}' is not available")
@@ -502,8 +502,8 @@ class AppDeployment:
         self.apps_set_network_name()
         self.apps_set_resources_names()
         self.apps_merge_app_instances_to_resources()
-        self.apps_configure_requested_db()
         self.apps_set_volumes_names()
+        self.apps_configure_requested_db()
         self.apps_check_local_service_available()
         self.apps_retrieve_persistent()
         self.apps_evaluate_dynamic_values()
@@ -599,7 +599,6 @@ class AppDeployment:
         nginx_reload()
 
     def _start_apps(self, new_apps: list[AppInstance], deactivate: bool = False):
-        """Start new deployed apps."""
         if not self.already_deployed_domains:
             # easy, either first deployment or all apps removed, start from zero:
             return self.start_apps()
