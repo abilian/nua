@@ -92,8 +92,9 @@ class DockerBuilder(Builder):
         self.copy_project_files()
         self.merge_plugins_in_config()
         with verbosity(1):
-            info("Copying Nua config file:", self.config.path.name)
-        copy2(self.config.path, self.build_dir)
+            info("Write Nua config file")
+        self.config.dump_json(self.build_dir)
+        # copy2(self.config.path, self.build_dir)
         self.build_with_docker_stream()
         rm_fr(self.build_dir)
 
