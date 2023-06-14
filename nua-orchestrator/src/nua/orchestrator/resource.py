@@ -29,8 +29,8 @@ NETWORKED_TYPE = CONTAINER_TYPE
 
 
 class Resource(dict):
-    def __init__(self, declaration: dict):
-        super().__init__(declaration)
+    def __init__(self, resource_config: dict):
+        super().__init__(resource_config)
         if "requested_secrets" not in self:
             self.requested_secrets = []
         # debug backup print("resource_decl", declaration)
@@ -148,7 +148,7 @@ class Resource(dict):
 
     @property
     def volumes(self) -> list:
-        return self.get("volume", [])
+        return self.get("volume") or []
 
     @volumes.setter
     def volumes(self, volumes: list):
@@ -184,7 +184,7 @@ class Resource(dict):
 
     @property
     def docker(self) -> dict:
-        return self.get("docker", {})
+        return self.get("docker") or {}
 
     @docker.setter
     def docker(self, docker: dict):
@@ -200,7 +200,7 @@ class Resource(dict):
 
     @property
     def env(self) -> dict:
-        return self.get("env", {})
+        return self.get("env") or {}
 
     @env.setter
     def env(self, env: dict):
@@ -318,10 +318,12 @@ class Resource(dict):
             self.backup = {}
 
     def _normalize_env_values(self):
+        if "env" not in self or not self.env:
+            self.env = {}
         self.env = normalize_env_values(self.env)
 
     def _normalize_ports(self):
-        if "port" not in self:
+        if "port" not in self or not self.port:
             self.port = {}
             return
 
@@ -344,12 +346,10 @@ class Resource(dict):
         return ports_as_docker_parameters(self.port_list)
 
     def _normalize_volumes(self):
-        if "volume" not in self:
+        if "volume" not in self or not self.volumes:
             self.volumes = []
-            return
         if not isinstance(self.volumes, list):
             raise Abort("AppInstance['volume'] must be a list")
-
         # filter empty elements
         volume_list = [v for v in self.volumes if v]
         self.volumes = Volume.normalize_list(volume_list)

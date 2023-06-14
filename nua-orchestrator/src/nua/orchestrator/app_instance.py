@@ -290,29 +290,27 @@ class AppInstance(Resource):
 
     def parse_resources(self):
         resources_list = self.image_nua_config.get("resource") or []
-        resources = [
-            self._parse_resource(resource_declaration)
-            for resource_declaration in resources_list
-        ]
-        resources = [res for res in resources if res]
+        resources = [self._parse_resource(config) for config in resources_list]
+        resources = [resource for resource in resources if resource]
         with verbosity(3):
             debug(f"Image resources: {pformat(resources)}")
         self.resources = resources
 
-    def _parse_resource(self, declaration: dict) -> Resource | None:
+    def _parse_resource(self, resource_config: dict) -> Resource | None:
         for required_key in ("name", "type"):
-            value = declaration.get(required_key)
+            value = resource_config.get(required_key)
             if not value or not isinstance(value, str):
                 warning(
                     f"ignoring resource declaration without '{required_key}'",
-                    pformat(declaration),
+                    pformat(resource_config),
                 )
                 return None
-        resource = Resource(declaration)
+        resource = Resource(resource_config)
         # debug backup print(declaration)
-        resource.resource_name = declaration["name"]
+        resource.resource_name = resource_config["name"]
         resource.check_valid()
-        # debug backup print(dict(resource))
+        print("=" * 40)
+        print(pformat(dict(resource)))
         return resource
 
     def _normalize_domain(self):

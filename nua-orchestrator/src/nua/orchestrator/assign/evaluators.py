@@ -130,7 +130,7 @@ def _query_resource(source_name: str, rsite: Resource) -> Resource | None:
 def _query_volume(source_name: str, rsite: Resource) -> Volume | None:
     if not source_name:
         return None
-    for volume_dict in rsite.resources:
+    for volume_dict in rsite.volumes:
         if volume_dict.get("name", "") == source_name:
             return Volume.parse(volume_dict)
     return None

@@ -888,40 +888,37 @@ class AppDeployment:
 
     def install_required_images(self):
         # first: check that all Nua images are available:
-        if not self.find_all_apps_images():
-            raise Abort("Missing Nua images")
-
+        self.find_all_apps_images()
         self.install_images()
 
-    def find_all_apps_images(self) -> bool:
+    def find_all_apps_images(self) -> None:
         for app in self.apps:
             if not app.find_registry_path():
                 show(f"No image found for '{app.image}'")
-                return False
+                raise Abort("Missing Nua images")
         with verbosity(0):
             seen = set()
             for app in self.apps:
                 if app.image not in seen:
                     seen.add(app.image)
                     info(f"Image found: '{app.image}'")
-        return True
 
     def install_images(self):
         start_container_engine()
         installed = {}
-        for site in self.apps:
-            if not site.find_registry_path(cached=True):
-                raise Abort(f"No image found for '{site.image}'")
+        for app in self.apps:
+            if not app.find_registry_path(cached=True):
+                raise Abort(f"No image found for '{app.image}'")
 
-            registry_path = site.registry_path
+            registry_path = app.registry_path
             if registry_path in installed:
                 image_id = installed[registry_path][0]
                 image_nua_config = deepcopy(installed[registry_path][1])
             else:
                 image_id, image_nua_config = load_install_image(registry_path)
                 installed[registry_path] = (image_id, image_nua_config)
-            site.image_id = image_id
-            site.image_nua_config = image_nua_config
+            app.image_id = image_id
+            app.image_nua_config = image_nua_config
 
     def install_required_resources(self):
         self.apps_parse_resources()
