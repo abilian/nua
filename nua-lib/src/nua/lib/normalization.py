@@ -22,6 +22,17 @@ def normalize_env_values(env: dict[str, str | int | float | list]) -> dict[str, 
     return deepcopy(validated)
 
 
+def normalize_plugin(plugin: dict[str, str | int | float | list]) -> dict[str, Any]:
+    validated: dict[str, Any] = {}
+    for key, value in plugin.items():
+        if "_" in key:
+            new_key = key.replace("_", "-")
+        else:
+            new_key = key
+        validated[new_key] = value
+    return deepcopy(validated)
+
+
 def ports_as_list(ports_dict: dict) -> list:
     keys = list(ports_dict.keys())
     for key in keys:

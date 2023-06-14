@@ -2,6 +2,7 @@
 from collections.abc import Callable
 from pathlib import Path
 from pprint import pformat
+from typing import Any
 
 import docker
 import docker.types
@@ -29,7 +30,6 @@ from .docker_utils import (  # docker_volume_prune,
     docker_volume_create_or_use,
     docker_volume_type,
 )
-from .higher_package import higher_package
 from .internal_secrets import secrets_dict
 from .net_utils.ports import check_port_available
 from .resource import Resource
@@ -92,10 +92,10 @@ def port_allocator(start_ports: int, end_ports: int, allocated_ports: set) -> Ca
     return allocator
 
 
-def mount_resource_volumes(rsite: Resource) -> list:
-    create_docker_volumes(rsite.volumes)
+def mount_resource_volumes(volumes: list[dict[str, Any]]) -> list:
+    create_docker_volumes(volumes)
     mounted_volumes = []
-    for volume_params in rsite.volumes:
+    for volume_params in volumes:
         mounted_volumes.append(new_docker_mount(volume_params))
     return mounted_volumes
 
@@ -356,28 +356,11 @@ def pull_resource_container(resource: Resource) -> bool:
 
     Currrently: only managing Docker bridge network.
     """
-    if resource.type == "docker":
-        return _pull_resource_docker(resource)
-
-    if resource.is_docker_plugin():
-        return _pull_resource_remote(resource)
-
-    warning(f"Unknown resource type: {resource.type}")
-    return True
-
-
-def _pull_resource_remote(resource: Resource) -> bool:
-    """Define the required version image and pull it."""
-    package_name = resource.type
-    pull_link = higher_package(package_name, resource.version)
-    if not pull_link:
-        warning(
-            "Impossible to find a resource link for "
-            f"'{package_name} version {resource.version}'"
-        )
-        return False
-
-    resource.image = pull_link["link"]
+    docker_url = resource.docker_url()
+    if docker_url:
+        resource.image = docker_url
+    if not resource.image:
+        return True
     return _pull_resource_docker(resource)
 
 

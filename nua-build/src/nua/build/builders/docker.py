@@ -129,11 +129,11 @@ class DockerBuilder(Builder):
             required_version = resource.get("version", "")
             format = plugin_meta["format"]
             if format == "docker-image" and required_version:
-                plugin_meta["docker_url"] = self._higher_package_link(
+                plugin_meta["docker-url"] = self._higher_package_link(
                     plugin, required_version
                 )
                 with verbosity(1):
-                    info("Required image:", plugin_meta["docker_url"])
+                    info("Required image:", plugin_meta["docker-url"])
             resource.update(plugin)
 
     def _higher_package_link(

@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 from operator import attrgetter
 from pathlib import Path
 from pprint import pformat
+from typing import Any
 
 from nua.lib.docker import docker_sanitized_name
 from nua.lib.normalization import normalize_ports, ports_as_list
@@ -236,15 +237,24 @@ class AppInstance(Resource):
                 return resource
         return None
 
+    def merged_volumes(self) -> list[dict[str, Any]]:
+        volumes = []
+        for resource in self.resources:
+            if resource.is_docker_type():
+                continue
+            # need to find a better way
+            if resource.volumes:
+                volumes.extend(resource.volumes)
+        return self.volumes + volumes
+
     def merge_instance_to_resources(self):
         self.rebase_env_upon_nua_conf()
         self.rebase_volumes_upon_nua_conf()
         self.rebase_ports_upon_nua_config()
-        resource_declarations = self.get("resource", [])
-        if not resource_declarations:
-            return
-        for resource_updates in resource_declarations:
-            self._merge_resource_updates_to_resource(resource_updates)
+        instance_config_resources = self.get("resource") or []
+        for update_resource in instance_config_resources:
+            self._merge_resource_updates_to_resource(update_resource)
+        self["resource"] = None
 
     def rebase_env_upon_nua_conf(self):
         """Merge AppInstance declared env at deploy time upon base declaration
@@ -266,29 +276,35 @@ class AppInstance(Resource):
         resource_deps.add_resource(self)
         return resource_deps.solve()
 
-    def _merge_resource_updates_to_resource(self, resource_updates):
-        if not resource_updates:
+    def _merge_resource_updates_to_resource(self, update_resource: dict[str, Any]):
+        if not update_resource:
             # no redefinition of any configuration of the resource
             return
-        if not isinstance(resource_updates, dict):
+        if not isinstance(update_resource, dict):
             warning(
                 f"ignoring update for '{self.domain}' resources, need a dict",
-                explanation=pformat(resource_updates),
+                explanation=pformat(update_resource),
             )
             return
-        resource_name = resource_updates.get("name")
+        resource_name = update_resource.get("name")
         if not resource_name or not isinstance(resource_name, str):
             warning(
                 "ignoring resource update without name",
-                pformat(resource_updates),
+                pformat(update_resource),
             )
             return
         resource = self.resource_per_name(resource_name)
         if not resource:
             warning(f"ignoring resource update, unknown resource '{resource_name}'")
-        resource.update_from_site_declaration(resource_updates)
+            return
+        resource.update_from_site_declaration(update_resource)
 
     def parse_resources(self):
+        """Build the resources list or Resource from nua_config.
+
+        The resources will be later updated from site config resources statements.
+        Note: there is stille a "resource" key for instance changes
+        """
         resources_list = self.image_nua_config.get("resource") or []
         resources = [self._parse_resource(config) for config in resources_list]
         resources = [resource for resource in resources if resource]
@@ -309,8 +325,8 @@ class AppInstance(Resource):
         # debug backup print(declaration)
         resource.resource_name = resource_config["name"]
         resource.check_valid()
-        print("=" * 40)
-        print(pformat(dict(resource)))
+        # print("=" * 40)
+        # print(pformat(dict(resource)))
         return resource
 
     def _normalize_domain(self):
@@ -374,14 +390,7 @@ class AppInstance(Resource):
     def set_resources_names(self):
         """Set first container names of resources to permit early host
         assignment to variables.
-
-        AppInstance.container_name is always available.
         """
         for resource in self.resources:
             resource.label_id = self.label_id
-            if resource.is_docker_type():
-                name = f"{self.label_id}-{resource.resource_name}-{resource.base_name}"
-                resource.container_name = name
-                # docker resources are only visible from bridge network, so use
-                # the container name as hostname
-                resource.hostname = name
+            resource.set_container_name()

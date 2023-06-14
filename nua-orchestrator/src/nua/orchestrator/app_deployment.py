@@ -302,10 +302,11 @@ class AppDeployment:
         # step 1:
         app.set_network_name()
         app.set_resources_names()
+        # print(pformat(dict(app)))
         app.merge_instance_to_resources()
         app.set_volumes_names()
-        for resource in app.resources:
-            resource.configure_db()
+        # for resource in app.resources:
+        #     resource.configure_db()
         for service in app.local_services:
             if service not in self.available_services:
                 raise Abort(f"Required service '{service}' is not available")
@@ -490,6 +491,7 @@ class AppDeployment:
 
     def gather_requirements(self):
         self.install_required_images()
+        self.apps_parse_resources()
         self.install_required_resources()
 
     def configure_apps(self):
@@ -503,7 +505,7 @@ class AppDeployment:
         self.apps_set_resources_names()
         self.apps_merge_app_instances_to_resources()
         self.apps_set_volumes_names()
-        self.apps_configure_requested_db()
+        # self.apps_configure_requested_db()
         self.apps_check_local_service_available()
         self.apps_retrieve_persistent()
         self.apps_evaluate_dynamic_values()
@@ -610,8 +612,7 @@ class AppDeployment:
             self.start_network(app)
             self.evaluate_container_params(app)
             self.start_resources_containers(app)
-            self.setup_resources_db(app)
-            self.merge_volume_only_resources(app)
+            # self.setup_resources_db(app)
             self.start_main_app_container(app)
             app.running_status = RUNNING
             self.store_container_instance(app)
@@ -627,8 +628,7 @@ class AppDeployment:
             self.start_network(app)
             self.evaluate_container_params(app)
             self.start_resources_containers(app)
-            self.setup_resources_db(app)
-            self.merge_volume_only_resources(app)
+            # self.setup_resources_db(app)
             self.start_main_app_container(app)
             app.running_status = RUNNING
             self.store_container_instance(app)
@@ -921,25 +921,12 @@ class AppDeployment:
             app.image_nua_config = image_nua_config
 
     def install_required_resources(self):
-        self.apps_parse_resources()
-        if not self.pull_all_resources_images():
+        if not all(self._pull_resources_images(app) for app in self.apps):
             raise Abort("Missing Docker images")
 
-    def pull_all_resources_images(self) -> bool:
-        return all(
-            all(self._pull_resource(resource) for resource in app.resources)
-            for app in self.apps
-        )
-
-    def _pull_resource(self, resource: Resource) -> bool:
-        if resource.type == "local":
-            # will check later in the process
-            return True
-        if resource.is_docker_type():
-            with verbosity(4):
-                debug("pull docker resource:", resource)
-            return pull_resource_container(resource)
-        return True
+    @staticmethod
+    def _pull_resources_images(app: AppInstance) -> bool:
+        return all(pull_resource_container(resource) for resource in app.resources)
 
     def apps_check_local_service_available(self):
         self.required_services = {s for site in self.apps for s in site.local_services}
@@ -951,13 +938,13 @@ class AppDeployment:
                 raise Abort(f"Required service '{service}' is not available")
 
     def apps_check_host_services_configuration(self):
-        for site in self.apps:
-            for service in site.local_services:
+        for app in self.apps:
+            for service in app.local_services:
                 handler = self.available_services[service]
-                if not handler.check_site_configuration(site):
+                if not handler.check_site_configuration(app):
                     raise Abort(
                         f"Required service '{service}' not configured for "
-                        f"site {site.domain}"
+                        f"site {app.domain}"
                     )
 
     def apps_parse_resources(self):
@@ -996,12 +983,12 @@ class AppDeployment:
         with verbosity(3):
             debug("apps_merge_instances_to_resources() done")
 
-    def apps_configure_requested_db(self):
-        for app in self.apps:
-            for resource in app.resources:
-                resource.configure_db()
-        with verbosity(3):
-            debug("apps_configure_requested_db() done")
+    # def apps_configure_requested_db(self):
+    #     for app in self.apps:
+    #         for resource in app.resources:
+    #             resource.configure_db()
+    #     with verbosity(3):
+    #         debug("apps_configure_requested_db() done")
 
     def apps_set_volumes_names(self):
         for app in self.apps:
@@ -1133,24 +1120,19 @@ class AppDeployment:
     def start_resources_containers(self, app: AppInstance):
         for resource in app.resources:
             if resource.is_docker_type():
-                mounted_volumes = mount_resource_volumes(resource)
+                mounted_volumes = mount_resource_volumes(resource.volumes)
                 start_one_container(resource, mounted_volumes)
                 # until we check startup of container or set value in parameters...
-                time.sleep(2)
+                time.sleep(1)
 
-    def setup_resources_db(self, app: AppInstance):
-        for resource in app.resources:
-            resource.setup_db()
-
-    def merge_volume_only_resources(self, app: AppInstance):
-        for resource in app.resources:
-            if resource.volume_declaration:
-                app.volumes = app.volumes + resource.volume_declaration
+    # def setup_resources_db(self, app: AppInstance):
+    #     for resource in app.resources:
+    #         resource.setup_db()
 
     def start_main_app_container(self, app: AppInstance):
         # volumes need to be mounted before beeing passed as arguments to
         # docker.run()
-        mounted_volumes = mount_resource_volumes(app)
+        mounted_volumes = mount_resource_volumes(app.merged_volumes())
         start_one_container(app, mounted_volumes)
 
     def store_container_instance(self, app: AppInstance):
@@ -1185,7 +1167,7 @@ class AppDeployment:
             del nua_conf_docker["env"]
         run_params.update(nua_conf_docker)
         # update with parameters that could be added to AppInstance configuration :
-        run_params.update(app.get("docker", {}))
+        run_params.update(app.docker)
         # Add the hostname/IP of local Docker hub (Docker feature) :
         self.add_host_gateway_to_extra_hosts(run_params)
         run_params["name"] = app.container_name

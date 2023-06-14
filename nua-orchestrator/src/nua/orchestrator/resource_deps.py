@@ -9,11 +9,15 @@ class Task:
         self.name = resource.resource_name
         self.dependencies = set()
         self.resource = resource
+
+        volume_names = {volume.get("name", "") for volume in resource.volumes}
         for variable in resource.env.values():
             if not isinstance(variable, dict):
                 continue
             dep = variable.get("from", "")
             if not dep:
+                continue
+            if dep in volume_names:
                 continue
             self.dependencies.add(dep)
 
@@ -28,6 +32,7 @@ class ResourceDeps:
         self.nodes = []
         self.node_names = set()
         self.ordered_resources = []
+        self.volumes_names = set()
 
     def add_resource(self, resource: Resource):
         task = Task(resource)

@@ -2,23 +2,19 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from copy import deepcopy
-from pprint import pformat
 from typing import Any
 
-from nua.lib.normalization import normalize_env_values, normalize_ports, ports_as_list
-from nua.lib.panic import Abort, debug, important, vprint, warning
+from nua.lib.normalization import (
+    normalize_env_values,
+    normalize_plugin,
+    normalize_ports,
+    ports_as_list,
+)
+from nua.lib.panic import Abort, vprint, warning
 from nua.lib.tool.state import verbosity
 
 from .healthcheck import HealthCheck
 from .port_utils import ports_as_docker_parameters, ports_assigned
-from .register_plugins import (
-    is_assignable_plugin,
-    is_db_plugins,
-    is_docker_plugin,
-    is_network_plugin,
-    load_plugin_function,
-    load_plugin_meta_packages_requirement,
-)
 from .utils import sanitized_name
 from .volume import Volume
 
@@ -47,6 +43,7 @@ class Resource(dict):
         self._check_mandatory()
         self._normalize_env_values()
         self._normalize_ports()
+        self._normalize_plugin()
         self._normalize_volumes()
 
     @property
@@ -207,7 +204,15 @@ class Resource(dict):
         self["env"] = env
 
     @property
-    def base_name(self) -> str:
+    def plugin(self) -> dict:
+        return self.get("plugin") or {}
+
+    @plugin.setter
+    def plugin(self, plugin: dict):
+        self["plugin"] = plugin
+
+    @property
+    def image_base_name(self) -> str:
         return self.image.split("/")[-1].replace(":", "-")
 
     @property
@@ -231,6 +236,17 @@ class Resource(dict):
     @container_name.setter
     def container_name(self, container_name: str):
         self["container_name"] = container_name
+
+    def set_container_name(self) -> None:
+        base = f"{self.label_id}-{self.resource_name}"
+        if self.is_docker_type():
+            name = f"{base}-{self.image_base_name}"
+        else:
+            name = base
+        self.container_name = name
+        # docker resources are only visible from bridge network, so use
+        # the container name as hostname
+        self.hostname = name
 
     @property
     def container_id(self) -> str:
@@ -286,14 +302,6 @@ class Resource(dict):
         else:
             self["meta_packages_requirements"] = []
 
-    def is_assignable(self) -> bool:
-        """Resource type allow env persistent parameters (most of the
-        resources).
-
-        Persistent data is stored at site level (not resource level).
-        """
-        return self.type in ASSIGNABLE_TYPE or is_assignable_plugin(self.type)
-
     def _check_mandatory(self):
         self._check_missing("type")
         if self["type"] == "local":
@@ -321,6 +329,11 @@ class Resource(dict):
         if "env" not in self or not self.env:
             self.env = {}
         self.env = normalize_env_values(self.env)
+
+    def _normalize_plugin(self):
+        if "plugin" not in self or not self.plugin:
+            self.plugin = {}
+        self.plugin = normalize_plugin(self.plugin)
 
     def _normalize_ports(self):
         if "port" not in self or not self.port:
@@ -354,19 +367,11 @@ class Resource(dict):
         volume_list = [v for v in self.volumes if v]
         self.volumes = Volume.normalize_list(volume_list)
 
-    def rebased_volumes_upon_package_conf(self, package_dict: dict) -> list:
+    def rebased_volumes_upon_package_conf(self, config_dict: dict) -> list:
         """warning: here, no update of self data"""
-        base_list = package_dict.get("volume") or []
-        return self._merge_volumes_lists(base_list, self.volumes)
-
-    def _merge_volumes_lists(
-        self,
-        base_list: list[dict],
-        update_list: list[dict],
-    ) -> list[dict]:
-        # filter empty elements
-        base = [v for v in base_list if v]
-        if not base:
+        base_list = config_dict.get("volume") or []
+        base_list = [vol for vol in base_list if vol]
+        if not base_list:
             # if volumes are not configured in the package nua-config, there
             # is no point to add volumes in the instance configuration
             return []
@@ -375,10 +380,10 @@ class Resource(dict):
         #    definition
         # 2) at host level and between several instances, it should be taken care
         #    higher level to have different 'source' values on the host
-        merge_dict = {vol["target"]: vol for vol in (base + update_list)}
+        merge_dict = {vol["target"]: vol for vol in (base_list + self.volumes)}
         return list(merge_dict.values())
 
-    def update_from_site_declaration(self, resource_updates: dict):
+    def update_from_site_declaration(self, resource_updates: dict[str, Any]):
         for key, value in resource_updates.items():
             # brutal replacement, TODO make special cases for volumes
             # less brutal:
@@ -438,15 +443,17 @@ class Resource(dict):
 
         Basic: using a docker container as resource probably implies need of network.
         """
-        return self.type in NETWORKED_TYPE or is_network_plugin(self.type)
+        return self.is_docker_type() or self.plugin.get("network", False)
 
     def is_docker_type(self) -> bool:
         """Test if resource has a docker-like type."""
-        return self.type in DOCKER_TYPE or self.is_docker_plugin()
+        return self.type in DOCKER_TYPE or self.plugin.get("format") == "docker-image"
 
-    def is_docker_plugin(self) -> bool:
-        """Test if resource requires a docker image."""
-        return is_docker_plugin(self.type)
+    def docker_url(self):
+        url = ""
+        if self.plugin.get("format") == "docker-image":
+            url = self.plugin.get("docker-url", "")
+        return url
 
     def environment_ports(self) -> dict:
         """Return exposed ports and resource host (container name) as env
@@ -470,42 +477,28 @@ class Resource(dict):
         for resource in self.resources:
             resource.add_requested_secrets(key)
 
-    def setup_db(self):
-        if not is_db_plugins(self.type):
-            return
-        if setup_fct := load_plugin_function(self.type, "setup_db"):
-            setup_fct(self)
-            with verbosity(1):
-                vprint(f"setup_db() for resource '{self.resource_name}': {self.type}")
-            with verbosity(3):
-                vprint(pformat(self.env))
+    # def setup_db(self):
+    #     if not is_db_plugins(self.type):
+    #         return
+    #     if setup_fct := load_plugin_function(self.type, "setup_db"):
+    #         setup_fct(self)
+    #         with verbosity(1):
+    #             vprint(f"setup_db() for resource '{self.resource_name}': {self.type}")
+    #         with verbosity(3):
+    #             vprint(pformat(self.env))
 
-    def configure_db(self):
-        with verbosity(4):
-            vprint(f"configure_db: {self.type}")
-        if not is_db_plugins(self.type):
-            with verbosity(4):
-                vprint(f"not a DB: {self.type}")
-            return
-        if configure_fct := load_plugin_function(self.type, "configure_db"):
-            with verbosity(4):
-                vprint(f"configure_fct: {configure_fct}")
-            configure_fct(self)
-            with verbosity(1):
-                important(f"Configure resource DB '{self.resource_name}': {self.type}")
-            with verbosity(3):
-                debug(pformat(self))
-
-    def load_meta_packages_requirements(self):
-        """Some plugin may require some meta-packages requirements for main
-        app.
-
-        For example : postgres DB-> postgres-client -> psycopg2
-        (for future use)
-        """
-        with verbosity(4):
-            vprint(f"load_meta_packages_requirements: {self.type}")
-        if requirements := load_plugin_meta_packages_requirement(self.type):
-            self.meta_packages_requirements = (
-                self.meta_packages_requirements + requirements
-            )
+    # def configure_db(self):
+    #     with verbosity(4):
+    #         vprint(f"configure_db: {self.type}")
+    #     if not is_db_plugins(self.type):
+    #         with verbosity(4):
+    #             vprint(f"not a DB: {self.type}")
+    #         return
+    #     if configure_fct := load_plugin_function(self.type, "configure_db"):
+    #         with verbosity(4):
+    #             vprint(f"configure_fct: {configure_fct}")
+    #         configure_fct(self)
+    #         with verbosity(1):
+    #             important(f"Configure resource DB '{self.resource_name}': {self.type}")
+    #         with verbosity(3):
+    #             debug(pformat(self))

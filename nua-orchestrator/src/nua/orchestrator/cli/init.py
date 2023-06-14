@@ -6,7 +6,6 @@ from nua.lib.panic import Abort, vprint
 from nua.lib.tool.state import verbosity
 
 from ..nua_db_setup import setup_nua_db
-from ..register_plugins import register_plugins
 
 is_initialized = False
 
@@ -28,5 +27,4 @@ def initialization():
         return
 
     setup_nua_db()
-    register_plugins()
     is_initialized = True
