@@ -6,7 +6,7 @@ network = true
 meta-packages = [
     "mariadb-client",
 ]
-options = [
+versions = [
     { version = "10.3", arch = "amd64", link = "docker.io/library/mariadb:10.3" },
     { version = "10.4", arch = "amd64", link = "docker.io/library/mariadb:10.4" },
     { version = "10.5", arch = "amd64", link = "docker.io/library/mariadb:10.5" },

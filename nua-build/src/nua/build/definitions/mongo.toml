@@ -4,7 +4,7 @@ format = "docker-image"
 family = "db"
 network = true
 meta-packages = []
-options = [
+versions = [
     { version = "5.0.15", arch = "amd64", link = "docker.io/library/mongo:5.0.15" },
 ]
 

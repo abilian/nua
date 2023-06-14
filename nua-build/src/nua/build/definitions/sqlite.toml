@@ -4,7 +4,6 @@
     family = "db"
     network = true
     meta-packages = []
-    options = []
 
 [env]
     SQLITE_DIR = { from = "data", key ="target" }

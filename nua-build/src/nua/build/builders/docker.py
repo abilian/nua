@@ -122,27 +122,32 @@ class DockerBuilder(Builder):
             plugin_name = resource.get("type", "")
             if not plugin_name:
                 continue
-            plugin_detail = PluginDefinitions.plugin(plugin_name)
-            if plugin_detail is None:
+            plugin = PluginDefinitions.plugin(plugin_name)
+            if plugin is None:
                 continue
+            plugin_meta = plugin["plugin"]
             required_version = resource.get("version", "")
-            if required_version:
-                plugin_detail["docker_url"] = self._higher_package(
-                    plugin_detail, required_version
+            format = plugin_meta["format"]
+            if format == "docker-image" and required_version:
+                plugin_meta["docker_url"] = self._higher_package_link(
+                    plugin, required_version
                 )
-            resource.update(plugin_detail)
+                with verbosity(1):
+                    info("Required image:", plugin_meta["docker_url"])
+            resource.update(plugin)
 
-    def _higher_package(
+    def _higher_package_link(
         self,
-        plugin_detail: dict,
+        plugin: dict,
         required_version: str,
         arch: str = "amd64",
     ) -> str:
-        options = plugin_detail["plugins"].get("options", [])
+        plugin_meta = plugin["plugin"]
+        versions = plugin_meta.get("versions", [])
         available_packages = [
-            image
-            for image in options
-            if image.get("version") and image.get("arch") == arch
+            package
+            for package in versions
+            if package.get("version") and package.get("arch") == arch
         ]
         specifier = SpecifierSet(required_version)
         found_package: dict[str, Any] = {}
