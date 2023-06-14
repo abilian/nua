@@ -119,14 +119,20 @@ class DockerBuilder(Builder):
         Plugins are currently specialized images for DBs (postrgres, mariadb, ...)
         """
         for resource in self.config.resources:
-            plugin_name = resource.get("type", "")
-            if not plugin_name:
+            type_value = resource.get("type", "")
+            if not type_value:
                 continue
+            if isinstance(type_value, str):
+                plugin_name = type_value
+                required_version = resource.get("version", "")
+            else:  # dict
+                plugin_name = type_value.get("plugin", "")
+                required_version = type_value.get("version", "")
+
             plugin = PluginDefinitions.plugin(plugin_name)
             if plugin is None:
                 continue
             plugin_meta = plugin["plugin"]
-            required_version = resource.get("version", "")
             format = plugin_meta["format"]
             if format == "docker-image" and required_version:
                 plugin_meta["docker-url"] = self._higher_package_link(

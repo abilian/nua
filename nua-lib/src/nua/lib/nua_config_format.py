@@ -81,7 +81,7 @@ class Volume(BaseModel):
 
 class Resource(BaseModel):
     name: str
-    type: str
+    type: str | dict[str, Any]
     version: str | None
     plugin: dict[str, Any] | None
     build: Build | None
