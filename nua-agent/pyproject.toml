@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-agent"
-version = "0.5.31"
+version = "0.5.32"
 description = "Nua agent"
 authors = [
     "Stefane Fermigier <sf@abilian.com>",
