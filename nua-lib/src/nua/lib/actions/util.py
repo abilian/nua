@@ -206,18 +206,23 @@ def camel_format(name: str) -> str:
 
 def _to_format_cases(
     formatter: Callable,
-    data: dict[str, Any],
+    data: dict[str, Any] | list,
     recurse: int = 999,
 ) -> None:
     """Converts all keys in a dict to "formatter" format, recursion level,
     in place."""
-    for key, value in list(data.items()):
-        new_key = formatter(key)
-        if new_key != key:
-            data[new_key] = value
-            del data[key]
-        if recurse > 0 and isinstance(value, dict):
-            _to_format_cases(formatter, value, recurse - 1)
+    if isinstance(data, list):
+        for item in data:
+            if isinstance(item, dict):
+                _to_format_cases(formatter, item, recurse - 1)
+    elif isinstance(data, dict):
+        for key, value in list(data.items()):
+            new_key = formatter(key)
+            if new_key != key:
+                data[new_key] = value
+                del data[key]
+            if recurse > 0 and isinstance(value, (dict, list)):
+                _to_format_cases(formatter, value, recurse - 1)
 
 
 def to_snake_cases(data: dict[str, Any], recurse: int = 999) -> None:

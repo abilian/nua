@@ -141,16 +141,15 @@ class DockerBuilder(Builder):
         plugin: dict[str, Any],
     ) -> None:
         required_version = resource.get("version", "")
-        scheme = plugin["scheme"]
-        format = scheme["format"]
+        format = plugin["format"]
         if format == "docker-image":
-            versions = scheme.get("plugin-versions")
+            versions = plugin.get("plugin-versions")
             if versions and required_version:
-                scheme["docker-url"] = self._higher_package_link(
+                plugin["base-image"] = self._higher_package_link(
                     versions, required_version
                 )
             with verbosity(1):
-                info("Required image:", scheme["docker-url"])
+                info("Required image:", plugin["base-image"])
 
     def _merge_plugin(
         self,

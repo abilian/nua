@@ -356,7 +356,7 @@ def pull_resource_container(resource: Resource) -> bool:
 
     Currrently: only managing Docker bridge network.
     """
-    docker_url = resource.docker_url()
+    docker_url = resource.base_image()
     if docker_url:
         resource.image = docker_url
     if not resource.image:

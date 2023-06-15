@@ -1,4 +1,3 @@
-[scheme]
 plugin-name = "sqlite"
 format = "package"
 network = false

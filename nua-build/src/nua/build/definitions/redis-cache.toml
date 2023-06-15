@@ -1,4 +1,3 @@
-[scheme]
 plugin-name = "redis-cache"
 format = "docker-image"
 network = true

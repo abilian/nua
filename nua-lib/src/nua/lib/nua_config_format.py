@@ -83,7 +83,13 @@ class Resource(BaseModel):
     name: str
     type: str | dict[str, Any]
     version: str | None
-    scheme: dict[str, Any] | None
+    plugin_name: str | None
+    plugin_version: str | None
+    plugin_versions: list[dict] | None
+    base_image: str | None
+    format: str | None
+    network: bool | None
+    meta_packages: str | list[str] | None
     build: Build | None
     env: dict[str, Any] | None
     volume: list[Volume] | None

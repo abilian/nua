@@ -4,12 +4,7 @@ from collections.abc import Callable
 from copy import deepcopy
 from typing import Any
 
-from nua.lib.normalization import (
-    normalize_env_values,
-    normalize_scheme,
-    normalize_ports,
-    ports_as_list,
-)
+from nua.lib.normalization import normalize_env_values, normalize_ports, ports_as_list
 from nua.lib.panic import Abort, vprint, warning
 from nua.lib.tool.state import verbosity
 
@@ -43,7 +38,6 @@ class Resource(dict):
         self._check_mandatory()
         self._normalize_env_values()
         self._normalize_ports()
-        self._normalize_scheme()
         self._normalize_volumes()
 
     @property
@@ -204,14 +198,6 @@ class Resource(dict):
         self["env"] = env
 
     @property
-    def scheme(self) -> dict:
-        return self.get("scheme") or {}
-
-    @scheme.setter
-    def scheme(self, scheme: dict):
-        self["scheme"] = scheme
-
-    @property
     def image_base_name(self) -> str:
         return self.image.split("/")[-1].replace(":", "-")
 
@@ -330,11 +316,6 @@ class Resource(dict):
             self.env = {}
         self.env = normalize_env_values(self.env)
 
-    def _normalize_scheme(self):
-        if "scheme" not in self or not self.scheme:
-            self.scheme = {}
-        self.scheme = normalize_scheme(self.scheme)
-
     def _normalize_ports(self):
         if "port" not in self or not self.port:
             self.port = {}
@@ -443,17 +424,17 @@ class Resource(dict):
 
         Basic: using a docker container as resource probably implies need of network.
         """
-        return self.is_docker_type() or self.scheme.get("network", False)
+        return self.is_docker_type() or self.get("network", False)
 
     def is_docker_type(self) -> bool:
         """Test if resource has a docker-like type."""
-        return self.type in DOCKER_TYPE or self.scheme.get("format") == "docker-image"
+        return self.type in DOCKER_TYPE or self.get("format") == "docker-image"
 
-    def docker_url(self):
-        url = ""
-        if self.scheme.get("format") == "docker-image":
-            url = self.scheme.get("docker-url", "")
-        return url
+    def base_image(self):
+        image = ""
+        if self.get("format") == "docker-image":
+            image = self.get("base-image", "")
+        return image
 
     def environment_ports(self) -> dict:
         """Return exposed ports and resource host (container name) as env

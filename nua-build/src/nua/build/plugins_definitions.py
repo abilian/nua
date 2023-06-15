@@ -23,8 +23,7 @@ class PluginDefinitions:
 
     def _definitions_add(self, path: Path):
         content = tomli.loads(path.read_text(encoding="utf8"))
-        scheme = content["scheme"]
-        PLUGIN_DEFINITIONS[scheme["plugin-name"]] = content
+        PLUGIN_DEFINITIONS[content["plugin-name"]] = content
 
     @classmethod
     def plugin(cls, name: str) -> dict[str, Any] | None:
