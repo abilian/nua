@@ -67,6 +67,6 @@ container = 80
 
 # declaration of the required image for the resurce, here the official Postgres
 # Docker image
-name = "database"
-type = "local"
-service = "mariadb"
+# name = "database"
+# type = "local"
+# service = "mariadb"

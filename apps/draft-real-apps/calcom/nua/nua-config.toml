@@ -91,5 +91,5 @@ container = 3000
 
 # Declaration of the required image for the resurce, here the official Postgres.
 name = "database"
-type = "postgres"
-version = ">=14, <15"
+plugin-name = "postgres"
+plugin-version = ">=14, <15"

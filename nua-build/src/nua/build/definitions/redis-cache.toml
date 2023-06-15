@@ -1,5 +1,5 @@
 plugin-name = "redis-cache"
-format = "docker-image"
+type = "docker-image"
 network = true
 meta-packages = []
 plugin-versions = [

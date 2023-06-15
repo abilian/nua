@@ -1,5 +1,5 @@
 plugin-name = "sqlite"
-format = "package"
+type = "volume"
 network = false
 meta-packages = []
 

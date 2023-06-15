@@ -1,5 +1,5 @@
 plugin-name = "mongo"
-format = "docker-image"
+type = "docker-image"
 network = true
 meta-packages = []
 plugin-versions = [

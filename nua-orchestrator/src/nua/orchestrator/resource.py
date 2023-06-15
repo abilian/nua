@@ -76,6 +76,14 @@ class Resource(dict):
         self["type"] = tpe
 
     @property
+    def plugin_name(self) -> str:
+        return self["plugin_name"]
+
+    @plugin_name.setter
+    def plugin_name(self, plugin_name: str):
+        self["plugin_name"] = plugin_name
+
+    @property
     def name(self) -> str:
         return self["name"]
 
@@ -428,11 +436,11 @@ class Resource(dict):
 
     def is_docker_type(self) -> bool:
         """Test if resource has a docker-like type."""
-        return self.type in DOCKER_TYPE or self.get("format") == "docker-image"
+        return self.type == "docker-image"
 
     def base_image(self):
         image = ""
-        if self.get("format") == "docker-image":
+        if self.type == "docker-image":
             image = self.get("base-image", "")
         return image
 

@@ -121,14 +121,9 @@ class DockerBuilder(Builder):
         The key/values of plugin can be superceded by resource statements.
         """
         for resource in self.config.resources:
-            type_value = resource.get("type", "")
-            if not type_value:
+            plugin_name = resource.get("plugin-name", "")
+            if not plugin_name:
                 continue
-            if isinstance(type_value, str):
-                plugin_name = type_value
-            else:  # dict
-                plugin_name = type_value.get("plugin", "")
-
             plugin = PluginDefinitions.plugin(plugin_name)
             if plugin is None:
                 continue
@@ -140,8 +135,8 @@ class DockerBuilder(Builder):
         resource: dict[str, Any],
         plugin: dict[str, Any],
     ) -> None:
-        required_version = resource.get("version", "")
-        format = plugin["format"]
+        required_version = resource.get("plugin-version", "")
+        format = plugin["type"]
         if format == "docker-image":
             versions = plugin.get("plugin-versions")
             if versions and required_version:

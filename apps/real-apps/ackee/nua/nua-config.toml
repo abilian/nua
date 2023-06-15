@@ -45,8 +45,8 @@ container = 3000
 
 # Declaration of the required image for the resource, here MongoDB.
 name = "database"
-type = "mongo"
-version = ">=5, <6"
+plugin-name = "mongo"
+plugin-version = ">=5, <6"
 
 [resource.backup]
 method = "mongodump"

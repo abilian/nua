@@ -16,7 +16,7 @@ test = "python -c 'import flask_upload_tmpfs'"
 container = 80
 
 [[volume]]
-type = "tmpfs"
+name = "tmpfs"
 target = "/var/tmp/mount_point"
 [volume.options]
 tmpfs_size = "10G"

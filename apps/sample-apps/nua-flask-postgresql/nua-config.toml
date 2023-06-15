@@ -33,5 +33,5 @@ container = 5000
 # declaration of the required image for the resource, here the official Postgres
 # Docker image
 name = "database"
-type = "postgres"
-version = ">=14, <15"
+plugin-name = "postgres"
+plugin-version = ">=14, <15"

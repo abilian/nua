@@ -1,5 +1,5 @@
 plugin-name = "mariadb"
-format = "docker-image"
+type = "docker-image"
 network = true
 meta-packages = [
     "mariadb-client",

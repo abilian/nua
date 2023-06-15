@@ -34,5 +34,5 @@ container = 5000
 
 [[resource]]
 name = "database"
-type = "mariadb"
-version = ">=10.6, <10.7"
+plugin-name = "mariadb"
+plugin-version = ">=10.6, <10.7"

@@ -112,7 +112,8 @@ target = "/nua/build/hedgedoc/public/uploads"
 
 # Declaration of the required image for the resurce, here the official Postgres.
 name = "database"
-type = { plugin = "postgres", version = ">=14, <15" }
+plugin-name = "postgres"
+plugin-version = ">=14, <15"
 
 [resource.backup]
 method = "pg_dump"

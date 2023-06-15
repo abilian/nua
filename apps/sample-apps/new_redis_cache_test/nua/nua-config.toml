@@ -25,5 +25,5 @@ container = 5000
 [[resource]]
 # declaration of the required image for the resource: official Redis image
 name = "database"
-type = "redis-cache"
-version = ">=7"
+plugin-name = "redis-cache"
+plugin-version = ">=7"

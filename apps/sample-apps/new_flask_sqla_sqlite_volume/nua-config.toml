@@ -30,4 +30,4 @@ container = 5000
 
 [[resource]]
 name = "database"
-type = "sqlite"
+plugin-name = "sqlite"
