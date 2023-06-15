@@ -1,23 +1,16 @@
-[plugin]
-    name = "sqlite"
-    format = "package"
-    family = "db"
-    network = true
-    meta-packages = []
+[scheme]
+plugin-name = "sqlite"
+format = "package"
+network = false
+meta-packages = []
 
 [env]
-    SQLITE_DIR = { from = "data", key ="target" }
-    SQLITE_SOURCE = { from = "data", key = "full_name" }
+SQLITE_DIR = { from = "data", key ="target" }
+SQLITE_SOURCE = { from = "data", key = "full_name" }
 
 [env.SQLITE_DB]
-    unique_db = true
-    persist = true
-
-[docker]
-detach = true
-
-[docker.restart_policy]
-name = "always"
+unique_db = true
+persist = true
 
 [[volume]]
 name = "data"

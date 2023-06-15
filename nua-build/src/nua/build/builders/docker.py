@@ -4,6 +4,7 @@ from packaging.specifiers import SpecifierSet
 from packaging.version import parse
 import logging
 from typing import Any
+from copy import deepcopy
 from contextlib import suppress
 from importlib import resources as rso
 from pathlib import Path
@@ -116,7 +117,8 @@ class DockerBuilder(Builder):
     def merge_plugins_in_config(self) -> None:
         """Merge the plugin detailed definition in resources based on plugins.
 
-        Plugins are currently specialized images for DBs (postrgres, mariadb, ...)
+        Plugins are currently specialized images for DBs (postrgres, mariadb, ...).
+        The key/values of plugin can be superceded by resource statements.
         """
         for resource in self.config.resources:
             type_value = resource.get("type", "")
@@ -124,32 +126,55 @@ class DockerBuilder(Builder):
                 continue
             if isinstance(type_value, str):
                 plugin_name = type_value
-                required_version = resource.get("version", "")
             else:  # dict
                 plugin_name = type_value.get("plugin", "")
-                required_version = type_value.get("version", "")
 
             plugin = PluginDefinitions.plugin(plugin_name)
             if plugin is None:
                 continue
-            plugin_meta = plugin["plugin"]
-            format = plugin_meta["format"]
-            if format == "docker-image" and required_version:
-                plugin_meta["docker-url"] = self._higher_package_link(
-                    plugin, required_version
+            self._select_plugin_version(resource, plugin)
+            self._merge_plugin(resource, plugin)
+
+    def _select_plugin_version(
+        self,
+        resource: dict[str, Any],
+        plugin: dict[str, Any],
+    ) -> None:
+        required_version = resource.get("version", "")
+        scheme = plugin["scheme"]
+        format = scheme["format"]
+        if format == "docker-image":
+            versions = scheme.get("plugin-versions")
+            if versions and required_version:
+                scheme["docker-url"] = self._higher_package_link(
+                    versions, required_version
                 )
-                with verbosity(1):
-                    info("Required image:", plugin_meta["docker-url"])
-            resource.update(plugin)
+            with verbosity(1):
+                info("Required image:", scheme["docker-url"])
+
+    def _merge_plugin(
+        self,
+        resource: dict[str, Any],
+        plugin: dict[str, Any],
+    ) -> None:
+        base = deepcopy(plugin)
+        for key, value in resource.items():
+            if value is None:
+                continue
+            if key in base:
+                base_value = base[key]
+                if isinstance(value, dict) and isinstance(base_value, dict):
+                    base_value.update(value)
+                    continue
+            base[key] = value
+        resource.update(base)
 
     def _higher_package_link(
         self,
-        plugin: dict,
+        versions: list[dict],
         required_version: str,
         arch: str = "amd64",
     ) -> str:
-        plugin_meta = plugin["plugin"]
-        versions = plugin_meta.get("versions", [])
         available_packages = [
             package
             for package in versions

@@ -6,7 +6,7 @@ from typing import Any
 
 from nua.lib.normalization import (
     normalize_env_values,
-    normalize_plugin,
+    normalize_scheme,
     normalize_ports,
     ports_as_list,
 )
@@ -43,7 +43,7 @@ class Resource(dict):
         self._check_mandatory()
         self._normalize_env_values()
         self._normalize_ports()
-        self._normalize_plugin()
+        self._normalize_scheme()
         self._normalize_volumes()
 
     @property
@@ -204,12 +204,12 @@ class Resource(dict):
         self["env"] = env
 
     @property
-    def plugin(self) -> dict:
-        return self.get("plugin") or {}
+    def scheme(self) -> dict:
+        return self.get("scheme") or {}
 
-    @plugin.setter
-    def plugin(self, plugin: dict):
-        self["plugin"] = plugin
+    @scheme.setter
+    def scheme(self, scheme: dict):
+        self["scheme"] = scheme
 
     @property
     def image_base_name(self) -> str:
@@ -330,10 +330,10 @@ class Resource(dict):
             self.env = {}
         self.env = normalize_env_values(self.env)
 
-    def _normalize_plugin(self):
-        if "plugin" not in self or not self.plugin:
-            self.plugin = {}
-        self.plugin = normalize_plugin(self.plugin)
+    def _normalize_scheme(self):
+        if "scheme" not in self or not self.scheme:
+            self.scheme = {}
+        self.scheme = normalize_scheme(self.scheme)
 
     def _normalize_ports(self):
         if "port" not in self or not self.port:
@@ -443,16 +443,16 @@ class Resource(dict):
 
         Basic: using a docker container as resource probably implies need of network.
         """
-        return self.is_docker_type() or self.plugin.get("network", False)
+        return self.is_docker_type() or self.scheme.get("network", False)
 
     def is_docker_type(self) -> bool:
         """Test if resource has a docker-like type."""
-        return self.type in DOCKER_TYPE or self.plugin.get("format") == "docker-image"
+        return self.type in DOCKER_TYPE or self.scheme.get("format") == "docker-image"
 
     def docker_url(self):
         url = ""
-        if self.plugin.get("format") == "docker-image":
-            url = self.plugin.get("docker-url", "")
+        if self.scheme.get("format") == "docker-image":
+            url = self.scheme.get("docker-url", "")
         return url
 
     def environment_ports(self) -> dict:
@@ -476,29 +476,3 @@ class Resource(dict):
         self.requested_secrets.append(key)
         for resource in self.resources:
             resource.add_requested_secrets(key)
-
-    # def setup_db(self):
-    #     if not is_db_plugins(self.type):
-    #         return
-    #     if setup_fct := load_plugin_function(self.type, "setup_db"):
-    #         setup_fct(self)
-    #         with verbosity(1):
-    #             vprint(f"setup_db() for resource '{self.resource_name}': {self.type}")
-    #         with verbosity(3):
-    #             vprint(pformat(self.env))
-
-    # def configure_db(self):
-    #     with verbosity(4):
-    #         vprint(f"configure_db: {self.type}")
-    #     if not is_db_plugins(self.type):
-    #         with verbosity(4):
-    #             vprint(f"not a DB: {self.type}")
-    #         return
-    #     if configure_fct := load_plugin_function(self.type, "configure_db"):
-    #         with verbosity(4):
-    #             vprint(f"configure_fct: {configure_fct}")
-    #         configure_fct(self)
-    #         with verbosity(1):
-    #             important(f"Configure resource DB '{self.resource_name}': {self.type}")
-    #         with verbosity(3):
-    #             debug(pformat(self))

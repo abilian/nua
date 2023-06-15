@@ -22,9 +22,9 @@ def normalize_env_values(env: dict[str, str | int | float | list]) -> dict[str, 
     return deepcopy(validated)
 
 
-def normalize_plugin(plugin: dict[str, str | int | float | list]) -> dict[str, Any]:
+def normalize_scheme(scheme: dict[str, Any]) -> dict[str, Any]:
     validated: dict[str, Any] = {}
-    for key, value in plugin.items():
+    for key, value in scheme.items():
         if "_" in key:
             new_key = key.replace("_", "-")
         else:
