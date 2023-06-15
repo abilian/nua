@@ -1,0 +1,9 @@
+{
+    "site": [
+        {
+            "label": "pg2",
+            "domain": "test2.example.com",
+            "image": "flask-sqla-postgresql-no-plugin"
+        }
+    ]
+}
