@@ -32,6 +32,8 @@ plugin-version = ">=7"
 [[resource]]
 # declaration of the required image for the resource: official Redis image
 name = "app2"
+type = "app"
+network = true
     [resource.build]
     project = "src2"
     test = "python -c 'import echos'"
