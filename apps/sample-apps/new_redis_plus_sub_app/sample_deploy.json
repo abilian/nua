@@ -1,0 +1,9 @@
+{
+    "site": [
+        {
+            "label": "redis2",
+            "domain": "test2.example.com",
+            "image": "new-redis-sub-app"
+        }
+    ]
+}

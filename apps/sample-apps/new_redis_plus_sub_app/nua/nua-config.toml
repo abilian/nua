@@ -1,0 +1,45 @@
+[metadata]
+id = "new-redis-sub-app"
+version = "1.0"
+release = 1
+title = "Redis cache test + sub app"
+author = "Nua testers"
+tagline = "Redis cache test"
+website = "https://nua.rocks/"
+tags = ["test", "redis"]
+license = "MIT"
+
+[build]
+project = "src1"
+test = "python -c 'import redis_cache_test'"
+
+[run]
+start = "python -c 'from redis_cache_test.app import main; main()'"
+
+[env]
+REDIS_HOST = { from="database", key="hostname" }
+REDIS_PORT = { from="database", key="REDIS_PORT" }
+
+[port.web]
+container = 5000
+
+[[resource]]
+# declaration of the required image for the resource: official Redis image
+name = "database"
+plugin-name = "redis-cache"
+plugin-version = ">=7"
+
+[[resource]]
+# declaration of the required image for the resource: official Redis image
+name = "app2"
+    [resource.build]
+    project = "src2"
+    test = "python -c 'import echos'"
+    [resource.run]
+    start = "python -c 'from echos.echo_server import echos; echos(8764, 8765)'"
+    [resource.port.one]
+    container = 8764
+    proxy = 8764
+    [resource.port.two]
+    container = 8765
+    proxy = 8765

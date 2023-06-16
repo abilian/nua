@@ -90,7 +90,9 @@ class Resource(BaseModel):
     meta_packages: str | list[str] | None
     packages: str | list[str] | None
     build: Build | None
+    run: Run | None
     env: dict[str, Any] | None
+    port: dict[str, Port] | None
     volume: list[Volume] | None
     docker: dict | None
     backup: Backup | None
