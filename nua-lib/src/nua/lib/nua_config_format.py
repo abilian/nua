@@ -88,6 +88,7 @@ class Resource(BaseModel):
     type: str | None
     network: bool | None
     meta_packages: str | list[str] | None
+    packages: str | list[str] | None
     build: Build | None
     env: dict[str, Any] | None
     volume: list[Volume] | None

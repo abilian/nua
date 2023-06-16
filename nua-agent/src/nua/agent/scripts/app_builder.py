@@ -30,7 +30,7 @@ from nua.lib.constants import (
     NUA_SCRIPTS_PATH,
 )
 from nua.lib.exec import exec_as_nua, exec_as_root
-from nua.lib.nua_config import NuaConfig, hyphen_get
+from nua.lib.nua_config import NuaConfig, force_list, hyphen_get
 from nua.lib.panic import Abort, info, show, vprint, warning
 from nua.lib.shell import chmod_r, chown_r, mkdir_p, rm_fr, sh
 from nua.lib.tool.state import (
@@ -41,9 +41,6 @@ from nua.lib.tool.state import (
 )
 
 from ..auto_install import detect_and_install
-
-# most inferred meta packages will be provided by plugins in the future:
-from ..meta_packages import meta_packages_requirements
 
 logging.basicConfig(level=logging.INFO)
 
@@ -83,31 +80,34 @@ class AppBuilder:
         with verbosity(1):
             show("******** Build done.")
 
-    def infer_meta_packages(self) -> list:
-        """Return packages inferred from the nua-config requirements."""
-        inferred = []
+    def collect_meta_packages(self) -> list[str]:
+        """Return meta packages collected from the nua-config requirements."""
+        collected_set = set()
         for resource in self.config.resources:
-            inferred.extend(meta_packages_requirements(resource.get("type", "")))
-        # if self.config.git_url:
-        #     inferred.extend(meta_packages_requirements("git"))
-        if inferred:
-            with verbosity(2):
-                vprint(f"Inferred meta packages: {inferred}")
-        return inferred
+            collected_set.update(force_list(resource.get("meta-packages", [])))
+        collected_set.update(force_list(self.config.meta_packages))
+        return sorted(package for package in collected_set if package)
+
+    def collect_packages(self) -> list[str]:
+        """Return packages collected from the nua-config requirements."""
+        collected_set = set()
+        for resource in self.config.resources:
+            collected_set.update(force_list(resource.get("packages", [])))
+        collected_set.update(force_list(self.config.packages))
+        return sorted(package for package in collected_set if package)
 
     def pre_build(self):
         """Process installation of packages prior to running install script."""
         with verbosity(1):
             info("******** Stage: pre-build")
-        install_meta_packages(self.infer_meta_packages(), keep_lists=True)
-        if self.config.meta_packages:
-            with verbosity(2):
-                vprint(f"Configured meta packages: {self.config.meta_packages}")
-            install_meta_packages(self.config.meta_packages, keep_lists=True)
-        if self.config.packages:
+        collection = self.collect_meta_packages()
+        if collection:
+            install_meta_packages(collection, keep_lists=True)
+        collection = self.collect_packages()
+        if collection:
             with verbosity(1):
-                vprint(f"Install packages: {self.config.packages}")
-            install_packages(self.config.packages, keep_lists=True)
+                vprint(f"Install packages:  {collection}")
+            install_packages(collection, keep_lists=True)
         chown_r("/nua/venv", "nua")
 
     def make_dirs(self):

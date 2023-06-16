@@ -1,4 +1,0 @@
-{
-    "mariadb": ["mariadb-client"],
-    "postgres": ["postgres-client"]
-}
