@@ -19,7 +19,7 @@ from .commands import certbot_invocation
 CERTBOT_CONF = "nua.orchestrator.certbot.config"
 
 
-def copy_rso_file(module: str, name: str, dest_folder: str | Path):
+def copy_rso_file(module: str, name: str, dest_folder: str | Path) -> None:
     dest_file = Path(dest_folder) / name
     dest_file.write_text(rso.files(module).joinpath(name).read_text(encoding="utf8"))
     dest_file.chmod(0o644)

@@ -64,7 +64,7 @@ def certbot_certonly(domain: str, option: str) -> str:
     return " ".join(run_args)
 
 
-def apply_none_strategy(_top_domain: str, domains: list[str]):
+def apply_none_strategy(_top_domain: str, domains: list[str]) -> None:
     with verbosity(0):
         important(f"Use HTTP protocol for: {' '.join(domains)}")
     return
@@ -80,7 +80,7 @@ def cert_exists(domain: str) -> bool:
         return path.is_dir()
 
 
-def gen_cert_standalone(domain: str):
+def gen_cert_standalone(domain: str) -> None:
     if os.getuid():  # aka not root
         prefix = "sudo "
     else:
@@ -95,7 +95,7 @@ def gen_cert_standalone(domain: str):
             debug(output)
 
 
-def gen_cert_nginx(domain: str):
+def gen_cert_nginx(domain: str) -> None:
     with verbosity(3):
         debug("known domain, will register with --nginx certbot option:", domain)
     if os.getuid():  # aka not root
@@ -112,7 +112,7 @@ def gen_cert_nginx(domain: str):
             debug(output)
 
 
-def apply_auto_strategy(top_domain: str, domains: list[str]):
+def apply_auto_strategy(top_domain: str, domains: list[str]) -> None:
     """Convert just created HTTP configuration (by nginx template) to HTTPS
     using certbot (if strategy is 'auto').
 

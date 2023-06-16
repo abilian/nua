@@ -30,7 +30,7 @@ from nua.lib.tool.state import verbosity
 from . import config
 from .app_instance import AppInstance
 from .assign.engine import instance_key_evaluator
-from .certbot import protocol_prefix, register_certbot_domains
+from .certbot import protocol_prefix, register_certbot_domains_per_domain
 from .db import store
 from .db.model.deployconfig import ACTIVE, INACTIVE, PREVIOUS
 from .db.model.instance import PAUSE, RUNNING, STOPPED
@@ -548,7 +548,8 @@ class AppDeployment:
         self.configure_nginx()
         # registering https apps with certbot requires that the base nginx config is
         # deployed.
-        register_certbot_domains(self.apps)
+        # register_certbot_domains(self.apps)
+        register_certbot_domains_per_domain(self.apps_per_domain)
         with verbosity(3):
             bold_debug("AppDeployment .apps:")
             debug(pformat(self.apps))
@@ -571,7 +572,8 @@ class AppDeployment:
             configure_nginx_hostname(host)
         # registering https apps with certbot requires that the base nginx config is
         # deployed.
-        register_certbot_domains(self.apps)
+        # register_certbot_domains(self.apps)
+        register_certbot_domains_per_domain(self.apps_per_domain)
         with verbosity(3):
             bold_debug("AppDeployment .apps:")
             debug(self.apps)
@@ -770,7 +772,7 @@ class AppDeployment:
             apps.append(app_instance)
         self.apps = apps
 
-    def sort_apps_per_name_domain(self):
+    def sort_apps_per_name_domain(self) -> None:
         """Classify the apps per domain, filtering out miss declared apps.
 
         The apps per domain are available in self.apps_per_domain
@@ -821,7 +823,7 @@ class AppDeployment:
             for hostname, apps_list in apps_per_domain.items()
         ]
 
-    def _apps_per_domain(self) -> dict:
+    def _apps_per_domain(self) -> dict[str, list]:
         """Return a dict of apps per host.
 
         key : hostname (full name)
@@ -847,12 +849,14 @@ class AppDeployment:
                              },
                              ...
         """
-        apps_per_domain = {}
-        for site in self.apps:
-            dom = DomainSplit(site.domain)
+        apps_per_domain: dict[str, list] = {}
+        for app in self.apps:
+            dom = DomainSplit(app.domain)
+            if not dom.hostname:
+                continue
             if dom.hostname not in apps_per_domain:
                 apps_per_domain[dom.hostname] = []
-            apps_per_domain[dom.hostname].append(site)
+            apps_per_domain[dom.hostname].append(app)
         return apps_per_domain
 
     def _filter_miss_located_apps(self) -> None:
@@ -877,16 +881,16 @@ class AppDeployment:
             else:
                 _verify_not_located(host)
 
-    def _update_apps_list(self):
+    def _update_apps_list(self) -> None:
         """Rebuild the list of AppInstance from filtered apps per domain."""
         apps_list = []
         for host in self.apps_per_domain:
-            for site in host["apps"]:
-                site.hostname = host["hostname"]
-                apps_list.append(site)
+            for app in host["apps"]:
+                app.hostname = host["hostname"]
+                apps_list.append(app)
         self.apps = apps_list
 
-    def install_required_images(self):
+    def install_required_images(self) -> None:
         # first: check that all Nua images are available:
         self.find_all_apps_images()
         self.install_images()
@@ -903,7 +907,7 @@ class AppDeployment:
                     seen.add(app.image)
                     info(f"Image found: '{app.image}'")
 
-    def install_images(self):
+    def install_images(self) -> None:
         start_container_engine()
         installed = {}
         for app in self.apps:
@@ -920,7 +924,7 @@ class AppDeployment:
             app.image_id = image_id
             app.image_nua_config = image_nua_config
 
-    def install_required_resources(self):
+    def install_required_resources(self) -> None:
         if not all(self._pull_resources_images(app) for app in self.apps):
             raise Abort("Missing Docker images")
 

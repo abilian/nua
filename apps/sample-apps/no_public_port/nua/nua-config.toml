@@ -2,11 +2,11 @@
 id = "no-public-port"
 version = "1.0"
 release = 3
-title = "Nua test server 2 ports - toml config"
+title = "Nua test server 2 ports, not published outside."
 author = "Jerome Dumonteil <jd@abilian.com>"
 tagline = "Nua test server 2 ports"
 website = "https://nua.rocks/"
-tags = ["test", "html", "web", "static"]
+tags = ["test", "noweb"]
 license = "MIT"
 
 [build]
@@ -22,4 +22,3 @@ proxy = 8764
 [port.two]
 container = 8765
 proxy = 8765
-ssl = false
