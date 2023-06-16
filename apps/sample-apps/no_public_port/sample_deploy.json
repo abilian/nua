@@ -1,0 +1,9 @@
+{
+    "site": [
+        {
+            "label": "nopub",
+            "domain": "test1.example.com",
+            "image": "no-public-port"
+        }
+    ]
+}
