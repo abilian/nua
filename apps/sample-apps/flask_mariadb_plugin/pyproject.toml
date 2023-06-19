@@ -1,12 +1,12 @@
 [tool.poetry]
-name = "flask_mariadb_docker_wheel"
+name = "flask_mariadb"
 version = "0.1.0"
 description = "Flask test with mariadb-docker"
 authors = ["Jerome Dumonteil <jd@abilian.com>"]
 license = "MIT"
 
 [tool.poetry.scripts]
-init-db = "flask_mariadb_docker_wheel.init_db:main"
+init-db = "flask_mariadb.init_db:main"
 
 
 [tool.poetry.dependencies]

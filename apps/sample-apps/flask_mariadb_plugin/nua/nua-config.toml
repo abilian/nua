@@ -1,7 +1,7 @@
 [metadata]
-id = "flask-mariadb-docker-wheel"
+id = "flask-mariadb-plugin"
 version = "1.0"
-release = 7
+release = 8
 title = "Flask/MariaDB-docker test wheel"
 author = "Nua testers"
 tagline = "Nua test with Flask/MariaDB-docker"
@@ -10,13 +10,12 @@ tags = ["test", "html", "web", "MariaDB-docker"]
 license = "MIT"
 
 [build]
-pip-install = ["*.whl"]
-test = "python -c 'import flask_mariadb_docker_wheel'"
+test = "python -c 'import flask_mariadb'"
 
 [run]
 start = [
     "init-db",
-    "gunicorn --worker-tmp-dir /dev/shm --workers 2 -b :5000 flask_mariadb_docker_wheel.wsgi:app"
+    "gunicorn --worker-tmp-dir /dev/shm --workers 2 -b :5000 flask_mariadb.wsgi:app"
     ]
 
 [env]

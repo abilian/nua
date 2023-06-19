@@ -1,9 +1,9 @@
 {
     "site": [
         {
-            "label": "test-mariadb",
+            "label": "mariadb",
             "domain": "test1.example.com",
-            "image": "flask-mariadb-docker-wheel"
+            "image": "flask-mariadb-plugin"
         }
     ]
 }
