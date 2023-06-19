@@ -32,7 +32,7 @@ restart_policy.name = "always"
 # publication port of the app inside the container
 container = 5000
 
-[[resource]]
+[[provider]]
 name = "database"
 plugin-name = "mariadb"
 plugin-version = ">=10.6, <10.7"

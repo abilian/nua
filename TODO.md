@@ -18,7 +18,7 @@
 
 ### Bug fixes
 
-- [ ] Validate config before build: `Error: Duplicate name in resources: database`
+- [ ] Validate config before build: `Error: Duplicate name in providers: database`
 
 ## Started
 

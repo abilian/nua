@@ -35,8 +35,8 @@ restart_policy.name = "always"
 # publication port of the app inside the container
 container = 5000
 
-[[resource]]
-# declaration of the required image for the resource, here the official Postgres
+[[provider]]
+# declaration of the required image for the provider, here the official Postgres
 # Docker image
 name = "database"
 type = "docker-image"
@@ -46,24 +46,24 @@ meta-packages = [
     "postgres-client",
 ]
 
-[resource.env]
+[provider.env]
 POSTGRES_PORT = "5432"
 
-[resource.env.POSTGRES_PASSWORD]
+[provider.env.POSTGRES_PASSWORD]
 random = true
 type = "str"
 length = 24
 persist = true
 
-[resource.env.POSTGRES_USER]
+[provider.env.POSTGRES_USER]
 unique_user = true
 persist = true
 
-[resource.env.POSTGRES_DB]
+[provider.env.POSTGRES_DB]
 unique_db = true
 persist = true
 
-[[resource.volume]]
+[[provider.volume]]
 name = "postgres-data"
 type = "managed"
 driver = "docker"

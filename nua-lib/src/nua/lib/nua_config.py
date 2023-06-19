@@ -403,12 +403,12 @@ class NuaConfig:
         """The list of declared volumes."""
         return self._data.get("volume") or []
 
-    # resources #####################################################
+    # providers #####################################################
 
     @property
-    def resources(self) -> list:
-        """The list of resources (tag 'resource')."""
-        return self._data.get("resource") or []
+    def providers(self) -> list:
+        """The list of providers (tag 'provider')."""
+        return self._data.get("provider") or []
 
     # ports #########################################################
 

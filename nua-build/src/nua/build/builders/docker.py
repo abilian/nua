@@ -115,27 +115,27 @@ class DockerBuilder(Builder):
         self._copy_default_files()
 
     def merge_plugins_in_config(self) -> None:
-        """Merge the plugin detailed definition in resources based on plugins.
+        """Merge the plugin detailed definition in providers based on plugins.
 
         Plugins are currently specialized images for DBs (postrgres, mariadb, ...).
-        The key/values of plugin can be superceded by resource statements.
+        The key/values of plugin can be superceded by provider statements.
         """
-        for resource in self.config.resources:
-            plugin_name = resource.get("plugin-name", "")
+        for provider in self.config.providers:
+            plugin_name = provider.get("plugin-name", "")
             if not plugin_name:
                 continue
             plugin = PluginDefinitions.plugin(plugin_name)
             if plugin is None:
                 continue
-            self._select_plugin_version(resource, plugin)
-            self._merge_plugin(resource, plugin)
+            self._select_plugin_version(provider, plugin)
+            self._merge_plugin(provider, plugin)
 
     def _select_plugin_version(
         self,
-        resource: dict[str, Any],
+        provider: dict[str, Any],
         plugin: dict[str, Any],
     ) -> None:
-        required_version = resource.get("plugin-version", "")
+        required_version = provider.get("plugin-version", "")
         format = plugin["type"]
         if format == "docker-image":
             versions = plugin.get("plugin-versions")
@@ -148,11 +148,11 @@ class DockerBuilder(Builder):
 
     def _merge_plugin(
         self,
-        resource: dict[str, Any],
+        provider: dict[str, Any],
         plugin: dict[str, Any],
     ) -> None:
         base = deepcopy(plugin)
-        for key, value in resource.items():
+        for key, value in provider.items():
             if value is None:
                 continue
             if key in base:
@@ -161,7 +161,7 @@ class DockerBuilder(Builder):
                     base_value.update(value)
                     continue
             base[key] = value
-        resource.update(base)
+        provider.update(base)
 
     def _higher_package_link(
         self,

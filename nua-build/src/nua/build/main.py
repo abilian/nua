@@ -121,17 +121,17 @@ def parse_nua_config(config_file: str | None, validate_only: bool) -> NuaConfig:
 
 def build_app(config: NuaConfig, opts: dict[str, Any]):
     save = opts["save_image"]
-    for resource in config.resources:
-        if resource.get("type") == "app":
-            build_sub_app(config, resource, save_image=save)
+    for provider in config.providers:
+        if provider.get("type") == "app":
+            build_sub_app(config, provider, save_image=save)
     build_main_app(config, save_image=save)
     if opts["show_elapsed_time"] or opts["verbosity"] >= 1:
         t1 = perf_counter()
         print(f"Build time (clock): {elapsed(t1-opts['start_time'])}")
 
 
-def build_sub_app(config: NuaConfig, resource: dict[str, Any], save_image: bool):
-    builder = get_builder(config, resource=resource, save_image=save_image)
+def build_sub_app(config: NuaConfig, provider: dict[str, Any], save_image: bool):
+    builder = get_builder(config, provider=provider, save_image=save_image)
     try:
         print("WIP building sub app...")
         print(builder)

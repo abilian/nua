@@ -22,12 +22,12 @@ REDIS_PORT = { from="database", key="REDIS_PORT" }
 [port.web]
 container = 5000
 
-[[resource]]
-# declaration of the required image for the resource: official Redis image
+[[provider]]
+# declaration of the required image for the provider: official Redis image
 name = "database"
 type = "docker-image"
 base-image = "docker.io/amd64/redis:7.0.8"
-[resource.env]
+[provider.env]
 REDIS_PORT = "6379"
-[resource.docker]
+[provider.docker]
 detach = true

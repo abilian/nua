@@ -27,9 +27,9 @@ Organised by AFPy, the French Python User Association, [this conference](https:/
 
 ## Summary
 
-Nua is an open source cloud platform project launched by Abilian in 2021. It offers a PaaS (platform as a service) that can be easily installed on bare metal or virtualised servers, and which allows containerised web applications to be run, managing their lifecycle, the resources they need (storage, databases, etc.), user access rights, backups, monitoring, logs, etc.
+Nua is an open source cloud platform project launched by Abilian in 2021. It offers a PaaS (platform as a service) that can be easily installed on bare metal or virtualised servers, and which allows containerised web applications to be run, managing their lifecycle, the providers they need (storage, databases, etc.), user access rights, backups, monitoring, logs, etc.
 
-Nua enables the management of applications from an application portfolio ("marketplace"), i.e. packaged and optimised by the platform's developers (or third parties). Nua also allows the deployment of applications under development (demo / qualif / prod), including several instances of the same application, and including automatic deployment (example use case: create demo instances on request from prospects, optimising resource consumption).
+Nua enables the management of applications from an application portfolio ("marketplace"), i.e. packaged and optimised by the platform's developers (or third parties). Nua also allows the deployment of applications under development (demo / qualif / prod), including several instances of the same application, and including automatic deployment (example use case: create demo instances on request from prospects, optimising provider consumption).
 
 Nua is based on the main standards of the open source and cloud world: database (Postgres, MySQL, MongoDB, Redis), storage (S3), OCI, dockerfiles and buildpacks, LDAP and SSO, etc. Nua currently relies on Docker, but will eventually allow applications to be deployed in other execution environments (other containers, classic or lightweight VMs, SlapOS...).
 

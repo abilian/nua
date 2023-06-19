@@ -14,7 +14,7 @@ from .plugin_base_class import BackupErrorException, PluginBaseClass
 class BckMysqldump(PluginBaseClass):
     """Backup plugin for MariaDB Docker container using mysqldump.
 
-    To be used at Resource level, on a MariaDB container.
+    To be used at Provider level, on a MariaDB container.
     """
 
     identifier = "mysqldump"
@@ -26,9 +26,9 @@ class BckMysqldump(PluginBaseClass):
         raise BackupErrorException("WIP: Only local backup is currently implemented")
 
     def do_backup(self) -> None:
-        """Backup the Resource with mysqldump.
+        """Backup the Provider with mysqldump.
 
-        Resource is expected to be a MariaDB database.
+        Provider is expected to be a MariaDB database.
         """
         self.check_local_destination()
 
@@ -57,7 +57,7 @@ class BckMysqldump(PluginBaseClass):
         self.reports.append(self.report)
 
     def restore(self, component: BackupComponent) -> str:
-        """Restore the Resource."""
+        """Restore the Provider."""
         container = docker_container_of_name(self.node)
         bck_file = self.backup_file(component)
         bash_cmd = (

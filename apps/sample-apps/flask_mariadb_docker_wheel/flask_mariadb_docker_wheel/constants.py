@@ -1,6 +1,6 @@
 import os
 
-# we use the resource "mariadb", accessible as host at hostname of name:
+# we use the provider "mariadb", accessible as host at hostname of name:
 # NUA_MARIADB_HOST
 
 DB_HOST = os.environ.get("DB_HOST")

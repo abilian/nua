@@ -20,9 +20,9 @@ domain = "test2.example.com"
 # the only changes required are to use a different network and
 # redefine the site volumes (to use a different data location).
 network = "flask-pg-2"
-[[site.resource]]
+[[site.provider]]
     name = "database"
-[[site.resource.volume]]
+[[site.provider.volume]]
     # here we declare a mounted volume (ie: managed by Docker daemon)
     # The mount type (bind / volume / tmpfs / npipe). Default: volume :
     type = "volume"

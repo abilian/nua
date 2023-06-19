@@ -17,7 +17,7 @@ The `nua-config` file contains several sections, mandatory or optional. Their or
 #### `[metadata]`
 
 - **Mandatory**
-- Contains the information that describes the application. Metadata is used as a basis for naming images, volumes and resources.
+- Contains the information that describes the application. Metadata is used as a basis for naming images, volumes and providers.
 
 #### `[build]`
 
@@ -68,11 +68,11 @@ The `nua-config` file contains several sections, mandatory or optional. Their or
 - Note: each volume can have a backup sub section
 
 
-#### `[[resource]]`
+#### `[[provider]]`
 
 - **Optional**.
 - List of containers or services required by the application. For example, declaration of a database.
-- Note: each resource can have a backup sub section
+- Note: each provider can have a backup sub section
 
 
 ## Section `metadata`
@@ -222,7 +222,7 @@ Notes:
 
 - String or list of string (alternate syntax)
 - Group of packages defined by Nua to facilitate some installation.
-- Currently, only `postgres-client` and `mariadb-client` are available, and both   should be automatically installed when the auto-detection algorithm detect the use of the relevant DB in the `[[resource]]` section. So this feature is seldom used.
+- Currently, only `postgres-client` and `mariadb-client` are available, and both   should be automatically installed when the auto-detection algorithm detect the use of the relevant DB in the `[[provider]]` section. So this feature is seldom used.
 - Note: functionality may evolve in future versions.
 - Example `meta-packages = ["postgres-client"]`
 
@@ -324,7 +324,7 @@ TZ = "Europe/Paris"
 
 Using a dict permits to copy a value from another section. The `from` field identifies the item id and the `key` field identifies the value to copy. If the `from` field is omitted, default ENV is used.
 
-- Example to copy information from a DB declared in the `resource` section with name `database`. For a resource, a special environment variable is `hostname` which refers to the name of the relevant docker container in the local sub network.
+- Example to copy information from a DB declared in the `provider` section with name `database`. For a provider, a special environment variable is `hostname` which refers to the name of the relevant docker container in the local sub network.
 ```
 DB_HOST = { from="database", key="hostname" }
 DB_PORT = { from="database", key="POSTGRES_PORT" }
@@ -499,24 +499,24 @@ Volumes can be either of 3 types
     ```
 
 
-## Section `resource`
+## Section `provider`
 
-A resource is another container required by the main app container or a local service.
-Several resources can be declared. The resource host will appear in the same sub network as the main container.
+A provider is another container required by the main app container or a local service.
+Several providers can be declared. The provider host will appear in the same sub network as the main container.
 
-- Resources are identified by a `name` that permits reference to the resource in the `env` section.
+- Providers are identified by a `name` that permits reference to the provider in the `env` section.
 - `type` field is a work in progress categorization. Currently it permits to select mostly databases.
 
 
 
 - Example for Postgres database
 ```
-[[resource]]
+[[provider]]
 # Declaration of the required image for the resurce, here the official Postgresql image.
 name = "database"
 type = "postgres"
 version = ">=14, <15"
-    [resource.backup]
+    [provider.backup]
     method = "pg_dumpall"
     destination = "local"
     frequency = "24h"
@@ -525,8 +525,8 @@ version = ">=14, <15"
 
 - Example for MongoDB database
 ```
-[[resource]]
-# Declaration of the required image for the resource, here MongoDB.
+[[provider]]
+# Declaration of the required image for the provider, here MongoDB.
 name = "database"
 type = "mongo"
 version = ">=5, <6"
@@ -535,8 +535,8 @@ version = ">=5, <6"
 
 - Example for Redis database (cache configuration)
 ```
-[[resource]]
-# declaration of the required image for the resource: official Redis image
+[[provider]]
+# declaration of the required image for the provider: official Redis image
 name = "database"
 type = "redis-cache"
 version = ">=7"

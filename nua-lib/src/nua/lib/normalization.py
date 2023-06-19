@@ -22,12 +22,12 @@ def normalize_env_values(env: dict[str, str | int | float | list]) -> dict[str, 
     return deepcopy(validated)
 
 
-def normalize_keys(resource: dict[str, Any]) -> None:
-    for key, value in resource.items():
+def normalize_keys(provider: dict[str, Any]) -> None:
+    for key, value in provider.items():
         if "_" in key:
             new_key = key.replace("_", "-")
-            resource[new_key] = value
-            del resource[key]
+            provider[new_key] = value
+            del provider[key]
 
 
 def ports_as_list(ports_dict: dict) -> list:

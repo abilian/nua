@@ -1,6 +1,6 @@
 """Parse content of definition plugins.
 
-Definitions are TOML descriptions of resources.
+Definitions are TOML descriptions of providers.
 """
 from importlib import resources as rso
 from pathlib import Path

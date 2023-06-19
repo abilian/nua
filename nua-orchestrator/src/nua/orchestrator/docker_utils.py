@@ -35,7 +35,7 @@ from nua.lib.shell import chmod_r, mkdir_p
 from nua.lib.tool.state import verbosity
 
 from . import config
-from .resource import Resource
+from .provider import Provider
 from .volume import Volume
 
 RE_VAR = re.compile(r"\{[^\{\}]+\}")
@@ -341,9 +341,9 @@ def docker_remove_container_previous(name: str, show_warning: bool = True):
         pass
 
 
-def docker_remove_prior_container_live(rsite: Resource):
+def docker_remove_prior_container_live(rsite: Provider):
     """Search & remove containers already configured for this same AppInstance
-    or Resource (running or stopped), from Docker.
+    or Provider (running or stopped), from Docker.
 
     Security feature: try to remove containers of exactly same name that
     could be found in docker daemon:
@@ -374,7 +374,7 @@ def erase_previous_container(client: DockerClient, name: str):
         pass
 
 
-def docker_run_params(rsite: Resource) -> dict:
+def docker_run_params(rsite: Provider) -> dict:
     """Return the actual docker parameters."""
     params = deepcopy(rsite.run_params)
     # the actual key is 'environment'
@@ -390,7 +390,7 @@ def docker_run_params(rsite: Resource) -> dict:
     return params
 
 
-def docker_run(rsite: Resource, secrets: dict) -> Container:
+def docker_run(rsite: Provider, secrets: dict) -> Container:
     """Wrapper on top of the py-docker run() command.
 
     Returns:
@@ -418,7 +418,7 @@ def docker_run(rsite: Resource, secrets: dict) -> Container:
     return container
 
 
-def _docker_run(rsite: Resource, secrets: dict, params: dict) -> Container:
+def _docker_run(rsite: Provider, secrets: dict, params: dict) -> Container:
     client = DockerClient.from_env()
     erase_previous_container(client, params["name"])
     actual_params = params_with_secrets_and_f_strings(params, secrets)

@@ -19,20 +19,20 @@ ASSIGNABLE_TYPE = CONTAINER_TYPE
 NETWORKED_TYPE = CONTAINER_TYPE
 
 
-class Resource(dict):
-    def __init__(self, resource_config: dict):
-        super().__init__(resource_config)
+class Provider(dict):
+    def __init__(self, provider_config: dict):
+        super().__init__(provider_config)
         if "requested_secrets" not in self:
             self.requested_secrets = []
-        # debug backup print("resource_decl", declaration)
+        # debug backup print("provider_decl", declaration)
 
     @classmethod
-    def from_dict(cls, resource_dict: dict) -> Resource:
-        resource = cls({})
-        for key, val in resource_dict.items():
-            resource[key] = val
-        resource["port"] = resource.get("port") or {}
-        return resource
+    def from_dict(cls, provider_dict: dict) -> Provider:
+        provider = cls({})
+        for key, val in provider_dict.items():
+            provider[key] = val
+        provider["port"] = provider.get("port") or {}
+        return provider
 
     def check_valid(self):
         self._check_mandatory()
@@ -41,23 +41,23 @@ class Resource(dict):
         self._normalize_volumes()
 
     @property
-    def resources(self) -> list:
-        """List of sub resources of the object.
+    def providers(self) -> list:
+        """List of sub providers of the object.
 
-        Warning: only AppInstance upper class has an actual use of 'resources'.
-        This subclass Resource will always provide an *empty* list.
+        Warning: only AppInstance upper class has an actual use of 'providers'.
+        This subclass Provider will always provide an *empty* list.
         """
         return []
 
-    @resources.setter
-    def resources(self, _resources: list):
+    @providers.setter
+    def providers(self, _providers: list):
         pass
 
     @property
     def label_id(self) -> str:
         """Sanitized version of the app label.
 
-        For resources, label_id is the label_id of the main app.
+        For providers, label_id is the label_id of the main app.
         """
         if "label_id" not in self:
             self["label_id"] = ""
@@ -163,7 +163,7 @@ class Resource(dict):
 
     @property
     def volume_declaration(self) -> list:
-        """Docker volume declared on a non-container resource.
+        """Docker volume declared on a non-container provider.
 
         Thus, this volume needs to be started by the upper site.
         """
@@ -232,13 +232,13 @@ class Resource(dict):
         self["container_name"] = container_name
 
     def set_container_name(self) -> None:
-        base = f"{self.label_id}-{self.resource_name}"
+        base = f"{self.label_id}-{self.provider_name}"
         if self.is_docker_type():
             name = f"{base}-{self.image_base_name}"
         else:
             name = base
         self.container_name = name
-        # docker resources are only visible from bridge network, so use
+        # docker providers are only visible from bridge network, so use
         # the container name as hostname
         self.hostname = name
 
@@ -257,12 +257,12 @@ class Resource(dict):
         return self.container_id[:12]
 
     @property
-    def resource_name(self) -> str:
-        return self.get("resource_name", "")
+    def provider_name(self) -> str:
+        return self.get("provider_name", "")
 
-    @resource_name.setter
-    def resource_name(self, resource_name: str):
-        self["resource_name"] = resource_name
+    @provider_name.setter
+    def provider_name(self, provider_name: str):
+        self["provider_name"] = provider_name
 
     @property
     def network_name(self) -> str:
@@ -305,7 +305,7 @@ class Resource(dict):
 
     def _check_missing(self, key: str):
         if key not in self or not str(self[key]).strip():
-            raise Abort(f"AppInstance or Resource configuration missing '{key}' key")
+            raise Abort(f"AppInstance or Provider configuration missing '{key}' key")
 
     def _parse_healthcheck(self, config: dict | None = None):
         if config:
@@ -372,8 +372,8 @@ class Resource(dict):
         merge_dict = {vol["target"]: vol for vol in (base_list + self.volumes)}
         return list(merge_dict.values())
 
-    def update_from_site_declaration(self, resource_updates: dict[str, Any]):
-        for key, value in resource_updates.items():
+    def update_from_site_declaration(self, provider_updates: dict[str, Any]):
+        for key, value in provider_updates.items():
             # brutal replacement, TODO make special cases for volumes
             # less brutal:
             if key not in {"port", "env", "docker", "volume", "name"}:
@@ -415,7 +415,7 @@ class Resource(dict):
         self.volumes = list(vol_dic.values())
 
     def _update_from_site_declaration_env(self, env_update_dict: Any):
-        """For Resource only, make 'env' dict from AppInstance declaration and
+        """For Provider only, make 'env' dict from AppInstance declaration and
         base  delcaration in nua-config."""
         if not isinstance(env_update_dict, dict):
             raise Abort(
@@ -430,12 +430,12 @@ class Resource(dict):
     def requires_network(self) -> bool:
         """Heuristic to evaluate the need of docker private network.
 
-        Basic: using a docker container as resource probably implies need of network.
+        Basic: using a docker container as provider probably implies need of network.
         """
         return self.is_docker_type() or self.get("network", False)
 
     def is_docker_type(self) -> bool:
-        """Test if resource has a docker-like type."""
+        """Test if provider has a docker-like type."""
         return self.type == "docker-image"
 
     def base_image(self):
@@ -445,15 +445,15 @@ class Resource(dict):
         return image
 
     def environment_ports(self) -> dict:
-        """Return exposed ports and resource host (container name) as env
+        """Return exposed ports and provider host (container name) as env
         variables.
 
         To be used by remote container from same bridge network to
-        connect to the resource container port.
+        connect to the provider container port.
         """
         env = {}
         for port in self.port_list:
-            variable = f"NUA_{self.resource_name.upper()}_PORT_{port['container']}"
+            variable = f"NUA_{self.provider_name.upper()}_PORT_{port['container']}"
             value = str(port["host_use"])
             env[variable] = value
         return env
@@ -463,5 +463,5 @@ class Resource(dict):
             vprint(self)
             vprint("add_requested_secrets", key)
         self.requested_secrets.append(key)
-        for resource in self.resources:
-            resource.add_requested_secrets(key)
+        for provider in self.providers:
+            provider.add_requested_secrets(key)

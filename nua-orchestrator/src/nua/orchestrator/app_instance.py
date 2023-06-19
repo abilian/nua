@@ -19,13 +19,13 @@ from .db.model.instance import STOPPED
 from .domain_split import DomainSplit
 from .persistent import Persistent
 from .port_utils import rebase_ports_on_defaults
-from .resource import Resource
-from .resource_deps import ResourceDeps
+from .provider import Provider
+from .provider_deps import ProviderDeps
 from .search_cmd import search_nua
 from .volume import Volume
 
 
-class AppInstance(Resource):
+class AppInstance(Provider):
     MANDATORY_KEYS = ("image", "domain")
 
     def __init__(self, app_instance_dict: dict):
@@ -35,14 +35,14 @@ class AppInstance(Resource):
     @classmethod
     def from_dict(cls, app_instance_dict: dict) -> AppInstance:
         app_instance = cls({})
-        resources = []
-        for res in app_instance_dict.get("resources", []):
-            resources.append(Resource.from_dict(res))
+        providers = []
+        for res in app_instance_dict.get("providers", []):
+            providers.append(Provider.from_dict(res))
         for key, val in app_instance_dict.items():
-            if key == "resources":
+            if key == "providers":
                 continue
             app_instance[key] = val
-        app_instance["resources"] = resources
+        app_instance["providers"] = providers
         app_instance["port"] = app_instance.get("port") or {}
         return app_instance
 
@@ -54,17 +54,17 @@ class AppInstance(Resource):
         self._set_label_id()
 
     @property
-    def resources(self) -> list:
-        """List of sub resources of the AppInstance object.
+    def providers(self) -> list:
+        """List of sub providers of the AppInstance object.
 
-        Warning: only AppInstance class has an actual use of 'resources'.
-        The subclass Resource will always provide an *empty* list
+        Warning: only AppInstance class has an actual use of 'providers'.
+        The subclass Provider will always provide an *empty* list
         """
-        return self.get("resources", [])
+        return self.get("providers", [])
 
-    @resources.setter
-    def resources(self, resources: list):
-        self["resources"] = resources
+    @providers.setter
+    def providers(self, providers: list):
+        self["providers"] = providers
 
     @property
     def image_nua_config(self) -> dict:
@@ -89,7 +89,7 @@ class AppInstance(Resource):
     @property
     def local_services(self) -> list:
         return [
-            resource.service for resource in self.resources if resource.type == "local"
+            provider.service for provider in self.providers if provider.type == "local"
         ]
 
     @property
@@ -125,7 +125,7 @@ class AppInstance(Resource):
 
     @property
     def container_name(self) -> str:
-        # override the method of Resource
+        # override the method of Provider
         # suffix = DomainSplit(self.domain).container_suffix()
         # name = sanitized_name(f"{self.nua_dash_name}-{suffix}")
         # self["container_name"] = name
@@ -169,7 +169,7 @@ class AppInstance(Resource):
         self["running_status"] = status
 
     def persistent(self, name: str) -> Persistent:
-        """Return Persistent instance for resource of name 'name'.
+        """Return Persistent instance for provider of name 'name'.
 
         Use name = '' for main site.
         """
@@ -200,14 +200,14 @@ class AppInstance(Resource):
     def set_volumes_names(self):
         # suffix = DomainSplit(self.domain).container_suffix()
         # self.volume = [Volume.update_name_dict(v, suffix) for v in self.volume]
-        # for resource in self.resources:
-        #     resource.volume = [
-        #         Volume.update_name_dict(v, suffix) for v in resource.volume
+        # for provider in self.providers:
+        #     provider.volume = [
+        #         Volume.update_name_dict(v, suffix) for v in provider.volume
         #     ]
         self.volumes = [Volume.update_name_dict(v, self.label_id) for v in self.volumes]
-        for resource in self.resources:
-            resource.volumes = [
-                Volume.update_name_dict(v, self.label_id) for v in resource.volumes
+        for provider in self.providers:
+            provider.volumes = [
+                Volume.update_name_dict(v, self.label_id) for v in provider.volumes
             ]
 
     @property
@@ -224,37 +224,37 @@ class AppInstance(Resource):
         If needed, set a relevant network name.
         """
         self.network_name = ""
-        if any(resource.requires_network() for resource in self.resources):
+        if any(provider.requires_network() for provider in self.providers):
             self.network_name = self.container_name
-            for resource in self.resources:
-                resource.network_name = self.network_name
+            for provider in self.providers:
+                provider.network_name = self.network_name
             with verbosity(4):
                 debug("detect_required_network() network_name =", self.network_name)
 
-    def resource_per_name(self, name: str) -> Resource | None:
-        for resource in self.resources:
-            if resource.resource_name == name:
-                return resource
+    def provider_per_name(self, name: str) -> Provider | None:
+        for provider in self.providers:
+            if provider.provider_name == name:
+                return provider
         return None
 
     def merged_volumes(self) -> list[dict[str, Any]]:
         volumes = []
-        for resource in self.resources:
-            if resource.is_docker_type():
+        for provider in self.providers:
+            if provider.is_docker_type():
                 continue
             # need to find a better way
-            if resource.volumes:
-                volumes.extend(resource.volumes)
+            if provider.volumes:
+                volumes.extend(provider.volumes)
         return self.volumes + volumes
 
-    def merge_instance_to_resources(self):
+    def merge_instance_to_providers(self):
         self.rebase_env_upon_nua_conf()
         self.rebase_volumes_upon_nua_conf()
         self.rebase_ports_upon_nua_config()
-        instance_config_resources = self.get("resource") or []
-        for update_resource in instance_config_resources:
-            self._merge_resource_updates_to_resource(update_resource)
-        self["resource"] = None
+        instance_config_providers = self.get("provider") or []
+        for update_provider in instance_config_providers:
+            self._merge_provider_updates_to_provider(update_provider)
+        self["provider"] = None
 
     def rebase_env_upon_nua_conf(self):
         """Merge AppInstance declared env at deploy time upon base declaration
@@ -263,71 +263,71 @@ class AppInstance(Resource):
         base_env.update(self.env)
         self.env = base_env
 
-    def order_resources_dependencies(self) -> list[Resource]:
+    def order_providers_dependencies(self) -> list[Provider]:
         """Order of evaluations for variables.
 
-        - main AppInstance variable assignment (including hostname of resources)
+        - main AppInstance variable assignment (including hostname of providers)
         - late evaluation (hostnames)
-        And check for circular dependencies of resources.
+        And check for circular dependencies of providers.
         """
-        resource_deps = ResourceDeps()
-        for resource in self.resources:
-            resource_deps.add_resource(resource)
-        resource_deps.add_resource(self)
-        return resource_deps.solve()
+        provider_deps = ProviderDeps()
+        for provider in self.providers:
+            provider_deps.add_provider(provider)
+        provider_deps.add_provider(self)
+        return provider_deps.solve()
 
-    def _merge_resource_updates_to_resource(self, update_resource: dict[str, Any]):
-        if not update_resource:
-            # no redefinition of any configuration of the resource
+    def _merge_provider_updates_to_provider(self, update_provider: dict[str, Any]):
+        if not update_provider:
+            # no redefinition of any configuration of the provider
             return
-        if not isinstance(update_resource, dict):
+        if not isinstance(update_provider, dict):
             warning(
-                f"ignoring update for '{self.domain}' resources, need a dict",
-                explanation=pformat(update_resource),
+                f"ignoring update for '{self.domain}' providers, need a dict",
+                explanation=pformat(update_provider),
             )
             return
-        resource_name = update_resource.get("name")
-        if not resource_name or not isinstance(resource_name, str):
+        provider_name = update_provider.get("name")
+        if not provider_name or not isinstance(provider_name, str):
             warning(
-                "ignoring resource update without name",
-                pformat(update_resource),
+                "ignoring provider update without name",
+                pformat(update_provider),
             )
             return
-        resource = self.resource_per_name(resource_name)
-        if not resource:
-            warning(f"ignoring resource update, unknown resource '{resource_name}'")
+        provider = self.provider_per_name(provider_name)
+        if not provider:
+            warning(f"ignoring provider update, unknown provider '{provider_name}'")
             return
-        resource.update_from_site_declaration(update_resource)
+        provider.update_from_site_declaration(update_provider)
 
-    def parse_resources(self):
-        """Build the resources list or Resource from nua_config.
+    def parse_providers(self):
+        """Build the providers list or Provider from nua_config.
 
-        The resources will be later updated from site config resources statements.
-        Note: there is stille a "resource" key for instance changes
+        The providers will be later updated from site config providers statements.
+        Note: there is stille a "provider" key for instance changes
         """
-        resources_list = self.image_nua_config.get("resource") or []
-        resources = [self._parse_resource(config) for config in resources_list]
-        resources = [resource for resource in resources if resource]
+        providers_list = self.image_nua_config.get("provider") or []
+        providers = [self._parse_provider(config) for config in providers_list]
+        providers = [provider for provider in providers if provider]
         with verbosity(3):
-            debug(f"Image resources: {pformat(resources)}")
-        self.resources = resources
+            debug(f"Image providers: {pformat(providers)}")
+        self.providers = providers
 
-    def _parse_resource(self, resource_config: dict) -> Resource | None:
+    def _parse_provider(self, provider_config: dict) -> Provider | None:
         for required_key in ("name", "type"):
-            value = resource_config.get(required_key)
+            value = provider_config.get(required_key)
             if not value or not isinstance(value, str):
                 warning(
-                    f"ignoring resource declaration without '{required_key}'",
-                    pformat(resource_config),
+                    f"ignoring provider declaration without '{required_key}'",
+                    pformat(provider_config),
                 )
                 return None
-        resource = Resource(resource_config)
+        provider = Provider(provider_config)
         # debug backup print(declaration)
-        resource.resource_name = resource_config["name"]
-        resource.check_valid()
+        provider.provider_name = provider_config["name"]
+        provider.check_valid()
         # print("=" * 40)
-        # print(pformat(dict(resource)))
-        return resource
+        # print(pformat(dict(provider)))
+        return provider
 
     def _normalize_domain(self):
         dom = DomainSplit(self.domain)
@@ -387,10 +387,10 @@ class AppInstance(Resource):
             raise ValueError(f"Unsupported type of container '{self.type}'")
         return search_nua(self.image)
 
-    def set_resources_names(self):
-        """Set first container names of resources to permit early host
+    def set_providers_names(self):
+        """Set first container names of providers to permit early host
         assignment to variables.
         """
-        for resource in self.resources:
-            resource.label_id = self.label_id
-            resource.set_container_name()
+        for provider in self.providers:
+            provider.label_id = self.label_id
+            provider.set_container_name()

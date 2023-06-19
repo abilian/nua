@@ -28,6 +28,6 @@ auto_remove = false # default
 [port.web]
 container = 5000
 
-[[resource]]
+[[provider]]
 name = "database"
 plugin-name = "sqlite"

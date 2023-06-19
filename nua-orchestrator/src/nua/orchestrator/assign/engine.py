@@ -7,24 +7,24 @@ from nua.lib.tool.state import verbosity
 
 from ..app_instance import AppInstance
 from ..persistent import Persistent
-from ..resource import Resource
+from ..provider import Provider
 from ..utils import dehyphen
 from .evaluators import (  # site_environment,
     external_ip_evaluation,
     nua_internal,
+    provider_property,
     random,
-    resource_property,
     unique_db,
     unique_user,
 )
 
 EVALUATOR_FCT = {
-    "key": resource_property,
+    "key": provider_property,
     # "environment": site_environment,
     "nua_internal": nua_internal,
     "external_ip": external_ip_evaluation,
     "random": random,
-    # "property": resource_property,
+    # "property": provider_property,
     "unique_db": unique_db,
     "unique_user": unique_user,
 }
@@ -33,7 +33,7 @@ EVALUATOR_LATE_FCT = {}
 
 def instance_key_evaluator(
     app: AppInstance,
-    resource: Resource | None = None,
+    provider: Provider | None = None,
     late_evaluation: bool = False,
     port: dict | None = None,
 ) -> dict:
@@ -42,13 +42,13 @@ def instance_key_evaluator(
     specialized functions.
     """
     result = {}
-    if resource is None:
-        resource = app
+    if provider is None:
+        provider = app
         persistent = app.persistent("")
     else:
-        persistent = app.persistent(resource.resource_name)
+        persistent = app.persistent(provider.provider_name)
     if port is None:
-        dynamics = {k: v for k, v in resource.env.items() if isinstance(v, dict)}
+        dynamics = {k: v for k, v in provider.env.items() if isinstance(v, dict)}
     else:
         dynamics = {k: v for k, v in port.items() if isinstance(v, dict)}
     with verbosity(3):
@@ -57,7 +57,7 @@ def instance_key_evaluator(
         return {}
     for destination_key, requirement in dynamics.items():
         evaluate_requirement(
-            resource,
+            provider,
             destination_key,
             requirement,
             persistent,
@@ -69,7 +69,7 @@ def instance_key_evaluator(
 
 
 def evaluate_requirement(
-    resource: Resource,
+    provider: Provider,
     destination_key: str,
     requirement: dict,
     persistent: Persistent,
@@ -82,7 +82,7 @@ def evaluate_requirement(
     )
     if function:
         result = function(
-            resource,
+            provider,
             destination_key,
             requirement,
             persistent,

@@ -17,7 +17,7 @@ from .plugin_base_class import BackupErrorException, PluginBaseClass
 class BckTgzVolumes(PluginBaseClass):
     """Backup plugin to backup all volumes of a container.
 
-    To be used at Resource level or AppInstance level.
+    To be used at Provider level or AppInstance level.
     """
 
     identifier = "tgz_volumes"
@@ -29,7 +29,7 @@ class BckTgzVolumes(PluginBaseClass):
         raise BackupErrorException("WIP: Only local backup is currently implemented")
 
     def do_backup(self) -> None:
-        """Backup the Volumes of the Resource instance."""
+        """Backup the Volumes of the Provider instance."""
         self.check_local_destination()
 
         container_name = self.node
@@ -68,7 +68,7 @@ class BckTgzVolumes(PluginBaseClass):
         self.finalize_component()
 
     def restore(self, component: BackupComponent) -> str:
-        """Restore the Resource and or Volume."""
+        """Restore the Provider and or Volume."""
         volume_name = self._volume_name(component)
         mount_point = self._target_volume_mount_point(component, volume_name)
         bck_file = self.backup_file(component)

@@ -31,7 +31,7 @@ Alternatively, this build phase can also be performed from a pre-existing docker
 
 ### Deployment
 
-From the image created during the `build`, the [Nua orchestrator](./orchestrator/) will deploy one or more instances of the application, taking care to create or allocate the necessary resources, including a domain name (of course, Nu takes care of managing TLS certificates).
+From the image created during the `build`, the [Nua orchestrator](./orchestrator/) will deploy one or more instances of the application, taking care to create or allocate the necessary providers, including a domain name (of course, Nu takes care of managing TLS certificates).
 
 The deployment is currently done on a server configured with all the services required for the Nua environment, including a Docker server. Other runtime environments will be targeted in later releases of the platform: SlapOS, Podman, LXC, Firecracker, Kata Containers, Nomad, Kubernetes...
 

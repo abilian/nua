@@ -83,16 +83,16 @@ class AppBuilder:
     def collect_meta_packages(self) -> list[str]:
         """Return meta packages collected from the nua-config requirements."""
         collected_set = set()
-        for resource in self.config.resources:
-            collected_set.update(force_list(resource.get("meta-packages", [])))
+        for provider in self.config.providers:
+            collected_set.update(force_list(provider.get("meta-packages", [])))
         collected_set.update(force_list(self.config.meta_packages))
         return sorted(package for package in collected_set if package)
 
     def collect_packages(self) -> list[str]:
         """Return packages collected from the nua-config requirements."""
         collected_set = set()
-        for resource in self.config.resources:
-            collected_set.update(force_list(resource.get("packages", [])))
+        for provider in self.config.providers:
+            collected_set.update(force_list(provider.get("packages", [])))
         collected_set.update(force_list(self.config.packages))
         return sorted(package for package in collected_set if package)
 

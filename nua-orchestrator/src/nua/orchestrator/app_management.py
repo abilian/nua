@@ -16,7 +16,7 @@ from .backup.app_restore import AppRestore
 from .db import store
 from .db.model.deployconfig import ACTIVE, INACTIVE
 from .domain_split import DomainSplit
-from .resource import Resource
+from .provider import Provider
 from .volume import Volume
 
 
@@ -105,11 +105,11 @@ class AppManagement:
         """Execute a full backup of an app (all volumes).
 
         Backup order:
-        1 - resources of app
+        1 - providers of app
         2 - app
         for each:
             a) backup tag of each volume
-            b) backup tag of main resource
+            b) backup tag of main provider
         """
         app_backup = AppBackup(app)
         app_backup.run()
@@ -151,14 +151,14 @@ class AppManagement:
         It is assumed that the app is stopped."""
         print("WIP, nothing")
 
-    def do_restore(self, resource: Resource) -> list:
+    def do_restore(self, provider: Provider) -> list:
         reports = []
-        for volume_dict in resource.volumes:
+        for volume_dict in provider.volumes:
             volume = Volume.from_dict(volume_dict)
             # reports.append(backup_volume(volume))
             print("WIP pseudo restore", volume)
-        print("WIP pseudo restore", resource.resource_name, resource.container_name)
-        # reports.append(backup_resource(resource))
+        print("WIP pseudo restore", provider.provider_name, provider.container_name)
+        # reports.append(backup_provider(provider))
         return reports
 
     def restore_list_backups_app_per_label(self, label: str) -> str:

@@ -1,5 +1,6 @@
-from nua_server.main import app
 from starlite.testing import TestClient
+
+from nua_server.main import app
 
 
 def test_app() -> None:

@@ -7,11 +7,11 @@ from nua.lib.panic import vprint, warning
 from nua.lib.tool.state import verbosity
 
 from ..app_instance import AppInstance
-from ..resource import Resource
+from ..provider import Provider
 from ..volume import Volume
 from .backup_record import BackupRecord
 from .backup_report import BackupReport
-from .resource_backup import backup_resource
+from .provider_backup import backup_provider
 from .volume_backup import backup_volume
 
 
@@ -28,24 +28,24 @@ class AppBackup:
 
     def run(self):
         self.ref_date = backup_date()
-        for resource in self.app.resources:
-            self._backup_resource_parts(resource)
-        self._backup_resource_parts(self.app)
+        for provider in self.app.providers:
+            self._backup_provider_parts(provider)
+        self._backup_provider_parts(self.app)
         self._summarize()
         self._make_detailed_result()
         self._store_in_app()
 
-    def _backup_resource_parts(self, resource: Resource) -> None:
+    def _backup_provider_parts(self, provider: Provider) -> None:
         # with verbosity(3):
-        #     print("_backup_resource_parts()", resource.container_name)
-        for volume_dict in resource.volumes:
+        #     print("_backup_provider_parts()", provider.container_name)
+        for volume_dict in provider.volumes:
             volume = Volume.from_dict(volume_dict)
-            report = backup_volume(resource, volume, ref_date=self.ref_date)
+            report = backup_volume(provider, volume, ref_date=self.ref_date)
             if report.task:
                 with verbosity(2):
                     print(report)
             self.reports.append(report)
-        reports = backup_resource(resource, ref_date=self.ref_date)
+        reports = backup_provider(provider, ref_date=self.ref_date)
         # with verbosity(2):
         #     print(reports)
         self.reports.extend(reports)

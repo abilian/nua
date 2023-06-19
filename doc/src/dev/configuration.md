@@ -2,9 +2,9 @@
 
 ## The `nua-config` file
 
-This is the cornerstone of a Nua managed application. This file centralises the metadata describing the application, the description of the application's _build_ steps, the required resources (databases, etc.) and the default values (environment, configuration files).
+This is the cornerstone of a Nua managed application. This file centralises the metadata describing the application, the description of the application's _build_ steps, the required providers (databases, etc.) and the default values (environment, configuration files).
 
-The content of this file is interpreted at all stages of the life cycle of an application managed by Nua: first, during the *build*, to build an OCI image and then, during the *run*, by the orchestrator to deploy one or more instances of the image, with all the resources they require, and then to maintain them in operational condition.
+The content of this file is interpreted at all stages of the life cycle of an application managed by Nua: first, during the *build*, to build an OCI image and then, during the *run*, by the orchestrator to deploy one or more instances of the image, with all the providers they require, and then to maintain them in operational condition.
 
 The syntax used is the TOML language, but Nua also accepts YAML and JSON.
 
@@ -31,7 +31,7 @@ src-url = "https://github.com/hedgedoc/hedgedoc/releases/download/{version}/hedg
 checksum = "dfd0fca006f9075f072df058476ea542adb32b63964afb2985211e1114ab333e"
 ```
 
-Metadata is used as a basis for naming images, volumes and resources, but also for cataloguing applications, and eventually making them available on a marketplace, either internal to the organisation or offered by an operator.
+Metadata is used as a basis for naming images, volumes and providers, but also for cataloguing applications, and eventually making them available on a marketplace, either internal to the organisation or offered by an operator.
 
 When a `README` file is available, it is also taken into account.
 
@@ -92,7 +92,7 @@ Environment variables declared in the `nua-config` file can be changed when an i
 - Simplified deployment of an application for standard cases,
 - Fine-tuning if needed, especially for the case of parallel deployment of several instances of the same application.
 
-Some of these variables in the above example are *dynamic*. Nua's orchestrator establishes a gateway between the main application and an auxiliary resource (here a database service declared below, named "database"). Each directive allows a property of the resource to be assigned to a variable in the application environment (for example, the host address on the network, the name of the database, etc.). These dynamic variables allow other functionalities such as the automatic generation of names or passwords.
+Some of these variables in the above example are *dynamic*. Nua's orchestrator establishes a gateway between the main application and an auxiliary provider (here a database service declared below, named "database"). Each directive allows a property of the provider to be assigned to a variable in the application environment (for example, the host address on the network, the name of the database, etc.). These dynamic variables allow other functionalities such as the automatic generation of names or passwords.
 
 For applications that are not programmed to be configured via environment variables, a mechanism for generating config files, via a template language such as Jinja, is provided.
 
@@ -117,7 +117,7 @@ interval = 10
 
 ### List of `volume` directive
 
-It is possible to declare storage spaces of different types. By default, the "volume" type is a space managed locally by the Docker server. Other volume types are available (`bind` for manually managed local resources, `tmpfs`, or any remote resource type which has a driver for Docker. The value of the `prefix` tag will be appended with the instance name (name of the domain served) to give the instance a unique volume name.
+It is possible to declare storage spaces of different types. By default, the "volume" type is a space managed locally by the Docker server. Other volume types are available (`bind` for manually managed local providers, `tmpfs`, or any remote provider type which has a driver for Docker. The value of the `prefix` tag will be appended with the instance name (name of the domain served) to give the instance a unique volume name.
 
 ```toml
 [[volume]]
@@ -133,17 +133,17 @@ frequency = "24h"
 
 The volume can be accompanied by a backup directive. As with environment variables, these directives can be changed when deploying an instance. For example, a test or demo instance does not have the same backup requirements as a production instance.
 
-### List of `resource` directive
+### List of `provider` directive
 
-Finally, the `resource` directive is used to declare a resource, i.e. an application or service. This can be a local or remote service, or in this case a container.
+Finally, the `provider` directive is used to declare a provider, i.e. an application or service. This can be a local or remote service, or in this case a container.
 
 ```toml
-[[resource]]
+[[provider]]
 name = "database"
 type = "postgres"
 version = ">=14, <15"
 
-[resource.backup]
+[provider.backup]
 method = "pg_dumpall"
 destination = "local"
 frequency = "24h"

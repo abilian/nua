@@ -1,6 +1,6 @@
 import os
 
-# we use the resource "database", accessible as host at hostname of name:
+# we use the provider "database", accessible as host at hostname of name:
 # NUA_DATABASE_HOST
 
 DB_HOST = os.environ.get("DB_HOST")

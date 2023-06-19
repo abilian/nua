@@ -13,7 +13,7 @@ from .plugin_base_class import BackupErrorException, PluginBaseClass
 class BckMongodump(PluginBaseClass):
     """Backup plugin for MongoDB Docker container using mongodump.
 
-    To be used at Resource level, on a MongoDB container.
+    To be used at Provider level, on a MongoDB container.
     """
 
     identifier = "mongodump"
@@ -25,9 +25,9 @@ class BckMongodump(PluginBaseClass):
         raise BackupErrorException("WIP: Only local backup is currently implemented")
 
     def do_backup(self) -> None:
-        """Backup the Resource with mongodump.
+        """Backup the Provider with mongodump.
 
-        Resource is expected to be a mongodump database.
+        Provider is expected to be a mongodump database.
         """
         self.check_local_destination()
 
@@ -58,7 +58,7 @@ class BckMongodump(PluginBaseClass):
         self.reports.append(self.report)
 
     def restore(self, component: BackupComponent) -> str:
-        """Restore the Resource."""
+        """Restore the Provider."""
         container = docker_container_of_name(self.node)
         bck_file = self.backup_file(component)
         bash_cmd = (

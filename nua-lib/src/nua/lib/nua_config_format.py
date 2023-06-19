@@ -79,7 +79,7 @@ class Volume(BaseModel):
     backup: Backup | None
 
 
-class Resource(BaseModel):
+class Provider(BaseModel):
     name: str
     plugin_name: str | None
     plugin_version: str | None
@@ -103,7 +103,7 @@ class NuaConfigFormat(BaseModel):
     build: Build | None
     run: Run | None
     env: dict[str, Any] | None
-    resource: list[Resource] | None  #
+    provider: list[Provider] | None  #
     volume: list[Volume] | None  #
     port: dict[str, Port] | None
     docker: dict | None

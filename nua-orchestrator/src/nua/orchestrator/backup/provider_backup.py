@@ -6,17 +6,17 @@ from .backup_registry import get_backup_plugin
 from .backup_report import BackupReport
 
 if typing.TYPE_CHECKING:
-    from ..resource import Resource
+    from ..provider import Provider
 
 
-def backup_resource(
-    resource: Resource,
+def backup_provider(
+    provider: Provider,
     ref_date: str = "",
 ) -> list[BackupReport]:
-    """Execute a backup from main 'backup' configuration of a Resource."""
-    config = resource.backup
+    """Execute a backup from main 'backup' configuration of a Provider."""
+    config = provider.backup
     # debug backup print(config)
-    report = BackupReport(node=resource.container_name)
+    report = BackupReport(node=provider.container_name)
     if not config or not isinstance(config, dict):
         report.task = False
         report.success = False
@@ -29,6 +29,6 @@ def backup_resource(
         report.success = False
         report.message = f"Unknown backup method '{method}'"
         return [report]
-    backup = backup_class(resource, ref_date=ref_date)
-    reports = backup.run_on_resource()
+    backup = backup_class(provider, ref_date=ref_date)
+    reports = backup.run_on_provider()
     return reports

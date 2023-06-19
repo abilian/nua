@@ -27,10 +27,10 @@ def main():
             pprint(conf["backup"])
         else:
             print("<none>")
-        for resource in conf.get("resources", []):
-            print("    ", resource["container_name"], ":")
-            if "backup" in resource:
-                pprint(resource["backup"])
+        for provider in conf.get("providers", []):
+            print("    ", provider["container_name"], ":")
+            if "backup" in provider:
+                pprint(provider["backup"])
             else:
                 print("    <none>")
 

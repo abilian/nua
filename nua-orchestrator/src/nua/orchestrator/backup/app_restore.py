@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from ..app_instance import AppInstance
-from ..resource import Resource
+from ..provider import Provider
 from .backup_component import BackupComponent
 from .backup_record import BackupRecord
 from .backup_registry import get_backup_plugin
@@ -51,18 +51,18 @@ class AppRestore:
         for component in self.backup_record.components:
             self.restore_component(component)
 
-    def resource_from_container_name(self, container_name: str) -> Resource:
+    def provider_from_container_name(self, container_name: str) -> Provider:
         if self.app.container_name == container_name:
             return self.app
-        for resource in self.app.resources:
-            if resource.container_name == container_name:
-                return resource
+        for provider in self.app.providers:
+            if provider.container_name == container_name:
+                return provider
         self.result = f"Unknown container '{container_name}'"
         raise RuntimeError
 
     def restore_component(self, component: BackupComponent) -> None:
-        resource = self.resource_from_container_name(
-            component.resource_info.get("container_name", "")
+        provider = self.provider_from_container_name(
+            component.provider_info.get("container_name", "")
         )
         method = component.restore
         backup_class = get_backup_plugin(method)
@@ -71,5 +71,5 @@ class AppRestore:
             self.result = message
             print(message)
             raise RuntimeError
-        restorator = backup_class(resource)
+        restorator = backup_class(provider)
         print(restorator.restore(component))

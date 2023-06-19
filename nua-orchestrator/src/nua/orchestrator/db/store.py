@@ -349,8 +349,8 @@ def list_instances_container_active_volumes() -> list[Volume]:
             domains = containers_dict.get(source, [])
             domains.append(instance.domain)
             containers_dict[source] = domains
-        for resource in app.resources:
-            for volume_definition in resource.volumes:
+        for provider in app.providers:
+            for volume_definition in provider.volumes:
                 volume = Volume.parse(volume_definition)
                 if volume.type == "tmpfs":
                     continue

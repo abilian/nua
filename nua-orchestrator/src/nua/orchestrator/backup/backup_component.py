@@ -21,7 +21,7 @@ class BackupComponent:
     file_name: str = ""
     restore: str = ""
     date: str = ""
-    resource_info: dict[str, Any] | None = None
+    provider_info: dict[str, Any] | None = None
     volume_info: dict[str, Any] | None = None
 
     def info_list(self) -> list[str]:
@@ -30,11 +30,11 @@ class BackupComponent:
             f"method: {self.restore}",
             f"file name: {self.file_name}",
         ]
-        if self.resource_info:
-            container_name = self.resource_info.get("container_name", "")
+        if self.provider_info:
+            container_name = self.provider_info.get("container_name", "")
             if container_name:
                 text.append(f"container name: {container_name}")
-            # domain = self.resource_info.get("domain", "")
+            # domain = self.provider_info.get("domain", "")
             # if domain:
             #     text.append(f"domain: {domain}")
         if self.volume_info:
@@ -53,7 +53,7 @@ class BackupComponent:
         file_name: str,
         restore: str,
         date: str,
-        resource_info: dict[str, Any] | None,
+        provider_info: dict[str, Any] | None,
         volume_info: dict[str, Any] | None,
     ) -> BackupComponent:
         component = BackupComponent(
@@ -61,7 +61,7 @@ class BackupComponent:
             file_name=file_name,
             restore=restore,
             date=date,
-            resource_info=resource_info,
+            provider_info=provider_info,
             volume_info=volume_info,
         )
         component.save()
@@ -74,7 +74,7 @@ class BackupComponent:
             file_name=item["file_name"],
             restore=item["restore"],
             date=item["date"],
-            resource_info=item["resource_info"],
+            provider_info=item["provider_info"],
             volume_info=item["volume_info"],
         )
 

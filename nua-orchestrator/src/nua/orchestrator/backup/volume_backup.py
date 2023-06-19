@@ -6,16 +6,16 @@ from .backup_registry import get_backup_plugin
 from .backup_report import BackupReport
 
 if typing.TYPE_CHECKING:
-    from ..resource import Resource
+    from ..provider import Provider
     from ..volume import Volume
 
 
 def backup_volume(
-    resource: Resource,
+    provider: Provider,
     volume: Volume,
     ref_date: str = "",
 ) -> BackupReport:
-    """Execute a backup from backup tag of a Volume of a Resource."""
+    """Execute a backup from backup tag of a Volume of a Provider."""
     config = volume.backup
     report = BackupReport(node=volume.full_name)
     if not config or not isinstance(config, dict):
@@ -30,6 +30,6 @@ def backup_volume(
         report.success = False
         report.message = f"Unknown backup method '{method}'"
         return report
-    backup = backup_class(resource, volume, ref_date=ref_date)
+    backup = backup_class(provider, volume, ref_date=ref_date)
     report = backup.run()
     return report

@@ -22,8 +22,8 @@ REDIS_PORT = { from="database", key="REDIS_PORT" }
 [port.web]
 container = 5000
 
-[[resource]]
-# declaration of the required image for the resource: official Redis image
+[[provider]]
+# declaration of the required image for the provider: official Redis image
 name = "database"
 plugin-name = "redis-cache"
 plugin-version = ">=7"

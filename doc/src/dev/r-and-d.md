@@ -12,7 +12,7 @@ Currently, organizations use a variety of different tools and systems to manage 
 Nua's approach simplifies this process by providing a single, integrated system that covers the entire life cycle of a web application. It focuses on using established standards and technologies, making it easier for developers to use. Its design principles aim to reduce unnecessary complexity, improve security, and allow for future expansion. By meeting the specific needs of organizations and developers, and by leveraging the benefits of open-source software, Nua has the potential to be a valuable tool in the market.
 
 4. **Who cares?**
-- Small and medium-sized businesses, associations, public services, and any other organizations that use web applications could benefit from Nua. These organizations often lack the resources to manage their web applications effectively and could greatly benefit from a streamlined, integrated solution. This is particularly true for organizations looking to gain digital autonomy by prioritizing open-source software.
+- Small and medium-sized businesses, associations, public services, and any other organizations that use web applications could benefit from Nua. These organizations often lack the providers to manage their web applications effectively and could greatly benefit from a streamlined, integrated solution. This is particularly true for organizations looking to gain digital autonomy by prioritizing open-source software.
 - Developers and software developing organizations (SDOs). Nua will allow them to focus on their core business, rather than spending time and effort on managing their web applications.
 
 5. **If you are successful, what difference will it make?**

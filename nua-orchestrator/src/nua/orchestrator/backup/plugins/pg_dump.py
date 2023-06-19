@@ -14,7 +14,7 @@ from .plugin_base_class import BackupErrorException, PluginBaseClass
 class BckPostgresDump(PluginBaseClass):
     """Backup plugin for Postgres Docker continaer using pg_dumpall.
 
-    To be used at Resource level, on a Postgres container.
+    To be used at Provider level, on a Postgres container.
     """
 
     identifier = "pg_dump"
@@ -26,9 +26,9 @@ class BckPostgresDump(PluginBaseClass):
         raise BackupErrorException("WIP: Only local backup is currently implemented")
 
     def do_backup(self) -> None:
-        """Backup the Resource with pg_dumpall.
+        """Backup the Provider with pg_dumpall.
 
-        Resource is expected to be a Postgres database.
+        Provider is expected to be a Postgres database.
         """
         self.check_local_destination()
 
@@ -54,7 +54,7 @@ class BckPostgresDump(PluginBaseClass):
         self.reports.append(self.report)
 
     def restore(self, component: BackupComponent) -> str:
-        """Restore the Resource."""
+        """Restore the Provider."""
         container = docker_container_of_name(self.node)
         bck_file = self.backup_file(component)
         bash_cmd = (

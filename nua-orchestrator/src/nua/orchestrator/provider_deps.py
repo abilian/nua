@@ -1,17 +1,17 @@
-"""Solve the order of evaluation of resources dynamic parameters."""
+"""Solve the order of evaluation of providers dynamic parameters."""
 from nua.lib.panic import Abort
 
-from .resource import Resource
+from .provider import Provider
 
 
 class Task:
-    def __init__(self, resource: Resource):
-        self.name = resource.resource_name
+    def __init__(self, provider: Provider):
+        self.name = provider.provider_name
         self.dependencies = set()
-        self.resource = resource
+        self.provider = provider
 
-        volume_names = {volume.get("name", "") for volume in resource.volumes}
-        for variable in resource.env.values():
+        volume_names = {volume.get("name", "") for volume in provider.volumes}
+        for variable in provider.env.values():
             if not isinstance(variable, dict):
                 continue
             dep = variable.get("from", "")
@@ -22,8 +22,8 @@ class Task:
             self.dependencies.add(dep)
 
 
-class ResourceDeps:
-    """Solve the order of evaluation of resources dynamic parameters.
+class ProviderDeps:
+    """Solve the order of evaluation of providers dynamic parameters.
 
     Raise on circular dependencies.
     """
@@ -31,13 +31,13 @@ class ResourceDeps:
     def __init__(self):
         self.nodes = []
         self.node_names = set()
-        self.ordered_resources = []
+        self.ordered_providers = []
         self.volumes_names = set()
 
-    def add_resource(self, resource: Resource):
-        task = Task(resource)
+    def add_provider(self, provider: Provider):
+        task = Task(provider)
         if task.name in self.node_names:
-            raise Abort(f"Duplicate name in resources: {task.name}")
+            raise Abort(f"Duplicate name in providers: {task.name}")
 
         self.node_names.add(task.name)
         self.nodes.append(task)
@@ -45,15 +45,15 @@ class ResourceDeps:
     def solve(self) -> list:
         while self.nodes:
             self.solve_step()
-        return self.ordered_resources[:]
+        return self.ordered_providers[:]
 
     def solve_step(self):
         free = [task for task in self.nodes if not task.dependencies]
         if not free:
             names = [task.name for task in self.nodes]
-            raise Abort(f"Circular dependencies in resources: {names}")
+            raise Abort(f"Circular dependencies in providers: {names}")
 
-        self.ordered_resources.extend([task.resource for task in free])
+        self.ordered_providers.extend([task.provider for task in free])
         self.nodes = [task for task in self.nodes if task not in free]
         free_names = {task.name for task in free}
         for task in self.nodes:

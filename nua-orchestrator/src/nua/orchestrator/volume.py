@@ -36,7 +36,7 @@ CHECKED_KEYS = {
 
 class Volume:
     """Representation of a volume attached to a container, either the main app
-    container or a Resource container."""
+    container or a Provider container."""
 
     def __init__(self):
         self._dict: dict[str, Any] = {}

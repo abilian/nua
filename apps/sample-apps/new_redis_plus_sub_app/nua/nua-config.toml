@@ -23,25 +23,25 @@ REDIS_PORT = { from="database", key="REDIS_PORT" }
 [port.web]
 container = 5000
 
-[[resource]]
-# declaration of the required image for the resource: official Redis image
+[[provider]]
+# declaration of the required image for the provider: official Redis image
 name = "database"
 plugin-name = "redis-cache"
 plugin-version = ">=7"
 
-[[resource]]
-# declaration of the required image for the resource: official Redis image
+[[provider]]
+# declaration of the required image for the provider: official Redis image
 name = "app2"
 type = "app"
 network = true
-    [resource.build]
+    [provider.build]
     project = "src2"
     test = "python -c 'import echos'"
-    [resource.run]
+    [provider.run]
     start = "python -c 'from echos.echo_server import echos; echos(8764, 8765)'"
-    [resource.port.one]
+    [provider.port.one]
     container = 8764
     proxy = 8764
-    [resource.port.two]
+    [provider.port.two]
     container = 8765
     proxy = 8765

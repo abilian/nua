@@ -12,7 +12,7 @@ class Persistent:
 
     Persistent data is stored in the AppInstance. A Persistent object contains
     persitent values for the AppInstance and its ressources. The 'name'
-    attribute identifies the resource owning the data, use '' as resource_name for
+    attribute identifies the provider owning the data, use '' as provider_name for
     the data own by the AppInstance itself.
     """
 

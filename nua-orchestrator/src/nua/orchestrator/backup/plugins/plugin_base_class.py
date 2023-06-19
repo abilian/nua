@@ -7,7 +7,7 @@ import docker
 from nua.lib.dates import backup_date
 from nua.lib.docker import docker_require
 
-from ...resource import Resource
+from ...provider import Provider
 from ...volume import Volume
 from ..backup_component import BackupComponent
 from ..backup_report import BackupReport
@@ -22,27 +22,27 @@ class BackupErrorException(Exception):
 class PluginBaseClass(abc.ABC):
     """Backup plugin base class.
 
-    By default, the base class can apply to either Resource or Volume."""
+    By default, the base class can apply to either Provider or Volume."""
 
     identifier = "plugin_identifier"
     nua_backup_dir = "/nua_backup_dir"
 
     def __init__(
         self,
-        resource: Resource,
+        provider: Provider,
         volume: Volume | None = None,
         ref_date: str = "",
     ):
-        self.resource: Resource = resource
+        self.provider: Provider = provider
         self.volume: Volume | None = volume
         self.volume_info: dict[str, Any] | None = None
-        self.label: str = self.resource.label_id
-        self.node: str = self.resource.container_name
+        self.label: str = self.provider.label_id
+        self.node: str = self.provider.container_name
         self.options: dict[str, Any] = {}
         if self.volume:
             backup_dict = self.volume.get("backup") or {}
         else:
-            backup_dict = self.resource.get("backup") or {}
+            backup_dict = self.provider.get("backup") or {}
         self.options = backup_dict.get("options") or {}
         self.date: str = ref_date
         self.report: BackupReport = BackupReport(node=self.node, task=True)
@@ -51,7 +51,7 @@ class PluginBaseClass(abc.ABC):
         self.file_name: str = ""
 
     def restore(self, component: BackupComponent) -> str:
-        """Restore the Resource and or Volume. To be implemented by sub class."""
+        """Restore the Provider and or Volume. To be implemented by sub class."""
         message = "NotImplemented"
         print(message)
         return message
@@ -105,10 +105,10 @@ class PluginBaseClass(abc.ABC):
             file_name=self.file_name,
             restore=self.identifier,
             date=self.date,
-            resource_info={
-                "label_id": self.resource.label_id,
-                "container_name": self.resource.container_name,
-                # "domain": self.resource.domain,
+            provider_info={
+                "label_id": self.provider.label_id,
+                "container_name": self.provider.container_name,
+                # "domain": self.provider.domain,
             },
             volume_info=self.volume_info,
         )
@@ -120,7 +120,7 @@ class PluginBaseClass(abc.ABC):
         return bck_file
 
     def run(self) -> BackupReport:
-        """Backup the Resource or Volume."""
+        """Backup the Provider or Volume."""
         self.set_date()
         self.make_nua_local_folder()
         try:
@@ -134,8 +134,8 @@ class PluginBaseClass(abc.ABC):
             # print(self.report)
         return self.report
 
-    def run_on_resource(self) -> list[BackupReport]:
-        """Backup the Volumes of the resource."""
+    def run_on_provider(self) -> list[BackupReport]:
+        """Backup the Volumes of the provider."""
         self.set_date()
         self.make_nua_local_folder()
         self.reports = []

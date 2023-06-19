@@ -4,7 +4,7 @@ The structure of a Nua image is intimately linked to the image build process.
 
 ## The concept of image
 
-A Nua image is a read-only package that contains the code needed to run an application. In practice, an image may require secondary images (called resources in Nua terminology), to perform functions delegated to other applications, for example databases.
+A Nua image is a read-only package that contains the code needed to run an application. In practice, an image may require secondary images (called providers in Nua terminology), to perform functions delegated to other applications, for example databases.
 
 The image concept allows fast and reproducible execution of an application with relative independence from the underlying host.
 

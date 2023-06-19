@@ -32,7 +32,7 @@ from .docker_utils import (  # docker_volume_prune,
 )
 from .internal_secrets import secrets_dict
 from .net_utils.ports import check_port_available
-from .resource import Resource
+from .provider import Provider
 from .utils import size_to_bytes
 from .volume import Volume
 
@@ -92,7 +92,7 @@ def port_allocator(start_ports: int, end_ports: int, allocated_ports: set) -> Ca
     return allocator
 
 
-def mount_resource_volumes(volumes: list[dict[str, Any]]) -> list:
+def mount_provider_volumes(volumes: list[dict[str, Any]]) -> list:
     create_docker_volumes(volumes)
     mounted_volumes = []
     for volume_params in volumes:
@@ -167,7 +167,7 @@ def new_docker_driver_config(volume: Volume) -> docker.types.DriverConfig | None
 #         docker_volume_prune(unused)
 
 
-def start_one_container(rsite: Resource, mounted_volumes: list):
+def start_one_container(rsite: Provider, mounted_volumes: list):
     run_params = rsite.run_params
     if mounted_volumes:
         run_params["mounts"] = mounted_volumes
@@ -188,51 +188,51 @@ def start_one_container(rsite: Resource, mounted_volumes: list):
 
 def stop_one_app_containers(app: AppInstance):
     stop_one_container(app)
-    for resource in app.resources:
-        stop_one_container(resource)
+    for provider in app.providers:
+        stop_one_container(provider)
     # docker_network_prune() : no, need to keep same network to easily restart the
     # container with same network.
 
 
 def pause_one_app_containers(app: AppInstance):
     pause_one_container(app)
-    for resource in app.resources:
-        pause_one_container(resource)
+    for provider in app.providers:
+        pause_one_container(provider)
 
 
 def unpause_one_app_containers(app: AppInstance):
     unpause_one_container(app)
-    for resource in app.resources:
-        unpause_one_container(resource)
+    for provider in app.providers:
+        unpause_one_container(provider)
 
 
 def start_one_app_containers(app: AppInstance):
-    for resource in app.resources:
-        start_one_deployed_container(resource)
+    for provider in app.providers:
+        start_one_deployed_container(provider)
     start_one_deployed_container(app)
 
 
 def restart_one_app_containers(app: AppInstance):
-    for resource in app.resources:
-        restart_one_deployed_container(resource)
+    for provider in app.providers:
+        restart_one_deployed_container(provider)
     restart_one_deployed_container(app)
 
 
-def stop_one_container(rsite: Resource):
+def stop_one_container(rsite: Provider):
     with verbosity(0):
         info(f"    -> stop container of name: {rsite.container_name}")
         info(f"                 container id: {rsite.container_id_short}")
     stop_containers([rsite.container_name])
 
 
-def pause_one_container(rsite: Resource):
+def pause_one_container(rsite: Provider):
     with verbosity(0):
         info(f"    -> pause container of name: {rsite.container_name}")
         info(f"                  container id: {rsite.container_id_short}")
     pause_containers([rsite.container_name])
 
 
-def unpause_one_container(rsite: Resource):
+def unpause_one_container(rsite: Provider):
     with verbosity(0):
         info(f"    -> unpause container of name: {rsite.container_name}")
         info(f"                    container id: {rsite.container_id_short}")
@@ -260,14 +260,14 @@ def unpause_containers(container_names: list[str]):
         docker_unpause_container_name(name)
 
 
-def start_one_deployed_container(rsite: Resource):
+def start_one_deployed_container(rsite: Provider):
     with verbosity(0):
         info(f"    -> start container of name: {rsite.container_name}")
         info(f"                  container id: {rsite.container_id_short}")
     start_containers([rsite.container_name])
 
 
-def restart_one_deployed_container(rsite: Resource):
+def restart_one_deployed_container(rsite: Provider):
     with verbosity(0):
         info(f"    -> restart container of name: {rsite.container_name}")
         info(f"                    container id: {rsite.container_id_short}")
@@ -297,9 +297,9 @@ def deactivate_containers(container_names: list[str], show_warning: bool = True)
 
 
 def deactivate_app(app: AppInstance):
-    """Deactive containers of AppInstance and all sub Resources (updating
+    """Deactive containers of AppInstance and all sub Providers (updating
     orchestrator DB)."""
-    container_names = [res.container_name for res in app.resources]
+    container_names = [res.container_name for res in app.providers]
     container_names.append(app.container_name)
     deactivate_containers(container_names, show_warning=False)
 
@@ -315,8 +315,8 @@ def deactivate_all_instances():
             msg = f"Removing instance '{instance.app_id}' on '{instance.domain}'"
             info(msg)
         site_config = instance.site_config
-        resources_list = site_config.get("resources") or []
-        container_names = [res.get("container_name", "") for res in resources_list]
+        providers_list = site_config.get("providers") or []
+        container_names = [res.get("container_name", "") for res in providers_list]
         container_names.append(site_config.get("container_name", ""))
         container_names = [name for name in container_names if name]
         deactivate_containers(container_names)
@@ -351,39 +351,39 @@ def remove_container_private_network(network_name: str):
     docker_network_remove_one(network_name)
 
 
-def pull_resource_container(resource: Resource) -> bool:
-    """Retrieve a resource container or get reference from cache.
+def pull_provider_container(provider: Provider) -> bool:
+    """Retrieve a provider container or get reference from cache.
 
     Currrently: only managing Docker bridge network.
     """
-    docker_url = resource.base_image()
+    docker_url = provider.base_image()
     if docker_url:
-        resource.image = docker_url
-    if not resource.image:
+        provider.image = docker_url
+    if not provider.image:
         return True
-    return _pull_resource_docker(resource)
+    return _pull_provider_docker(provider)
 
 
-def _pull_resource_docker(resource: Resource) -> bool:
-    """Retrieve a resource container or get reference from cache."""
-    if resource.image not in PULLED_IMAGES:
-        _actual_pull_container(resource)
+def _pull_provider_docker(provider: Provider) -> bool:
+    """Retrieve a provider container or get reference from cache."""
+    if provider.image not in PULLED_IMAGES:
+        _actual_pull_container(provider)
 
-    if resource.image not in PULLED_IMAGES:
-        warning(f"No image found for '{resource.image}'")
+    if provider.image not in PULLED_IMAGES:
+        warning(f"No image found for '{provider.image}'")
         return False
 
-    resource.image_id = PULLED_IMAGES[resource.image]
+    provider.image_id = PULLED_IMAGES[provider.image]
     return True
 
 
-def _actual_pull_container(resource: Resource):
-    """Retrieve a resource container."""
+def _actual_pull_container(provider: Provider):
+    """Retrieve a provider container."""
     with verbosity(0):
-        info(f"Pulling image '{resource.image}'")
+        info(f"Pulling image '{provider.image}'")
 
-    docker_image = docker_require(resource.image)
+    docker_image = docker_require(provider.image)
     if docker_image:
-        PULLED_IMAGES[resource.image] = docker_image.id
+        PULLED_IMAGES[provider.image] = docker_image.id
         with verbosity(0):
             display_one_docker_img(docker_image)

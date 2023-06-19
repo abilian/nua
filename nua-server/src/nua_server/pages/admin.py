@@ -1,9 +1,10 @@
 from markupsafe import Markup
+from prettyprinter import pformat
+from webbits.html import html
+
 from nua_server.app import app
 from nua_server.client import get_client
 from nua_server.menus import ADMIN_MENU, MAIN_MENU
-from prettyprinter import pformat
-from webbits.html import html
 
 
 @app.get("/admin/")

@@ -30,7 +30,7 @@ class BuilderFactory:
     """Factory to create a Builder instance."""
 
     config: NuaConfig
-    resource: dict[str, Any] = field(default_factory=dict)
+    provider: dict[str, Any] = field(default_factory=dict)
     opts: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
@@ -42,7 +42,7 @@ class BuilderFactory:
 
         # Not used at this stage
         # container_type = self.detect_container_type()
-        if self.resource:
+        if self.provider:
             build_method = self.detect_build_method()
             return DockerBuilder(self.config, **self.opts)
 

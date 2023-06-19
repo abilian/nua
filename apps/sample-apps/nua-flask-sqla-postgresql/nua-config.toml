@@ -35,8 +35,8 @@ restart_policy.name = "always"
 # publication port of the app inside the container
 container = 5000
 
-[[resource]]
-# declaration of the required image for the resource, here the official Postgres
+[[provider]]
+# declaration of the required image for the provider, here the official Postgres
 # Docker image
 name = "database"
 plugin-name = "postgres"

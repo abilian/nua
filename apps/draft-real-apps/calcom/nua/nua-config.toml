@@ -83,10 +83,10 @@ NODE_OPTIONS = "--max-old-space-size=4096"
 [port.web]
 container = 3000
 
-[[resource]]
-# A resource is another container required by the main app container, its
-# configuration is described below, under the key of name of the resource. Several
-# resources can be declared. The resource host will appear in the local network
+[[provider]]
+# A provider is another container required by the main app container, its
+# configuration is described below, under the key of name of the provider. Several
+# providers can be declared. The provider host will appear in the local network
 # with a hostname equal to the container name.
 
 # Declaration of the required image for the resurce, here the official Postgres.

@@ -53,19 +53,19 @@ frequency = "24h"
 options = { destination = "local" }
 
 
-[[resource]]
-# A resource is another container required by the main app container, its
-# configuration is described below, under the key of name of the resource. Several
-# resources can be declared. The resource host will appear in the local network
+[[provider]]
+# A provider is another container required by the main app container, its
+# configuration is described below, under the key of name of the provider. Several
+# providers can be declared. The provider host will appear in the local network
 # with a hostname equal to the container name.
 
-# Declaration of the required image for the resource, here the official Mariadb.
+# Declaration of the required image for the provider, here the official Mariadb.
 name = "database"
 plugin-name = "mariadb"
 plugin-version = ">=10.6, <10.7"
 # create_user = true -> the default
 # create_db = true   -> the default
 
-[resource.backup]
+[provider.backup]
 method = "mysqldump"
 options = { destination = "local" }

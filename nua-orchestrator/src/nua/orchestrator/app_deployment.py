@@ -40,10 +40,10 @@ from .deploy_utils import (
     deactivate_app,
     extra_host_gateway,
     load_install_image,
-    mount_resource_volumes,
+    mount_provider_volumes,
     pause_one_app_containers,
     port_allocator,
-    pull_resource_container,
+    pull_provider_container,
     remove_container_private_network,
     remove_volume_by_source,
     restart_one_app_containers,
@@ -65,7 +65,7 @@ from .nginx.utils import (
     configure_nginx_hostname,
     remove_nginx_configuration_hostname,
 )
-from .resource import Resource
+from .provider import Provider
 from .utils import parse_any_format
 from .volume import Volume
 
@@ -170,7 +170,7 @@ class AppDeployment:
         self.loaded_config["site"] = filtered
 
     def local_services_inventory(self):
-        """Initialization step: inventory of available resources available on
+        """Initialization step: inventory of available providers available on
         the host, like local databases."""
         # See later
         return
@@ -301,12 +301,12 @@ class AppDeployment:
         """Deploy an app."""
         # step 1:
         app.set_network_name()
-        app.set_resources_names()
+        app.set_providers_names()
         # print(pformat(dict(app)))
-        app.merge_instance_to_resources()
+        app.merge_instance_to_providers()
         app.set_volumes_names()
-        # for resource in app.resources:
-        #     resource.configure_db()
+        # for provider in app.providers:
+        #     provider.configure_db()
         for service in app.local_services:
             if service not in self.available_services:
                 raise Abort(f"Required service '{service}' is not available")
@@ -327,8 +327,8 @@ class AppDeployment:
         allocated_ports.update(ports_instances_domains)
         allocator = port_allocator(start_ports, end_ports, allocated_ports)
         app.allocate_auto_ports(allocator)
-        for resource in app.resources:
-            resource.allocate_auto_ports(allocator)
+        for provider in app.providers:
+            provider.allocate_auto_ports(allocator)
 
         # step 3
         app.parse_healthcheck()
@@ -491,8 +491,8 @@ class AppDeployment:
 
     def gather_requirements(self):
         self.install_required_images()
-        self.apps_parse_resources()
-        self.install_required_resources()
+        self.apps_parse_providers()
+        self.install_required_providers()
 
     def configure_apps(self):
         self.configure_apps_step1()
@@ -502,8 +502,8 @@ class AppDeployment:
     def configure_apps_step1(self):
         """ "First part of app configuration: data local to app."""
         self.apps_set_network_name()
-        self.apps_set_resources_names()
-        self.apps_merge_app_instances_to_resources()
+        self.apps_set_providers_names()
+        self.apps_merge_app_instances_to_providers()
         self.apps_set_volumes_names()
         # self.apps_configure_requested_db()
         self.apps_check_local_service_available()
@@ -613,8 +613,8 @@ class AppDeployment:
                 deactivate_app(app)
             self.start_network(app)
             self.evaluate_container_params(app)
-            self.start_resources_containers(app)
-            # self.setup_resources_db(app)
+            self.start_providers_containers(app)
+            # self.setup_providers_db(app)
             self.start_main_app_container(app)
             app.running_status = RUNNING
             self.store_container_instance(app)
@@ -629,8 +629,8 @@ class AppDeployment:
             deactivate_app(app)
             self.start_network(app)
             self.evaluate_container_params(app)
-            self.start_resources_containers(app)
-            # self.setup_resources_db(app)
+            self.start_providers_containers(app)
+            # self.setup_providers_db(app)
             self.start_main_app_container(app)
             app.running_status = RUNNING
             self.store_container_instance(app)
@@ -924,13 +924,13 @@ class AppDeployment:
             app.image_id = image_id
             app.image_nua_config = image_nua_config
 
-    def install_required_resources(self) -> None:
-        if not all(self._pull_resources_images(app) for app in self.apps):
+    def install_required_providers(self) -> None:
+        if not all(self._pull_providers_images(app) for app in self.apps):
             raise Abort("Missing Docker images")
 
     @staticmethod
-    def _pull_resources_images(app: AppInstance) -> bool:
-        return all(pull_resource_container(resource) for resource in app.resources)
+    def _pull_providers_images(app: AppInstance) -> bool:
+        return all(pull_provider_container(provider) for provider in app.providers)
 
     def apps_check_local_service_available(self):
         self.required_services = {s for site in self.apps for s in site.local_services}
@@ -951,9 +951,9 @@ class AppDeployment:
                         f"site {app.domain}"
                     )
 
-    def apps_parse_resources(self):
+    def apps_parse_providers(self):
         for app in self.apps:
-            app.parse_resources()
+            app.parse_providers()
 
     def apps_parse_healthcheck(self):
         for app in self.apps:
@@ -973,24 +973,24 @@ class AppDeployment:
         with verbosity(3):
             debug("apps_set_network_name() done")
 
-    def apps_set_resources_names(self):
+    def apps_set_providers_names(self):
         for app in self.apps:
-            app.set_resources_names()
+            app.set_providers_names()
         with verbosity(3):
-            debug("apps_set_resources_names() done")
+            debug("apps_set_providers_names() done")
 
-    def apps_merge_app_instances_to_resources(self):
+    def apps_merge_app_instances_to_providers(self):
         """Merge configuration declared in the AppInstance config to original
         nua-config declarations."""
         for app in self.apps:
-            app.merge_instance_to_resources()
+            app.merge_instance_to_providers()
         with verbosity(3):
-            debug("apps_merge_instances_to_resources() done")
+            debug("apps_merge_instances_to_providers() done")
 
     # def apps_configure_requested_db(self):
     #     for app in self.apps:
-    #         for resource in app.resources:
-    #             resource.configure_db()
+    #         for provider in app.providers:
+    #             provider.configure_db()
     #     with verbosity(3):
     #         debug("apps_configure_requested_db() done")
 
@@ -1060,15 +1060,15 @@ class AppDeployment:
         """Update site dict with auto generated ports."""
         for app in self.apps:
             app.allocate_auto_ports(allocator)
-            for resource in app.resources:
-                resource.allocate_auto_ports(allocator)
+            for provider in app.providers:
+                provider.allocate_auto_ports(allocator)
 
     def evaluate_container_params(self, app: AppInstance):
         """Compute site run environment parameters except those requiring late
         evaluation (i.e. host names of started containers)."""
         self.generate_app_container_run_parameters(app)
-        for resource in app.resources:
-            self.generate_resource_container_run_parameters(resource)
+        for provider in app.providers:
+            self.generate_provider_container_run_parameters(provider)
 
     def apps_retrieve_persistent(self):
         for app in self.apps:
@@ -1086,12 +1086,12 @@ class AppDeployment:
             self.evaluate_dynamic_values(app)
 
     def evaluate_dynamic_values(self, app: AppInstance):
-        ordered_resources = app.order_resources_dependencies()
-        for resource in ordered_resources:
-            if resource == app:
+        ordered_providers = app.order_providers_dependencies()
+        for provider in ordered_providers:
+            if provider == app:
                 self.generate_app_env_port_values(app)
             else:
-                self.generate_resource_env_port_values(app, resource=resource)
+                self.generate_provider_env_port_values(app, provider=provider)
 
     def generate_app_env_port_values(self, app: AppInstance):
         run_env = deepcopy(app.env)
@@ -1110,33 +1110,33 @@ class AppDeployment:
             new_port_list.append(new_port)
         app.port_list = new_port_list
 
-    def generate_resource_env_port_values(self, app: AppInstance, resource: Resource):
-        run_env = deepcopy(resource.env)
+    def generate_provider_env_port_values(self, app: AppInstance, provider: Provider):
+        run_env = deepcopy(provider.env)
         run_env.update(
-            instance_key_evaluator(app, resource=resource, late_evaluation=False)
+            instance_key_evaluator(app, provider=provider, late_evaluation=False)
         )
-        resource.env = run_env
+        provider.env = run_env
 
     def start_network(self, app: AppInstance):
         if app.network_name:
             create_container_private_network(app.network_name)
 
-    def start_resources_containers(self, app: AppInstance):
-        for resource in app.resources:
-            if resource.is_docker_type():
-                mounted_volumes = mount_resource_volumes(resource.volumes)
-                start_one_container(resource, mounted_volumes)
+    def start_providers_containers(self, app: AppInstance):
+        for provider in app.providers:
+            if provider.is_docker_type():
+                mounted_volumes = mount_provider_volumes(provider.volumes)
+                start_one_container(provider, mounted_volumes)
                 # until we check startup of container or set value in parameters...
                 time.sleep(1)
 
-    # def setup_resources_db(self, app: AppInstance):
-    #     for resource in app.resources:
-    #         resource.setup_db()
+    # def setup_providers_db(self, app: AppInstance):
+    #     for provider in app.providers:
+    #         provider.setup_db()
 
     def start_main_app_container(self, app: AppInstance):
         # volumes need to be mounted before beeing passed as arguments to
         # docker.run()
-        mounted_volumes = mount_resource_volumes(app.merged_volumes())
+        mounted_volumes = mount_provider_volumes(app.merged_volumes())
         start_one_container(app, mounted_volumes)
 
     def store_container_instance(self, app: AppInstance):
@@ -1182,24 +1182,24 @@ class AppDeployment:
         self.sanitize_run_params(run_params)
         app.run_params = run_params
 
-    def generate_resource_container_run_parameters(
+    def generate_provider_container_run_parameters(
         self,
-        resource: Resource,
+        provider: Provider,
     ):
         """Return suitable parameters for the docker.run() command (for
-        Resource)."""
+        Provider)."""
         run_params = deepcopy(RUN_BASE_RESOURCE)
-        run_params.update(resource.docker)
+        run_params.update(provider.docker)
         self.add_host_gateway_to_extra_hosts(run_params)
-        run_params["name"] = resource.container_name
-        run_params["ports"] = resource.ports_as_docker_params()
-        run_params["environment"] = resource.env
-        if resource.healthcheck:
+        run_params["name"] = provider.container_name
+        run_params["ports"] = provider.ports_as_docker_params()
+        run_params["environment"] = provider.env
+        if provider.healthcheck:
             run_params["healthcheck"] = HealthCheck(
-                resource.healthcheck
+                provider.healthcheck
             ).as_docker_params()
         self.sanitize_run_params(run_params)
-        resource.run_params = run_params
+        provider.run_params = run_params
 
     @staticmethod
     def add_host_gateway_to_extra_hosts(run_params: dict):
@@ -1221,10 +1221,10 @@ class AppDeployment:
             run_env.update(handler.environment(app))
         return run_env
 
-    def resources_environment(self, app: AppInstance) -> dict:
+    def providers_environment(self, app: AppInstance) -> dict:
         run_env = {}
-        for resource in app.resources:
-            run_env.update(resource.environment_ports())
+        for provider in app.providers:
+            run_env.update(provider.environment_ports())
         return run_env
 
     def post_deployment(self):

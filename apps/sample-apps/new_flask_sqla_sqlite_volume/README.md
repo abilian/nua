@@ -1,4 +1,4 @@
-Warning: test of new feature about resource definition
+Warning: test of new feature about provider definition
 
 Example unsing Flask, SQLAlchemy on sqlite, Docker managed volume with
 orchestrator provided volume.
