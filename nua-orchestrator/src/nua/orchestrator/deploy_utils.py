@@ -37,7 +37,6 @@ from .utils import size_to_bytes
 from .volume import Volume
 
 PULLED_IMAGES: dict[str, str] = {}
-REMOTE_DOCKER_RESOURCES = {"postgres", "mariadb"}
 
 
 def load_install_image(image_path: str | Path) -> tuple:

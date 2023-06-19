@@ -73,7 +73,7 @@ from .volume import Volume
 
 # parameters passed as a dict to docker run
 RUN_BASE: dict[str, Any] = {}  # see also nua_config
-RUN_BASE_RESOURCE: dict[str, Any] = {"restart_policy": {"name": "always"}}
+RUN_BASE_PROVIDER: dict[str, Any] = {"restart_policy": {"name": "always"}}
 
 
 def known_strings(current: list[str], new: list[str]) -> list[str]:
@@ -1188,7 +1188,7 @@ class AppDeployment:
     ):
         """Return suitable parameters for the docker.run() command (for
         Provider)."""
-        run_params = deepcopy(RUN_BASE_RESOURCE)
+        run_params = deepcopy(RUN_BASE_PROVIDER)
         run_params.update(provider.docker)
         self.add_host_gateway_to_extra_hosts(run_params)
         run_params["name"] = provider.container_name
