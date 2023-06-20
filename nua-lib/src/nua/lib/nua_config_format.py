@@ -13,18 +13,18 @@ class Metadata(BaseModel):
     website: str | None
     version: str
     release: PositiveInt | None
+    profile: str | list[str] | None
+    tags: list[str] | None
+    repo: str | None  # new
+
+
+class Build(BaseModel):
     license: str = "Proprietary"
     src_url: str | None
     src_checksum: str | None
     git_url: str | None
     git_branch: str | None
-    profile: str | list[str] | None
-    tags: list[str] | None
-    repo: str | None  # new
     base_image: str | None
-
-
-class Build(BaseModel):
     method: str | None
     builder: str | dict | None
     builders: list[str] | list[dict] | None
@@ -84,11 +84,9 @@ class Provider(BaseModel):
     plugin_name: str | None
     plugin_version: str | None
     plugin_versions: list[dict] | None
-    base_image: str | None
     type: str | None
     network: bool | None
     meta_packages: str | list[str] | None
-    packages: str | list[str] | None
     build: Build | None
     run: Run | None
     env: dict[str, Any] | None

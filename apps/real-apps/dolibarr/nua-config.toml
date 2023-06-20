@@ -7,11 +7,11 @@ author = "Dolibarr developers"
 tagline = "Open Source ERP & CRM for business"
 website = "https://www.dolibarr.org/"
 tags = ["test", "php", "web", "Dolibarr"]
+
+[build]
 license = "GPLv3"
 # here the wrapped Docker declaration:
 base-image = "tuxgasy/dolibarr:{version}"
-
-[build]
 # test auto detection of base-image:
 # method = "wrap"
 

@@ -36,22 +36,21 @@ class DockerWrapBuilder(Builder):
     def write_wrap_dockerfile(self):
         self.config.dump_json(self.build_dir)
         docker_file = self.build_dir / "Dockerfile"
-        if self.config.docker_user:
-            content = (
-                "ARG nua_wrap_tag\n"
-                "FROM ${nua_wrap_tag}\n\n"
-                "USER root\n"
-                "RUN mkdir -p /nua/metadata\n"
-                "COPY nua-config.json /nua/metadata/\n"
-                f"USER {self.config.docker_user}\n"
-            )
-        else:
-            content = (
-                "ARG nua_wrap_tag\n"
-                "FROM ${nua_wrap_tag}\n\n"
-                "RUN mkdir -p /nua/metadata\n"
-                "COPY nua-config.json /nua/metadata/\n"
-            )
+        # if self.config.docker_user:
+        #     content = (
+        #         "ARG nua_wrap_tag\n"
+        #         "FROM ${nua_wrap_tag}\n\n"
+        #         "USER root\n"
+        #         "RUN mkdir -p /nua/metadata\n"
+        #         "COPY nua-config.json /nua/metadata/\n"
+        #         f"USER {self.config.docker_user}\n"
+        #     )
+        content = (
+            "ARG nua_wrap_tag\n"
+            "FROM ${nua_wrap_tag}\n\n"
+            "RUN mkdir -p /nua/metadata\n"
+            "COPY nua-config.json /nua/metadata/\n"
+        )
         docker_file.write_text(content, encoding="utf8")
 
     @docker_build_log_error

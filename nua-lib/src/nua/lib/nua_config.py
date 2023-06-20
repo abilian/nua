@@ -2,7 +2,9 @@
 import json
 import os
 from copy import deepcopy
+from functools import cached_property
 from pathlib import Path
+from pprint import pformat
 from typing import Any
 
 import tomli
@@ -154,24 +156,15 @@ class NuaConfig:
             raise NuaConfigError(f"Unknown file extension for '{self.path}'")
 
     def _loads_config(self) -> None:
-        def unchanged_dict(_data: dict) -> dict:
-            _unchanged = {}
-            for key in {"docker", "env"}:
-                if key in _data:
-                    _unchanged[key] = _data[key]
-                    del _data[key]
-            return _unchanged
-
+        unchanged = {"docker", "env"}
+        recurse = 4
         read_data = self._read_config_data()
         data = deepcopy(read_data)
-        unchanged = unchanged_dict(data)
-        to_snake_cases(data, recurse=1)
-        data.update(unchanged)
+        to_snake_cases(data, recurse=recurse, unchanged=unchanged)
+        # print(pformat(data))
         # store internally as a dict() after pydantic validation:
         data = NuaConfigFormat(**data).dict()
-        unchanged = unchanged_dict(data)
-        to_kebab_cases(data, recurse=1)
-        data.update(unchanged)
+        to_kebab_cases(data, recurse=recurse, unchanged=unchanged)
         self._data = data
         self._show_config_differences(read_data)
 
@@ -240,13 +233,16 @@ class NuaConfig:
     def metadata(self) -> dict:
         return self["metadata"]
 
-    @property
+    @cached_property
     def metadata_rendered(self) -> dict:
-        """Return the metadata dict with rendered f-string values."""
+        """Return the metadata and build sections with rendered
+        f-string values."""
+        mixed = deepcopy(self.metadata)
+        mixed.update(deepcopy(self.build))
         data = {}
-        for key, val in deepcopy(self.metadata).items():
+        for key, val in deepcopy(mixed).items():
             if isinstance(val, str):
-                data[key] = val.format(**self.metadata)
+                data[key] = val.format(**mixed)
             else:
                 data[key] = val
         return data
@@ -255,43 +251,6 @@ class NuaConfig:
     def version(self) -> str:
         """Version of package source."""
         return self.metadata.get("version", "")
-
-    @property
-    def src_url(self) -> str:
-        if base := hyphen_get(self.metadata, "src-url"):
-            return base.format(**self.metadata)
-        return ""
-
-    @property
-    def git_url(self) -> str:
-        if base := hyphen_get(self.metadata, "git-url"):
-            return base.format(**self.metadata)
-        return ""
-
-    @property
-    def git_branch(self) -> str:
-        if base := hyphen_get(self.metadata, "git-branch"):
-            return base.format(**self.metadata)
-        return "main"
-
-    @property
-    def wrap_image(self) -> str:
-        """Optional container image to be used as base for 'wrap' strategy.
-
-        If the 'base-image' metadata is defined, the build strategy is to add
-        the '/nua/metadata/nua-config.json' file on the declared image,
-        when build method is 'wrap'.
-        """
-        if base := hyphen_get(self.metadata, "base-image"):
-            return base.format(**self.metadata)
-        return ""
-
-    @property
-    def src_checksum(self) -> str:
-        """Return checksum associated to 'src-url' or null string."""
-        if checksum := hyphen_get(self.metadata, "src-checksum"):
-            return checksum.strip().lower()
-        return ""
 
     @property
     def app_id(self) -> str:
@@ -311,15 +270,54 @@ class NuaConfig:
     def build(self) -> dict:
         return self._data.get("build") or {}
 
-    @property
-    def builder(self) -> str | dict[str, str] | list[dict]:
-        return self.build.get("builder", "")
+    @cached_property
+    def src_url(self) -> str:
+        if base := hyphen_get(self.build, "src-url"):
+            return base.format(**self.metadata_rendered)
+        return ""  #
+
+    @cached_property
+    def git_url(self) -> str:
+        if base := hyphen_get(self.build, "git-url"):
+            return base.format(**self.metadata_rendered)
+        return ""
+
+    @cached_property
+    def git_branch(self) -> str:
+        if base := hyphen_get(self.build, "git-branch"):
+            return base.format(**self.metadata_rendered)
+        return "main"
+
+    @cached_property
+    def wrap_image(self) -> str:
+        """Optional container image to be used as base for 'wrap' strategy.
+
+        If the 'base-image' metadata is defined, the build strategy is to add
+        the '/nua/metadata/nua-config.json' file on the declared image,
+        when build method is 'wrap'.
+        """
+        if base := hyphen_get(self.build, "base-image"):
+            return base.format(**self.metadata_rendered)
+        return ""
 
     @property
+    def src_checksum(self) -> str:
+        """Return checksum associated to 'src-url' or null string."""
+        if checksum := hyphen_get(self.build, "src-checksum"):
+            return checksum.strip().lower()
+        return ""  #
+
+    @cached_property
+    def builder(self) -> str | dict[str, str] | list[dict]:
+        if base := self.build.get("builder", ""):
+            return base.format(**self.metadata_rendered)
+        return ""
+
+    @cached_property
     def project(self) -> str:
         """The project URL to build with autodetection."""
         if base := self.build.get("project"):
-            return base.format(**self.metadata)
+            return base.format(**self.metadata_rendered)
         return ""
 
     @property
@@ -334,15 +332,14 @@ class NuaConfig:
     def build_packages(self) -> list:
         return force_list(self.build.get("packages", []))
 
-    @property
+    @cached_property
     def build_command(self) -> list:
         """Return the list of build commands, each cmd rendered with
         metadata."""
-        metadata = self.metadata_rendered
         commands = []
         for cmd in force_list(self.build.get("build", [])):
             if isinstance(cmd, str):
-                commands.append(cmd.format(**metadata))
+                commands.append(cmd.format(**self.metadata_rendered))
             else:
                 commands.append(cmd)
         return commands
@@ -360,14 +357,6 @@ class NuaConfig:
         """
         default_method = hyphen_get(self.build, "default-method", "")
         return self.build.get("method", default_method)
-
-    @property
-    def docker_user(self) -> str:
-        """User of the Docker container, default is root.
-
-        Especially usefull when wrapping an existing Dockerfile.
-        """
-        return hyphen_get(self.build, "docker-user", "")
 
     # run ###########################################################
 

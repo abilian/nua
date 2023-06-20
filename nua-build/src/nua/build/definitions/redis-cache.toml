@@ -8,6 +8,9 @@ plugin-versions = [
     { version = "6.0.17", arch = "amd64", link = "docker.io/amd64/redis:6.0.17" },
 ]
 
+[build]
+license = "BSD-3-Clause"
+
 [env]
 REDIS_PORT = "6379"
 

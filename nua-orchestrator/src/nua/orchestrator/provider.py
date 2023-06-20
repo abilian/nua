@@ -127,7 +127,29 @@ class Provider(dict):
     def domain_realm(self) -> str:
         if len(self.domain.split(".")) < 3:
             return self.domain
-        return self.split(".", 1)[-1]
+        return self.domain.split(".", 1)[-1]
+
+    @property
+    def build(self) -> dict[str, Any]:
+        return self.get("build") or {}
+
+    @property
+    def run(self) -> dict[str, Any]:
+        return self.get("run") or {}
+
+    @property
+    def env(self) -> dict:
+        return self.get("env") or {}
+
+    @env.setter
+    def env(self, env: dict):
+        self["env"] = env
+
+    def base_image(self):
+        image = ""
+        if self.type == "docker-image":
+            image = self.build.get("base-image") or ""
+        return image
 
     @property
     def port(self) -> list | dict:
@@ -196,14 +218,6 @@ class Provider(dict):
     @run_params.setter
     def run_params(self, run_params: dict):
         self["run_params"] = run_params
-
-    @property
-    def env(self) -> dict:
-        return self.get("env") or {}
-
-    @env.setter
-    def env(self, env: dict):
-        self["env"] = env
 
     @property
     def image_base_name(self) -> str:
@@ -437,12 +451,6 @@ class Provider(dict):
     def is_docker_type(self) -> bool:
         """Test if provider has a docker-like type."""
         return self.type == "docker-image"
-
-    def base_image(self):
-        image = ""
-        if self.type == "docker-image":
-            image = self.get("base-image", "")
-        return image
 
     def environment_ports(self) -> dict:
         """Return exposed ports and provider host (container name) as env

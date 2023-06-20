@@ -12,6 +12,9 @@ plugin-versions = [
     { version = "11.18", arch = "amd64", link = "docker.io/library/postgres:11.18" },
 ]
 
+[build]
+license = "PostgreSQL License"
+
 [env]
 POSTGRES_PORT = "5432"
 

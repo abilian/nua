@@ -2,7 +2,7 @@ import mmap
 import os
 import re
 import tempfile
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from glob import glob
 from hashlib import sha256
 from importlib import resources as rso
@@ -207,34 +207,60 @@ def camel_format(name: str) -> str:
 def _to_format_cases(
     formatter: Callable,
     data: dict[str, Any] | list,
+    unchanged: Iterable,
     recurse: int = 999,
 ) -> None:
-    """Converts all keys in a dict to "formatter" format, recursion level,
-    in place."""
+    """Converts all keys in a dict  or list to "formatter" format, with list of
+    unchanged keys and recursion level, in place."""
     if isinstance(data, list):
         for item in data:
             if isinstance(item, dict):
-                _to_format_cases(formatter, item, recurse - 1)
+                _to_format_cases_dict(formatter, item, unchanged, recurse - 1)
     elif isinstance(data, dict):
-        for key, value in list(data.items()):
-            new_key = formatter(key)
-            if new_key != key:
-                data[new_key] = value
-                del data[key]
-            if recurse > 0 and isinstance(value, (dict, list)):
-                _to_format_cases(formatter, value, recurse - 1)
+        _to_format_cases_dict(formatter, data, unchanged, recurse - 1)
 
 
-def to_snake_cases(data: dict[str, Any], recurse: int = 999) -> None:
+def _to_format_cases_dict(
+    formatter: Callable,
+    data: dict[str, Any],
+    unchanged: Iterable,
+    recurse: int = 999,
+) -> None:
+    """Converts all keys in a dict to "formatter" format, with list of unchanged
+    keys and recursion level, in place."""
+    for key, value in list(data.items()):
+        if key in unchanged:
+            continue
+        new_key = formatter(key)
+        if new_key != key:
+            data[new_key] = value
+            del data[key]
+        if recurse > 0 and isinstance(value, (dict, list)):
+            _to_format_cases(formatter, value, unchanged, recurse - 1)
+
+
+def to_snake_cases(
+    data: dict[str, Any],
+    recurse: int = 999,
+    unchanged: Iterable | None = None,
+) -> None:
     """Converts all keys in a dict to snake_case, recursion level,
     in place."""
-    _to_format_cases(snake_format, data, recurse)
+    if unchanged is None:
+        unchanged = []
+    _to_format_cases(snake_format, data, unchanged, recurse)
 
 
-def to_kebab_cases(data: dict[str, Any], recurse: int = 999) -> None:
+def to_kebab_cases(
+    data: dict[str, Any],
+    recurse: int = 999,
+    unchanged: Iterable | None = None,
+) -> None:
     """Converts all keys in a dict to snake_case, recursion level,
     in place."""
-    _to_format_cases(kebab_format, data, recurse)
+    if unchanged is None:
+        unchanged = []
+    _to_format_cases(kebab_format, data, unchanged, recurse)
 
 
 def copy_from_package(

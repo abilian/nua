@@ -6,6 +6,9 @@ plugin-versions = [
     { version = "5.0.15", arch = "amd64", link = "docker.io/library/mongo:5.0.15" },
 ]
 
+[build]
+license = "Server Side Public License"
+
 [env]
 MONGO_PORT = "27017"
 

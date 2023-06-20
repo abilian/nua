@@ -15,6 +15,9 @@ plugin-versions = [
     { version = "10.10", arch = "amd64", link = "docker.io/library/mariadb:10.10" },
 ]
 
+[build]
+license = "GNU GPL v2"
+
 [env]
 MARIADB_PORT = "3306"
 

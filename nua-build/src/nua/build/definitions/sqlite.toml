@@ -3,6 +3,9 @@ type = "volume"
 network = false
 meta-packages = []
 
+[build]
+license = "Public Domain"
+
 [env]
 SQLITE_DIR = { from = "data", key ="target" }
 SQLITE_SOURCE = { from = "data", key = "full_name" }
