@@ -4,7 +4,6 @@ import os
 from copy import deepcopy
 from functools import cached_property
 from pathlib import Path
-from pprint import pformat
 from typing import Any
 
 import tomli
@@ -161,7 +160,6 @@ class NuaConfig:
         read_data = self._read_config_data()
         data = deepcopy(read_data)
         to_snake_cases(data, recurse=recurse, unchanged=unchanged)
-        # print(pformat(data))
         # store internally as a dict() after pydantic validation:
         data = NuaConfigFormat(**data).dict()
         to_kebab_cases(data, recurse=recurse, unchanged=unchanged)
