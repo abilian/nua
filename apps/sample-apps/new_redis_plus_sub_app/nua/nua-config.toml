@@ -7,9 +7,9 @@ author = "Nua testers"
 tagline = "Redis cache test"
 website = "https://nua.rocks/"
 tags = ["test", "redis"]
-license = "MIT"
 
 [build]
+license = "MIT"
 project = "src1"
 test = "python -c 'import redis_cache_test'"
 

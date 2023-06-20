@@ -7,9 +7,9 @@ author = "nua testers"
 tagline = "Pseudo app to test builder statement"
 website = ""
 tags = ["Ruby"]
-license = "MIT"
 
 [build]
+license = "MIT"
 builder =  {name = "ruby", version = "3.2" }
 
 [run]

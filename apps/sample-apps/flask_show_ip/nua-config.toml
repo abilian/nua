@@ -7,9 +7,9 @@ author = "Nua testers"
 tagline = "Nua test with Flask - IP"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "IP"]
-license = "MIT"
 
 [build]
+license = "MIT"
 test = "python -c 'import flask_show'"
 
 [run]

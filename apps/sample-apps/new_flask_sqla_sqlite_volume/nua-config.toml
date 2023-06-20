@@ -7,9 +7,9 @@ author = "Nua testers"
 tagline = "Nua test with sqlalchemy, sqlite on docker managed volume"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "flask", "plugin", "sqlite", "sqlalchemy"]
-license = "MIT"
 
 [build]
+license = "MIT"
 test = "python -c 'import flask_sqla_sqlite_volume'"
 
 [run]

@@ -7,9 +7,9 @@ author = "Jerome Dumonteil <jd@abilian.com>"
 tagline = "Nua test server 2 ports"
 website = "https://nua.rocks/"
 tags = ["test", "noweb"]
-license = "MIT"
 
 [build]
+license = "MIT"
 test = "python -c 'import echos'"
 
 [run]

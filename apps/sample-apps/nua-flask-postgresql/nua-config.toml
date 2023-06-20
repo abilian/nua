@@ -7,9 +7,9 @@ author = "Nua developers"
 tagline = "postgres docker configured via orchestrator"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static", "plugin", "PostgreSQL", "docker", "psycopg2"]
-license = "MIT"
 
 [build]
+license = "MIT"
 test = "python -c 'import flask_app'"
 
 [run]

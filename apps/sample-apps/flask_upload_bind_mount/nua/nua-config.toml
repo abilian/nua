@@ -7,9 +7,9 @@ author = "Nua testers"
 tagline = "Flask test upload with host local dir (Docker option -v)"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static", "bind", "--volume"]
-license = "MIT"
 
 [build]
+license = "MIT"
 test = "python -c 'import flask_upload_bind_mount'"
 
 [env]

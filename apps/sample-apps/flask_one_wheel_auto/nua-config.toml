@@ -7,9 +7,9 @@ author = "Nua testers"
 tagline = "Nua test with Flask - one"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static"]
-license = "MIT"
 
 [build]
+license = "MIT"
 test = "python -c 'import flask_one_wheel'"
 
 [port.web]

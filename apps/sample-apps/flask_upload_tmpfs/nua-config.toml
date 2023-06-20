@@ -7,9 +7,9 @@ author = "Nua testers"
 tagline = "Flask test upload with with container tmpfs"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static", "tmpfs"]
-license = "MIT"
 
 [build]
+license = "MIT"
 test = "python -c 'import flask_upload_tmpfs'"
 
 [port.web]

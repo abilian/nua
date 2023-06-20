@@ -7,9 +7,9 @@ description = "A demo app using Flask, SQLAlchemy and PostgreSQL"
 author = "Nua developers"
 website = "https://nua.rocks/"
 tags = ["Demo", "Python", "Flask", "PostgreSQL", "SQLAlchemy", "psycopg2"]
-license = "MIT"
 
 [build]
+license = "MIT"
 test = "python -c 'import flask_app'"
 
 [run]

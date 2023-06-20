@@ -7,10 +7,10 @@ author = "webauthn-rails-demo authors"
 tagline = "Application demonstrating a WebAuthn password-less login built with Ruby on Rails"
 website = "https://github.com/cedarcode/webauthn-rails-demo-app"
 tags = ["Ruby", "Rails", "NodeJs"]
-license = "Apache-2.0 license"
-src-url = "https://github.com/cedarcode/webauthn-rails-demo-app/archive/refs/heads/master.zip"
 
 [build]
+license = "Apache-2.0 license"
+src-url = "https://github.com/cedarcode/webauthn-rails-demo-app/archive/refs/heads/master.zip"
 builder = "ruby-272"
 # rems: compilation of ruby-2.7.2 breaks openSSL (old version 1.0 required)
 #       So build of the ruby-272 image includes the build of a deprecated version of
