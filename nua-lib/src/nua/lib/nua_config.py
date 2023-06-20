@@ -310,7 +310,8 @@ class NuaConfig:
     @cached_property
     def builder(self) -> str | dict[str, str] | list[dict]:
         if base := self.build.get("builder", ""):
-            return base.format(**self.metadata_rendered)
+            if isinstance(base, str):
+                return base.format(**self.metadata_rendered)
         return ""
 
     @cached_property
