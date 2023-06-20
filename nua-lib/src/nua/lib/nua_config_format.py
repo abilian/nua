@@ -86,7 +86,7 @@ class Provider(BaseModel):
     plugin_versions: list[dict] | None
     type: str | None
     network: bool | None
-    meta_packages: str | list[str] | None
+    connector: str | list[str] | None
     build: Build | None
     run: Run | None
     env: dict[str, Any] | None

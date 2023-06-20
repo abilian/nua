@@ -321,15 +321,15 @@ class NuaConfig:
 
     @property
     def manifest(self) -> list:
-        return force_list(self.build.get("manifest", []))
+        return force_list(self.build.get("manifest") or "")
 
     @property
     def meta_packages(self) -> list:
-        return force_list(hyphen_get(self.build, "meta-packages", []))
+        return force_list(hyphen_get(self.build, "meta-packages") or "")
 
     @property
     def build_packages(self) -> list:
-        return force_list(self.build.get("packages", []))
+        return force_list(self.build.get("packages") or "")
 
     @cached_property
     def build_command(self) -> list:

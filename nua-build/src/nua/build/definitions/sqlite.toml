@@ -1,7 +1,6 @@
 plugin-name = "sqlite"
 type = "volume"
 network = false
-meta-packages = []
 
 [build]
 license = "Public Domain"

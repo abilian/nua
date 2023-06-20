@@ -5,6 +5,7 @@ from copy import deepcopy
 from typing import Any
 
 from nua.lib.normalization import normalize_env_values, normalize_ports, ports_as_list
+from nua.lib.nua_config import force_list
 from nua.lib.panic import Abort, vprint, warning
 from nua.lib.tool.state import verbosity
 
@@ -301,7 +302,7 @@ class Provider(dict):
 
     @property
     def meta_packages_requirements(self) -> list:
-        return self.get("meta_packages_requirements", [])
+        return force_list(self.get("meta_packages_requirements") or "")
 
     @meta_packages_requirements.setter
     def meta_packages_requirements(self, meta_packages_requirements: list | None):

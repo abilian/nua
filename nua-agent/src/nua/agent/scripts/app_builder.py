@@ -81,10 +81,11 @@ class AppBuilder:
             show("******** Build done.")
 
     def collect_meta_packages(self) -> list[str]:
-        """Return meta packages collected from the nua-config requirements."""
+        """Return meta packages collected from the nua-config requirements
+        and connectors required by providers."""
         collected_set = set()
         for provider in self.config.providers:
-            collected_set.update(force_list(provider.get("meta-packages", [])))
+            collected_set.update(force_list(provider.get("connector") or ""))
         collected_set.update(force_list(self.config.meta_packages))
         return sorted(package for package in collected_set if package)
 

@@ -1,7 +1,6 @@
 plugin-name = "redis-cache"
 type = "docker-image"
 network = true
-meta-packages = []
 plugin-versions = [
     { version = "7.0.8", arch = "amd64", link = "docker.io/amd64/redis:7.0.8" },
     { version = "6.2.10", arch = "amd64", link = "docker.io/amd64/redis:6.2.10" },
