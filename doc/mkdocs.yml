@@ -22,6 +22,7 @@ nav:
     - Architecture: dev/architecture.md
     - "Specifications: Configuration": dev/configuration.md
     - "Specification: App Images": dev/image.md
+    - API: dev/api.md
     - Builder: dev/builder.md
     - Orchestrator: dev/orchestrator.md
     - Process and tools: dev/process-tools.md
@@ -116,14 +117,34 @@ plugins:
       template: templates/blog-nua.html
   - with-pdf:
       author: Stefane Fermigier / Jérôme Dumonteil
-      copyright: © 2022 Abilian
+      copyright: © 2022-2023 Abilian
       cover: true
       back_cover: false
       cover_title: Nua
       cover_subtitle: Self-sovereign cloud platform
       enabled_if_env: ENABLE_PDF_EXPORT
 
-      #    custom_template_path: TEMPLATES PATH
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [.]
+          options:
+            filters: ["!^_"]
+            docstring_options:
+              ignore_init_summary: true
+            separate_signature: true
+            merge_init_into_class: true
+            show_object_full_path: true
+            members_order: source
+            group_by_category: false
+            line_length: 80
+            signature_crossrefs: true
+            show_root_toc_entry: false
+            show_source: false
+            show_bases: true
+            heading_level: 3
+
+                #    custom_template_path: TEMPLATES PATH
       #
       #toc_title: TOC TITLE TEXT
       #heading_shift: false
