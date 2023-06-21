@@ -54,7 +54,7 @@ from .deploy_utils import (
     unpause_one_app_containers,
     unused_volumes,
 )
-from .docker_utils import docker_container_status
+from .docker_utils import docker_container_status, docker_container_status_record
 from .domain_split import DomainSplit
 from .healthcheck import HealthCheck
 from .local_services import LocalServices
@@ -1243,6 +1243,31 @@ class AppDeployment:
         self.display_used_volumes()
         self.display_unused_volumes()
 
+    def deployment_status_records(self) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        result["apps"] = self.list_deployed_apps()
+        result["volumes"] = {
+            "used": self.list_used_volumes(),
+            "unused": self.list_unused_volumes(),
+        }
+        return result
+
+    def list_deployed_apps(self) -> list[dict]:
+        result = []
+        if not self.apps:
+            return result
+        protocol = protocol_prefix()
+        for app in self.apps:
+            record = {}
+            record["label"] = app.label_id
+            record["image"] = app.image
+            record["deployed"] = f"{protocol}{app.domain}"
+            record["status"] = app.running_status
+            record["container"] = self._container_status_record(app)
+            record["persistent"] = self._list_persistent_data(app)
+            result.append(record)
+        return result
+
     def display_deployed_apps(self):
         if not self.apps:
             important("No app deployed.")
@@ -1262,16 +1287,37 @@ class AppDeployment:
         vprint("")
 
     @staticmethod
-    def display_container_status(app: AppInstance):
-        """Dsiplay current state of the caontainer (running, exited...).
+    def _container_status_record(app: AppInstance) -> dict[str, Any]:
+        """Return current state of the caontainer (running, exited...) as dict.
 
         To be moved in docker utils.
         """
         container_id = app.get("container_id")
         if not container_id:
+            return {"error": "No container Id for this app"}
+        return docker_container_status_record(container_id)
+
+    @staticmethod
+    def _container_status_string(app: AppInstance) -> str:
+        """Return current state of the caontainer as string (running, exited...).
+
+        To be moved in docker utils.
+        """
+        container_id = app.get("container_id")
+        if not container_id:
+            return "No container Id for this app."
+        return docker_container_status(container_id)
+
+    def display_container_status(self, app: AppInstance):
+        """Display current state of the caontainer (running, exited...)."""
+        container_id = app.get("container_id")
+        if not container_id:
             warning("No container Id for this app.")
             return
-        show(docker_container_status(container_id))
+        show(self._container_status_string(app))
+
+    def _list_persistent_data(self, app: AppInstance) -> dict[str, Any]:
+        return app.persistent_full_dict() or {}
 
     def display_persistent_data(self, app: AppInstance):
         with verbosity(3):
@@ -1279,6 +1325,12 @@ class AppDeployment:
             if content:
                 bold_debug("Persistent generated variables:")
                 debug(pformat(content))
+
+    def list_used_volumes(self) -> list[dict]:
+        current_mounted = store.list_instances_container_active_volumes()
+        if not current_mounted:
+            return []
+        return [Volume.as_short_dict(volume) for volume in current_mounted]
 
     def display_used_volumes(self):
         with verbosity(0):
@@ -1288,6 +1340,12 @@ class AppDeployment:
             important("Volumes used by current Nua configuration:")
             for volume in current_mounted:
                 show(str(volume))
+
+    def list_unused_volumes(self) -> list[dict]:
+        unused = unused_volumes(self.orig_mounted_volumes)
+        if not unused:
+            return []
+        return [Volume.as_short_dict(volume) for volume in unused]
 
     def display_unused_volumes(self):
         with verbosity(0):

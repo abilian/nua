@@ -12,6 +12,7 @@ from pprint import pformat
 from subprocess import run  # noqa: S404
 from subprocess import PIPE, STDOUT, Popen
 from time import sleep
+from typing import Any
 
 from docker import DockerClient
 from docker.errors import APIError, ImageNotFound, NotFound
@@ -143,6 +144,20 @@ def docker_container_status(container_id: str) -> str:
         f"Container ID: {cont.short_id}, status: {cont.status}, "
         f"created: {elapsed(docker_container_since(cont))} ago"
     )
+
+
+def docker_container_status_record(container_id: str) -> dict[str, Any]:
+    """Return container status dict (per container Id)."""
+    client = DockerClient.from_env()
+    try:
+        cont = client.containers.get(container_id)
+    except (NotFound, APIError):
+        return {"error": "App is down: container not found (probably removed)"}
+    return {
+        "id": cont.short_id,
+        "status": cont.status,
+        "created": f"{elapsed(docker_container_since(cont))} ago",
+    }
 
 
 def docker_container_since(container: Container) -> int:

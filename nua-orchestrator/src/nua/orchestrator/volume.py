@@ -122,6 +122,14 @@ class Volume:
     def as_dict(self) -> dict:
         return deepcopy(self._dict)
 
+    def as_short_dict(self) -> dict[str, Any]:
+        record = deepcopy(self._dict)
+        return {
+            key: val
+            for key, val in record.items()
+            if key not in {"label", "backup", "_checked_"}
+        }
+
     @property
     def type(self) -> str:
         return self._dict.get("type") or MANAGED

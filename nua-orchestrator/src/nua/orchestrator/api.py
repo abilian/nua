@@ -1,16 +1,40 @@
-from operator import itemgetter
+"""API to access orchestrator commands."""
 from pathlib import Path
+from typing import Any
 
-from nua.orchestrator import __version__, config
-from nua.orchestrator.app_deployment import AppDeployment
-from nua.orchestrator.app_management import AppManagement
-from nua.orchestrator.db import store
-from nua.orchestrator.db.store import list_all_settings
+from nua.lib.tool.state import set_verbosity
+
+from .app_deployment import AppDeployment
+from .app_management import AppManagement
+from .cli.commands.status import StatusCommand
+from .config import config  # noqa: F401
+from .db import store
+from .db.store import list_all_settings
+from .init import initialization
+from .version import __version__  # noqa: F401
 
 
 class API:
-    def call(self, method, **kwargs):
+    """API to access orchestrator commands."""
+
+    def __init__(self):
+        initialization()
+        set_verbosity(0)
+
+    def call(self, method: str, **kwargs: Any) -> Any:
         return getattr(self, method)(**kwargs)
+
+    def _status(self):
+        """Send status information about local orchestrator installation."""
+        status = StatusCommand()
+        return status.as_dict()
+
+    def status(self) -> dict[str, Any]:
+        """Return status information as a dict."""
+        status = StatusCommand()
+        return status.as_dict()
+
+    # wip ###################################################################
 
     def list(self):
         instances = store.list_instances_all()
@@ -18,27 +42,6 @@ class API:
 
     def settings(self):
         return list_all_settings()
-
-    def status(self):
-        """Send some status information about local installation."""
-
-        # fixme: go further on status details (sub servers...)
-        def display_configured_registries():
-            """Show configured registries."""
-            registries = config.read("nua", "registry")
-            print("Configured registries:")
-            for reg in sorted(registries, key=itemgetter("priority")):
-                msg = (
-                    f'  priority: {reg["priority"]:>2}   '
-                    f'format: {reg["format"]:<16}   '
-                    f'url: {reg["url"]}'
-                )
-                print(msg)
-
-        result = {}
-        result["version"] = __version__
-        result["registries"] = config.read("nua", "registry")
-        return result
 
     def server_log(self):
         # FIXME: hardcoded for now (and not working because logfile not created)

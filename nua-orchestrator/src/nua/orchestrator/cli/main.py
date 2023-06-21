@@ -9,10 +9,11 @@ from nua.lib.panic import warning
 from nua.lib.tool.state import set_color, set_verbosity
 
 from .. import __version__
+from ..api import API
+from ..init import initialization
 from ..search_cmd import search_nua_print
 from . import configuration as config_cmd
 from . import debug
-from .commands.api import API
 from .commands.backup_restore import (
     backup_all_apps,
     backup_one_app,
@@ -31,8 +32,7 @@ from .commands.start_stop import (
     start_nua_instance,
     stop_nua_instance,
 )
-from .commands.status import status
-from .init import initialization
+from .commands.status import StatusCommand
 
 ALLOW_SUFFIX = {".json", ".toml", ".yaml", ".yml"}
 
@@ -90,11 +90,12 @@ def usage():
 
 
 @app.command("status")
-def status_local():
+def status_local() -> None:
     """Status of orchestrator."""
     initialization()
     set_verbosity(0)
-    status()
+    status = StatusCommand()
+    status.display()
 
 
 @app.command("reload")

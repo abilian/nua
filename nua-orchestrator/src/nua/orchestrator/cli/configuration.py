@@ -6,9 +6,9 @@ import typer
 
 from .. import config
 from ..db.store import installed_nua_settings, set_nua_settings
+from ..init import initialization
 from ..util.deep_update import deep_update
 from ..utils import parse_any_format
-from .init import initialization
 
 ALLOW_SUFFIX = {".json", ".toml", ".yaml", ".yml"}
 

@@ -5,7 +5,7 @@ from nua.lib.exec import is_current_user, set_nua_user
 from nua.lib.panic import Abort, vprint
 from nua.lib.tool.state import verbosity
 
-from ..nua_db_setup import setup_nua_db
+from .nua_db_setup import setup_nua_db
 
 is_initialized = False
 
