@@ -24,5 +24,5 @@ def test_missing_license_is_proprietary_license():
     config_path = Path(__file__).parent / "data" / "config_missing_licence"
     config = NuaConfig(config_path)  # noqa F841
     expected = "Proprietary"
-    result = config.metadata["license"]
+    result = config.build["license"]
     assert result == expected
