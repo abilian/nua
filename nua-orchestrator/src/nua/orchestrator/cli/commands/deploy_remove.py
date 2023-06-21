@@ -1,4 +1,6 @@
 """Nua main scripts."""
+from typing import Any
+
 from nua.orchestrator.app_deployment import AppDeployment
 
 
@@ -54,6 +56,19 @@ def deploy_merge_nua_app(merge_config: str):
     additional = AppDeployment()
     additional.local_services_inventory()
     additional.load_deploy_config(merge_config)
+    additional.gather_requirements()
+    deployer.merge_sequential(additional)
+    deployer.post_deployment()
+
+
+def deploy_merge_one_nua_app(site_config: dict[str, Any]) -> None:
+    """Add somme app config to the deplyed list."""
+    deployer = AppDeployment()
+    deployer.local_services_inventory()
+    deployer.load_deployed_configuration()
+    additional = AppDeployment()
+    additional.local_services_inventory()
+    additional.deploy_one_config(site_config)
     additional.gather_requirements()
     deployer.merge_sequential(additional)
     deployer.post_deployment()

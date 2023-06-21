@@ -183,17 +183,24 @@ class AppDeployment:
                 f"Available local services: {pformat(list(self.available_services.keys()))}"
             )
 
-    def load_deploy_config(self, deploy_config: str):
-        config_path = Path(deploy_config).expanduser().resolve()
-        with verbosity(0):
-            info(f"Deploy apps from: {config_path}")
-        self.loaded_config = parse_any_format(config_path)
+    def _deploy_config(self):
         self.parse_deploy_apps()
         self.sort_apps_per_name_domain()
         self.deployed_domains = sorted(
             {apps["hostname"] for apps in self.apps_per_domain}
         )
         self.deployed_labels = sorted(app.label_id for app in self.apps)
+
+    def deploy_one_config(self, site_config: dict[str, Any]) -> None:
+        self.loaded_config = site_config
+        self._deploy_config()
+
+    def load_deploy_config(self, deploy_config: str):
+        config_path = Path(deploy_config).expanduser().resolve()
+        with verbosity(0):
+            info(f"Deploy apps from: {config_path}")
+        self.loaded_config = parse_any_format(config_path)
+        self._deploy_config()
         with verbosity(3):
             self.print_host_list()
 

@@ -6,12 +6,12 @@ from nua.lib.tool.state import set_verbosity
 
 from .app_deployment import AppDeployment
 from .app_management import AppManagement
+from .cli.commands.deploy_remove import deploy_merge_one_nua_app
 from .cli.commands.status import StatusCommand
-from .config import config  # noqa: F401
 from .db import store
 from .db.store import list_all_settings
 from .init import initialization
-from .version import __version__  # noqa: F401
+from .search_cmd import search_nua
 
 
 class API:
@@ -19,20 +19,38 @@ class API:
 
     def __init__(self):
         initialization()
-        set_verbosity(0)
+        set_verbosity(-1)
 
     def call(self, method: str, **kwargs: Any) -> Any:
         return getattr(self, method)(**kwargs)
 
-    def _status(self):
-        """Send status information about local orchestrator installation."""
+    def status(self) -> dict[str, Any]:
+        """Return status information about local orchestrator as a dict."""
         status = StatusCommand()
         return status.as_dict()
 
-    def status(self) -> dict[str, Any]:
-        """Return status information as a dict."""
-        status = StatusCommand()
-        return status.as_dict()
+    def search(self, app_name: str) -> list[Path]:
+        """Search Nua image from the registries.
+
+        (local registry for now).
+
+        Return:
+            list of path of local Nua archives sorted by version.
+        """
+        return search_nua(app_name)
+
+    def deploy_one(
+        self,
+        image: str,
+        domain: str,
+        label: str = "",
+        **kwargs: Any,
+    ) -> None:
+        """Deploy one Nua applications."""
+        deployment_conf = kwargs
+        deployment_conf.update({"image": image, "domain": domain, "label": label})
+        site_conf = {"site": [deployment_conf]}
+        deploy_merge_one_nua_app(site_conf)
 
     # wip ###################################################################
 
