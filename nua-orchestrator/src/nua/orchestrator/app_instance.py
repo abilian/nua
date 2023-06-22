@@ -36,11 +36,12 @@ class AppInstance(Provider):
     def from_dict(cls, app_instance_dict: dict) -> AppInstance:
         app_instance = cls({})
         providers = []
-        for res in app_instance_dict.get("providers", []):
-            providers.append(Provider.from_dict(res))
+        for provider in app_instance_dict.get("providers", []):
+            providers.append(Provider.from_dict(provider))
         for key, val in app_instance_dict.items():
             if key == "providers":
                 continue
+            print(key, val)
             app_instance[key] = val
         app_instance["providers"] = providers
         app_instance["port"] = app_instance.get("port") or {}

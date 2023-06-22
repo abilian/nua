@@ -66,6 +66,9 @@ def sanitized_name(name: str, length=255) -> str:
     if len(name) < 2:
         raise Abort(f"Name is too short: '{name}'")
     if name[0] not in ALLOW_FIRST:
+        # print("******")
+        # import traceback
+        # traceback.print_stack()
         raise Abort(f"Name first character not valid: '{name}'")
     return name
 
