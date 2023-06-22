@@ -34,9 +34,9 @@ def build_python(path: str | Path = "", user: str = ""):
     else:
         prefix = ""
     if requirements.is_file():
-        sh(f"{prefix}python -m pip install -r {requirements} .", cwd=root)
+        sh(f"{prefix}python -m pip install -v -r {requirements} .", cwd=root)
     elif setup_py.is_file() or pyproject.is_file():
-        sh(f"{prefix}python -m pip install .", cwd=root)
+        sh(f"{prefix}python -m pip install -v .", cwd=root)
     else:
         warning(f"No method found to build the python project in '{root}'")
 
