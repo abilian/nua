@@ -11,7 +11,6 @@ Test ENV variables:
 """
 
 import os
-from pathlib import Path
 
 from nua.lib.panic import debug, important, show
 from nua.lib.shell import sh
@@ -20,23 +19,11 @@ from nua.lib.tool.state import verbosity
 from nua.orchestrator import config
 
 from ..nginx.cmd import nginx_is_active, nginx_restart, nginx_stop
-from ..nua_env import certbot_exe, nua_home_path
-
-
-def letsencrypt_path() -> Path:
-    return nua_home_path() / "letsencrypt"
-
-
-def certbot_invocation_list() -> list[str]:
-    return [
-        certbot_exe(),
-        "-c",
-        str(letsencrypt_path() / "cli.ini"),
-    ]
-
-
-def certbot_invocation() -> str:
-    return " ".join(certbot_invocation_list())
+from .installer import (
+    certbot_invocation_list,
+    ensure_letsencrypt_installed,
+    letsencrypt_path,
+)
 
 
 def certbot_certonly(domain: str, option: str) -> str:
@@ -44,6 +31,7 @@ def certbot_certonly(domain: str, option: str) -> str:
 
     Standalone or nginx call.
     """
+    ensure_letsencrypt_installed()
     run_args = certbot_invocation_list() + [
         "certonly",
         option,
@@ -71,6 +59,7 @@ def apply_none_strategy(_top_domain: str, domains: list[str]) -> None:
 
 
 def cert_exists(domain: str) -> bool:
+    ensure_letsencrypt_installed()
     path = letsencrypt_path() / "live" / domain
     if os.getuid():  # aka not root
         cmd = f"sudo test -d {path} && echo ok || echo ko"
@@ -81,6 +70,7 @@ def cert_exists(domain: str) -> bool:
 
 
 def gen_cert_standalone(domain: str) -> None:
+    ensure_letsencrypt_installed()
     if os.getuid():  # aka not root
         prefix = "sudo "
     else:
@@ -96,6 +86,7 @@ def gen_cert_standalone(domain: str) -> None:
 
 
 def gen_cert_nginx(domain: str) -> None:
+    ensure_letsencrypt_installed()
     with verbosity(3):
         debug("known domain, will register with --nginx certbot option:", domain)
     if os.getuid():  # aka not root
