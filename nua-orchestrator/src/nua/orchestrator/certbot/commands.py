@@ -132,11 +132,13 @@ def apply_auto_strategy(top_domain: str, domains: list[str]) -> None:
     # If all domain are already known from letsencrypt, we may try a direct
     # reload using nginx (so without killing nginx websites)
     # Else, we need to stop nginx and use the standalone procedure.
-    if nginx_is_active() and all(cert_exists(domain) for domain in sorted_domains):
+    if nginx_is_active(allow_fail=True) and all(
+        cert_exists(domain) for domain in sorted_domains
+    ):
         for domain in sorted_domains:
             gen_cert_nginx(domain)
     else:
-        nginx_stop()
+        nginx_stop(allow_fail=True)
         for domain in sorted_domains:
             gen_cert_standalone(domain)
-        nginx_restart()
+        nginx_restart(allow_fail=True)
