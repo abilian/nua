@@ -14,6 +14,8 @@ pip-install = ["flask", "gunicorn"]
 
 test = "python -c 'import app'"
 
+[run]
+start = "gunicorn --worker-tmp-dir /dev/shm --workers 1 -b :5000 app:app"
+
 [port.web]
-container = 80
-host = 5000
+container = 5000
