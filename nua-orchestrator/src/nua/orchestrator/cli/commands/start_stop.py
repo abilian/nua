@@ -1,6 +1,6 @@
 """Start/stop/restart some deployed app instance."""
 
-from nua.orchestrator.app_deployment import AppDeployment
+from nua.orchestrator.app_deployer import AppDeployer
 
 
 def stop_nua_instance(*, label: str = "", domain: str = ""):
@@ -32,7 +32,7 @@ def start_nua_instance_domain(domain: str):
 
     The instance is started (if it was already deployed).
     """
-    deployer = AppDeployment()
+    deployer = AppDeployer()
     starting_apps = deployer.instances_of_domain(domain)
     deployer.start_deployed_apps(starting_apps)
     deployer.reconfigure_nginx_domain(domain)
@@ -44,7 +44,7 @@ def start_nua_instance_label(label: str):
 
     The instance is started (if it was already deployed).
     """
-    deployer = AppDeployment()
+    deployer = AppDeployer()
     starting_app = deployer.instance_of_label(label)
     deployer.start_deployed_apps([starting_app])
     deployer.reconfigure_nginx_domain(starting_app.domain)
@@ -56,7 +56,7 @@ def stop_nua_instance_domain(domain: str):
 
     The instance is stopped, but not uninstalled (volumes are kept).
     """
-    deployer = AppDeployment()
+    deployer = AppDeployer()
     stopping_apps = deployer.instances_of_domain(domain)
     deployer.remove_nginx_configuration(domain)
     deployer.stop_deployed_apps(stopping_apps)
@@ -68,7 +68,7 @@ def stop_nua_instance_label(label: str):
 
     The instance is stopped, but not uninstalled (volumes are kept).
     """
-    deployer = AppDeployment()
+    deployer = AppDeployer()
     stopping_app = deployer.instance_of_label(label)
     deployer.remove_nginx_configuration(stopping_app.domain)
     deployer.stop_deployed_apps([stopping_app])
@@ -77,7 +77,7 @@ def stop_nua_instance_label(label: str):
 
 def restart_nua_instance_domain(domain: str):
     """Restart some deployed app instance  (per domain)."""
-    deployer = AppDeployment()
+    deployer = AppDeployer()
     restarting_apps = deployer.instances_of_domain(domain)
     deployer.restart_deployed_apps(restarting_apps)
     deployer.reconfigure_nginx_domain(domain)
@@ -86,7 +86,7 @@ def restart_nua_instance_domain(domain: str):
 
 def restart_nua_instance_label(label: str):
     """Restart some deployed app instance (per label)."""
-    deployer = AppDeployment()
+    deployer = AppDeployer()
     restarting_app = deployer.instance_of_label(label)
     deployer.restart_deployed_apps([restarting_app])
     deployer.reconfigure_nginx_domain(restarting_app.domain)
@@ -111,7 +111,7 @@ def unpause_nua_instance(*, label: str = "", domain: str = ""):
 
 def pause_nua_instance_domain(domain: str):
     """Pause some deployed app instance (per domain)."""
-    deployer = AppDeployment()
+    deployer = AppDeployer()
     stopping_apps = deployer.instances_of_domain(domain)
     deployer.remove_nginx_configuration(domain)
     deployer.pause_deployed_apps(stopping_apps)
@@ -120,7 +120,7 @@ def pause_nua_instance_domain(domain: str):
 
 def pause_nua_instance_label(label: str):
     """Pause some deployed app instance (per label)."""
-    deployer = AppDeployment()
+    deployer = AppDeployer()
     stopping_app = deployer.instance_of_label(label)
     deployer.remove_nginx_configuration(stopping_app.domain)
     deployer.pause_deployed_apps([stopping_app])
@@ -129,7 +129,7 @@ def pause_nua_instance_label(label: str):
 
 def unpause_nua_instance_domain(domain: str):
     """Unpause some deployed app instance (per domain)."""
-    deployer = AppDeployment()
+    deployer = AppDeployer()
     starting_apps = deployer.instances_of_domain(domain)
     deployer.unpause_deployed_apps(starting_apps)
     deployer.reconfigure_nginx_domain(domain)
@@ -138,7 +138,7 @@ def unpause_nua_instance_domain(domain: str):
 
 def unpause_nua_instance_label(label: str):
     """Unpause some deployed app instance (per label)."""
-    deployer = AppDeployment()
+    deployer = AppDeployer()
     starting_app = deployer.instance_of_label(label)
     deployer.unpause_deployed_apps([starting_app])
     deployer.reconfigure_nginx_domain(starting_app.domain)

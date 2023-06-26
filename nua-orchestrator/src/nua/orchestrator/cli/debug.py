@@ -4,7 +4,7 @@ from pprint import pformat
 import typer
 from nua.lib.tool.state import set_color, set_verbosity
 
-from ..app_management import AppManagement
+from ..app_manager import AppManager
 from ..db.store import installed_nua_settings, list_all_settings
 from ..init import initialization
 
@@ -28,7 +28,7 @@ def deployed_config(
     set_verbosity(verbose)
     set_color(colorize)
     initialization()
-    deployer = AppManagement()
+    deployer = AppManager()
     deployer.load_active_config()
     print(pformat(deployer.active_config))
 

@@ -1,6 +1,6 @@
 """Restore previous successful deployed configuration."""
 
-from nua.orchestrator.app_deployment import AppDeployment
+from nua.orchestrator.app_deployer import AppDeployer
 
 
 def restore_nua_apps_strict():
@@ -10,7 +10,7 @@ def restore_nua_apps_strict():
     - Strict mode: try to reuse exactl same configuration, including internal ports
     numbers.
     """
-    deployer = AppDeployment()
+    deployer = AppDeployer()
     deployer.local_services_inventory()
     deployer.restore_previous_deploy_config_strict()
     deployer.gather_requirements()
@@ -28,7 +28,7 @@ def restore_nua_apps_replay():
     - It is a simple 'replay' of the deployment request. So the internal used ports
     can be differents. It is the prefered option.
     """
-    deployer = AppDeployment()
+    deployer = AppDeployer()
     deployer.local_services_inventory()
     deployer.restore_previous_deploy_config_replay()
     deployer.gather_requirements()

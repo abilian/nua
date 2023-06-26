@@ -2,7 +2,7 @@ from operator import itemgetter
 from typing import Any
 
 from nua.orchestrator import __version__, config
-from nua.orchestrator.app_deployment import AppDeployment
+from nua.orchestrator.app_deployer import AppDeployer
 
 
 class StatusCommand:
@@ -10,29 +10,38 @@ class StatusCommand:
 
     def __init__(self):
         self._registries: list[dict] = []
+        self._deploy_status: dict[str, Any] = {}
 
     def display(self) -> None:
-        """Show current orichestrator status as a string."""
+        """Directly print the current orchestrator status for CLI."""
         print(f"Nua version: {__version__}\n")
         print(self._configured_registries())
         print()
-        deployer = AppDeployment()
+        deployer = AppDeployer()
         deployer.load_deployed_configuration()
         deployer.display_deployment_status()
 
-    def as_dict(self) -> dict[str, Any]:
-        """Return current orichestrator status as a dict."""
+    def read(self) -> None:
+        """Read Orchestrator registries and deployment statuses."""
         self._read_registries()
-        result: dict[str, Any] = {"version": __version__}
-        result["registries"] = self._registries
-        deployer = AppDeployment()
-        deployer.load_deployed_configuration()
-        result.update(deployer.deployment_status_records())
-        return result
+        self._read_deployed()
 
-    def _read_registries(self):
+    def _read_registries(self) -> None:
         """Read Orchestrator registries configuration."""
         self._registries = config.read("nua", "registry") or []  # type: ignore
+
+    def _read_deployed(self) -> None:
+        """Read Orchestrator deployed apps status."""
+        deployer = AppDeployer()
+        deployer.load_deployed_configuration()
+        self._deploy_status = deployer.deployment_status_records()
+
+    def as_dict(self) -> dict[str, Any]:
+        """Return orichestrator status as a dict."""
+        result: dict[str, Any] = {"version": __version__}
+        result["registries"] = self._registries
+        result.update(self._deploy_status)
+        return result
 
     def _configured_registries(self) -> str:
         """Return configured registries as string."""

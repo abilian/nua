@@ -1,11 +1,11 @@
 """Nua main scripts."""
 from typing import Any
 
-from nua.orchestrator.app_deployment import AppDeployment
+from nua.orchestrator.app_deployer import AppDeployer
 
 
 def deploy_nua_apps(deploy_config: str):
-    deployer = AppDeployment()
+    deployer = AppDeployer()
     deployer.local_services_inventory()
     deployer.load_deploy_config(deploy_config)
     deployer.gather_requirements()
@@ -18,7 +18,7 @@ def deploy_nua_apps(deploy_config: str):
 
 
 def _deactivate_installed_apps():
-    uninstaller = AppDeployment()
+    uninstaller = AppDeployer()
     uninstaller.load_deployed_configuration()
     uninstaller.remove_all_deployed_nginx_configuration()
     uninstaller.stop_all_deployed_apps()
@@ -32,7 +32,7 @@ def remove_nua_domain(domain: str):
 
     Deprecated: requires identification of the instance per domain name.
     """
-    deployer = AppDeployment()
+    deployer = AppDeployer()
     stopping_apps = deployer.instances_of_domain(domain)
     deployer.remove_nginx_configuration(domain)
     deployer.remove_app_list(stopping_apps)
@@ -41,7 +41,7 @@ def remove_nua_domain(domain: str):
 
 def remove_nua_label(label: str):
     """Remove some deployed app instance, erasing its data and container."""
-    deployer = AppDeployment()
+    deployer = AppDeployer()
     removed_app = deployer.instance_of_label(label)
     deployer.remove_nginx_configuration(removed_app.domain)
     deployer.remove_app_list([removed_app])
@@ -50,10 +50,10 @@ def remove_nua_label(label: str):
 
 def deploy_merge_nua_app(merge_config: str):
     """Add somme app config to the deplyed list."""
-    deployer = AppDeployment()
+    deployer = AppDeployer()
     deployer.local_services_inventory()
     deployer.load_deployed_configuration()
-    additional = AppDeployment()
+    additional = AppDeployer()
     additional.local_services_inventory()
     additional.load_deploy_config(merge_config)
     additional.gather_requirements()
@@ -61,14 +61,14 @@ def deploy_merge_nua_app(merge_config: str):
     deployer.post_deployment()
 
 
-def deploy_merge_one_nua_app(site_config: dict[str, Any]) -> None:
+def deploy_merge_one_nua_app_config(app_config: dict[str, Any]) -> None:
     """Add somme app config to the deplyed list."""
-    deployer = AppDeployment()
+    deployer = AppDeployer()
     deployer.local_services_inventory()
     deployer.load_deployed_configuration()
-    additional = AppDeployment()
+    additional = AppDeployer()
     additional.local_services_inventory()
-    additional.deploy_one_config(site_config)
+    additional.deploy_one_app_config(app_config)
     additional.gather_requirements()
     deployer.merge_sequential(additional)
     deployer.post_deployment()

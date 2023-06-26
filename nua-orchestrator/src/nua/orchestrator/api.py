@@ -4,9 +4,7 @@ from typing import Any
 
 from nua.lib.tool.state import set_verbosity
 
-from .app_deployment import AppDeployment
-from .app_management import AppManagement
-from .cli.commands.deploy_remove import deploy_merge_one_nua_app
+from .cli.commands.deploy_remove import deploy_merge_one_nua_app_config
 from .cli.commands.status import StatusCommand
 from .db import store
 from .db.store import list_all_settings
@@ -24,12 +22,15 @@ class API:
     def call(self, method: str, **kwargs: Any) -> Any:
         return getattr(self, method)(**kwargs)
 
-    def status(self) -> dict[str, Any]:
+    @staticmethod
+    def status() -> dict[str, Any]:
         """Return status information about local orchestrator as a dict."""
         status = StatusCommand()
+        status.read()
         return status.as_dict()
 
-    def search(self, app_name: str) -> list[Path]:
+    @staticmethod
+    def search(app_name: str) -> list[Path]:
         """Search Nua image from the registries.
 
         (local registry for now).
@@ -39,18 +40,20 @@ class API:
         """
         return search_nua(app_name)
 
+    @staticmethod
     def deploy_one(
-        self,
         image: str,
         domain: str,
         label: str = "",
+        env: dict[str, Any] | None = None,
         **kwargs: Any,
     ) -> None:
         """Deploy one Nua applications."""
-        deployment_conf = kwargs
-        deployment_conf.update({"image": image, "domain": domain, "label": label})
-        site_conf = {"site": [deployment_conf]}
-        deploy_merge_one_nua_app(site_conf)
+        app_config = kwargs
+        app_config.update({"image": image, "domain": domain, "label": label})
+        if env is not None:
+            app_config["env"] = env
+        deploy_merge_one_nua_app_config(app_config)
 
     # wip ###################################################################
 
@@ -67,30 +70,9 @@ class API:
         with Path("/var/log/ubuntu-advantage.log").open() as f:
             return f.read()
 
-    def backup(self):
-        """Execute a one-time backup for all site instance having a backup
-        declaration."""
-        deployer = AppManagement()
-        result = deployer.backup_apps()
-        return result
-
-    def deploy(self, deploy_config: dict) -> str:
-        deployer = AppDeployment()
-        deployer.local_services_inventory()
-        # Not using the deployer method, need refactoring
-        self._load_deploy_config(deployer, deploy_config)
-        deployer.gather_requirements()
-        deployer.configure_apps()
-        deployer.deactivate_previous_apps()
-        deployer.apply_nginx_configuration()
-        deployer.start_apps()
-        deployer.post_deployment()
-        return "OK"
-
-    def _load_deploy_config(self, deployer: AppDeployment, deploy_config: dict):
-        deployer.loaded_config = deploy_config
-        deployer.parse_deploy_apps()
-        deployer.sort_apps_per_name_domain()
-
-    def ping(self) -> str:
-        return "pong"
+    # def backup(self):
+    #     """Execute a one-time backup for all site instance having a backup
+    #     declaration."""
+    #     manager = AppManagement()
+    #     result = manager.backup_apps()
+    #     return result

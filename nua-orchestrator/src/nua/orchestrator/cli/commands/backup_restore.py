@@ -1,12 +1,12 @@
 """Execute backup commands."""
 
-from ...app_management import AppManagement
+from ...app_manager import AppManager
 
 
 def backup_all_apps():
     """Execute a one-time backup for all instances having a backup declaration."""
     print("Execute a one-time backup for all instances having a backup declaration.")
-    manager = AppManagement()
+    manager = AppManager()
     result = manager.backup_all_apps()
     print(result)
 
@@ -14,7 +14,7 @@ def backup_all_apps():
 def backup_one_app(*, label: str = "", domain: str = ""):
     """Execute a one-time backup for the app instance identified by its label."""
     print(f"Execute a one-time backup for the app '{label or domain}'")
-    manager = AppManagement()
+    manager = AppManager()
     if label:
         result = manager.backup_app_label(label)
     else:
@@ -31,7 +31,7 @@ def restore_last_backup(
     print(f"Restore last backup for the app identified by '{label or domain}'")
     # pause_nua_instance(label=label, domain=domain)
     # print("-" * 60)
-    manager = AppManagement()
+    manager = AppManager()
     if label:
         result = manager.restore_backup_app_per_label(label)
     else:
@@ -48,7 +48,7 @@ def restore_list_backups(
 ):
     """List available backups for the app instance identified by its label or domain."""
     print(f"available backups for the app identified by '{label or domain}'")
-    manager = AppManagement()
+    manager = AppManager()
     if label:
         result = manager.restore_list_backups_app_per_label(label)
     else:
