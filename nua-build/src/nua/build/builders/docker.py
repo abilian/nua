@@ -21,7 +21,7 @@ from nua.lib.docker import (
 from nua.build.autobuild.nua_image_builder import NuaImageBuilder
 from nua.build.autobuild.register_builders import is_builder
 from nua.lib.backports import chdir
-from nua.lib.panic import info, vprint
+from nua.lib.panic import debug, info, vprint
 from nua.lib.shell import rm_fr
 from nua.lib.tool.state import verbosity, verbosity_level
 
@@ -88,6 +88,8 @@ class DockerBuilder(Builder):
             self.nua_folder = self.config.root_dir / "nua"
         else:
             self.nua_folder = self.config.root_dir
+        with verbosity(3):
+            debug(f"Detected Nua folder: {self.nua_folder}")
 
     def build_docker_image(self):
         self.copy_project_files()
@@ -108,6 +110,8 @@ class DockerBuilder(Builder):
         - if /nua exists, copy it to nua (but not nua/src or nua-config)
         - then copy required/default files to build_dir (nuaconfig, ...)
         """
+        with verbosity(4):
+            debug(f"  local build dir: {self.build_dir}")
         (self.build_dir / "nua").mkdir(mode=0o755)
         self._copy_local_code()
         self._copy_manifest_files()
@@ -221,7 +225,11 @@ class DockerBuilder(Builder):
 
     def _copy_local_code(self):
         if self.config.src_url or self.config.git_url:
+            with verbosity(4):
+                debug("  src_url or git_url -> no copy_local_code()")
             return
+        with verbosity(4):
+            debug("  copy_local_code()")
 
         # TODO: more precise filtering based on .dockerignore
         def keep(item):
@@ -235,18 +243,24 @@ class DockerBuilder(Builder):
             )
 
         files = [item for item in self.config.root_dir.glob("*") if keep(item)]
+        with verbosity(4):
+            debug(f"  copy_local_code: {(str(f) for f in (files))}")
         self._copy_items(files, self.build_dir)
 
     def _copy_manifest_files(self):
+        print(self.config.manifest)
         if not self.config.manifest:
             return
-
+        with verbosity(4):
+            debug("  copy_manifest_files()")
         files = [self.config.root_dir / name for name in self.config.manifest]
         self._copy_items(files, self.build_dir)
 
     def _copy_nua_folder(self):
         if not self.config.nua_dir_exists:
             return
+        with verbosity(4):
+            debug("  copy_nua_folder()")
         files = [
             item
             for item in (self.config.root_dir / "nua").glob("*")
@@ -257,6 +271,8 @@ class DockerBuilder(Builder):
 
     def _copy_items(self, paths: list[Path], dest_dir: Path):
         for path in sorted(paths):
+            with verbosity(4):
+                debug(f"  source path: {path}")
             if path.is_file():
                 with verbosity(1):
                     info(f"Copying: {path.name}")
@@ -273,6 +289,8 @@ class DockerBuilder(Builder):
         (and maybe start.py, ...)."""
         if not hyphen_get(self.config.build, "default_files", True):
             return
+        with verbosity(4):
+            debug("copy_default_files()")
         for file in rso.files("nua.build.defaults").iterdir():
             if (
                 not file.is_file()
