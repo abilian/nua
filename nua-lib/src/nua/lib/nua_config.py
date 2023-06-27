@@ -44,8 +44,10 @@ def force_list(content: Any) -> list[Any]:
     ['foo', 'bar']
     >>> force_list([])
     []
+    >>> force_list("")
+    []
     """
-    if content is None:
+    if content is None or content == "":
         return []
     match content:
         case list():

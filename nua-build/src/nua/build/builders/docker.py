@@ -248,7 +248,6 @@ class DockerBuilder(Builder):
         self._copy_items(files, self.build_dir)
 
     def _copy_manifest_files(self):
-        print(self.config.manifest)
         if not self.config.manifest:
             return
         with verbosity(4):
