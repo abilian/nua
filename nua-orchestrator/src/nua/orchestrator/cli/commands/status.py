@@ -1,8 +1,9 @@
 from operator import itemgetter
 from typing import Any
 
-from nua.orchestrator import __version__, config
-from nua.orchestrator.app_deployer import AppDeployer
+from ... import __version__, config
+from ...app_deployer import AppDeployer
+from ...state_journal import StateJournal
 
 
 class StatusCommand:
@@ -17,8 +18,11 @@ class StatusCommand:
         print(f"Nua version: {__version__}\n")
         print(self._configured_registries())
         print()
+        state = StateJournal()
+        state.fetch_current()
         deployer = AppDeployer()
-        deployer.load_deployed_configuration()
+        requested_config, apps = state.deployed_configuration()
+        deployer.load_from_deployed_config(requested_config, apps)
         deployer.display_deployment_status()
 
     def read(self) -> None:
@@ -32,8 +36,11 @@ class StatusCommand:
 
     def _read_deployed(self) -> None:
         """Read Orchestrator deployed apps status."""
+        state = StateJournal()
+        state.fetch_current()
         deployer = AppDeployer()
-        deployer.load_deployed_configuration()
+        requested_config, apps = state.deployed_configuration()
+        deployer.load_from_deployed_config(requested_config, apps)
         self._deploy_status = deployer.deployment_status_records()
 
     def as_dict(self) -> dict[str, Any]:

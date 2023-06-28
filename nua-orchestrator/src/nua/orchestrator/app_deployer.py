@@ -32,7 +32,6 @@ from .app_instance import AppInstance
 from .assign.engine import instance_key_evaluator
 from .certbot import protocol_prefix, register_certbot_domains_per_domain
 from .db import store
-from .db.model.deployconfig import ACTIVE, INACTIVE, PREVIOUS
 from .db.model.instance import PAUSE, RUNNING, STOPPED
 from .deploy_utils import (
     create_container_private_network,
@@ -113,50 +112,6 @@ class AppDeployer:
         self._mounted_before_removing = []  # internal use when removing app instance
         # self.future_config_id = 0
 
-    @staticmethod
-    def previous_success_deployment_record() -> dict:
-        previous_config = store.deploy_config_active()
-        if previous_config:
-            return previous_config
-        else:
-            # either
-            # - first run or
-            # - last deployment did crash with a PREVIOUS status somewhere
-            # - or rare situation (active->inactive)
-            previous_config = store.deploy_config_previous()
-            if previous_config:
-                return previous_config
-        return store.deploy_config_last_inactive()
-
-    def store_deploy_configs_before_swap(self):
-        """Fetch previous configuration before installing the new one."""
-        previous_config = self.previous_success_deployment_record()
-        self.previous_config_id = previous_config.get("id", 0)
-        if previous_config and previous_config["state"] != PREVIOUS:
-            store.deploy_config_update_state(self.previous_config_id, PREVIOUS)
-        # deploy_config = {
-        #     "requested": self.loaded_config,
-        #     "apps": deepcopy(self.apps),
-        # }
-        # self.future_config_id = store.deploy_config_add_config(
-        #     deploy_config, self.previous_config_id, INACTIVE
-        # )
-
-    def store_deploy_configs_after_swap(self):
-        """Store configurations' status if the new configuration is
-        successfully installed."""
-        # previous config stay INACTIVE
-        if self.previous_config_id:
-            store.deploy_config_update_state(self.previous_config_id, INACTIVE)
-        # store.deploy_config_update_state(self.future_config_id, ACTIVE)
-        deploy_config = {
-            "requested": self.loaded_config,
-            "apps": deepcopy(self.apps),
-        }
-        self.future_config_id = store.deploy_config_add_config(
-            deploy_config, self.previous_config_id, ACTIVE
-        )
-
     def remove_app_instance(self, removed_app: AppInstance):
         label_id = removed_app.label_id
         apps = [app for app in self.apps if app.label_id != label_id]
@@ -204,25 +159,6 @@ class AppDeployer:
         with verbosity(3):
             self.print_host_list()
 
-    def load_deployed_configuration(self):
-        previous_config = self.previous_success_deployment_record()
-        if not previous_config:
-            with verbosity(1):
-                show("First deployment (no previous deployed configuration found)")
-            self.loaded_config = {}
-            self.apps = []
-            self.deployed_domains = []
-            return
-        self.loaded_config = previous_config["deployed"]["requested"]
-        self.apps = [
-            AppInstance.from_dict(app_instance_data)
-            for app_instance_data in previous_config["deployed"]["apps"]
-        ]
-        self.sort_apps_per_name_domain()
-        self.deployed_domains = sorted(
-            {apps_dom["hostname"] for apps_dom in self.apps_per_domain}
-        )
-
     def merge(self, additional: AppDeployer, option: str = "add"):
         """Merge a deployment configuration into the current deployed configuration.
 
@@ -232,7 +168,7 @@ class AppDeployer:
         """
         with verbosity(3):
             debug(f"Deployment merge option: {option}")
-        self.store_initial_deployment_state()
+        self.read_initial_volumes()
         if option == "add":
             return self.merge_add(additional)
         raise RuntimeError("Merge option not implemented")
@@ -244,7 +180,7 @@ class AppDeployer:
         """
         with verbosity(3):
             debug("Deployment merge sequentially")
-        self.store_initial_deployment_state()
+        self.read_initial_volumes()
         if not additional.apps:
             return
         try:
@@ -511,7 +447,6 @@ class AppDeployer:
 
     def instances_of_domain(self, domain: str) -> list[AppInstance]:
         """Select deployed instances of domain."""
-        self.load_deployed_configuration()
         for apps_dom in self.apps_per_domain:
             if apps_dom["hostname"] == domain:
                 return apps_dom["apps"]
@@ -520,25 +455,30 @@ class AppDeployer:
     def instance_of_label(self, label: str) -> AppInstance:
         """Select deployed instances per label."""
         label_id = docker_sanitized_name(label)
-        self.load_deployed_configuration()
         for app in self.apps:
             if app.label_id == label_id:
                 return app
         raise Abort(f"No instance found for label_id '{label_id}'")
 
-    def restore_previous_deploy_config_strict(self):
-        """Retrieve last successful deployment configuration (strict mode)."""
-        with verbosity(0):
-            show("Deploy apps from previous deployment (strict mode).")
-        self.load_deployed_configuration()
-
-    def restore_previous_deploy_config_replay(self):
-        """Retrieve last successful deployment configuration (replay mode)."""
-        with verbosity(0):
-            show("Deploy apps from previous deployment (replay deployment).")
-        self.load_deployed_configuration()
-        with verbosity(3):
-            self.print_host_list()
+    def load_from_deployed_config(
+        self,
+        previous_config: dict[str, Any],
+        apps: list[dict[str, Any]],
+    ) -> None:
+        """Load last successful deployment configuration."""
+        if not previous_config:
+            with verbosity(1):
+                show("No previous deployed configuration found")
+            self.loaded_config = {}
+            self.apps = []
+            self.deployed_domains = []
+            return
+        self.loaded_config = previous_config
+        self.apps = [AppInstance.from_dict(app_data) for app_data in apps]
+        self.sort_apps_per_name_domain()
+        self.deployed_domains = sorted(
+            {apps_dom["hostname"] for apps_dom in self.apps_per_domain}
+        )
 
     def gather_requirements(self, parse_providers: bool = True):
         self.install_required_images()
@@ -577,9 +517,8 @@ class AppDeployer:
         self.apps_check_local_service_available()
         self.apps_check_host_services_configuration()
 
-    def store_initial_deployment_state(self):
-        """Register in store the initial state before changes."""
-        self.store_deploy_configs_before_swap()
+    def read_initial_volumes(self):
+        """Read the initial volumes to display that information after operations."""
         self.orig_mounted_volumes = store.list_instances_container_active_volumes()
 
     def deactivate_previous_apps(self):
@@ -1279,14 +1218,18 @@ class AppDeployer:
             run_env.update(provider.environment_ports())
         return run_env
 
+    def deployed_configuration(self) -> dict[str, Any]:
+        return {
+            "requested": self.loaded_config,
+            "apps": deepcopy(self.apps),
+        }
+
     def post_deployment(self):
-        self.store_deploy_configs_after_swap()
         self.display_deployment_status()
 
     def post_full_uninstall(self, display: bool = False):
         self.loaded_config = {}
         self.apps = []
-        self.store_deploy_configs_after_swap()
         if display:
             self.display_deployment_status()
 

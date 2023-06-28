@@ -26,7 +26,7 @@ from .commands.deploy_remove import (
     remove_nua_domain,
     remove_nua_label,
 )
-from .commands.restore_deployed import restore_nua_apps_replay, restore_nua_apps_strict
+from .commands.restore_deployed import restore_active_state
 from .commands.start_stop import (
     restart_nua_instance,
     start_nua_instance,
@@ -64,9 +64,6 @@ opt_verbose = typer.Option(
     0, "--verbose", "-v", help="Show more informations, until -vvv.", count=True
 )
 option_color = typer.Option(True, "--color/--no-color", help="Colorize messages.")
-option_restore_strict = typer.Option(
-    False, "--strict/--replay", help="Use strict restore mode."
-)
 option_json = typer.Option(False, "--json", help="Output result as JSON.")
 option_short = typer.Option(False, help="Show short text result.")
 option_raw = typer.Option(False, "--raw", help="Return raw result (not JSON).")
@@ -173,16 +170,12 @@ def remove_local(
 def restore_local(
     verbose: int = opt_verbose,
     colorize: bool = option_color,
-    strict: bool = option_restore_strict,
 ):
     """Restore last successful deployment."""
     set_verbosity(verbose)
     set_color(colorize)
     initialization()
-    if strict:
-        restore_nua_apps_strict()
-    else:
-        restore_nua_apps_replay()
+    restore_active_state()
 
 
 @app.command("stop")

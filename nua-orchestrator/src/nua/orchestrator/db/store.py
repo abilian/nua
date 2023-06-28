@@ -5,6 +5,7 @@ the application.
 """
 from copy import deepcopy
 from datetime import datetime, timezone
+from typing import Any
 
 from nua.lib.panic import warning
 
@@ -460,7 +461,11 @@ def valid_deploy_config_state(state: str) -> str:
     return INACTIVE
 
 
-def deploy_config_add_config(deploy_config: dict, previous_id: int, state: str) -> int:
+def deploy_config_add_config(
+    deploy_config: dict[str, Any],
+    previous_id: int,
+    state: str,
+) -> dict[str, Any]:
     """Store a Nua deployment configuration in local DB (table 'deployconfig').
 
     Return:
@@ -478,7 +483,7 @@ def deploy_config_add_config(deploy_config: dict, previous_id: int, state: str) 
     with Session() as session:
         session.add(record)
         session.commit()
-        return record.id
+        return record.to_dict()
 
 
 def deploy_config_update_state(record_id: int, new_state: str):
@@ -526,7 +531,7 @@ def _deploy_config_last_any(limit: int) -> list:
         return []
 
 
-def deploy_config_active() -> dict:
+def deploy_config_active() -> dict[str, Any]:
     """retrieve the config with "active" state.
 
     It should be only one.

@@ -4,7 +4,6 @@ General use:
     - load active configuration
     - loop over apps to perform an action (example: backup)
 """
-from copy import deepcopy
 
 from nua.lib.docker import docker_sanitized_name
 from nua.lib.panic import Abort, vprint, warning
@@ -14,7 +13,6 @@ from .app_instance import AppInstance
 from .backup.app_backup import AppBackup
 from .backup.app_restore import AppRestore
 from .db import store
-from .db.model.deployconfig import ACTIVE, INACTIVE
 from .domain_split import DomainSplit
 from .provider import Provider
 from .volume import Volume
@@ -61,19 +59,6 @@ class AppManager:
             self.apps = []
         self.active_config_loaded = True
 
-    def store_active_config(self) -> None:
-        """Save the new active config."""
-        if not self.active_config_loaded:
-            return
-        if self.previous_config_id:
-            store.deploy_config_update_state(self.previous_config_id, INACTIVE)
-        loaded_config = self.active_config["deployed"]["requested"]
-        deploy_config = {
-            "requested": loaded_config,
-            "apps": deepcopy(self.apps),
-        }
-        store.deploy_config_add_config(deploy_config, self.previous_config_id, ACTIVE)
-
     def apps_per_domain(self) -> dict[str, list]:
         domains = {}
         for app in self.apps:
@@ -115,7 +100,6 @@ class AppManager:
         app_backup.run()
         if app_backup.success:
             self._store_app_instance(app)
-            self.store_active_config()
         return app_backup.result
 
     def _store_app_instance(self, app: AppInstance):
@@ -141,7 +125,6 @@ class AppManager:
         app_restore.run(reference="")
         if app_restore.success:
             self._store_app_instance(app)
-            self.store_active_config()
         return app_restore.result
         # return global_backup_report(reports)
 

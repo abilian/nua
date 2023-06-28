@@ -1,46 +1,29 @@
 """Nua main scripts."""
-from collections.abc import Callable
-from functools import wraps
 from typing import Any
 
-from nua.lib.panic import Abort
-
-from nua.orchestrator.app_deployer import AppDeployer
-
-from .restore_deployed import restore_nua_apps_strict
-
-
-def restore_if_fail(func: Callable):
-    """Restore last known stable state if installation failed."""
-
-    @wraps(func)
-    def wrapper(*args: Any, **kwargs: Any) -> Any:
-        try:
-            return func(*args, **kwargs)
-        except (OSError, RuntimeError, Abort):
-            print("Try to restore last stable state.")
-            restore_nua_apps_strict()
-
-    return wrapper
+from ...app_deployer import AppDeployer
+from ...state_journal import StateJournal, restore_if_fail
 
 
 @restore_if_fail
-def deploy_nua_apps(deploy_config: str):
+def deploy_nua_apps(deploy_config: str, state_journal: StateJournal):
     deployer = AppDeployer()
     deployer.local_services_inventory()
     deployer.load_deploy_config(deploy_config)
     deployer.gather_requirements()
     deployer.configure_apps()
-    deployer.store_initial_deployment_state()
-    _deactivate_installed_apps()
+    _deactivate_installed_apps(state_journal)
     deployer.apply_nginx_configuration()
     deployer.start_apps()
-    deployer.post_deployment()
+    deployed = deployer.deployed_configuration()
+    state_journal.store_apps_configuration(deployed)
+    deployer.display_deployment_status()
 
 
-def _deactivate_installed_apps():
+def _deactivate_installed_apps(state_journal: StateJournal):
     uninstaller = AppDeployer()
-    uninstaller.load_deployed_configuration()
+    requested_config, apps = state_journal.deployed_configuration()
+    uninstaller.load_from_deployed_config(requested_config, apps)
     uninstaller.remove_all_deployed_nginx_configuration()
     uninstaller.stop_all_deployed_apps()
     uninstaller.remove_all_deployed_container_and_network()
@@ -49,51 +32,68 @@ def _deactivate_installed_apps():
 
 
 @restore_if_fail
-def remove_nua_domain(domain: str):
+def remove_nua_domain(domain: str, state_journal: StateJournal):
     """Remove some deployed app instance, erasing its data and container.
 
     Deprecated: requires identification of the instance per domain name.
     """
     deployer = AppDeployer()
+    requested_config, apps = state_journal.deployed_configuration()
+    deployer.load_from_deployed_config(requested_config, apps)
     stopping_apps = deployer.instances_of_domain(domain)
     deployer.remove_nginx_configuration(domain)
     deployer.remove_app_list(stopping_apps)
-    deployer.post_deployment()
+    deployed = deployer.deployed_configuration()
+    state_journal.store_apps_configuration(deployed)
+    deployer.display_deployment_status()
 
 
 @restore_if_fail
-def remove_nua_label(label: str):
+def remove_nua_label(label: str, state_journal: StateJournal):
     """Remove some deployed app instance, erasing its data and container."""
     deployer = AppDeployer()
+    requested_config, apps = state_journal.deployed_configuration()
+    deployer.load_from_deployed_config(requested_config, apps)
     removed_app = deployer.instance_of_label(label)
     deployer.remove_nginx_configuration(removed_app.domain)
     deployer.remove_app_list([removed_app])
-    deployer.post_deployment()
+    deployed = deployer.deployed_configuration()
+    state_journal.store_apps_configuration(deployed)
+    deployer.display_deployment_status()
 
 
 @restore_if_fail
-def deploy_merge_nua_app(merge_config: str):
-    """Add somme app config to the deplyed list."""
+def deploy_merge_nua_app(merge_config: str, state_journal: StateJournal):
+    """Add somme app config to the deployed list."""
     deployer = AppDeployer()
     deployer.local_services_inventory()
-    deployer.load_deployed_configuration()
+    requested_config, apps = state_journal.deployed_configuration()
+    deployer.load_from_deployed_config(requested_config, apps)
     additional = AppDeployer()
     additional.local_services_inventory()
     additional.load_deploy_config(merge_config)
     additional.gather_requirements()
     deployer.merge_sequential(additional)
-    deployer.post_deployment()
+    deployed = deployer.deployed_configuration()
+    state_journal.store_apps_configuration(deployed)
+    deployer.display_deployment_status()
 
 
 @restore_if_fail
-def deploy_merge_one_nua_app_config(app_config: dict[str, Any]) -> None:
-    """Add somme app config to the deplyed list."""
+def deploy_merge_one_nua_app_config(
+    app_config: dict[str, Any],
+    state_journal: StateJournal,
+) -> None:
+    """Add somme app config to the deployed list."""
     deployer = AppDeployer()
     deployer.local_services_inventory()
-    deployer.load_deployed_configuration()
+    requested_config, apps = state_journal.deployed_configuration()
+    deployer.load_from_deployed_config(requested_config, apps)
     additional = AppDeployer()
     additional.local_services_inventory()
     additional.load_one_app_config(app_config)
     additional.gather_requirements()
     deployer.merge_sequential(additional)
-    deployer.post_deployment()
+    deployed = deployer.deployed_configuration()
+    state_journal.store_apps_configuration(deployed)
+    deployer.display_deployment_status()
