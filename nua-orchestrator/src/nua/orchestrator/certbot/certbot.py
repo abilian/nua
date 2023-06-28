@@ -94,9 +94,9 @@ def _register_certbot_domains(domains_list: list[str]) -> None:
     strategy = get_certbot_strategy()
     strategy_function = ALLOWED_STRATEGY[strategy]
     for top_domain, domains in domains_per_top.items():
-        strategy_function(top_domain, list(domains))
-    with verbosity(3):
-        debug("register_certbot_domains() done")
+        if not strategy_function(top_domain, list(domains)):
+            domains_str = ", ".join(list(domains))
+            Abort(f"Certbot/Nginx error for {domains_str}")
 
 
 def get_certbot_strategy() -> str:

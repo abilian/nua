@@ -12,13 +12,13 @@ Test ENV variables:
 
 import os
 
-from nua.lib.panic import Abort, debug, important, show
+from nua.lib.panic import Abort, debug, important, red_line, show
 from nua.lib.shell import sh
 from nua.lib.tool.state import verbosity
 
 from nua.orchestrator import config
 
-from ..nginx.cmd import nginx_restart, nginx_stop
+from ..nginx.cmd import nginx_is_active, nginx_restart, nginx_stop
 from .installer import (
     certbot_invocation_list,
     ensure_letsencrypt_installed,
@@ -105,7 +105,7 @@ def gen_cert_nginx(domain: str) -> None:
     try:
         output = sh(cmd, show_cmd=False, capture_output=True)
     except Abort:
-        print("Error in shell command.")
+        red_line("Error in shell command.")
         raise
     if output:
         with verbosity(2):
@@ -133,14 +133,11 @@ def apply_auto_strategy(top_domain: str, domains: list[str]) -> bool:
     # If all domain are already known from letsencrypt, we may try a direct
     # reload using nginx (so without killing nginx websites)
     # Else, we need to stop nginx and use the standalone procedure.
-    print(sorted_domains)
-    if 0:
-        pass
-    # if nginx_is_active(allow_fail=True) and all(
-    #     cert_exists(domain) for domain in sorted_domains
-    # ):
-    #     for domain in sorted_domains:
-    #         gen_cert_nginx(domain)
+    if nginx_is_active(allow_fail=True) and all(
+        cert_exists(domain) for domain in sorted_domains
+    ):
+        for domain in sorted_domains:
+            gen_cert_nginx(domain)
     else:
         nginx_stop(allow_fail=True)
         for domain in sorted_domains:
