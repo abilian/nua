@@ -41,7 +41,6 @@ class AppInstance(Provider):
         for key, val in app_instance_dict.items():
             if key == "providers":
                 continue
-            print(key, val)
             app_instance[key] = val
         app_instance["providers"] = providers
         app_instance["port"] = app_instance.get("port") or {}
