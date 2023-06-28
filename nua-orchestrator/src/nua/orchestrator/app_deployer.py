@@ -58,7 +58,7 @@ from .docker_utils import docker_container_status, docker_container_status_recor
 from .domain_split import DomainSplit
 from .healthcheck import HealthCheck
 from .local_services import LocalServices
-from .nginx.cmd import nginx_reload, nginx_restart
+from .nginx.commands import nginx_reload, nginx_restart
 from .nginx.utils import (
     chown_r_nua_nginx,
     clean_nua_nginx_default_site,

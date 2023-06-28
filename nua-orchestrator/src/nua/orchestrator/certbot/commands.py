@@ -18,7 +18,7 @@ from nua.lib.tool.state import verbosity
 
 from nua.orchestrator import config
 
-from ..nginx.cmd import nginx_is_active, nginx_restart, nginx_stop
+from ..nginx.commands import nginx_is_active, nginx_restart, nginx_stop
 from .installer import (
     certbot_invocation_list,
     ensure_letsencrypt_installed,
