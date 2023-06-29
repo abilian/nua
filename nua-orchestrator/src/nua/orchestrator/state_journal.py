@@ -5,17 +5,20 @@ from collections.abc import Callable
 from functools import wraps
 from typing import Any
 
-from nua.lib.panic import Abort, info, important
+from nua.lib.panic import Abort, important, info
 from nua.lib.tool.state import verbosity
 
 from .app_deployer import AppDeployer
+from .app_instance import AppInstance
 from .db.model.deployconfig import ACTIVE
 from .db.store import (
     deploy_config_active,
     deploy_config_add_config,
     deploy_config_last_inactive,
+    deploy_config_per_id,
     deploy_config_previous,
 )
+from .provider import Provider
 
 
 def restore_if_fail(func: Callable):
@@ -66,19 +69,24 @@ class StateJournal:
     """
 
     def __init__(self):
-        self.previous: dict[str, Any] = {}
+        self.current: dict[str, Any] = {}
 
     def read_current_state(self) -> None:
         """Read the current deployed configuration from database."""
-        self.previous = deploy_config_active()
-        if not self.previous:
+        self.current = deploy_config_active()
+        if not self.current:
             # either
             # - first run or
             # - last deployment did crash with a PREVIOUS status somewhere
             # - or rare situation (active->inactive)
-            self.previous = deploy_config_previous()
-        if not self.previous:
-            self.previous = deploy_config_last_inactive()
+            self.current = deploy_config_previous()
+        if not self.current:
+            self.current = deploy_config_last_inactive()
+
+    def read_previous_state(self) -> None:
+        if not self.current:
+            return
+        self.current = deploy_config_per_id(self.current["previous"])
 
     def deployed_state(self) -> dict[str, Any]:
         """The last deployed state from the journal.
@@ -88,18 +96,18 @@ class StateJournal:
             deployed: list of the configures Appinstance data
             state_id:  id of the DB record"""
         result = {"requested": {}, "apps": [], "state_id": -1}
-        if self.previous:
-            result["requested"] = self.previous["deployed"]["requested"]
-            result["apps"] = self.previous["deployed"]["apps"]
-            result["state_id"] = self.previous["id"]
+        if self.current:
+            result["requested"] = self.current["deployed"]["requested"]
+            result["apps"] = self.current["deployed"]["apps"]
+            result["state_id"] = self.current["id"]
         return result
 
     def store_deployed_state(self, deploy_config: dict[str, Any]) -> int:
         """Store in the Nua DB the deployed state.
 
         deploy_config = {"requested": requested, "apps": deepcopy(apps)}"""
-        if self.previous:
-            previous_id = self.previous["id"]
+        if self.current:
+            previous_id = self.current["id"]
         else:
             previous_id = -1
         record = deploy_config_add_config(
@@ -109,5 +117,45 @@ class StateJournal:
         )
         with verbosity(1):
             info(f"Store state number {record['id']}")
-        self.previous = record
+        self.current = record
         return record["id"]
+
+    @staticmethod
+    def _app_info(app: AppInstance, text: list[str]) -> None:
+        text.append(f"    label: {app.label_id}")
+        text.append(f"        app_id: {app.app_id}")
+        text.append(f"        domain: {app.domain}")
+        text.append(f"        nua_tag: {app.nua_tag}")
+        text.append(f"        container_name: {app.container_name}")
+        text.append(f"        container_id: {app.container_id_short}")
+
+    @staticmethod
+    def _provider_info(pro: Provider, text: list[str]) -> None:
+        text.append(f"        provider name: {pro.provider_name}")
+        text.append(f"            container_name: {pro.container_name}")
+        text.append(f"            container_id: {pro.container_id_short}")
+
+    def info(self) -> list[str]:
+        text: list[str] = []
+        if not self.current:
+            return text
+        doc = self.current
+        text.append(f"State Id: {doc['id']}")
+        text.append(f"Created : {doc['created']}")
+        for app_data in doc["deployed"]["apps"]:
+            app = AppInstance.from_dict(app_data)
+            self._app_info(app, text)
+            for provider in app.providers:
+                self._provider_info(provider, text)
+        return text
+
+
+def info_last_deployments(number: int = 10) -> list[str]:
+    text: list[str] = []
+    state = StateJournal()
+    state.read_current_state()
+    while number > 0 and state.current:
+        number -= 1
+        text.extend(state.info())
+        state.read_previous_state()
+    return text

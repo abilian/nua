@@ -78,7 +78,7 @@ class Provider(dict):
 
     @property
     def plugin_name(self) -> str:
-        return self["plugin_name"]
+        return self.get("plugin_name", "")
 
     @plugin_name.setter
     def plugin_name(self, plugin_name: str):

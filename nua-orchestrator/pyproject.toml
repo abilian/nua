@@ -43,6 +43,7 @@ nua-deactivate-all = "nua.orchestrator.scripts.deactivate_all_instances:main"
 nua-docker-list-all = "nua.orchestrator.scripts.docker_list_all:main"
 nua-docker-rm-all = "nua.orchestrator.scripts.docker_remove_all:main"
 nua-reset-nginx = "nua.orchestrator.scripts.reset_nginx_conf:main"
+nua-print-deployments = "nua.orchestrator.scripts.print_deployments:main"
 nua_test_services = "nua.orchestrator.service:test"
 
 [tool.poetry.dependencies]

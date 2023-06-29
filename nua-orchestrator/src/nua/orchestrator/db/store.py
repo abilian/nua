@@ -523,7 +523,7 @@ def _deploy_config_last_any(limit: int) -> list:
 
 
 def deploy_config_active() -> dict[str, Any]:
-    """retrieve the config with "active" state.
+    """Retrieve the config with "active" state.
 
     It should be only one.
     """
@@ -533,8 +533,17 @@ def deploy_config_active() -> dict[str, Any]:
     return {}
 
 
+def deploy_config_per_id(idt: int) -> dict[str, Any]:
+    """Retrieve the config with Id "idt"."""
+    with Session() as session:
+        record = session.query(DeployConfig).filter_by(id=idt).first()
+        if record:
+            return record.to_dict()
+        return {}
+
+
 def deploy_config_previous() -> dict:
-    """retrieve the config with "previous" state.
+    """Retrieve the config with "previous" state.
 
     It should be zero, or sometimes only one.
     """
@@ -545,7 +554,7 @@ def deploy_config_previous() -> dict:
 
 
 def deploy_config_last_inactive() -> dict:
-    """retrieve the last config with "inactive" state."""
+    """Retrieve the last config with "inactive" state."""
     items = deploy_config_last_status(INACTIVE, 1)
     if items:
         return items[0]
