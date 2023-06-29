@@ -118,6 +118,7 @@ class AppDeployer:
         self.apps = apps
         self.sort_apps_per_name_domain()
         self.remove_domain_from_config(removed_app.domain)
+        store.instance_delete_by_label(label_id)
 
     def remove_domain_from_config(self, domain: str):
         apps = self.loaded_config.get("site", [])
@@ -189,7 +190,7 @@ class AppDeployer:
                 method = getattr(self, deploy_strategy)
                 method(app)
         except (OSError, RuntimeError, Abort):
-            important(f"Error occured when deploying (maybe '{app.label}')")
+            important(f"Error occured when deploying '{app.label}'")
             raise
 
     def evaluate_deploy_strategy(self, merged_app: AppInstance) -> str:
@@ -475,6 +476,8 @@ class AppDeployer:
         self.deployed_domains = sorted(
             {apps_dom["hostname"] for apps_dom in self.apps_per_domain}
         )
+        self.erase_unused_local_managed_volumes()
+        self.delete_removed_instances()
         with verbosity(1):
             info(f"Loaded deployement state number: {deployed['state_id']}")
 
@@ -719,7 +722,7 @@ class AppDeployer:
         return {
             volume.full_name: volume
             for volume in volumes
-            if volume.is_managed and volume.driver in {"docker", "local"}
+            if volume.is_managed and volume.is_local
         }
 
     def remove_managed_volumes(self, apps: list[AppInstance]):
@@ -1324,6 +1327,25 @@ class AppDeployer:
         if not current_mounted:
             return []
         return [Volume.as_short_dict(volume) for volume in current_mounted]
+
+    def current_labels(self):
+        return [app.label_id for app in self.apps]
+
+    def erase_unused_local_managed_volumes(self):
+        current_mounted = store.list_instances_container_active_volumes()
+        if not current_mounted:
+            return
+        labels = set(self.current_labels())
+        to_del = []
+        for volume in current_mounted:
+            if volume.is_managed and volume.is_local and volume.label not in labels:
+                to_del.append(volume)
+        for volume in to_del:
+            remove_volume_by_source(volume.full_name)
+
+    def delete_removed_instances(self):
+        labels = self.current_labels()
+        store.instance_delete_no_in_labels(labels)
 
     def display_used_volumes(self):
         with verbosity(0):

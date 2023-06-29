@@ -255,36 +255,24 @@ def store_instance(
         session.commit()
 
 
-# for future use
-# def load_instance_config(label_id: str = "") -> dict:
-#     """Load nua instance configuration dict from local DB (table 'instance')."""
-#     with Session() as session:
-#         existing = session.query(Instance).filter_by(label_id=label_id).first()
-#         if existing:
-#             site_config = existing.site_config
-#         else:
-#             site_config = {}
-#         return site_config
-
-
 def list_instances_all() -> list[Instance]:
     with Session() as session:
         return session.query(Instance).all()
 
 
-# Not used ?
-# def list_instances_all_short() -> list[str]:
-#     result: list[str] = []
-#     for instance in list_instances_all():
-#         info = [
-#             f"app_id: {instance.app_id}",
-#             f"domain: {instance.domain}",
-#             f"container: {instance.container}",
-#             f"created: {instance.created}",
-#             f"state: {instance.state}",
-#         ]
-#         result.append("\n".join(info))
-#     return result
+def list_instances_all_short() -> list[str]:
+    result: list[str] = []
+    for instance in list_instances_all():
+        info = [
+            f"label: {instance.label_id}",
+            f"app_id: {instance.app_id}",
+            f"domain: {instance.domain}",
+            f"container: {instance.container}",
+            f"created: {instance.created}",
+            f"state: {instance.state}",
+        ]
+        result.append(", ".join(info))
+    return result
 
 
 def list_instances_all_active() -> list:
@@ -315,18 +303,9 @@ def list_instances_container_local_active_volumes() -> list[Volume]:
         # for volume in site.rebased_volumes_upon_nua_conf():
         for volume_definition in app.volumes:
             volume = Volume.parse(volume_definition)
-            if volume.is_managed and volume.driver == "docker":
-                _update_volumes_domains(volumes_dict, volume, instance.domain)
+            if volume.is_managed and volume.is_local:
+                volumes_dict[volume.full_name] = volume
     return list(volumes_dict.values())
-
-
-def _update_volumes_domains(volumes_dict: dict, volume: Volume, domain: str):
-    name = volume.full_name
-    known_volume = volumes_dict.get(name, volume)
-    domains = known_volume.get("domains", [])
-    domains.append(domain)
-    known_volume["domains"] = domains
-    volumes_dict[name] = known_volume
 
 
 def list_instances_container_active_volumes() -> list[Volume]:
@@ -398,6 +377,18 @@ def instance_delete_by_domain(domain: str):
 def instance_delete_by_container(container: str):
     with Session() as session:
         session.query(Instance).filter_by(container=container).delete()
+        session.commit()
+
+
+def instance_delete_by_label(label_id: str):
+    with Session() as session:
+        session.query(Instance).filter_by(label_id=label_id).delete()
+        session.commit()
+
+
+def instance_delete_no_in_labels(labels: list[str]):
+    with Session() as session:
+        session.query(Instance).filter(Instance.label_id.not_in(labels)).delete()
         session.commit()
 
 

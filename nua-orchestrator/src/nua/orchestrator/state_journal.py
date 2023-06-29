@@ -5,7 +5,7 @@ from collections.abc import Callable
 from functools import wraps
 from typing import Any
 
-from nua.lib.panic import Abort, info
+from nua.lib.panic import Abort, info, important
 from nua.lib.tool.state import verbosity
 
 from .app_deployer import AppDeployer
@@ -29,7 +29,7 @@ def restore_if_fail(func: Callable):
         try:
             return func(*args, **kwargs)
         except (OSError, RuntimeError, Abort):
-            print("Try to restore last stable state.")
+            important("Restore last stable state.")
             restore_from_state_journal(state)
 
     return wrapper
@@ -45,6 +45,8 @@ def restore_from_state_journal(state: StateJournal):
     deployer.restore_deactivate_previous_apps()
     deployer.apply_nginx_configuration()
     deployer.start_apps()
+    deployed = deployer.deployed_configuration()
+    state.store_deployed_state(deployed)
     deployer.display_deployment_status()
 
 

@@ -143,6 +143,10 @@ class Volume:
         return self.type == MANAGED
 
     @property
+    def is_local(self) -> bool:
+        return self.driver in {"docker", "local"}
+
+    @property
     def driver(self) -> str:
         driver = self._dict.get("driver", "")
         if not driver and self.type == MANAGED:
