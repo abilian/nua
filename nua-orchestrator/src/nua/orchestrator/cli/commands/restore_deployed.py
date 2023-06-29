@@ -6,5 +6,5 @@ from ...state_journal import StateJournal, restore_from_state_journal
 def restore_active_state() -> None:
     """Restore to the most recent deployment configuration that did succeed."""
     state = StateJournal()
-    state.fetch_current()
+    state.read_current_state()
     restore_from_state_journal(state)

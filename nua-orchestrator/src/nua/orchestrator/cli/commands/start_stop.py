@@ -35,13 +35,12 @@ def start_nua_instance_domain(domain: str, state_journal: StateJournal):
     The instance is started (if it was already deployed).
     """
     deployer = AppDeployer()
-    requested_config, apps = state_journal.deployed_configuration()
-    deployer.load_from_deployed_config(requested_config, apps)
+    deployer.load_deployed_state(state_journal.deployed_state())
     starting_apps = deployer.instances_of_domain(domain)
     deployer.start_deployed_apps(starting_apps)
     deployer.reconfigure_nginx_domain(domain)
     deployed = deployer.deployed_configuration()
-    state_journal.store_apps_configuration(deployed)
+    state_journal.store_deployed_state(deployed)
     deployer.display_deployment_status()
 
 
@@ -52,13 +51,12 @@ def start_nua_instance_label(label: str, state_journal: StateJournal):
     The instance is started (if it was already deployed).
     """
     deployer = AppDeployer()
-    requested_config, apps = state_journal.deployed_configuration()
-    deployer.load_from_deployed_config(requested_config, apps)
+    deployer.load_deployed_state(state_journal.deployed_state())
     starting_app = deployer.instance_of_label(label)
     deployer.start_deployed_apps([starting_app])
     deployer.reconfigure_nginx_domain(starting_app.domain)
     deployed = deployer.deployed_configuration()
-    state_journal.store_apps_configuration(deployed)
+    state_journal.store_deployed_state(deployed)
     deployer.display_deployment_status()
 
 
@@ -69,13 +67,12 @@ def stop_nua_instance_domain(domain: str, state_journal: StateJournal):
     The instance is stopped, but not uninstalled (volumes are kept).
     """
     deployer = AppDeployer()
-    requested_config, apps = state_journal.deployed_configuration()
-    deployer.load_from_deployed_config(requested_config, apps)
+    deployer.load_deployed_state(state_journal.deployed_state())
     stopping_apps = deployer.instances_of_domain(domain)
     deployer.remove_nginx_configuration(domain)
     deployer.stop_deployed_apps(stopping_apps)
     deployed = deployer.deployed_configuration()
-    state_journal.store_apps_configuration(deployed)
+    state_journal.store_deployed_state(deployed)
     deployer.display_deployment_status()
 
 
@@ -86,13 +83,12 @@ def stop_nua_instance_label(label: str, state_journal: StateJournal):
     The instance is stopped, but not uninstalled (volumes are kept).
     """
     deployer = AppDeployer()
-    requested_config, apps = state_journal.deployed_configuration()
-    deployer.load_from_deployed_config(requested_config, apps)
+    deployer.load_deployed_state(state_journal.deployed_state())
     stopping_app = deployer.instance_of_label(label)
     deployer.remove_nginx_configuration(stopping_app.domain)
     deployer.stop_deployed_apps([stopping_app])
     deployed = deployer.deployed_configuration()
-    state_journal.store_apps_configuration(deployed)
+    state_journal.store_deployed_state(deployed)
     deployer.display_deployment_status()
 
 
@@ -100,13 +96,12 @@ def stop_nua_instance_label(label: str, state_journal: StateJournal):
 def restart_nua_instance_domain(domain: str, state_journal: StateJournal):
     """Restart some deployed app instance  (per domain)."""
     deployer = AppDeployer()
-    requested_config, apps = state_journal.deployed_configuration()
-    deployer.load_from_deployed_config(requested_config, apps)
+    deployer.load_deployed_state(state_journal.deployed_state())
     restarting_apps = deployer.instances_of_domain(domain)
     deployer.restart_deployed_apps(restarting_apps)
     deployer.reconfigure_nginx_domain(domain)
     deployed = deployer.deployed_configuration()
-    state_journal.store_apps_configuration(deployed)
+    state_journal.store_deployed_state(deployed)
     deployer.display_deployment_status()
 
 
@@ -114,13 +109,12 @@ def restart_nua_instance_domain(domain: str, state_journal: StateJournal):
 def restart_nua_instance_label(label: str, state_journal: StateJournal):
     """Restart some deployed app instance (per label)."""
     deployer = AppDeployer()
-    requested_config, apps = state_journal.deployed_configuration()
-    deployer.load_from_deployed_config(requested_config, apps)
+    deployer.load_deployed_state(state_journal.deployed_state())
     restarting_app = deployer.instance_of_label(label)
     deployer.restart_deployed_apps([restarting_app])
     deployer.reconfigure_nginx_domain(restarting_app.domain)
     deployed = deployer.deployed_configuration()
-    state_journal.store_apps_configuration(deployed)
+    state_journal.store_deployed_state(deployed)
     deployer.display_deployment_status()
 
 
@@ -144,13 +138,12 @@ def unpause_nua_instance(*, label: str = "", domain: str = ""):
 def pause_nua_instance_domain(domain: str, state_journal: StateJournal):
     """Pause some deployed app instance (per domain)."""
     deployer = AppDeployer()
-    requested_config, apps = state_journal.deployed_configuration()
-    deployer.load_from_deployed_config(requested_config, apps)
+    deployer.load_deployed_state(state_journal.deployed_state())
     stopping_apps = deployer.instances_of_domain(domain)
     deployer.remove_nginx_configuration(domain)
     deployer.pause_deployed_apps(stopping_apps)
     deployed = deployer.deployed_configuration()
-    state_journal.store_apps_configuration(deployed)
+    state_journal.store_deployed_state(deployed)
     deployer.display_deployment_status()
 
 
@@ -158,13 +151,12 @@ def pause_nua_instance_domain(domain: str, state_journal: StateJournal):
 def pause_nua_instance_label(label: str, state_journal: StateJournal):
     """Pause some deployed app instance (per label)."""
     deployer = AppDeployer()
-    requested_config, apps = state_journal.deployed_configuration()
-    deployer.load_from_deployed_config(requested_config, apps)
+    deployer.load_deployed_state(state_journal.deployed_state())
     stopping_app = deployer.instance_of_label(label)
     deployer.remove_nginx_configuration(stopping_app.domain)
     deployer.pause_deployed_apps([stopping_app])
     deployed = deployer.deployed_configuration()
-    state_journal.store_apps_configuration(deployed)
+    state_journal.store_deployed_state(deployed)
     deployer.display_deployment_status()
 
 
@@ -172,13 +164,12 @@ def pause_nua_instance_label(label: str, state_journal: StateJournal):
 def unpause_nua_instance_domain(domain: str, state_journal: StateJournal):
     """Unpause some deployed app instance (per domain)."""
     deployer = AppDeployer()
-    requested_config, apps = state_journal.deployed_configuration()
-    deployer.load_from_deployed_config(requested_config, apps)
+    deployer.load_deployed_state(state_journal.deployed_state())
     starting_apps = deployer.instances_of_domain(domain)
     deployer.unpause_deployed_apps(starting_apps)
     deployer.reconfigure_nginx_domain(domain)
     deployed = deployer.deployed_configuration()
-    state_journal.store_apps_configuration(deployed)
+    state_journal.store_deployed_state(deployed)
     deployer.display_deployment_status()
 
 
@@ -186,11 +177,10 @@ def unpause_nua_instance_domain(domain: str, state_journal: StateJournal):
 def unpause_nua_instance_label(label: str, state_journal: StateJournal):
     """Unpause some deployed app instance (per label)."""
     deployer = AppDeployer()
-    requested_config, apps = state_journal.deployed_configuration()
-    deployer.load_from_deployed_config(requested_config, apps)
+    deployer.load_deployed_state(state_journal.deployed_state())
     starting_app = deployer.instance_of_label(label)
     deployer.unpause_deployed_apps([starting_app])
     deployer.reconfigure_nginx_domain(starting_app.domain)
     deployed = deployer.deployed_configuration()
-    state_journal.store_apps_configuration(deployed)
+    state_journal.store_deployed_state(deployed)
     deployer.display_deployment_status()

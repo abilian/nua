@@ -460,25 +460,23 @@ class AppDeployer:
                 return app
         raise Abort(f"No instance found for label_id '{label_id}'")
 
-    def load_from_deployed_config(
-        self,
-        previous_config: dict[str, Any],
-        apps: list[dict[str, Any]],
-    ) -> None:
+    def load_deployed_state(self, deployed: dict[str, Any]) -> None:
         """Load last successful deployment configuration."""
-        if not previous_config:
+        if deployed["state_id"] <= 0:
             with verbosity(1):
                 show("No previous deployed configuration found")
             self.loaded_config = {}
             self.apps = []
             self.deployed_domains = []
             return
-        self.loaded_config = previous_config
-        self.apps = [AppInstance.from_dict(app_data) for app_data in apps]
+        self.loaded_config = deployed["requested"]
+        self.apps = [AppInstance.from_dict(data) for data in deployed["apps"]]
         self.sort_apps_per_name_domain()
         self.deployed_domains = sorted(
             {apps_dom["hostname"] for apps_dom in self.apps_per_domain}
         )
+        with verbosity(1):
+            info(f"Loaded deployement state number: {deployed['state_id']}")
 
     def gather_requirements(self, parse_providers: bool = True):
         self.install_required_images()

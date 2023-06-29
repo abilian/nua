@@ -19,10 +19,9 @@ class StatusCommand:
         print(self._configured_registries())
         print()
         state = StateJournal()
-        state.fetch_current()
+        state.read_current_state()
         deployer = AppDeployer()
-        requested_config, apps = state.deployed_configuration()
-        deployer.load_from_deployed_config(requested_config, apps)
+        deployer.load_deployed_state(state.deployed_state())
         deployer.display_deployment_status()
 
     def read(self) -> None:
@@ -37,10 +36,9 @@ class StatusCommand:
     def _read_deployed(self) -> None:
         """Read Orchestrator deployed apps status."""
         state = StateJournal()
-        state.fetch_current()
+        state.read_current_state()
         deployer = AppDeployer()
-        requested_config, apps = state.deployed_configuration()
-        deployer.load_from_deployed_config(requested_config, apps)
+        deployer.load_deployed_state(state.deployed_state())
         self._deploy_status = deployer.deployment_status_records()
 
     def as_dict(self) -> dict[str, Any]:
