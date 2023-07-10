@@ -523,13 +523,13 @@ files = [
 
 [[package]]
 name = "docformatter"
-version = "1.7.3"
+version = "1.7.4"
 description = "Formats docstrings to follow PEP 257"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "docformatter-1.7.3-py3-none-any.whl", hash = "sha256:ba776f6305ff0ae9e1f42178975c0956ce01216e80b9d3e3e43daae9f742e321"},
-    {file = "docformatter-1.7.3.tar.gz", hash = "sha256:f6ce59631d4ecc41af2780787b88f5dab94cdf1383796b1110318040c2f4ea36"},
+    {file = "docformatter-1.7.4-py3-none-any.whl", hash = "sha256:e91f99772562f583723272180deab65940bceec65570a3f2ab72695e80d9d4d0"},
+    {file = "docformatter-1.7.4.tar.gz", hash = "sha256:5e1897e316016debf3fdee3e0515e54faaaef32ef84efbd2fbbb03bf9198238c"},
 ]
 
 [package.dependencies]
@@ -786,13 +786,13 @@ flake8 = "*"
 
 [[package]]
 name = "flake8-no-pep420"
-version = "2.6.0"
+version = "2.7.0"
 description = "A flake8 plugin to ban PEP-420 implicit namespace packages."
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "flake8_no_pep420-2.6.0-py3-none-any.whl", hash = "sha256:8174794e2ae79e8c76d520dfe5ab897c9830e908aa710731a069ab5fdbff24d9"},
-    {file = "flake8_no_pep420-2.6.0.tar.gz", hash = "sha256:e4b0b469e087e40ea0f53cabf4b23f085dff095ba2f0dfe3d4f011de2f05d461"},
+    {file = "flake8_no_pep420-2.7.0-py3-none-any.whl", hash = "sha256:018bbe0fba039444689d02a0857310b62b90ff9bf737aff27e0b847ec7eb9ba3"},
+    {file = "flake8_no_pep420-2.7.0.tar.gz", hash = "sha256:a1b6db4de355b87f8189714e68785a7c6a2d61d94f3e937b6cee336953f7d703"},
 ]
 
 [package.dependencies]
@@ -909,13 +909,13 @@ flake8 = ">=3.0.0"
 
 [[package]]
 name = "flake8-tidy-imports"
-version = "4.9.0"
+version = "4.10.0"
 description = "A flake8 plugin that helps you write tidier imports."
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "flake8_tidy_imports-4.9.0-py3-none-any.whl", hash = "sha256:bdbd6ea3750089c5d0f4a27a554e8890ecfe6d1b9b60b6c0f1ffbfd00e161c58"},
-    {file = "flake8_tidy_imports-4.9.0.tar.gz", hash = "sha256:dd90625871f6a03e6f0763fed7098a9b090afaea8c5c27464049e4b0d41ec787"},
+    {file = "flake8_tidy_imports-4.10.0-py3-none-any.whl", hash = "sha256:b0387fb2ea200441bd142309e716fb7b8f4b0937bdf5f8b7c0c118a5f5e2b8ed"},
+    {file = "flake8_tidy_imports-4.10.0.tar.gz", hash = "sha256:bd6cf86465402d2b86903009b748d85a628e599e17b76e810c9857e3a2815173"},
 ]
 
 [package.dependencies]
@@ -952,13 +952,13 @@ smmap = ">=3.0.1,<6"
 
 [[package]]
 name = "gitpython"
-version = "3.1.31"
+version = "3.1.32"
 description = "GitPython is a Python library used to interact with Git repositories"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "GitPython-3.1.31-py3-none-any.whl", hash = "sha256:f04893614f6aa713a60cbbe1e6a97403ef633103cdd0ef5eb6efe0deb98dbe8d"},
-    {file = "GitPython-3.1.31.tar.gz", hash = "sha256:8ce3bcf69adfdf7c7d503e78fd3b1c492af782d58893b650adb2ac8912ddd573"},
+    {file = "GitPython-3.1.32-py3-none-any.whl", hash = "sha256:e3d59b1c2c6ebb9dfa7a184daf3b6dd4914237e7488a1730a6d8f6f5d0b4187f"},
+    {file = "GitPython-3.1.32.tar.gz", hash = "sha256:8d9b8cb1e80b9735e8717c9362079d3ce4c6e5ddeebedd0361b228c3a67a62f6"},
 ]
 
 [package.dependencies]
