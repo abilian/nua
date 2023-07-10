@@ -20,7 +20,7 @@ nua-cli = { path = "nua-cli", develop = true }
 nua-agent = { path = "nua-agent", develop = true }
 nua-build = { path = "nua-build", develop = true }
 nua-orchestrator = { path = "nua-orchestrator", develop = true }
-nua-server = { path = "nua-server", develop = true }
+# nua-server = { path = "nua-server", develop = true }
 
 # Pinned for some reason
 urllib3 = "<2.0"

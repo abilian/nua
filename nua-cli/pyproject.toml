@@ -49,6 +49,7 @@ cleez = "^0.1.9"
 urllib3 = "<2.0"
 abilian-devtools = "*"
 devtools = "*"
+types-setuptools = "^68.0.0.1"
 
 
 [build-system]
