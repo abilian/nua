@@ -1,11 +1,13 @@
 ---
-title: Nua talk at PyConFR 2023
+date: 2023-03-22
 description: We gave a talk about Nua during PyConFR 2023 in Bordeaux.
-tags:
+categories:
   - talk
   - slides
   - conference
 ---
+
+# Nua talk at PyConFR 2023
 
 ## Context
 
