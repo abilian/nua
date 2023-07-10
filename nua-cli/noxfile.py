@@ -10,7 +10,7 @@ nox.options.reuse_existing_virtualenvs = True
 
 @session
 def lint(session: nox.Session) -> None:
-    session.install(".")
+    session.install("--no-cache-dir", ".")
     session.install("abilian-devtools")
     # Temp
     session.install("types-PyYAML")
@@ -19,6 +19,6 @@ def lint(session: nox.Session) -> None:
 
 @session(python=PYTHON_VERSIONS)
 def pytest(session: nox.Session) -> None:
-    session.install(".")
+    session.install("--no-cache-dir", ".")
     session.install("pytest")
     session.run("pytest", "--tb=short")
