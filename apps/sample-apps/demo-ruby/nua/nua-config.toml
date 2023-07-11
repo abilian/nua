@@ -11,7 +11,7 @@ tags = ["Ruby", "Rails", "NodeJs"]
 [build]
 license = "Apache-2.0 license"
 src-url = "https://github.com/cedarcode/webauthn-rails-demo-app/archive/refs/heads/master.zip"
-builder = "ruby-272"
+builder = "ruby-278"
 # rems: compilation of ruby-2.7.2 breaks openSSL (old version 1.0 required)
 #       So build of the ruby-272 image includes the build of a deprecated version of
 #       openSLL.

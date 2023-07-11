@@ -1,8 +1,8 @@
 {
-    "app_id": "nua-builder-ruby312",
+    "app_id": "nua-builder-ruby314",
     "name": [
-        "ruby312",
-        "ruby-312",
+        "ruby314",
+        "ruby-314",
         "ruby31",
         "ruby-31"
     ],
@@ -13,6 +13,6 @@
     "container": "docker",
     "dockerfile": "Dockerfile_nua_builder_ruby31",
     "labels": {
-        "ruby_version": "3.1.2"
+        "ruby_version": "3.1.4"
     }
 }

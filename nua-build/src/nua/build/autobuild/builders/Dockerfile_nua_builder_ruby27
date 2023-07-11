@@ -2,5 +2,5 @@ ARG nua_builder_tag
 FROM ${nua_builder_tag} as builder
 
 RUN . /nua/venv/bin/activate \
-    && python -c 'from nua.lib.actions import install_ruby as r; r("2.7.7")' \
+    && python -c 'from nua.lib.actions import install_ruby as r; r("2.7.8")' \
     && ruby --version > /nua/ruby_version
