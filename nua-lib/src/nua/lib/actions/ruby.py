@@ -54,7 +54,7 @@ def install_ruby(
         options = f"--disable-install-doc --with-openssl-dir={ssl}"
 
     path = _build_ruby_install()
-    cmd = f"{path} --system --cleanup -j {version} -- {options}"
+    cmd = f"{path} --system --cleanup -j4 {version} -- {options}"
     sh(cmd)
 
     if not keep_lists:
