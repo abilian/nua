@@ -1,4 +1,4 @@
-from .version import __version__
+from ..version import __version__
 
 CODE_URL = "https://github.com/abilian/nua/archive/refs/heads/main.zip"
 
