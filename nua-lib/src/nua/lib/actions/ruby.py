@@ -4,25 +4,9 @@ from .apt import apt_remove_lists, install_package_list, purge_package_list
 from .misc import compile_openssl_1_1
 
 
-def install_ruby(
-    version: str = "3.2.1",
-    keep_lists: bool = False,
-):
-    """Installation of Ruby via 'ruby-install'.
-
-    Exec as root.
-    """
-    install_package_list(
-        "wget pkg-config build-essential libpq-dev",
-        keep_lists=True,
-        clean=False,
-    )
-    purge_package_list("ruby ruby-dev ri")
-    options = "--disable-install-doc"
-    if version.startswith("2.") or version.startswith("3.0"):
-        ssl = compile_openssl_1_1()
-        options = f"--disable-install-doc --with-openssl-dir={ssl}"
-    ri_vers = "0.9.0"
+def _build_ruby_install() -> None:
+    """Download and install 'ruby-install' program."""
+    ri_vers = "0.9.1"
 
     with chdir("/tmp"):  # noqa s108
         cmd = (
@@ -38,9 +22,32 @@ def install_ruby(
 
     cmd = f"rm -fr /tmp/ruby-install-{ri_vers}*"
     sh(cmd)
-    cmd = f"ruby-install --system --cleanup -j4 {version} -- {options}"
-    sh(cmd)
-    cmd = f"ruby-install --system --cleanup -j4 {version} -- {options}"
+
+
+def install_ruby(
+    version: str = "3.2.1",
+    keep_lists: bool = False,
+) -> None:
+    """Installation of Ruby via 'ruby-install'.
+
+    Exec as root.
+
+    Args:
+        version: Ruby version to install.
+        keep_lists: Do not erase apt sources lists.
+    """
+    install_package_list(
+        "wget pkg-config build-essential libpq-dev",
+        keep_lists=True,
+        clean=False,
+    )
+    purge_package_list("ruby ruby-dev ri")
+    options = "--disable-install-doc"
+    if version.startswith("2.") or version.startswith("3.0"):
+        ssl = compile_openssl_1_1()
+        options = f"--disable-install-doc --with-openssl-dir={ssl}"
+
+    cmd = f"ruby-install --system --cleanup -j {version} -- {options}"
     sh(cmd)
 
     if not keep_lists:
