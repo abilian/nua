@@ -43,10 +43,12 @@ def install_ruby(
     )
     purge_package_list("ruby ruby-dev ri")
     options = "--disable-install-doc"
+
     if version.startswith("2.") or version.startswith("3.0"):
         ssl = compile_openssl_1_1()
         options = f"--disable-install-doc --with-openssl-dir={ssl}"
 
+    _build_ruby_install()
     cmd = f"ruby-install --system --cleanup -j {version} -- {options}"
     sh(cmd)
 
