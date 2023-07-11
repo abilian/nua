@@ -4,8 +4,12 @@ from .apt import apt_remove_lists, install_package_list, purge_package_list
 from .misc import compile_openssl_1_1
 
 
-def _build_ruby_install() -> None:
-    """Download and install 'ruby-install' program."""
+def _build_ruby_install() -> str:
+    """Download and install 'ruby-install' program.
+
+    Returns:
+        ruby-install path
+    """
     ri_vers = "0.9.1"
 
     with chdir("/tmp"):  # noqa s108
@@ -22,6 +26,7 @@ def _build_ruby_install() -> None:
 
     cmd = f"rm -fr /tmp/ruby-install-{ri_vers}*"
     sh(cmd)
+    return "/usr/local/bin/ruby-install"
 
 
 def install_ruby(
@@ -48,8 +53,8 @@ def install_ruby(
         ssl = compile_openssl_1_1()
         options = f"--disable-install-doc --with-openssl-dir={ssl}"
 
-    _build_ruby_install()
-    cmd = f"ruby-install --system --cleanup -j {version} -- {options}"
+    path = _build_ruby_install()
+    cmd = f"{path} --system --cleanup -j {version} -- {options}"
     sh(cmd)
 
     if not keep_lists:
