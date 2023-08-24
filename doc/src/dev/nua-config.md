@@ -57,22 +57,22 @@ The `nua-config` file contains several sections, mandatory or optional. Their or
 #### `[backup]`
 
 - **Optional**.
-- Parameters for the backup of the application container
-- Note: implementation is a work in progress
+- Parameters for the backup of the application container.
+- Note: implementation is a work in progress.
 
 
 #### `[[volume]]`
 
 - **Optional**.
 - List of volumes declarations, either local or remote.
-- Note: each volume can have a backup sub section
+- Note: each volume can have a backup sub section.
 
 
 #### `[[provider]]`
 
 - **Optional**.
 - List of containers or services required by the application. For example, declaration of a database.
-- Note: each provider can have a backup sub section
+- Note: each provider can have a backup sub section.
 
 
 ## Section `metadata`
@@ -88,81 +88,91 @@ Notes:
 
 - **Mandatory**
 - Identifier of the package. Should be unique in the managed area.
-- String (max 80 chars)
+- String (max 80 chars).
 - The `id` is used to build package name.
 - Example `id = "hedgedoc"`
 
 #### `version`
 
 - **Mandatory**
-- Version of the packaged application
-- String (max 80 chars)
-- The `id` is used to build package name.
+- Version of the packaged application.
+- String (max 80 chars).
+- The `version` is used to build the full package name.
 - Example `version = "1.9.7"`
 
 #### `title`
 
 - **Mandatory**
-- Short title of the package
+- Short title of the package.
 - Example `title = "HedgeDoc"`
 
 #### `author`
 
 - **Mandatory**
-- Author of the packaged application
+- Author of the packaged application.
 - Example `author = "HedgeDoc authors"`
 
-#### `license`
+#### `description`
 
-- **Mandatory**
-- License of the packaged application.
-- License format will use a standardised format (maybe SPDX)
-- Example `license = "AGPL-3.0 license"`
+- **Optional**
+- Long description of the application.
+- Example `description = "The best platform to write and share markdown"`
 
 #### `tagline`
 
 - **Optional**
-- Short description of the application
+- Short description of the application.
 - Example `tagline = "The best platform to write and share markdown"`
 
 #### `website`
 
 - **Optional**
-- String containing a valid URL
-- Reference website of the application
+- String containing a valid URL.
+- Reference website of the application.
 - Example `website = "https://hedgedoc.org/"`
 
 #### `tags`
 
 - **Optional**
-- List of strings
-- List of tags describing the application
+- List of strings.
+- List of tags describing the application.
 - Example `tags = ["Markdown", "Documentation", "Collaboration"]`
 
 #### `profile`
 
 - **Optional**
-- Usage profile (WIP)
+- Usage profile (WIP).
 
 #### `release`
 
 - **Optional**
-- Integer
-- Release number of this nua-config file
-- If present, the release number is used to form the name of the builded image
+- Integer.
+- Release number of this nua-config file.
+- If present, the release number is used to form the name of the builded image.
 
-#### `base-image`
 
-- **Optional**
-- String containing a valid Docker Hub reference
-- For packages using a docker base image, the reference of the image (currently Docker Hub reference)
-- Example `base-image = "tuxgasy/dolibarr:{version}"`
+## Section `build`
+
+Notes:
+
+- If not specified, the type of the value is String with no length limitation.
+- All fields are optional except the `license` field.
+
+
+#### `license`
+
+- **Mandatory**
+- License of the packaged application.
+- License format will use a standardised format (maybe SPDX).
+- If not provided, the value `Proprietary` is used.
+- Example `license = "AGPL-3.0 license"`
 
 #### `src-url`
 
 - **Optional**
-- String containing a valid URL
-- URL of the source code of the application
+- String containing a valid URL.
+- URL of the source code of the application.
+- The string can use Python's `f-string` with data coming from metadata section.
 - Example `src-url = "https://github.com/hedgedoc/hedgedoc/releases/download/{version}/hedgedoc-{version}.tar.gz"`
 
 #### `src-checksum`
@@ -175,8 +185,8 @@ Notes:
 #### `git-url`
 
 - **Optional**
-- String containing a valid URL
-- If code source is in a git repository, URL of the repository
+- String containing a valid URL.
+- If code source is in a git repository, URL of the repository.
 - Example `git-url = "https://github.com/jech/galene.git"`
 
 #### `git-branch`
@@ -185,55 +195,64 @@ Notes:
 - If using a git repository, the branch to check out.
 - Example `git-branch = "galene-0.6-branch"`
 
+#### `base-image`
 
-## Section `build`
-
-Notes:
-
-- If not specified, the type of the value is String with no length limitation.
-- All fields are optional
+- **Optional**
+- String containing a valid Docker Hub reference.
+- For packages using a docker base image, the reference of the image (currently a Docker Hub reference).
+- Example `base-image = "tuxgasy/dolibarr:{version}"`
 
 #### `method`
-- Force selection of the build method, possible values are 'build' or 'wrap'
-- If value is not set, default to 'build' or 'wrap' if a 'metadata/base-image' is found
-- Used to force selection of the special 'wrap' method that convert an existing Dockerfile to a Nua compliant one by adding metadata to the Docker image. For a real case, see the `Dolibarr` sample application in the apps folder of Nua code source.
-- Example `method = "wrap"`
 
+- **Optional**
+- Force selection of the build method, possible values are `build` or `wrap`.
+- If value is not set, default to `build` or if a 'metadata/base-image' is found default to `wrap`.
+- Used to force selection of the special `wrap` method that converts an existing Dockerfile to a Nua compliant one by adding metadata to the Docker image. For a real case, see the `Dolibarr` sample application in the apps folder of Nua code source.
+- Example `method = "wrap"`
 
 #### `builder`
 
-- String or dict of string (alternate syntax)
-- Reference of a specific Nua image dedicated to a development environment. Currently available values are node version 14 or 16, ruby versions 2.7, 2.7.2, 3.1, 3.2.
-- If not specified, default builder provides Python 3.10. Development environment can also be installed in the build command or as packages.
-- Note: syntax may change in future versions
+- **Optional**
+- String or dict of string (alternate syntax).
+- Reference of a specific Nua image dedicated to a development environment. Currently available values are `node` version 14 or 16, `ruby` versions 2.7, 2.7.2, 3.1, 3.2.
+- If not specified, default builder provides `Python` 3.10. Development environment can also be installed in the build command or as packages.
+- Note: syntax may change in future versions.
 - Example `builder = "node-14"`
 - Example of alternate syntax `builder =  {name = "ruby", version = "3.2" }`
 
+#### `builders`
+
+- **Optional**
+- List of string or list of dict (alternate syntax).
+- Declaration of a list of builders environment (WIP, experimental).
 
 #### `packages`
 
-- String or list of string (alternate syntax)
-- Ubuntu packages to install for the build step. These packages will be removed after the `build` stage (except if they are required for the `run`stage.)
+- **Optional**
+- String or list of string (alternate syntax).
+- Ubuntu packages to install for the build step. These packages will be removed after the `build` stage, except if they are required for the `run` stage.
 - Example `packages = "build-essential"``
 - Example `packages = ['golang-go', 'git']`
 
 
 #### `meta-packages`
 
-- String or list of string (alternate syntax)
+- **Optional**
+- String or list of string (alternate syntax).
 - Group of packages defined by Nua to facilitate some installation.
-- Currently, only `postgres-client` and `mariadb-client` are available, and both   should be automatically installed when the auto-detection algorithm detect the use of the relevant DB in the `[[provider]]` section. So this feature is seldom used.
+- Currently, only `postgres-client` and `mariadb-client` are defined, and both should be automatically installed when the auto-detection algorithm detect the use of the relevant DB in the `[[provider]]` section. So this feature is seldom used.
 - Note: functionality may evolve in future versions.
 - Example `meta-packages = ["postgres-client"]`
 
 
 #### `build`
 
-- String or list of string (alternate syntax)
-- string must contain sh code that will be executed as root in the Dockerfile environment.
-- Important: if not present, an auto-detection algorithm will try to do the standard installation using project configuration (implemented for Python and NodeJs).
-- If a `build.py` file is found in the `./nua` folder, it is executed
-- Example of a do-nothing command `build = "true"`
+- **Optional**
+- String or list of string (alternate syntax).
+- The strings must contain `sh` shell code that will be executed as root in the Dockerfile environment.
+- Important: if not present, an auto-detection algorithm will try to do a standard installation using project configuration (feature implemented for `Python` and `NodeJs`).
+- Note: if a `build.py` file is found in the `./nua` folder, it is executed.
+- Example of a do-nothing command to not execute the auto-detection `build = "true"`
 - Example of a long command
 
 ```
@@ -249,22 +268,36 @@ build = [
 
 #### `test`
 
-- String or list of strings, containing one or several a shell commands
-- "Smoke test" to quickly check that the installation was successful, an exit code of zero expected.
-- If not present a minima test does check that some Nua internal file is present in the container hierarchy.
+- **Optional**
+- String or list of strings.
+- The strings must contain `sh` shell code.
+- "Smoke test" to quickly check that the installation was successful, a successful exit code of zero is expected.
+- If not present, a minimal test does check that some Nua internal file is present in the container hierarchy.
 - Example `test = "python -c 'import flask_show'"`
 
+#### `before-build`
+
+- **Optional**
+- String or list of strings.
+- The strings must contain `sh` shell code.
+- WIP.
+- Commands to be executed before the actual build command.
+
 #### `pip-install`
-- String or list of strings
-- List of python packages to install with the pip command
+
+- **Optional**
+- String or list of strings.
+- List of Python packages to install with the `pip` command.
 - To be used for applications no providing a `requirement.txt` or other `poetry.lock` file, or to install some `wheel` files.
 - Example `pip-install = ["*.whl"]`
 - Example `pip-install = ["flask", "gunicorn"]`
 
 
 #### `project`
+
+- **Optional**
 - Relative path of the project to build from the downloaded source code.
-- Used in the situation of complex code archive when the build command need to be run from a non standard place
+- Used in the situation of complex code archive when the build command need to be run from a non standard place.
 - Default `project = "."`
 - Example `project = "./alternate/src"`
 
@@ -275,22 +308,33 @@ Notes:
 
 - If not specified, the type of the value is String with no length limitation.
 - All fields are optional.
-- All command string can use the shell expansion to access to ENV variables available in the run context.
+- All command string can use the shell expansion to access to ENV variables available in the **run context**.
 
 
 #### `packages`
-- String or list of strings
-- Ubuntu packages needed by the application.
+
+- **Optional**
+- String or list of strings.
+- Ubuntu packages reuired by the application.
 - Example `packages = ["fontconfig", "fonts-noto"]`
 
+#### `before-run`
+
+- **Optional**
+- String or list of strings.
+- The strings must contain `sh` shell code.
+- WIP.
+- Commands to be executed before the actual run command.
 
 #### `start`
-- String or list of strings
+
+- **Optional**
+- String or list of strings.
 - Shell command executed with `sh -c` in the container environment to start the application when the container is started.
-- if the `start`field is not present, the builder looks for a `start.py` file in the `nua` folder.
-- Example `start = "bundle exec rails s"``
+- if the `start` field is not present, the builder looks for a `start.py` file in the `nua` folder.
+- Example `start = "bundle exec rails s"`
 - Example `start = "yarn start"`
-- Example `start = ["init-db", "gunicorn --workers 2 -b :5000 flask_app.app:app"]``
+- Example `start = ["init-db", "gunicorn --workers 2 -b :5000 flask_app.app:app"]`
 
 - Example of a long command
 
@@ -316,6 +360,7 @@ Each field is a variable declaration. Format can be:
 
 - Example simple values
 ```
+[env]
 NODE_ENV = "production"
 DEBUG = "true"
 UPLOADS_MODE = "0700"
@@ -365,20 +410,19 @@ MY_IP = { external_ip='true' }
 ```
 
 
-
 ## Section `docker`
 
 Most application will not require any tuning in this section.
-Each key/value pair of this section must be a valid py-docker parameter, see:
+Each key/value pair of this section must be a valid `pydocker` parameter, see:
 https://docker-py.readthedocs.io/en/stable/containers.html
 
-Some values should no be used, because the orchestrator manage them directly, like fields related to volumes and mount points, healthcheck, ports.
+Some values should no be used, because the orchestrator manages them directly, like fields related to volumes and mount points, healthcheck, ports.
 
 By default, the nua-orchestrator uses these values:
 - `detach = true`, this value is not editable
 - `restart_policy.name = "always"`, restart always a crashed container, could be modified to custom configuration like `{"Name": "on-failure", "MaximumRetryCount": 5}`
 - `mem_limit = 16M`, default memory limit for the container
-- `auto_remove = false`, no auto-removal of the container on daemon side when the container’s process exits
+- `auto_remove = false`, no auto-removal of the container on daemon side when the container’s process exits.
 
 A special value is the networking mode of the container. The `nua-orchestrator` expects that all containers are in sub networks. However, some rare applications may require to run in the actual host network. An example is the `galene` application. Then all ports configuration must be hand made.
 - `network = "host"`  for very special cases
@@ -426,7 +470,7 @@ host = { key="LISTEN_PORT" }
 
 ## Section `healthcheck`
 
-Currently `healthcheck` uses the Docker family of parameters.
+Currently `healthcheck` uses the Docker family of parameters: 'command', 'interval', 'start_period',  'timeout', 'retries'.
 
 - Example using a command and interval
 ```
@@ -438,15 +482,17 @@ interval = 10
 
 ## Section `backup`
 
-Work in progress.
+- Work in progress.
+- Current keys: 'mathod', 'frequency', 'options'
 
 
 ## Section `volume`
 
 Volumes can be either of 3 types
-    - `managed`, using a driver, for example the Docker volume management, the default type
-    - `directory`, using a directory local to the host, configured and managed by the user. It is equivalent to the Docker concept of `bind` volume,
-    - `tmpfs`, using a volatile RAM disk.
+
+  - `managed`, using a driver, for example the Docker volume management, the default type.
+  - `directory`, using a directory local to the host, configured and managed by the user. It is equivalent to the Docker concept of `bind` volume,
+  - `tmpfs`, using a volatile RAM disk.
 
 - Parameters for `managed` type:
     - `driver`: name of the driver. By default the value is `docker`, to use the Docker's "local" volume driver.

@@ -6,16 +6,15 @@ from pydantic import BaseModel, PositiveInt
 
 class Metadata(BaseModel):
     id: str
+    version: str
     title: str
     author: str
     description: str | None
     tagline: str | None
     website: str | None
-    version: str
-    release: PositiveInt | None
-    profile: str | list[str] | None
     tags: list[str] | None
-    repo: str | None  # new
+    profile: str | list[str] | None
+    release: PositiveInt | None
 
 
 class Build(BaseModel):
