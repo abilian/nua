@@ -1,7 +1,7 @@
 """Class to manage NuaConfig format."""
 from typing import Any
 
-from pydantic import BaseModel, PositiveInt
+from pydantic import BaseModel, NonNegativeInt, PositiveInt
 
 
 class Metadata(BaseModel):
@@ -60,7 +60,7 @@ class Healthcheck(BaseModel):
     interval: PositiveInt
     start_period: PositiveInt | None
     timeout: PositiveInt | None
-    retries: PositiveInt | None
+    retries: NonNegativeInt | None
 
 
 class Backup(BaseModel):
