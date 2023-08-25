@@ -1,0 +1,12 @@
+{
+    "site": [
+        {
+            "label": "mailserver",
+            "image": "docker-mailserver",
+            "domain": "test1.example.com",
+            "env": {
+                "OVERRIDE_HOSTNAME": "test1.example.com"
+            }
+        }
+    ]
+}
