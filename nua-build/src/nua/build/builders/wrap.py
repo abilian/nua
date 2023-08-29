@@ -67,6 +67,7 @@ class DockerWrapBuilder(Builder):
                 "NUA_BUILD_VERSION": __version__,
             }
             info(f"Building (wrap) image {nua_tag}")
+            info(f"From image {self.config.wrap_image}")
             image_id = docker_stream_build(".", nua_tag, buildargs, labels)
 
             with verbosity(1):
