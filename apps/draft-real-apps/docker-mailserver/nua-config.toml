@@ -1,7 +1,7 @@
 [metadata]
 id = "docker-mailserver"
 version = "12.1.0"
-release = 1
+release = 2
 title = "A fullstack but simple mail server."
 author = "The Docker Mailserver Organization & Contributors"
 tagline = "A fullstack but simple mail server."
@@ -11,7 +11,7 @@ tags = ["test", "docker", "mail", "SMTP"]
 [build]
 license = "MIT license"
 # here the wrapped Docker declaration:
-base-image = "mailserver/docker-mailserver:12.1.0:{version}"
+base-image = "mailserver/docker-mailserver:{version}"
 # test auto detection of base-image:
 # method = "wrap"
 
@@ -165,8 +165,8 @@ RELAY_PASSWORD = ""
 # container = 80
 [port.smtp]
 container = 25
-#host = 25
 proxy = 25
+ssl = false
 
 # [port.imap]
 # container = 143
@@ -175,8 +175,8 @@ proxy = 25
 
 [port.esmtp]
 container = 465
-#host = 465
 proxy = 465
+ssl = false
 
 # [port.esmtp]
 # container = 587
@@ -185,8 +185,8 @@ proxy = 465
 
 [port.imap]
 container = 993
-# host = 993
 proxy = 993
+ssl = false
 
 [healthcheck]
 command = "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"
