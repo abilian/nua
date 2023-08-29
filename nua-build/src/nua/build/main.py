@@ -16,8 +16,8 @@ import snoop
 from cleez.actions import VERSION, COUNT, STORE_TRUE
 from nua.lib.nua_config import NuaConfigError, NuaConfig
 from nua.lib.elapsed import elapsed
-from nua.lib.panic import Abort, red_line, show
-from nua.lib.tool.state import set_color, set_verbosity
+from nua.lib.panic import Abort, red_line, show, info
+from nua.lib.tool.state import set_color, set_verbosity, verbosity
 import pydantic
 
 from . import __version__
@@ -143,6 +143,8 @@ def build_sub_app(config: NuaConfig, provider: dict[str, Any], save_image: bool)
 
 def build_main_app(config: NuaConfig, save_image: bool):
     builder = get_builder(config, save_image=save_image)
+    with verbosity(2):
+        info(f"Using builder: {builder.__class__.__name__}")
     try:
         builder.run()
     except BuilderError as e:
