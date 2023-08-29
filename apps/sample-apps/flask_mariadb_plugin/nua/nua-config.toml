@@ -33,5 +33,5 @@ container = 5000
 
 [[provider]]
 name = "database"
-plugin-name = "mariadb"
-plugin-version = ">=10.6, <10.7"
+module-name = "mariadb"
+module-version = ">=10.6, <10.7"

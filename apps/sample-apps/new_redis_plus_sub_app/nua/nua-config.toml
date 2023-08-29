@@ -26,8 +26,8 @@ container = 5000
 [[provider]]
 # declaration of the required image for the provider: official Redis image
 name = "database"
-plugin-name = "redis-cache"
-plugin-version = ">=7"
+module-name = "redis-cache"
+module-version = ">=7"
 
 [[provider]]
 # declaration of the required image for the provider: official Redis image

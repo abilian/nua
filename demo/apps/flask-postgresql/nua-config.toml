@@ -6,7 +6,7 @@ title = "Flask + Postgres demo app"
 author = "Nua developers"
 tagline = "postgres docker configured via orchestrator"
 website = "https://nua.rocks/"
-tags = ["test", "html", "web", "static", "plugin", "PostgreSQL", "docker", "psycopg2"]
+tags = ["test", "html", "web", "static", "module", "PostgreSQL", "docker", "psycopg2"]
 license = "MIT"
 
 [build]

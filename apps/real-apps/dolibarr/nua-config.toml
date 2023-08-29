@@ -61,8 +61,8 @@ options = { destination = "local" }
 
 # Declaration of the required image for the provider, here the official Mariadb.
 name = "database"
-plugin-name = "mariadb"
-plugin-version = ">=10.6, <10.7"
+module-name = "mariadb"
+module-version = ">=10.6, <10.7"
 # create_user = true -> the default
 # create_db = true   -> the default
 

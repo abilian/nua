@@ -77,12 +77,12 @@ class Provider(dict):
         self["type"] = tpe
 
     @property
-    def plugin_name(self) -> str:
-        return self.get("plugin_name", "")
+    def module_name(self) -> str:
+        return self.get("module_name", "")
 
-    @plugin_name.setter
-    def plugin_name(self, plugin_name: str):
-        self["plugin_name"] = plugin_name
+    @module_name.setter
+    def module_name(self, module_name: str):
+        self["module_name"] = module_name
 
     @property
     def name(self) -> str:

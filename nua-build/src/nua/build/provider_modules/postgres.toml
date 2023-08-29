@@ -1,9 +1,9 @@
-plugin-name = "postgres"
+module-name = "postgres"
 type = "docker-image"
 network = true
 connector = "postgres-client"
 
-plugin-versions = [
+module-versions = [
     { version = "15.1", arch = "amd64", link = "docker.io/library/postgres:15.1" },
     { version = "14.6", arch = "amd64", link = "docker.io/library/postgres:14.6" },
     { version = "13.9", arch = "amd64", link = "docker.io/library/postgres:13.9" },

@@ -1,4 +1,4 @@
-"""Parse content of definition plugins.
+"""Parse content of definition modules.
 
 Definitions are TOML descriptions of providers.
 """
@@ -8,11 +8,11 @@ from typing import Any
 
 import tomli
 
-PLUGIN_DEFINITIONS = {}
+MODULE_DEFINITIONS = {}
 
 
-class PluginDefinitions:
-    DEFINITIONS_DIR = "nua.build.definitions"
+class ModuleDefinitions:
+    DEFINITIONS_DIR = "nua.build.provider_modules"
 
     def register_definitions(self):
         for file in rso.files(self.DEFINITIONS_DIR).iterdir():
@@ -23,11 +23,11 @@ class PluginDefinitions:
 
     def _definitions_add(self, path: Path):
         content = tomli.loads(path.read_text(encoding="utf8"))
-        PLUGIN_DEFINITIONS[content["plugin-name"]] = content
+        MODULE_DEFINITIONS[content["module-name"]] = content
 
     @classmethod
-    def plugin(cls, name: str) -> dict[str, Any] | None:
-        plugin_definitions = cls()
-        if not PLUGIN_DEFINITIONS:
-            plugin_definitions.register_definitions()
-        return PLUGIN_DEFINITIONS.get(name)
+    def module(cls, name: str) -> dict[str, Any] | None:
+        module_definitions = cls()
+        if not MODULE_DEFINITIONS:
+            module_definitions.register_definitions()
+        return MODULE_DEFINITIONS.get(name)

@@ -21,7 +21,7 @@ from packaging.specifiers import SpecifierSet
 from packaging.version import parse
 
 from .. import config as build_config
-from ..plugins_definitions import PluginDefinitions
+from ..module_definitions import ModuleDefinitions
 
 logging.basicConfig(level=logging.INFO)
 CLIENT_TIMEOUT = 600
@@ -95,46 +95,46 @@ class Builder(abc.ABC):
 
         return Path(tempfile.mkdtemp(dir=build_dir_parent))
 
-    def merge_plugins_in_config(self) -> None:
-        """Merge the plugin detailed definition in providers based on plugins.
+    def merge_modules_in_config(self) -> None:
+        """Merge the module detailed definition in providers.
 
-        Plugins are currently specialized images for DBs (postrgres, mariadb, ...).
-        The key/values of plugin can be superceded by provider statements.
+        Modules are currently specialized images for DBs (postrgres, mariadb, ...).
+        The key/values of modules can be superceded by provider statements.
         """
         for provider in self.config.providers:
-            plugin_name = provider.get("plugin-name", "")
-            if not plugin_name:
+            module_name = provider.get("module-name", "")
+            if not module_name:
                 continue
-            plugin = PluginDefinitions.plugin(plugin_name)
-            if plugin is None:
+            module = ModuleDefinitions.module(module_name)
+            if module is None:
                 continue
-            self._select_plugin_version(provider, plugin)
-            self._merge_plugin(provider, plugin)
+            self._select_module_version(provider, module)
+            self._merge_module(provider, module)
 
-    def _select_plugin_version(
+    def _select_module_version(
         self,
         provider: dict[str, Any],
-        plugin: dict[str, Any],
+        module: dict[str, Any],
     ) -> None:
-        required_version = provider.get("plugin-version", "")
-        format = plugin["type"]
+        required_version = provider.get("module-version", "")
+        format = module["type"]
         if format == "docker-image":
-            versions = plugin.get("plugin-versions")
-            if "build" not in plugin:
-                plugin["build"] = {}
+            versions = module.get("module-versions")
+            if "build" not in module:
+                module["build"] = {}
             if versions and required_version:
-                plugin["build"]["base-image"] = self._higher_package_link(
+                module["build"]["base-image"] = self._higher_package_link(
                     versions, required_version
                 )
             with verbosity(1):
-                info("Required image:", plugin["build"]["base-image"])
+                info("Required image:", module["build"]["base-image"])
 
-    def _merge_plugin(
+    def _merge_module(
         self,
         provider: dict[str, Any],
-        plugin: dict[str, Any],
+        module: dict[str, Any],
     ) -> None:
-        base = deepcopy(plugin)
+        base = deepcopy(module)
         for key, value in provider.items():
             if value is None:
                 continue

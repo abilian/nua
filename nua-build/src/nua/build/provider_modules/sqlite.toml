@@ -1,4 +1,4 @@
-plugin-name = "sqlite"
+module-name = "sqlite"
 type = "volume"
 network = false
 

@@ -24,4 +24,4 @@ container = 5000
 
 [[provider]]
 name = "database"
-plugin-name = "sqlite"
+module-name = "sqlite"

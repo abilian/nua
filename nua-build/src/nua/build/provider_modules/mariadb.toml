@@ -1,9 +1,9 @@
-plugin-name = "mariadb"
+module-name = "mariadb"
 type = "docker-image"
 network = true
 connector = "mariadb-client"
 
-plugin-versions = [
+module-versions = [
     { version = "10.3", arch = "amd64", link = "docker.io/library/mariadb:10.3" },
     { version = "10.4", arch = "amd64", link = "docker.io/library/mariadb:10.4" },
     { version = "10.5", arch = "amd64", link = "docker.io/library/mariadb:10.5" },

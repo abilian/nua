@@ -776,6 +776,7 @@ def docker_network_by_name(network_name: str):
 
 
 def install_plugin(plugin_name: str) -> str:
+    """Install Docker's plugin (plugin for API of remote services)."""
     client = DockerClient.from_env()
     try:
         plugin = client.plugins.get(plugin_name)

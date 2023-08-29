@@ -45,8 +45,8 @@ container = 3000
 
 # Declaration of the required image for the provider, here MongoDB.
 name = "database"
-plugin-name = "mongo"
-plugin-version = ">=5, <6"
+module-name = "mongo"
+module-version = ">=5, <6"
 
 [provider.backup]
 method = "mongodump"

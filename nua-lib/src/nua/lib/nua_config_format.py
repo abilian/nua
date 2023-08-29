@@ -80,9 +80,9 @@ class Volume(BaseModel):
 
 class Provider(BaseModel):
     name: str
-    plugin_name: str | None
-    plugin_version: str | None
-    plugin_versions: list[dict] | None
+    module_name: str | None
+    module_version: str | None
+    module_versions: list[dict] | None
     type: str | None
     network: bool | None
     connector: str | list[str] | None

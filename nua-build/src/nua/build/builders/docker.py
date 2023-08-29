@@ -88,7 +88,7 @@ class DockerBuilder(Builder):
 
     def build_docker_image(self):
         self.copy_project_files()
-        self.merge_plugins_in_config()
+        self.merge_modules_in_config()
         with verbosity(1):
             info("Write Nua config file")
         self.config.dump_json(self.build_dir)
