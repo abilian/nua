@@ -41,9 +41,9 @@ class BuilderFactory:
 
         # Not used at this stage
         # container_type = self.detect_container_type()
-        if self.opts.get("provider"):
-            # build_method = self.detect_build_method()
-            return DockerBuilder(self.config, **self.opts)
+        # if self.opts.get("provider"):
+        #     # build_method = self.detect_build_method()
+        #     return DockerBuilder(self.config, **self.opts)
 
         build_method = self.detect_build_method()
 

@@ -1,16 +1,11 @@
 """Docker builder (using dockerfile generated from the nua-config)."""
 from __future__ import annotations
-from packaging.specifiers import SpecifierSet
-from packaging.version import parse
 import logging
-from typing import Any
-from copy import deepcopy
 from contextlib import suppress
 from importlib import resources as rso
 from pathlib import Path
 from shutil import copy2, copytree
 import docker
-from ..plugins_definitions import PluginDefinitions
 from nua.lib.constants import NUA_BUILDER_TAG
 from nua.lib.nua_config import hyphen_get, nua_config_names
 from nua.lib.docker import (
@@ -117,80 +112,6 @@ class DockerBuilder(Builder):
         self._copy_manifest_files()
         self._copy_nua_folder()
         self._copy_default_files()
-
-    def merge_plugins_in_config(self) -> None:
-        """Merge the plugin detailed definition in providers based on plugins.
-
-        Plugins are currently specialized images for DBs (postrgres, mariadb, ...).
-        The key/values of plugin can be superceded by provider statements.
-        """
-        for provider in self.config.providers:
-            plugin_name = provider.get("plugin-name", "")
-            if not plugin_name:
-                continue
-            plugin = PluginDefinitions.plugin(plugin_name)
-            if plugin is None:
-                continue
-            self._select_plugin_version(provider, plugin)
-            self._merge_plugin(provider, plugin)
-
-    def _select_plugin_version(
-        self,
-        provider: dict[str, Any],
-        plugin: dict[str, Any],
-    ) -> None:
-        required_version = provider.get("plugin-version", "")
-        format = plugin["type"]
-        if format == "docker-image":
-            versions = plugin.get("plugin-versions")
-            if "build" not in plugin:
-                plugin["build"] = {}
-            if versions and required_version:
-                plugin["build"]["base-image"] = self._higher_package_link(
-                    versions, required_version
-                )
-            with verbosity(1):
-                info("Required image:", plugin["build"]["base-image"])
-
-    def _merge_plugin(
-        self,
-        provider: dict[str, Any],
-        plugin: dict[str, Any],
-    ) -> None:
-        base = deepcopy(plugin)
-        for key, value in provider.items():
-            if value is None:
-                continue
-            if key in base:
-                base_value = base[key]
-                if isinstance(value, dict) and isinstance(base_value, dict):
-                    base_value.update(value)
-                    continue
-            base[key] = value
-        provider.update(base)
-
-    def _higher_package_link(
-        self,
-        versions: list[dict],
-        required_version: str,
-        arch: str = "amd64",
-    ) -> str:
-        available_packages = [
-            package
-            for package in versions
-            if package.get("version") and package.get("arch") == arch
-        ]
-        specifier = SpecifierSet(required_version)
-        found_package: dict[str, Any] = {}
-        found_version = None
-        for package in available_packages:
-            version = parse(package["version"])
-            if version not in specifier:
-                continue
-            if not found_package or found_version is None or version > found_version:
-                found_package = package
-                found_version = version
-        return found_package.get("link", "")
 
     @docker_build_log_error
     def build_with_docker_stream(self):

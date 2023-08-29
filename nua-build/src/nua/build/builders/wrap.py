@@ -28,6 +28,7 @@ class DockerWrapBuilder(Builder):
         # FIXME:
         # if self.container_type != "docker":
         #     raise NotImplementedError(f"Container type '{self.container_type}'")
+        self.merge_plugins_in_config()
         self.write_wrap_dockerfile()
         self.build_wrap_with_docker_stream()
         rm_fr(self.build_dir)
