@@ -1,8 +1,8 @@
 [metadata]
 id = "dolibarr-mariadb-wrap"
 version = "16.0.4"
-release = 6
-title = "Dolibarr (for mariadb), wrap build based on tuxgazy Docker image"
+release = 7
+title = "Dolibarr (on mariadb), wrap build based on tuxgazy Docker image"
 author = "Dolibarr developers"
 tagline = "Open Source ERP & CRM for business"
 website = "https://www.dolibarr.org/"
@@ -12,7 +12,7 @@ tags = ["test", "php", "web", "Dolibarr"]
 license = "GPLv3"
 # here the wrapped Docker declaration:
 base-image = "tuxgasy/dolibarr:{version}"
-# test auto detection of base-image:
+# base-image statement permit auto-detection of "wrap" method:
 # method = "wrap"
 
 [env]
