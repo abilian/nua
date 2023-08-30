@@ -165,28 +165,29 @@ RELAY_PASSWORD = ""
 # container = 80
 [port.smtp]
 container = 25
-proxy = 25
+host = 25
 ssl = false
+# web = false
 
 # [port.imap]
 # container = 143
 # host = 143
 # proxy = 143
 
-[port.esmtp]
-container = 465
-proxy = 465
-ssl = false
+# [port.esmtp]
+# container = 465
+# host = 465
+# ssl = false
 
 # [port.esmtp]
 # container = 587
 # host = 587
 # proxy = 587
 
-[port.imap]
-container = 993
-proxy = 993
-ssl = false
+# [port.imap]
+# container = 993
+# host = 993
+# ssl = false
 
 [healthcheck]
 command = "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"

@@ -2,7 +2,7 @@
 from nua.lib.tool.state import set_verbosity
 
 from ..nginx.commands import nginx_restart, nginx_stop
-from ..nginx.utils import clean_nua_nginx_default_site
+from ..nginx.render_default import clean_nua_nginx_default_site
 
 
 def main():

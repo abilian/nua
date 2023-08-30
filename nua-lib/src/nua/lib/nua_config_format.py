@@ -52,6 +52,7 @@ class Port(BaseModel):
     host: PositiveInt | dict | None
     proxy: PositiveInt | dict | None
     protocol: str | None
+    web: bool | None
     ssl: bool | None
 
 

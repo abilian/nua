@@ -45,6 +45,7 @@ def normalize_ports(port_list: list[dict]) -> list[dict]:
 
 def _normalize_port(port: dict[str, Any]) -> None:
     try:
+        _normalize_port_item_web(port)
         _normalize_port_item_container(port)
         _normalize_port_item_host(port)
         _normalize_port_item_protocol(port)
@@ -56,12 +57,35 @@ def _normalize_port(port: dict[str, Any]) -> None:
         raise
 
 
+def _normalize_port_item_web(port: dict[str, Any]) -> None:
+    name = port["name"].lower()
+    web = port["web"]
+    # special case if  name of port is web: force web to True, refuse False
+    if name == "web":
+        if web is False:
+            raise NuaConfigError(
+                "port['web'] can not be False for the port named 'web'"
+            )
+        web = True
+    if web is None:
+        # Defaulting to False
+        # The rule is : for any port with name different of "web", it's
+        # mandatory to set the web key to True, or the port is not a
+        # proxyied by nginx (for security resaon)
+        web = False
+    port["web"] = web
+
+
 def _normalize_port_item_container(port: dict[str, Any]) -> None:
     pass
 
 
 def _normalize_port_item_host(port: dict[str, Any]) -> None:
-    pass
+    if port["web"]:
+        # allow either None or integer host port for web traffic
+        return
+    if not port["host"]:
+        raise NuaConfigError("port['host'] is required for non-web traffic")
 
 
 def _normalize_port_item_protocol(port: dict[str, Any]) -> None:
@@ -77,13 +101,25 @@ def _normalize_port_item_protocol(port: dict[str, Any]) -> None:
 
 
 def _normalize_port_item_proxy(port: dict[str, Any]) -> None:
+    """A web port must have a proxy values, except for the "web" named port,
+    which is automatic.
+
+    For a non web port (ie. mail 25), the proxy is not used currently
+    (unless some firewall is configured). But the 'host' port is required.
+    """
     proxy = port["proxy"]
     if isinstance(proxy, dict):
         return
-    if proxy is None:
-        name = port["name"]
-        if name != "web":
-            raise NuaConfigError("Only port.web can have an automatic 'proxy' value")
+    if not port["web"]:
+        # allow proxy defined or not
+        return
+    if not proxy and port["name"].lower() != "web":
+        raise NuaConfigError(
+            (
+                "Only port.web can have an automatic 'proxy' value, other web "
+                "published ports muste provide a proxy number"
+            )
+        )
 
 
 def _normalize_port_item_ssl(port: dict[str, Any]) -> None:

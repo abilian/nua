@@ -58,12 +58,8 @@ from .domain_split import DomainSplit
 from .healthcheck import HealthCheck
 from .local_services import LocalServices
 from .nginx.commands import nginx_reload, nginx_restart
-from .nginx.utils import (
-    chown_r_nua_nginx,
-    clean_nua_nginx_default_site,
-    configure_nginx_hostname,
-    remove_nginx_configuration_hostname,
-)
+from .nginx.render_default import chown_r_nua_nginx, clean_nua_nginx_default_site
+from .nginx.render_site import configure_nginx_host, remove_nginx_host_configuration
 from .provider import Provider
 from .utils import parse_any_format
 from .volume import Volume
@@ -561,7 +557,7 @@ class AppDeployer:
                 continue
             with verbosity(1):
                 info(f"Configure Nginx for domain '{hostname}'")
-            configure_nginx_hostname(host)
+            configure_nginx_host(host)
         # registering https apps with certbot requires that the base nginx config is
         # deployed.
         # register_certbot_domains(self.apps)
@@ -578,7 +574,7 @@ class AppDeployer:
         with verbosity(0):
             info(f"Remove Nginx configuration: '{stop_domain}'")
 
-        remove_nginx_configuration_hostname(stop_domain)
+        remove_nginx_host_configuration(stop_domain)
         nginx_reload()
 
     def remove_all_deployed_nginx_configuration(self):
@@ -591,7 +587,7 @@ class AppDeployer:
         with verbosity(0):
             show("Removing Nginx configuration.")
         for domain in self.deployed_domains:
-            remove_nginx_configuration_hostname(domain)
+            remove_nginx_host_configuration(domain)
         nginx_reload()
 
     def _start_apps(self, new_apps: list[AppInstance], deactivate: bool = False):
@@ -1007,7 +1003,7 @@ class AppDeployer:
         for host in self.apps_per_domain:
             with verbosity(0):
                 info(f"Configure Nginx for domain '{host['hostname']}'")
-            configure_nginx_hostname(host)
+            configure_nginx_host(host)
 
     def reconfigure_nginx_domain(self, domain: str):
         for host in self.apps_per_domain:
@@ -1015,7 +1011,7 @@ class AppDeployer:
                 continue
             with verbosity(0):
                 info(f"Configure Nginx for domain '{host['hostname']}'")
-            configure_nginx_hostname(host)
+            configure_nginx_host(host)
         nginx_reload()
 
     def apps_generate_ports(self):
