@@ -15,7 +15,7 @@ from ..net_utils.external_ip import external_ip
 from ..persistent import Persistent
 from ..provider import Provider
 from ..volume import Volume
-from .db_utils import generate_new_db_id, generate_new_user_id
+from .gen_db_credentials import generate_new_db_id, generate_new_user_id
 
 SITE_ENVIRONMENT = "environment"
 PERSISTENT = "persistent"
