@@ -23,14 +23,15 @@ LOG_LEVEL = "info"
 SUPERVISOR_LOGLEVEL = "warn"
 ONE_DIR = 1
 ACCOUNT_PROVISIONER = ""
+# maybe add all docker networks
 PERMIT_DOCKER = "connected-networks"
 TZ = 'Europe/Paris'
 ENABLE_AMAVIS = 0
 AMAVIS_LOGLEVEL = 0
 ENABLE_DNSBL = 0
-ENABLE_OPENDKIM = 0
-ENABLE_OPENDMARC = 0
-ENABLE_POLICYD_SPF = 0
+ENABLE_OPENDKIM = 1
+ENABLE_OPENDMARC = 1
+ENABLE_POLICYD_SPF = 1
 ENABLE_POP3 = ""
 ENABLE_CLAMAV = 0
 ENABLE_FAIL2BAN = 0
@@ -214,8 +215,11 @@ name = "config"
 target = "/tmp/docker-mailserver"
 
 [[volume]]
-name = "config"
-target = "/tmp/docker-mailserver"
+type = "bind"
+target = "/etc/letsencrypt"
+# thus, this give access to theis container to ALL domains private keys.
+name = "/home/nua/letsencrypt"
+options = { read_only = true}
 
 [backup]
 method = "tgz_volumes"
