@@ -117,7 +117,7 @@ interval = 10
 
 ### List of `volume` directive
 
-It is possible to declare storage spaces of different types. By default, the "volume" type is a space managed locally by the Docker server. Other volume types are available (`bind` for manually managed local providers, `tmpfs`, or any remote provider type which has a driver for Docker. The value of the `prefix` tag will be appended with the instance name (name of the domain served) to give the instance a unique volume name.
+It is possible to declare storage spaces of different types. By default, the "volume" type is a space managed locally by the Docker server. Other volume types are available (`bind` for manually managed local providers, `tmpfs`, or any remote provider type which has a driver for Docker. The value of the `name` tag will be prefixed by the label name of the instance to give the instance a unique volume name.
 
 ```toml
 [[volume]]
