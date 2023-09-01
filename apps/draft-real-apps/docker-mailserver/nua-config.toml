@@ -1,7 +1,7 @@
 [metadata]
 id = "docker-mailserver"
 version = "12.1.0"
-release = 2
+release = 3
 title = "A fullstack but simple mail server."
 author = "The Docker Mailserver Organization & Contributors"
 tagline = "A fullstack but simple mail server."
@@ -19,6 +19,7 @@ base-image = "mailserver/docker-mailserver:{version}"
 ###############################################################
 # General
 OVERRIDE_HOSTNAME = "mail.example.com"
+POSTMASTER_ADDRESS = "postmaster@example.com"
 LOG_LEVEL = "info"
 SUPERVISOR_LOGLEVEL = "warn"
 ONE_DIR = 1
@@ -49,7 +50,6 @@ ENABLE_QUOTAS = 0
 POSTFIX_MESSAGE_SIZE_LIMIT = 10240000
 CLAMAV_MESSAGE_SIZE_LIMIT = "25M"
 ENABLE_MANAGESIEVE = ""
-POSTMASTER_ADDRESS = "postmaster@example.com"
 ENABLE_UPDATE_CHECK = 1
 UPDATE_CHECK_INTERVAL = "1d"
 POSTSCREEN_ACTION = "enforce"
@@ -164,11 +164,11 @@ RELAY_PASSWORD = ""
 
 # [port.web]
 # container = 80
+
 [port.smtp]
 container = 25
 host = 25
 ssl = false
-# web = false
 
 # [port.imap]
 # container = 143
@@ -215,11 +215,11 @@ name = "config"
 target = "/tmp/docker-mailserver"
 
 [[volume]]
-type = "bind"
+type = "directory"
 target = "/etc/letsencrypt"
 # thus, this give access to theis container to ALL domains private keys.
 name = "/home/nua/letsencrypt"
-options = { read_only = true}
+options = { read_only = true }
 
 [backup]
 method = "tgz_volumes"

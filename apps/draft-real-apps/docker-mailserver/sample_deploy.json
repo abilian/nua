@@ -1,11 +1,12 @@
 {
     "site": [
         {
-            "label": "mailserver",
+            "label": "dms",
             "image": "docker-mailserver",
-            "domain": "test1.example.com",
+            "domain": "mail.example.com",
             "env": {
-                "OVERRIDE_HOSTNAME": "test1.example.com"
+                "OVERRIDE_HOSTNAME": "mail.example.com",
+                "POSTMASTER_ADDRESS": "postmaster@example.com"
             }
         }
     ]
