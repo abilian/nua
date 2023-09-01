@@ -2,10 +2,12 @@
 from collections.abc import Callable
 from pathlib import Path
 from pprint import pformat
+from time import sleep
 from typing import Any
 
 import docker
 import docker.types
+from docker.models.containers import Container
 from nua.lib.archive_search import ArchiveSearch
 from nua.lib.docker import display_one_docker_img, docker_require
 from nua.lib.panic import Abort, important, info, vprint, warning
@@ -14,6 +16,7 @@ from nua.lib.tool.state import verbosity
 from .app_instance import AppInstance
 from .db import store
 from .docker_utils import (  # docker_volume_prune,
+    docker_container_status_raw,
     docker_host_gateway_ip,
     docker_network_create_bridge,
     docker_network_prune,
@@ -132,7 +135,7 @@ def new_docker_mount(volume_params: dict) -> docker.types.Mount:
     else:
         driver_config = None
     volume_type = docker_volume_type(volume)
-    read_only = bool(volume.options.get("read_only", False))
+    read_only = bool(volume.options.get("read-only", False))
     if volume.type == "tmpfs":
         tmpfs_size = size_to_bytes(volume.options.get("tmpfs_size")) or None
         tmpfs_mode = volume.options.get("tmpfs_mode") or None
@@ -183,6 +186,24 @@ def start_one_container(rsite: Provider, mounted_volumes: list):
         info(f"            container id: {rsite.container_id_short}")
         if rsite.network_name:
             info(f"    connected to network: {rsite.network_name}")
+    if rsite.post_run:
+        exec_post_run(rsite, new_container)
+
+
+def exec_post_run(rsite: Provider, container: Container):
+    print("Here exec_post_run", rsite.post_run)
+    while True:
+        status, since = docker_container_status_raw(container)
+        if status == "exited":
+            print("exited...")
+            return
+        if status == "running":
+            print("ok")
+            return
+        if since > 60:
+            print("too long...")
+            return
+        sleep(0.2)
 
 
 def stop_one_app_containers(app: AppInstance):

@@ -213,6 +213,10 @@ class Provider(dict):
         self["docker"] = docker
 
     @property
+    def post_run(self) -> list[str]:
+        return force_list(self.run.get("post-run") or "")
+
+    @property
     def run_params(self) -> dict:
         return self.get("run_params", {})
 

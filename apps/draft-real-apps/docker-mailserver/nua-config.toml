@@ -162,6 +162,9 @@ RELAY_USER = ""
 RELAY_PASSWORD = ""
 
 
+[run]
+post-run = "ls"
+
 # [port.web]
 # container = 80
 
@@ -219,7 +222,7 @@ type = "directory"
 target = "/etc/letsencrypt"
 # thus, this give access to theis container to ALL domains private keys.
 name = "/home/nua/letsencrypt"
-options = { read_only = true }
+options = { read-only = true }
 
 [backup]
 method = "tgz_volumes"

@@ -160,6 +160,10 @@ def docker_container_status_record(container_id: str) -> dict[str, Any]:
     }
 
 
+def docker_container_status_raw(container: Container) -> tuple[str, int]:
+    return container.status, docker_container_since(container)
+
+
 def docker_container_since(container: Container) -> int:
     created = datetime.fromisoformat(container.attrs["Created"][:19])
     now = datetime.now(timezone.utc).replace(tzinfo=None)
