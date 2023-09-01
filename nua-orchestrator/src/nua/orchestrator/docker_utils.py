@@ -166,16 +166,16 @@ def docker_container_since(container: Container) -> int:
     return int((now - created).total_seconds())
 
 
-def docker_start_container_name(name: str):
+def docker_start_container_name(name: str) -> bool:
     if not name:
-        return
+        return False
     container = docker_container_of_name(name)
     if container is None:
         warning(f"docker_start_container_name(): no container of name '{name}'")
-        return
+        return False
     with verbosity(3):
         vprint("docker_start_container_name():", container)
-    _docker_start_container(container)
+    return _docker_start_container(container)
 
 
 def docker_restart_container_name(name: str):
@@ -265,11 +265,13 @@ def _docker_unpause_container(container: Container):
         warning(f"Unpausing container error: {e}")
 
 
-def _docker_start_container(container: Container):
+def _docker_start_container(container: Container) -> bool:
     try:
         container.start()
+        return True
     except APIError as e:
         warning(f"Starting container error: {e}")
+        return False
 
 
 def _docker_restart_container(container: Container):
