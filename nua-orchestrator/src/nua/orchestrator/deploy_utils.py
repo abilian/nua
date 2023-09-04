@@ -1,8 +1,8 @@
 """Class to manage the deployment of a group of AppInstance."""
 from collections.abc import Callable
+from copy import deepcopy
 from pathlib import Path
 from pprint import pformat
-from time import sleep
 from typing import Any
 
 import docker
@@ -10,13 +10,13 @@ import docker.types
 from docker.models.containers import Container
 from nua.lib.archive_search import ArchiveSearch
 from nua.lib.docker import display_one_docker_img, docker_require
-from nua.lib.panic import Abort, important, info, vprint, warning
+from nua.lib.panic import Abort, important, info, show, vprint, warning
 from nua.lib.tool.state import verbosity
 
 from .app_instance import AppInstance
 from .db import store
 from .docker_utils import (  # docker_volume_prune,
-    docker_container_status_raw,
+    docker_exec_commands,
     docker_host_gateway_ip,
     docker_network_create_bridge,
     docker_network_prune,
@@ -32,6 +32,7 @@ from .docker_utils import (  # docker_volume_prune,
     docker_unpause_container_name,
     docker_volume_create_or_use,
     docker_volume_type,
+    docker_wait_for_status,
 )
 from .internal_secrets import secrets_dict
 from .net_utils.ports import check_port_available
@@ -186,24 +187,45 @@ def start_one_container(rsite: Provider, mounted_volumes: list):
         info(f"            container id: {rsite.container_id_short}")
         if rsite.network_name:
             info(f"    connected to network: {rsite.network_name}")
-    if rsite.post_run:
-        exec_post_run(rsite, new_container)
+    exec_post_run(rsite, new_container)
 
 
-def exec_post_run(rsite: Provider, container: Container):
-    print("Here exec_post_run", rsite.post_run)
-    while True:
-        status, since = docker_container_status_raw(container)
-        if status == "exited":
-            print("exited...")
-            return
-        if status == "running":
-            print("ok")
-            return
-        if since > 60:
-            print("too long...")
-            return
-        sleep(0.2)
+def exec_post_run(
+    rsite: Provider,
+    container: Container,
+    expected: str = "running",
+    timeout: int = 60,
+) -> None:
+    if not rsite.post_run:
+        return
+    expected = rsite.post_run_status or "running"
+    status_ok = docker_wait_for_status(container, expected, timeout)
+    if not status_ok:
+        raise RuntimeError("Unable to exec post-run command")
+    with verbosity(1):
+        show("Executing the post-run commands")
+    commands = post_run_expanded(rsite)
+    docker_exec_commands(container, commands)
+
+
+def post_run_expanded(rsite: Provider) -> list[str]:
+    data = run_time_exec_data(rsite)
+    return [line.format(**data) for line in rsite.post_run]
+
+
+def run_time_exec_data(rsite: Provider) -> dict[str, Any]:
+    orig = deepcopy(rsite.nua_config["metadata"])
+    orig["label"] = rsite.label_id
+    orig["domain"] = rsite.domain
+    orig["hostname"] = rsite.hostname
+    data = {}
+    for key, val in deepcopy(orig).items():
+        if isinstance(val, str):
+            data[key] = val.format(**orig)
+        else:
+            data[key] = val
+    data.update(rsite.env)
+    return data
 
 
 def stop_one_app_containers(app: AppInstance):
@@ -376,6 +398,9 @@ def pull_provider_container(provider: Provider) -> bool:
 
     Currrently: only managing Docker bridge network.
     """
+    # print("======================================")
+    # print(pformat(provider))
+    # print("======================================")
     docker_url = provider.base_image()
     if docker_url:
         provider.image = docker_url

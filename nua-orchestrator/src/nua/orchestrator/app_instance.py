@@ -303,7 +303,7 @@ class AppInstance(Provider):
         """Build the providers list or Provider from nua_config.
 
         The providers will be later updated from site config providers statements.
-        Note: there is stille a "provider" key for instance changes
+        Note: there is still a "provider" key for instance changes.
         """
         providers_list = self.image_nua_config.get("provider") or []
         providers = [self._parse_provider(config) for config in providers_list]

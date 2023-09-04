@@ -1,7 +1,7 @@
 [metadata]
 id = "docker-mailserver"
 version = "12.1.0"
-release = 3
+release = 6
 title = "A fullstack but simple mail server."
 author = "The Docker Mailserver Organization & Contributors"
 tagline = "A fullstack but simple mail server."
@@ -20,6 +20,7 @@ base-image = "mailserver/docker-mailserver:{version}"
 # General
 OVERRIDE_HOSTNAME = "mail.example.com"
 POSTMASTER_ADDRESS = "postmaster@example.com"
+POSTMASTER_PASSWD = ""
 LOG_LEVEL = "info"
 SUPERVISOR_LOGLEVEL = "warn"
 ONE_DIR = 1
@@ -163,7 +164,11 @@ RELAY_PASSWORD = ""
 
 
 [run]
-post-run = "ls"
+post-run = ["setup email add {POSTMASTER_ADDRESS} {POSTMASTER_PASSWD}",
+            "setup config dkim",
+            "postfix restart",
+            "cat /tmp/docker-mailserver/opendkim/keys/avallaka.net/mail.txt"]
+post-run-status = "created"
 
 # [port.web]
 # container = 80

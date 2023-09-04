@@ -44,6 +44,8 @@ class Run(BaseModel):
     before_run: str | list[str] | None
     start: str | list[str] | None
     post_run: str | list[str] | None
+    post_run_status: str | None
+
     # Should the '[env]' section be here or at the root ?
     # env: dict[str, Any] | None
 

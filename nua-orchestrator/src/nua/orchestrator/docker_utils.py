@@ -499,7 +499,7 @@ def docker_exec_stdout(container: Container, params: dict, output: io.BufferedIO
     user='', detach=False, stream=False, socket=False, environment=None,
     workdir=None, demux=False
 
-    Returns:
+    Returns: None
     """
     cmd = params["cmd"]
     user = params.get("user", "")
@@ -516,6 +516,30 @@ def docker_exec_stdout(container: Container, params: dict, output: io.BufferedIO
     for data in stream:
         print(data)
         output.write(data[0])
+
+
+def docker_exec_no_output(container: Container, command: str):
+    """Wrapper on top of the py-docker exec_run() command, not
+    capturing the output.
+
+    Defaults are:
+    cmd, stdout=True, stderr=True, stdin=False, tty=False, privileged=False,
+    user='', detach=False, stream=False, socket=False, environment=None,
+    workdir=None, demux=False
+
+    Returns: None
+    """
+    _, stream = container.exec_run(
+        cmd=command,
+        user="root",
+        workdir="/",
+        stream=True,
+        stdout=True,
+        stderr=False,
+        demux=True,
+    )
+    for data in stream:
+        print(data[0].decode())
 
 
 def docker_exec_stdin(container: Container, cmd: str, input_file: Path) -> str:
@@ -573,6 +597,12 @@ def docker_exec_checked(container: Container, params: dict, output: io.BufferedI
                 raise RuntimeError(data.decode("utf8"))
             test_passed = True
         output.write(data)
+
+
+def docker_exec_commands(container: Container, commands: list[str]):
+    for command in commands:
+        print("Command:", command)
+        docker_exec_no_output(container, command)
 
 
 # def docker_exec(container: Container, params: dict):
@@ -779,6 +809,24 @@ def docker_network_by_name(network_name: str):
         if net.name == network_name:
             return net
     return None
+
+
+def docker_wait_for_status(
+    container: Container,
+    expected: str = "running",
+    timeout: int = 60,
+) -> bool:
+    while True:
+        status, since = docker_container_status_raw(container)
+        if status == expected:
+            return True
+        if status == "exited":
+            print("Container did exit")
+            return False
+        if since > timeout:
+            print(f"Timeout while waiting for container '{expected}' status")
+            return False
+        sleep(0.2)
 
 
 def install_plugin(plugin_name: str) -> str:

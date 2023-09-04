@@ -131,12 +131,19 @@ class Provider(dict):
         return self.domain.split(".", 1)[-1]
 
     @property
-    def build(self) -> dict[str, Any]:
-        return self.get("build") or {}
+    def nua_config(self) -> dict[str, Any]:
+        """Return the image original nua-config dict."""
+        return self.get("image_nua_config") or {}
 
     @property
-    def run(self) -> dict[str, Any]:
-        return self.get("run") or {}
+    def config_build(self) -> dict[str, Any]:
+        """Return the image original nua-config 'build' section"""
+        return self.nua_config.get("build") or {}
+
+    @property
+    def config_run(self) -> dict[str, Any]:
+        """Return the image original nua-config 'run' section"""
+        return self.nua_config.get("run") or {}
 
     @property
     def env(self) -> dict:
@@ -149,7 +156,10 @@ class Provider(dict):
     def base_image(self):
         image = ""
         if self.type == "docker-image":
-            image = self.build.get("base-image") or ""
+            build = self.get("build") or {}
+            image = build.get("base-image") or ""
+            if not image:
+                image = self.config_build.get("base-image") or ""
         return image
 
     @property
@@ -214,7 +224,13 @@ class Provider(dict):
 
     @property
     def post_run(self) -> list[str]:
-        return force_list(self.run.get("post-run") or "")
+        """Return the image original nua-config 'run/post-run' value"""
+        return force_list(self.config_run.get("post-run") or "")
+
+    @property
+    def post_run_status(self) -> str:
+        """Return the image original nua-config 'run/post-run-status' value"""
+        return self.config_run.get("post-run-status") or ""
 
     @property
     def run_params(self) -> dict:
