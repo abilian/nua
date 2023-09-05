@@ -4,9 +4,9 @@ from pathlib import Path
 from ..shell import sh
 from .apt import (
     apt_remove_lists,
+    install_build_packages,
     install_package_list,
     purge_package_list,
-    install_build_packages,
 )
 from .util import append_bashrc
 
@@ -47,7 +47,7 @@ def install_nodejs(version: str = "16", keep_lists: bool = False):
     fetch_cmd = (
         "/usr/bin/curl -fsSL "
         "https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | "
-        "/usr/bin/gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg",
+        "/usr/bin/gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg"
     )
     install_cmd = (
         'echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] '
