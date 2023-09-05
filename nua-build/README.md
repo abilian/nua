@@ -53,7 +53,7 @@ Standard Nua images contain three layers:
 
 All standard Nua packages have a Python environment.
 
-Some other base images are available to facilitate builds in other programming environments: `nua-builder-nodejs14`, `nua-builder-nodejs16`.
+Some other base images are available to facilitate builds in other programming environments: `nua-builder-nodejs16`, `nua-builder-nodejs18`, `nua-builder-nodejs20`.
 
 ## Dependencies on other Nua Python packages
 

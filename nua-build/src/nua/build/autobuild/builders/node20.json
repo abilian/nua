@@ -1,0 +1,21 @@
+{
+    "app_id": "nua-builder-nodejs20",
+    "name": [
+        "node20",
+        "node-20",
+        "node_20",
+        "nodejs20",
+        "nodejs-20",
+        "nodejs_20"
+    ],
+    "language_name": [
+        "nodejs",
+        "node"
+    ],
+    "language_version": "20",
+    "container": "docker",
+    "dockerfile": "Dockerfile_nua_builder_node20",
+    "labels": {
+        "node_version": "20"
+    }
+}

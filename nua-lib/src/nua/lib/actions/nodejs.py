@@ -2,8 +2,14 @@ import os
 from pathlib import Path
 
 from ..shell import sh
-from .apt import apt_remove_lists, install_package_list, purge_package_list
-from .util import append_bashrc, download_url
+from .apt import (
+    apt_remove_lists,
+    install_package_list,
+    purge_package_list,
+    install_build_packages,
+)
+from .util import append_bashrc
+from ..panic import warning
 
 
 def npm_install(package: str, force: bool = False) -> None:
@@ -13,22 +19,60 @@ def npm_install(package: str, force: bool = False) -> None:
     sh(cmd)
 
 
-def install_nodejs(version: str = "16.x", keep_lists: bool = False):
-    """Install nodejs."""
+# deprecated since sept 2023
+# def install_nodejs_old(version: str = "16.x", keep_lists: bool = False):
+#     """Install nodejs."""
+#     purge_package_list("yarn npm nodejs")
+#     url = f"https://deb.nodesource.com/setup_{version}"
+#     target = Path("/nua") / "install_node.sh"
+#     download_url(url, target)
+#     for cmd in (
+#         "bash /nua/install_node.sh",
+#         "apt-get install -y nodejs",
+#         "/usr/bin/npm update -g npm",
+#         "/usr/bin/npm install -g --force yarn",
+#         "/usr/bin/npm install -g --force node-gyp",
+#     ):
+#         sh(cmd)
+#     if not keep_lists:
+#         apt_remove_lists()
+
+
+def install_nodejs(version: str = "16", keep_lists: bool = False):
+    """Install nodejs.
+
+    from: https://nodesource.com/
+    """
+    _check_supported_nodejs_version(version)
     purge_package_list("yarn npm nodejs")
-    url = f"https://deb.nodesource.com/setup_{version}"
-    target = Path("/nua") / "install_node.sh"
-    download_url(url, target)
-    for cmd in (
-        "bash /nua/install_node.sh",
-        "apt-get install -y nodejs",
-        "/usr/bin/npm update -g npm",
-        "/usr/bin/npm install -g --force yarn",
-        "/usr/bin/npm install -g --force node-gyp",
-    ):
-        sh(cmd)
+    fetch_cmd = (
+        "/usr/bin/curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | "
+        "/usr/bin/gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg",
+    )
+    install_cmd = (
+        'echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] '
+        f'https://deb.nodesource.com/node_{version}.x nodistro main" | '
+        "/usr/bin/tee /etc/apt/sources.list.d/nodesource.list"
+    )
+    with install_build_packages("curl gnupg", keep_lists=True):
+        for cmd in (
+            "mkdir -p /etc/apt/keyrings",
+            fetch_cmd,
+            install_cmd,
+            "apt-get update",
+            "apt-get install nodejs -y",
+            "/usr/bin/npm install -g --force yarn",
+            "/usr/bin/npm install -g --force node-gyp",
+        ):
+            sh(cmd)
     if not keep_lists:
         apt_remove_lists()
+
+
+def _check_supported_nodejs_version(version: str) -> None:
+    SUPPORTED = {"16", "18", "20"}
+    if version not in SUPPORTED:
+        raise RuntimeError(f"Unsupported NodeJs version {version}")
 
 
 def install_nodejs_via_nvm(home: Path | str = "/nua"):

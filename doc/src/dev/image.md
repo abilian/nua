@@ -34,7 +34,7 @@ Here is the image hierarchy on which the Nua image of a web application is based
 ### Additional Nua images
 
 An additional image may be available to facilitate the build of an application using a particular environment.
-Today Nua provides images containing the NodeJs environments version 14 and 16 (**nua-builder-nodejs14** and **nua-builder-nodejs16**).
+Today Nua provides images containing the NodeJs environments version 14, 16 and 20 (**nua-builder-nodejs16**, **nua-builder-nodejs18**, **nua-builder-nodejs20**).
 
 ### Availability of Nua base images
 

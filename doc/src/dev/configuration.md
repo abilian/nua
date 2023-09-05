@@ -43,7 +43,7 @@ The `build` section specifies the environment and, if applicable, the specific a
 
 ```toml
 [build]
-builder = "node-14"
+builder = "node-16"
 run-packages = [
     "fontconfig",
     "fonts-noto"
@@ -60,7 +60,7 @@ build-packages = [
 test = "test -f /nua/build/hedgedoc/healthcheck.mjs"
 ```
 
-The declarations in the _build_ section rely as much as possible on declarative mode, auto-detection and default files. Here we are dealing with a Node application, which is normally auto-detected by the presence of a `package.json` file. However, as the current version of HedgeDoc requires a specific version of Node, this configuration item must be specified by the `builder = "node-14"` directive.
+The declarations in the _build_ section rely as much as possible on declarative mode, auto-detection and default files. Here we are dealing with a Node application, which is normally auto-detected by the presence of a `package.json` file. However, as the current version of HedgeDoc requires a specific version of Node, this configuration item must be specified by the `builder = "node-16"` directive.
 
 Build-packages are packages which are needed for the 'build' phase of the application, but which can be removed afterwards, in order to get a reasonably sized image.
 

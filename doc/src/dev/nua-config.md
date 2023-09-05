@@ -214,10 +214,10 @@ Notes:
 
 - **Optional**
 - String or dict of string (alternate syntax).
-- Reference of a specific Nua image dedicated to a development environment. Currently available values are `node` version 14 or 16, `ruby` versions 2.7, 2.7.2, 3.1, 3.2.
+- Reference of a specific Nua image dedicated to a development environment. Currently available values are `node` version 16, 18 and 20, `ruby` versions 2.7, 2.7.2, 3.1, 3.2.
 - If not specified, default builder provides `Python` 3.10. Development environment can also be installed in the build command or as packages.
 - Note: syntax may change in future versions.
-- Example `builder = "node-14"`
+- Example `builder = "node-16"`
 - Example of alternate syntax `builder =  {name = "ruby", version = "3.2" }`
 
 #### `builders`

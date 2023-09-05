@@ -14,7 +14,7 @@ license = "AGPL-3.0 license"
 src-url = "https://github.com/hedgedoc/hedgedoc/releases/download/{version}/hedgedoc-{version}.tar.gz"
 src-checksum = 'c9bd99c65cf45fa1d7808855b46abbfa13b24400254d8da5e81dae2965494bb3'
 # use a specific docker image containing nodejs:
-builder = "node-14"
+builder = "node-16"
 
 packages = [
     "build-essential",

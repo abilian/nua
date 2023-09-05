@@ -12,7 +12,7 @@ website = "https://etherpad.org"
 license = "Apache-2.0"
 src-url = "https://github.com/ether/etherpad-lite/archive/{version}.tar.gz"
 src-checksum = "67ccc0bac94e146b26fbddcf8330e0f543a4ff82213c420a376644614a7ff2c4"
-builder = "node-14"
+builder = "node-16"
 build = "true"  # aka do nothing
 
 [run]
