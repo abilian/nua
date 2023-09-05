@@ -9,7 +9,6 @@ from .apt import (
     install_build_packages,
 )
 from .util import append_bashrc
-from ..panic import warning
 
 
 def npm_install(package: str, force: bool = False) -> None:
@@ -46,7 +45,8 @@ def install_nodejs(version: str = "16", keep_lists: bool = False):
     _check_supported_nodejs_version(version)
     purge_package_list("yarn npm nodejs")
     fetch_cmd = (
-        "/usr/bin/curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | "
+        "/usr/bin/curl -fsSL "
+        "https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | "
         "/usr/bin/gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg",
     )
     install_cmd = (
