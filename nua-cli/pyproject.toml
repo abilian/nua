@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-cli"
-version = "0.5.39"
+version = "0.5.40"
 description = "Command line interface for the Nua self-hosted PaaS (Platform as a Service)"
 authors = ["Stefane Fermigier <sf@abilian.com>"]
 
