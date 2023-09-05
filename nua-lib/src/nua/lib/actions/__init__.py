@@ -22,6 +22,7 @@ from .util import (
     camel_format,
     copy_from_package,
     download_extract,
+    download_url,
     kebab_format,
     replace_in,
     snake_format,

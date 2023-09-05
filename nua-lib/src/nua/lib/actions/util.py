@@ -8,6 +8,7 @@ from hashlib import sha256
 from importlib import resources as rso
 from pathlib import Path
 from typing import Any
+from urllib.error import HTTPError
 from urllib.parse import urlparse
 from urllib.request import urlopen
 
@@ -51,8 +52,7 @@ def download_extract(
         # info("Download URL:", url)
     with tempfile.TemporaryDirectory() as tmp:
         target = Path(tmp) / name
-        with urlopen(url) as remote:  # noqa S310
-            target.write_bytes(remote.read())
+        download_url(url, target)
         verify_checksum(target, checksum)
         dest_path = Path(dest) / dest_name
         unarchive(target, str(dest_path))
@@ -61,6 +61,15 @@ def download_extract(
         with verbosity(3):
             sh(f"ls -l {dest_path}")
         return dest_path
+
+
+def download_url(url: str, target: Path) -> None:
+    try:
+        with urlopen(url) as remote:  # noqa S310
+            target.write_bytes(remote.read())
+    except (HTTPError, OSError):
+        warning(f"download_url() failed for {url}")
+        raise
 
 
 def verify_checksum(target: Path, checksum: str) -> None:

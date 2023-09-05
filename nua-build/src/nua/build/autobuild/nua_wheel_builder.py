@@ -5,10 +5,10 @@ import zipfile
 from contextlib import contextmanager, suppress
 from pathlib import Path
 from shutil import copy2
-from urllib.request import urlopen
 
 import tomli
 import tomli_w
+from nua.lib.actions import download_url
 from nua.lib.backports import chdir
 from nua.lib.panic import Abort, vprint, warning
 from nua.lib.shell import rm_fr, sh
@@ -88,8 +88,7 @@ class NuaWheelBuilder:
             target = self.build_path / "nua.zip"
             with verbosity(3):
                 vprint(f"Dowloading '{CODE_URL}'")
-            with urlopen(CODE_URL) as remote:  # noqa S310
-                target.write_bytes(remote.read())
+            download_url(CODE_URL, target)
             with zipfile.ZipFile(target, "r") as zfile:
                 zfile.extractall(self.build_path)
             self.nua_local_git = self.build_path / "nua-main"

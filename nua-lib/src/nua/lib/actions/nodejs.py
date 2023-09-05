@@ -1,10 +1,9 @@
 import os
 from pathlib import Path
-from urllib.request import urlopen
 
 from ..shell import sh
 from .apt import apt_remove_lists, install_package_list, purge_package_list
-from .util import append_bashrc
+from .util import append_bashrc, download_url
 
 
 def npm_install(package: str, force: bool = False) -> None:
@@ -19,9 +18,7 @@ def install_nodejs(version: str = "16.x", keep_lists: bool = False):
     purge_package_list("yarn npm nodejs")
     url = f"https://deb.nodesource.com/setup_{version}"
     target = Path("/nua") / "install_node.sh"
-    with urlopen(url) as remote:  # noqa S310
-        target.write_bytes(remote.read())
-
+    download_url(url, target)
     for cmd in (
         "bash /nua/install_node.sh",
         "apt-get install -y nodejs",
@@ -30,7 +27,6 @@ def install_nodejs(version: str = "16.x", keep_lists: bool = False):
         "/usr/bin/npm install -g --force node-gyp",
     ):
         sh(cmd)
-
     if not keep_lists:
         apt_remove_lists()
 
