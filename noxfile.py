@@ -2,7 +2,7 @@ import sys
 
 import nox
 
-PYTHON_VERSIONS = ["3.10"]  # + "3.11", "3.12"...
+PYTHON_VERSIONS = ["3.10", "3.11"]  # , "3.12"]
 
 nox.options.reuse_existing_virtualenvs = True
 # nox.options.default_venv_backend = "venv"
