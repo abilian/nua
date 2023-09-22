@@ -62,7 +62,9 @@ commit_parsers = [
   { message = "^ci", group = "Continuous Integration" },
   { message = "^revert", group = "Revert" },
 
-  { message = "^chore", skip = true },
+  { message = "^chore:", skip = true },
+  { message = "^feat\\(chore\\)", skip = true },
+  { message = ".*[bB]ump version", skip = true },
 
 #  { message = "^chore\\(release\\): prepare for", skip = true },
 #  { message = "^chore\\(deps\\)", skip = true },
