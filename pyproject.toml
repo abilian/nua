@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-monorepo"
-version = "0.5.40"
+version = "0.5.41"
 description = ""
 authors = [
     "Stefane Fermigier <sf@abilian.com>",
@@ -11,6 +11,18 @@ license = "AGPL"
 packages = [
   { include = "nua_monorepo", from = "src" }
 ]
+
+
+[project.urls]
+homepage = "https://nua.rocks/"
+repository = "https://github.com/abilian/nua"
+documentation = "https://nua.rocks/"
+"Issue Tracker" = "https://github.com/abilian/nua/issues"
+Changelog = "https://github.com/abilian/nua/releases/"
+Twitter = "https://twitter.com/NuaCloud"
+#Reddit = "https://www.reddit.com/r/TODO"
+#Discord = "https://discord.gg/TODO"
+#Blog = "https://blog.nua.rocks/"
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.12"
