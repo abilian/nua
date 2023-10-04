@@ -2,11 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-## [unreleased]
+## [0.5.41] - 2023-10-04
 
 ### Documentation
 
 - Add changelog via git-cliff
+- Tweak changelog via git-cliff config.
 
 ## [0.5.40] - 2023-09-19
 
