@@ -27,8 +27,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.10"
-
-nua-lib = { path = "../nua-lib/", develop = true }
+nua-lib = "=0.5.42"
 
 [tool.poetry.group.dev.dependencies]
 urllib3 = "<2.0"

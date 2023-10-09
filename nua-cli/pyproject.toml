@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "nua-cli"
+name = "nua"
 version = "0.5.42"
 description = "Command line interface for the Nua self-hosted PaaS (Platform as a Service)"
 authors = ["Stefane Fermigier <sf@abilian.com>"]
@@ -29,21 +29,11 @@ nua = "nua_cli.main:main"
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.12"
-
 tomli = "^2.0.1"
-
-# Used only for its SSH support
 fabric = "~3.0"
-# Temp: due to a mismatch between invoke and fabric
 decorator = "^5.1.1"
-#invoke = "~2.0"
-
-# Temp: use snoop in prod code
 snoop = "*"
-
-# CLI
 cleez = "^0.1.9"
-
 
 [tool.poetry.group.dev.dependencies]
 urllib3 = "<2.0"
