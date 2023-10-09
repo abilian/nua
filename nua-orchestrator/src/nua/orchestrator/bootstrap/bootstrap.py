@@ -28,7 +28,6 @@ from nua.lib.exec import exec_as_nua, mp_exec_as_nua, set_nua_user
 from nua.lib.panic import Abort, info
 from nua.lib.shell import chown_r, mkdir_p, rm_fr, sh, user_exists
 
-from .. import nua_env
 from ..certbot.installer import install_certbot
 from ..db_utils.mariadb_utils import bootstrap_install_mariadb, set_random_mariadb_pwd
 from ..db_utils.postgres_utils import (
@@ -36,6 +35,7 @@ from ..db_utils.postgres_utils import (
     set_random_postgres_pwd,
 )
 from ..nginx.installer import install_nginx
+from ..nua_env import nua_env
 
 NUA = "nua"
 HOST_PACKAGES = [

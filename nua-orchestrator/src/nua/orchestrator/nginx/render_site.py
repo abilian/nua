@@ -8,8 +8,8 @@ from nua.lib.actions import jinja2_render_from_str_template
 from nua.lib.panic import bold_debug, debug, info, warning
 from nua.lib.tool.state import verbosity
 
-from .. import nua_env
 from ..certbot.certbot import use_https
+from ..nua_env import nua_env
 from .render_default import template_content
 
 # TODO: located templates do not support the "ssl=False" flag

@@ -5,7 +5,7 @@ from importlib import resources as rso
 from nua.lib.actions import jinja2_render_from_str_template
 from nua.lib.shell import chown_r, mkdir_p, rm_fr
 
-from .. import nua_env
+from ..nua_env import nua_env
 
 CONF_TEMPLATE = "nua.orchestrator.nginx.templates"
 

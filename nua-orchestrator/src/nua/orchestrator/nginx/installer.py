@@ -8,7 +8,7 @@ from nua.lib.console import print_magenta
 from nua.lib.panic import warning
 from nua.lib.shell import chown_r, mkdir_p
 
-from .. import nua_env
+from ..nua_env import nua_env
 from .commands import nginx_restart
 from .render_default import (
     chown_r_nua_nginx,
