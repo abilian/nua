@@ -4,7 +4,7 @@ The structure of a Nua image is intimately linked to the image build process.
 
 ## The concept of image
 
-A Nua image is a read-only package that contains the code needed to run an application. In practice, an image may require secondary images (called resources in Nua terminology), to perform functions delegated to other applications, for example databases.
+A Nua image is a read-only package that contains the code needed to run an application. In practice, an image may require secondary images (called providers in Nua terminology), to perform functions delegated to other applications, for example databases.
 
 The image concept allows fast and reproducible execution of an application with relative independence from the underlying host.
 
@@ -34,7 +34,7 @@ Here is the image hierarchy on which the Nua image of a web application is based
 ### Additional Nua images
 
 An additional image may be available to facilitate the build of an application using a particular environment.
-Today Nua provides images containing the NodeJs environments version 14 and 16 (**nua-builder-nodejs14** and **nua-builder-nodejs16**).
+Today Nua provides images containing the NodeJs environments version 14, 16 and 20 (**nua-builder-nodejs16**, **nua-builder-nodejs18**, **nua-builder-nodejs20**).
 
 ### Availability of Nua base images
 

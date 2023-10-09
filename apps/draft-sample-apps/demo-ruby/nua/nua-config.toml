@@ -1,0 +1,35 @@
+[metadata]
+id = "webauthn-rails-demo"
+version = "1.0"
+release = 1
+title = "webauthn-rails-demo"
+author = "webauthn-rails-demo authors"
+tagline = "Application demonstrating a WebAuthn password-less login built with Ruby on Rails"
+website = "https://github.com/cedarcode/webauthn-rails-demo-app"
+tags = ["Ruby", "Rails", "NodeJs"]
+
+[build]
+license = "Apache-2.0 license"
+src-url = "https://github.com/cedarcode/webauthn-rails-demo-app/archive/refs/heads/master.zip"
+builder = "ruby-278"
+# rems: compilation of ruby-2.7.2 breaks openSSL (old version 1.0 required)
+#       So build of the ruby-272 image includes the build of a deprecated version of
+#       openSLL.
+build = [
+    "cp .env.example .env",
+    "bundle install",
+    "bundle add tzinfo-data",
+    "yarn install",
+    "bundle exec rake db:setup"
+]
+
+[run]
+start = "bundle exec rails s"
+
+[env]
+# Generic environment variables
+NODE_ENV = "production"
+DEBUG = "true"
+
+[port.web]
+container = 3000

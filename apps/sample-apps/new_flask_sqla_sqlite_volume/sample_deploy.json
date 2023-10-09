@@ -1,0 +1,9 @@
+{
+    "site": [
+        {
+            "label": "sqlite",
+            "domain": "test1.example.com",
+            "image": "new-flask-sqla-sqlite-volume"
+        }
+    ]
+}

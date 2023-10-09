@@ -1,24 +1,28 @@
 import json
-import os
 import sys
 from io import StringIO
 
 from cleez.colors import red
-from fabric import Connection
+from fabric import Connection as BaseConnection
+from invoke.runners import Result
+
+from nua_cli.commands.common import get_nua_host, get_nua_user
 
 # Hardcoded for now
 NUA_CMD = "./env/bin/nua-orchestrator"
+
+
+class Connection(BaseConnection):
+    def run(self, command, **kwargs) -> Result:
+        result = super().run(command, **kwargs)
+        assert result
+        return result
 
 
 class Client:
     connection: Connection
 
     def __init__(self, host: str = "", user: str = ""):
-        if not host:
-            host = os.environ.get("NUA_HOST", "localhost")
-        if not user:
-            user = os.environ.get("NUA_USER", "nua")
-
         self.host = host
         self.user = user
         self.connection = Connection(self.host, self.user)
@@ -26,11 +30,14 @@ class Client:
     #
     # Low level API
     #
-    def call_raw(self, method: str, **kw):
+    def call_raw(self, method: str, **kw) -> str:
         args = StringIO(json.dumps(kw))
         cmd = f"{NUA_CMD} rpc --raw {method}"
         r = self.connection.run(cmd, hide=True, in_stream=args)
-        return r.stdout
+        if r:
+            return r.stdout
+        else:
+            return ""
 
     def call(self, method: str, **kw):
         args = StringIO(json.dumps(kw))
@@ -72,6 +79,11 @@ _CLIENT = None
 
 def get_client(host: str = "", user: str = ""):
     global _CLIENT
+
+    if not host:
+        host = get_nua_host()
+    if not user:
+        user = get_nua_user()
 
     if not _CLIENT:
         _CLIENT = Client(host, user)

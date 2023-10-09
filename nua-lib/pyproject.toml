@@ -1,10 +1,23 @@
 [tool.poetry]
 name = "nua-lib"
-version = "0.5.17"
+version = "0.5.42"
 description = "Nua common library"
 authors = ["Stefane Fermigier <sf@abilian.com>", "Jerome Dumonteil <jd@abilian.com>"]
-license = "AGPL"
+license = "Apache-2.0"
+
 readme = "README.md"
+documentation = "https://nua.rocks/"
+repository = "https://github.com/abilian/nua"
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+
 packages = [
   { include = "nua", from = "src" }
 ]
@@ -13,18 +26,23 @@ packages = [
 python = "^3.10"
 setuptools = "*"
 jinja2 = "^3.1.2"
+pydantic = "^1.10.8"
+dictdiffer = "^0.9.0"
 pyyaml = "^6.0"
 tomli = "^2.0.1"
 docker = "^6.0.1"
 
 [tool.poetry.group.dev.dependencies]
+urllib3 = "<2.0"
 abilian-devtools = "*"
 nox = "*"
-types-setuptools = "*"
 
 # To please poetry
 platformdirs = "<3.0.0"
+
+# Types
 types-pyyaml = "^6.0.12.9"
+types-setuptools = "*"
 
 [tool.pytest.ini_options]
 filterwarnings = [
@@ -50,7 +68,7 @@ exclude = [
     'tests',
     "noxfile.py"
 ]
-ignore_obsolete = [
+ignore_unused = [
     "setuptools",
 ]
 ignore_missing = [

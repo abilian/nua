@@ -1,0 +1,33 @@
+{
+    "metadata": {
+        "id": "echo-two-ports-json",
+        "version": "1.0",
+        "release": 3,
+        "title": "Nua test server 2 ports - json config",
+        "author": "Jerome Dumonteil <jd@abilian.com>",
+        "tagline": "Nua test server 2 ports",
+        "website": "https://nua.rocks/",
+        "tags": [
+            "test",
+            "html",
+            "web",
+            "static"
+        ],
+        "license": "MIT"
+    },
+    "build": {
+        "test": "python -c 'import echos'"
+    },
+    "run": {
+        "start": "python -c 'from echos.echo_server import echos; echos(8764, 8765)'"
+    },
+    "port": {
+        "web": {
+            "container": 8765
+        },
+        "abcd": {
+            "container": 8764,
+            "proxy": 8764
+        }
+    }
+}

@@ -1,0 +1,48 @@
+[metadata]
+id = "flask-pg-psyco"
+version = "5.0"
+release = 3
+title = "Flask/PostgreSQL/psycopg2 test wheel"
+author = "Nua testers"
+tagline = "Nua test with Flask/PostgreSQL/psycopg2"
+website = "https://nua.rocks/"
+tags = ["test", "html", "web", "static", "plugin", "PostgreSQL", "psycopg2"]
+license = "MIT"
+
+[build]
+document_root = "/nua/app/html"
+meta-packages = ["postgres-client"]
+project = "."
+test = "python -c 'import flask_pg_psyco'"
+
+[[assign]]
+key = "POSTGRES_PASSWORD"
+random_str = true
+
+[[assign]]
+key = "DB_USER_PWD"
+random_str = true
+
+[env]
+# parameters passed as a dict to docker run: environment dict
+DB_NAME = "flask_db"
+DB_USER = "bob"
+
+[docker]
+# parameters passed as a dict to docker run
+auto_remove = true
+
+[port.web]
+container = 80
+
+[[provider]]
+# A provider is another container required by the main app container, its
+# configuration is described below, under the key of name of the provider. Several
+# providers can be declared. The provider host will appear in the local network
+# with a hostname equal to the container name. The name of the provider hostname
+# is available in the environment variable NUA_${name_of_the_provider}_HOST, ie in
+# this example: NUA_DATABASE_HOST
+
+# name = "database"
+# type = "local"
+# service = "postgres"

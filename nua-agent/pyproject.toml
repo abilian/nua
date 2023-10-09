@@ -1,30 +1,37 @@
 [tool.poetry]
 name = "nua-agent"
-version = "0.5.17"
+version = "0.5.42"
 description = "Nua agent"
 authors = [
     "Stefane Fermigier <sf@abilian.com>",
     "Jerome Dumonteil <jd@abilian.com>",
 ]
-license = "AGPL"
+license = "Apache-2.0"
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+
 readme = "README.md"
+documentation = "https://nua.rocks/"
+repository = "https://github.com/abilian/nua"
+
 packages = [
     { include = "nua", from = "src" },
 ]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-setuptools = "*"
-packaging = "*"
-nua-lib = "=0.5.17"
+nua-lib = "=0.5.42"
 
 [tool.poetry.group.dev.dependencies]
+urllib3 = "<2.0"
 abilian-devtools = "*"
-nox = "*"
-types-setuptools = "*"
-
-# Pinned for now
-platformdirs = "<3.0.0"
 
 [tool.poetry.scripts]
 app_builder = "nua.agent.scripts.app_builder:main"
@@ -55,7 +62,7 @@ exclude = [
     "tests",
     "noxfile.py",
 ]
-ignore_obsolete = [
+ignore_unused = [
     "setuptools",
     "nua-lib",
 ]

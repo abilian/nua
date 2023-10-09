@@ -1,6 +1,6 @@
 """Generate the long nua tag of packages.
 
-For Docker container and network names, the ":" will be replaced by "-".
+For container and network names, the ":" will be replaced by "-".
 """
 
 

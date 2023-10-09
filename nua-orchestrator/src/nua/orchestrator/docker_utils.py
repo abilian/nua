@@ -2,20 +2,26 @@
 import io
 import json
 import re
+import shlex
 from contextlib import suppress
 from copy import deepcopy
+from datetime import datetime, timezone
 from functools import cache
 from pathlib import Path
 from pprint import pformat
 from subprocess import run  # noqa: S404
+from subprocess import PIPE, STDOUT, Popen
 from time import sleep
+from typing import Any
 
 from docker import DockerClient
-from docker.errors import APIError, NotFound
+from docker.errors import APIError, ImageNotFound, NotFound
 from docker.models.containers import Container
 from docker.models.images import Image
+from docker.models.volumes import Volume as DockerVolume
 from nua.lib.console import print_red
 from nua.lib.docker import docker_require
+from nua.lib.elapsed import elapsed
 from nua.lib.panic import (
     Abort,
     bold_debug,
@@ -30,11 +36,13 @@ from nua.lib.shell import chmod_r, mkdir_p
 from nua.lib.tool.state import verbosity
 
 from . import config
-from .db import store
-from .resource import Resource
+from .provider import Provider
 from .volume import Volume
 
 RE_VAR = re.compile(r"\{[^\{\}]+\}")
+
+
+# local daemon ######################################################
 
 
 @cache
@@ -66,50 +74,131 @@ def docker_service_start_if_needed():
         docker_service_start()
 
 
-def docker_container_of_name(name: str) -> list[Container]:
-    """Send a list of 0 or 1 Container of the given name."""
-    client = DockerClient.from_env()
+# container #########################################################
+
+
+def docker_container_of_name(
+    name: str,
+    client: DockerClient | None = None,
+) -> Container | None:
+    """Return the Container of the given name or None if not found."""
+    if client is None:
+        actual_client = DockerClient.from_env()
+    else:
+        actual_client = client
     try:
         return [
             cont
-            for cont in client.containers.list(all=True, filters={"name": name})
+            for cont in actual_client.containers.list(all=True, filters={"name": name})
             if cont.name == name
-        ]
-    except NotFound:
-        return []
+        ][0]
+    except (NotFound, IndexError):
+        return None
 
 
-def docker_start_container_name(name: str):
+# container action ##################################################
+
+
+def _docker_container_mounts(container: Container) -> list[dict]:
+    return container.attrs["Mounts"]
+
+
+def docker_mount_point(container: Container, volume_name: str) -> str:
+    for record in _docker_container_mounts(container):
+        if record["Name"] == volume_name:
+            return record["Destination"]
+    return ""
+
+
+def docker_container_volumes(container_name: str) -> list[DockerVolume]:
+    volumes = []
+    client = DockerClient.from_env()
+    container = docker_container_of_name(container_name, client)
+    if container is None:
+        return volumes
+    for mounted in _docker_container_mounts(container):
+        volume = docker_volume_of_name(mounted["Name"], client)
+        if volume is not None:
+            volumes.append(volume)
+    return volumes
+
+
+def docker_container_named_volume(
+    container_name: str,
+    volume_name: str,
+) -> DockerVolume | None:
+    for volume in docker_container_volumes(container_name):
+        if volume.attrs["Name"] == volume_name:
+            return volume
+    return None
+
+
+def docker_container_status(container_id: str) -> str:
+    """Get container status per Id."""
+    client = DockerClient.from_env()
+    try:
+        cont = client.containers.get(container_id)
+    except (NotFound, APIError):
+        return "App is down: container not found (probably removed)"
+    return (
+        f"Container ID: {cont.short_id}, status: {cont.status}, "
+        f"created: {elapsed(docker_container_since(cont))} ago"
+    )
+
+
+def docker_container_status_record(container_id: str) -> dict[str, Any]:
+    """Return container status dict (per container Id)."""
+    client = DockerClient.from_env()
+    try:
+        cont = client.containers.get(container_id)
+    except (NotFound, APIError):
+        return {"error": "App is down: container not found (probably removed)"}
+    return {
+        "id": cont.short_id,
+        "status": cont.status,
+        "created": f"{elapsed(docker_container_since(cont))} ago",
+    }
+
+
+def docker_container_status_raw(container: Container) -> tuple[str, int]:
+    return container.status, docker_container_since(container)
+
+
+def docker_container_since(container: Container) -> int:
+    created = datetime.fromisoformat(container.attrs["Created"][:19])
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    return int((now - created).total_seconds())
+
+
+def docker_start_container_name(name: str) -> bool:
     if not name:
-        return
-    containers = docker_container_of_name(name)
-    with verbosity(3):
-        vprint("docker_start_container_name():", containers)
-    if not containers:
+        return False
+    container = docker_container_of_name(name)
+    if container is None:
         warning(f"docker_start_container_name(): no container of name '{name}'")
-        return
-    for ctn in containers:
-        _docker_start_container(ctn)
+        return False
+    with verbosity(3):
+        vprint("docker_start_container_name():", container)
+    return _docker_start_container(container)
 
 
 def docker_restart_container_name(name: str):
     if not name:
         return
-    containers = docker_container_of_name(name)
-    with verbosity(3):
-        vprint("docker_restart_container_name():", containers)
-    if not containers:
+    container = docker_container_of_name(name)
+    if container is None:
         warning(f"docker_restart_container_name(): no container of name '{name}'")
         return
-    for ctn in containers:
-        _docker_restart_container(ctn)
+    with verbosity(3):
+        vprint("docker_restart_container_name():", container)
+    _docker_restart_container(container)
 
 
 def _docker_wait_empty_container_list(name: str, timeout: int) -> bool:
     if not timeout:
         timeout = 1
     count = timeout * 10
-    while docker_container_of_name(name):
+    while docker_container_of_name(name) is not None:
         if count <= 0:
             return False
         count -= 1
@@ -120,20 +209,43 @@ def _docker_wait_empty_container_list(name: str, timeout: int) -> bool:
 def docker_stop_container_name(name: str):
     if not name:
         return
-    containers = docker_container_of_name(name)
-    with verbosity(3):
-        vprint("docker_stop_container_name():", containers)
-    if not containers:
+    container = docker_container_of_name(name)
+    if container is None:
         warning(f"docker_stop_container_name(): no container of name '{name}'")
         return
-    for ctn in containers:
-        _docker_stop_container(ctn)
+    with verbosity(3):
+        vprint("docker_stop_container_name():", container)
+    _docker_stop_container(container)
     if not _docker_wait_empty_container_list(
         name, config.read("host", "docker_kill_timeout")
     ):
         pass
         # for remain in docker_container_of_name(name):
         #     warning(f"container not killed: {remain.name}")
+
+
+def docker_pause_container_name(name: str):
+    if not name:
+        return
+    container = docker_container_of_name(name)
+    if container is None:
+        warning(f"docker_pause_container_name(): no container of name '{name}'")
+        return
+    with verbosity(3):
+        vprint("docker_pause_container_name():", container)
+    _docker_pause_container(container)
+
+
+def docker_unpause_container_name(name: str):
+    if not name:
+        return
+    container = docker_container_of_name(name)
+    if container is None:
+        warning(f"docker_unpause_container_name(): no container of name '{name}'")
+        return
+    with verbosity(3):
+        vprint("docker_unpause_container_name():", container)
+    _docker_unpause_container(container)
 
 
 def _docker_stop_container(container: Container):
@@ -143,11 +255,27 @@ def _docker_stop_container(container: Container):
         warning(f"Stopping container error: {e}")
 
 
-def _docker_start_container(container: Container):
+def _docker_pause_container(container: Container):
+    try:
+        container.pause()
+    except APIError as e:
+        warning(f"Pausing container error: {e}")
+
+
+def _docker_unpause_container(container: Container):
+    try:
+        container.unpause()
+    except APIError as e:
+        warning(f"Unpausing container error: {e}")
+
+
+def _docker_start_container(container: Container) -> bool:
     try:
         container.start()
+        return True
     except APIError as e:
         warning(f"Starting container error: {e}")
+        return False
 
 
 def _docker_restart_container(container: Container):
@@ -157,25 +285,27 @@ def _docker_restart_container(container: Container):
         warning(f"Restarting container error: {e}")
 
 
-def _docker_remove_container(name: str, force=False, volume=False):
+def _docker_remove_container(name: str, force: bool = False, volume: bool = False):
     if force:
         with verbosity(0):
             warning(f"removing container with '--force': {name}")
-    for cont in docker_container_of_name(name):
-        cont.remove(v=volume, force=force)
+    container = docker_container_of_name(name)
+    if container is not None:
+        container.remove(v=volume, force=force)
 
 
 def _docker_display_not_removed(name: str):
-    for remain in docker_container_of_name(name):
-        warning(f"container not removed: {remain}")
+    container = docker_container_of_name(name)
+    if container is not None:
+        warning(f"container not removed: {container}")
 
 
 def docker_remove_container(name: str, force=False):
     if not name:
         return
     with verbosity(3):
-        containers = docker_container_of_name(name)
-        vprint("docker_remove_container", containers)
+        container = docker_container_of_name(name)
+        vprint("docker_remove_container", container)
     _docker_remove_container(name, force=force)
     if _docker_wait_empty_container_list(
         name, config.read("host", "docker_remove_timeout")
@@ -189,7 +319,7 @@ def docker_remove_container(name: str, force=False):
 def _docker_wait_container_listed(name: str) -> bool:
     timeout = config.read("host", "docker_run_timeout") or 30
     count = timeout * 10
-    while not docker_container_of_name(name):
+    while docker_container_of_name(name) is None:
         if count <= 0:
             return False
         count -= 1
@@ -202,48 +332,24 @@ def docker_check_container_listed(name: str) -> bool:
         return True
     else:
         warning(f"container not seen in running list: {name}", "container listed:")
-        for cont in docker_container_of_name(name):
-            print_red(f"         {cont.name}  {cont.status}")
+        container = docker_container_of_name(name)
+        if container is not None:
+            print_red(f"         {container.name}  {container.status}")
         return False
-
-
-def docker_remove_prior_container_db(rsite: Resource):
-    """Search & remove containers already configured for this same AppInstance
-    or Resource (running or stopped), from DB."""
-    if rsite.type != "nua-site":
-        # FIXME for resource containers
-        return
-
-    previous_name = store.instance_container(rsite.domain)
-    if not previous_name:
-        return
-
-    with verbosity(0):
-        info(f"    -> remove previous container: {previous_name}")
-
-    docker_stop_container_name(previous_name)
-    docker_remove_container(previous_name)
-
-    with verbosity(4):
-        containers = docker_container_of_name(previous_name)
-        vprint("docker_remove_container after", containers)
-
-    store.instance_delete_by_domain(rsite.domain)
 
 
 def docker_remove_container_previous(name: str, show_warning: bool = True):
     """Remove container of full domain name from running container and DB."""
-    containers = docker_container_of_name(name)
+    container = docker_container_of_name(name)
     with verbosity(4):
-        vprint(f"Stopping container: {pformat(containers)}")
+        vprint(f"Stopping container: {container}")
 
-    if not containers:
+    if container is None:
         if show_warning:
             with verbosity(1):
                 warning(f"no previous container to stop '{name}'")
         return
 
-    container = containers[0]
     with verbosity(1):
         info(f"Stopping container '{container.name}'")
     _docker_stop_container(container)
@@ -256,9 +362,9 @@ def docker_remove_container_previous(name: str, show_warning: bool = True):
         pass
 
 
-def docker_remove_prior_container_live(rsite: Resource):
+def docker_remove_prior_container_live(rsite: Provider):
     """Search & remove containers already configured for this same AppInstance
-    or Resource (running or stopped), from Docker.
+    or Provider (running or stopped), from Docker.
 
     Security feature: try to remove containers of exactly same name that
     could be found in docker daemon:
@@ -267,13 +373,15 @@ def docker_remove_prior_container_live(rsite: Resource):
     if not previous_name:
         return
 
-    for container in docker_container_of_name(previous_name):
-        with verbosity(3):
-            debug(
-                f"For security, try to remove a container not listed in Nua DB: {container.name}"
-            )
-        docker_stop_container_name(container.name)
-        docker_remove_container(container.name)
+    container = docker_container_of_name(previous_name)
+    if container is None:
+        return
+    with verbosity(3):
+        debug(
+            f"For security, try to remove a container not listed in Nua DB: {container.name}"
+        )
+    docker_stop_container_name(container.name)
+    docker_remove_container(container.name)
 
 
 def erase_previous_container(client: DockerClient, name: str):
@@ -287,7 +395,7 @@ def erase_previous_container(client: DockerClient, name: str):
         pass
 
 
-def docker_run_params(rsite: Resource) -> dict:
+def docker_run_params(rsite: Provider) -> dict:
     """Return the actual docker parameters."""
     params = deepcopy(rsite.run_params)
     # the actual key is 'environment'
@@ -303,7 +411,7 @@ def docker_run_params(rsite: Resource) -> dict:
     return params
 
 
-def docker_run(rsite: Resource, secrets: dict) -> Container:
+def docker_run(rsite: Provider, secrets: dict) -> Container:
     """Wrapper on top of the py-docker run() command.
 
     Returns:
@@ -331,7 +439,7 @@ def docker_run(rsite: Resource, secrets: dict) -> Container:
     return container
 
 
-def _docker_run(rsite: Resource, secrets: dict, params: dict) -> Container:
+def _docker_run(rsite: Provider, secrets: dict, params: dict) -> Container:
     client = DockerClient.from_env()
     erase_previous_container(client, params["name"])
     actual_params = params_with_secrets_and_f_strings(params, secrets)
@@ -382,7 +490,7 @@ def _check_run_container(container: Container, name: str):
     # test_docker_exec(container)
 
 
-def docker_exec_stdout(container: Container, params: dict, output: io.BufferedWriter):
+def docker_exec_stdout(container: Container, params: dict, output: io.BufferedIOBase):
     """Wrapper on top of the py-docker exec_run() command, capturing the
     output.
 
@@ -391,7 +499,7 @@ def docker_exec_stdout(container: Container, params: dict, output: io.BufferedWr
     user='', detach=False, stream=False, socket=False, environment=None,
     workdir=None, demux=False
 
-    Returns:
+    Returns: None
     """
     cmd = params["cmd"]
     user = params.get("user", "")
@@ -406,52 +514,166 @@ def docker_exec_stdout(container: Container, params: dict, output: io.BufferedWr
         demux=True,
     )
     for data in stream:
+        print(data)
         output.write(data[0])
 
 
-def docker_exec(container: Container, params: dict):
-    """Wrapper on top of the py-docker exec_run() command, without capturing
-    the output.
+def docker_exec_no_output(container: Container, command: str):
+    """Wrapper on top of the py-docker exec_run() command, not
+    capturing the output.
 
     Defaults are:
-    cmd, stdout=False, stderr=False, stdin=False, tty=False, privileged=False,
+    cmd, stdout=True, stderr=True, stdin=False, tty=False, privileged=False,
     user='', detach=False, stream=False, socket=False, environment=None,
     workdir=None, demux=False
 
-    Returns:
+    Returns: None
     """
-    cmd = params["cmd"]
-    user = params.get("user", "")
-    workdir = params.get("workdir")
     _, stream = container.exec_run(
-        cmd=cmd,
-        user=user,
-        workdir=workdir,
-        stream=False,
-        stdout=False,
+        cmd=command,
+        user="root",
+        workdir="/",
+        stream=True,
+        stdout=True,
         stderr=False,
         demux=True,
     )
+    for data in stream:
+        print(data[0].decode())
 
 
-def test_docker_exec(container: Container):
-    # path = Path(f"/var/tmp/test_{container.name}.txt")
-    # print(f"test_docker_exec() for {path}")
-    params = {"cmd": "find /nua"}
+def docker_exec_stdin(container: Container, cmd: str, input_file: Path) -> str:
+    """Wrapper on top of the py-docker exec_run() command, capturing file to stdin.
+
+    Defaults are:
+    cmd, stdout=True, stderr=True, stdin=False, tty=False, privileged=False,
+    user='', detach=False, stream=False, socket=False, environment=None,
+    workdir=None, demux=False
+    """
+    docker_cmd = shlex.split(f"/usr/bin/docker exec -i {container.id} {cmd}")
+    with open(input_file, "rb") as rfile:
+        proc = Popen(
+            docker_cmd,
+            stdin=rfile,
+            stdout=PIPE,
+            stderr=STDOUT,
+        )
+        result, _ = proc.communicate()
+    return result.decode("utf8")
+
+
+def docker_exec_checked(container: Container, params: dict, output: io.BufferedIOBase):
+    """Wrapper on top of the py-docker exec_run() command, capturing the
+    output.
+
+    Write the binary output of run_exec to output buffered io, or raise Runtime Error.
+
+    Defaults are:
+    cmd, stdout=True, stderr=True, stdin=False, tty=False, privileged=False,
+    user='', detach=False, stream=False, socket=False, environment=None,
+    workdir=None, demux=False
+
+    Returns: None
+    """
+    cmd = params["cmd"]
+    shcmd = f'sh -c "{cmd}"'
+    user = params.get("user", "root")
+    workdir = params.get("workdir", "/")
+    stderr = params.get("stderr", True)
+    _, stream = container.exec_run(
+        cmd=shcmd,
+        user=user,
+        workdir=workdir,
+        stream=True,
+        stdout=True,
+        stderr=stderr,
+        demux=False,
+    )
+    # will test the first line only:
+    test_passed = False
+    for data in stream:
+        if not test_passed:
+            if b"OCI runtime exec failed" in data:
+                raise RuntimeError(data.decode("utf8"))
+            test_passed = True
+        output.write(data)
+
+
+def docker_exec_commands(container: Container, commands: list[str]):
+    for command in commands:
+        print("Command:", command)
+        docker_exec_no_output(container, command)
+
+
+# def docker_exec(container: Container, params: dict):
+#     """Wrapper on top of the py-docker exec_run() command, without capturing
+#     the output.
+
+#     Defaults are:
+#     cmd, stdout=False, stderr=False, stdin=False, tty=False, privileged=False,
+#     user='', detach=False, stream=False, socket=False, environment=None,
+#     workdir=None, demux=False
+
+#     Returns:
+#        None or raise (APIError)
+#     """
+#     cmd = params["cmd"]
+#     user = params.get("user", "root")
+#     workdir = params.get("workdir", "/")
+#     _, stream = container.exec_run(
+#         cmd=cmd,
+#         user=user,
+#         workdir=workdir,
+#         stream=False,
+#         stdout=False,
+#         stderr=False,
+#         demux=True,
+#     )
+
+
+# def test_docker_exec(container: Container):
+#     # path = Path(f"/var/tmp/test_{container.name}.txt")
+#     # print(f"test_docker_exec() for {path}")
+#     params = {"cmd": "find /nua"}
+#     try:
+#         # with open(path, "wb") as output:
+#         # docker_exec_stdout(container, params, output)
+#         docker_exec(container, params)
+#     except APIError as e:
+#         print(e)
+#         raise RuntimeError(f"Test of container failed:\ndocker logs {container.id}")
+
+# Volumes ###########################################################
+
+
+def docker_volume_of_name(
+    name: str,
+    client: DockerClient | None = None,
+) -> DockerVolume | None:
+    """Return the DockerVolume of the given name or None if not found."""
+    if client is None:
+        actual_client = DockerClient.from_env()
+    else:
+        actual_client = client
     try:
-        # with open(path, "wb") as output:
-        # docker_exec_stdout(container, params, output)
-        docker_exec(container, params)
-    except APIError as e:
-        print(e)
-        raise RuntimeError(f"Test of container failed:\ndocker logs {container.id}")
+        return actual_client.volumes.get(name)
+    except (NotFound, APIError):
+        return None
 
 
-def docker_volume_list(name: str) -> list:
+def docker_volume_type(volume: Volume) -> str:
+    if volume.is_managed:
+        return "volume"
+    elif volume.type == "directory":
+        return "bind"
+    return "tmpfs"
+
+
+def docker_volume_list(name: str) -> list[DockerVolume]:
     client = DockerClient.from_env()
-    lst = client.volumes.list(filters={"name": name})
+    pre_list = client.volumes.list(filters={"name": name})
     # filter match is not equality
-    return [vol for vol in lst if vol.name == name]
+    return [vol for vol in pre_list if vol.name == name]
 
 
 def docker_remove_volume_by_source(source: str):
@@ -463,36 +685,41 @@ def docker_remove_volume_by_source(source: str):
 
 
 def docker_volume_create(volume: Volume):
-    found = docker_volume_list(volume.source)
+    found = docker_volume_list(volume.full_name)
     if not found:
         docker_volume_create_new(volume)
 
 
 def docker_volume_create_new(volume: Volume):
-    """Create a new volume of type "volume"."""
-    if volume.driver != "local" and not install_plugin(volume.driver):
-        # assuming it is the name of a plugin
-        raise Abort(f"Install of Docker's plugin '{volume.driver}' failed.")
+    """Create a new volume of type "managed"."""
+    if volume.driver in {"docker", "local"}:
+        driver = "local"
+    else:
+        driver = volume.driver
 
+    if driver != "local" and not install_plugin(driver):
+        # assuming it is the name of a plugin
+        raise Abort(f"Install of Docker's plugin '{driver}' failed.")
     client = DockerClient.from_env()
     client.volumes.create(
-        name=volume.source,
-        driver=volume.driver,
+        name=volume.full_name,
+        driver=driver,
         # driver's options, using format of python-docker:
         driver_opts=volume.options,
     )
 
 
 def docker_volume_create_local_dir(volume: Volume):
-    """For volumes of type "bind", create a local directory on the host if
+    """For volumes of type "directory", create a local directory on the host if
     needed.
 
-    This my use more options in future versions.
+    May use more options.
     """
-    if Path(volume.source).exists():
+    path = volume.full_name
+    if Path(path).exists():
         return
-    mkdir_p(volume.source)
-    chmod_r(volume.source, 0o644, 0o755)
+    mkdir_p(path)
+    chmod_r(path, 0o644, 0o755)
 
 
 # def docker_tmpfs_create(volume_opt: dict):
@@ -510,13 +737,13 @@ def docker_volume_create_local_dir(volume: Volume):
 def docker_volume_create_or_use(volume_params: dict):
     """Return an useable/mountable docker volume.
 
-    The strategy depends on the volume type: "bind", "volume", or
+    The strategy depends on the volume type: "managed", "directory", or
     "tmpfs".
     """
     volume = Volume.parse(volume_params)
-    if volume.type == "volume":
+    if volume.is_managed:
         return docker_volume_create(volume)
-    if volume.type == "bind":
+    if volume.type == "directory":
         return docker_volume_create_local_dir(volume)
     # for "tmpfs", volumes do not need to be created before
     # container loading
@@ -528,15 +755,15 @@ def docker_volume_prune(volume_opt: dict):
     Beware: deleting data !
     """
     volume = Volume.parse(volume_opt)
-    if volume.type != "volume" or volume.driver != "local":
-        # todo: later, manage bind volumes
+    if not volume.is_managed or volume.driver not in {"docker", "local"}:
+        # maybe later manage directory volumes
         return
-    name = volume.source
+    name = volume.full_name
     try:
         client = DockerClient.from_env()
-        lst = client.volumes.list(filters={"name": name})
+        pre_list = client.volumes.list(filters={"name": name})
         # beware: filter match is not equality
-        found = [vol for vol in lst if vol.name == name]
+        found = [vol for vol in pre_list if vol.name == name]
         if found:
             # shoud be only one.
             docker_volume = found[0]
@@ -545,6 +772,9 @@ def docker_volume_prune(volume_opt: dict):
         print("Error while unmounting volume:")
         print(pformat(volume_opt))
         print(e)
+
+
+# network ###########################################################
 
 
 def docker_network_create_bridge(network_name: str):
@@ -581,7 +811,26 @@ def docker_network_by_name(network_name: str):
     return None
 
 
+def docker_wait_for_status(
+    container: Container,
+    expected: str = "running",
+    timeout: int = 60,
+) -> bool:
+    while True:
+        status, since = docker_container_status_raw(container)
+        if status == expected:
+            return True
+        if status == "exited":
+            print("Container did exit")
+            return False
+        if since > timeout:
+            print(f"Timeout while waiting for container '{expected}' status")
+            return False
+        sleep(0.2)
+
+
 def install_plugin(plugin_name: str) -> str:
+    """Install Docker's plugin (plugin for API of remote services)."""
     client = DockerClient.from_env()
     try:
         plugin = client.plugins.get(plugin_name)
@@ -615,3 +864,12 @@ def list_containers():
             f"{ctn.name}\n"
             f"    status: {ctn.status}  id: {ctn.short_id}  image: {name}"
         )
+
+
+def local_nua_images() -> list[Image]:
+    client = DockerClient.from_env()
+    try:
+        images = [image for image in client.images.list() if "NUA_TAG" in image.labels]
+    except (APIError, ImageNotFound):
+        images = []
+    return images

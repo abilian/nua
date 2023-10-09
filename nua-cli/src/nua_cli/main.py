@@ -25,8 +25,6 @@ TODO:
 """
 from __future__ import annotations
 
-import importlib.metadata
-
 import snoop
 from cleez import CLI
 from cleez.actions import VERSION

@@ -1,0 +1,9 @@
+{
+    "site": [
+        {
+            "label": "redis3",
+            "domain": "test3.example.com",
+            "image": "new-redis-cache-test-no-plugin"
+        }
+    ]
+}

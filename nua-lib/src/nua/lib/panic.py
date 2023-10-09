@@ -5,7 +5,7 @@ future use in other message dispatching.
 
 
 red bold: only for errors or serious warnings
-    Abort()
+    raise Abort()
     warning()  # got a Warning: prefix
 
 red bold: warning lines
@@ -46,11 +46,11 @@ from typing import Any
 from .console import (
     print_bold,
     print_bold_blue,
+    print_bold_cyan,
     print_bold_red,
     print_bold_yellow,
     print_bold_yellow_white,
     print_cyan,
-    print_gray,
     print_green,
     print_green_cyan,
     print_magenta_no_lf,
@@ -136,9 +136,9 @@ def print_stream(message: str):
 
 def debug(*args: Any):
     if check_verbosity():
-        print_gray(" ".join(str(x) for x in args))
+        print_cyan(" ".join(str(x) for x in args))
 
 
 def bold_debug(*args: Any):
     if check_verbosity():
-        print_cyan(" ".join(str(x) for x in args))
+        print_bold_cyan(" ".join(str(x) for x in args))

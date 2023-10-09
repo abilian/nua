@@ -76,20 +76,20 @@ def install_source(
     """
     if is_local_dir(url):
         return Path(url).resolve()
+
     return download_extract(url, dest_dir, name, checksum)
 
 
-def install_git_source(
-    url: str,
-    branch: str,
-    dest_dir: str | Path,
-    name: str,
-) -> Path:
+def install_git_source(url: str, branch: str, dest_dir: str | Path) -> Path:
     """Install a project from git source."""
     if dest_dir:
         path = Path(dest_dir).resolve()
     else:
         path = Path(".").resolve()
+    url = url.strip()
+    if url.endswith(".git"):
+        url = url[:-4]
+    name = url.split("/")[-1]
     cmd = f"git clone --depth 1 --branch {branch} {url} {name}"
     if "git" in installed_packages():
         with chdir(path):

@@ -1,7 +1,7 @@
 """Functions to respond to requirement from instance declarations.
 
 All evaluation function must have same 2 arguments:
-function(resource, requirement) but call through wrapper uses a third
+function(provider, requirement) but call through wrapper uses a third
 argument: 'persistent'
 """
 from functools import wraps
@@ -13,8 +13,9 @@ from nua.lib.tool.state import verbosity
 
 from ..net_utils.external_ip import external_ip
 from ..persistent import Persistent
-from ..resource import Resource
-from .db_utils import generate_new_db_id, generate_new_user_id
+from ..provider import Provider
+from ..volume import Volume
+from .gen_db_credentials import generate_new_db_id, generate_new_user_id
 
 SITE_ENVIRONMENT = "environment"
 PERSISTENT = "persistent"
@@ -30,7 +31,7 @@ def persistent_value(func):
 
     @wraps(func)
     def wrapper(
-        resource: Resource,
+        provider: Provider,
         destination_key: str,
         requirement: dict,
         persistent: Persistent,
@@ -38,14 +39,14 @@ def persistent_value(func):
         if requirement.get(PERSISTENT, True):
             value = persistent.get(destination_key)
             if value is None:
-                result = func(resource, destination_key, requirement)
+                result = func(provider, destination_key, requirement)
                 persistent[destination_key] = result[destination_key]
             else:
                 result = {destination_key: value}
             return result
         # persistent is False: erase past value if needed then return computed value
         persistent.delete(destination_key)
-        return func(resource, destination_key, requirement)
+        return func(provider, destination_key, requirement)
 
     return wrapper
 
@@ -55,22 +56,18 @@ def no_persistent_value(func):
 
     @wraps(func)
     def wrapper(
-        resource: Resource,
+        provider: Provider,
         destination_key: str,
         requirement: dict,
         _persistent: Persistent,
     ) -> Any:
-        return func(resource, destination_key, requirement)
+        return func(provider, destination_key, requirement)
 
     return wrapper
 
 
 @persistent_value
-def random(
-    resource: Resource,
-    destination_key: str,
-    requirement: dict,
-) -> dict:
+def random(provider: Provider, destination_key: str, requirement: dict) -> dict:
     """Send a random string or a random integer.
 
     The value is either ramdomly generated or read from previous
@@ -89,7 +86,7 @@ def random(
 
 @persistent_value
 def unique_user(
-    resource: Resource,
+    provider: Provider,
     destination_key: str,
     requirement: dict,
 ) -> dict:
@@ -103,11 +100,7 @@ def unique_user(
 
 
 @persistent_value
-def unique_db(
-    resource: Resource,
-    destination_key: str,
-    requirement: dict,
-) -> dict:
+def unique_db(provider: Provider, destination_key: str, requirement: dict) -> dict:
     """Send a unique DB id (for DB creation).
 
     - sequential generated,
@@ -117,22 +110,31 @@ def unique_db(
     return {destination_key: generate_new_db_id()}
 
 
-def _query_resource(source_name: str, rsite: Resource) -> Resource | None:
+def _query_provider(source_name: str, rsite: Provider) -> Provider | None:
     if not source_name:
         return rsite
-    for resource in rsite.resources:
-        if resource.resource_name == source_name:
-            return resource
+    for provider in rsite.providers:
+        if provider.provider_name == source_name:
+            return provider
+    return None
+
+
+def _query_volume(source_name: str, rsite: Provider) -> Volume | None:
+    if not source_name:
+        return None
+    for volume_dict in rsite.volumes:
+        if volume_dict.get("name", "") == source_name:
+            return Volume.parse(volume_dict)
     return None
 
 
 @no_persistent_value
-def resource_property(
-    rsite: Resource,
+def provider_property(
+    rsite: Provider,
     destination_key: str,
     requirement: dict,
 ) -> dict:
-    """Retrieve value from resource by name.
+    """Retrieve value from provider by name.
 
     Example:
         CMD_DB_HOST = { from="", key="hostname" }
@@ -140,44 +142,87 @@ def resource_property(
         CMD_DB_DATABASE = { from="database", key="POSTGRES_DB" }
     """
     source_name = requirement.get("from", "").strip()
-    # if not source_name, consider querying current resource
+    # if not source_name, consider querying current provider
     property = requirement.get("key", "").strip()
     if not property:
         raise Abort(f"Bad requirement, missing 'key' key : {requirement}")
 
-    resource = _query_resource(source_name, rsite)
-    if not resource:
-        warning(f"Unknown resource name for {requirement}")
-        return {}
+    # first evaluate against the ressource own volumes:
+    volume = _query_volume(source_name, rsite)
+    if volume is not None:
+        return actual_volume_property(
+            volume,
+            property,
+            destination_key,
+            requirement,
+        )
+    provider = _query_provider(source_name, rsite)
+    if provider is not None:
+        return actual_provider_property(
+            provider, property, destination_key, requirement
+        )
+    warning(f"Unknown provider name for {requirement}")
+    return {}
 
+
+def actual_provider_property(
+    provider: Provider,
+    property: str,
+    destination_key: str,
+    requirement: dict,
+) -> dict:
     # first try in environ variables of differnt kinds
-    if property in resource.env:
-        value = resource.env[property]
-    elif hasattr(resource, property):
-        attr = getattr(resource, property)
+    if property in provider.env:
+        value = provider.env[property]
+    elif hasattr(provider, property):
+        attr = getattr(provider, property)
         if callable(attr):
             value = str(attr())
         else:
             value = str(attr)
     else:
-        warning("Resource environment:")
-        warning(str(resource.env))
+        warning("Provider environment:")
+        warning(str(provider.env))
         raise Abort(f"Unknown property for: {requirement}")
 
     with verbosity(4):
-        show(f"resource_property {source_name}:{property} ->")
+        show(f"provider_property {property} ->")
+        show(f"    result {destination_key}:{value}")
+    return {destination_key: value}
+
+
+def actual_volume_property(
+    volume: Volume,
+    property: str,
+    destination_key: str,
+    requirement: dict,
+) -> dict:
+    # first try in environ variables of differnt kinds
+    if hasattr(volume, property):
+        attr = getattr(volume, property)
+        if callable(attr):
+            value = str(attr())
+        else:
+            value = str(attr)
+    else:
+        warning("Volume:")
+        warning(str(volume))
+        raise Abort(f"Unknown property for: {requirement}")
+
+    with verbosity(4):
+        show(f"volume_property {property} ->")
         show(f"    result {destination_key}:{value}")
     return {destination_key: value}
 
 
 @no_persistent_value
 def site_environment(
-    rsite: Resource,
+    rsite: Provider,
     destination_key: str,
     requirement: dict,
 ) -> dict:
     variable = requirement[SITE_ENVIRONMENT] or ""
-    # The resource environment was juste completed wth AppInstance's environment:
+    # The provider environment was juste completed wth AppInstance's environment:
     env = rsite.env
     if variable in env:
         return {destination_key: env.get(variable)}
@@ -186,16 +231,12 @@ def site_environment(
 
 
 @no_persistent_value
-def nua_internal(
-    rsite: Resource,
-    destination_key: str,
-    requirement: dict,
-) -> dict:
+def nua_internal(rsite: Provider, destination_key: str, requirement: dict) -> dict:
     """Retrieve key from nua_internal values, do not store the value in
     instance configuration.
 
     The value is only set when executing the docker.run() for main site
-    and all sub resources.
+    and all sub providers.
     """
     if requirement.get(NUA_INTERNAL, False):
         # add the key to the list of secrets to pass at run() time
@@ -205,13 +246,11 @@ def nua_internal(
 
 @no_persistent_value
 def external_ip_evaluation(
-    _unused: Resource,
-    destination_key: str,
-    requirement: dict,
+    _unused: Provider, destination_key: str, requirement: dict
 ) -> dict:
     """Return the detected external IP address (v4).
 
     The value is only set when executing the docker.run() for main site
-    and all sub resources.
+    and all sub providers.
     """
     return {destination_key: external_ip()}

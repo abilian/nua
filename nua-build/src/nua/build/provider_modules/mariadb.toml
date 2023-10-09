@@ -1,0 +1,53 @@
+module-name = "mariadb"
+type = "docker-image"
+network = true
+connector = "mariadb-client"
+
+module-versions = [
+    { version = "10.3", arch = "amd64", link = "docker.io/library/mariadb:10.3" },
+    { version = "10.4", arch = "amd64", link = "docker.io/library/mariadb:10.4" },
+    { version = "10.5", arch = "amd64", link = "docker.io/library/mariadb:10.5" },
+    { version = "10.6", arch = "amd64", link = "docker.io/library/mariadb:10.6" },
+    { version = "10.7", arch = "amd64", link = "docker.io/library/mariadb:10.7" },
+    { version = "10.8", arch = "amd64", link = "docker.io/library/mariadb:10.8" },
+    { version = "10.9", arch = "amd64", link = "docker.io/library/mariadb:10.9" },
+    { version = "10.10", arch = "amd64", link = "docker.io/library/mariadb:10.10" },
+]
+
+[build]
+license = "GNU GPL v2"
+
+[env]
+MARIADB_PORT = "3306"
+
+[env.MARIADB_ROOT_PASSWORD]
+random = true
+type = "str"
+length = 24
+persist = true
+
+[env.MARIADB_USER]
+unique_user = true
+persist = true
+
+[env.MARIADB_PASSWORD]
+random = true
+type = "str"
+length = 24
+persist = true
+
+[env.MARIADB_DATABASE]
+unique_db = true
+persist = true
+
+[docker]
+detach = true
+
+[docker.restart_policy]
+name = "always"
+
+[[volume]]
+name = "mariadb-data"
+type = "managed"
+driver = "docker"
+target = "/var/lib/mysql"

@@ -1,20 +1,16 @@
 [metadata]
 id = "flask-upload-sshfs"
 version = "1.0"
-release = 3
+release = 4
 title = "Flask test upload on sshfs volume"
 author = "Nua testers"
 tagline = "Nua test with Flask and mount - sshfs"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static", "mount", "plugin", "sshfs"]
-license = "MIT"
 
 [build]
-document-root = "/nua/app/html"
-# - should auto detect local python project
-
+license = "MIT"
 test = "python -c 'import flask_upload_sshfs'"
-
 
 [docker]
 # parameters passed as a dict to docker run
@@ -24,11 +20,9 @@ auto_remove = true
 container = 80
 
 [[volume]]
-name = "flask_uploads"
+type = "managed"
 driver = "sshfs"
-type = "volume"
-dst = "/var/tmp/uploads"
-[[volume.options]]
-sshcmd = "user@remote.com:/var/test"
+name = "flask_uploads"
+target = "/var/tmp/uploads"
 # password = "testpassword"  # if passaword auth
-IdentityFile= "/nua/some_private_key"
+options = { sshcmd = "user@remote.com:/var/test", IdentityFile = "/nua/some_private_key" }

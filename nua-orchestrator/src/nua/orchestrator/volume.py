@@ -7,53 +7,66 @@ from typing import Any
 from nua.lib.console import print_red
 from nua.lib.panic import Abort
 
-from .utils import get_alias, hyphenized_set, sanitized_name
+from .utils import get_alias, sanitized_name
 
 # later, add 'npipe' when managed:
-ALLOWED_TYPE = {"volume", "bind", "tmpfs"}
+MANAGED = "managed"
+DIRECTORY = "directory"
+TMPFS = "tmpfs"
+ALLOWED_TYPE = {MANAGED, DIRECTORY, TMPFS}
 CHECKED_KEYS = {
     "_checked_",
-    "dest",
-    "destination",
+    # "dest",
+    # "destination",
     "domains",
     "driver",
     "backup",
     "options",
-    "source",
-    "src",
-    "prefix",
-    "source-prefix",
-    "src-prefix",
+    # "source",
+    "name",
+    "_label",
+    # "src",
+    # "prefix",
+    # "source-prefix",
+    # "src-prefix",
     "target",
     "type",
 }
 
 
 class Volume:
-    """Representation of a volume attached to a container, either main
-    container or Resource container."""
+    """Representation of a volume attached to a container, either the main app
+    container or a Provider container."""
 
     def __init__(self):
-        self._dict = {}
+        self._dict: dict[str, Any] = {}
 
     def __str__(self) -> str:
-        return pformat(self._dict)
+        lst = ["  "]
+        lst.append(f"type={self.type}")
+        if self.driver:
+            lst.append(f"driver={self.driver}")
+        if self.full_name:
+            lst.append(f"full_name={self.full_name}")
+        if self.domains:
+            lst.append("\n   domains: " + ", ".join(self.domains))
+        return " ".join(lst)
 
-    def __setitem__(self, key: int | str, item: Any):
+    def __setitem__(self, key: str, item: Any):
         self._dict[key] = item
 
-    def __getitem__(self, key: int | str) -> Any:
+    def __getitem__(self, key: str) -> Any:
         return self._dict[key]
 
     def has_key(self, key: int | str) -> bool:
         return key in self._dict
 
-    def get(self, key: int | str, default=None) -> Any:
+    def get(self, key: str, default=None) -> Any:
         return self._dict.get(key, default)
 
     @classmethod
     def parse(cls, data: dict) -> Volume:
-        """Parse a dict to obtain a Volume.
+        """Parse a python dict to obtain a Volume instance.
 
         Apply sanity checks if _checked_ is not present.
         """
@@ -69,11 +82,12 @@ class Volume:
     def check_load(self, data: dict):
         try:
             self._check_type(data)
-            self._check_prefix(data)
-            self._check_source(data)
+            self._check_name(data)
+            self._check_label(data)
             self._check_target(data)
             self._parse_domains(data)
             self._parse_options(data)
+            self._parse_backup(data)
             self._dict["_checked_"] = True
         except ValueError as e:
             print_red(str(e))
@@ -89,22 +103,15 @@ class Volume:
         return [cls.parse(data).as_dict() for data in volume_list]
 
     @classmethod
-    def update_name_dict(cls, data: dict, suffix: str) -> dict:
+    def update_name_dict(cls, data: dict, label: str) -> dict:
         volume = cls.parse(data)
-        volume.update_name(suffix)
+        volume.label = label
         return volume.as_dict()
 
     @classmethod
     def string(cls, data: dict) -> str:
         volume = cls.parse(data)
-        lst = ["  "]
-        lst.append(f"type={volume.type}")
-        if volume.driver:
-            lst.append(f"driver={volume.driver}")
-        lst.append(f"source={volume.source}")
-        if volume.domains:
-            lst.append("\n   domains: " + ", ".join(volume.domains))
-        return " ".join(lst)
+        return str(volume)
 
     @classmethod
     def from_dict(cls, data: dict) -> Volume:
@@ -115,41 +122,68 @@ class Volume:
     def as_dict(self) -> dict:
         return deepcopy(self._dict)
 
+    def as_short_dict(self) -> dict[str, Any]:
+        record = deepcopy(self._dict)
+        return {
+            key: val
+            for key, val in record.items()
+            if key not in {"label", "backup", "_checked_"}
+        }
+
     @property
     def type(self) -> str:
-        return self._dict.get("type", "")
+        return self._dict.get("type") or MANAGED
 
     @type.setter
     def type(self, tpe: str):
         self._dict["type"] = tpe
 
     @property
+    def is_managed(self) -> bool:
+        return self.type == MANAGED
+
+    @property
+    def is_local(self) -> bool:
+        return self.driver in {"docker", "local"}
+
+    @property
     def driver(self) -> str:
-        return self._dict.get("driver", "")
+        driver = self._dict.get("driver", "")
+        if not driver and self.type == MANAGED:
+            driver = "docker"
+        return driver
 
     @driver.setter
     def driver(self, driver: str):
         self._dict["driver"] = driver
 
     @property
-    def prefix(self) -> str:
-        return self._dict.get("prefix", "")
+    def name(self) -> str:
+        return self._dict.get("name") or ""
 
-    @prefix.setter
-    def prefix(self, prefix: str):
-        self._dict["prefix"] = prefix
+    @name.setter
+    def name(self, name: str):
+        self._dict["name"] = name
 
     @property
-    def source(self) -> str:
-        return self._dict.get("source", "")
+    def label(self) -> str:
+        return self._dict.get("label") or ""
 
-    @source.setter
-    def source(self, source: str):
-        self._dict["source"] = source
+    @label.setter
+    def label(self, label: str):
+        self._dict["label"] = label
+
+    @property
+    def full_name(self) -> str:
+        if not self.name:
+            return ""
+        if self.type == DIRECTORY:
+            return self.name
+        return sanitized_name(f"{self.label}-{self.name}")
 
     @property
     def target(self) -> str:
-        return self._dict.get("target", "")
+        return self._dict.get("target") or ""
 
     @target.setter
     def target(self, target: str):
@@ -157,7 +191,7 @@ class Volume:
 
     @property
     def domains(self) -> list[str]:
-        return self._dict.get("domains", [])
+        return self._dict.get("domains") or []
 
     @domains.setter
     def domains(self, domains: list[str]):
@@ -165,54 +199,42 @@ class Volume:
 
     @property
     def options(self) -> dict:
-        return self._dict.get("options", {})
+        return self._dict.get("options") or {}
 
     @options.setter
     def options(self, options: dict):
         self._dict["options"] = options
 
     @property
-    def backup(self) -> dict:
-        return self._dict.get("backup", {})
+    def backup(self) -> dict[str, Any]:
+        return self._dict.get("backup") or {}
 
     @backup.setter
-    def backup(self, backup: dict):
+    def backup(self, backup: dict[str, Any]):
         self._dict["backup"] = backup
 
-    def update_name(self, suffix: str):
-        if not (prefix := self.prefix):
-            return
-        self.source = sanitized_name(f"{prefix}-{suffix}")
-
     def _check_type(self, data: dict):
-        tpe = data.get("type", "volume")
+        tpe = data.get("type") or MANAGED
         if tpe not in ALLOWED_TYPE:
-            raise ValueError("unknown value for 'volume.type'")
+            raise ValueError(f"Unknown value for 'volume.type': {tpe}")
         self.type = tpe
-        if tpe == "volume":
-            self.driver = data.get("driver", "local")
+        if tpe == MANAGED:
+            self.driver = data.get("driver") or "docker"
 
-    def _check_prefix(self, data: dict):
-        if self.type == "tmpfs":
+    def _check_name(self, data: dict):
+        if self.type == TMPFS:
             # no source defined for "tmpfs" type
+            self.name = ""
             return
-        aliases = ("prefix", "source-prefix", "src-prefix")
+        aliases = ("name", "prefix")
         value = get_alias(data, aliases)
         if value:
-            self.prefix = value
+            self.name = value
+        elif not self.name:
+            raise ValueError("Missing key 'volume.name'")
 
-    def _check_source(self, data: dict):
-        if self.type == "tmpfs":
-            # no source for tmpfs
-            self.prefix = ""
-            self.source = ""
-            return
-        aliases = ("source", "src")
-        value = get_alias(data, aliases)
-        if value:
-            self.source = value
-        elif not self.prefix:
-            raise ValueError("missing key 'volume.source' or 'volume.prefix'")
+    def _check_label(self, data: dict):
+        self.label = data.get("label", "")
 
     def _check_target(self, data: dict):
         aliases = ("target", "dest", "destination")
@@ -222,15 +244,10 @@ class Volume:
         self.target = value
 
     def _parse_domains(self, data: dict):
-        self.domains = data.get("domains", [])
+        self.domains = data.get("domains") or []
 
     def _parse_backup(self, data: dict):
-        self.backup = data.get("backup", {})
+        self.backup = data.get("backup") or {}
 
     def _parse_options(self, data: dict):
-        self.options = {
-            k: v for k, v in data.items() if k not in hyphenized_set(CHECKED_KEYS)
-        }
-        # mode = 'rw' is only at mount time
-        if "mode" in self.options:
-            del self.options["mode"]
+        self.options = data.get("option") or {}

@@ -1,0 +1,37 @@
+[metadata]
+id = "flask-mariadb-plugin"
+version = "1.0"
+release = 8
+title = "Flask/MariaDB-docker test wheel"
+author = "Nua testers"
+tagline = "Nua test with Flask/MariaDB-docker"
+website = "https://nua.rocks/"
+tags = ["test", "html", "web", "MariaDB-docker"]
+
+[build]
+license = "MIT"
+test = "python -c 'import flask_mariadb'"
+
+[run]
+start = [
+    "init-db",
+    "gunicorn --worker-tmp-dir /dev/shm --workers 2 -b :5000 flask_mariadb.wsgi:app"
+    ]
+
+[env]
+DB_HOST = { from="database", key="hostname" }
+USER_DB = { from="database", key="MARIADB_DATABASE" }
+USER_NAME = { from="database", key="MARIADB_USER" }
+USER_PASSWORD = { from="database", key="MARIADB_PASSWORD" }
+
+[docker]
+restart_policy.name = "always"
+
+[port.web]
+# publication port of the app inside the container
+container = 5000
+
+[[provider]]
+name = "database"
+module-name = "mariadb"
+module-version = ">=10.6, <10.7"

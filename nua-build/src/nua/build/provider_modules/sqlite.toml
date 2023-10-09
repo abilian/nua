@@ -1,0 +1,20 @@
+module-name = "sqlite"
+type = "volume"
+network = false
+
+[build]
+license = "Public Domain"
+
+[env]
+SQLITE_DIR = { from = "data", key ="target" }
+SQLITE_SOURCE = { from = "data", key = "full_name" }
+
+[env.SQLITE_DB]
+unique_db = true
+persist = true
+
+[[volume]]
+name = "data"
+type = "managed"
+driver = "docker"
+target = "/nua/app/sqlite"

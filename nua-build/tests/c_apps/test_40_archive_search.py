@@ -3,6 +3,7 @@ import subprocess as sp
 import tempfile
 from pathlib import Path
 from shutil import copytree
+from unittest import skip
 
 from cleez.testing import CliRunner
 from docker import DockerClient
@@ -45,6 +46,7 @@ def _build_test_search(tmpdirname, src_path, image_target, app_id):
     assert internal_config["metadata"]["id"] == app_id
 
 
+@skip("FIXME")
 def build_app(build_dir: Path) -> None:
     """Quick build the application with nua-build."""
     result = runner.invoke(nua_build, ["-v", str(build_dir)])

@@ -1,17 +1,15 @@
 [metadata]
 id = "flask-sub-folder2"
 version = "1.2"
-release = 3
+release = 4
 title = "Flask test nua in sub folder"
 author = "Nua testers"
 tagline = "Nua test with Flask - sub"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static"]
-license = "MIT"
 
 [build]
-nua_dir = "nua_files"
-document-root = "/nua/app/html"
+license = "MIT"
 test = "python -c 'import flask_sub_folder2'"
 
 [docker]

@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 import pytest
-from nua.lib.nua_config import NuaConfig, NuaConfigError
+from nua.lib.nua_config import NuaConfig
 from nua.lib.panic import Abort
 
 from .build_image import build_test_image
@@ -20,7 +20,9 @@ def test_build_app(dir_name: str):
     assert os.getcwd() == orig_path
 
 
-def test_missing_license():
+def test_missing_license_is_proprietary_license():
     config_path = Path(__file__).parent / "data" / "config_missing_licence"
-    with pytest.raises(NuaConfigError):
-        _config = NuaConfig(config_path)  # noqa F841
+    config = NuaConfig(config_path)  # noqa F841
+    expected = "Proprietary"
+    result = config.build["license"]
+    assert result == expected

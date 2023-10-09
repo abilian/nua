@@ -1,0 +1,9 @@
+{
+    "site": [
+        {
+            "label": "upload",
+            "domain": "test1.example.com",
+            "image": "flask_upload_tmpfs"
+        }
+    ]
+}

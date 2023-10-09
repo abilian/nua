@@ -2,25 +2,25 @@ import mmap
 import os
 import re
 import tempfile
+from collections.abc import Callable, Iterable
 from glob import glob
 from hashlib import sha256
 from importlib import resources as rso
 from pathlib import Path
+from typing import Any
+from urllib.error import HTTPError
 from urllib.parse import urlparse
 from urllib.request import urlopen
-
-from jinja2 import Template
 
 from ..panic import Abort, info, show, warning
 from ..shell import sh
 from ..tool.state import verbosity
 from ..unarchiver import unarchive
 
+
 #
 # Other stuff
 #
-
-
 def _glob_extended(packages: list):
     """Expand glob patterns in a list of packages."""
     extended = []
@@ -52,8 +52,7 @@ def download_extract(
         # info("Download URL:", url)
     with tempfile.TemporaryDirectory() as tmp:
         target = Path(tmp) / name
-        with urlopen(url) as remote:  # noqa S310
-            target.write_bytes(remote.read())
+        download_url(url, target)
         verify_checksum(target, checksum)
         dest_path = Path(dest) / dest_name
         unarchive(target, str(dest_path))
@@ -62,6 +61,15 @@ def download_extract(
         with verbosity(3):
             sh(f"ls -l {dest_path}")
         return dest_path
+
+
+def download_url(url: str, target: Path) -> None:
+    try:
+        with urlopen(url) as remote:  # noqa S310
+            target.write_bytes(remote.read())
+    except (HTTPError, OSError):
+        warning(f"download_url() failed for {url}")
+        raise
 
 
 def verify_checksum(target: Path, checksum: str) -> None:
@@ -181,33 +189,6 @@ def append_bashrc(home: str | Path, content: str):
         wfile.write(lines)
 
 
-def jinja2_render_file(template: str | Path, dest: str | Path, data: dict) -> bool:
-    """Render a Jinja2 template file."""
-    template_path = Path(template)
-    if not template_path.is_file():
-        raise FileNotFoundError(template_path)
-    dest_path = Path(dest)
-    j2_template = Template(
-        template_path.read_text(encoding="utf8"), keep_trailing_newline=True
-    )
-    dest_path.write_text(j2_template.render(data), encoding="utf8")
-    with verbosity(3):
-        show("Jinja2 render template from:", template)
-    return True
-
-
-def jinja2_render_from_str_template(
-    template: str, dest: str | Path, data: dict
-) -> bool:
-    """Render a Jinja2 template from a string."""
-    dest_path = Path(dest)
-    j2_template = Template(template, keep_trailing_newline=True)
-    dest_path.write_text(j2_template.render(data), encoding="utf8")
-    with verbosity(3):
-        show("Jinja2 render template from string")
-    return True
-
-
 def snake_format(name: str) -> str:
     """Convert a string to snake_case format.
     >>> snake_format("my-project")
@@ -216,12 +197,79 @@ def snake_format(name: str) -> str:
     return "_".join(word.lower() for word in name.replace("-", "_").split("_"))
 
 
+def kebab_format(name: str) -> str:
+    """Convert a string to kebab_case format.
+    >>> kebab_format("my_project")
+    'my-project'
+    """
+    return "-".join(word.lower() for word in name.replace("_", "-").split("-"))
+
+
 def camel_format(name: str) -> str:
     """Convert a string to CamelCase format.
     >>> camel_format("my-project")
     'MyProject'
     """
     return "".join(word.title() for word in name.replace("-", "_").split("_"))
+
+
+def _to_format_cases(
+    formatter: Callable,
+    data: dict[str, Any] | list,
+    unchanged: Iterable,
+    recurse: int = 999,
+) -> None:
+    """Converts all keys in a dict  or list to "formatter" format, with list of
+    unchanged keys and recursion level, in place."""
+    if isinstance(data, list):
+        for item in data:
+            if isinstance(item, dict):
+                _to_format_cases_dict(formatter, item, unchanged, recurse - 1)
+    elif isinstance(data, dict):
+        _to_format_cases_dict(formatter, data, unchanged, recurse - 1)
+
+
+def _to_format_cases_dict(
+    formatter: Callable,
+    data: dict[str, Any],
+    unchanged: Iterable,
+    recurse: int = 999,
+) -> None:
+    """Converts all keys in a dict to "formatter" format, with list of unchanged
+    keys and recursion level, in place."""
+    for key, value in list(data.items()):
+        if key in unchanged:
+            continue
+        new_key = formatter(key)
+        if new_key != key:
+            data[new_key] = value
+            del data[key]
+        if recurse > 0 and isinstance(value, (dict, list)):
+            _to_format_cases(formatter, value, unchanged, recurse - 1)
+
+
+def to_snake_cases(
+    data: dict[str, Any],
+    recurse: int = 999,
+    unchanged: Iterable | None = None,
+) -> None:
+    """Converts all keys in a dict to snake_case, recursion level,
+    in place."""
+    if unchanged is None:
+        unchanged = []
+    _to_format_cases(snake_format, data, unchanged, recurse)
+
+
+def to_kebab_cases(
+    data: dict[str, Any],
+    recurse: int = 999,
+    unchanged: Iterable | None = None,
+) -> None:
+    """Converts all keys in a dict to snake_case, recursion level,
+    in place."""
+    if unchanged is None:
+        unchanged = []
+    _to_format_cases(kebab_format, data, unchanged, recurse)
 
 
 def copy_from_package(

@@ -1,20 +1,16 @@
 [metadata]
 id = "flask-upload-one"
 version = "1.0"
-release = 3
+release = 4
 title = "Flask test upload one"
 author = "Nua testers"
 tagline = "Nua test with Flask and mount - one"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static", "mount"]
-license = "MIT"
 
 [build]
-document-root = "/nua/app/html"
-# - should auto detect local python project
-
+license = "MIT"
 test = "python -c 'import flask_upload_one'"
-
 
 [docker]
 # parameters passed as a dict to docker run
@@ -24,17 +20,5 @@ auto_remove = true
 container = 80
 
 [[volume]]
-# The mount type (bind / volume / tmpfs / npipe). Default: volume :
-type = "volume"
-# Name of the driver used to create the volume: (for type == "volume")
-driver = "local"
-# Mount source (e.g. a volume name or a host path):
-prefix = "flask_uploads"
-# Container path:
+name = "flask_uploads"
 target = "/var/tmp/uploads"
-#[[mount.opt]]
-# list of volume-op tags
-# docker.types.Mount
-# volume = client.volumes.create(name='foobar', driver='local',
-#   driver_opts={'foo': 'bar', 'baz': 'false'},
-#   labels={"key": "value"})

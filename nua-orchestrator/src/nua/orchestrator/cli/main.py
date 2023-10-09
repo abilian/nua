@@ -9,25 +9,30 @@ from nua.lib.panic import warning
 from nua.lib.tool.state import set_color, set_verbosity
 
 from .. import __version__
+from ..api import API
+from ..init import initialization
 from ..search_cmd import search_nua_print
 from . import configuration as config_cmd
 from . import debug
-from .commands.api import API
-from .commands.backup import backup_all
+from .commands.backup_restore import (
+    backup_all_apps,
+    backup_one_app,
+    restore_last_backup,
+    restore_list_backups,
+)
 from .commands.deploy_remove import (
     deploy_merge_nua_app,
     deploy_nua_apps,
     remove_nua_domain,
     remove_nua_label,
 )
-from .commands.restore import restore_nua_apps_replay, restore_nua_apps_strict
+from .commands.restore_deployed import restore_active_state
 from .commands.start_stop import (
-    restart_nua_instance_domain,
-    start_nua_instance_domain,
-    stop_nua_instance_domain,
+    restart_nua_instance,
+    start_nua_instance,
+    stop_nua_instance,
 )
-from .commands.status import status
-from .init import initialization
+from .commands.status import StatusCommand
 
 ALLOW_SUFFIX = {".json", ".toml", ".yaml", ".yml"}
 
@@ -59,14 +64,16 @@ opt_verbose = typer.Option(
     0, "--verbose", "-v", help="Show more informations, until -vvv.", count=True
 )
 option_color = typer.Option(True, "--color/--no-color", help="Colorize messages.")
-option_restore_strict = typer.Option(
-    False, "--strict/--replay", help="Use strict restore mode."
-)
 option_json = typer.Option(False, "--json", help="Output result as JSON.")
 option_short = typer.Option(False, help="Show short text result.")
 option_raw = typer.Option(False, "--raw", help="Return raw result (not JSON).")
-option_domain = typer.Option("", "--domain", "-d", help="Select domain to stop.")
-option_label = typer.Option("", "--label", "-l", help="Select label to stop.")
+option_all_apps = typer.Option(False, "--all", "-a", help="Select all apps.")
+option_label = typer.Option("", "--label", "-l", help="Select app by label.")
+option_domain = typer.Option("", "--domain", "-d", help="Select app by domain.")
+option_list_backup = typer.Option(False, "--list", help="List available backups.")
+option_last_backup = typer.Option(
+    False, "--last", help="Restore from last available backup."
+)
 
 
 def _print_version():
@@ -80,11 +87,12 @@ def usage():
 
 
 @app.command("status")
-def status_local():
+def status_local() -> None:
     """Status of orchestrator."""
     initialization()
     set_verbosity(0)
-    status()
+    status = StatusCommand()
+    status.display()
 
 
 @app.command("reload")
@@ -158,80 +166,113 @@ def remove_local(
         print("WIP: currently a label or domain must be provided.")
 
 
-@app.command("restore")
+@app.command("restore-deployed")
 def restore_local(
     verbose: int = opt_verbose,
     colorize: bool = option_color,
-    strict: bool = option_restore_strict,
 ):
     """Restore last successful deployment."""
     set_verbosity(verbose)
     set_color(colorize)
     initialization()
-    if strict:
-        restore_nua_apps_strict()
-    else:
-        restore_nua_apps_replay()
+    restore_active_state()
 
 
 @app.command("stop")
 def stop_local(
     verbose: int = opt_verbose,
     colorize: bool = option_color,
+    label: str = option_label,
     domain: str = option_domain,
 ):
     """Stop a deployed instance."""
     set_verbosity(verbose)
     set_color(colorize)
     initialization()
-    if domain:
-        stop_nua_instance_domain(domain)
+    if label:
+        stop_nua_instance(label=label)
+    elif domain:
+        stop_nua_instance(domain=domain)
     else:
-        print("WIP: currently a domain must be provided.")
+        print("WIP: currently a label or domain must be provided.")
 
 
 @app.command("start")
 def start_local(
     verbose: int = opt_verbose,
     colorize: bool = option_color,
+    label: str = option_label,
     domain: str = option_domain,
 ):
     """Start a deployed instance."""
     set_verbosity(verbose)
     set_color(colorize)
     initialization()
-    if domain:
-        start_nua_instance_domain(domain)
+    if label:
+        start_nua_instance(label=label)
+    elif domain:
+        start_nua_instance(domain=domain)
     else:
-        print("WIP: currently a domain must be provided.")
+        print("WIP: currently a label or domain must be provided.")
 
 
 @app.command("restart")
 def restart_local(
     verbose: int = opt_verbose,
     colorize: bool = option_color,
+    label: str = option_label,
     domain: str = option_domain,
 ):
     """Restart a deployed instance."""
     set_verbosity(verbose)
     set_color(colorize)
     initialization()
-    if domain:
-        restart_nua_instance_domain(domain)
+    if label:
+        restart_nua_instance(label=label)
+    elif domain:
+        restart_nua_instance(domain=domain)
     else:
-        print("WIP: currently a domain must be provided.")
+        print("WIP: currently a label or domain must be provided.")
 
 
 @app.command("backup")
-def backup_all_cmd(
+def backup_cmd(
     verbose: int = opt_verbose,
     colorize: bool = option_color,
+    all_apps: bool = option_all_apps,
+    label: str = option_label,
+    domain: str = option_domain,
 ):
-    """Backup now all instance having a backup rules."""
+    """Backup app instance(s) having a backup rules."""
     set_verbosity(verbose)
     set_color(colorize)
     initialization()
-    backup_all()
+    if all_apps:
+        backup_all_apps()
+    elif label or domain:
+        backup_one_app(label=label, domain=domain)
+    else:
+        print("WIP: a label or domain must be provided or --all.")
+
+
+@app.command("backup-restore")
+def restore_last_backup_cmd(
+    verbose: int = opt_verbose,
+    colorize: bool = option_color,
+    label: str = option_label,
+    domain: str = option_domain,
+    list_flag: bool = option_list_backup,
+    last_flag: bool = option_last_backup,
+):
+    """Restore backuped data for the app instance."""
+    set_verbosity(verbose)
+    set_color(colorize)
+    initialization()
+    if list_flag:
+        return restore_list_backups(label=label, domain=domain)
+    if label or domain:
+        return restore_last_backup(label=label, domain=domain)
+    print("WIP: currently a label or domain must be provided.")
 
 
 @app.command("rpc", hidden=True)

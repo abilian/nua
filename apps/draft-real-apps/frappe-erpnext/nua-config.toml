@@ -6,7 +6,7 @@ author = "Nua testers"
 tagline = "Nua test with ERPNext"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "MariaDB"]
-licence = "MIT"
+license = "MIT"
 profile = ["test"]
 release = 1
 
@@ -57,16 +57,16 @@ DB_USER = "bob"
 
 [port.web]
 container = 80
-[[resource]]
-# A resource is another container required by the main app container, its
-# configuration is described below, under the key of name of the resource. Several
-# resources can be declared. The resource host will appear in the local network
-# with a hostname equal to the container name. The name of the resource hostname
-# is available in the environment variable NUA_${name_of_the_resource}_HOST, ie in
+[[provider]]
+# A provider is another container required by the main app container, its
+# configuration is described below, under the key of name of the provider. Several
+# providers can be declared. The provider host will appear in the local network
+# with a hostname equal to the container name. The name of the provider hostname
+# is available in the environment variable NUA_${name_of_the_provider}_HOST, ie in
 # this example: NUA_DATABASE_HOST
 
 # declaration of the required image for the resurce, here the official Postgres
 # Docker image
-name = "database"
-type = "local"
-service = "mariadb"
+# name = "database"
+# type = "local"
+# service = "mariadb"

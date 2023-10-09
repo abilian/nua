@@ -1,0 +1,6 @@
+ARG nua_builder_tag
+FROM ${nua_builder_tag} as builder
+
+RUN . /nua/venv/bin/activate \
+    && python -c 'from nua.lib.actions import install_nodejs as n; n("18")' \
+    && node --version > /nua/node_version

@@ -1,7 +1,6 @@
 metadata:
   author: Jerome Dumonteil <jd@abilian.com>
   id: echo-two-ports-yaml
-  license: MIT
   release: 3
   tagline: Nua test server 2 ports
   tags:
@@ -13,6 +12,7 @@ metadata:
   version: '1.0'
   website: https://nua.rocks/
 build:
+  license: MIT
   pip-install:
   - "*.whl"
   test: "python -c 'import echos'"
@@ -21,7 +21,6 @@ run:
 port:
   web:
     container: 8765
-ports:
   abcd:
     container: 8764
     proxy: 8764

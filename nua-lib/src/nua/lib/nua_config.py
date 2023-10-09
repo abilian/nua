@@ -2,35 +2,25 @@
 import json
 import os
 from copy import deepcopy
+from functools import cached_property
 from pathlib import Path
-from typing import Any, Union
+from typing import Any
 
 import tomli
 import yaml
+from dictdiffer import diff
 
-from .actions import download_extract
+from .actions import download_extract, to_kebab_cases, to_snake_cases
 from .constants import NUA_CONFIG_STEM, nua_config_names
+from .exceptions import NuaConfigError
+from .normalization import normalize_env_values, normalize_ports, ports_as_list
+from .nua_config_format import NuaConfigFormat
 from .nua_tag import nua_tag_string
+from .panic import red_line, vprint
 from .shell import chown_r
 
-REQUIRED_BLOCKS = ["metadata"]
-REQUIRED_METADATA = ["id", "version", "title", "author", "license"]
-OPTIONAL_METADATA = [
-    "tagline",
-    "website",
-    "tags",
-    "profile",
-    "release",
-    "changelog",
-    "name",
-    "image",
-]
 # blocks added (empty) if not present in orig file:
 COMPLETE_BLOCKS = ["build", "run", "env", "docker"]
-
-
-class NuaConfigError(ValueError):
-    pass
 
 
 def hyphen_get(data: dict, key: str, default: Any = None) -> Any:
@@ -45,39 +35,22 @@ def hyphen_get(data: dict, key: str, default: Any = None) -> Any:
     return result
 
 
-def nomalize_env_values(env: dict[str, Union[str, int, float, list]]) -> dict[str, str]:
-    def normalize_env_leaf(value: Any) -> str:
-        if isinstance(value, str):
-            return value
-        if isinstance(value, (int, float, list)):
-            return str(value)
-        raise NuaConfigError(f"ENV value has wrong type: '{value}'")
-
-    validated: dict[str, str | dict] = {}
-    for key, value in env.items():
-        if isinstance(value, dict):
-            validated[key] = {k: normalize_env_leaf(v) for k, v in value.items()}
-        else:
-            validated[key] = normalize_env_leaf(value)
-
-    return deepcopy(validated)  # type: ignore
-
-
-def force_list(content) -> list:
+def force_list(content: Any) -> list[Any]:
     """Return always a list, if a single string is provided, wrap it into
     list.
     >>> force_list("foo")
     ['foo']
-    >>> force_list(["foo"])
-    ['foo']
+    >>> force_list(["foo", "bar"])
+    ['foo', 'bar']
     >>> force_list([])
     []
+    >>> force_list("")
+    []
     """
-
+    if content is None or content == "":
+        return []
     match content:
-        case []:
-            return content
-        case [_]:
+        case list():
             return content
         case _:
             return [content]
@@ -92,7 +65,7 @@ class NuaConfig:
     path: Path
     root_dir: Path
     nua_dir_exists: bool
-    _data: dict
+    _data: dict[str, Any]
 
     def __init__(self, path: str | Path | None = None):
         if not path:
@@ -100,12 +73,9 @@ class NuaConfig:
         self._find_root_dir(path)
         self._find_config_file()
         self._loads_config()
-        self._check_required_blocks()
-        self._complete_missing_blocks()
-        self._fix_spelling()
-        self._check_required_metadata()
         self._check_checksum_format()
-        self._nomalize_env_values()
+        self._normalize_env_values()
+        self._normalize_ports()
 
     def __repr__(self):
         return f"NuaConfig(path={self.path}, id={id(self)})"
@@ -178,15 +148,49 @@ class NuaConfig:
             f"Nua config file not found in '{self.root_dir}' and sub folders"
         )
 
-    def _loads_config(self):
+    def _read_config_data(self) -> dict[str, Any]:
         if self.path.suffix == ".toml":
-            self._data = tomli.loads(self.path.read_text(encoding="utf8"))
+            return tomli.loads(self.path.read_text(encoding="utf8"))
         elif self.path.suffix in {".json", ".yaml", ".yml"}:
-            self._data = yaml.safe_load(self.path.read_text(encoding="utf8"))
+            return yaml.safe_load(self.path.read_text(encoding="utf8"))
         else:
             raise NuaConfigError(f"Unknown file extension for '{self.path}'")
 
-    def as_dict(self) -> dict:
+    def _loads_config(self) -> None:
+        unchanged = {"docker", "env"}
+        recurse = 4
+        read_data = self._read_config_data()
+        data = deepcopy(read_data)
+        to_snake_cases(data, recurse=recurse, unchanged=unchanged)
+        # store internally as a dict() after pydantic validation:
+        data = NuaConfigFormat(**data).dict()
+        to_kebab_cases(data, recurse=recurse, unchanged=unchanged)
+        self._data = data
+        self._show_config_differences(read_data)
+
+    def _show_config_differences(self, data: dict[str, Any]) -> None:
+        """Print the difference between original data and actual loaded config.
+
+        This shows the diff between the original TOML and the parsed config once
+        it has been converted to a Pydantic model.
+        Pydantic doesn't check (AFAIK) for extra (just for missing keys or values
+        of the wrong type), so this is a way to check for typos in the keys, etc.
+        """
+        header_displayed = False
+        for key, section, changes in diff(data, self._data):
+            if len(changes) == 2 and not isinstance(changes[0], tuple):
+                change_list = [changes]
+            else:
+                change_list = changes
+            for change_key, value in change_list:
+                if value is None:
+                    continue
+                if not header_displayed:
+                    red_line("NuaConfig data changes:")
+                    header_displayed = True
+                vprint(f"    {key}: {section}.{change_key}: {repr(value)}")
+
+    def as_dict(self) -> dict[str, Any]:
         return self._data
 
     def dump_json(self, folder: Path | str) -> None:
@@ -196,43 +200,27 @@ class NuaConfig:
             encoding="utf8",
         )
 
-    def _check_required_blocks(self):
-        for block in REQUIRED_BLOCKS:
-            if block not in self._data:
-                raise NuaConfigError(
-                    f"Missing mandatory block in {self.path}: '{block}'"
-                )
-
-    def _complete_missing_blocks(self):
-        for block in COMPLETE_BLOCKS:
-            if block not in self._data:
-                self._data[block] = {}
-
-    def _fix_spelling(self):
-        if "license" not in self.metadata and "licence" in self.metadata:
-            self.metadata["license"] = self.metadata["licence"]
-
-    def _check_required_metadata(self):
-        for key in REQUIRED_METADATA:
-            if key not in self._data["metadata"]:
-                raise NuaConfigError(
-                    f"Missing mandatory metadata in {self.path}: '{key}'"
-                )
-
     def _check_checksum_format(self):
-        checksum = self.checksum
+        checksum = self.src_checksum
         if not checksum:
             return
         if checksum.startswith("sha256:"):
             checksum = checksum[7:]
         if len(checksum) != 64:
             raise NuaConfigError(
-                f"Wrong checksum content (expecting 64 length sha256): {checksum}"
+                f"Wrong src-checksum content (expecting 64 length sha256): {checksum}"
             )
-        self.metadata["checksum"] = checksum
 
-    def _nomalize_env_values(self):
-        self._data["env"] = nomalize_env_values(self.env)
+    def _normalize_env_values(self):
+        self._data["env"] = normalize_env_values(self.env)
+
+    def _normalize_ports(self):
+        normalized_ports = normalize_ports(ports_as_list(self.ports))
+        self._data["port"] = {}
+        for port in normalized_ports:
+            name = port["name"]
+            del port["name"]
+            self._data["port"][name] = port
 
     def __getitem__(self, key: str) -> Any:
         """will return {} if key not found, assuming some parts are not
@@ -245,13 +233,16 @@ class NuaConfig:
     def metadata(self) -> dict:
         return self["metadata"]
 
-    @property
+    @cached_property
     def metadata_rendered(self) -> dict:
-        """Return the metadata dict with rendered f-string values."""
+        """Return the metadata and build sections with rendered
+        f-string values."""
+        mixed = deepcopy(self.metadata)
+        mixed.update(deepcopy(self.build))
         data = {}
-        for key, val in deepcopy(self.metadata).items():
+        for key, val in deepcopy(mixed).items():
             if isinstance(val, str):
-                data[key] = val.format(**self.metadata)
+                data[key] = val.format(**mixed)
             else:
                 data[key] = val
         return data
@@ -262,49 +253,12 @@ class NuaConfig:
         return self.metadata.get("version", "")
 
     @property
-    def src_url(self) -> str:
-        if base := hyphen_get(self.metadata, "src-url"):
-            return base.format(**self.metadata)
-        return ""
-
-    @property
-    def git_url(self) -> str:
-        if base := hyphen_get(self.metadata, "git-url"):
-            return base.format(**self.metadata)
-        return ""
-
-    @property
-    def git_branch(self) -> str:
-        if base := hyphen_get(self.metadata, "git-branch"):
-            return base.format(**self.metadata)
-        return "main"
-
-    @property
-    def wrap_image(self) -> str:
-        """Optional  Docker 'image' to be used as base for 'wrap' strategy.
-
-        If the 'image' metadata is defined, the build strategy is to add
-        the '/nua/metadata/nua-config.json' file on the declared image,
-        when build method is 'wrap'.
-        """
-        if base := self.metadata.get("image", ""):
-            return base.format(**self.metadata)
-        return ""
-
-    @property
-    def checksum(self) -> str:
-        """Return checksum associated to 'src-url' or null string."""
-        return self.metadata.get("checksum", "").strip().lower()
-
-    @property
     def app_id(self) -> str:
         return self.metadata.get("id", "")
 
     @property
-    def name(self) -> str:
-        if name := self.metadata.get("name", ""):
-            return name
-        return self.app_id
+    def title(self) -> str:
+        return self.metadata.get("title", "")
 
     @property
     def nua_tag(self) -> str:
@@ -314,40 +268,79 @@ class NuaConfig:
 
     @property
     def build(self) -> dict:
-        return self["build"]
+        return self._data.get("build") or {}
+
+    @cached_property
+    def src_url(self) -> str:
+        if base := hyphen_get(self.build, "src-url"):
+            return base.format(**self.metadata_rendered)
+        return ""  #
+
+    @cached_property
+    def git_url(self) -> str:
+        if base := hyphen_get(self.build, "git-url"):
+            return base.format(**self.metadata_rendered)
+        return ""
+
+    @cached_property
+    def git_branch(self) -> str:
+        if base := hyphen_get(self.build, "git-branch"):
+            return base.format(**self.metadata_rendered)
+        return "main"
+
+    @cached_property
+    def wrap_image(self) -> str:
+        """Optional container image to be used as base for 'wrap' strategy.
+
+        If the 'base-image' metadata is defined, the build strategy is to add
+        the '/nua/metadata/nua-config.json' file on the declared image,
+        when build method is 'wrap'.
+        """
+        if base := hyphen_get(self.build, "base-image"):
+            return base.format(**self.metadata_rendered)
+        return ""
 
     @property
-    def builder(self) -> str:
-        return self.build.get("builder", "")
+    def src_checksum(self) -> str:
+        """Return checksum associated to 'src-url' or null string."""
+        if checksum := hyphen_get(self.build, "src-checksum"):
+            return checksum.strip().lower()
+        return ""  #
 
-    @property
+    @cached_property
+    def builder(self) -> str | dict[str, str] | list[dict]:
+        if base := self.build.get("builder", ""):
+            if isinstance(base, str):
+                return base.format(**self.metadata_rendered)
+        return ""
+
+    @cached_property
     def project(self) -> str:
         """The project URL to build with autodetection."""
         if base := self.build.get("project"):
-            return base.format(**self.metadata)
+            return base.format(**self.metadata_rendered)
         return ""
 
     @property
     def manifest(self) -> list:
-        return force_list(self.build.get("manifest", []))
+        return force_list(self.build.get("manifest") or "")
 
     @property
     def meta_packages(self) -> list:
-        return force_list(hyphen_get(self.build, "meta-packages", []))
+        return force_list(hyphen_get(self.build, "meta-packages") or "")
 
     @property
     def build_packages(self) -> list:
-        return force_list(self.build.get("packages", []))
+        return force_list(self.build.get("packages") or "")
 
-    @property
+    @cached_property
     def build_command(self) -> list:
         """Return the list of build commands, each cmd rendered with
         metadata."""
-        metadata = self.metadata_rendered
         commands = []
-        for cmd in force_list(hyphen_get(self.build, "build-command", [])):
+        for cmd in force_list(self.build.get("build", [])):
             if isinstance(cmd, str):
-                commands.append(cmd.format(**metadata))
+                commands.append(cmd.format(**self.metadata_rendered))
             else:
                 commands.append(cmd)
         return commands
@@ -366,19 +359,11 @@ class NuaConfig:
         default_method = hyphen_get(self.build, "default-method", "")
         return self.build.get("method", default_method)
 
-    @property
-    def docker_user(self) -> str:
-        """User of the Docker container, default is root.
-
-        Especially usefull when wrapping an existing Dockerfile.
-        """
-        return hyphen_get(self.build, "docker-user", "")
-
     # run ###########################################################
 
     @property
     def run(self) -> dict:
-        return self["run"]
+        return self._data.get("run") or {}
 
     @property
     def packages(self) -> list:
@@ -393,27 +378,33 @@ class NuaConfig:
 
     @property
     def env(self) -> dict:
-        return self["env"]
+        return self._data.get("env") or {}
 
     # docker env ####################################################
 
     @property
     def docker(self) -> dict:
-        return self["docker"]
+        return self._data.get("docker") or {}
 
     # volumes declaration ###########################################
 
     @property
-    def volume(self) -> list:
+    def volumes(self) -> list:
         """The list of declared volumes."""
-        return self._data.get("volume", [])
+        return self._data.get("volume") or []
 
-    # resource ######################################################
+    # providers #####################################################
 
     @property
-    def resource(self) -> list:
-        """The list of resources (tag 'resource')."""
-        return self._data.get("resource", [])
+    def providers(self) -> list:
+        """The list of providers (tag 'provider')."""
+        return self._data.get("provider") or []
+
+    # ports #########################################################
+
+    @property
+    def ports(self) -> dict[str, dict]:
+        return self._data.get("port") or {}
 
     # actions #######################################################
 
@@ -423,10 +414,10 @@ class NuaConfig:
         Set ownership to 'nua' user if launched by 'root'.
         """
         if not name:
-            name = self.name
+            name = self.app_id
             if name.startswith("nua-"):
                 name = name[4:]
-        path = download_extract(self.src_url, "/nua/build", name, self.checksum)
+        path = download_extract(self.src_url, "/nua/build", name, self.src_checksum)
         if os.getuid() == 0:
             chown_r(path, "nua")
         return path

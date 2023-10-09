@@ -1,0 +1,20 @@
+module-name = "redis-cache"
+type = "docker-image"
+network = true
+module-versions = [
+    { version = "7.0.8", arch = "amd64", link = "docker.io/amd64/redis:7.0.8" },
+    { version = "6.2.10", arch = "amd64", link = "docker.io/amd64/redis:6.2.10" },
+    { version = "6.0.17", arch = "amd64", link = "docker.io/amd64/redis:6.0.17" },
+]
+
+[build]
+license = "BSD-3-Clause"
+
+[env]
+REDIS_PORT = "6379"
+
+[docker]
+detach = true
+
+[docker.restart_policy]
+name = "always"

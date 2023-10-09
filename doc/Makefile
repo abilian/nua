@@ -16,6 +16,7 @@ run: $(src)
 build: $(src)
 	mkdocs build
 	cp -a src/.well-known site/
+	cp -a assets/root/* site/
 
 deploy: build
 	rsync -e ssh -avz site/ $(TARGET)

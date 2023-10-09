@@ -7,9 +7,9 @@ author = "Jerome Dumonteil <jd@abilian.com>"
 tagline = "Nua test server 3 ports"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static"]
-license = "MIT"
 
 [build]
+license = "MIT"
 test = "python -c 'from echos.echo_server import echo'"
 
 [run]
@@ -17,9 +17,6 @@ start = "python -c 'from echos.echo_server import echos; echos(8763, 8764, 8765)
 
 [port.web]
 container = 8765
-host = "auto" # default
-protocol = "tcp" # default
-# proxy = 80
 
 [port.portb]
 container = 8764

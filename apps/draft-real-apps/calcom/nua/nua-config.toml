@@ -9,12 +9,12 @@ website = "https://cal.com"
 tags = ["scheduling"]
 license = "AGPL-3.0"
 src-url = "https://github.com/calcom/cal.com/archive/refs/tags/v{version}.zip"
-checksum = "ea39828e96786069027df4e56a1fbf722630248ee77a4f556fc4893b62c9cb2e"
+src-checksum = "ea39828e96786069027df4e56a1fbf722630248ee77a4f556fc4893b62c9cb2e"
 
 [build]
 # use a specific docker image containing nodejs:
 builder = "node-16"
-build-command = [
+build = [
     # "yarn global add turbo",
     # "yarn add turbo",
     "yarn config set network-timeout 1000000000 -g",
@@ -83,13 +83,13 @@ NODE_OPTIONS = "--max-old-space-size=4096"
 [port.web]
 container = 3000
 
-[[resource]]
-# A resource is another container required by the main app container, its
-# configuration is described below, under the key of name of the resource. Several
-# resources can be declared. The resource host will appear in the local network
+[[provider]]
+# A provider is another container required by the main app container, its
+# configuration is described below, under the key of name of the provider. Several
+# providers can be declared. The provider host will appear in the local network
 # with a hostname equal to the container name.
 
 # Declaration of the required image for the resurce, here the official Postgres.
 name = "database"
-type = "postgres"
-version = ">=14, <15"
+module-name = "postgres"
+module-version = ">=14, <15"

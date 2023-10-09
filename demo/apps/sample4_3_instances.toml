@@ -1,0 +1,9 @@
+[[site]]
+label = "hello"
+image = "nua-flask-hello"
+domain = "test1.example.com"
+
+[[site]]
+label = "upload"
+image = "nua-flask-upload-tmpfs"
+domain = "test3.example.com"

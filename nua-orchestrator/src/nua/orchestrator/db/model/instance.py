@@ -5,6 +5,7 @@ from .base import Base
 
 RUNNING = "started"
 STOPPED = "stopped"
+PAUSE = "pause"
 
 
 class Instance(Base, SerializerMixin):
@@ -12,6 +13,7 @@ class Instance(Base, SerializerMixin):
 
     - id: system generated colum for indexes
     - app_id: nua id of the app
+    - label_id: label of the instance
     - nua_tag: nua tag, "nua-{app_id}:{version}-{release}". nua_tag permits
       to find the related docker image.
     - domain: domain serving the app

@@ -6,13 +6,11 @@ author = "Nua testers"
 tagline = "Nua test with Flask - one - setup"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static"]
-license = "MIT"
 profile = ["test"]
 release = 3
 
 [build]
-document_root = "/nua/app/html"
-project = "."
+license = "MIT"
 test = "python -c 'import flask_one_setup'"
 
 [run]

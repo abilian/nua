@@ -9,7 +9,7 @@ For end-users, the main entry point is the `nua` command line tool (see: [Nua on
 
 ## Role of the orchestrator
 
-The orchestrator is in charge of configuring application and resources and deploying them on the host.
+The orchestrator is in charge of configuring application and providers and deploying them on the host.
 
 ## Requirements
 
@@ -26,7 +26,7 @@ Note: this is temporary, the orchestrator will be able to manage multiple hosts 
 
 The Nua Orchestrator will need a 'nua' administrator account with root privileges (sudoer and docker groups).
 
-The Nua Orchestrator will interfere with local resources such as Docker services and locally installed databases. The recommended configuration is therefore to use a dedicated server.
+The Nua Orchestrator will interfere with local providers such as Docker services and locally installed databases. The recommended configuration is therefore to use a dedicated server.
 
 The following Python packages (provided by Ubuntu) are required:
 

@@ -1,0 +1,235 @@
+[metadata]
+id = "docker-mailserver"
+version = "12.1.0"
+release = 6
+title = "A fullstack but simple mail server."
+author = "The Docker Mailserver Organization & Contributors"
+tagline = "A fullstack but simple mail server."
+website = "https://github.com/docker-mailserver/docker-mailserver"
+tags = ["test", "docker", "mail", "SMTP"]
+
+[build]
+license = "MIT license"
+# here the wrapped Docker declaration:
+base-image = "mailserver/docker-mailserver:{version}"
+# test auto detection of base-image:
+# method = "wrap"
+
+[env]
+###############################################################
+# General
+OVERRIDE_HOSTNAME = "mail.example.com"
+POSTMASTER_ADDRESS = "postmaster@example.com"
+POSTMASTER_PASSWD = ""
+LOG_LEVEL = "info"
+SUPERVISOR_LOGLEVEL = "warn"
+ONE_DIR = 1
+ACCOUNT_PROVISIONER = ""
+# maybe add all docker networks
+PERMIT_DOCKER = "connected-networks"
+TZ = 'Europe/Paris'
+ENABLE_AMAVIS = 0
+AMAVIS_LOGLEVEL = 0
+ENABLE_DNSBL = 0
+ENABLE_OPENDKIM = 1
+ENABLE_OPENDMARC = 1
+ENABLE_POLICYD_SPF = 1
+ENABLE_POP3 = ""
+ENABLE_CLAMAV = 0
+ENABLE_FAIL2BAN = 0
+FAIL2BAN_BLOCKTYPE = "drop"
+SMTP_ONLY = ""
+SSL_TYPE = ""
+TLS_LEVEL = "intermediate"
+SPOOF_PROTECTION = 0
+ENABLE_SRS = 0
+NETWORK_INTERFACE = ""
+VIRUSMAILS_DELETE_DELAY = 7
+POSTFIX_DAGENT = ""
+POSTFIX_MAILBOX_SIZE_LIMIT = 0
+ENABLE_QUOTAS = 0
+POSTFIX_MESSAGE_SIZE_LIMIT = 10240000
+CLAMAV_MESSAGE_SIZE_LIMIT = "25M"
+ENABLE_MANAGESIEVE = ""
+ENABLE_UPDATE_CHECK = 1
+UPDATE_CHECK_INTERVAL = "1d"
+POSTSCREEN_ACTION = "enforce"
+DOVECOT_MAILBOX_FORMAT = "maildir"
+POSTFIX_REJECT_UNKNOWN_CLIENT_HOSTNAME = 1
+POSTFIX_INET_PROTOCOLS = "ipv4"
+DOVECOT_INET_PROTOCOLS = "ipv4"
+MOVE_SPAM_TO_JUNK = 1
+###############################################################
+# Rspamd
+ENABLE_RSPAMD = 0
+ENABLE_RSPAMD_REDIS = 0
+RSPAMD_GREYLISTING = 0
+RSPAMD_LEARN = 0
+RSPAMD_HFILTER = 0
+RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE = 6
+###############################################################
+# Reports
+# PFLOGSUMM_TRIGGER
+# PFLOGSUMM_RECIPIENT
+# PFLOGSUMM_SENDER
+LOGWATCH_INTERVAL = "none"
+# LOGWATCH_RECIPIENT
+# LOGWATCH_SENDER
+REPORT_RECIPIENT = ""
+REPORT_SENDER = ""
+LOGROTATE_INTERVAL = "weekly"
+###############################################################
+# SpamAssassin
+ENABLE_SPAMASSASSIN = 0
+SPAMASSASSIN_SPAM_TO_INBOX = 1
+ENABLE_SPAMASSASSIN_KAM = 0
+SA_TAG = 2.0
+SA_TAG2 = 6.31
+SA_KILL = 10.0
+SA_SPAM_SUBJECT = "***SPAM***"
+SA_SHORTCIRCUIT_BAYES_SPAM = 0
+SA_SHORTCIRCUIT_BAYES_HAM = 0
+###############################################################
+# Fetchmail
+ENABLE_FETCHMAIL = 0
+FETCHMAIL_POLL = 300
+FETCHMAIL_PARALLEL = 0
+###############################################################
+# LDAP
+# ENABLE_LDAP = ""
+LDAP_START_TLS = ""
+LDAP_SERVER_HOST = ""
+LDAP_SEARCH_BASE = ""
+LDAP_BIND_DN = ""
+LDAP_BIND_PW = ""
+LDAP_QUERY_FILTER_USER = ""
+LDAP_QUERY_FILTER_GROUP = ""
+LDAP_QUERY_FILTER_ALIAS = ""
+LDAP_QUERY_FILTER_DOMAIN = ""
+LDAP_QUERY_FILTER_SENDERS = ""
+DOVECOT_TLS = ""
+###############################################################
+# Dovecot
+DOVECOT_BASE = ""
+DOVECOT_DEFAULT_PASS_SCHEME = ""
+DOVECOT_DN = ""
+DOVECOT_DNPASS = ""
+DOVECOT_URIS = ""
+DOVECOT_LDAP_VERSION = ""
+DOVECOT_AUTH_BIND = ""
+DOVECOT_USER_FILTER = ""
+DOVECOT_USER_ATTRS = ""
+DOVECOT_PASS_FILTER = ""
+DOVECOT_PASS_ATTRS = ""
+###############################################################
+# Postgrey
+ENABLE_POSTGREY = 0
+POSTGREY_DELAY = 300
+POSTGREY_MAX_AGE = 35
+POSTGREY_AUTO_WHITELIST_CLIENTS = 5
+POSTGREY_TEXT = "Delayed by Postgrey"
+###############################################################
+# SASL Auth
+ENABLE_SASLAUTHD = 0
+SASLAUTHD_MECHANISMS = ""
+SASLAUTHD_MECH_OPTIONS = ""
+SASLAUTHD_LDAP_SERVER = ""
+SASLAUTHD_LDAP_START_TLS = ""
+SASLAUTHD_LDAP_TLS_CHECK_PEER = ""
+SASLAUTHD_LDAP_TLS_CACERT_DIR = ""
+SASLAUTHD_LDAP_TLS_CACERT_FILE = ""
+SASLAUTHD_LDAP_BIND_DN = ""
+SASLAUTHD_LDAP_PASSWORD = ""
+SASLAUTHD_LDAP_SEARCH_BASE = ""
+SASLAUTHD_LDAP_FILTER = ""
+SASLAUTHD_LDAP_PASSWORD_ATTR = ""
+SASLAUTHD_LDAP_AUTH_METHOD = ""
+SASLAUTHD_LDAP_MECH = ""
+###############################################################
+# SRS (Sender Rewriting Scheme)
+SRS_SENDER_CLASSES = "envelope_sender"
+SRS_EXCLUDE_DOMAINS = ""
+SRS_SECRET = ""
+SRS_DOMAINNAME = ""
+###############################################################
+# Default Relay Host
+DEFAULT_RELAY_HOST = ""
+# DEFAULT_RELAY_HOST = "[example.com]:587"
+###############################################################
+# Multi-domain Relay Hosts
+RELAY_HOST = ""
+RELAY_PORT = 25
+RELAY_USER = ""
+RELAY_PASSWORD = ""
+
+
+[run]
+post-run = ["setup email add {POSTMASTER_ADDRESS} {POSTMASTER_PASSWD}",
+            "setup config dkim",
+            "postfix restart",
+            "cat /tmp/docker-mailserver/opendkim/keys/avallaka.net/mail.txt"]
+post-run-status = "created"
+
+# [port.web]
+# container = 80
+
+[port.smtp]
+container = 25
+host = 25
+ssl = false
+
+# [port.imap]
+# container = 143
+# host = 143
+# proxy = 143
+
+# [port.esmtp]
+# container = 465
+# host = 465
+# ssl = false
+
+# [port.esmtp]
+# container = 587
+# host = 587
+# proxy = 587
+
+# [port.imap]
+# container = 993
+# host = 993
+# ssl = false
+
+[healthcheck]
+command = "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"
+start-period = 900
+interval = 60
+timeout = 3
+retries = 0
+
+[[volume]]
+name = "mail-data"
+# Container path:
+target = "/var/mail"
+
+[[volume]]
+name = "mail-state"
+target = "/var/mail-state"
+
+[[volume]]
+name = "mail-logs"
+target = "/var/log/mail"
+
+[[volume]]
+name = "config"
+target = "/tmp/docker-mailserver"
+
+[[volume]]
+type = "directory"
+target = "/etc/letsencrypt"
+# thus, this give access to theis container to ALL domains private keys.
+name = "/home/nua/letsencrypt"
+options = { read-only = true }
+
+[backup]
+method = "tgz_volumes"
+frequency = "24h"
+options = { destination = "local" }

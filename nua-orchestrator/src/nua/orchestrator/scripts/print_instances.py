@@ -2,6 +2,8 @@
 import sys
 from pprint import pprint
 
+from nua.lib.docker import docker_sanitized_name
+
 from ..db import store
 from ..nua_db_setup import setup_nua_db
 
@@ -12,12 +14,12 @@ def main():
     else:
         filter = None
     if filter:
-        filter = "_".join(filter.split())
+        filter = docker_sanitized_name(filter)
     setup_nua_db()
     instances = store.list_instances_all()
     for instance in instances:
         content = instance.to_dict()
-        if filter and content["site_config"]["instance_name_internal"] != filter:
+        if filter and filter not in content["site_config"]["label_id"]:
             continue
         pprint(content)
 

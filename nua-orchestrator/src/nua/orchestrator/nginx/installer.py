@@ -9,13 +9,17 @@ from nua.lib.panic import warning
 from nua.lib.shell import chown_r, mkdir_p
 
 from .. import nua_env
-from .cmd import nginx_restart
-from .utils import chown_r_nua_nginx, install_nua_nginx_default_site, template_content
+from .commands import nginx_restart
+from .render_default import (
+    chown_r_nua_nginx,
+    install_nua_nginx_default_site,
+    template_content,
+)
 
 CONF_HTML = "nua.orchestrator.nginx.html"
 
 
-def install_nginx():
+def install_nginx() -> None:
     print_magenta("Installation of Nua nginx configuration")
     replace_nginx_conf()
     make_nua_nginx_folders()
@@ -25,7 +29,7 @@ def install_nginx():
     nginx_restart()
 
 
-def replace_nginx_conf():
+def replace_nginx_conf() -> None:
     # assume standard linux distribution path:
     host_nginx_conf = Path("/etc/nginx/nginx.conf")
     back_nginx_conf = host_nginx_conf.parent / "nginx_conf.orig"
@@ -40,7 +44,7 @@ def replace_nginx_conf():
     os.chmod(host_nginx_conf, 0o644)
 
 
-def make_nua_nginx_folders():
+def make_nua_nginx_folders() -> None:
     nua_nginx_path = nua_env.nginx_path()
     for path in (
         nua_nginx_path,
@@ -56,7 +60,7 @@ def make_nua_nginx_folders():
     chown_r(nua_nginx_path / "www", "www-data", "www-data")
 
 
-def install_nua_nginx_default_index_html():
+def install_nua_nginx_default_index_html() -> None:
     page = nua_env.nginx_path() / "www" / "html" / "index.html"
     page_src = rso.files(CONF_HTML).joinpath("index.html").read_text(encoding="utf8")
     jinja2_render_from_str_template(page_src, page, nua_env.as_dict())

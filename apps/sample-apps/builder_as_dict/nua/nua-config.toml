@@ -1,0 +1,17 @@
+[metadata]
+id = "empty-rails-demo"
+version = "1.0"
+release = 1
+title = "empty-rails-demo"
+author = "nua testers"
+tagline = "Pseudo app to test builder statement"
+website = ""
+tags = ["Ruby"]
+
+[build]
+license = "MIT"
+builder =  {name = "ruby", version = "3.2" }
+
+[run]
+
+[env]

@@ -20,7 +20,6 @@ from time import sleep
 
 from nua.lib.actions import install_package_list, installed_packages
 from nua.lib.console import print_magenta, print_red
-from nua.lib.db.mariadb_manager import NUA_MARIADB_PWD_FILE
 from nua.lib.exec import exec_as_root, exec_as_root_daemon
 from nua.lib.gen_password import gen_password
 from nua.lib.panic import warning
@@ -29,6 +28,7 @@ from nua.lib.shell import chown_r, sh
 MARIADB_VERSION = "10.6"
 RE_PORT = re.compile(r"\s*port\s*=\s*(\d+)")
 RE_COMMENT = re.compile(r"\s*#")
+NUA_MARIADB_PWD_FILE = ".mariadb_pwd"  # noqa S105
 
 
 def mariadb_pwd() -> str:

@@ -1,45 +1,34 @@
 """Certbot strategies.
 
 host.certbot_strategy (or ENV NUA_CERTBOT_STRATEGY) can be (for now):
+
     - auto: all domains are declared to certbot to use HTTPS
     - none: no HTTPS domain, all is converted to HTTP only (i.e. tests or local server)
     - Default is "auto"
 
 Test ENV variables:
+
     - NUA_CERTBOT_VERBOSE: show certbot log
     - NUA_CERTBOT_TEST: use certbot test environment (only for tests)
 """
 
 import os
-from pathlib import Path
 
-from nua.lib.panic import debug, important, show
+from nua.lib.panic import Abort, debug, important, red_line, show
 from nua.lib.shell import sh
 from nua.lib.tool.state import verbosity
 
 from nua.orchestrator import config
 
-from ..nginx.cmd import nginx_is_active, nginx_restart, nginx_stop
-from ..nua_env import certbot_exe, nua_home_path
+from ..nginx.commands import nginx_is_active, nginx_restart, nginx_stop
+from .installer import (
+    certbot_invocation_list,
+    ensure_letsencrypt_installed,
+    letsencrypt_path,
+)
 
 
-def letsencrypt_path() -> Path:
-    return nua_home_path() / "letsencrypt"
-
-
-def certbot_invocation_list() -> list[str]:
-    return [
-        certbot_exe(),
-        "-c",
-        str(letsencrypt_path() / "cli.ini"),
-    ]
-
-
-def certbot_invocation() -> str:
-    return " ".join(certbot_invocation_list())
-
-
-def certbot_certonly(domain: str, option: str) -> str:
+def certbot_certonly_command(domain: str, option: str) -> str:
     """Build cerbot's arguments for a subdomains.
 
     Standalone or nginx call.
@@ -64,55 +53,68 @@ def certbot_certonly(domain: str, option: str) -> str:
     return " ".join(run_args)
 
 
-def apply_none_strategy(_top_domain: str, domains: list[str]):
+def apply_none_strategy(_top_domain: str, domains: list[str]) -> None:
     with verbosity(0):
         important(f"Use HTTP protocol for: {' '.join(domains)}")
     return
 
 
 def cert_exists(domain: str) -> bool:
+    """Test if a domain exists in letsencrypt/live/."""
     path = letsencrypt_path() / "live" / domain
     if os.getuid():  # aka not root
         cmd = f"sudo test -d {path} && echo ok || echo ko"
         output = sh(cmd, show_cmd=False, capture_output=True)
+        with verbosity(3):
+            debug(f"cert_exists() {domain}")
+            debug(output)
         return output.strip() == "ok"
     else:
         return path.is_dir()
 
 
-def gen_cert_standalone(domain: str):
+def gen_cert_standalone(domain: str) -> bool:
     if os.getuid():  # aka not root
         prefix = "sudo "
     else:
         prefix = ""
-    standalone_cmd = certbot_certonly(domain, "--standalone")
+    standalone_cmd = certbot_certonly_command(domain, "--standalone")
     cmd = f"{prefix}{standalone_cmd}"
     with verbosity(2):
         show(cmd)
-    output = sh(cmd, show_cmd=False, capture_output=True)
+    output = ""
+    try:
+        output = sh(cmd, show_cmd=False, capture_output=True)
+    except Abort:
+        return False
     if output:
         with verbosity(2):
             debug(output)
+    return True
 
 
-def gen_cert_nginx(domain: str):
+def gen_cert_nginx(domain: str) -> None:
     with verbosity(3):
         debug("known domain, will register with --nginx certbot option:", domain)
     if os.getuid():  # aka not root
         prefix = "sudo "
     else:
         prefix = ""
-    nginx_cmd = certbot_certonly(domain, "--nginx")
+    nginx_cmd = certbot_certonly_command(domain, "--nginx")
     cmd = f"{prefix}{nginx_cmd}"
     with verbosity(2):
         show(cmd)
-    output = sh(cmd, show_cmd=False, capture_output=True)
+    try:
+        output = sh(cmd, show_cmd=False, capture_output=True)
+    except Abort:
+        red_line("Error in shell command.")
+        raise
     if output:
         with verbosity(2):
             debug(output)
 
 
-def apply_auto_strategy(top_domain: str, domains: list[str]):
+def apply_auto_strategy(top_domain: str, domains: list[str]) -> bool:
     """Convert just created HTTP configuration (by nginx template) to HTTPS
     using certbot (if strategy is 'auto').
 
@@ -123,6 +125,7 @@ def apply_auto_strategy(top_domain: str, domains: list[str]):
         - let certbot manage cron,
         - apply "auto" rules and parameters.
     """
+    ensure_letsencrypt_installed()
     sorted_domains = sorted(domains)
     with verbosity(0):
         important(f"Use HTTPS protocol (Certbot) for: {' '.join(sorted_domains)}")
@@ -132,11 +135,15 @@ def apply_auto_strategy(top_domain: str, domains: list[str]):
     # If all domain are already known from letsencrypt, we may try a direct
     # reload using nginx (so without killing nginx websites)
     # Else, we need to stop nginx and use the standalone procedure.
-    if nginx_is_active() and all(cert_exists(domain) for domain in sorted_domains):
+    if nginx_is_active(allow_fail=True) and all(
+        cert_exists(domain) for domain in sorted_domains
+    ):
         for domain in sorted_domains:
             gen_cert_nginx(domain)
     else:
-        nginx_stop()
+        nginx_stop(allow_fail=True)
         for domain in sorted_domains:
-            gen_cert_standalone(domain)
-        nginx_restart()
+            if not gen_cert_standalone(domain):
+                return False
+        nginx_restart(allow_fail=False)
+    return True

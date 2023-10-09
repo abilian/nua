@@ -18,9 +18,11 @@ nav:
     - Command Line Interface: user/cli.md
   - Developers:
     - Introduction: dev/index.md
+    - "Nua as a R&D project": dev/r-and-d.md
     - Architecture: dev/architecture.md
     - "Specifications: Configuration": dev/configuration.md
     - "Specification: App Images": dev/image.md
+    - API: dev/api.md
     - Builder: dev/builder.md
     - Orchestrator: dev/orchestrator.md
     - Process and tools: dev/process-tools.md
@@ -100,20 +102,57 @@ markdown_extensions:
 
 plugins:
   - search
+  - include-markdown
   - roamlinks
-  - blogging:
-      dirs:
-        - news
-      features:
-        tags: {}
+  # - git-revision-date-localized:
+  #     type: timeago
+  # - autolinks
+  # - section-index
+  # - mkdocs-newsletter
+  - blog:
+      blog_dir: news
+      archive: false
+      archive_date_format: yyyy - MMM
+      archive_url_date_format: yyyy/MM
+
   - with-pdf:
       author: Stefane Fermigier / Jérôme Dumonteil
-      copyright: © 2022 Abilian
+      copyright: © 2021-2023 Abilian
       cover: true
       back_cover: false
       cover_title: Nua
       cover_subtitle: Self-sovereign cloud platform
       enabled_if_env: ENABLE_PDF_EXPORT
+
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [.]
+          options:
+            filters: ["!^_"]
+            docstring_options:
+              ignore_init_summary: true
+            separate_signature: true
+            merge_init_into_class: true
+            show_object_full_path: true
+            members_order: source
+            group_by_category: false
+            line_length: 80
+            signature_crossrefs: true
+            show_root_toc_entry: false
+            show_source: false
+            show_bases: true
+            heading_level: 3
+
+      # - mkdocstrings: (OLD)
+      #     default_handler: python
+      #     handlers:
+      #       python:
+      #         rendering:
+      #           show_source: false
+      #     custom_templates: templates
+      #     watch:
+      #       - ../src/app
 
       #    custom_template_path: TEMPLATES PATH
       #
@@ -143,13 +182,3 @@ plugins:
       #debug_html: true
       #show_anchors: true
       #verbose: true
-
-  # - mkdocstrings:
-  #     default_handler: python
-  #     handlers:
-  #       python:
-  #         rendering:
-  #           show_source: false
-  #     custom_templates: templates
-  #     watch:
-  #       - ../src/app

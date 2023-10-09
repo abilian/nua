@@ -8,12 +8,17 @@
         "tagline": "Nua test server 2 ports",
         "website": "https://nua.rocks/",
         "tags": [
-            "test", "html", "web", "static"
-        ],
-        "license": "MIT"
+            "test",
+            "html",
+            "web",
+            "static"
+        ]
     },
     "build": {
-        "pip-install": ["*.whl"],
+        "license": "MIT",
+        "pip-install": [
+            "*.whl"
+        ],
         "test": "python -c 'import echos'"
     },
     "run": {

@@ -4,7 +4,7 @@ from typing import Optional
 import typer
 from nua.lib.tool.state import set_color, set_verbosity
 
-from . import __version__
+from .. import __version__
 from .nua_image_builder import NuaImageBuilder
 
 app = typer.Typer()

@@ -1,0 +1,44 @@
+module-name = "postgres"
+type = "docker-image"
+network = true
+connector = "postgres-client"
+
+module-versions = [
+    { version = "15.1", arch = "amd64", link = "docker.io/library/postgres:15.1" },
+    { version = "14.6", arch = "amd64", link = "docker.io/library/postgres:14.6" },
+    { version = "13.9", arch = "amd64", link = "docker.io/library/postgres:13.9" },
+    { version = "12.13", arch = "amd64", link = "docker.io/library/postgres:12.13" },
+    { version = "11.18", arch = "amd64", link = "docker.io/library/postgres:11.18" },
+]
+
+[build]
+license = "PostgreSQL License"
+
+[env]
+POSTGRES_PORT = "5432"
+
+[env.POSTGRES_PASSWORD]
+random = true
+type = "str"
+length = 24
+persist = true
+
+[env.POSTGRES_USER]
+unique_user = true
+persist = true
+
+[env.POSTGRES_DB]
+unique_db = true
+persist = true
+
+[docker]
+detach = true
+
+[docker.restart_policy]
+name = "always"
+
+[[volume]]
+name = "postgres-data"
+type = "managed"
+driver = "docker"
+target = "/var/lib/postgresql/data"

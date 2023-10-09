@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-monorepo"
-version = "0.5.17"
+version = "0.5.42"
 description = ""
 authors = [
     "Stefane Fermigier <sf@abilian.com>",
@@ -12,6 +12,18 @@ packages = [
   { include = "nua_monorepo", from = "src" }
 ]
 
+
+[project.urls]
+homepage = "https://nua.rocks/"
+repository = "https://github.com/abilian/nua"
+documentation = "https://nua.rocks/"
+"Issue Tracker" = "https://github.com/abilian/nua/issues"
+Changelog = "https://github.com/abilian/nua/releases/"
+Twitter = "https://twitter.com/NuaCloud"
+#Reddit = "https://www.reddit.com/r/TODO"
+#Discord = "https://discord.gg/TODO"
+#Blog = "https://blog.nua.rocks/"
+
 [tool.poetry.dependencies]
 python = ">=3.10,<3.12"
 
@@ -20,13 +32,15 @@ nua-cli = { path = "nua-cli", develop = true }
 nua-agent = { path = "nua-agent", develop = true }
 nua-build = { path = "nua-build", develop = true }
 nua-orchestrator = { path = "nua-orchestrator", develop = true }
-nua-server = { path = "nua-server", develop = true }
+# nua-server = { path = "nua-server", develop = true }
 
 # Pinned for some reason
+urllib3 = "<2.0"
 
 
 [tool.poetry.group.dev.dependencies]
 # Testing / checking / QA tools
+urllib3 = "<2.0"
 nox = "*"
 abilian-devtools = "*"
 pydeps = "^1.11.1"

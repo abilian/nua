@@ -1,0 +1,20 @@
+[metadata]
+id = "flask-hello"
+version = "1.2"
+title = "Flask test hello world"
+author = "Nua testers"
+tagline = "Nua test with Flask - one - setup"
+website = "https://nua.rocks/"
+tags = ["test", "html", "web", "static"]
+license = "MIT"
+profile = ["test"]
+release = 4
+
+[build]
+test = "python -c 'import flask_hello'"
+
+[run]
+start = "gunicorn --worker-tmp-dir /dev/shm --workers 2 -b :8000 flask_hello.main:app"
+
+[port.web]
+container = 8000

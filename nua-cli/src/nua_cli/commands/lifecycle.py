@@ -2,7 +2,7 @@ from cleez.colors import red
 from cleez.command import Argument, Command
 
 from ..client import get_client
-from ._common import ORCH_PATH
+from .common import ORCH_PATH
 
 client = get_client()
 

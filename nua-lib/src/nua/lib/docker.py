@@ -1,5 +1,6 @@
 """Docker scripting utils."""
 import re
+import string
 from datetime import datetime
 from functools import wraps
 
@@ -73,6 +74,28 @@ def size_unit():
     return "MiB" if LOCAL_CONFIG.get("size_unit_MiB") else "MB"
 
 
+def docker_sanitized_name(name: str) -> str:
+    """Docker valid name.
+
+    https://docs.docker.com/engine/reference/commandline/
+    tag/#extended-description
+    """
+    # first replace spaces per underscores
+    content = "_".join(name.split())
+    # then apply docjer rules
+    allowed = set(string.ascii_lowercase + string.digits + ".-_")
+    content = "".join([c for c in content.strip().lower() if c in allowed])
+    while ("___") in content:
+        content.replace("___", "__")
+    for sep in ".-_":
+        while content.startswith(sep):
+            content = content[1:]
+        while content.endswith(sep):
+            content = content[:-1]
+    content = content[:128]
+    return content
+
+
 def image_labels(reference: str) -> dict:
     image = docker_require(reference)
     if not image:
@@ -81,18 +104,18 @@ def image_labels(reference: str) -> dict:
 
 
 def display_docker_img(image_name: str):
-    important(f"Docker image for '{image_name}':")
+    important(f"Container image for '{image_name}':")
     client = DockerClient.from_env()
     result = client.images.list(filters={"reference": image_name})
     if not result:
         red_line("No image found")
         return
     for img in result:
-        display_one_docker_img(img)
+        display_one_docker_img(img)  # pyright: ignore
 
 
 def display_one_docker_img(image: Image):
-    sid = image.id.split(":")[-1][:10]
+    sid = image.id.split(":")[-1][:10]  # pyright: ignore
     tags = "|".join(image.tags)
     crea = datetime.fromisoformat(image_created_as_iso(image)).isoformat(" ")
     # Note on size of image: Docker uses 10**6 for MB, not 2**20
@@ -127,7 +150,7 @@ def docker_get_locally(reference: str) -> Image | None:
         if image:
             with verbosity(3):
                 vprint(f"Image '{reference}' found in local Docker instance")
-        return image
+        return image  # pyright: ignore
     except (APIError, ImageNotFound):
         with verbosity(4):
             vprint(f"Image '{reference}' not found in local Docker instance")
@@ -141,7 +164,7 @@ def docker_pull(reference: str) -> Image | None:
         if image:
             with verbosity(3):
                 vprint(f"Image '{reference}' pulled from Docker hub")
-        return image
+        return image  # pyright: ignore
     except (APIError, ImageNotFound):
         with verbosity(3):
             vprint(f"Image '{reference}' not found in Docker hub")

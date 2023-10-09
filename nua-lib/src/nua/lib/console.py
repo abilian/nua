@@ -66,6 +66,11 @@ def print_cyan(msg: str):
 
 
 @if_color
+def print_bold_cyan(msg: str):
+    print(ColorStr.cyan_bold(msg))
+
+
+@if_color
 def print_bold_yellow_white(msg: str):
     parts = msg.rsplit(" ", 1)
     if len(parts) == 2:

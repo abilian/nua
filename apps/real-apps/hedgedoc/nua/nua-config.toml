@@ -2,19 +2,19 @@
 id = "hedgedoc"
 version = "1.9.7"
 # Nota: version 1.9.6 seems broken since 1.9.7
-release = 3
+release = 15
 title = "HedgeDoc"
 author = "HedgeDoc authors"
 tagline = "The best platform to write and share markdown"
 website = "https://hedgedoc.org/"
 tags = ["Markdown", "Documentation", "Collaboration"]
-license = "AGPL-3.0 license"
-src-url = "https://github.com/hedgedoc/hedgedoc/releases/download/{version}/hedgedoc-{version}.tar.gz"
-checksum = 'c9bd99c65cf45fa1d7808855b46abbfa13b24400254d8da5e81dae2965494bb3'
 
 [build]
+license = "AGPL-3.0 license"
+src-url = "https://github.com/hedgedoc/hedgedoc/releases/download/{version}/hedgedoc-{version}.tar.gz"
+src-checksum = 'c9bd99c65cf45fa1d7808855b46abbfa13b24400254d8da5e81dae2965494bb3'
 # use a specific docker image containing nodejs:
-builder = "node-14"
+builder = "node-16"
 
 packages = [
     "build-essential",
@@ -26,7 +26,7 @@ packages = [
     "git",
 ]
 
-build-command = [
+build = [
     "bin/setup",
     "yarn cache clean; rm -fr /tmp/*"
 ]
@@ -37,7 +37,7 @@ packages = [
     "fontconfig",
     "fonts-noto"
 ]
-start = "node app.js"
+start = "sudo node app.js"
 
 [env]
 # Generic environment variables
@@ -87,35 +87,34 @@ container = 3000
 command = "node /nua/build/hedgedoc/healthcheck.mjs"
 interval = 10
 
+
+[backup]
+method = "tgz_volumes"
+frequency = "24h"
+options = { destination = "local" }
+
+
 [[volume]]
 # declare a local volume for plublic uploads
-# bind example: type = "bind"
-type = "volume"
+name = "hedgedoc_uploads"
+target = "/nua/build/hedgedoc/public/uploads"
 
-# Name of the driver used to create the volume: (for type == "volume")
-# driver = "local"  # default for "volume" type
-# Mount source (e.g. a volume name or a host path):
-prefix = "hedgedoc_uploads"
-# Container path:
-target = "/hedgedoc/public/uploads"
+# [volume.backup]
+# method = "tar"
+# frequency = "24h"
+# options = { destination = "local" }
 
-[volume.backup]
-method = "sync"
-destination = "local"
-frequency = "24h"
-
-[[resource]]
-# A resource is another container required by the main app container, its
-# configuration is described below, under the key of name of the resource. Several
-# resources can be declared. The resource host will appear in the local network
+[[provider]]
+# A provider is another container required by the main app container, its
+# configuration is described below, under the key of name of the provider. Several
+# providers can be declared. The provider host will appear in the local network
 # with a hostname equal to the container name.
 
 # Declaration of the required image for the resurce, here the official Postgres.
 name = "database"
-type = "postgres"
-version = ">=14, <15"
+module-name = "postgres"
+module-version = ">=14, <15"
 
-[resource.backup]
-method = "pg_dumpall"
-destination = "local"
-frequency = "24h"
+[provider.backup]
+method = "pg_dump"
+options = { destination = "local" }

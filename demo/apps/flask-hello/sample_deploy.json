@@ -1,0 +1,9 @@
+{
+    "site": [
+        {
+            "label": "hello",
+            "domain": "test1.example.com",
+            "image": "flask-hello"
+        }
+    ]
+}

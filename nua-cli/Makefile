@@ -35,7 +35,7 @@ clean-test: ## remove test and coverage artifacts
 # testing & checking
 #
 .PHONY: lint
-lint: ## check style
+lint: ## check types & style
 	ruff $(SRC) tests
 	flake8 $(SRC) tests
 	isort --check $(SRC) tests

@@ -1,0 +1,68 @@
+[metadata]
+id = "flask-sqla-postgresql-no-plugin"
+version = "1.0"
+release = 9
+title = "Flask + SQLA + Postgres demo app"
+description = "A demo app using Flask, SQLAlchemy and PostgreSQL"
+author = "Nua developers"
+website = "https://nua.rocks/"
+tags = ["Demo", "Python", "Flask", "PostgreSQL", "SQLAlchemy", "psycopg2"]
+
+[build]
+license = "MIT"
+test = "python -c 'import flask_app'"
+
+[run]
+start = [
+	# TODO: --app 'flask_app.app:create_app()' is not really elegant.
+	# We should put the wsgi.py file somewhere and use it instead.
+	"flask --app 'flask_app.app:create_app()' dump-config",
+	"flask --app 'flask_app.app:create_app()' init-db",
+	"gunicorn --workers 2 -b :5000 'flask_app.app:create_app()'",
+]
+
+[env]
+DB_HOST = { from="database", key="hostname" }
+DB_PORT = { from="database", key="POSTGRES_PORT" }
+DB_NAME = { from="database", key="POSTGRES_DB" }
+DB_USERNAME = { from="database", key="POSTGRES_USER" }
+DB_PASSWORD = { from="database", key="POSTGRES_PASSWORD" }
+
+[docker]
+restart_policy.name = "always"
+
+[port.web]
+# publication port of the app inside the container
+container = 5000
+
+[[provider]]
+# declaration of the required image for the provider, here the official Postgres
+# Docker image
+name = "database"
+type = "docker-image"
+network = true
+base-image = "docker.io/library/postgres:15.1"
+connector =  "postgres-client"
+
+[provider.env]
+POSTGRES_PORT = "5432"
+
+[provider.env.POSTGRES_PASSWORD]
+random = true
+type = "str"
+length = 24
+persist = true
+
+[provider.env.POSTGRES_USER]
+unique_user = true
+persist = true
+
+[provider.env.POSTGRES_DB]
+unique_db = true
+persist = true
+
+[[provider.volume]]
+name = "postgres-data"
+type = "managed"
+driver = "docker"
+target = "/var/lib/postgresql/data"

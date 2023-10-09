@@ -7,10 +7,9 @@ author = "Nua testers"
 tagline = "Nua test with Flask - two"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static"]
-license = "MIT"
 
 [build]
-document-root = "/nua/app/html"
+license = "MIT"
 test = "python -c 'import flask_two'"
 
 [docker]

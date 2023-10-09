@@ -3,7 +3,7 @@ map $http_upgrade $connection_upgrade {
         ''      close;
 }
 
-{% for port in ports_list %}
+{% for port in located_ports_list %}
 {% if port == '80' -%}
 server {
     listen 80;

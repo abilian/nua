@@ -1,9 +1,25 @@
 [tool.poetry]
 name = "nua"
-version = "0.5.17"
+version = "0.5.42"
 description = "Command line interface for the Nua self-hosted PaaS (Platform as a Service)"
 authors = ["Stefane Fermigier <sf@abilian.com>"]
-readme = "readme.md"
+
+license = "Apache-2.0"
+
+readme = "README.md"
+documentation = "https://nua.rocks/"
+repository = "https://github.com/abilian/nua"
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+
 packages = [
   { include = "nua_cli", from = "src" }
 ]
@@ -15,18 +31,16 @@ nua = "nua_cli.main:main"
 python = ">=3.10,<3.12"
 tomli = "^2.0.1"
 fabric = "~3.0"
-invoke = "~2.0"
+decorator = "^5.1.1"
 snoop = "*"
-termcolor = "^2.3.0"
 cleez = "^0.1.9"
 
 [tool.poetry.group.dev.dependencies]
+urllib3 = "<2.0"
 abilian-devtools = "*"
 devtools = "*"
-types-setuptools = "*"
+types-setuptools = "^68.0.0.1"
 
-# To please poetry
-platformdirs = "<3.0.0"
 
 [build-system]
 requires = ["poetry-core"]
@@ -59,13 +73,12 @@ exclude = [
 exclude = [
     '.nox', 'noxfile.py', 'tests',
 ]
-ignore_obsolete = [
-#    "setuptools",
-#    "wheel",
+ignore_unused = [
+    "decorator",
 ]
 ignore_missing = [
 ]
 ignore_transitive = [
-#    "packaging",
-#    "requests",
+    "nua_cli",
+    "invoke",
 ]

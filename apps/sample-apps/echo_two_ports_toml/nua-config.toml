@@ -7,9 +7,9 @@ author = "Jerome Dumonteil <jd@abilian.com>"
 tagline = "Nua test server 2 ports"
 website = "https://nua.rocks/"
 tags = ["test", "html", "web", "static"]
-license = "MIT"
 
 [build]
+license = "MIT"
 pip-install = ["*.whl"]
 test = "python -c 'import echos'"
 

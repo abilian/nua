@@ -1,8 +1,0 @@
-[{
-        "urls": [
-            "turn:test2.example.com:1194", "turn:test2.example.com:1194?transport=tcp"
-        ],
-        "username": "galene",
-        "credential": "galene_pw"
-    }
-]

@@ -14,15 +14,55 @@ from nua.lib.console import print_magenta
 from nua.lib.shell import sh
 
 from ..nua_env import certbot_exe, nua_home_path, venv_bin
-from .commands import certbot_invocation
+
+# from .commands import certbot_invocation
 
 CERTBOT_CONF = "nua.orchestrator.certbot.config"
 
 
-def copy_rso_file(module: str, name: str, dest_folder: str | Path):
+def letsencrypt_path() -> Path:
+    return nua_home_path() / "letsencrypt"
+
+
+def certbot_invocation() -> str:
+    return " ".join(certbot_invocation_list())
+
+
+def certbot_invocation_list() -> list[str]:
+    return [
+        certbot_exe(),
+        "-c",
+        str(letsencrypt_path() / "cli.ini"),
+    ]
+
+
+def copy_rso_file(module: str, name: str, dest_folder: str | Path) -> None:
     dest_file = Path(dest_folder) / name
     dest_file.write_text(rso.files(module).joinpath(name).read_text(encoding="utf8"))
     dest_file.chmod(0o644)
+
+
+def _installation_found() -> bool:
+    for path in (
+        nua_home_path() / "letsencrypt",
+        nua_home_path() / "lib" / "letsencrypt",
+        nua_home_path() / "log" / "letsencrypt",
+    ):
+        if not path.is_dir():
+            return False
+    for file in (
+        nua_home_path() / "letsencrypt" / "cli.ini",
+        nua_home_path() / "letsencrypt" / "options-ssl-nginx.conf",
+    ):
+        if not file.is_file():
+            return False
+    return True
+
+
+def ensure_letsencrypt_installed() -> None:
+    if _installation_found():
+        return
+    install_certbot()
 
 
 def install_certbot() -> None:
@@ -30,7 +70,8 @@ def install_certbot() -> None:
     _make_folders()
     _copy_configuration()
     _generate_dhparam()
-    _set_cron()
+    if os.geteuid() == 0:
+        _set_cron()
 
 
 def _make_folders() -> None:

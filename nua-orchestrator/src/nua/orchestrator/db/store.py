@@ -5,6 +5,7 @@ the application.
 """
 from copy import deepcopy
 from datetime import datetime, timezone
+from typing import Any
 
 from nua.lib.panic import warning
 
@@ -13,6 +14,7 @@ from .. import config
 from ..app_instance import AppInstance
 from ..constants import NUA_ORCH_ID, NUA_ORCHESTRATOR_TAG
 from ..utils import image_size_repr, size_unit
+from ..volume import Volume
 from .model.auth import User
 from .model.deployconfig import (
     ACTIVE,
@@ -140,7 +142,9 @@ def installed_nua_settings() -> dict:
         )
         if not setting:
             return {}
-        return setting.data or {}
+        if not setting.data:
+            return {}
+        return deepcopy(setting.data)
 
 
 def set_nua_settings(setting_dict):
@@ -251,36 +255,24 @@ def store_instance(
         session.commit()
 
 
-# for future use
-# def load_instance_config(label_id: str = "") -> dict:
-#     """Load nua instance configuration dict from local DB (table 'instance')."""
-#     with Session() as session:
-#         existing = session.query(Instance).filter_by(label_id=label_id).first()
-#         if existing:
-#             site_config = existing.site_config
-#         else:
-#             site_config = {}
-#         return site_config
-
-
 def list_instances_all() -> list[Instance]:
     with Session() as session:
         return session.query(Instance).all()
 
 
-# Not used ?
-# def list_instances_all_short() -> list[str]:
-#     result: list[str] = []
-#     for instance in list_instances_all():
-#         info = [
-#             f"app_id: {instance.app_id}",
-#             f"domain: {instance.domain}",
-#             f"container: {instance.container}",
-#             f"created: {instance.created}",
-#             f"state: {instance.state}",
-#         ]
-#         result.append("\n".join(info))
-#     return result
+def list_instances_all_short() -> list[str]:
+    result: list[str] = []
+    for instance in list_instances_all():
+        info = [
+            f"label: {instance.label_id}",
+            f"app_id: {instance.app_id}",
+            f"domain: {instance.domain}",
+            f"container: {instance.container}",
+            f"created: {instance.created}",
+            f"state: {instance.state}",
+        ]
+        result.append(", ".join(info))
+    return result
 
 
 def list_instances_all_active() -> list:
@@ -295,73 +287,61 @@ def list_instances_container_running():
     return [inst.container for inst in list_instances_all() if inst.state == RUNNING]
 
 
-def list_instances_container_local_active_volumes() -> list:
+def list_instances_container_local_active_volumes() -> list[Volume]:
     """Return list of local mounted volumes.
 
     Volumes with properties:
     - required by active instances,
-    - locally mounted ('local' driver), 'volume' type)
+    - locally mounted ('docker' driver), 'managed' type)
     - unique per 'source' key.
-
-    A 'source' volume may be mounted on several instances. So, if still required by
-    another instance, should not be unmounted when unmounting an instance.
     """
     volumes_dict = {}
     for instance in list_instances_all_active():
         # for volume in volumes_merge_config(instance.site_config):
-        site = AppInstance(instance.site_config)
+        app = AppInstance(instance.site_config)
 
         # for volume in site.rebased_volumes_upon_nua_conf():
-        for volume in site.volume:
-            if volume["type"] == "volume" and volume.get("driver", "") == "local":
-                _update_volumes_domains(volumes_dict, volume, instance.domain)
+        for volume_definition in app.volumes:
+            volume = Volume.parse(volume_definition)
+            if volume.is_managed and volume.is_local:
+                volumes_dict[volume.full_name] = volume
     return list(volumes_dict.values())
 
 
-def _update_volumes_domains(volumes_dict: dict, volume: dict, domain: str):
-    source = volume["source"]
-    known_volume = volumes_dict.get(source, volume)
-    domains = known_volume.get("domains", [])
-    domains.append(domain)
-    known_volume["domains"] = domains
-    volumes_dict[source] = known_volume
-
-
-def list_instances_container_active_volumes() -> list:
-    """Return list of mounted volumes or binds.
+def list_instances_container_active_volumes() -> list[Volume]:
+    """Return list of mounted volumes or mounted local directories.
 
     Volumes with properties:
     - required by active instances,
-    - unique per 'source' key.
-
-    A 'source' volume may be mounted on several instances. So, if still required by
-    another instance, should not be unmounted when unmounting an instance.
+    - unique per 'full_name' key.
     """
     volumes_dict = {}
     containers_dict = {}
     for instance in list_instances_all_active():
         # for volume in volumes_merge_config(instance.site_config):
-        site = AppInstance.from_dict(instance.site_config)
-        for volume in site.volume:
-            if volume["type"] == "tmpfs":
+        app = AppInstance.from_dict(instance.site_config)
+        for volume_definition in app.volumes:
+            volume = Volume.parse(volume_definition)
+            if volume.type == "tmpfs":
                 continue
-            source = volume["source"]
+            source = volume.full_name
             volumes_dict[source] = volume
             domains = containers_dict.get(source, [])
             domains.append(instance.domain)
             containers_dict[source] = domains
-        for resource in site.resources:
-            for volume in resource.volume:
-                if volume["type"] == "tmpfs":
+        for provider in app.providers:
+            for volume_definition in provider.volumes:
+                volume = Volume.parse(volume_definition)
+                if volume.type == "tmpfs":
                     continue
-                source = volume["source"]
+                source = volume.full_name
                 volumes_dict[source] = volume
                 domains = containers_dict.get(source, [])
                 domains.append(instance.domain)
                 containers_dict[source] = domains
 
     for source, volume in volumes_dict.items():
-        volume["domains"] = containers_dict[source]
+        volume.domains = containers_dict[source]
     return list(volumes_dict.values())
 
 
@@ -371,7 +351,7 @@ def ports_instances_domains() -> dict[int, str]:
     used_domain_ports = {}
     for inst in list_instances_all():
         site_config = inst.site_config
-        ports = site_config.get("port")  # a dict
+        ports = site_config.get("port")  # a dict or None
         if ports:
             for port in ports.values():
                 used_domain_ports[port["host_use"]] = site_config["domain"]
@@ -400,13 +380,25 @@ def instance_delete_by_container(container: str):
         session.commit()
 
 
+def instance_delete_by_label(label_id: str):
+    with Session() as session:
+        session.query(Instance).filter_by(label_id=label_id).delete()
+        session.commit()
+
+
+def instance_delete_no_in_labels(labels: list[str]):
+    with Session() as session:
+        session.query(Instance).filter(Instance.label_id.not_in(labels)).delete()
+        session.commit()
+
+
 def _fetch_instance_port_site(site_config: dict) -> int | None:
     ports = site_config.get("port")
     if not ports:
         return None
     for port in ports.values():
         proxy = port["proxy"]
-        if proxy == "auto":
+        if proxy is None:
             return port["host_use"]
     return None
 
@@ -460,7 +452,11 @@ def valid_deploy_config_state(state: str) -> str:
     return INACTIVE
 
 
-def deploy_config_add_config(deploy_config: dict, previous_id: int, state: str) -> int:
+def deploy_config_add_config(
+    deploy_config: dict[str, Any],
+    previous_id: int,
+    state: str,
+) -> dict[str, Any]:
     """Store a Nua deployment configuration in local DB (table 'deployconfig').
 
     Return:
@@ -478,7 +474,7 @@ def deploy_config_add_config(deploy_config: dict, previous_id: int, state: str) 
     with Session() as session:
         session.add(record)
         session.commit()
-        return record.id
+        return record.to_dict()
 
 
 def deploy_config_update_state(record_id: int, new_state: str):
@@ -526,8 +522,8 @@ def _deploy_config_last_any(limit: int) -> list:
         return []
 
 
-def deploy_config_active() -> dict:
-    """retrieve the config with "active" state.
+def deploy_config_active() -> dict[str, Any]:
+    """Retrieve the config with "active" state.
 
     It should be only one.
     """
@@ -537,8 +533,17 @@ def deploy_config_active() -> dict:
     return {}
 
 
+def deploy_config_per_id(idt: int) -> dict[str, Any]:
+    """Retrieve the config with Id "idt"."""
+    with Session() as session:
+        record = session.query(DeployConfig).filter_by(id=idt).first()
+        if record:
+            return record.to_dict()
+        return {}
+
+
 def deploy_config_previous() -> dict:
-    """retrieve the config with "previous" state.
+    """Retrieve the config with "previous" state.
 
     It should be zero, or sometimes only one.
     """
@@ -549,7 +554,7 @@ def deploy_config_previous() -> dict:
 
 
 def deploy_config_last_inactive() -> dict:
-    """retrieve the last config with "inactive" state."""
+    """Retrieve the last config with "inactive" state."""
     items = deploy_config_last_status(INACTIVE, 1)
     if items:
         return items[0]

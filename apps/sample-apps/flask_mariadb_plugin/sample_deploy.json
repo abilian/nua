@@ -1,0 +1,9 @@
+{
+    "site": [
+        {
+            "label": "mariadb",
+            "domain": "test1.example.com",
+            "image": "flask-mariadb-plugin"
+        }
+    ]
+}

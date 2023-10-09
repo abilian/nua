@@ -1,17 +1,30 @@
 [tool.poetry]
 name = "nua-orchestrator"
-version = "0.5.17"
+version = "0.5.42"
 description = "Nua orchestrator - local implementation"
 authors = [
     "Stefane Fermigier <sf@abilian.com>",
     "Jerome Dumonteil <jd@abilian.com>",
 ]
-license = "AGPL"
+license = "Apache-2.0"
+
 readme = "README.md"
+documentation = "https://nua.rocks/"
+repository = "https://github.com/abilian/nua"
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+
 packages = [
   { include = "nua", from = "src" }
 ]
-
 [tool.poetry.scripts]
 nua-orchestrator = "nua.orchestrator.cli.main:app"
 # Install Nua account and configure orchestrator on local host:
@@ -23,16 +36,19 @@ nua-pg-pwd = "nua.orchestrator.scripts.set_pg_pwd:app"
 nua-mariadb-init = "nua.orchestrator.scripts.mariadb_restore:app"
 nua-list-instances = "nua.orchestrator.scripts.list_instances:main"
 nua-print-instances = "nua.orchestrator.scripts.print_instances:main"
+nua-print-backup = "nua.orchestrator.scripts.print_backup:main"
 nua-print-volumes = "nua.orchestrator.scripts.print_mounted_volumes:main"
 nua-print-ports = "nua.orchestrator.scripts.print_used_ports:main"
 nua-deactivate-all = "nua.orchestrator.scripts.deactivate_all_instances:main"
 nua-docker-list-all = "nua.orchestrator.scripts.docker_list_all:main"
 nua-docker-rm-all = "nua.orchestrator.scripts.docker_remove_all:main"
+nua-reset-nginx = "nua.orchestrator.scripts.reset_nginx_conf:main"
+nua-print-deployments = "nua.orchestrator.scripts.print_deployments:main"
 nua_test_services = "nua.orchestrator.service:test"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-nua-lib = "=0.5.17"
+nua-lib = "=0.5.42"
 SQLAlchemy-serializer = "^1.4.1"
 SQLAlchemy = "^1.4.36"
 psycopg2-binary = "^2.9.3"
@@ -46,9 +62,10 @@ pyyaml = "^6"
 typer = {extras = ["all"], version = "^0.7.0"}
 
 [tool.poetry.group.dev.dependencies]
+urllib3 = "<2.0"
 abilian-devtools = "*"
-nox = "*"
 devtools = "*"
+
 types-paramiko = "*"
 types-requests = "*"
 
@@ -75,7 +92,7 @@ extend-ignore = [
 exclude = [
     '.nox', 'noxfile.py', 'tests',
 ]
-ignore_obsolete = [
+ignore_unused = [
     "nua-lib",
     "nua-agent",
     "nua-build",

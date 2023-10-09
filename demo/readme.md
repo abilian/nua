@@ -26,6 +26,8 @@ Check variables at beginning of this script:
    - GIT_LOCAL : local git folder,
    - NUA_CERTBOT_STRATEGY : 'none' for HTTP config, set to 'auto' for HTTPS
 
+Last update: Nua version 0.5.21
+
 ## Run it
 
 To run the demo, on a dispendable Ubuntu 22.04 server or VM, simply run (after reading the information above):

@@ -1,0 +1,26 @@
+[metadata]
+id = "flask-upload-tmpfs"
+version = "1.0"
+release = 5
+title = "Flask test upload with container tmpfs"
+author = "Nua testers"
+tagline = "Flask test upload with with container tmpfs"
+website = "https://nua.rocks/"
+tags = ["test", "html", "web", "static", "tmpfs"]
+license = "MIT"
+
+[build]
+test = "python -c 'import flask_upload_tmpfs.main'"
+
+[run]
+start = "gunicorn --worker-tmp-dir /dev/shm --workers 2 -b :8000 flask_upload_tmpfs.main:app"
+
+[port.web]
+container = 8000
+
+[[volume]]
+type = "tmpfs"
+target = "/var/tmp/mount_point"
+    [[volume.options]]
+    tmpfs_size = "1G"
+    tmpfs_mode = 0o1777

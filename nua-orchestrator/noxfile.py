@@ -1,26 +1,20 @@
 import nox
 from nox import session
 
-# PYTHON_VERSIONS = ["3.10", "3.11"]
-PYTHON_VERSIONS = ["3.10"]
+PYTHON_VERSIONS = ["3.10", "3.11"]
 
 nox.options.reuse_existing_virtualenvs = True
 
 
 @session
 def lint(session: nox.Session) -> None:
-    _install(session)
+    session.install("--no-cache-dir", ".")
+    session.install("abilian-devtools")
     session.run("make", "lint", external=True)
 
 
 @session(python=PYTHON_VERSIONS)
 def pytest(session: nox.Session) -> None:
-    _install(session)
-    session.run("pytest", "src", "tests")
-
-
-def _install(session: nox.Session):
-    session.install("poetry")
-    session.run("poetry", "install")
-    session.run("pip", "check")
-    session.run("poetry", "check")
+    session.install("--no-cache-dir", ".")
+    session.install("pytest")
+    session.run("pytest", "--tb=short", external=True)

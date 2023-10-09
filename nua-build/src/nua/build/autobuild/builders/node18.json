@@ -1,0 +1,21 @@
+{
+    "app_id": "nua-builder-nodejs18",
+    "name": [
+        "node18",
+        "node-18",
+        "node_18",
+        "nodejs18",
+        "nodejs-18",
+        "nodejs_18"
+    ],
+    "language_name": [
+        "nodejs",
+        "node"
+    ],
+    "language_version": "18",
+    "container": "docker",
+    "dockerfile": "Dockerfile_nua_builder_node18",
+    "labels": {
+        "node_version": "18"
+    }
+}

@@ -10,7 +10,7 @@ from nua.lib.constants import NUA_METADATA_PATH, nua_config_names
 
 
 class ArchiveSearch:
-    """Utilities to search files in docker image stored as .tar archive.
+    """Utilities to search files in a container image stored as a .tar archive.
 
     Current usage: retrieve the nua-config.toml config used when
     building the Nua app.

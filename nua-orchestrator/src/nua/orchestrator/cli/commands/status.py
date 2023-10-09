@@ -1,48 +1,64 @@
 from operator import itemgetter
+from typing import Any
 
 from nua.orchestrator import __version__, config
-from nua.orchestrator.app_deployment import AppDeployment
-
-# NOTE: /tmp is not ideal, but /run would require some privileges: see later.
-# see later for log module implementation
+from nua.orchestrator.app_deployer import AppDeployer
+from nua.orchestrator.state_journal import StateJournal
 
 
 class StatusCommand:
     """Status of orchestrator."""
 
-    def __call__(self, _cmd: str = ""):
-        self._status_local()
-        self._status_deployed()
+    def __init__(self):
+        self._registries: list[dict] = []
+        self._deploy_status: dict[str, Any] = {}
 
-    def _status_local(self):
-        """Print some status information about local installation."""
-        # fixme: go further on status details (sub servers...)
-        print(f"Nua version: {__version__}")
+    def display(self) -> None:
+        """Directly print the current orchestrator status for CLI."""
+        print(f"Nua version: {__version__}\n")
+        print(self._configured_registries())
         print()
-        self._display_configured_registries()
-        print()
-
-    def _status_deployed(self):
-        deployer = AppDeployment()
-        deployer.load_deployed_configuration()
+        state = StateJournal()
+        state.read_current_state()
+        deployer = AppDeployer()
+        deployer.load_deployed_state(state.deployed_state())
         deployer.display_deployment_status()
 
-    def _display_configured_registries(self):
-        """Show configured registries."""
-        registries = config.read("nua", "registry")
-        print("Configured registries:")
-        for reg in sorted(registries, key=itemgetter("priority")):
-            msg = (
-                f'  priority: {reg["priority"]:>2}   '
-                f'format: {reg["format"]:<16}   '
-                f'url: {reg["url"]}'
+    def read(self) -> None:
+        """Read Orchestrator registries and deployment statuses."""
+        self._read_registries()
+        self._read_deployed()
+
+    def _read_registries(self) -> None:
+        """Read Orchestrator registries configuration."""
+        self._registries = config.read("nua", "registry") or []  # type: ignore
+
+    def _read_deployed(self) -> None:
+        """Read Orchestrator deployed apps status."""
+        state = StateJournal()
+        state.read_current_state()
+        deployer = AppDeployer()
+        deployer.load_deployed_state(state.deployed_state())
+        self._deploy_status = deployer.deployment_status_records()
+
+    def as_dict(self) -> dict[str, Any]:
+        """Return orichestrator status as a dict."""
+        result: dict[str, Any] = {"version": __version__}
+        result["registries"] = self._registries
+        result.update(self._deploy_status)
+        return result
+
+    def _configured_registries(self) -> str:
+        """Return configured registries as string."""
+        lines: list[str] = []
+        self._read_registries()
+        lines.append("Configured registries:")
+        for reg in sorted(self._registries, key=itemgetter("priority")):
+            lines.append(
+                (
+                    f'  priority: {reg["priority"]:>2}   '
+                    f'format: {reg["format"]:<16}   '
+                    f'url: {reg["url"]}'
+                )
             )
-            print(msg)
-
-
-status = StatusCommand()
-
-
-def reload_servers():
-    """Rebuild config and restart apps."""
-    pass
+        return "\n".join(lines)

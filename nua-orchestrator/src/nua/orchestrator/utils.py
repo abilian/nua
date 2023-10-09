@@ -28,7 +28,7 @@ def size_unit(as_mib: bool) -> str:
     return "MB"
 
 
-def size_to_bytes(size: str) -> int:
+def size_to_bytes(size: str | None) -> int:
     """Convert string representing size to bytes value.
 
     It uses basic regex to get results like: size_to_bytes("2k") 2048
@@ -66,6 +66,9 @@ def sanitized_name(name: str, length=255) -> str:
     if len(name) < 2:
         raise Abort(f"Name is too short: '{name}'")
     if name[0] not in ALLOW_FIRST:
+        # print("******")
+        # import traceback
+        # traceback.print_stack()
         raise Abort(f"Name first character not valid: '{name}'")
     return name
 

@@ -8,18 +8,41 @@ from importlib import resources as rso
 from importlib.abc import Traversable
 from pprint import pformat
 
-from nua.lib.panic import bold_debug, debug, warning
+from nua.lib.nua_config import force_list
+from nua.lib.panic import bold_debug, warning, vprint
 from nua.lib.tool.state import verbosity
 
 
-def is_builder(name: str) -> bool:
+def is_builder(name: str | dict | list) -> bool:
     register_builders()
-    return name in builder_registry.builder_names
+    if isinstance(name, list):
+        return all(_is_builder(x) for x in name)
+    return _is_builder(name)
 
 
-def builder_info(name: str) -> dict:
+def _is_builder(name: str | dict) -> bool:
+    if isinstance(name, str):
+        return name in builder_registry.builder_names
+    # for builder expressed as a dict:
+    lang = name["name"]
+    version = name["version"]
+    return bool(builder_registry.builder_languages.get(lang, {}).get(version, None))
+
+
+def builder_info(name: str | dict | list) -> dict:
     register_builders()
-    return builder_registry.builders[builder_registry.builder_names[name]]
+    if isinstance(name, list):
+        # fixme: list not managed
+        actual_name = name[0]
+    else:
+        actual_name = name
+    if isinstance(actual_name, str):
+        return builder_registry.builders[builder_registry.builder_names[actual_name]]
+    # for builder expressed as a dict:
+    lang = actual_name["name"]
+    version = actual_name["version"]
+    app_id = builder_registry.builder_languages.get(lang, {}).get(version, "")
+    return builder_registry.builders[app_id]
 
 
 def builder_ids() -> list[str]:
@@ -41,6 +64,7 @@ class BuilderRegistry:
         self.builders_dirs = ("nua.build.autobuild.builders",)
         self.builders = {}
         self.builder_names = {}
+        self.builder_languages = {}
 
     def register_builders(self) -> None:
         if self.is_initialized:
@@ -63,8 +87,8 @@ class BuilderRegistry:
 
     def show_builders_info(self) -> None:
         bold_debug("Builders registered:")
-        debug("BUILDERS_DIRS:", pformat(self.builders_dirs))
-        debug("BUILDERS:", pformat(self.builders))
+        vprint("BUILDERS_DIRS:", pformat(self.builders_dirs))
+        vprint("BUILDERS:", pformat(self.builders))
 
     def load_builder_configs(self, records: dict[str, Traversable]) -> None:
         for name, file in records.items():
@@ -91,13 +115,19 @@ class BuilderRegistry:
             "app_id": app_id,
             "dockerfile": docker_file,
             "labels": labels,
+            "container": builder_config.get("container", ""),
+            "language_name": builder_config.get("language_name", ""),
+            "language_version": builder_config.get("language_version", ""),
         }
-        names = builder_config["name"]
-        if isinstance(names, str):
-            names = [names]
+        names = force_list(builder_config["name"])
         names.append(app_id)
         for name in names:
             self.builder_names[name] = app_id
+        language_names = force_list(builder_config.get("language_name", []))
+        language_version = builder_config.get("language_version", "1.0")
+        for lang_name in language_names:
+            versions = self.builder_languages.setdefault(lang_name, {})
+            versions[language_version] = app_id
 
 
 builder_registry = BuilderRegistry()

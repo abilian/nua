@@ -1,22 +1,27 @@
 """Class to manage the deployment of a group of AppInstance."""
 from collections.abc import Callable
+from copy import deepcopy
 from pathlib import Path
 from pprint import pformat
+from typing import Any
 
 import docker
 import docker.types
+from docker.models.containers import Container
 from nua.lib.archive_search import ArchiveSearch
 from nua.lib.docker import display_one_docker_img, docker_require
-from nua.lib.panic import Abort, important, info, vprint, warning
+from nua.lib.panic import Abort, important, info, show, vprint, warning
 from nua.lib.tool.state import verbosity
 
 from .app_instance import AppInstance
 from .db import store
 from .docker_utils import (  # docker_volume_prune,
+    docker_exec_commands,
     docker_host_gateway_ip,
     docker_network_create_bridge,
     docker_network_prune,
     docker_network_remove_one,
+    docker_pause_container_name,
     docker_remove_container_previous,
     docker_remove_volume_by_source,
     docker_restart_container_name,
@@ -24,17 +29,18 @@ from .docker_utils import (  # docker_volume_prune,
     docker_service_start_if_needed,
     docker_start_container_name,
     docker_stop_container_name,
+    docker_unpause_container_name,
     docker_volume_create_or_use,
+    docker_volume_type,
+    docker_wait_for_status,
 )
-from .higher_package import higher_package
 from .internal_secrets import secrets_dict
 from .net_utils.ports import check_port_available
-from .resource import Resource
+from .provider import Provider
 from .utils import size_to_bytes
 from .volume import Volume
 
 PULLED_IMAGES: dict[str, str] = {}
-REMOTE_DOCKER_RESOURCES = {"postgres", "mariadb"}
 
 
 def load_install_image(image_path: str | Path) -> tuple:
@@ -89,19 +95,10 @@ def port_allocator(start_ports: int, end_ports: int, allocated_ports: set) -> Ca
     return allocator
 
 
-# def mount_site_volumes(site: AppInstance) -> list:
-#     volumes = site.rebased_volumes_upon_nua_conf()
-#     create_docker_volumes(volumes)
-#     mounted_volumes = []
-#     for volume_params in volumes:
-#         mounted_volumes.append(new_docker_mount(volume_params))
-#     return mounted_volumes
-
-
-def mount_resource_volumes(rsite: Resource) -> list:
-    create_docker_volumes(rsite.volume)
+def mount_provider_volumes(volumes: list[dict[str, Any]]) -> list:
+    create_docker_volumes(volumes)
     mounted_volumes = []
-    for volume_params in rsite.volume:
+    for volume_params in volumes:
         mounted_volumes.append(new_docker_mount(volume_params))
     return mounted_volumes
 
@@ -114,10 +111,10 @@ def extra_host_gateway() -> dict:
     return {"host.docker.internal": docker_host_gateway_ip()}
 
 
-def unused_volumes(orig_mounted_volumes: list) -> list:
+def unused_volumes(orig_mounted_volumes: list[Volume]) -> list[Volume]:
     current_mounted = store.list_instances_container_active_volumes()
-    current_sources = {vol["source"] for vol in current_mounted}
-    return [vol for vol in orig_mounted_volumes if vol["source"] not in current_sources]
+    current_sources = {vol.full_name for vol in current_mounted}
+    return [vol for vol in orig_mounted_volumes if vol.full_name not in current_sources]
 
 
 def create_docker_volumes(volumes_config: list):
@@ -134,11 +131,12 @@ def remove_volume_by_source(source: str):
 
 def new_docker_mount(volume_params: dict) -> docker.types.Mount:
     volume = Volume.parse(volume_params)
-    if volume.type == "volume":
+    if volume.is_managed:
         driver_config = new_docker_driver_config(volume)
     else:
         driver_config = None
-    read_only = bool(volume.options.get("read_only", False))
+    volume_type = docker_volume_type(volume)
+    read_only = bool(volume.options.get("read-only", False))
     if volume.type == "tmpfs":
         tmpfs_size = size_to_bytes(volume.options.get("tmpfs_size")) or None
         tmpfs_mode = volume.options.get("tmpfs_mode") or None
@@ -147,8 +145,8 @@ def new_docker_mount(volume_params: dict) -> docker.types.Mount:
 
     return docker.types.Mount(
         volume.target,
-        volume.source or None,
-        volume.type,
+        volume.full_name or None,
+        volume_type,
         driver_config=driver_config,
         read_only=read_only,
         tmpfs_size=tmpfs_size,
@@ -161,7 +159,7 @@ def new_docker_driver_config(volume: Volume) -> docker.types.DriverConfig | None
 
     Only valid for the 'volume' type.
     """
-    if not volume.driver or volume.driver == "local":
+    if not volume.driver or volume.driver in {"local", "docker"}:
         return None
     # to be completed
     return docker.types.DriverConfig(volume.driver)
@@ -172,7 +170,7 @@ def new_docker_driver_config(volume: Volume) -> docker.types.DriverConfig | None
 #         docker_volume_prune(unused)
 
 
-def start_one_container(rsite: Resource, mounted_volumes: list):
+def start_one_container(rsite: Provider, mounted_volumes: list):
     run_params = rsite.run_params
     if mounted_volumes:
         run_params["mounts"] = mounted_volumes
@@ -189,33 +187,98 @@ def start_one_container(rsite: Resource, mounted_volumes: list):
         info(f"            container id: {rsite.container_id_short}")
         if rsite.network_name:
             info(f"    connected to network: {rsite.network_name}")
+    exec_post_run(rsite, new_container)
+
+
+def exec_post_run(
+    rsite: Provider,
+    container: Container,
+    expected: str = "running",
+    timeout: int = 60,
+) -> None:
+    if not rsite.post_run:
+        return
+    expected = rsite.post_run_status or "running"
+    status_ok = docker_wait_for_status(container, expected, timeout)
+    if not status_ok:
+        raise RuntimeError("Unable to exec post-run command")
+    with verbosity(1):
+        show("Executing the post-run commands")
+    commands = post_run_expanded(rsite)
+    docker_exec_commands(container, commands)
+
+
+def post_run_expanded(rsite: Provider) -> list[str]:
+    data = run_time_exec_data(rsite)
+    return [line.format(**data) for line in rsite.post_run]
+
+
+def run_time_exec_data(rsite: Provider) -> dict[str, Any]:
+    orig = deepcopy(rsite.nua_config["metadata"])
+    orig["label"] = rsite.label_id
+    orig["domain"] = rsite.domain
+    orig["hostname"] = rsite.hostname
+    data = {}
+    for key, val in deepcopy(orig).items():
+        if isinstance(val, str):
+            data[key] = val.format(**orig)
+        else:
+            data[key] = val
+    data.update(rsite.env)
+    return data
 
 
 def stop_one_app_containers(app: AppInstance):
     stop_one_container(app)
-    for resource in app.resources:
-        stop_one_container(resource)
+    for provider in app.providers:
+        stop_one_container(provider)
     # docker_network_prune() : no, need to keep same network to easily restart the
     # container with same network.
 
 
-def start_one_app_containers(site: AppInstance):
-    for resource in site.resources:
-        start_one_deployed_container(resource)
-    start_one_deployed_container(site)
+def pause_one_app_containers(app: AppInstance):
+    pause_one_container(app)
+    for provider in app.providers:
+        pause_one_container(provider)
 
 
-def restart_one_app_containers(site: AppInstance):
-    for resource in site.resources:
-        restart_one_deployed_container(resource)
-    restart_one_deployed_container(site)
+def unpause_one_app_containers(app: AppInstance):
+    unpause_one_container(app)
+    for provider in app.providers:
+        unpause_one_container(provider)
 
 
-def stop_one_container(rsite: Resource):
+def start_one_app_containers(app: AppInstance):
+    for provider in app.providers:
+        start_one_deployed_container(provider)
+    start_one_deployed_container(app)
+
+
+def restart_one_app_containers(app: AppInstance):
+    for provider in app.providers:
+        restart_one_deployed_container(provider)
+    restart_one_deployed_container(app)
+
+
+def stop_one_container(rsite: Provider):
     with verbosity(0):
         info(f"    -> stop container of name: {rsite.container_name}")
         info(f"                 container id: {rsite.container_id_short}")
     stop_containers([rsite.container_name])
+
+
+def pause_one_container(rsite: Provider):
+    with verbosity(0):
+        info(f"    -> pause container of name: {rsite.container_name}")
+        info(f"                  container id: {rsite.container_id_short}")
+    pause_containers([rsite.container_name])
+
+
+def unpause_one_container(rsite: Provider):
+    with verbosity(0):
+        info(f"    -> unpause container of name: {rsite.container_name}")
+        info(f"                    container id: {rsite.container_id_short}")
+    unpause_containers([rsite.container_name])
 
 
 def stop_containers(container_names: list[str]):
@@ -225,14 +288,28 @@ def stop_containers(container_names: list[str]):
         docker_stop_container_name(name)
 
 
-def start_one_deployed_container(rsite: Resource):
+def pause_containers(container_names: list[str]):
+    for name in container_names:
+        if not name:
+            continue
+        docker_pause_container_name(name)
+
+
+def unpause_containers(container_names: list[str]):
+    for name in container_names:
+        if not name:
+            continue
+        docker_unpause_container_name(name)
+
+
+def start_one_deployed_container(rsite: Provider):
     with verbosity(0):
         info(f"    -> start container of name: {rsite.container_name}")
         info(f"                  container id: {rsite.container_id_short}")
     start_containers([rsite.container_name])
 
 
-def restart_one_deployed_container(rsite: Resource):
+def restart_one_deployed_container(rsite: Provider):
     with verbosity(0):
         info(f"    -> restart container of name: {rsite.container_name}")
         info(f"                    container id: {rsite.container_id_short}")
@@ -262,9 +339,9 @@ def deactivate_containers(container_names: list[str], show_warning: bool = True)
 
 
 def deactivate_app(app: AppInstance):
-    """Deactive containers of AppInstance and all sub Resources (updating
+    """Deactive containers of AppInstance and all sub Providers (updating
     orchestrator DB)."""
-    container_names = [res.container_name for res in app.resources]
+    container_names = [res.container_name for res in app.providers]
     container_names.append(app.container_name)
     deactivate_containers(container_names, show_warning=False)
 
@@ -280,9 +357,8 @@ def deactivate_all_instances():
             msg = f"Removing instance '{instance.app_id}' on '{instance.domain}'"
             info(msg)
         site_config = instance.site_config
-        container_names = [
-            res.get("container_name", "") for res in site_config.get("resources", [])
-        ]
+        providers_list = site_config.get("providers") or []
+        container_names = [res.get("container_name", "") for res in providers_list]
         container_names.append(site_config.get("container_name", ""))
         container_names = [name for name in container_names if name]
         deactivate_containers(container_names)
@@ -317,56 +393,42 @@ def remove_container_private_network(network_name: str):
     docker_network_remove_one(network_name)
 
 
-def pull_resource_container(resource: Resource) -> bool:
-    """Retrieve a resource container or get reference from cache.
+def pull_provider_container(provider: Provider) -> bool:
+    """Retrieve a provider container or get reference from cache.
 
     Currrently: only managing Docker bridge network.
     """
-    if resource.type == "docker":
-        return _pull_resource_docker(resource)
+    # print("======================================")
+    # print(pformat(provider))
+    # print("======================================")
+    docker_url = provider.base_image()
+    if docker_url:
+        provider.image = docker_url
+    if not provider.image:
+        return True
+    return _pull_provider_docker(provider)
 
-    if resource.is_docker_plugin():
-        return _pull_resource_remote(resource)
 
-    warning(f"Unknown resource type: {resource.type}")
+def _pull_provider_docker(provider: Provider) -> bool:
+    """Retrieve a provider container or get reference from cache."""
+    if provider.image not in PULLED_IMAGES:
+        _actual_pull_container(provider)
+
+    if provider.image not in PULLED_IMAGES:
+        warning(f"No image found for '{provider.image}'")
+        return False
+
+    provider.image_id = PULLED_IMAGES[provider.image]
     return True
 
 
-def _pull_resource_remote(resource: Resource) -> bool:
-    """Define the required version image and pull it."""
-    package_name = resource.type
-    pull_link = higher_package(package_name, resource.version)
-    if not pull_link:
-        warning(
-            "Impossible to find a resource link for "
-            f"'{package_name} version {resource.version}'"
-        )
-        return False
-
-    resource.image = pull_link["link"]
-    return _pull_resource_docker(resource)
-
-
-def _pull_resource_docker(resource: Resource) -> bool:
-    """Retrieve a resource container or get reference from cache."""
-    if resource.image not in PULLED_IMAGES:
-        _actual_pull_container(resource)
-
-    if resource.image not in PULLED_IMAGES:
-        warning(f"No image found for '{resource.image}'")
-        return False
-
-    resource.image_id = PULLED_IMAGES[resource.image]
-    return True
-
-
-def _actual_pull_container(resource: Resource):
-    """Retrieve a resource container."""
+def _actual_pull_container(provider: Provider):
+    """Retrieve a provider container."""
     with verbosity(0):
-        info(f"Pulling image '{resource.image}'")
+        info(f"Pulling image '{provider.image}'")
 
-    docker_image = docker_require(resource.image)
+    docker_image = docker_require(provider.image)
     if docker_image:
-        PULLED_IMAGES[resource.image] = docker_image.id
+        PULLED_IMAGES[provider.image] = docker_image.id
         with verbosity(0):
             display_one_docker_img(docker_image)
