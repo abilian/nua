@@ -1,8 +1,8 @@
 """Nua main scripts."""
 from typing import Any
 
-from ...app_deployer import AppDeployer
-from ...state_journal import StateJournal, restore_if_fail
+from nua.orchestrator.app_deployer import AppDeployer
+from nua.orchestrator.state_journal import StateJournal, restore_if_fail
 
 
 @restore_if_fail
@@ -77,8 +77,7 @@ def deploy_merge_nua_app(merge_config: str, state_journal: StateJournal):
 
 @restore_if_fail
 def deploy_merge_one_nua_app_config(
-    app_config: dict[str, Any],
-    state_journal: StateJournal,
+    app_config: dict[str, Any], state_journal: StateJournal
 ) -> None:
     """Add somme app config to the deployed list."""
     deployer = AppDeployer()

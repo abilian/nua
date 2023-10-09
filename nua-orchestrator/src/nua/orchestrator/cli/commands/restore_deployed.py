@@ -1,6 +1,6 @@
 """Restore previous successful deployed configuration."""
 
-from ...state_journal import StateJournal, restore_from_state_journal
+from nua.orchestrator.state_journal import StateJournal, restore_from_state_journal
 
 
 def restore_active_state() -> None:

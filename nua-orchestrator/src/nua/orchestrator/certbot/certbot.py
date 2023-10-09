@@ -104,7 +104,7 @@ def get_certbot_strategy() -> str:
     strategy = config.read("nua", "host", "certbot_strategy") or default
     strategy = os.environ.get("NUA_CERTBOT_STRATEGY") or strategy
     strategy = strategy.strip().lower()
-    assert_valid_certbot_strategy(strategy)
+    check_valid_certbot_strategy(strategy)
     return strategy
 
 
@@ -112,7 +112,7 @@ def protocol_prefix() -> str:
     return STRATEGY_PROTO[get_certbot_strategy()]
 
 
-def assert_valid_certbot_strategy(strategy: str) -> None:
+def check_valid_certbot_strategy(strategy: str) -> None:
     if strategy not in ALLOWED_STRATEGY:
         with verbosity(0):
             red_line("Allowed values for certbot_strategy are:")

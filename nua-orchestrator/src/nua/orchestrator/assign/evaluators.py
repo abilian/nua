@@ -67,11 +67,7 @@ def no_persistent_value(func):
 
 
 @persistent_value
-def random(
-    provider: Provider,
-    destination_key: str,
-    requirement: dict,
-) -> dict:
+def random(provider: Provider, destination_key: str, requirement: dict) -> dict:
     """Send a random string or a random integer.
 
     The value is either ramdomly generated or read from previous
@@ -104,11 +100,7 @@ def unique_user(
 
 
 @persistent_value
-def unique_db(
-    provider: Provider,
-    destination_key: str,
-    requirement: dict,
-) -> dict:
+def unique_db(provider: Provider, destination_key: str, requirement: dict) -> dict:
     """Send a unique DB id (for DB creation).
 
     - sequential generated,
@@ -239,11 +231,7 @@ def site_environment(
 
 
 @no_persistent_value
-def nua_internal(
-    rsite: Provider,
-    destination_key: str,
-    requirement: dict,
-) -> dict:
+def nua_internal(rsite: Provider, destination_key: str, requirement: dict) -> dict:
     """Retrieve key from nua_internal values, do not store the value in
     instance configuration.
 
@@ -258,9 +246,7 @@ def nua_internal(
 
 @no_persistent_value
 def external_ip_evaluation(
-    _unused: Provider,
-    destination_key: str,
-    requirement: dict,
+    _unused: Provider, destination_key: str, requirement: dict
 ) -> dict:
     """Return the detected external IP address (v4).
 

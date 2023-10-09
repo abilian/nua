@@ -1,9 +1,9 @@
 from operator import itemgetter
 from typing import Any
 
-from ... import __version__, config
-from ...app_deployer import AppDeployer
-from ...state_journal import StateJournal
+from nua.orchestrator import __version__, config
+from nua.orchestrator.app_deployer import AppDeployer
+from nua.orchestrator.state_journal import StateJournal
 
 
 class StatusCommand:

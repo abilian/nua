@@ -1,7 +1,6 @@
 """Start/stop/restart some deployed app instance."""
-
-from ...app_deployer import AppDeployer
-from ...state_journal import StateJournal, restore_if_fail
+from nua.orchestrator.app_deployer import AppDeployer
+from nua.orchestrator.state_journal import StateJournal, restore_if_fail
 
 
 def stop_nua_instance(*, label: str = "", domain: str = ""):
