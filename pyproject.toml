@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-monorepo"
-version = "0.5.42"
+version = "0.5.43"
 description = ""
 authors = [
     "Stefane Fermigier <sf@abilian.com>",
