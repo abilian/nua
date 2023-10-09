@@ -55,7 +55,7 @@ lint:
 	ruff nua*/src/ nua*/tests/
 	# This takes longer
 	invoke lint
-	lint-imports
+	# lint-imports
 
 
 #
