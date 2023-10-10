@@ -17,6 +17,9 @@ packages:
   - libffi-dev
   - libsqlite3-dev
   - libbz2-dev
+  # Tools
+  - vagrant
+  - virtualbox
 
 tasks:
   - setup: |
@@ -33,3 +36,12 @@ tasks:
 
   - nox: |
       poetry run nox
+
+  - e2e: |
+      cd tests/e2e
+      poetry run make test
+
+triggers:
+  - action: email
+    condition: failure
+    to: builds@fermigier.com
