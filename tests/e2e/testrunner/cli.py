@@ -41,6 +41,13 @@ class Config:
     def from_args(cls, args):
         return cls(**vars(args))
 
+    def show(self):
+        print("Config:")
+        print(f"verbosity: {self.verbosity}")
+        print(f"stages: {self.stages}")
+        print(f"apps_dir: {self.apps_dir}")
+        print()
+
 
 def get_config(args):
     return Config.from_args(args)

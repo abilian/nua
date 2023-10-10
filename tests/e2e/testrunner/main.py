@@ -34,5 +34,7 @@ def main():
     parser = make_parser()
     args = parser.parse_args()
     config = get_config(args)
+    config.show()
+
     test_runner = TestRunner(config)
     test_runner.run()

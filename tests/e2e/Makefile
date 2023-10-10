@@ -2,7 +2,7 @@
 
 
 test:
-	./runtests.py -v
+	python -m e2e.runtests -v
 
 clean:
 	vagrant destroy --force

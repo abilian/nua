@@ -25,7 +25,10 @@ class BuildStage(Stage):
         self.report_build_results(build_results)
 
     def build_apps(self) -> list[BuildResult]:
-        v_flag = "-" + self.config.verbosity * "v"
+        if self.config.verbosity:
+            v_flag = "-" + self.config.verbosity * "v"
+        else:
+            v_flag = ""
         results = []
         for app_dir in Path("apps").iterdir():
             app_name = app_dir.name
