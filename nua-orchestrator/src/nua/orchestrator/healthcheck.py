@@ -15,6 +15,7 @@ class HealthCheck:
         if not conf:
             self._dict = {}
             return
+
         self._dict = deepcopy(HEALTHCHECK_DEFAULT)
         self._parse_cmd(conf)
         self._parse_start_period(conf)

@@ -19,7 +19,9 @@ tasks:
       poetry install
 
   - lint: |
+      cd nua
       poetry run invoke lint
 
   - test-py310: |
+      cd nua
       poetry run invoke test

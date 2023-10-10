@@ -28,16 +28,19 @@ tasks:
       poetry install
 
   - lint: |
+      cd nua
       poetry run invoke lint
 
   - test: |
+      cd nua
       poetry run invoke test
 
   - nox: |
+      cd nua
       poetry run nox
 
   - e2e: |
-      cd tests/e2e
+      cd nua/tests/e2e
       poetry run make test
 
 triggers:
