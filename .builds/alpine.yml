@@ -14,6 +14,7 @@ packages:
 
 tasks:
   - setup: |
+      sudo poetry self update
       pip install --user invoke
       cd nua
       poetry install
@@ -22,6 +23,6 @@ tasks:
       cd nua
       poetry run invoke lint
 
-  - test-py310: |
+  - test: |
       cd nua
       poetry run invoke test
