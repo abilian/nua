@@ -21,7 +21,7 @@ packages:
 tasks:
   - setup: |
       sudo npm install -g less
-      sudo pip install -U pip setuptools wheel tox poetry
+      sudo pip install -U pip setuptools wheel tox poetry nox
       cd nua
       poetry install
 
@@ -30,3 +30,6 @@ tasks:
 
   - test: |
       poetry run invoke test
+
+  - nox: |
+      poetry run nox
