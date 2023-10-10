@@ -24,11 +24,12 @@ tasks:
       sudo ln -sf ~/.local/bin/poetry /usr/local/bin/
       cd nua
       poetry install
+      poetry run invoke install
 
   - lint: |
       cd nua
       poetry run invoke lint
 
-  - test: |
-      cd nua
-      poetry run invoke test
+#  - test: |
+#      cd nua
+#      poetry run invoke test

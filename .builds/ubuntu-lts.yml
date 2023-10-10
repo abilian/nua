@@ -27,6 +27,7 @@ tasks:
       sudo pip install -U pip setuptools wheel poetry nox
       cd nua
       poetry install
+      poetry run invoke install
 
   - lint: |
       cd nua
