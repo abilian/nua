@@ -20,6 +20,7 @@ packages:
   # Tools
   - vagrant
   - virtualbox
+  - docker.io
 
 tasks:
   - setup: |
@@ -31,6 +32,10 @@ tasks:
       cd nua
       poetry run invoke lint
 
+  - e2e: |
+      cd nua/tests/e2e
+      poetry run make test
+
   - test: |
       cd nua
       poetry run invoke test
@@ -38,10 +43,6 @@ tasks:
   - nox: |
       cd nua
       poetry run nox
-
-  - e2e: |
-      cd nua/tests/e2e
-      poetry run make test
 
 triggers:
   - action: email
