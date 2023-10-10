@@ -1,0 +1,25 @@
+image: alpine/edge
+
+packages:
+  # Dev
+  - gcc
+  # Libraries
+  - libffi-dev
+  - musl-dev
+  - postgresql-dev
+  # Python dev
+  - python3-dev
+  - py3-pip
+  - poetry
+
+tasks:
+  - setup: |
+      pip install --user invoke
+      cd nua
+      poetry install
+
+  - lint: |
+      poetry run invoke lint
+
+  - test-py310: |
+      poetry run invoke test

@@ -1,0 +1,32 @@
+image: ubuntu/lts
+
+packages:
+  # Build tools
+  - software-properties-common
+  - build-essential
+  - make
+  - gcc
+  - g++
+  # Python
+  - python3-dev
+  - python3-pip
+  - python3-wheel
+  - tox
+  # Libraries
+  - libpq-dev
+  - libffi-dev
+  - libsqlite3-dev
+  - libbz2-dev
+
+tasks:
+  - setup: |
+      sudo npm install -g less
+      sudo pip install -U pip setuptools wheel tox poetry
+      cd nua
+      poetry install
+
+  - lint: |
+      poetry run invoke lint
+
+  - test: |
+      poetry run invoke test
