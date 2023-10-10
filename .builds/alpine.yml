@@ -10,12 +10,15 @@ packages:
   # Python dev
   - python3-dev
   - py3-pip
-  - poetry
+  - pipx
+  # - poetry
 
 tasks:
   - setup: |
-      sudo poetry self update
-      pip install --user invoke
+      # Workaround to install poetry on Alpine
+      # (was: sudo poetry self update)
+      pipx install poetry
+      sudo ln -sf ~/.local/bin/poetry /usr/local/bin/
       cd nua
       poetry install
 
