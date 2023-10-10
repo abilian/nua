@@ -7,9 +7,12 @@ authors = [
     "Jerome Dumonteil <jd@abilian.com>",
 ]
 license = "AGPL"
-# Empty package, needed to be able to build the monorepo
+
 packages = [
-  { include = "nua_monorepo", from = "src" }
+  # Empty package, needed to be able to build the monorepo
+  { include = "nua_monorepo", from = "src" },
+  # Tests must be installed
+  { include = "e2e", from = "tests" },
 ]
 
 
@@ -99,6 +102,13 @@ extend-exclude = [
     "apps",
     "demo",
     "nua",
+]
+
+extend-ignore = [
+    # TODO: check these
+    "S603",
+    "TID252",
+    "PLW1510",
 ]
 
 # ------------------------------------------------------------------------------
