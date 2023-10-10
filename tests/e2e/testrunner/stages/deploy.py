@@ -15,9 +15,7 @@ class DeployStage(Stage):
         self.deploy_apps()
 
     def deploy_apps(self):
-        i = 0
-        for app_dir in Path("apps").iterdir():
-            i += 1
+        for i, app_dir in enumerate(Path("apps").iterdir()):
             config_file = app_dir / "nua-config.toml"
             if not config_file.exists():
                 config_file = app_dir / "nua" / "nua-config.toml"

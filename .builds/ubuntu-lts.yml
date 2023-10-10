@@ -34,16 +34,19 @@ tasks:
       poetry run invoke lint
 
   - e2e: |
-      cd nua/tests/e2e
+      cd nua
+      poetry install
+      cd tests/e2e
       poetry run make test
+
+  - nox: |
+      cd nua
+      poetry run nox
 
   - test: |
       cd nua
       poetry run invoke test
 
-  - nox: |
-      cd nua
-      poetry run nox
 
 triggers:
   - action: email
