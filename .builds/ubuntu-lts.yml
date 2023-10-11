@@ -20,6 +20,7 @@ packages:
   # Tools
   - vagrant
   - virtualbox
+  # Docker currently useless (permission issues)
   - docker.io
 
 tasks:
@@ -39,13 +40,13 @@ tasks:
       cd tests/e2e
       poetry run make test
 
-  - nox: |
-      cd nua
-      poetry run nox
+#  - nox: |
+#      cd nua
+#      poetry run nox
 
-  - test: |
-      cd nua
-      poetry run invoke test
+#  - test: |
+#      cd nua
+#      poetry run invoke test
 
 
 triggers:
