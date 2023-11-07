@@ -28,7 +28,7 @@ packages = [
 nua = "nua_cli.main:main"
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.12"
+python = "^3.10"
 
 tomli = "^2.0.1"
 
