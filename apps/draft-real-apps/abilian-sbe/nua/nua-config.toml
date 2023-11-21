@@ -1,0 +1,133 @@
+[metadata]
+id = "abilian-sbe"
+title = "Abilian Social Business Engine (SBE)"
+author = "Abilian"
+description = "Abilian SBE is a Python web application framework for building social business applications."
+tagline = "Abilian Social Business Engine (SBE)"
+tags = ["social", "business", "document", "wiki"]
+website = "https://github.com/abilian/abilian-sbe-monorepo"
+version = "1.0.4"
+release = 16
+
+
+[build]
+license = "GPL"
+git-url = "https://github.com/abilian/abilian-sbe-monorepo.git"
+git-branch = "main"
+packages = [
+    # Needed to build psycopg2
+    # (todo: replace by psycopg2-binary in pyproject.toml)
+    #"build-essential",
+    #"libpq-dev",
+    #"python3-dev",
+    #"libxslt1-dev",
+    #"libjpeg-dev",
+    #"libffi-dev",
+    #"libsqlite3-dev",
+    #"libbz2-dev",
+    # Server stuff
+
+]
+# pip-install = ["psycopg2-binary"]
+build = [
+    "/usr/bin/npm install lessc",
+    "pip install -U poetry",
+    "pwd",
+    "sed -i.bak 's/psycopg2.*=.*$/psycopg2-binary = \"*\"/g' pyproject.toml",
+    "poetry lock --no-update",
+    "poetry install"
+]
+test = "python -c 'import extranet'"
+
+
+[run]
+packages = [
+    "nodejs",
+    "npm",
+    "imagemagick",
+    "libmagic1",
+    "fontconfig",
+    "celery",
+    # Other deps (external tools)
+    "poppler-utils",
+    "imagemagick",
+    "libreoffice",
+    "default-jdk-headless",
+    "postgresql-client"
+]
+
+start = [
+    "flask initdb",
+    "flask createuser --role admin --name admin ${ADMIN_MAIL} ${ADMIN_PASSWORD}",
+    "gunicorn abilian.sbe.app.create_app -b :8000 --workers 2 --log-level debug"
+]
+
+
+[env]
+DOMAIN = { from="", key="domain" }
+LANG = "C.UTF-8"
+
+ADMIN_MAIL = "jd@abilian.com"
+ADMIN_PASSWORD = "azerty"
+FLASK_SITE_NAME = "Some site name"
+FLASK_MAIL_SENDER = "sbe-server@${DOMAIN}"
+
+NODE_ENV = "production"
+FLASK_SECRET_KEY = "lugljgkjhgkgytityjdfplpivdszq"
+FLASK_SQLALCHEMY_DATABASE_URI = "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
+FLASK_DEBUG = 0
+FLASK_MAIL_DEBUG = 0
+FLASK_MAIL_SERVER = "${DOMAIN}:25"
+FLASK_SERVER_NAME = "${DOMAIN}:25"
+
+FLASK_REDIS_URI = "${REDIS_URI}"
+FLASK_CELERY_BROKER_URL = "${REDIS_URI}"
+CELERY_BROKER_URL = "${REDIS_URI}"
+FLASK_CELERY_RESULT_BACKEND = "${REDIS_URI}"
+CELERY_RESULT_BACKEND = "${REDIS_URI}"
+
+CLAMD_CONF_PATH = ""
+
+FLASK_BROKER_URL = "${REDIS_URI}"
+
+POSTGRES_HOST = { from="database", key="hostname" }
+POSTGRES_DB = { from="database", key="POSTGRES_DB" }
+POSTGRES_USER = { from="database", key="POSTGRES_USER" }
+POSTGRES_PASSWORD = { from="database", key="POSTGRES_PASSWORD" }
+POSTGRES_PORT = "5432"
+
+REDIS_HOST = { from="broker", key="hostname" }
+REDIS_PORT = { from="broker", key="REDIS_PORT" }
+REDIS_URI = "redis://${REDIS_HOST}:{REDIS_PORT}"
+
+
+[docker]
+# parameters passed as a dict to docker run
+auto_remove = false
+
+
+[port.web]
+container = 8000
+
+
+[[provider]]
+# A provider is another container required by the main app container, its
+# configuration is described below, under the key of name of the provider. Several
+# providers can be declared. The provider host will appear in the local network
+# with a hostname equal to the container name.
+
+# Declaration of the required image for the resurce, here the official Postgres.
+name = "database"
+module-name = "postgres"
+module-version = ">=14, <15"
+
+[provider.backup]
+method = "pg_dump"
+options = { destination = "local" }
+
+
+[[provider]]
+# declaration of the required image for the provider: official Redis image
+name = "broker"
+module-name = "redis-cache"
+module-version = ">=7"
