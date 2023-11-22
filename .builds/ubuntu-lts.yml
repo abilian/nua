@@ -34,11 +34,16 @@ tasks:
       cd nua
       poetry run invoke lint
 
-  - e2e: |
-      cd nua
-      poetry install
-      cd tests/e2e
-      poetry run make test
+# Vagrant fails with messages:
+# Error while connecting to Libvirt: Error making a connection to libvirt URI qemu:///system:
+#Call to virConnectOpen failed: Failed to connect socket to '/var/run/libvirt/libvirt-sock': No such file or directory
+#ssh: Could not resolve hostname default: Name or service not known
+#
+#  - e2e: |
+#      cd nua
+#      poetry install
+#      cd tests/e2e
+#      poetry run make test
 
 #  - nox: |
 #      cd nua
