@@ -7,7 +7,7 @@ tagline = "Abilian Social Business Engine (SBE)"
 tags = ["social", "business", "document", "wiki"]
 website = "https://github.com/abilian/abilian-sbe-monorepo"
 version = "1.0.4"
-release = 16
+release = 19
 
 
 [build]
@@ -57,9 +57,10 @@ packages = [
 ]
 
 start = [
+    "env",
     "flask initdb",
     "flask createuser --role admin --name admin ${ADMIN_MAIL} ${ADMIN_PASSWORD}",
-    "gunicorn abilian.sbe.app.create_app -b :8000 --workers 2 --log-level debug"
+    "gunicorn wsgi.py -b :8000 --workers 2 --log-level debug"
 ]
 
 
@@ -70,25 +71,25 @@ LANG = "C.UTF-8"
 ADMIN_MAIL = "jd@abilian.com"
 ADMIN_PASSWORD = "azerty"
 FLASK_SITE_NAME = "Some site name"
-FLASK_MAIL_SENDER = "sbe-server@${DOMAIN}"
+FLASK_MAIL_SENDER = "sbe-server@{DOMAIN}"
 
 NODE_ENV = "production"
 FLASK_SECRET_KEY = "lugljgkjhgkgytityjdfplpivdszq"
-FLASK_SQLALCHEMY_DATABASE_URI = "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
+FLASK_SQLALCHEMY_DATABASE_URI = "postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
 FLASK_DEBUG = 0
 FLASK_MAIL_DEBUG = 0
-FLASK_MAIL_SERVER = "${DOMAIN}:25"
-FLASK_SERVER_NAME = "${DOMAIN}:25"
+FLASK_MAIL_SERVER = "{DOMAIN}:25"
+FLASK_SERVER_NAME = "{DOMAIN}:25"
 
-FLASK_REDIS_URI = "${REDIS_URI}"
-FLASK_CELERY_BROKER_URL = "${REDIS_URI}"
-CELERY_BROKER_URL = "${REDIS_URI}"
-FLASK_CELERY_RESULT_BACKEND = "${REDIS_URI}"
-CELERY_RESULT_BACKEND = "${REDIS_URI}"
+FLASK_REDIS_URI = "{REDIS_URI}"
+FLASK_CELERY_BROKER_URL = "{REDIS_URI}"
+CELERY_BROKER_URL = "{REDIS_URI}"
+FLASK_CELERY_RESULT_BACKEND = "{REDIS_URI}"
+CELERY_RESULT_BACKEND = "{REDIS_URI}"
 
 CLAMD_CONF_PATH = ""
 
-FLASK_BROKER_URL = "${REDIS_URI}"
+FLASK_BROKER_URL = "{REDIS_URI}"
 
 POSTGRES_HOST = { from="database", key="hostname" }
 POSTGRES_DB = { from="database", key="POSTGRES_DB" }
@@ -98,7 +99,7 @@ POSTGRES_PORT = "5432"
 
 REDIS_HOST = { from="broker", key="hostname" }
 REDIS_PORT = { from="broker", key="REDIS_PORT" }
-REDIS_URI = "redis://${REDIS_HOST}:{REDIS_PORT}"
+REDIS_URI = "redis://{REDIS_HOST}:{REDIS_PORT}/"
 
 
 [docker]
