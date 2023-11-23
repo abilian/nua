@@ -7,7 +7,7 @@ tagline = "Abilian Social Business Engine (SBE)"
 tags = ["social", "business", "document", "wiki"]
 website = "https://github.com/abilian/abilian-sbe-monorepo"
 version = "1.0.4"
-release = 19
+release = 26
 
 
 [build]
@@ -32,12 +32,11 @@ packages = [
 build = [
     "/usr/bin/npm install lessc",
     "pip install -U poetry",
-    "pwd",
     "sed -i.bak 's/psycopg2.*=.*$/psycopg2-binary = \"*\"/g' pyproject.toml",
     "poetry lock --no-update",
     "poetry install"
 ]
-test = "python -c 'import extranet'"
+test = "python -c 'import abilian.sbe'"
 
 
 [run]
@@ -58,9 +57,12 @@ packages = [
 
 start = [
     "env",
+    "date",
+    "bash -c 'while :;  do pg_isready -h ${POSTGRES_HOST} -p ${POSTGRES_PORT} -d ${POSTGRES_DB} -t 10 && break; sleep 5; done'",
+    "date",
     "flask initdb",
     "flask createuser --role admin --name admin ${ADMIN_MAIL} ${ADMIN_PASSWORD}",
-    "gunicorn wsgi.py -b :8000 --workers 2 --log-level debug"
+    "gunicorn abilian.sbe.app:create_app -b :8000 --workers 2 --log-level debug"
 ]
 
 
@@ -69,12 +71,13 @@ DOMAIN = { from="", key="domain" }
 LANG = "C.UTF-8"
 
 ADMIN_MAIL = "jd@abilian.com"
-ADMIN_PASSWORD = "azerty"
+ADMIN_PASSWORD = { random="true", type="str", length=12, display="true", persist="true" }
 FLASK_SITE_NAME = "Some site name"
 FLASK_MAIL_SENDER = "sbe-server@{DOMAIN}"
 
 NODE_ENV = "production"
-FLASK_SECRET_KEY = "lugljgkjhgkgytityjdfplpivdszq"
+FLASK_SECRET_KEY = { random="true", type="str", length=24, display="true", persist="true" }
+
 FLASK_SQLALCHEMY_DATABASE_URI = "postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
 FLASK_DEBUG = 0
 FLASK_MAIL_DEBUG = 0
