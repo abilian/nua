@@ -7,7 +7,7 @@ tagline = "Abilian Social Business Engine (SBE)"
 tags = ["social", "business", "document", "wiki"]
 website = "https://github.com/abilian/abilian-sbe-monorepo"
 version = "1.0.4"
-release = 26
+release = 32
 
 
 [build]
@@ -57,34 +57,38 @@ packages = [
 
 start = [
     "env",
+    "sudo mkdir -p /nua/build/abilian-sbe-monorepo/src/instance",
+    "sudo chown nua:nua /nua/build/abilian-sbe-monorepo/src/instance",
+    "date",
+    "celery -A extranet.celery_app worker -l INFO  --logfile=/nua/build/abilian-sbe-monorepo/src/instance.celery.log --detach",
     "date",
     "bash -c 'while :;  do pg_isready -h ${POSTGRES_HOST} -p ${POSTGRES_PORT} -d ${POSTGRES_DB} -t 10 && break; sleep 5; done'",
     "date",
     "flask initdb",
     "flask createuser --role admin --name admin ${ADMIN_MAIL} ${ADMIN_PASSWORD}",
-    "gunicorn abilian.sbe.app:create_app -b :8000 --workers 2 --log-level debug"
+    "gunicorn 'abilian.sbe.app:create_app()' -b :8000 --workers 2 --log-level debug"
 ]
 
 
 [env]
 DOMAIN = { from="", key="domain" }
 LANG = "C.UTF-8"
+NODE_ENV = "production"
 
 ADMIN_MAIL = "jd@abilian.com"
 ADMIN_PASSWORD = { random="true", type="str", length=12, display="true", persist="true" }
-FLASK_SITE_NAME = "Some site name"
-FLASK_MAIL_SENDER = "sbe-server@{DOMAIN}"
 
-NODE_ENV = "production"
+FLASK_SERVER_NAME = "{DOMAIN}"
+FLASK_SITE_NAME = "SBE server at {DOMAIN}"
 FLASK_SECRET_KEY = { random="true", type="str", length=24, display="true", persist="true" }
-
 FLASK_SQLALCHEMY_DATABASE_URI = "postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
-FLASK_DEBUG = 0
 FLASK_MAIL_DEBUG = 0
 FLASK_MAIL_SERVER = "{DOMAIN}:25"
-FLASK_SERVER_NAME = "{DOMAIN}:25"
+FLASK_MAIL_SENDER = "sbe-server@{DOMAIN}"
+FLASK_DEBUG = 0
 
 FLASK_REDIS_URI = "{REDIS_URI}"
+FLASK_BROKER_URL = "{REDIS_URI}"
 FLASK_CELERY_BROKER_URL = "{REDIS_URI}"
 CELERY_BROKER_URL = "{REDIS_URI}"
 FLASK_CELERY_RESULT_BACKEND = "{REDIS_URI}"
@@ -92,13 +96,11 @@ CELERY_RESULT_BACKEND = "{REDIS_URI}"
 
 CLAMD_CONF_PATH = ""
 
-FLASK_BROKER_URL = "{REDIS_URI}"
-
 POSTGRES_HOST = { from="database", key="hostname" }
+POSTGRES_PORT = "5432"
 POSTGRES_DB = { from="database", key="POSTGRES_DB" }
 POSTGRES_USER = { from="database", key="POSTGRES_USER" }
 POSTGRES_PASSWORD = { from="database", key="POSTGRES_PASSWORD" }
-POSTGRES_PORT = "5432"
 
 REDIS_HOST = { from="broker", key="hostname" }
 REDIS_PORT = { from="broker", key="REDIS_PORT" }
@@ -112,6 +114,10 @@ auto_remove = false
 
 [port.web]
 container = 8000
+
+[[volume]]
+name = "instance_path"
+target = "/nua/build/abilian-sbe-monorepo/src/instance"
 
 
 [[provider]]
