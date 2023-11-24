@@ -7,28 +7,13 @@ tagline = "Abilian Social Business Engine (SBE)"
 tags = ["social", "business", "document", "wiki"]
 website = "https://github.com/abilian/abilian-sbe-monorepo"
 version = "1.0.4"
-release = 32
+release = 38
 
 
 [build]
 license = "GPL"
 git-url = "https://github.com/abilian/abilian-sbe-monorepo.git"
 git-branch = "main"
-packages = [
-    # Needed to build psycopg2
-    # (todo: replace by psycopg2-binary in pyproject.toml)
-    #"build-essential",
-    #"libpq-dev",
-    #"python3-dev",
-    #"libxslt1-dev",
-    #"libjpeg-dev",
-    #"libffi-dev",
-    #"libsqlite3-dev",
-    #"libbz2-dev",
-    # Server stuff
-
-]
-# pip-install = ["psycopg2-binary"]
 build = [
     "/usr/bin/npm install lessc",
     "pip install -U poetry",
@@ -47,7 +32,8 @@ packages = [
     "libmagic1",
     "fontconfig",
     "celery",
-    # Other deps (external tools)
+    "clamav",
+    "clamav-daemon",
     "poppler-utils",
     "imagemagick",
     "libreoffice",
@@ -60,13 +46,15 @@ start = [
     "sudo mkdir -p /nua/build/abilian-sbe-monorepo/src/instance",
     "sudo chown nua:nua /nua/build/abilian-sbe-monorepo/src/instance",
     "date",
-    "celery -A extranet.celery_app worker -l INFO  --logfile=/nua/build/abilian-sbe-monorepo/src/instance.celery.log --detach",
+    "sudo /etc/init.d/clamav-freshclam start",
+    "sudo /etc/init.d/clamav-daemon start",
+    "celery -A extranet.celery_app worker -l INFO  --logfile=/nua/build/abilian-sbe-monorepo/src/instance/celery.log --detach",
     "date",
-    "bash -c 'while :;  do pg_isready -h ${POSTGRES_HOST} -p ${POSTGRES_PORT} -d ${POSTGRES_DB} -t 10 && break; sleep 5; done'",
+    "bash -c 'while :; do pg_isready -h ${POSTGRES_HOST} -p ${POSTGRES_PORT} -d ${POSTGRES_DB} -t 10 && break; sleep 5; done'",
     "date",
     "flask initdb",
     "flask createuser --role admin --name admin ${ADMIN_MAIL} ${ADMIN_PASSWORD}",
-    "gunicorn 'abilian.sbe.app:create_app()' -b :8000 --workers 2 --log-level debug"
+    "gunicorn extranet.wsgi:app -b :8000 --workers 2 --log-level debug"
 ]
 
 
@@ -116,17 +104,19 @@ auto_remove = false
 container = 8000
 
 [[volume]]
-name = "instance_path"
+name = "instance-path"
 target = "/nua/build/abilian-sbe-monorepo/src/instance"
+
+[[volume]]
+name = "clamav-db"
+target = "/var/lib/clamav"
+
+[[volume]]
+name = "clamav-log"
+target = "/var/log/clamav"
 
 
 [[provider]]
-# A provider is another container required by the main app container, its
-# configuration is described below, under the key of name of the provider. Several
-# providers can be declared. The provider host will appear in the local network
-# with a hostname equal to the container name.
-
-# Declaration of the required image for the resurce, here the official Postgres.
 name = "database"
 module-name = "postgres"
 module-version = ">=14, <15"
@@ -134,6 +124,7 @@ module-version = ">=14, <15"
 [provider.backup]
 method = "pg_dump"
 options = { destination = "local" }
+frequency = "24h"
 
 
 [[provider]]
