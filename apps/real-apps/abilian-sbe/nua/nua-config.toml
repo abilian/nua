@@ -7,7 +7,7 @@ tagline = "Abilian Social Business Engine (SBE)"
 tags = ["social", "business", "document", "wiki"]
 website = "https://github.com/abilian/abilian-sbe-monorepo"
 version = "1.0.4"
-release = 38
+release = 39
 
 
 [build]
@@ -52,6 +52,7 @@ start = [
     "date",
     "bash -c 'while :; do pg_isready -h ${POSTGRES_HOST} -p ${POSTGRES_PORT} -d ${POSTGRES_DB} -t 10 && break; sleep 5; done'",
     "date",
+    "flask assets build",
     "flask initdb",
     "flask createuser --role admin --name admin ${ADMIN_MAIL} ${ADMIN_PASSWORD}",
     "gunicorn extranet.wsgi:app -b :8000 --workers 2 --log-level debug"
