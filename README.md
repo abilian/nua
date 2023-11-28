@@ -68,12 +68,12 @@ The roadmap for the projet is kept up to date on [this kanban board](https://git
 See also: [TODO.md](./TODO.md) and [HISTORY.md](./HISTORY.md).
 
 
-As of 2023/04/29, we have the following components:
+We currently provide the following components:
 
-- The "builder" CLI that can build container images from high level specifications (`nua-config.tom` files).
-- The "orchestrator" CLI that can deploy and manage container images.
-- The `nua` CLI that provides a unified interface to the builder and orchestrator.
-- We have started packaging some applications (HedgeDoc, Dolibarr, Galene, Dolibarr, Etherpad-lite).
+- The "**builder**" CLI that can build container images from high level specifications (`nua-config.tom` files).
+- The "**orchestrator**" CLI that can deploy and manage container images.
+- The `nua` CLI that provides a **unified interface** to the builder and orchestrator.
+- Some initial **applications** (HedgeDoc, Dolibarr, Galene, Dolibarr, Etherpad-lite).
 
 ### Repo activity
 

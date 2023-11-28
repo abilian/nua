@@ -76,7 +76,7 @@ We gave a short presentation on Nua during the IMPULSE 2023 conference in Brusse
 
 Nua is open source, under active development at <https://github.com/abilian/nua>.
 
-Nua has been used internally at Abilian for several months to host non-critical applications, and a first beta version was released in February 2023.
+Nua has been used internally at Abilian since 2022 to host non-critical applications, and the first beta version was released in February 2023.
 
 The project will continue to grow over the coming months and years, including:
 
