@@ -14,6 +14,8 @@ run: $(src)
 	python ./scripts/gen-api.py
 	mkdocs serve
 
+serve: run
+
 build: $(src)
 	python ./scripts/gen-api.py
 	mkdocs build

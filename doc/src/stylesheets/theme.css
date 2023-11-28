@@ -1,0 +1,18 @@
+:root > * {
+    /* theme */
+    --md-primary-fg-color: #254789;
+}
+
+.md-typeset h1, .md-typeset h2 {
+  font-weight: 500;
+}
+
+.highlight > pre > code {
+    border-radius: 3px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+
+.md-banner {
+    --md-footer-bg-color: #1d252b;
+}

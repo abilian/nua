@@ -87,6 +87,9 @@ extra:
   analytics:
     provider: custom
 
+extra_css:
+    - stylesheets/theme.css
+    - stylesheets/extra.css
 
 # Extensions
 markdown_extensions:
@@ -102,7 +105,6 @@ markdown_extensions:
   - pymdownx.highlight
   - pymdownx.magiclink
   - pymdownx.tasklist
-  # - pymdownx.superfences
   - codehilite:
       css_class: highlight
 
@@ -110,16 +112,12 @@ plugins:
   - search
   - include-markdown
   - roamlinks
-  # - git-revision-date-localized:
-  #     type: timeago
-  # - autolinks
-  # - section-index
-  # - mkdocs-newsletter
   - blog:
       blog_dir: news
-      archive: false
-      archive_date_format: yyyy - MMM
-      archive_url_date_format: yyyy/MM
+      archive_name: Archive
+      archive: true
+      archive_date_format: yyyy
+      archive_toc: true
 
   - with-pdf:
       author: Stefane Fermigier / Jérôme Dumonteil
@@ -149,6 +147,9 @@ plugins:
             show_bases: false
             show_source: false
             merge_init_into_class: true
+            docstring_options:
+              ignore_init_summary: false
+              trim_doctest_flags: true
 #            docstring_options:
 #              ignore_init_summary: true
 #            group_by_category: true
