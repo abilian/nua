@@ -65,7 +65,7 @@ lint:
 ## Format code
 format:
 	invoke format
-	# docformatter -i -r nua-*
+	docformatter --black -i -r nua-*/src
 	black *.py
 	isort *.py
 
