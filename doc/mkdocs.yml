@@ -9,31 +9,37 @@ docs_dir: src
 # Navigation
 nav:
   - Home:
-    - Introduction: index.md
-    - "Available apps": apps.md
-    - Funding: funding.md
+      - Introduction: index.md
+      - "Available apps": apps.md
+      - Funding: funding.md
   - Users:
-    - Introduction: user/index.md
-    - Installation: user/install.md
-    - Command Line Interface: user/cli.md
+      - Introduction: user/index.md
+      - Installation: user/install.md
+      - Command Line Interface: user/cli.md
   - Developers:
-    - Introduction: dev/index.md
-    - "Nua as a R&D project": dev/r-and-d.md
-    - Architecture: dev/architecture.md
-    - "Specifications: Configuration": dev/configuration.md
-    - "Specification: App Images": dev/image.md
-    - API: dev/api.md
-    - Builder: dev/builder.md
-    - Orchestrator: dev/orchestrator.md
-    - Process and tools: dev/process-tools.md
-    - CLI: dev/cli.md
-    - Contributing: dev/contributing.md
-    - Change log: dev/changelog.md
-    - Credits: dev/authors.md
+      - Introduction: dev/index.md
+      - "Nua as a R&D project": dev/r-and-d.md
+      - Architecture: dev/architecture.md
+      - Components:
+          - CLI: dev/components/cli.md
+          - Builder: dev/components/builder.md
+          - Orchestrator: dev/components/orchestrator.md
+      - "Specifications":
+          - "Specifications: Configuration": dev/specifications/configuration.md
+          - "Specification: App Images": dev/specifications/image.md
+      - API:
+          - "nua-lib API": dev/api/nua-lib.md
+          - "nua-agent API": dev/api/nua-agent.md
+          - "nua-build API": dev/api/nua-build.md
+          - "nua-orchestrator API": dev/api/nua-orchestrator.md
+      - Process and tools: dev/process-tools.md
+      - Contributing: dev/contributing.md
+      - Change log: dev/changelog.md
+      - Credits: dev/authors.md
   - News: news/index.md
 
 # Copyright
-copyright: Copyright &copy; 2021-2023 Abilian SAS
+copyright: Copyright &copy; 2021-2024 Abilian SAS
 
 # Repository
 repo_name: 'abilian/nua'
@@ -127,32 +133,28 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          paths: [.]
+          paths: [
+            "../nua-lib/src/",
+            "../nua-agent/src/",
+            "../nua-build/src/",
+            "../nua-orchestrator/src/",
+          ]
           options:
-            filters: ["!^_"]
-            docstring_options:
-              ignore_init_summary: true
-            separate_signature: true
-            merge_init_into_class: true
-            show_object_full_path: true
-            members_order: source
-            group_by_category: false
-            line_length: 80
-            signature_crossrefs: true
-            show_root_toc_entry: false
-            show_source: false
-            show_bases: true
             heading_level: 3
-
-      # - mkdocstrings: (OLD)
-      #     default_handler: python
-      #     handlers:
-      #       python:
-      #         rendering:
-      #           show_source: false
-      #     custom_templates: templates
-      #     watch:
-      #       - ../src/app
+            separate_signature: true
+            filters: [ "!^_" ]
+            show_object_full_path: false
+            members_order: source
+            line_length: 88
+            show_bases: false
+            show_source: false
+            merge_init_into_class: true
+#            docstring_options:
+#              ignore_init_summary: true
+#            group_by_category: true
+#            signature_crossrefs: true
+#            show_root_toc_entry: false
+#            show_inheritance_diagram: true
 
       #    custom_template_path: TEMPLATES PATH
       #

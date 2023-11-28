@@ -11,9 +11,11 @@ src/dev/orchestrator.md: ../nua_orchestrator_local/README.md
 	cp ../nua_orchestrator_local/README.md src/dev/orchestrator.md
 
 run: $(src)
+	./scripts/gen-api.py
 	mkdocs serve
 
 build: $(src)
+	./scripts/gen-api.py
 	mkdocs build
 	cp -a src/.well-known site/
 	cp -a assets/root/* site/

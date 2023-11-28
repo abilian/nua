@@ -15,18 +15,16 @@ python = "^3.10,<3.12"
 [tool.poetry.group.dev.dependencies]
 mkdocs = "^1.4.3"
 mkdocs-blogging-plugin = "^2.2.9"
-mkdocs-include-markdown-plugin = "^4.0.4"
+mkdocs-include-markdown-plugin = "^6.0.4"
 mkdocs-material = "^9.1.18"
 mkdocs-material-extensions = "^1.1.1"
 mkdocs-newsletter = "^1.0.1"
 mkdocs-roamlinks-plugin = "^0.3.2"
 mkdocs-with-pdf = "^0.9.3"
-mkdocstrings = {extras = ["python"], version = "^0.22.0"}
+mkdocstrings = {extras = ["python"], version = "^0.24.0"}
 
 sqla2uml = "^0.1.4"
 pygments = "^2.15.1"
 modulegraph = "^0.19.5"
 pydeps = "^1.12.8"
 urllib3 = "^2.0.3"
-
-docformatter = "^1.7.3"
