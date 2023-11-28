@@ -20,7 +20,8 @@ class AppRestore:
     def run(self, reference: str) -> None:
         """Restore the backup of reference date 'reference'.
 
-        If reference is rempty, restore the last known backup."""
+        If reference is rempty, restore the last known backup.
+        """
         self.load_backup_record(reference)
         if not self.backup_record:
             self.result = "No backup archive found."

@@ -8,8 +8,8 @@ from typing import Any
 
 @dataclass(frozen=True, kw_only=True)
 class BackupComponent:
-    """Single backup up unit (typically a directory or a database)
-    and its restore method.
+    """Single backup up unit (typically a directory or a database) and its restore
+    method.
 
     One item has:
         - a path (or url)

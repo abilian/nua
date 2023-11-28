@@ -24,8 +24,8 @@ __all__ = ["setup_nua_db"]
 
 
 def setup_nua_db():
-    """Create the db if needed and also populate the configuration from both db
-    values and default parameters."""
+    """Create the db if needed and also populate the configuration from both db values
+    and default parameters."""
     get_db_uri()
     create_base()
     configure_session()

@@ -69,8 +69,7 @@ def install_source(
     name: str,
     checksum: str = "",
 ) -> Path:
-    """Guess meaning of url string and send back local path of the dowloaded
-    source.
+    """Guess meaning of url string and send back local path of the dowloaded source.
 
     (WIP)
     """

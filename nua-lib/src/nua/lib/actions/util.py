@@ -73,11 +73,9 @@ def download_url(url: str, target: Path) -> None:
 
 
 def verify_checksum(target: Path, checksum: str) -> None:
-    """If a checksum is provided, verify that the Path has the same sha256
-    hash.
+    """If a checksum is provided, verify that the Path has the same sha256 hash.
 
-    Abort the programm if hashes differ. Currently supporting only
-    sha256.
+    Abort the programm if hashes differ. Currently supporting only sha256.
     """
     if not checksum:
         return
@@ -191,6 +189,7 @@ def append_bashrc(home: str | Path, content: str):
 
 def snake_format(name: str) -> str:
     """Convert a string to snake_case format.
+
     >>> snake_format("my-project")
     'my_project'
     """
@@ -199,6 +198,7 @@ def snake_format(name: str) -> str:
 
 def kebab_format(name: str) -> str:
     """Convert a string to kebab_case format.
+
     >>> kebab_format("my_project")
     'my-project'
     """
@@ -207,6 +207,7 @@ def kebab_format(name: str) -> str:
 
 def camel_format(name: str) -> str:
     """Convert a string to CamelCase format.
+
     >>> camel_format("my-project")
     'MyProject'
     """
@@ -235,8 +236,8 @@ def _to_format_cases_dict(
     unchanged: Iterable,
     recurse: int = 999,
 ) -> None:
-    """Converts all keys in a dict to "formatter" format, with list of unchanged
-    keys and recursion level, in place."""
+    """Converts all keys in a dict to "formatter" format, with list of unchanged keys
+    and recursion level, in place."""
     for key, value in list(data.items()):
         if key in unchanged:
             continue
@@ -253,8 +254,7 @@ def to_snake_cases(
     recurse: int = 999,
     unchanged: Iterable | None = None,
 ) -> None:
-    """Converts all keys in a dict to snake_case, recursion level,
-    in place."""
+    """Converts all keys in a dict to snake_case, recursion level, in place."""
     if unchanged is None:
         unchanged = []
     _to_format_cases(snake_format, data, unchanged, recurse)
@@ -265,8 +265,7 @@ def to_kebab_cases(
     recurse: int = 999,
     unchanged: Iterable | None = None,
 ) -> None:
-    """Converts all keys in a dict to snake_case, recursion level,
-    in place."""
+    """Converts all keys in a dict to snake_case, recursion level, in place."""
     if unchanged is None:
         unchanged = []
     _to_format_cases(kebab_format, data, unchanged, recurse)

@@ -53,9 +53,9 @@ class DockerBuilder(Builder):
     def ensure_base_image_profile_availability(self):
         """Ensure the required Nua images are available.
 
-        The tag 'builder' will determine the required base image if it
-        represents an Image. If empty, the standard Nua base image is used.
-        The builder also be an installation recipe.
+        The tag 'builder' will determine the required base image if it represents an
+        Image. If empty, the standard Nua base image is used. The builder also be an
+        installation recipe.
         """
         image_builder = NuaImageBuilder()
         image_builder.ensure_images(self.config.builder)
@@ -63,8 +63,8 @@ class DockerBuilder(Builder):
     def select_base_image(self):
         """Select a base image among possible choices.
 
-        It may append that we have 2 images for Node.js v14 and v16, and
-        an app allowing both version.
+        It may append that we have 2 images for Node.js v14 and v16, and an app allowing
+        both version.
         """
         builder = self.config.builder
         if builder:
@@ -205,8 +205,8 @@ class DockerBuilder(Builder):
                 raise BuilderError(f"File not found: {path}")
 
     def _copy_default_files(self):
-        """Complete missing files from defaults, at the moment the Dockerfile,
-        (and maybe start.py, ...)."""
+        """Complete missing files from defaults, at the moment the Dockerfile, (and
+        maybe start.py, ...)."""
         if not hyphen_get(self.config.build, "default_files", True):
             return
         with verbosity(4):

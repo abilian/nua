@@ -1,7 +1,6 @@
 """Managing `os.environ` for Nua variables.
 
-Basically a wrapper for the self._env dict as a singleton, no class
-needed.
+Basically a wrapper for the self._env dict as a singleton, no class needed.
 """
 import os
 from copy import deepcopy

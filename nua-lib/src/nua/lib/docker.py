@@ -175,7 +175,8 @@ def docker_pull(reference: str) -> Image | None:
 def _print_buffer_log(messages: list[str]):
     """Print messages buffered, without checking for verbosity.
 
-    Dump retained messages when an error occured."""
+    Dump retained messages when an error occured.
+    """
     for message in messages:
         with verbosity(0):
             print_stream(message)

@@ -24,8 +24,8 @@ COMPLETE_BLOCKS = ["build", "run", "env", "docker"]
 
 
 def hyphen_get(data: dict, key: str, default: Any = None) -> Any:
-    """Return value from dict for key either hyphen "-" or underscore "_" in
-    it, priority to "-"."""
+    """Return value from dict for key either hyphen "-" or underscore "_" in it,
+    priority to "-"."""
     if (hypkey := key.replace("_", "-")) in data:
         result = data.get(hypkey)
     elif (underkey := key.replace("-", "_")) in data:
@@ -36,8 +36,8 @@ def hyphen_get(data: dict, key: str, default: Any = None) -> Any:
 
 
 def force_list(content: Any) -> list[Any]:
-    """Return always a list, if a single string is provided, wrap it into
-    list.
+    """Return always a list, if a single string is provided, wrap it into list.
+
     >>> force_list("foo")
     ['foo']
     >>> force_list(["foo", "bar"])
@@ -171,10 +171,10 @@ class NuaConfig:
     def _show_config_differences(self, data: dict[str, Any]) -> None:
         """Print the difference between original data and actual loaded config.
 
-        This shows the diff between the original TOML and the parsed config once
-        it has been converted to a Pydantic model.
-        Pydantic doesn't check (AFAIK) for extra (just for missing keys or values
-        of the wrong type), so this is a way to check for typos in the keys, etc.
+        This shows the diff between the original TOML and the parsed config once it has
+        been converted to a Pydantic model. Pydantic doesn't check (AFAIK) for extra
+        (just for missing keys or values of the wrong type), so this is a way to check
+        for typos in the keys, etc.
         """
         header_displayed = False
         for key, section, changes in diff(data, self._data):
@@ -223,8 +223,8 @@ class NuaConfig:
             self._data["port"][name] = port
 
     def __getitem__(self, key: str) -> Any:
-        """will return {} if key not found, assuming some parts are not
-        mandatory and first level element are usually dict."""
+        """Will return {} if key not found, assuming some parts are not mandatory and
+        first level element are usually dict."""
         return self._data.get(key) or {}
 
     # metadata ######################################################
@@ -235,8 +235,7 @@ class NuaConfig:
 
     @cached_property
     def metadata_rendered(self) -> dict:
-        """Return the metadata and build sections with rendered
-        f-string values."""
+        """Return the metadata and build sections with rendered f-string values."""
         mixed = deepcopy(self.metadata)
         mixed.update(deepcopy(self.build))
         data = {}
@@ -292,9 +291,9 @@ class NuaConfig:
     def wrap_image(self) -> str:
         """Optional container image to be used as base for 'wrap' strategy.
 
-        If the 'base-image' metadata is defined, the build strategy is to add
-        the '/nua/metadata/nua-config.json' file on the declared image,
-        when build method is 'wrap'.
+        If the 'base-image' metadata is defined, the build strategy is to add the
+        '/nua/metadata/nua-config.json' file on the declared image, when build method is
+        'wrap'.
         """
         if base := hyphen_get(self.build, "base-image"):
             return base.format(**self.metadata_rendered)
@@ -335,8 +334,7 @@ class NuaConfig:
 
     @cached_property
     def build_command(self) -> list:
-        """Return the list of build commands, each cmd rendered with
-        metadata."""
+        """Return the list of build commands, each cmd rendered with metadata."""
         commands = []
         for cmd in force_list(self.build.get("build", [])):
             if isinstance(cmd, str):
@@ -353,8 +351,7 @@ class NuaConfig:
     def build_method(self) -> str:
         """Build method (or default build method).
 
-        Can be empty string if not defined (then autodetection from
-        metadata).
+        Can be empty string if not defined (then autodetection from metadata).
         """
         default_method = hyphen_get(self.build, "default-method", "")
         return self.build.get("method", default_method)

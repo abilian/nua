@@ -10,10 +10,10 @@ from typing import Any
 class Persistent:
     """Management of persistent generated values (like passwords).
 
-    Persistent data is stored in the AppInstance. A Persistent object contains
-    persitent values for the AppInstance and its ressources. The 'name'
-    attribute identifies the provider owning the data, use '' as provider_name for
-    the data own by the AppInstance itself.
+    Persistent data is stored in the AppInstance. A Persistent object contains persitent
+    values for the AppInstance and its ressources. The 'name' attribute identifies the
+    provider owning the data, use '' as provider_name for the data own by the
+    AppInstance itself.
     """
 
     name: str

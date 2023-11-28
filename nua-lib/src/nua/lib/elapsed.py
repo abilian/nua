@@ -1,5 +1,6 @@
 def elapsed(delta: float) -> str:
     """Readable time string from duration in seconds.
+
     >>> elapsed(123.456)
     '2min 3s'
     >>> elapsed(23.456)

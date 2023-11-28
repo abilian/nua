@@ -26,9 +26,8 @@ class Templater:
 
         Destination files may be on Docker-mounted volumes.
 
-        This function is expected to be run as root. Files are stored with
-        755 rights. Files ending with .j2 are considered as Jinja2
-        templates.
+        This function is expected to be run as root. Files are stored with 755 rights.
+        Files ending with .j2 are considered as Jinja2 templates.
         """
         src_folder = Path("/nua/templates")
         if not src_folder.is_dir():

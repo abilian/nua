@@ -1,5 +1,4 @@
-"""
-Base class for builders.
+"""Base class for builders.
 
 May be refactored later into a more abstract base class.
 """

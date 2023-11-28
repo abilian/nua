@@ -1,7 +1,7 @@
 """Requests to backend DB.
 
-Requests are full transactions, and mask the actual DB implementation to
-the application.
+Requests are full transactions, and mask the actual DB implementation to the
+application.
 """
 from copy import deepcopy
 from datetime import datetime, timezone
@@ -132,9 +132,8 @@ def images_id_per_app_id(app_id):
 def installed_nua_settings() -> dict:
     """Return the dictionnary of settings of the nua-orchestrator.
 
-    nua-orchestrator is not actually an app, but we use the settings
-    facility to store its configuration in the DB with the app_id 'nua-
-    orchestrator' (NUA_ORCH_ID).
+    nua-orchestrator is not actually an app, but we use the settings facility to store
+    its configuration in the DB with the app_id 'nua- orchestrator' (NUA_ORCH_ID).
     """
     with Session() as session:
         setting = (
@@ -150,9 +149,8 @@ def installed_nua_settings() -> dict:
 def set_nua_settings(setting_dict):
     """Set the dictionnary of settings of the nua-orchestrator.
 
-    nua-orchestrator is not actually an app, but we use the settings
-    facility to store its configuration in the DB with the app_id 'nua-
-    orchestrator'
+    nua-orchestrator is not actually an app, but we use the settings facility to store
+    its configuration in the DB with the app_id 'nua- orchestrator'
     """
     set_app_settings(NUA_ORCH_ID, NUA_ORCHESTRATOR_TAG, "", setting_dict)
 
@@ -346,8 +344,8 @@ def list_instances_container_active_volumes() -> list[Volume]:
 
 
 def ports_instances_domains() -> dict[int, str]:
-    """Return dict(port:domain) configured in instance, wether the instance is
-    running or not."""
+    """Return dict(port:domain) configured in instance, wether the instance is running
+    or not."""
     used_domain_ports = {}
     for inst in list_instances_all():
         site_config = inst.site_config
@@ -489,7 +487,7 @@ def deploy_config_update_state(record_id: int, new_state: str):
 
 
 def deploy_config_last_status(status: str, limit: int = 2) -> list:
-    """retrieve the config with "active" state.
+    """Retrieve the config with "active" state.
 
     It should be only one.
     """

@@ -22,7 +22,8 @@ class BackupErrorException(Exception):
 class PluginBaseClass(abc.ABC):
     """Backup plugin base class.
 
-    By default, the base class can apply to either Provider or Volume."""
+    By default, the base class can apply to either Provider or Volume.
+    """
 
     identifier = "plugin_identifier"
     nua_backup_dir = "/nua_backup_dir"
@@ -51,7 +52,10 @@ class PluginBaseClass(abc.ABC):
         self.file_name: str = ""
 
     def restore(self, component: BackupComponent) -> str:
-        """Restore the Provider and or Volume. To be implemented by sub class."""
+        """Restore the Provider and or Volume.
+
+        To be implemented by sub class.
+        """
         message = "NotImplemented"
         print(message)
         return message
@@ -95,7 +99,7 @@ class PluginBaseClass(abc.ABC):
         return result.decode("utf8")
 
     def do_backup(self) -> None:
-        """To be implemented by sub class"""
+        """To be implemented by sub class."""
         raise NotImplementedError
 
     def finalize_component(self) -> None:

@@ -153,10 +153,11 @@ class AppInstance(Provider):
         return records
 
     def backup_records_crop(self, max_length: int = 7, max_age: int = 31) -> None:
-        """Kepp in the backup_records list the last max_length elements and remove
-        the elements olders than max_age
+        """Kepp in the backup_records list the last max_length elements and remove the
+        elements olders than max_age.
 
-        Note: clean also the local backup directory?"""
+        Note: clean also the local backup directory?
+        """
         limit_date = datetime.now(timezone.utc).replace(microsecond=0) - timedelta(
             days=max_age
         )
@@ -257,8 +258,8 @@ class AppInstance(Provider):
         self["provider"] = None
 
     def rebase_env_upon_nua_conf(self):
-        """Merge AppInstance declared env at deploy time upon base declaration
-        of nua-config."""
+        """Merge AppInstance declared env at deploy time upon base declaration of nua-
+        config."""
         base_env = deepcopy(self.image_nua_config.get("env") or {})
         base_env.update(self.env)
         self.env = base_env
@@ -345,8 +346,7 @@ class AppInstance(Provider):
     def default_label(self):
         """Return a label based on app id and domain.
 
-        To use when the user does not provide an app label or as default
-        value.
+        To use when the user does not provide an app label or as default value.
         """
         return f"{self.image_short}-{self.domain}"
 
@@ -388,9 +388,8 @@ class AppInstance(Provider):
         return search_nua(self.image)
 
     def set_providers_names(self):
-        """Set first container names of providers to permit early host
-        assignment to variables.
-        """
+        """Set first container names of providers to permit early host assignment to
+        variables."""
         for provider in self.providers:
             provider.label_id = self.label_id
             provider.set_container_name()

@@ -155,8 +155,8 @@ def mp_exec_as_nua(
     env: dict | None = None,
     timeout: int | None = None,
 ):
-    """Exec exec_as_nua() as a python external process to allow several use of
-    function without mangling ENV and UID."""
+    """Exec exec_as_nua() as a python external process to allow several use of function
+    without mangling ENV and UID."""
     mp_exec_as_user(cmd, NUA, cwd=cwd, timeout=timeout, env=env)
 
 
@@ -187,8 +187,8 @@ def mp_exec_as_postgres(
     timeout: int | None = None,
     show_cmd: bool = True,
 ):
-    """Exec as user 'postgres' in a python external process to allow several
-    use of function without mangling ENV and UID."""
+    """Exec as user 'postgres' in a python external process to allow several use of
+    function without mangling ENV and UID."""
     mp_exec_as_user(
         cmd, "postgres", cwd=cwd, timeout=timeout, env=env, show_cmd=show_cmd
     )

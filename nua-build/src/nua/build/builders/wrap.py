@@ -1,5 +1,4 @@
-"""Docker "wrap" builder: build a container from an existing dockerfile.
-"""
+"""Docker "wrap" builder: build a container from an existing dockerfile."""
 from __future__ import annotations
 
 import logging

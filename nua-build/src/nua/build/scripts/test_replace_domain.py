@@ -1,5 +1,5 @@
-"""Utility script to replace a string in a file, typically 'example.com' to
-actual domain in test files.
+"""Utility script to replace a string in a file, typically 'example.com' to actual
+domain in test files.
 
 The original is not changed, but copied with changes made in a second
 location.

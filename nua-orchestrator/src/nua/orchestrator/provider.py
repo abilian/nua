@@ -137,12 +137,12 @@ class Provider(dict):
 
     @property
     def config_build(self) -> dict[str, Any]:
-        """Return the image original nua-config 'build' section"""
+        """Return the image original nua-config 'build' section."""
         return self.nua_config.get("build") or {}
 
     @property
     def config_run(self) -> dict[str, Any]:
-        """Return the image original nua-config 'run' section"""
+        """Return the image original nua-config 'run' section."""
         return self.nua_config.get("run") or {}
 
     @property
@@ -224,12 +224,12 @@ class Provider(dict):
 
     @property
     def post_run(self) -> list[str]:
-        """Return the image original nua-config 'run/post-run' value"""
+        """Return the image original nua-config 'run/post-run' value."""
         return force_list(self.config_run.get("post-run") or "")
 
     @property
     def post_run_status(self) -> str:
-        """Return the image original nua-config 'run/post-run-status' value"""
+        """Return the image original nua-config 'run/post-run-status' value."""
         return self.config_run.get("post-run-status") or ""
 
     @property
@@ -450,8 +450,8 @@ class Provider(dict):
         self.volumes = list(vol_dic.values())
 
     def _update_from_site_declaration_env(self, env_update_dict: Any):
-        """For Provider only, make 'env' dict from AppInstance declaration and
-        base  delcaration in nua-config."""
+        """For Provider only, make 'env' dict from AppInstance declaration and base
+        delcaration in nua-config."""
         if not isinstance(env_update_dict, dict):
             raise Abort(
                 "Updated 'env' in deploy config must be a dict.",
@@ -474,11 +474,10 @@ class Provider(dict):
         return self.type == "docker-image"
 
     def environment_ports(self) -> dict:
-        """Return exposed ports and provider host (container name) as env
-        variables.
+        """Return exposed ports and provider host (container name) as env variables.
 
-        To be used by remote container from same bridge network to
-        connect to the provider container port.
+        To be used by remote container from same bridge network to connect to the
+        provider container port.
         """
         env = {}
         for port in self.port_list:

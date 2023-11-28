@@ -81,8 +81,8 @@ class AppBuilder:
             show("******** Build done.")
 
     def collect_meta_packages(self) -> list[str]:
-        """Return meta packages collected from the nua-config requirements
-        and connectors required by providers."""
+        """Return meta packages collected from the nua-config requirements and
+        connectors required by providers."""
         collected_set = set()
         for provider in self.config.providers:
             collected_set.update(force_list(provider.get("connector") or ""))
@@ -117,8 +117,7 @@ class AppBuilder:
         self.make_custom_document_root()
 
     def make_custom_document_root(self):
-        """If the app defines a specific document root  (i.e.
-        /var/www/html)."""
+        """If the app defines a specific document root  (i.e. /var/www/html)."""
         document_root = hyphen_get(self.config.build, "document-root")
         if not document_root:
             return
@@ -143,8 +142,7 @@ class AppBuilder:
         self.make_start_script()
 
     def copy_metadata(self):
-        """Dump the content of the nua-config file in /nua/metadata/nua-
-        config.json."""
+        """Dump the content of the nua-config file in /nua/metadata/nua- config.json."""
         self.config.dump_json(NUA_METADATA_PATH)
 
     def make_start_script(self):

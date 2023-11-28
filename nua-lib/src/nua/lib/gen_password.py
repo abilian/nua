@@ -7,8 +7,8 @@ MIN_DIGIT = 3
 def gen_password(length: int = 24) -> str:
     """Generate random password.
 
-    With ascii and digits, lenght 24, log10(62**16) ~ 43, and basic
-    constraints. Added constraint for usernames: first char is letter.
+    With ascii and digits, lenght 24, log10(62**16) ~ 43, and basic constraints. Added
+    constraint for usernames: first char is letter.
     """
     alphabet = string.ascii_letters + string.digits
     while True:

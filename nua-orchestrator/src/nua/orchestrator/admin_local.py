@@ -13,20 +13,18 @@ from nua.orchestrator.nua_db_setup import setup_nua_db
 def generate_rsa_host_key(bits=4096) -> RSAKey:
     """Generate a new private RSA key.
 
-    This factory function can be used to generate a new host key or
-    authentication key.
+    This factory function can be used to generate a new host key or authentication key.
     """
     key = RSAKey.generate(bits)
     return key
 
 
 def private_key_blob_from_key(key: RSAKey, password: str | None = None) -> str:
-    """Write an SSH2-format private key file in a form that can be read by
-    paramiko or openssh.
+    """Write an SSH2-format private key file in a form that can be read by paramiko or
+    openssh.
 
-    If no password is given, the key is written in a trivially-encoded
-    format (base64) which is completely insecure.  If a password is
-    given, DES-EDE3-CBC is used.
+    If no password is given, the key is written in a trivially-encoded format (base64)
+    which is completely insecure.  If a password is given, DES-EDE3-CBC is used.
     """
     output = io.StringIO()
     key.write_private_key(output, password)
@@ -42,8 +40,8 @@ def print_local_nua_config():
 
 
 def set_new_host_key():
-    """Generate a random RSA key (4096 bits) and store it in the nua DB
-    settings as "host.host_priv_key_blob"."""
+    """Generate a random RSA key (4096 bits) and store it in the nua DB settings as
+    "host.host_priv_key_blob"."""
     print("Generating RSA key (4096 bits) for Nua host...")
     new_key = generate_rsa_host_key()
     blob = private_key_blob_from_key(new_key)

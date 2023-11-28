@@ -115,8 +115,8 @@ def gen_cert_nginx(domain: str) -> None:
 
 
 def apply_auto_strategy(top_domain: str, domains: list[str]) -> bool:
-    """Convert just created HTTP configuration (by nginx template) to HTTPS
-    using certbot (if strategy is 'auto').
+    """Convert just created HTTP configuration (by nginx template) to HTTPS using
+    certbot (if strategy is 'auto').
 
     Each domain of the list uses the same SSL key.
 

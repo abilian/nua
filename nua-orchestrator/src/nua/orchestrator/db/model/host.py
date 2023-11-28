@@ -5,7 +5,7 @@ from .base import Base
 
 
 class Host(Base, SerializerMixin):
-    """contains the Nua host information.
+    """Contains the Nua host information.
 
     Note: Could be also stored in the Na app blob. Thus, not clear if that
     table will be used.

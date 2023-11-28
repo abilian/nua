@@ -61,8 +61,7 @@ class NuaWheelBuilder:
             return False
 
     def check_devel_mode(self) -> bool:
-        """Try to find all required files locally in an up to date git
-        repository.
+        """Try to find all required files locally in an up to date git repository.
 
         Warning: only for devel tests
         """
@@ -112,8 +111,8 @@ class NuaWheelBuilder:
 
     @contextmanager
     def hack_agent_pyproject(self):
-        """Since we use local path dependencies when making wheel, we need to
-        force the version deps to something local.
+        """Since we use local path dependencies when making wheel, we need to force the
+        version deps to something local.
 
         FIXME: to be solved by publishing to Pypi index.
         """

@@ -1,8 +1,7 @@
 """Return text string colorized.
 
-from color_str import ColorStr as C print(C.green_bright('Take') +
-C.blue(' it ', underline=True)       + C.yellow_bold('easy',
-bgcolor='red'))
+from color_str import ColorStr as C print(C.green_bright('Take') + C.blue(' it ',
+underline=True)       + C.yellow_bold('easy', bgcolor='red'))
 """
 from functools import cache, partialmethod
 
@@ -63,8 +62,7 @@ class ColorStr:
     ) -> str:
         """Return text string colorized.
 
-        kwargs are bools for keys "bright", "bold", "underline" and
-        "reversed".
+        kwargs are bools for keys "bright", "bold", "underline" and "reversed".
         """
         cmd = cls._command(color=color, bgcolor=bgcolor, **kwargs)
         return f"{cmd}{txt}{cls.COL['reset']}"

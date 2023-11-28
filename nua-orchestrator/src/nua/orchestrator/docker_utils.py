@@ -363,8 +363,8 @@ def docker_remove_container_previous(name: str, show_warning: bool = True):
 
 
 def docker_remove_prior_container_live(rsite: Provider):
-    """Search & remove containers already configured for this same AppInstance
-    or Provider (running or stopped), from Docker.
+    """Search & remove containers already configured for this same AppInstance or
+    Provider (running or stopped), from Docker.
 
     Security feature: try to remove containers of exactly same name that
     could be found in docker daemon:
@@ -491,8 +491,7 @@ def _check_run_container(container: Container, name: str):
 
 
 def docker_exec_stdout(container: Container, params: dict, output: io.BufferedIOBase):
-    """Wrapper on top of the py-docker exec_run() command, capturing the
-    output.
+    """Wrapper on top of the py-docker exec_run() command, capturing the output.
 
     Defaults are:
     cmd, stdout=True, stderr=True, stdin=False, tty=False, privileged=False,
@@ -519,8 +518,7 @@ def docker_exec_stdout(container: Container, params: dict, output: io.BufferedIO
 
 
 def docker_exec_no_output(container: Container, command: str):
-    """Wrapper on top of the py-docker exec_run() command, not
-    capturing the output.
+    """Wrapper on top of the py-docker exec_run() command, not capturing the output.
 
     Defaults are:
     cmd, stdout=True, stderr=True, stdin=False, tty=False, privileged=False,
@@ -563,8 +561,7 @@ def docker_exec_stdin(container: Container, cmd: str, input_file: Path) -> str:
 
 
 def docker_exec_checked(container: Container, params: dict, output: io.BufferedIOBase):
-    """Wrapper on top of the py-docker exec_run() command, capturing the
-    output.
+    """Wrapper on top of the py-docker exec_run() command, capturing the output.
 
     Write the binary output of run_exec to output buffered io, or raise Runtime Error.
 
@@ -710,8 +707,7 @@ def docker_volume_create_new(volume: Volume):
 
 
 def docker_volume_create_local_dir(volume: Volume):
-    """For volumes of type "directory", create a local directory on the host if
-    needed.
+    """For volumes of type "directory", create a local directory on the host if needed.
 
     May use more options.
     """

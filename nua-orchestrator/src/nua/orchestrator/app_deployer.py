@@ -173,7 +173,8 @@ class AppDeployer:
     def merge_sequential(self, additional: AppDeployer):
         """Merge a deployment configuration sequentially.
 
-        Difference from merge(): all (usually one) additional apps are added one nby one.
+        Difference from merge(): all (usually one) additional apps are added one nby
+        one.
         """
         with verbosity(3):
             debug("Deployment merge sequentially")
@@ -268,7 +269,8 @@ class AppDeployer:
     ):
         """Deploy an app.
 
-        The most direct way."""
+        The most direct way.
+        """
         self._deploy_new_app_step1(app, persistent)
         self._deploy_new_app_step2(app)
         self._deploy_new_app_step3(app)
@@ -278,7 +280,10 @@ class AppDeployer:
         app: AppInstance,
         persistent: dict | None = None,
     ):
-        """Deploy an app. - step 1 - evaluate values"""
+        """Deploy an app.
+
+        - step 1 - evaluate values
+        """
         app.set_network_name()
         app.set_providers_names()
         # print(pformat(dict(app)))
@@ -299,7 +304,10 @@ class AppDeployer:
         self.evaluate_dynamic_values(app)
 
     def _deploy_new_app_step2(self, app: AppInstance):
-        """Deploy an app. - step 2 - ports"""
+        """Deploy an app.
+
+        - step 2 - ports
+        """
         start_ports = config.read("nua", "ports", "start") or 8100
         end_ports = config.read("nua", "ports", "end") or 9000
         allocated_ports = self.configured_ports()
@@ -311,7 +319,10 @@ class AppDeployer:
             provider.allocate_auto_ports(allocator)
 
     def _deploy_new_app_step3(self, app: AppInstance):
-        """Deploy an app. - step 3 - congig/nginx/certbot/restarting"""
+        """Deploy an app.
+
+        - step 3 - congig/nginx/certbot/restarting
+        """
         app.parse_healthcheck()
         app.parse_backup()
         for service in app.local_services:
@@ -968,8 +979,8 @@ class AppDeployer:
             debug("apps_set_providers_names() done")
 
     def apps_merge_app_instances_to_providers(self):
-        """Merge configuration declared in the AppInstance config to original
-        nua-config declarations."""
+        """Merge configuration declared in the AppInstance config to original nua-config
+        declarations."""
         for app in self.apps:
             app.merge_instance_to_providers()
         with verbosity(3):
@@ -1034,8 +1045,7 @@ class AppDeployer:
             debug("apps_generate_ports() done")
 
     def configured_ports(self) -> set[int]:
-        """Return set of required host ports (aka non auto ports) from
-        site_list.
+        """Return set of required host ports (aka non auto ports) from site_list.
 
         Returns: set of integers
         """
@@ -1144,9 +1154,8 @@ class AppDeployer:
     def generate_app_container_run_parameters(self, app: AppInstance):
         """Return suitable parameters for the docker.run() command.
 
-        Does not include the internal_secrets, that are passed only at
-        docker.run() execution, thus secrets not stored in instance
-        data.
+        Does not include the internal_secrets, that are passed only at docker.run()
+        execution, thus secrets not stored in instance data.
         """
         # base defaults hardcoded and from nua orchestrator configuration
         run_params = deepcopy(RUN_BASE)
@@ -1174,8 +1183,7 @@ class AppDeployer:
         self,
         provider: Provider,
     ):
-        """Return suitable parameters for the docker.run() command (for
-        Provider)."""
+        """Return suitable parameters for the docker.run() command (for Provider)."""
         run_params = deepcopy(RUN_BASE_PROVIDER)
         run_params.update(provider.docker)
         self.add_host_gateway_to_extra_hosts(run_params)

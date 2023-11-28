@@ -95,13 +95,12 @@ def _normalize_port_item_host(port: dict[str, Any]) -> None:
 
 
 def _normalize_port_item_proxy(port: dict[str, Any]) -> None:
-    """A web port must have a proxy values, except for the "web" named port,
-    which is automatic (so either proxied to 80 or 443).
+    """A web port must have a proxy values, except for the "web" named port, which is
+    automatic (so either proxied to 80 or 443).
 
-    For a non web port (ie. mail on port 25), the proxy is not used currently
-    (unless some firewall is configured in the future). But the 'host' port is
-    required.
-    So a port without proxy must have a host port.
+    For a non web port (ie. mail on port 25), the proxy is not used currently (unless
+    some firewall is configured in the future). But the 'host' port is required. So a
+    port without proxy must have a host port.
     """
     proxy = port["proxy"]
     if isinstance(proxy, dict):

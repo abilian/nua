@@ -103,7 +103,6 @@ def configure_nginx_host(host: dict[str, Any]) -> None:
                     'volume': []}],
         'hostname': 'test1.yerom.xyz',
         'located': False}
-
     """
     nua_nginx_path = nua_env.nginx_path()
     dest_path = nua_nginx_path / "sites" / host["hostname"]
@@ -137,8 +136,8 @@ def _host_use_web(host: dict[str, Any]) -> bool:
 def _set_instances_proxy_auto_port(host: dict[str, Any]) -> None:
     """Set the port used for public HTTP(S) as app["host_use"].
 
-    The port used is the first with None proxy -> will be proxied
-    on 443 or 80."""
+    The port used is the first with None proxy -> will be proxied on 443 or 80.
+    """
     internal_apps = True  # if the app has no public web port
     for app in host["apps"]:
         if not _app_use_web(app):

@@ -63,14 +63,13 @@ def _store_pg_password(password: str):
 def set_postgres_pwd(password: str) -> bool:
     """Set postgres password for local instance of postgres.
 
-    The password is stored in clear in Nua home. In future version, it
-    could be replaced by SSL key, thus gaining the ability to have
-    encryption of streams and expiration date. Basically we need clear
-    password somewhere. Since this password is only used by Nua scripts
-    (if Nua is the only user of local postgres DB), it could also be
-    generated / erased at each invocation. Password could be stored in
-    some file in the postgres user home (a postgres feature). No test of
-    min password length in this function.
+    The password is stored in clear in Nua home. In future version, it could be replaced
+    by SSL key, thus gaining the ability to have encryption of streams and expiration
+    date. Basically we need clear password somewhere. Since this password is only used
+    by Nua scripts (if Nua is the only user of local postgres DB), it could also be
+    generated / erased at each invocation. Password could be stored in some file in the
+    postgres user home (a postgres feature). No test of min password length in this
+    function.
     """
     r_pwd = repr(password)
     query = f"ALTER USER postgres PASSWORD {r_pwd}"
@@ -84,9 +83,8 @@ def set_postgres_pwd(password: str) -> bool:
 def pg_run_environment(_unused_site: dict) -> dict:
     """Return a dict of environ variable for docker.run().
 
-    Actually, returns the DB postges password. This function to be used
-    in orchestrator environment, thus the password will be read from
-    host file.
+    Actually, returns the DB postges password. This function to be used in orchestrator
+    environment, thus the password will be read from host file.
     """
     return {"NUA_POSTGRES_PASSWORD": postgres_pwd()}
 
@@ -158,8 +156,8 @@ def _pg_check_std_port() -> bool:
 
 
 def pg_check_listening(_unused_site: dict | None = None) -> bool:
-    """Check at deploy time that the postgres daemon is listening on the
-    gateway port of the docker service (ip passed as parameter).
+    """Check at deploy time that the postgres daemon is listening on the gateway port of
+    the docker service (ip passed as parameter).
 
     This is launched for every deployed image (so cached).
     """

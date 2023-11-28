@@ -1,4 +1,4 @@
-"""class to manage the currently active apps.
+"""Class to manage the currently active apps.
 
 General use:
     - load active configuration
@@ -119,7 +119,8 @@ class AppManager:
     def restore_backup_app_per_label(self, label: str) -> str:
         """Execute a backup restoration.
 
-        It is assumed that the app is stopped."""
+        It is assumed that the app is stopped.
+        """
         app = self.instance_of_label(label)
         app_restore = AppRestore(app)
         app_restore.run(reference="")
@@ -131,7 +132,8 @@ class AppManager:
     def restore_backup_app_per_domain(self, domain: str) -> None:
         """Execute a backup restoration.
 
-        It is assumed that the app is stopped."""
+        It is assumed that the app is stopped.
+        """
         print("WIP, nothing")
 
     def do_restore(self, provider: Provider) -> list:

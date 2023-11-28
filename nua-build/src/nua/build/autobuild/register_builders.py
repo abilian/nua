@@ -1,7 +1,6 @@
 """Parse content of custom nua builders.
 
-Docker builders are defined by a json file of properties and a
-Dockerfile.
+Docker builders are defined by a json file of properties and a Dockerfile.
 """
 import json
 from importlib import resources as rso

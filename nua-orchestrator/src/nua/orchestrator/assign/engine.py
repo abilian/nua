@@ -37,10 +37,8 @@ def instance_key_evaluator(
     late_evaluation: bool = False,
     port: dict | None = None,
 ) -> dict:
-    """Evaluate value for 'env' values declared as dict with dynamic
-    parameters, through retrieving persistent value or compute value from
-    specialized functions.
-    """
+    """Evaluate value for 'env' values declared as dict with dynamic parameters, through
+    retrieving persistent value or compute value from specialized functions."""
     result = {}
     if provider is None:
         provider = app

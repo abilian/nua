@@ -5,8 +5,7 @@ from pathlib import Path
 
 # Copy/pasted from contextlib.py in Python 3.11
 class chdir(AbstractContextManager):  # noqa: N801
-    """Non thread-safe context manager to change the current working
-    directory."""
+    """Non thread-safe context manager to change the current working directory."""
 
     def __init__(self, path: Path | str):
         self.path = path

@@ -69,13 +69,12 @@ def _store_mariadb_password(password: str):
 def set_mariadb_pwd(password: str, any_ip=True) -> bool:
     """Set mariadb root password for local instance of mariadb.
 
-    The password is stored in clear in Nua home. In future version, it
-    could be replaced by SSL key, thus gaining the ability to have
-    encyption of streams and expiration date. Basically we need clear
-    password somewhere. Since this password is only used by Nua scripts
-    (if Nua is the only user of local mariadb DB), it could also be
-    generated / erased at each invocation. No test of min password
-    length in this function.
+    The password is stored in clear in Nua home. In future version, it could be replaced
+    by SSL key, thus gaining the ability to have encyption of streams and expiration
+    date. Basically we need clear password somewhere. Since this password is only used
+    by Nua scripts (if Nua is the only user of local mariadb DB), it could also be
+    generated / erased at each invocation. No test of min password length in this
+    function.
     """
     r_pwd = repr(password)
     exec_as_root("systemctl stop mariadb")

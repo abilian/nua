@@ -54,8 +54,7 @@ def restore_from_state_journal(state: StateJournal):
 
 
 class StateJournal:
-    """
-    Thin wrapper class to access the DeployConfig table of the Nua config database.
+    """Thin wrapper class to access the DeployConfig table of the Nua config database.
 
     Use to store or retreive the active deployed configuration.
 
@@ -94,7 +93,8 @@ class StateJournal:
         Return a dict with:
             requested: dict of last site configuration request
             deployed: list of the configures Appinstance data
-            state_id:  id of the DB record"""
+            state_id:  id of the DB record
+        """
         result = {"requested": {}, "apps": [], "state_id": -1}
         if self.current:
             result["requested"] = self.current["deployed"]["requested"]
@@ -105,7 +105,8 @@ class StateJournal:
     def store_deployed_state(self, deploy_config: dict[str, Any]) -> int:
         """Store in the Nua DB the deployed state.
 
-        deploy_config = {"requested": requested, "apps": deepcopy(apps)}"""
+        deploy_config = {"requested": requested, "apps": deepcopy(apps)}
+        """
         if self.current:
             previous_id = self.current["id"]
         else:

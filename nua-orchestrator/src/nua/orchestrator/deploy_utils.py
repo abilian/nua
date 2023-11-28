@@ -339,8 +339,8 @@ def deactivate_containers(container_names: list[str], show_warning: bool = True)
 
 
 def deactivate_app(app: AppInstance):
-    """Deactive containers of AppInstance and all sub Providers (updating
-    orchestrator DB)."""
+    """Deactive containers of AppInstance and all sub Providers (updating orchestrator
+    DB)."""
     container_names = [res.container_name for res in app.providers]
     container_names.append(app.container_name)
     deactivate_containers(container_names, show_warning=False)

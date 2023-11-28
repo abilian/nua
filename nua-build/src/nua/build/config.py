@@ -1,4 +1,4 @@
-"""configuration of the nua_build instance."""
+"""Configuration of the nua_build instance."""
 from importlib import resources as rso
 
 import tomli

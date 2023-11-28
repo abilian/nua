@@ -25,8 +25,8 @@ NUA_INTERNAL = "nua_internal"
 def persistent_value(func):
     """Store automatic generated values for next deployment of the same image.
 
-    Default is 'persistent = true'.
-    If persistent is False, erase the data from *local* config storage.
+    Default is 'persistent = true'. If persistent is False, erase the data from *local*
+    config storage.
     """
 
     @wraps(func)
@@ -70,10 +70,9 @@ def no_persistent_value(func):
 def random(provider: Provider, destination_key: str, requirement: dict) -> dict:
     """Send a random string or a random integer.
 
-    The value is either ramdomly generated or read from previous
-    execution if 'persistent' is true (default) and previous data is
-    found. Default length for random string is 24. Random integer is a
-    64 bit positive signed, [0, 2*64-1]
+    The value is either ramdomly generated or read from previous execution if
+    'persistent' is true (default) and previous data is found. Default length for random
+    string is 24. Random integer is a 64 bit positive signed, [0, 2*64-1]
     """
     tpe = requirement.get("type", "string")
     if tpe.lower() in {"int", "integer"}:
@@ -232,11 +231,11 @@ def site_environment(
 
 @no_persistent_value
 def nua_internal(rsite: Provider, destination_key: str, requirement: dict) -> dict:
-    """Retrieve key from nua_internal values, do not store the value in
-    instance configuration.
+    """Retrieve key from nua_internal values, do not store the value in instance
+    configuration.
 
-    The value is only set when executing the docker.run() for main site
-    and all sub providers.
+    The value is only set when executing the docker.run() for main site and all sub
+    providers.
     """
     if requirement.get(NUA_INTERNAL, False):
         # add the key to the list of secrets to pass at run() time
@@ -250,7 +249,7 @@ def external_ip_evaluation(
 ) -> dict:
     """Return the detected external IP address (v4).
 
-    The value is only set when executing the docker.run() for main site
-    and all sub providers.
+    The value is only set when executing the docker.run() for main site and all sub
+    providers.
     """
     return {destination_key: external_ip()}
