@@ -17,7 +17,8 @@ class Generator:
 
     def __post_init__(self):
         self.root_dir = Path("..") / self.source / "src"
-        self.output = (Path("src") / "dev" / "api" / f"{self.source}.md").open("w")
+        self.output = []
+        self.output_file = (Path("src") / "dev" / "api" / f"{self.source}.md").open("w")
 
     def generate_spi(self):
         """Generate API documentation."""
@@ -39,8 +40,10 @@ class Generator:
                 self.print(f"::: {module_name}")
             self.print()
 
-    def print(self, *args, **kwargs):
-        print(*args, **kwargs, file=self.output)
+        self.output_file.write("\n".join(self.output).strip() + "\n")
+
+    def print(self, *args):
+        self.output.append(" ".join(args))
 
 
 def main():

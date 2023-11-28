@@ -37,11 +37,11 @@ repos:
     - id: trailing-whitespace
     # Misc Python
     - id: debug-statements
-    - id: check-docstring-first
     - id: forbid-new-submodules
       args: ['--allow-missing-credentials']
     - id: fix-encoding-pragma
       args: ['--remove']
+    # - id: check-docstring-first
     # - id: name-tests-test
     # - id: no-commit-to-branch
     # - id: requirements-txt-fixer
