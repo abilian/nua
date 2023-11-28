@@ -50,7 +50,7 @@ def install_python(version: str = "3.10", venv: str = "", keep_lists: bool = Fal
         raise Abort(f"Unknown Python version: '{version}'")
 
     if not venv:
-        venv = f"/nua/p{version.replace('.','')}"
+        venv = f"/nua/p{version.replace('.', '')}"
     if version in PY_DEADSNAKES:
         sh("add-apt-repository -y ppa:deadsnakes/ppa")
     _install_python_packages(version)

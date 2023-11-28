@@ -1,0 +1,9 @@
+{
+    "site": [
+        {
+            "label": "sbe",
+            "image": "abilian-sbe",
+            "domain": "test2.example.com"
+        }
+    ]
+}
