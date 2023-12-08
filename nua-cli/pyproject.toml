@@ -76,6 +76,7 @@ exclude = [
     'tests',
     'noxfile.py',
 ]
+reportIncompatibleMethodOverride = false
 
 # ------------------------------------------------------------------------------
 
