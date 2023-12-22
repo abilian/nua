@@ -60,7 +60,7 @@ class Builder(abc.ABC):
 
     def _notice_local_volumes(self) -> None:
         bind_volumes = [
-            volume.get("source", "unknown")
+            volume.get("name", "unknown")
             for volume in self.config.volumes
             if volume.get("type") == "directory"
         ]
@@ -68,11 +68,11 @@ class Builder(abc.ABC):
             return
         lines = [
             "Declaration of volume of type 'directory'.",
-            "The contents of these volumes will NOT be deleted when removing the ",
+            "The contents of 'directory' volumes will NOT be deleted when removing the ",
             "application instance:",
         ]
-        for volume in bind_volumes:
-            lines.append(f"    {volume}")
+        for volume_name in bind_volumes:
+            lines.append(f"  directory: {volume_name}")
         with verbosity(0):
             warning("\n".join(lines))
 
