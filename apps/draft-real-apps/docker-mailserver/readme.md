@@ -12,11 +12,11 @@ So the 'nua-config' file is use for metadata and 'run' information for the orche
 
 Build based on Docker image from:
 <https://hub.docker.com/r/mailserver/docker-mailserver/tags>
-version 12.1.0
+version 13.0.1
 
 Source of Dockerfile: <https://github.com/docker-mailserver/docker-mailserver/pkgs/container/docker-mailserver>.
 
 To retrieve original Docker image:
 ```
-docker pull mailserver/docker-mailserver:12.1.0
+docker pull mailserver/docker-mailserver:13.0.1
 ```

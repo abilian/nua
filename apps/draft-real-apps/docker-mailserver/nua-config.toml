@@ -1,6 +1,6 @@
 [metadata]
 id = "docker-mailserver"
-version = "12.1.0"
+version = "13.0.1"
 release = 6
 title = "A fullstack but simple mail server."
 author = "The Docker Mailserver Organization & Contributors"
