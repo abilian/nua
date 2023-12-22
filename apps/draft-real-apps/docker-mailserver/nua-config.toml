@@ -225,7 +225,7 @@ target = "/tmp/docker-mailserver"
 [[volume]]
 type = "directory"
 target = "/etc/letsencrypt"
-# thus, this give access to theis container to ALL domains private keys.
+# WARNING this give the container access to ALL domains private keys of the local host.
 name = "/home/nua/letsencrypt"
 options = { read-only = true }
 
