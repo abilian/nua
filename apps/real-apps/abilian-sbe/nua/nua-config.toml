@@ -6,56 +6,63 @@ description = "Abilian SBE is a Python web application framework for building so
 tagline = "Abilian Social Business Engine (SBE)"
 tags = ["social", "business", "document", "wiki"]
 website = "https://github.com/abilian/abilian-sbe-monorepo"
-version = "1.0.4"
-release = 39
+version = "1.0.5"
+release = 13
 
 
 [build]
-license = "GPL"
+license = "LGPL-3.0"
 git-url = "https://github.com/abilian/abilian-sbe-monorepo.git"
-git-branch = "main"
+git-branch = "task"
 build = [
-    "/usr/bin/npm install lessc",
     "pip install -U poetry",
     "sed -i.bak 's/psycopg2.*=.*$/psycopg2-binary = \"*\"/g' pyproject.toml",
     "poetry lock --no-update",
-    "poetry install"
+    "poetry install",
+    # "echo -e 'tailwind: flask tailwind start\nworker: flask worker\nscheduler: flask scheduler\nweb: gunicorn extranet.wsgi:app -b :8000 --workers 4 --log-file -\n' > /nua/Procfile",
+    "echo -e 'worker: flask worker\nscheduler: flask scheduler\nweb: gunicorn extranet.wsgi:app -b :8000 --workers 4 --log-file -\n' > /nua/Procfile",
+    "sudo python -c 'from nua.lib.actions.nodejs import install_nodejs as n; n(\"16\")'",
+    "sudo npm install -g --verbose /nua/build/abilian-sbe-monorepo ",
+    "sudo npm install -g --verbose /nua/build/abilian-sbe-monorepo/tailwind",
+    "sudo npm install -g --verbose nodemon",
+    "sudo npm install -g --verbose npm-run-all",
+    "sudo npm install -g --verbose cross-env",
+    "sudo npm install -g --verbose browser-sync",
 ]
 test = "python -c 'import abilian.sbe'"
 
 
 [run]
 packages = [
-    "nodejs",
-    "npm",
-    "imagemagick",
-    "libmagic1",
-    "fontconfig",
-    "celery",
     "clamav",
     "clamav-daemon",
-    "poppler-utils",
+    "default-jre",
+    "fontconfig",
     "imagemagick",
+    "libmagic1",
     "libreoffice",
-    "default-jdk-headless",
+    "libreoffice-java-common",
+    "nodejs",
+    "npm",
+    "poppler-utils",
     "postgresql-client"
 ]
 
 start = [
     "env",
+    "date",
     "sudo mkdir -p /nua/build/abilian-sbe-monorepo/src/instance",
     "sudo chown nua:nua /nua/build/abilian-sbe-monorepo/src/instance",
-    "date",
-    "sudo /etc/init.d/clamav-freshclam start",
-    "sudo /etc/init.d/clamav-daemon start",
-    "celery -A extranet.celery_app worker -l INFO  --logfile=/nua/build/abilian-sbe-monorepo/src/instance/celery.log --detach",
-    "date",
+    "mkdir -p /nua/Maildir/{cur,new,tmp}",
+    "chmod 0700 /nua/Maildir/{cur,new,tmp}",
+    # "sudo /etc/init.d/clamav-freshclam start",
+    # "sudo /etc/init.d/clamav-daemon start",
     "bash -c 'while :; do pg_isready -h ${POSTGRES_HOST} -p ${POSTGRES_PORT} -d ${POSTGRES_DB} -t 10 && break; sleep 5; done'",
     "date",
     "flask assets build",
     "flask initdb",
     "flask createuser --role admin --name admin ${ADMIN_MAIL} ${ADMIN_PASSWORD}",
-    "gunicorn extranet.wsgi:app -b :8000 --workers 2 --log-level debug"
+    "honcho -f /nua/Procfile start"
 ]
 
 
@@ -64,24 +71,30 @@ DOMAIN = { from="", key="domain" }
 LANG = "C.UTF-8"
 NODE_ENV = "production"
 
-ADMIN_MAIL = "jd@abilian.com"
+ADMIN_MAIL = "admin@{DOMAIN}"
 ADMIN_PASSWORD = { random="true", type="str", length=12, display="true", persist="true" }
 
 FLASK_SERVER_NAME = "{DOMAIN}"
 FLASK_SITE_NAME = "SBE server at {DOMAIN}"
 FLASK_SECRET_KEY = { random="true", type="str", length=24, display="true", persist="true" }
 FLASK_SQLALCHEMY_DATABASE_URI = "postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
+FLASK_SESSION_COOKIE_DOMAIN = "{DOMAIN}"
+
 FLASK_MAIL_DEBUG = 0
-FLASK_MAIL_SERVER = "{DOMAIN}:25"
+FLASK_MAIL_SERVER = "{DOMAIN}"
+FLASK_MAIL_PORT = "25"
+FLASK_MAIL_USERNAME = ""
+FLASK_MAIL_PASSWORD = ""
 FLASK_MAIL_SENDER = "sbe-server@{DOMAIN}"
-FLASK_DEBUG = 0
 
 FLASK_REDIS_URI = "{REDIS_URI}"
 FLASK_BROKER_URL = "{REDIS_URI}"
-FLASK_CELERY_BROKER_URL = "{REDIS_URI}"
-CELERY_BROKER_URL = "{REDIS_URI}"
-FLASK_CELERY_RESULT_BACKEND = "{REDIS_URI}"
-CELERY_RESULT_BACKEND = "{REDIS_URI}"
+FLASK_DRAMATIQ_BROKER="dramatiq.brokers.redis:RedisBroker"
+FLASK_DRAMATIQ_BROKER_URL = "{REDIS_URI}/0"
+FLASK_DRAMATIC_ABORT_REDIS_URL = "{REDIS_URI}/1"
+
+FLASK_SCHEDULE_SEND_DAILY_SOCIAL_DIGEST = "0 12 * * *"
+FLASK_PERIODIC_CLEAN_UPLOAD_DIRECTORY = "5 * * * *"
 
 CLAMD_CONF_PATH = ""
 
@@ -100,9 +113,9 @@ REDIS_URI = "redis://{REDIS_HOST}:{REDIS_PORT}/"
 # parameters passed as a dict to docker run
 auto_remove = false
 
-
 [port.web]
 container = 8000
+
 
 [[volume]]
 name = "instance-path"
