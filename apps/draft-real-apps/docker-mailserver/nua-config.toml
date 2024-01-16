@@ -1,7 +1,7 @@
 [metadata]
 id = "docker-mailserver"
-version = "13.0.1"
-release = 6
+version = "13.2.0"
+release = 8
 title = "A fullstack but simple mail server."
 author = "The Docker Mailserver Organization & Contributors"
 tagline = "A fullstack but simple mail server."
@@ -168,7 +168,10 @@ RELAY_PASSWORD = ""
 post-run = ["setup email add {POSTMASTER_ADDRESS} {POSTMASTER_PASSWD}",
             "setup config dkim",
             "postfix restart",
-            "cat /tmp/docker-mailserver/opendkim/keys/{DKIM_DOMAIN}/mail.txt"]
+            '''sh -c 'echo "v=spf1 a mx ~all" >/etc/letsencrypt/{DKIM_DOMAIN}_spf.txt' ''',
+            '''sh -c 'echo "v=DMARC1; p=quarantine; rua=mailto:{POSTMASTER_ADDRESS}; ruf=mailto:{POSTMASTER_ADDRESS}; fo=1; adkim=r; aspf=s; pct=100; rf=afrf; ri=86400; sp=quarantine" >/etc/letsencrypt/{DKIM_DOMAIN}_dmarc.txt' ''',
+            '''sh -c " awk -F '\"' '{{printf $2}}' /tmp/docker-mailserver/opendkim/keys/{DKIM_DOMAIN}/mail.txt >/etc/letsencrypt/{DKIM_DOMAIN}_dkim.pub " ''',
+]
 post-run-status = "created"
 
 # [port.web]

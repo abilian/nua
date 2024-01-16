@@ -2,21 +2,21 @@
 
 A fullstack but simple mail server with SMTP, IMAP, LDAP, Antispam, Antivirus, etc.
 
-Use the 'wrap' build feature:
+This Nua image use the 'wrap' feature:
 
-- start from an existing Docker image
-- add the 'nua-config' file in the /nua/metadata directory
+- The build starts from an existing Docker image,
+- it adds to the original docker image a basic 'nua-config' file in the /nua/metadata directory.
 
-So the 'nua-config' file is use for metadata and 'run' information for the orchestrator, like ENV variables and providers declaration
+So the 'nua-config' file is used for metadata and 'run' information for the orchestrator, like ENV variables and providers declarations.
 
 
 Build based on Docker image from:
 <https://hub.docker.com/r/mailserver/docker-mailserver/tags>
-version 13.0.1
+version 13.2.0
 
 Source of Dockerfile: <https://github.com/docker-mailserver/docker-mailserver/pkgs/container/docker-mailserver>.
 
 To retrieve original Docker image:
 ```
-docker pull mailserver/docker-mailserver:13.0.1
+docker pull mailserver/docker-mailserver:13.2.0
 ```
