@@ -7,7 +7,7 @@ tagline = "Abilian Social Business Engine (SBE)"
 tags = ["social", "business", "document", "wiki"]
 website = "https://github.com/abilian/abilian-sbe-monorepo"
 version = "1.0.5"
-release = 13
+release = 16
 
 
 [build]
@@ -19,17 +19,15 @@ build = [
     "sed -i.bak 's/psycopg2.*=.*$/psycopg2-binary = \"*\"/g' pyproject.toml",
     "poetry lock --no-update",
     "poetry install",
-    # "echo -e 'tailwind: flask tailwind start\nworker: flask worker\nscheduler: flask scheduler\nweb: gunicorn extranet.wsgi:app -b :8000 --workers 4 --log-file -\n' > /nua/Procfile",
     "echo -e 'worker: flask worker\nscheduler: flask scheduler\nweb: gunicorn extranet.wsgi:app -b :8000 --workers 4 --log-file -\n' > /nua/Procfile",
     "sudo python -c 'from nua.lib.actions.nodejs import install_nodejs as n; n(\"16\")'",
     "sudo npm install -g --verbose /nua/build/abilian-sbe-monorepo ",
-    "sudo npm install -g --verbose /nua/build/abilian-sbe-monorepo/tailwind",
     "sudo npm install -g --verbose nodemon",
-    "sudo npm install -g --verbose npm-run-all",
-    "sudo npm install -g --verbose cross-env",
-    "sudo npm install -g --verbose browser-sync",
+    "sudo npm install -g --verbose less",
 ]
-test = "python -c 'import abilian.sbe'"
+test = ["python -c 'import abilian.sbe'",
+        "lessc --version"
+]
 
 
 [run]
