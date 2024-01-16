@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nua-monorepo"
-version = "0.5.45"
+version = "0.5.46"
 description = "An open source, self-hosted cloud platform project"
 authors = [
     "Stefane Fermigier <sf@abilian.com>",
