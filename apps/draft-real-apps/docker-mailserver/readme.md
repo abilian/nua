@@ -56,3 +56,11 @@ When deploying the docker-mail server, a `Letsencrypt` certificate is automatica
 - `example.com_spf.txt`: a medium strength SPF string (feel free to adapt).
 - `example.com_dmarc.txt`: a medium strength DMARC string (feel free to adapt).
 - `example.com_dkim.pub`: the DKIM public key of this mail server.
+
+## configure for several domains
+
+To configure several domains using DKIM, set the `DKIM_DOMAIN_LIST` variable, with a comma separated list of domains.
+
+```
+DKIM_DOMAIN_LIST = "example.com,another-example.com"
+```

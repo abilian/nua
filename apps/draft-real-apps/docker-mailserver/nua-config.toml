@@ -1,7 +1,7 @@
 [metadata]
 id = "docker-mailserver"
 version = "13.2.0"
-release = 8
+release = 12
 title = "A fullstack but simple mail server."
 author = "The Docker Mailserver Organization & Contributors"
 tagline = "A fullstack but simple mail server."
@@ -19,6 +19,7 @@ base-image = "mailserver/docker-mailserver:{version}"
 ###############################################################
 # General
 DKIM_DOMAIN = "example.com"
+DKIM_DOMAIN_LIST = "example.com,another-example.com"
 OVERRIDE_HOSTNAME = "mail.example.com"
 POSTMASTER_ADDRESS = "postmaster@example.com"
 POSTMASTER_PASSWD = ""
@@ -167,10 +168,22 @@ RELAY_PASSWORD = ""
 [run]
 post-run = ["setup email add {POSTMASTER_ADDRESS} {POSTMASTER_PASSWD}",
             "setup config dkim",
+            '''sh -c '[ -n "{DKIM_DOMAIN_LIST}" ] && setup config dkim keysize 4096 domain {DKIM_DOMAIN_LIST}' ''',
             "postfix restart",
             '''sh -c 'echo "v=spf1 a mx ~all" >/etc/letsencrypt/{DKIM_DOMAIN}_spf.txt' ''',
             '''sh -c 'echo "v=DMARC1; p=quarantine; rua=mailto:{POSTMASTER_ADDRESS}; ruf=mailto:{POSTMASTER_ADDRESS}; fo=1; adkim=r; aspf=s; pct=100; rf=afrf; ri=86400; sp=quarantine" >/etc/letsencrypt/{DKIM_DOMAIN}_dmarc.txt' ''',
             '''sh -c " awk -F '\"' '{{printf $2}}' /tmp/docker-mailserver/opendkim/keys/{DKIM_DOMAIN}/mail.txt >/etc/letsencrypt/{DKIM_DOMAIN}_dkim.pub " ''',
+            '''bash -c " [ -n \"{DKIM_DOMAIN_LIST}\" ] && {{
+                domains={DKIM_DOMAIN_LIST}
+                domains_arr=(${{domains//,/ }})
+                for domain in \"${{domains_arr[@]}}\"
+                do
+                    awk -F '\"' '{{printf $2}}' /tmp/docker-mailserver/opendkim/keys/${{domain}}/mail.txt >/etc/letsencrypt/${{domain}}_dkim.pub
+                    echo 'v=spf1 a mx ~all' >/etc/letsencrypt/${{domain}}_spf.txt
+                    echo 'v=DMARC1; p=quarantine; rua=mailto:{POSTMASTER_ADDRESS}; ruf=mailto:{POSTMASTER_ADDRESS}; fo=1; adkim=r; aspf=s; pct=100; rf=afrf; ri=86400; sp=quarantine' >/etc/letsencrypt/${{domain}}_dmarc.txt
+                done
+              }} " ''',
+
 ]
 post-run-status = "created"
 
