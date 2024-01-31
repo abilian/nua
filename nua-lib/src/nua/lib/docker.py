@@ -1,4 +1,5 @@
 """Docker scripting utils."""
+
 # pyright: reportOptionalMemberAccess=false
 import re
 import string

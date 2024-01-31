@@ -1,4 +1,5 @@
 """Class to to journalize state of the deployed apps."""
+
 from __future__ import annotations
 
 from collections.abc import Callable

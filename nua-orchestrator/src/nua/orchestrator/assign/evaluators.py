@@ -4,6 +4,7 @@ All evaluation function must have same 2 arguments:
 function(provider, requirement) but call through wrapper uses a third
 argument: 'persistent'
 """
+
 from functools import wraps
 from typing import Any
 

@@ -1,4 +1,5 @@
 """Class to manage the deployment of a group of AppInstance."""
+
 from collections.abc import Callable
 from copy import deepcopy
 from pathlib import Path

@@ -13,6 +13,7 @@ To remove all mariadb packages::
 
     sudo apt-get install libmariadb3 libmariadb-dev
 """
+
 import os
 import re
 from pathlib import Path

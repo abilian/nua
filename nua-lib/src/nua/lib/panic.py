@@ -41,6 +41,7 @@ wrong or takes too much time)
 cyan: for emphasis in debug messages
     bold_debug()
 """
+
 from typing import Any
 
 from .console import (

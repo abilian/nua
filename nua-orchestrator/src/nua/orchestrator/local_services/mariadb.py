@@ -1,4 +1,5 @@
 """Nua mariadb as a service."""
+
 from ..db_utils.mariadb_utils import mariadb_pwd, mariadb_restart_service
 from .local_service_base import LocalServiceBase
 

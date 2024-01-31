@@ -1,4 +1,5 @@
 """Nua scripting: action commands."""
+
 import importlib.util
 import os
 import re

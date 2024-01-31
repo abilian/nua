@@ -1,4 +1,5 @@
 """Apply automated installation detection heuristics."""
+
 from importlib import import_module
 from importlib import resources as rso
 from operator import attrgetter

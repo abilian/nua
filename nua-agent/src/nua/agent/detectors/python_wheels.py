@@ -1,4 +1,5 @@
 """Auto install Python wheels."""
+
 from pathlib import Path
 
 from nua.lib.actions import pip_install

@@ -1,4 +1,5 @@
 """Nua main scripts."""
+
 from typing import Any
 
 from nua.orchestrator.app_deployer import AppDeployer

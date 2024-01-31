@@ -1,6 +1,5 @@
 """Class to backup a database."""
 
-
 from ...docker_utils import (
     docker_container_of_name,
     docker_exec_checked,

@@ -1,4 +1,5 @@
 """For debug, reset Nua's nginx configuration."""
+
 from nua.lib.tool.state import set_verbosity
 
 from ..nginx.commands import nginx_restart, nginx_stop

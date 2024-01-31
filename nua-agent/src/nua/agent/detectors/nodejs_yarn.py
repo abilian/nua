@@ -1,4 +1,5 @@
 """Auto install Nodejs/Yarn."""
+
 from pathlib import Path
 
 from nua.lib.shell import sh

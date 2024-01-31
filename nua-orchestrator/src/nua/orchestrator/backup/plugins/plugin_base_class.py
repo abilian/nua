@@ -1,4 +1,5 @@
 """Base classe for backup plugins."""
+
 import abc
 from pathlib import Path
 from typing import Any

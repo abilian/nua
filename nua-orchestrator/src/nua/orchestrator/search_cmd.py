@@ -1,5 +1,6 @@
 """Nua : search image related funcitons.
 """
+
 from collections.abc import Generator
 from operator import itemgetter
 from pathlib import Path

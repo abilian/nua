@@ -1,4 +1,5 @@
 """Class to manage NuaConfig format."""
+
 from typing import Any
 
 from pydantic import BaseModel, NonNegativeInt, PositiveInt

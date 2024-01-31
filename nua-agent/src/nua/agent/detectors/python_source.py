@@ -1,4 +1,5 @@
 """Auto install Python project."""
+
 from pathlib import Path
 
 from nua.lib.actions import build_python

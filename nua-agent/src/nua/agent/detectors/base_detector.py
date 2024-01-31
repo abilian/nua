@@ -1,4 +1,5 @@
 """Base class for detect and install project."""
+
 import abc
 
 from nua.lib.actions import install_build_packages, installed_packages

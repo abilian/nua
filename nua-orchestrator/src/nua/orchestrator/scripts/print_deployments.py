@@ -1,4 +1,5 @@
 """For debug, print the last deployments."""
+
 import sys
 
 from ..nua_db_setup import setup_nua_db

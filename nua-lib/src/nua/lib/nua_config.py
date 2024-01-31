@@ -1,4 +1,5 @@
 """Class to manage the "nua-config.toml" file."""
+
 import json
 import os
 from copy import deepcopy

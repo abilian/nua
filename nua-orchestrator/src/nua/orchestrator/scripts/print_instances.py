@@ -1,4 +1,5 @@
 """For debug, print the content of the Instance table."""
+
 import sys
 from pprint import pprint
 

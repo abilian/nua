@@ -1,4 +1,5 @@
 """Minimal migration framework until better implementation."""
+
 # from packaging.version import Version
 
 # from .. import config

@@ -3,6 +3,7 @@
 Requests are full transactions, and mask the actual DB implementation to the
 application.
 """
+
 from copy import deepcopy
 from datetime import datetime, timezone
 from typing import Any

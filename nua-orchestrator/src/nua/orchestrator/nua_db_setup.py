@@ -7,6 +7,7 @@ Environment variables:
         if DB is local, directory to make if not exists. Option useful
         for SQLite.
 """
+
 import os
 from importlib import resources as rso
 from pathlib import Path

@@ -3,6 +3,7 @@
 from color_str import ColorStr as C print(C.green_bright('Take') + C.blue(' it ',
 underline=True)       + C.yellow_bold('easy', bgcolor='red'))
 """
+
 from functools import cache, partialmethod
 
 

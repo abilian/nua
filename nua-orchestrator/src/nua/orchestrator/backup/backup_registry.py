@@ -1,4 +1,5 @@
 """Manage the available backup plugins."""
+
 from collections.abc import Callable
 from importlib import import_module
 from importlib import resources as rso

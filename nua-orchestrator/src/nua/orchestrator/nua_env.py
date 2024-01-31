@@ -2,6 +2,7 @@
 
 Basically a wrapper for the self._env dict as a singleton, no class needed.
 """
+
 import os
 from copy import deepcopy
 from pathlib import Path

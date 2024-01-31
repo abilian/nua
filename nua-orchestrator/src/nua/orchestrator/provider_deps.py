@@ -1,4 +1,5 @@
 """Solve the order of evaluation of providers dynamic parameters."""
+
 from nua.lib.panic import Abort
 
 from .provider import Provider

@@ -1,4 +1,5 @@
 """Functions to respond to requirement from instance declarations."""
+
 from collections.abc import Callable
 from pprint import pformat
 

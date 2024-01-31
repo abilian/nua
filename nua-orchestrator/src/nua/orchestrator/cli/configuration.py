@@ -1,4 +1,5 @@
 """Script main entry point for Nua local: nua config export/update."""
+
 import json
 from pathlib import Path
 

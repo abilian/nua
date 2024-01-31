@@ -1,4 +1,5 @@
 """For debug, remove all apps instances."""
+
 from nua.lib.tool.state import set_verbosity
 
 from ..deploy_utils import deactivate_all_instances

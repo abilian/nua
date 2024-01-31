@@ -1,4 +1,5 @@
 """Nginx utils to install nginx config and adapt with app using nginx."""
+
 import os
 from importlib import resources as rso
 

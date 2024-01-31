@@ -1,4 +1,5 @@
 """Script main entry point for Nua local."""
+
 import json
 import sys
 from pathlib import Path

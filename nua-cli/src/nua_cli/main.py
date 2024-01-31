@@ -23,6 +23,7 @@ TODO:
 [ ] update            Update an app
 [x] version           Show Nua version
 """
+
 from __future__ import annotations
 
 import snoop
