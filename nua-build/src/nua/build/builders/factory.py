@@ -1,5 +1,6 @@
 """Builder factory: create a Builder instance based on the nua-config.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

@@ -55,10 +55,8 @@ class StatusCommand:
         lines.append("Configured registries:")
         for reg in sorted(self._registries, key=itemgetter("priority")):
             lines.append(
-                (
-                    f'  priority: {reg["priority"]:>2}   '
-                    f'format: {reg["format"]:<16}   '
-                    f'url: {reg["url"]}'
-                )
+                f'  priority: {reg["priority"]:>2}   '
+                f'format: {reg["format"]:<16}   '
+                f'url: {reg["url"]}'
             )
         return "\n".join(lines)

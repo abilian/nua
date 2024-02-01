@@ -1,4 +1,5 @@
 """Script to build Nua own images."""
+
 from typing import Optional
 
 import typer

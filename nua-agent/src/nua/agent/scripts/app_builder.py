@@ -373,8 +373,8 @@ exec_as_nua({start_cmd},
                 copy2(file, target.parent)
 
     def test_build(self):
-        """Execute a configured shell command or list of commands to check
-        that the build is successful."""
+        """Execute a configured shell command or list of commands to check that the
+        build is successful."""
         default = "test -f /nua/metadata/nua-config.*"
         commands = self.config.build.get("test", default)
         if not commands:

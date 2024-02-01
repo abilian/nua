@@ -1,21 +1,24 @@
 """Docker builder (using dockerfile generated from the nua-config)."""
+
 from __future__ import annotations
+
 import logging
 from contextlib import suppress
 from importlib import resources as rso
 from pathlib import Path
 from shutil import copy2, copytree
+
 import docker
+from nua.build.autobuild.nua_image_builder import NuaImageBuilder
+from nua.build.autobuild.register_builders import is_builder
+from nua.lib.backports import chdir
 from nua.lib.constants import NUA_BUILDER_TAG
-from nua.lib.nua_config import hyphen_get, nua_config_names
 from nua.lib.docker import (
     display_docker_img,
     docker_build_log_error,
     docker_stream_build,
 )
-from nua.build.autobuild.nua_image_builder import NuaImageBuilder
-from nua.build.autobuild.register_builders import is_builder
-from nua.lib.backports import chdir
+from nua.lib.nua_config import hyphen_get, nua_config_names
 from nua.lib.panic import debug, info, vprint
 from nua.lib.shell import rm_fr
 from nua.lib.tool.state import verbosity, verbosity_level

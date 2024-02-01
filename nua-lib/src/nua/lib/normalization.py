@@ -110,10 +110,8 @@ def _normalize_port_item_proxy(port: dict[str, Any]) -> None:
     #     return
     if not proxy and not port["host"] and port["name"].lower() != "web":
         raise NuaConfigError(
-            (
-                "Only port.web can have an automatic 'proxy' value, other web "
-                "published ports muste provide a proxy number"
-            )
+            "Only port.web can have an automatic 'proxy' value, other web "
+            "published ports muste provide a proxy number"
         )
 
 

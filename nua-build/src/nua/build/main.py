@@ -7,18 +7,20 @@
 Note: **currently use "nua-build ..." for command line**.
 See later if move this to "nua ...".
 """
+
 import argparse
 import sys
 import traceback
 from time import perf_counter
 from typing import Any
-import snoop
-from cleez.actions import VERSION, COUNT, STORE_TRUE
-from nua.lib.nua_config import NuaConfigError, NuaConfig
-from nua.lib.elapsed import elapsed
-from nua.lib.panic import Abort, red_line, show, info
-from nua.lib.tool.state import set_color, set_verbosity, verbosity
+
 import pydantic
+import snoop
+from cleez.actions import COUNT, STORE_TRUE, VERSION
+from nua.lib.elapsed import elapsed
+from nua.lib.nua_config import NuaConfig, NuaConfigError
+from nua.lib.panic import Abort, info, red_line, show
+from nua.lib.tool.state import set_color, set_verbosity, verbosity
 
 from . import __version__
 from .builders import BuilderError, get_builder

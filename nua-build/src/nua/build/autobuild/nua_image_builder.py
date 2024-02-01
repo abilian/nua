@@ -1,7 +1,9 @@
 """Script to build Nua own images."""
+
 import tempfile
 from pathlib import Path
 from pprint import pformat
+
 from nua.lib.actions import copy_from_package
 from nua.lib.backports import chdir
 from nua.lib.constants import NUA_BUILDER_TAG, NUA_PYTHON_TAG
@@ -12,7 +14,7 @@ from nua.lib.docker import (
     docker_stream_build,
 )
 from nua.lib.nua_config import force_list
-from nua.lib.panic import Abort, show, title, debug, vprint
+from nua.lib.panic import Abort, debug, show, title, vprint
 from nua.lib.shell import mkdir_p
 from nua.lib.tool.state import verbosity
 

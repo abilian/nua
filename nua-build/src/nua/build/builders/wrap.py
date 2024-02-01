@@ -1,15 +1,16 @@
 """Docker "wrap" builder: build a container from an existing dockerfile."""
+
 from __future__ import annotations
 
 import logging
 
 import docker
+from nua.lib.backports import chdir
 from nua.lib.docker import (
     display_docker_img,
     docker_build_log_error,
     docker_stream_build,
 )
-from nua.lib.backports import chdir
 from nua.lib.panic import info
 from nua.lib.shell import rm_fr
 from nua.lib.tool.state import verbosity

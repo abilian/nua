@@ -14,6 +14,7 @@ replacement rules, put a replacement per line, orig / replacement::
     test1.example.com test1.yerom.xyz
     test2.example.com test2.yerom.xyz
 """
+
 import sys
 from pathlib import Path
 
