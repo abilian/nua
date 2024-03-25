@@ -52,7 +52,7 @@ test-e2e:
 ## Lint / check typing
 lint:
 	# first a quick ruff pass
-	ruff nua*/src/ nua*/tests/
+	ruff check nua*/src/ nua*/tests/
 	# This takes longer
 	invoke lint
 	# lint-imports
