@@ -891,18 +891,18 @@ pytest = ["pytest (>=7)"]
 
 [[package]]
 name = "filelock"
-version = "3.15.1"
+version = "3.15.3"
 description = "A platform independent file lock."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "filelock-3.15.1-py3-none-any.whl", hash = "sha256:71b3102950e91dfc1bb4209b64be4dc8854f40e5f534428d8684f953ac847fac"},
-    {file = "filelock-3.15.1.tar.gz", hash = "sha256:58a2549afdf9e02e10720eaa4d4470f56386d7a6f72edd7d0596337af8ed7ad8"},
+    {file = "filelock-3.15.3-py3-none-any.whl", hash = "sha256:0151273e5b5d6cf753a61ec83b3a9b7d8821c39ae9af9d7ecf2f9e2f17404103"},
+    {file = "filelock-3.15.3.tar.gz", hash = "sha256:e1199bf5194a2277273dacd50269f0d87d0682088a3c561c15674ea9005d8635"},
 ]
 
 [package.extras]
 docs = ["furo (>=2023.9.10)", "sphinx (>=7.2.6)", "sphinx-autodoc-typehints (>=1.25.2)"]
-testing = ["covdefaults (>=2.3)", "coverage (>=7.3.2)", "diff-cover (>=8.0.1)", "pytest (>=7.4.3)", "pytest-asyncio (>=0.21)", "pytest-cov (>=4.1)", "pytest-mock (>=3.12)", "pytest-timeout (>=2.2)"]
+testing = ["covdefaults (>=2.3)", "coverage (>=7.3.2)", "diff-cover (>=8.0.1)", "pytest (>=7.4.3)", "pytest-asyncio (>=0.21)", "pytest-cov (>=4.1)", "pytest-mock (>=3.12)", "pytest-timeout (>=2.2)", "virtualenv (>=20.26.2)"]
 typing = ["typing-extensions (>=4.8)"]
 
 [[package]]
@@ -1297,6 +1297,7 @@ description = "Builds a queryable graph of the imports within one or more Python
 optional = false
 python-versions = ">=3.8"
 files = [
+    {file = "grimp-3.3-cp310-cp310-macosx_10_12_x86_64.whl", hash = "sha256:0185f7a676403ff8eb0cd772b1a7d30a79b3fd490718f7b26037a40c608dc1ba"},
     {file = "grimp-3.3-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:8cff6a9b1c8f44ba9f42862be8c484be74fc748b954e643aa6ab93a5cf2d0b0e"},
     {file = "grimp-3.3-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:df94ec1283e653a97890c390847e5077195b235f3f1b699bab0f8c22b8b45877"},
     {file = "grimp-3.3-cp310-cp310-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:ed0e319e2b3f613f7e650364a6f583c086a6263c8f99c32f7711f69c9c101198"},
@@ -1338,6 +1339,8 @@ files = [
     {file = "grimp-3.3-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:45c783477e8d82e3e40321e9c77276bb29b2d65fe09b6c7696b6179ffd291021"},
     {file = "grimp-3.3-cp312-none-win32.whl", hash = "sha256:bcdf272f2284c27992cfd3f74757cc7398759fe193e4418e147f9c7f77d12c5b"},
     {file = "grimp-3.3-cp312-none-win_amd64.whl", hash = "sha256:8f983b67471ff7d64d0a2ae9580768b863cb71dce3fc27f428f72bac8519ea97"},
+    {file = "grimp-3.3-cp38-cp38-macosx_10_12_x86_64.whl", hash = "sha256:caef602bfda3fcb3e9e344605e742412b1027c6f5e89e40c57b2847ac847973c"},
+    {file = "grimp-3.3-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:28f18fae9e45da0126d396e77740a0b22b6cc05147c8e2ed01a3028952917399"},
     {file = "grimp-3.3-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:efd825f5133d02b0f43bc631b4a3d647547fc8beea1ac3e67e0b26d73cc2fe14"},
     {file = "grimp-3.3-cp38-cp38-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:883f9048e9523e381721c83df69b68a51fdcbeed37f8a3f89be47f594ec906b3"},
     {file = "grimp-3.3-cp38-cp38-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:391d76cd15de278cda693b60446641774266c9f93e1688c92b46f76909d3ee79"},
@@ -1350,6 +1353,7 @@ files = [
     {file = "grimp-3.3-cp38-cp38-musllinux_1_2_x86_64.whl", hash = "sha256:d95571888d6397810d10cba18c79a8ec879a6541eebe19ae79bfe529e9098462"},
     {file = "grimp-3.3-cp38-none-win32.whl", hash = "sha256:2e9745072cc7ffd806948685c9b02904dbf7094596747642f202b9f2935ad520"},
     {file = "grimp-3.3-cp38-none-win_amd64.whl", hash = "sha256:282b0b6d461af9194a86c6c4950a2efa5a2205efbfa22d3f685b326187dde5b4"},
+    {file = "grimp-3.3-cp39-cp39-macosx_10_12_x86_64.whl", hash = "sha256:7135308594fbeba645205ee7077c89648e9f6dffac5ad4e3eadda4654cb74d38"},
     {file = "grimp-3.3-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:36ee0c707b60b359aace1f0c1f519be3b7e75d2f3bbdd7283e9026aa3cb6562c"},
     {file = "grimp-3.3-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:9b759491c147d8a935d43bd1657922b41a798454125888504fa108c0499fa666"},
     {file = "grimp-3.3-cp39-cp39-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:23ddd88c101c464e9977e8fbdc3e8b068a2e90f47e308c4eaf6feac5ce873061"},
@@ -2389,13 +2393,13 @@ diagrams = ["jinja2", "railroad-diagrams"]
 
 [[package]]
 name = "pyright"
-version = "1.1.367"
+version = "1.1.368"
 description = "Command line wrapper for pyright"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pyright-1.1.367-py3-none-any.whl", hash = "sha256:89de6502ae02f1552d0c4df4b46867887a419849f379db617695ef9308cf01eb"},
-    {file = "pyright-1.1.367.tar.gz", hash = "sha256:b1e5522ceb246ee6bc293a43d6d0162719d6467c1f1e9b81cee741aa11cdacbd"},
+    {file = "pyright-1.1.368-py3-none-any.whl", hash = "sha256:4a86e34b61c755b43b367af7fbf927fc6466fff6b81a9dcea07d42416c640af3"},
+    {file = "pyright-1.1.368.tar.gz", hash = "sha256:9b2aa48142d9d9fc9a6aedff743c76873cc4e615f3297cdbf893d5793f75b306"},
 ]
 
 [package.dependencies]
@@ -2675,18 +2679,18 @@ files = [
 
 [[package]]
 name = "setuptools"
-version = "70.0.0"
+version = "70.1.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "setuptools-70.0.0-py3-none-any.whl", hash = "sha256:54faa7f2e8d2d11bcd2c07bed282eef1046b5c080d1c32add737d7b5817b1ad4"},
-    {file = "setuptools-70.0.0.tar.gz", hash = "sha256:f211a66637b8fa059bb28183da127d4e86396c991a942b028c6650d4319c3fd0"},
+    {file = "setuptools-70.1.0-py3-none-any.whl", hash = "sha256:d9b8b771455a97c8a9f3ab3448ebe0b29b5e105f1228bba41028be116985a267"},
+    {file = "setuptools-70.1.0.tar.gz", hash = "sha256:01a1e793faa5bd89abc851fa15d0a0db26f160890c7102cd8dce643e886b47f5"},
 ]
 
 [package.extras]
 docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "pygments-github-lexers (==0.0.5)", "pyproject-hooks (!=1.1)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-favicon", "sphinx-inline-tabs", "sphinx-lint", "sphinx-notfound-page (>=1,<2)", "sphinx-reredirects", "sphinxcontrib-towncrier"]
-testing = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "importlib-metadata", "ini2toml[lite] (>=0.14)", "jaraco.develop (>=7.21)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "mypy (==1.9)", "packaging (>=23.2)", "pip (>=19.1)", "pyproject-hooks (!=1.1)", "pytest (>=6,!=8.1.1)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-home (>=0.5)", "pytest-mypy", "pytest-perf", "pytest-ruff (>=0.2.1)", "pytest-subprocess", "pytest-timeout", "pytest-xdist (>=3)", "tomli", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel"]
+testing = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "importlib-metadata", "ini2toml[lite] (>=0.14)", "jaraco.develop (>=7.21)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "jaraco.test", "mypy (==1.10.0)", "packaging (>=23.2)", "pip (>=19.1)", "pyproject-hooks (!=1.1)", "pytest (>=6,!=8.1.1)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-home (>=0.5)", "pytest-mypy", "pytest-perf", "pytest-ruff (>=0.3.2)", "pytest-subprocess", "pytest-timeout", "pytest-xdist (>=3)", "tomli", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel"]
 
 [[package]]
 name = "shellingham"
