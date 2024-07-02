@@ -46,7 +46,7 @@ clean-test:
 
 ## check style
 lint:
-	ruff $(SRC) tests
+	ruff check $(SRC) tests
 	flake8 $(SRC) tests
 	isort --check $(SRC) tests
 	black --check $(SRC) tests

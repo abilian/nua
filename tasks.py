@@ -66,7 +66,7 @@ def install(c, quiet=False):
 @task
 def lint(c):
     """Lint (static check) the whole project."""
-    # c.run("ruff .")
+    # c.run("ruff check .")
     # c.run("pre-commit run --all-files")
 
     run_in_subrepos(c, "make lint")
